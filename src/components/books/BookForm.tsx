@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useBookStore } from "@/store/useBookStore";
 import { Book, BookPlatform } from "@/types/book";
@@ -30,9 +31,29 @@ const emptyForm = {
   note: "",
 };
 
-export function BookForm() {
-  const { categories, addBook, addCategoryOption } = useBookStore();
-  const [form, setForm] = useState(emptyForm);
+function bookToForm(book: Book): typeof emptyForm {
+  return {
+    sourceUrl: book.sourceUrl,
+    title: book.title,
+    author: book.author,
+    isbn: book.isbn,
+    coverUrl: book.coverUrl,
+    publisher: book.publisher,
+    platform: book.platform,
+    startDate: book.startDate ?? "",
+    endDate: book.endDate ?? "",
+    domain: book.domain,
+    type: book.type,
+    language: book.language,
+    note: book.note,
+  };
+}
+
+export function BookForm({ book }: { book?: Book }) {
+  const router = useRouter();
+  const { categories, addBook, updateBook, addCategoryOption } = useBookStore();
+  const [form, setForm] = useState(book ? bookToForm(book) : emptyForm);
+  const isEdit = Boolean(book);
 
   function set<K extends keyof typeof emptyForm>(key: K, value: typeof emptyForm[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -42,8 +63,7 @@ export function BookForm() {
     e.preventDefault();
     if (!form.title.trim()) return;
 
-    const book: Book = {
-      id: crypto.randomUUID(),
+    const payload = {
       title: form.title,
       author: form.author,
       isbn: form.isbn,
@@ -59,12 +79,18 @@ export function BookForm() {
       note: form.note,
     };
 
-    addBook(book);
+    if (isEdit && book) {
+      updateBook(book.id, payload);
+    } else {
+      const newBook: Book = { id: crypto.randomUUID(), ...payload };
+      addBook(newBook);
+    }
+
     if (form.domain) addCategoryOption("domain", form.domain);
     if (form.type) addCategoryOption("type", form.type);
     if (form.language) addCategoryOption("language", form.language);
 
-    setForm(emptyForm);
+    router.push("/books");
   }
 
   return (
@@ -142,7 +168,7 @@ export function BookForm() {
         type="submit"
         className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
       >
-        新增書籍
+        {isEdit ? "儲存變更" : "新增書籍"}
       </button>
     </form>
   );

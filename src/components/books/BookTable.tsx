@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useBookStore } from "@/store/useBookStore";
 
 export function BookTable() {
@@ -31,8 +32,12 @@ export function BookTable() {
         </thead>
         <tbody>
           {books.map((b) => (
-            <tr key={b.id} className="border-t">
-              <td className="px-4 py-2 font-medium">{b.title}</td>
+            <tr key={b.id} className="border-t hover:bg-gray-50">
+              <td className="px-4 py-2 font-medium">
+                <Link href={`/books/${b.id}/edit`} className="hover:underline">
+                  {b.title}
+                </Link>
+              </td>
               <td className="px-4 py-2">{b.author}</td>
               <td className="px-4 py-2">{b.platform}</td>
               <td className="px-4 py-2">{b.startDate ?? "—"}</td>
@@ -40,7 +45,10 @@ export function BookTable() {
               <td className="px-4 py-2">{b.domain}</td>
               <td className="px-4 py-2">{b.type}</td>
               <td className="px-4 py-2">{b.language}</td>
-              <td className="px-4 py-2">
+              <td className="px-4 py-2 space-x-2">
+                <Link href={`/books/${b.id}/edit`} className="text-xs text-gray-600 hover:underline">
+                  編輯
+                </Link>
                 <button
                   onClick={() => removeBook(b.id)}
                   className="text-xs text-red-600 hover:underline"

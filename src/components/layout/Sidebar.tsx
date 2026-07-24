@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
-  { href: "/books", label: "書籍紀錄" },
+  { href: "/books", label: "書籍紀錄", exact: true },
+  { href: "/books/new", label: "新增書籍" },
   { href: "/articles", label: "文章紀錄" },
   { href: "/stats", label: "統計圖表" },
   { href: "/calendar", label: "日曆" },
@@ -18,7 +19,9 @@ export function Sidebar() {
     <nav className="w-48 shrink-0 border-r bg-white p-4">
       <ul className="space-y-1">
         {NAV_ITEMS.map((item) => {
-          const active = pathname.startsWith(item.href);
+          const active = item.exact
+            ? pathname === item.href
+            : pathname.startsWith(item.href);
           return (
             <li key={item.href}>
               <Link
