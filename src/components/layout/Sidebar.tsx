@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: "/stats", label: "統計圖表" },
   { href: "/calendar", label: "日曆" },
   { href: "/subscriptions", label: "文章訂閱" },
+  { href: "/settings", label: "設定" },
 ];
 
 export function Sidebar() {

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useBookStore } from "@/store/useBookStore";
+import { useSheetStore } from "@/store/useSheetStore";
 import { Book, BookPlatform } from "@/types/book";
 import { BookSearchResult } from "@/app/api/search-book/route";
 
@@ -52,7 +53,8 @@ function bookToForm(book: Book): typeof emptyForm {
 
 export function BookForm({ book }: { book?: Book }) {
   const router = useRouter();
-  const { categories, addBook, updateBook, addCategoryOption } = useBookStore();
+  const { categories, addCategoryOption } = useBookStore();
+  const { sheetId } = useSheetStore();
   const [form, setForm] = useState(book ? bookToForm(book) : emptyForm);
   const [scraping, setScraping] = useState(false);
   const [scrapeError, setScrapeError] = useState("");
@@ -60,6 +62,8 @@ export function BookForm({ book }: { book?: Book }) {
   const [searching, setSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<BookSearchResult[]>([]);
   const [searchError, setSearchError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const isEdit = Boolean(book);
 
   function set<K extends keyof typeof emptyForm>(key: K, value: typeof emptyForm[K]) {
@@ -125,9 +129,13 @@ export function BookForm({ book }: { book?: Book }) {
     setSearchQuery("");
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.title.trim()) return;
+    if (!sheetId) {
+      setSubmitError("請先到「設定」頁面連接 Google Sheet");
+      return;
+    }
 
     const payload = {
       title: form.title,
@@ -145,18 +153,39 @@ export function BookForm({ book }: { book?: Book }) {
       note: form.note,
     };
 
-    if (isEdit && book) {
-      updateBook(book.id, payload);
-    } else {
-      const newBook: Book = { id: crypto.randomUUID(), ...payload };
-      addBook(newBook);
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      if (isEdit && book) {
+        const res = await fetch(`/api/books/${book.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sheetId, patch: payload }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? "更新失敗");
+      } else {
+        const newBook: Book = { id: crypto.randomUUID(), ...payload };
+        const res = await fetch("/api/books", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sheetId, book: newBook }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? "新增失敗");
+      }
+
+      if (form.domain) addCategoryOption("domain", form.domain);
+      if (form.type) addCategoryOption("type", form.type);
+      if (form.language) addCategoryOption("language", form.language);
+
+      router.push("/books");
+      router.refresh();
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "儲存失敗");
+    } finally {
+      setSubmitting(false);
     }
-
-    if (form.domain) addCategoryOption("domain", form.domain);
-    if (form.type) addCategoryOption("type", form.type);
-    if (form.language) addCategoryOption("language", form.language);
-
-    router.push("/books");
   }
 
   return (
@@ -301,11 +330,14 @@ export function BookForm({ book }: { book?: Book }) {
         />
       </div>
 
+      {submitError && <p className="text-xs text-red-600">{submitError}</p>}
+
       <button
         type="submit"
-        className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+        disabled={submitting}
+        className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
       >
-        {isEdit ? "儲存變更" : "新增書籍"}
+        {submitting ? "儲存中…" : isEdit ? "儲存變更" : "新增書籍"}
       </button>
     </form>
   );
