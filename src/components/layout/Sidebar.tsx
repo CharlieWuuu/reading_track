@@ -4,10 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
-  { href: "/books", label: "書籍列表" },
+  { href: "/books", label: "書籍紀錄" },
+  { href: "/articles", label: "文章紀錄" },
   { href: "/stats", label: "統計圖表" },
   { href: "/calendar", label: "日曆" },
-  { href: "/articles", label: "文章紀錄" },
+  { href: "/subscriptions", label: "文章訂閱" },
 ];
 
 export function Sidebar() {

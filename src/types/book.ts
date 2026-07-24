@@ -13,6 +13,7 @@ export interface Book {
   author: string;
   isbn: string;
   coverUrl: string;
+  publisher: string;
   platform: BookPlatform;
   sourceUrl: string;
   startDate: string | null;

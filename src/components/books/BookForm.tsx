@@ -20,6 +20,7 @@ const emptyForm = {
   author: "",
   isbn: "",
   coverUrl: "",
+  publisher: "",
   platform: "其他" as BookPlatform,
   startDate: "",
   endDate: "",
@@ -47,6 +48,7 @@ export function BookForm() {
       author: form.author,
       isbn: form.isbn,
       coverUrl: form.coverUrl,
+      publisher: form.publisher,
       platform: form.platform,
       sourceUrl: form.sourceUrl,
       startDate: form.startDate || null,
@@ -86,6 +88,7 @@ export function BookForm() {
         <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
         <Field label="ISBN" value={form.isbn} onChange={(v) => set("isbn", v)} />
         <Field label="封面 URL" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
+        <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
 
         <div>
           <label className="block text-sm font-medium mb-1">平台</label>
