@@ -5,6 +5,7 @@ export type BookPlatform =
   | "Kindle"
   | "Hyread"
   | "Pubu"
+  | "實體書"
   | "其他";
 
 export interface Book {

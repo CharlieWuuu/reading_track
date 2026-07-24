@@ -1,9 +1,16 @@
 "use client";
 
+import { useEffect } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 export function AuthButton() {
   const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (session?.error === "RefreshAccessTokenError") {
+      signIn("google");
+    }
+  }, [session?.error]);
 
   if (status === "loading") {
     return <span className="text-sm text-gray-400">載入中…</span>;

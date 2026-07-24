@@ -1,33 +1,15 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
 import { BookForm } from "@/components/books/BookForm";
 import { useSheetStore } from "@/store/useSheetStore";
-import { Book } from "@/types/book";
+import { useBooks } from "@/lib/useBooks";
 
 export default function EditBookPage() {
   const { id } = useParams<{ id: string }>();
   const { sheetId } = useSheetStore();
-  const [book, setBook] = useState<Book | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (!sheetId) {
-      setLoading(false);
-      return;
-    }
-    fetch(`/api/books?sheetId=${encodeURIComponent(sheetId)}`)
-      .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? "讀取失敗");
-        const found = (data.books as Book[]).find((b) => b.id === id);
-        setBook(found ?? null);
-      })
-      .catch((err) => setError(err instanceof Error ? err.message : "讀取失敗"))
-      .finally(() => setLoading(false));
-  }, [sheetId, id]);
+  const { books, isLoading, error } = useBooks();
+  const book = books.find((b) => b.id === id);
 
   if (!sheetId) {
     return (
@@ -40,7 +22,7 @@ export default function EditBookPage() {
     );
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="mx-auto max-w-3xl">
         <h2 className="mb-3 text-base font-semibold">編輯書籍</h2>

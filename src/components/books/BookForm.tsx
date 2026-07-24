@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useBookStore } from "@/store/useBookStore";
 import { useSheetStore } from "@/store/useSheetStore";
+import { useBooks } from "@/lib/useBooks";
 import { Book, BookPlatform } from "@/types/book";
 import { BookSearchResult } from "@/app/api/search-book/route";
 
@@ -14,6 +15,7 @@ const PLATFORMS: BookPlatform[] = [
   "Kindle",
   "Hyread",
   "Pubu",
+  "實體書",
   "其他",
 ];
 
@@ -55,6 +57,7 @@ export function BookForm({ book }: { book?: Book }) {
   const router = useRouter();
   const { categories, addCategoryOption } = useBookStore();
   const { sheetId } = useSheetStore();
+  const { mutate } = useBooks();
   const [form, setForm] = useState(book ? bookToForm(book) : emptyForm);
   const [scraping, setScraping] = useState(false);
   const [scrapeError, setScrapeError] = useState("");
@@ -179,8 +182,8 @@ export function BookForm({ book }: { book?: Book }) {
       if (form.type) addCategoryOption("type", form.type);
       if (form.language) addCategoryOption("language", form.language);
 
+      await mutate();
       router.push("/books");
-      router.refresh();
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "儲存失敗");
     } finally {

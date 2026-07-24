@@ -1,29 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { useSheetStore } from "@/store/useSheetStore";
-import { Book } from "@/types/book";
+import { useBooks } from "@/lib/useBooks";
 
 export function BookTable() {
   const { sheetId } = useSheetStore();
-  const [books, setBooks] = useState<Book[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (!sheetId) return;
-    setLoading(true);
-    setError("");
-    fetch(`/api/books?sheetId=${encodeURIComponent(sheetId)}`)
-      .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? "讀取失敗");
-        setBooks(data.books ?? []);
-      })
-      .catch((err) => setError(err instanceof Error ? err.message : "讀取失敗"))
-      .finally(() => setLoading(false));
-  }, [sheetId]);
+  const { books, isLoading, error, mutate } = useBooks();
 
   async function handleDelete(id: string) {
     if (!sheetId) return;
@@ -31,7 +14,9 @@ export function BookTable() {
       method: "DELETE",
     });
     if (res.ok) {
-      setBooks((prev) => prev.filter((b) => b.id !== id));
+      mutate((current) => ({
+        books: (current?.books ?? []).filter((b) => b.id !== id),
+      }), { revalidate: false });
     }
   }
 
@@ -43,7 +28,7 @@ export function BookTable() {
     );
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
         載入中…
@@ -68,19 +53,19 @@ export function BookTable() {
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border bg-white">
-      <table className="min-w-full text-sm">
+    <div className="w-full overflow-x-auto rounded-lg border bg-white">
+      <table className="w-full text-sm">
         <thead className="bg-gray-100 text-left">
           <tr>
-            <th className="px-4 py-2">書名</th>
-            <th className="px-4 py-2">作者</th>
-            <th className="px-4 py-2">平台</th>
-            <th className="px-4 py-2">開始日期</th>
-            <th className="px-4 py-2">完成日期</th>
-            <th className="px-4 py-2">領域</th>
-            <th className="px-4 py-2">屬性</th>
-            <th className="px-4 py-2">語言</th>
-            <th className="px-4 py-2" />
+            <th className="whitespace-nowrap px-4 py-2">書名</th>
+            <th className="whitespace-nowrap px-4 py-2">作者</th>
+            <th className="whitespace-nowrap px-4 py-2">平台</th>
+            <th className="whitespace-nowrap px-4 py-2">開始日期</th>
+            <th className="whitespace-nowrap px-4 py-2">完成日期</th>
+            <th className="whitespace-nowrap px-4 py-2">領域</th>
+            <th className="whitespace-nowrap px-4 py-2">屬性</th>
+            <th className="whitespace-nowrap px-4 py-2">語言</th>
+            <th className="whitespace-nowrap px-4 py-2" />
           </tr>
         </thead>
         <tbody>
@@ -91,14 +76,14 @@ export function BookTable() {
                   {b.title}
                 </Link>
               </td>
-              <td className="px-4 py-2">{b.author}</td>
-              <td className="px-4 py-2">{b.platform}</td>
-              <td className="px-4 py-2">{b.startDate ?? "—"}</td>
-              <td className="px-4 py-2">{b.endDate ?? "—"}</td>
-              <td className="px-4 py-2">{b.domain}</td>
-              <td className="px-4 py-2">{b.type}</td>
-              <td className="px-4 py-2">{b.language}</td>
-              <td className="px-4 py-2 space-x-2">
+              <td className="whitespace-nowrap px-4 py-2">{b.author}</td>
+              <td className="whitespace-nowrap px-4 py-2">{b.platform}</td>
+              <td className="whitespace-nowrap px-4 py-2">{b.startDate ?? "—"}</td>
+              <td className="whitespace-nowrap px-4 py-2">{b.endDate ?? "—"}</td>
+              <td className="whitespace-nowrap px-4 py-2">{b.domain}</td>
+              <td className="whitespace-nowrap px-4 py-2">{b.type}</td>
+              <td className="whitespace-nowrap px-4 py-2">{b.language}</td>
+              <td className="whitespace-nowrap px-4 py-2 space-x-2">
                 <Link href={`/books/${b.id}/edit`} className="text-xs text-gray-600 hover:underline">
                   編輯
                 </Link>

@@ -19,7 +19,8 @@ export async function GET(req: NextRequest) {
   try {
     const books = await listBooks(sheetId, session.accessToken!);
     return NextResponse.json({ books });
-  } catch {
+  } catch (err) {
+    console.error("listBooks failed:", err);
     return NextResponse.json({ error: "讀取 Sheet 失敗" }, { status: 502 });
   }
 }
