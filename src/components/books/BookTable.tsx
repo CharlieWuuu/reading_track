@@ -1,12 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
+
+const PAGE_SIZE = 20;
 
 export function BookTable() {
   const { sheetId } = useSheetStore();
   const { books, isLoading, error, mutate } = useBooks();
+  const [page, setPage] = useState(0);
+
+  const pageCount = Math.max(1, Math.ceil(books.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount - 1);
+  const pageBooks = books.slice(
+    currentPage * PAGE_SIZE,
+    currentPage * PAGE_SIZE + PAGE_SIZE
+  );
 
   async function handleDelete(id: string) {
     if (!sheetId) return;
@@ -69,7 +80,7 @@ export function BookTable() {
           </tr>
         </thead>
         <tbody>
-          {books.map((b) => (
+          {pageBooks.map((b) => (
             <tr key={b.id} className="border-t hover:bg-gray-50">
               <td className="px-4 py-2 font-medium">
                 <Link href={`/books/${b.id}/edit`} className="hover:underline">
@@ -98,6 +109,30 @@ export function BookTable() {
           ))}
         </tbody>
       </table>
+
+      {pageCount > 1 && (
+        <div className="flex items-center justify-center gap-4 border-t px-4 py-2">
+          <button
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={currentPage === 0}
+            aria-label="上一頁"
+            className="text-gray-400 hover:text-gray-900 disabled:opacity-30 disabled:hover:text-gray-400"
+          >
+            ‹
+          </button>
+          <span className="text-xs text-gray-500">
+            第 {currentPage + 1} / {pageCount} 頁
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+            disabled={currentPage === pageCount - 1}
+            aria-label="下一頁"
+            className="text-gray-400 hover:text-gray-900 disabled:opacity-30 disabled:hover:text-gray-400"
+          >
+            ›
+          </button>
+        </div>
+      )}
     </div>
   );
 }

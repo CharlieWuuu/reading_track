@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { BookForm } from "@/components/books/BookForm";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default function EditBookPage() {
   const { id } = useParams<{ id: string }>();
@@ -14,7 +15,7 @@ export default function EditBookPage() {
   if (!sheetId) {
     return (
       <div className="mx-auto max-w-3xl">
-        <h2 className="mb-3 text-base font-semibold">編輯書籍</h2>
+        <PageHeader title="編輯書籍" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           請先到「設定」頁面連接 Google Sheet
         </div>
@@ -25,7 +26,7 @@ export default function EditBookPage() {
   if (isLoading) {
     return (
       <div className="mx-auto max-w-3xl">
-        <h2 className="mb-3 text-base font-semibold">編輯書籍</h2>
+        <PageHeader title="編輯書籍" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           載入中…
         </div>
@@ -36,7 +37,7 @@ export default function EditBookPage() {
   if (error || !book) {
     return (
       <div className="mx-auto max-w-3xl">
-        <h2 className="mb-3 text-base font-semibold">編輯書籍</h2>
+        <PageHeader title="編輯書籍" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           {error || "找不到這本書"}
         </div>
@@ -46,7 +47,7 @@ export default function EditBookPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h2 className="mb-3 text-base font-semibold">編輯書籍</h2>
+      <PageHeader title="編輯書籍" />
       <BookForm book={book} />
     </div>
   );

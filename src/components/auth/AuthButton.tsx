@@ -18,11 +18,13 @@ export function AuthButton() {
 
   if (session?.user) {
     return (
-      <div className="flex items-center gap-3 text-sm">
-        <span className="text-gray-600">{session.user.email}</span>
+      <div className="flex flex-col gap-2 text-sm">
+        <span className="truncate text-gray-600">
+          {session.user.name ?? session.user.email}
+        </span>
         <button
           onClick={() => signOut()}
-          className="rounded border px-3 py-1.5 font-medium hover:bg-gray-100"
+          className="w-full rounded border px-3 py-1.5 text-left font-medium hover:bg-gray-100"
         >
           登出
         </button>
@@ -33,7 +35,7 @@ export function AuthButton() {
   return (
     <button
       onClick={() => signIn("google")}
-      className="rounded bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700"
+      className="w-full rounded bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700"
     >
       使用 Google 登入
     </button>

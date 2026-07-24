@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useSheetStore } from "@/store/useSheetStore";
 import { SheetPicker } from "@/components/settings/SheetPicker";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -34,7 +35,7 @@ export default function SettingsPage() {
   if (!session?.user) {
     return (
       <div className="mx-auto max-w-2xl">
-        <h2 className="mb-3 text-base font-semibold">設定</h2>
+        <PageHeader title="設定" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           請先登入 Google 帳號
         </div>
@@ -44,7 +45,7 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h2 className="mb-3 text-base font-semibold">設定</h2>
+      <PageHeader title="設定" />
 
       <div className="rounded-lg border bg-white p-5 space-y-4">
         <div>

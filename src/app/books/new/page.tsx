@@ -1,9 +1,10 @@
 import { BookForm } from "@/components/books/BookForm";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default function NewBookPage() {
   return (
     <div className="mx-auto max-w-3xl">
-      <h2 className="mb-3 text-base font-semibold">新增書籍</h2>
+      <PageHeader title="新增書籍" />
       <BookForm />
     </div>
   );

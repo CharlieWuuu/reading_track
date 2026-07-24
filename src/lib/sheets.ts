@@ -51,6 +51,14 @@ export async function listBooks(sheetId: string, accessToken: string): Promise<B
   const sheet = await getBooksSheet(sheetId, accessToken);
   const rows = await sheet.getRows();
 
+  const rowsMissingId = rows.filter((row) => !row.get("id"));
+  if (rowsMissingId.length > 0) {
+    for (const row of rowsMissingId) {
+      row.set("id", crypto.randomUUID());
+    }
+    await sheet.saveUpdatedCells();
+  }
+
   return rows.map((row) => ({
     id: row.get("id") ?? "",
     title: row.get("title") ?? "",

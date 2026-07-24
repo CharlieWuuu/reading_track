@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { AuthButton } from "@/components/auth/AuthButton";
 
 const NAV_ITEMS = [
   { href: "/books", label: "書籍紀錄", exact: true },
@@ -17,8 +18,12 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <nav className="w-48 shrink-0 border-r bg-white p-4">
-      <ul className="space-y-1">
+    <nav className="flex h-full w-56 shrink-0 flex-col border-r border-gray-900 bg-white">
+      <div className="border-b border-gray-900 px-4 py-4">
+        <span className="text-lg font-semibold tracking-tight">Reading Track</span>
+      </div>
+
+      <ul className="flex-1 space-y-1 overflow-y-auto p-4">
         {NAV_ITEMS.map((item) => {
           const active = item.exact
             ? pathname === item.href
@@ -39,6 +44,10 @@ export function Sidebar() {
           );
         })}
       </ul>
+
+      <div className="border-t border-gray-900 p-4">
+        <AuthButton />
+      </div>
     </nav>
   );
 }
