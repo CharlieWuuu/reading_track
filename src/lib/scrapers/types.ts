@@ -1,3 +1,4 @@
+import type { Page } from "playwright-core";
 import { BookPlatform } from "@/types/book";
 
 export interface ScrapedBook {
@@ -12,5 +13,5 @@ export interface ScrapedBook {
 export interface Scraper {
   platform: BookPlatform;
   matches: (url: string) => boolean;
-  scrape: (url: string, html: string) => ScrapedBook;
+  scrape: (page: Page) => Promise<ScrapedBook>;
 }

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useBookStore } from "@/store/useBookStore";
 import { Book, BookPlatform } from "@/types/book";
+import { BookSearchResult } from "@/app/api/search-book/route";
 
 const PLATFORMS: BookPlatform[] = [
   "博客來",
@@ -53,10 +54,75 @@ export function BookForm({ book }: { book?: Book }) {
   const router = useRouter();
   const { categories, addBook, updateBook, addCategoryOption } = useBookStore();
   const [form, setForm] = useState(book ? bookToForm(book) : emptyForm);
+  const [scraping, setScraping] = useState(false);
+  const [scrapeError, setScrapeError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searching, setSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<BookSearchResult[]>([]);
+  const [searchError, setSearchError] = useState("");
   const isEdit = Boolean(book);
 
   function set<K extends keyof typeof emptyForm>(key: K, value: typeof emptyForm[K]) {
     setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  async function handleScrape() {
+    if (!form.sourceUrl.trim()) return;
+    setScraping(true);
+    setScrapeError("");
+    try {
+      const res = await fetch("/api/scrape", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: form.sourceUrl }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "爬蟲失敗");
+
+      setForm((f) => ({
+        ...f,
+        title: data.title || f.title,
+        author: data.author || f.author,
+        isbn: data.isbn || f.isbn,
+        coverUrl: data.coverUrl || f.coverUrl,
+        publisher: data.publisher || f.publisher,
+        platform: data.platform || f.platform,
+      }));
+    } catch (err) {
+      setScrapeError(err instanceof Error ? err.message : "爬蟲失敗");
+    } finally {
+      setScraping(false);
+    }
+  }
+
+  async function handleSearch() {
+    if (!searchQuery.trim()) return;
+    setSearching(true);
+    setSearchError("");
+    setSearchResults([]);
+    try {
+      const res = await fetch(`/api/search-book?q=${encodeURIComponent(searchQuery)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "搜尋失敗");
+      setSearchResults(data.results ?? []);
+    } catch (err) {
+      setSearchError(err instanceof Error ? err.message : "搜尋失敗");
+    } finally {
+      setSearching(false);
+    }
+  }
+
+  function applySearchResult(result: BookSearchResult) {
+    setForm((f) => ({
+      ...f,
+      title: result.title || f.title,
+      author: result.author || f.author,
+      isbn: result.isbn || f.isbn,
+      coverUrl: result.coverUrl || f.coverUrl,
+      publisher: result.publisher || f.publisher,
+    }));
+    setSearchResults([]);
+    setSearchQuery("");
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -97,16 +163,87 @@ export function BookForm({ book }: { book?: Book }) {
     <form onSubmit={handleSubmit} className="bg-white rounded-lg border p-5 space-y-4">
       <div>
         <label className="block text-sm font-medium mb-1">書籍 URL</label>
-        <input
-          type="url"
-          placeholder="貼上博客來 / 讀墨 / Kobo 等連結"
-          value={form.sourceUrl}
-          onChange={(e) => set("sourceUrl", e.target.value)}
-          className="w-full rounded border px-3 py-2 text-sm"
-        />
-        <p className="mt-1 text-xs text-gray-500">
-          自動爬蟲功能尚未串接，請先手動輸入以下欄位。
-        </p>
+        <div className="flex gap-2">
+          <input
+            type="url"
+            placeholder="貼上博客來 / 讀墨 / Kobo 等連結"
+            value={form.sourceUrl}
+            onChange={(e) => set("sourceUrl", e.target.value)}
+            className="w-full rounded border px-3 py-2 text-sm"
+          />
+          <button
+            type="button"
+            onClick={handleScrape}
+            disabled={scraping || !form.sourceUrl.trim()}
+            className="shrink-0 rounded bg-gray-100 px-3 py-2 text-sm font-medium hover:bg-gray-200 disabled:opacity-50"
+          >
+            {scraping ? "抓取中…" : "抓取資料"}
+          </button>
+        </div>
+        {scrapeError ? (
+          <p className="mt-1 text-xs text-red-600">{scrapeError}</p>
+        ) : (
+          <p className="mt-1 text-xs text-gray-500">
+            目前支援讀墨、Kindle、Pubu 自動抓取；博客來、Kobo、Hyread
+            請用下方書名搜尋或手動輸入。
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">或用書名搜尋</label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="輸入書名，例如：深度工作力"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleSearch();
+              }
+            }}
+            className="w-full rounded border px-3 py-2 text-sm"
+          />
+          <button
+            type="button"
+            onClick={handleSearch}
+            disabled={searching || !searchQuery.trim()}
+            className="shrink-0 rounded bg-gray-100 px-3 py-2 text-sm font-medium hover:bg-gray-200 disabled:opacity-50"
+          >
+            {searching ? "搜尋中…" : "搜尋"}
+          </button>
+        </div>
+        {searchError && <p className="mt-1 text-xs text-red-600">{searchError}</p>}
+
+        {searchResults.length > 0 && (
+          <ul className="mt-2 divide-y rounded border">
+            {searchResults.map((r, i) => (
+              <li key={i}>
+                <button
+                  type="button"
+                  onClick={() => applySearchResult(r)}
+                  className="flex w-full items-center gap-3 p-2 text-left text-sm hover:bg-gray-50"
+                >
+                  {r.coverUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={r.coverUrl} alt="" className="h-12 w-8 shrink-0 object-cover" />
+                  ) : (
+                    <div className="h-12 w-8 shrink-0 bg-gray-100" />
+                  )}
+                  <span>
+                    <span className="block font-medium">{r.title}</span>
+                    <span className="block text-xs text-gray-500">
+                      {r.author}
+                      {r.publisher ? ` · ${r.publisher}` : ""}
+                    </span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
