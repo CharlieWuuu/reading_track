@@ -25,7 +25,7 @@ export default function StatsPage() {
   if (!sheetId) {
     return (
       <div className="mx-auto max-w-5xl">
-        <PageHeader title="統計圖表" />
+        <PageHeader title="書籍統計" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           請先到「設定」頁面連接 Google Sheet
         </div>
@@ -36,7 +36,7 @@ export default function StatsPage() {
   if (isLoading) {
     return (
       <div className="mx-auto max-w-5xl">
-        <PageHeader title="統計圖表" />
+        <PageHeader title="書籍統計" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           載入中…
         </div>
@@ -47,7 +47,7 @@ export default function StatsPage() {
   if (error) {
     return (
       <div className="mx-auto max-w-5xl">
-        <PageHeader title="統計圖表" />
+        <PageHeader title="書籍統計" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-red-600">
           {error}
         </div>
@@ -58,7 +58,7 @@ export default function StatsPage() {
   if (books.length === 0) {
     return (
       <div className="mx-auto max-w-5xl">
-        <PageHeader title="統計圖表" />
+        <PageHeader title="書籍統計" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           尚未新增任何書籍
         </div>
@@ -73,7 +73,7 @@ export default function StatsPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <PageHeader title="統計圖表" />
+      <PageHeader title="書籍統計" />
 
       <KpiCards {...kpis} />
 

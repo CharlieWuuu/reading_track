@@ -64,6 +64,7 @@ export interface InstapaperBookmark {
   progress: number;
   progress_timestamp: number;
   starred: string;
+  folder: string;
 }
 
 export interface InstapaperFolder {
@@ -105,7 +106,8 @@ export async function listFolders(
 
 async function listBookmarksInFolder(
   access: InstapaperAccessToken,
-  folder: string
+  folder: string,
+  folderLabel: string
 ): Promise<InstapaperBookmark[]> {
   const { consumerKey, consumerSecret } = requireEnv();
   const url = `${BASE_URL}/bookmarks/list`;
@@ -135,27 +137,30 @@ async function listBookmarksInFolder(
   }
 
   const data = await res.json();
-  return (data as unknown[]).filter(
-    (item): item is InstapaperBookmark =>
+  const bookmarks = (data as unknown[]).filter(
+    (item): item is Omit<InstapaperBookmark, "folder"> =>
       typeof item === "object" && item !== null && (item as { type?: string }).type === "bookmark"
   );
+  return bookmarks.map((b) => ({ ...b, folder: folderLabel }));
 }
 
 export async function listBookmarks(
   access: InstapaperAccessToken
 ): Promise<InstapaperBookmark[]> {
   const customFolders = await listFolders(access);
-  const folderIds = [
-    "unread",
-    "archive",
-    "starred",
-    ...customFolders.map((f) => String(f.folder_id)),
+  const folders = [
+    { id: "unread", label: "未讀" },
+    { id: "archive", label: "封存" },
+    { id: "starred", label: "星號" },
+    ...customFolders.map((f) => ({ id: String(f.folder_id), label: f.title })),
   ];
 
   const results = await Promise.all(
-    folderIds.map((id) => listBookmarksInFolder(access, id))
+    folders.map((f) => listBookmarksInFolder(access, f.id, f.label))
   );
 
+  // folders is ordered built-in-first, custom-last, so later writes (custom
+  // folder labels) naturally win over unread/archive/starred for the same article
   const merged = new Map<number, InstapaperBookmark>();
   for (const bookmarks of results) {
     for (const b of bookmarks) {

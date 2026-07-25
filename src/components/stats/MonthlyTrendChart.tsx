@@ -16,7 +16,15 @@ function formatMonth(month: string) {
   return `${Number(m)}月`;
 }
 
-export function MonthlyTrendChart({ data }: { data: MonthCount[] }) {
+export function MonthlyTrendChart({
+  data,
+  unit = "本",
+  seriesLabel = "完成本數",
+}: {
+  data: MonthCount[];
+  unit?: string;
+  seriesLabel?: string;
+}) {
   return (
     <div className="viz-root" data-palette="reading-track">
       <style>{`
@@ -56,7 +64,7 @@ export function MonthlyTrendChart({ data }: { data: MonthCount[] }) {
               borderRadius: 6,
               fontSize: 12,
             }}
-            formatter={(value) => [`${value ?? 0} 本`, "完成本數"]}
+            formatter={(value) => [`${value ?? 0} ${unit}`, seriesLabel]}
           />
           <Line
             type="monotone"

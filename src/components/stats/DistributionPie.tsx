@@ -25,9 +25,11 @@ function toSlots(data: DistributionSlice[]) {
 export function DistributionPie({
   title,
   data,
+  unit = "本",
 }: {
   title: string;
   data: DistributionSlice[];
+  unit?: string;
 }) {
   const slots = toSlots(data);
 
@@ -85,7 +87,7 @@ export function DistributionPie({
               borderRadius: 6,
               fontSize: 12,
             }}
-            formatter={(value, name) => [`${value ?? 0} 本`, name]}
+            formatter={(value, name) => [`${value ?? 0} ${unit}`, name]}
           />
           <Legend
             verticalAlign="bottom"
