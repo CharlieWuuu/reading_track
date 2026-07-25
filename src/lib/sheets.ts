@@ -49,7 +49,7 @@ export async function verifySheetAccess(sheetId: string, accessToken: string) {
 
 export async function listBooks(sheetId: string, accessToken: string): Promise<Book[]> {
   const sheet = await getBooksSheet(sheetId, accessToken);
-  const rows = await sheet.getRows();
+  let rows = await sheet.getRows();
 
   const rowsMissingId = rows.filter((row) => !row.get("id"));
   if (rowsMissingId.length > 0) {
@@ -57,6 +57,9 @@ export async function listBooks(sheetId: string, accessToken: string): Promise<B
       row.set("id", crypto.randomUUID());
     }
     await sheet.saveUpdatedCells();
+    // re-read so we return the ids that were actually persisted, avoiding a
+    // mismatch if a concurrent call backfilled the same rows with different ids
+    rows = await sheet.getRows();
   }
 
   return rows.map((row) => ({
