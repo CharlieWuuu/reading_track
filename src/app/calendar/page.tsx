@@ -1,12 +1,51 @@
+"use client";
+
 import { PageHeader } from "@/components/layout/PageHeader";
+import { MonthGrid } from "@/components/calendar/MonthGrid";
+import { useSheetStore } from "@/store/useSheetStore";
+import { useBooks } from "@/lib/useBooks";
 
 export default function CalendarPage() {
+  const { sheetId } = useSheetStore();
+  const { books, isLoading, error } = useBooks();
+
+  if (!sheetId) {
+    return (
+      <div className="mx-auto max-w-5xl">
+        <PageHeader title="日曆" />
+        <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
+          請先到「設定」頁面連接 Google Sheet
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-5xl">
+        <PageHeader title="日曆" />
+        <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
+          載入中…
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-5xl">
+        <PageHeader title="日曆" />
+        <div className="rounded-lg border bg-white p-8 text-center text-sm text-red-600">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-5xl">
       <PageHeader title="日曆" />
-      <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-        尚未實作，之後會在完成日期顯示書封
-      </div>
+      <MonthGrid books={books} />
     </div>
   );
 }
