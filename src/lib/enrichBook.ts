@@ -1,4 +1,5 @@
 import { Book } from "@/types/book";
+import { searchReadmoo } from "./scrapers/readmooSearch";
 
 interface GoogleBookItem {
   volumeInfo: {
@@ -17,20 +18,13 @@ export function needsEnrichment(book: Book): boolean {
   return ENRICHABLE_FIELDS.some((field) => !book[field]?.trim());
 }
 
-export class BookLookupError extends Error {}
-
-export async function fetchBookMetadata(title: string): Promise<Partial<Book> | null> {
+async function fetchFromGoogleBooks(title: string): Promise<Partial<Book> | null> {
   const res = await fetch(
     `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
       `intitle:${title}`
     )}&maxResults=1`
   );
-  if (res.status === 429) {
-    throw new BookLookupError("Google Books 查詢次數已達上限，請稍後再試");
-  }
-  if (!res.ok) {
-    throw new BookLookupError("Google Books 查詢失敗");
-  }
+  if (!res.ok) return null;
 
   const data = await res.json();
   const item: GoogleBookItem | undefined = data.items?.[0];
@@ -45,6 +39,28 @@ export async function fetchBookMetadata(title: string): Promise<Partial<Book> | 
     coverUrl: item.volumeInfo.imageLinks?.thumbnail?.replace("http:", "https:") ?? "",
     publisher: item.volumeInfo.publisher ?? "",
   };
+}
+
+async function fetchFromReadmoo(title: string): Promise<Partial<Book> | null> {
+  const result = await searchReadmoo(title).catch(() => null);
+  if (!result) return null;
+  return {
+    author: result.author,
+    isbn: result.isbn,
+    coverUrl: result.coverUrl,
+    publisher: result.publisher,
+  };
+}
+
+const PROVIDERS = [fetchFromGoogleBooks, fetchFromReadmoo];
+
+/** Tries each metadata source in order, returning the first non-empty match. */
+export async function fetchBookMetadata(title: string): Promise<Partial<Book> | null> {
+  for (const provider of PROVIDERS) {
+    const result = await provider(title).catch(() => null);
+    if (result) return result;
+  }
+  return null;
 }
 
 export function mergeEnrichment(book: Book, metadata: Partial<Book>): Partial<Book> {
