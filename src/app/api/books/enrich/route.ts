@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { listBooks, updateBookRow } from "@/lib/sheets";
-import { fetchBookMetadata, mergeEnrichment, needsEnrichment } from "@/lib/enrichBook";
+import {
+  BookLookupError,
+  fetchBookMetadata,
+  mergeEnrichment,
+  needsEnrichment,
+} from "@/lib/enrichBook";
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -18,8 +27,20 @@ export async function POST(req: NextRequest) {
   let updated = 0;
   let skipped = 0;
 
-  for (const book of candidates) {
-    const metadata = await fetchBookMetadata(book.title);
+  for (const [i, book] of candidates.entries()) {
+    if (i > 0) await sleep(300);
+
+    let metadata;
+    try {
+      metadata = await fetchBookMetadata(book.title);
+    } catch (err) {
+      const message = err instanceof BookLookupError ? err.message : "查詢失敗";
+      return NextResponse.json(
+        { error: message, updated, skipped, scanned: candidates.length },
+        { status: 502 }
+      );
+    }
+
     if (!metadata) {
       skipped++;
       continue;

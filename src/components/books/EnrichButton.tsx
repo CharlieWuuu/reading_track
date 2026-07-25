@@ -22,7 +22,11 @@ export function EnrichButton() {
         body: JSON.stringify({ sheetId }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "補齊失敗");
+      if (!res.ok) {
+        const progress =
+          typeof data.updated === "number" ? `（已補齊 ${data.updated} 筆後中斷）` : "";
+        throw new Error(`${data.error ?? "補齊失敗"}${progress}`);
+      }
       setMessage(`已補齊 ${data.updated} 筆（掃描 ${data.scanned} 筆，${data.skipped} 筆找不到資料）`);
       setStatus("done");
       mutate();

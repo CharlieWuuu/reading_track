@@ -17,13 +17,20 @@ export function needsEnrichment(book: Book): boolean {
   return ENRICHABLE_FIELDS.some((field) => !book[field]?.trim());
 }
 
+export class BookLookupError extends Error {}
+
 export async function fetchBookMetadata(title: string): Promise<Partial<Book> | null> {
   const res = await fetch(
     `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
       `intitle:${title}`
     )}&maxResults=1`
   );
-  if (!res.ok) return null;
+  if (res.status === 429) {
+    throw new BookLookupError("Google Books 查詢次數已達上限，請稍後再試");
+  }
+  if (!res.ok) {
+    throw new BookLookupError("Google Books 查詢失敗");
+  }
 
   const data = await res.json();
   const item: GoogleBookItem | undefined = data.items?.[0];
