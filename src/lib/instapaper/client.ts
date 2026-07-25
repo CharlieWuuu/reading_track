@@ -62,12 +62,13 @@ export interface InstapaperBookmark {
   url: string;
   time: number;
   progress: number;
+  progress_timestamp: number;
   starred: string;
 }
 
-export async function listBookmarks(
+async function listBookmarksInFolder(
   access: InstapaperAccessToken,
-  folder: "unread" | "archive" | "starred" = "archive"
+  folder: "unread" | "archive" | "starred"
 ): Promise<InstapaperBookmark[]> {
   const { consumerKey, consumerSecret } = requireEnv();
   const url = `${BASE_URL}/bookmarks/list`;
@@ -101,4 +102,24 @@ export async function listBookmarks(
     (item): item is InstapaperBookmark =>
       typeof item === "object" && item !== null && (item as { type?: string }).type === "bookmark"
   );
+}
+
+export async function listBookmarks(
+  access: InstapaperAccessToken
+): Promise<InstapaperBookmark[]> {
+  const [unread, archived] = await Promise.all([
+    listBookmarksInFolder(access, "unread"),
+    listBookmarksInFolder(access, "archive"),
+  ]);
+
+  const merged = new Map<number, InstapaperBookmark>();
+  for (const b of [...unread, ...archived]) {
+    merged.set(b.bookmark_id, b);
+  }
+
+  return Array.from(merged.values()).sort((a, b) => {
+    const aTime = a.progress_timestamp || a.time;
+    const bTime = b.progress_timestamp || b.time;
+    return bTime - aTime;
+  });
 }

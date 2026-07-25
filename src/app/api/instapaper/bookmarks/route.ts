@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const bookmarks = await listBookmarks({ token, tokenSecret }, "archive");
+    const bookmarks = await listBookmarks({ token, tokenSecret });
     return NextResponse.json({ bookmarks });
   } catch (err) {
     const message = err instanceof Error ? err.message : "讀取失敗";
