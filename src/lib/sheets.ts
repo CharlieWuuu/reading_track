@@ -55,8 +55,8 @@ export async function listBooks(sheetId: string, accessToken: string): Promise<B
   if (rowsMissingId.length > 0) {
     for (const row of rowsMissingId) {
       row.set("id", crypto.randomUUID());
+      await row.save();
     }
-    await sheet.saveUpdatedCells();
     // re-read so we return the ids that were actually persisted, avoiding a
     // mismatch if a concurrent call backfilled the same rows with different ids
     rows = await sheet.getRows();

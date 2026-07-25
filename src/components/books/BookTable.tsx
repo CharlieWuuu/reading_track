@@ -80,8 +80,8 @@ export function BookTable() {
           </tr>
         </thead>
         <tbody>
-          {pageBooks.map((b) => (
-            <tr key={b.id} className="border-t hover:bg-gray-50">
+          {pageBooks.map((b, i) => (
+            <tr key={b.id || `row-${i}`} className="border-t hover:bg-gray-50">
               <td className="px-4 py-2 font-medium">
                 <Link href={`/books/${b.id}/edit`} className="hover:underline">
                   {b.title}
