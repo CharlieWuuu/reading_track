@@ -6,12 +6,9 @@ import { AuthButton } from "@/components/auth/AuthButton";
 
 const NAV_ITEMS = [
   { href: "/books", label: "書籍紀錄", exact: true },
-  { href: "/books/new", label: "新增書籍" },
-  { href: "/stats", label: "書籍統計" },
   { href: "/articles", label: "文章紀錄", exact: true },
-  { href: "/articles/stats", label: "文章統計" },
+  { href: "/stats", label: "統計" },
   { href: "/calendar", label: "日曆" },
-  { href: "/subscriptions", label: "文章訂閱" },
   { href: "/settings", label: "設定" },
 ];
 

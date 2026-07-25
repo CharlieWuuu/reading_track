@@ -8,9 +8,9 @@ export function ArticleKpiCards({
   thisYear: number;
 }) {
   const items = [
-    { label: "全部文章", value: total, unit: "篇" },
-    { label: "已讀完", value: completed, unit: "篇" },
-    { label: "今年讀完", value: thisYear, unit: "篇" },
+    { label: "累計文章", value: total, unit: "篇" },
+    { label: "累計完成", value: completed, unit: "篇" },
+    { label: "今年完成", value: thisYear, unit: "篇" },
   ];
 
   return (

@@ -56,7 +56,7 @@ export function MonthGrid({
   }
 
   return (
-    <div className="rounded-lg border bg-white">
+    <div className="overflow-hidden rounded-lg border bg-white">
       <div className="flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
           <button
@@ -119,12 +119,14 @@ export function MonthGrid({
         {days.map((day, i) => {
           const isToday =
             day.date.toDateString() === today.toDateString();
+          const isLastCol = i % 7 === 6;
+          const isLastRow = i >= days.length - 7;
           return (
             <div
               key={i}
-              className={`min-h-24 border-b border-r p-1.5 ${
-                day.inCurrentMonth ? "bg-white" : "bg-gray-50"
-              }`}
+              className={`min-h-24 p-1.5 ${isLastCol ? "" : "border-r"} ${
+                isLastRow ? "" : "border-b"
+              } ${day.inCurrentMonth ? "bg-white" : "bg-gray-50"}`}
             >
               <span
                 className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs ${
