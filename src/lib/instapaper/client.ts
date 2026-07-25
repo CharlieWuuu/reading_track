@@ -66,9 +66,46 @@ export interface InstapaperBookmark {
   starred: string;
 }
 
+export interface InstapaperFolder {
+  folder_id: number;
+  title: string;
+}
+
+export async function listFolders(
+  access: InstapaperAccessToken
+): Promise<InstapaperFolder[]> {
+  const { consumerKey, consumerSecret } = requireEnv();
+  const url = `${BASE_URL}/folders/list`;
+
+  const authHeader = buildOAuthHeader({
+    method: "POST",
+    url,
+    params: {},
+    consumerKey,
+    consumerSecret,
+    token: access.token,
+    tokenSecret: access.tokenSecret,
+  });
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { Authorization: authHeader },
+  });
+
+  if (!res.ok) {
+    throw new Error("讀取 Instapaper 資料夾失敗");
+  }
+
+  const data = await res.json();
+  return (data as unknown[]).filter(
+    (item): item is InstapaperFolder =>
+      typeof item === "object" && item !== null && (item as { type?: string }).type === "folder"
+  );
+}
+
 async function listBookmarksInFolder(
   access: InstapaperAccessToken,
-  folder: "unread" | "archive" | "starred"
+  folder: string
 ): Promise<InstapaperBookmark[]> {
   const { consumerKey, consumerSecret } = requireEnv();
   const url = `${BASE_URL}/bookmarks/list`;
@@ -107,14 +144,23 @@ async function listBookmarksInFolder(
 export async function listBookmarks(
   access: InstapaperAccessToken
 ): Promise<InstapaperBookmark[]> {
-  const [unread, archived] = await Promise.all([
-    listBookmarksInFolder(access, "unread"),
-    listBookmarksInFolder(access, "archive"),
-  ]);
+  const customFolders = await listFolders(access);
+  const folderIds = [
+    "unread",
+    "archive",
+    "starred",
+    ...customFolders.map((f) => String(f.folder_id)),
+  ];
+
+  const results = await Promise.all(
+    folderIds.map((id) => listBookmarksInFolder(access, id))
+  );
 
   const merged = new Map<number, InstapaperBookmark>();
-  for (const b of [...unread, ...archived]) {
-    merged.set(b.bookmark_id, b);
+  for (const bookmarks of results) {
+    for (const b of bookmarks) {
+      merged.set(b.bookmark_id, b);
+    }
   }
 
   return Array.from(merged.values()).sort((a, b) => {
