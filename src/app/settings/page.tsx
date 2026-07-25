@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useSheetStore } from "@/store/useSheetStore";
 import { SheetPicker } from "@/components/settings/SheetPicker";
 import { InstapaperConnect } from "@/components/settings/InstapaperConnect";
+import { CategoryManager } from "@/components/settings/CategoryManager";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export default function SettingsPage() {
@@ -35,7 +36,7 @@ export default function SettingsPage() {
 
   if (!session?.user) {
     return (
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-3xl">
         <PageHeader title="設定" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           請先登入 Google 帳號
@@ -45,7 +46,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-3xl">
       <PageHeader title="設定" />
 
       <div className="rounded-lg border bg-white p-5 space-y-4">
@@ -79,6 +80,10 @@ export default function SettingsPage() {
 
         <div className="border-t pt-4">
           <InstapaperConnect />
+        </div>
+
+        <div className="border-t pt-4">
+          <CategoryManager />
         </div>
       </div>
     </div>
