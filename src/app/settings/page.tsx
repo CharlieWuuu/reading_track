@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useSheetStore } from "@/store/useSheetStore";
 import { SheetPicker } from "@/components/settings/SheetPicker";
+import { InstapaperConnect } from "@/components/settings/InstapaperConnect";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export default function SettingsPage() {
@@ -74,6 +75,10 @@ export default function SettingsPage() {
               已連接：{sheetName || sheetId}
             </p>
           )}
+        </div>
+
+        <div className="border-t pt-4">
+          <InstapaperConnect />
         </div>
       </div>
     </div>
