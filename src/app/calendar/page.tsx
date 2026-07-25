@@ -4,10 +4,12 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { MonthGrid } from "@/components/calendar/MonthGrid";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
+import { useArticles } from "@/lib/useArticles";
 
 export default function CalendarPage() {
   const { sheetId } = useSheetStore();
   const { books, isLoading, error } = useBooks();
+  const { articles } = useArticles();
 
   if (!sheetId) {
     return (
@@ -45,7 +47,7 @@ export default function CalendarPage() {
   return (
     <div className="mx-auto max-w-5xl">
       <PageHeader title="日曆" />
-      <MonthGrid books={books} />
+      <MonthGrid books={books} articles={articles} />
     </div>
   );
 }

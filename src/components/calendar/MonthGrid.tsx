@@ -4,15 +4,33 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { buildMonthGrid } from "@/lib/calendarUtils";
 import { Book } from "@/types/book";
+import { InstapaperBookmark } from "@/lib/instapaper/client";
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
-export function MonthGrid({ books }: { books: Book[] }) {
+export function MonthGrid({
+  books,
+  articles,
+}: {
+  books: Book[];
+  articles: InstapaperBookmark[];
+}) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
+  const [showBooks, setShowBooks] = useState(true);
+  const [showArticles, setShowArticles] = useState(true);
 
-  const days = useMemo(() => buildMonthGrid(year, month, books), [year, month, books]);
+  const days = useMemo(
+    () =>
+      buildMonthGrid(
+        year,
+        month,
+        showBooks ? books : [],
+        showArticles ? articles : []
+      ),
+    [year, month, books, articles, showBooks, showArticles]
+  );
 
   function goPrev() {
     if (month === 0) {
@@ -59,12 +77,34 @@ export function MonthGrid({ books }: { books: Book[] }) {
             ›
           </button>
         </div>
-        <button
-          onClick={goToday}
-          className="rounded border px-2 py-1 text-xs font-medium hover:bg-gray-100"
-        >
-          今天
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowBooks((v) => !v)}
+            className={`rounded border px-2 py-1 text-xs font-medium ${
+              showBooks
+                ? "border-gray-900 bg-gray-900 text-white"
+                : "border-gray-300 text-gray-400 hover:bg-gray-100"
+            }`}
+          >
+            書籍
+          </button>
+          <button
+            onClick={() => setShowArticles((v) => !v)}
+            className={`rounded border px-2 py-1 text-xs font-medium ${
+              showArticles
+                ? "border-gray-900 bg-gray-900 text-white"
+                : "border-gray-300 text-gray-400 hover:bg-gray-100"
+            }`}
+          >
+            文章
+          </button>
+          <button
+            onClick={goToday}
+            className="rounded border px-2 py-1 text-xs font-medium hover:bg-gray-100"
+          >
+            今天
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-7 border-b text-center text-xs text-gray-500">
@@ -119,6 +159,21 @@ export function MonthGrid({ books }: { books: Book[] }) {
                       </div>
                     )}
                   </Link>
+                ))}
+              </div>
+
+              <div className="mt-1 space-y-0.5">
+                {day.articles.map((a) => (
+                  <a
+                    key={a.bookmark_id}
+                    href={a.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={a.title || a.url}
+                    className="block truncate rounded-sm bg-blue-50 px-1 py-0.5 text-[10px] text-blue-900 hover:bg-blue-100"
+                  >
+                    {a.title || a.url}
+                  </a>
                 ))}
               </div>
             </div>
