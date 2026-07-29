@@ -1,5 +1,6 @@
 import { Scraper } from "./types";
 import { getMeta, getText } from "./helpers";
+import { normalizeLanguage } from "../metadata/readmoo";
 
 export const readmooScraper: Scraper = {
   platform: "讀墨",
@@ -16,13 +17,18 @@ export const readmooScraper: Scraper = {
     const coverUrl = await getMeta(page, "og:image");
     const publisher = await getText(page, ".publisher-info");
 
+    const bodyText = (await page.textContent("body"))?.replace(/\s+/g, " ") ?? "";
+    const wordCount = bodyText.match(/字數\s*[:：]\s*([\d,]+)/)?.[1].replace(/,/g, "") ?? "";
+    const language = normalizeLanguage(bodyText.match(/語言\s*[:：]\s*(\S{1,10})/)?.[1] ?? "");
+
     return {
       title,
       author,
-      isbn: "",
       coverUrl,
       publisher,
       platform: "讀墨",
+      wordCount,
+      language,
     };
   },
 };

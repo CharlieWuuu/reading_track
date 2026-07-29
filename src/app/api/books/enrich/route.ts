@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { listBooks, updateBookRow } from "@/lib/sheets";
-import { fetchBookMetadata, mergeEnrichment, needsEnrichment } from "@/lib/enrichBook";
+import { listBooksWithMeta, updateBookRow } from "@/lib/sheets";
+import { fetchBookMetadata, mergeEnrichment, missingFields } from "@/lib/metadata";
 
 export const maxDuration = 300;
+
+/** 對來源網站客氣一點，每本之間停一下 */
+const DELAY_BETWEEN_BOOKS_MS = 400;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -18,32 +21,45 @@ export async function POST(req: NextRequest) {
   const { sheetId } = (await req.json()) as { sheetId: string };
   if (!sheetId) return NextResponse.json({ error: "缺少 Sheet ID" }, { status: 400 });
 
-  const books = await listBooks(sheetId, session.accessToken);
-  const candidates = books.filter((b) => b.title && needsEnrichment(b));
+  // 讀取時會順便把沒有編號的列補上 uuid
+  const { books, idsBackfilled } = await listBooksWithMeta(sheetId, session.accessToken);
+
+  const candidates = books.filter((b) => b.title && missingFields(b).length > 0);
 
   let updated = 0;
   let skipped = 0;
+  const failures: string[] = [];
 
   for (const [i, book] of candidates.entries()) {
-    if (i > 0) await sleep(300);
+    if (i > 0) await sleep(DELAY_BETWEEN_BOOKS_MS);
 
-    const metadata = await fetchBookMetadata(book.title);
+    const metadata = await fetchBookMetadata(book.title, missingFields(book));
     if (!metadata) {
       skipped++;
+      failures.push(book.title);
       continue;
     }
+
     const patch = mergeEnrichment(book, metadata);
     if (Object.keys(patch).length === 0) {
       skipped++;
       continue;
     }
-    await updateBookRow(sheetId, session.accessToken, book.id, patch);
-    updated++;
+
+    try {
+      await updateBookRow(sheetId, session.accessToken, book.id, patch);
+      updated++;
+    } catch {
+      skipped++;
+      failures.push(book.title);
+    }
   }
 
   return NextResponse.json({
     scanned: candidates.length,
     updated,
     skipped,
+    idsBackfilled,
+    failures: failures.slice(0, 10),
   });
 }

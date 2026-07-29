@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BookTable } from "@/components/books/BookTable";
+import { DataIssuesHint } from "@/components/books/DataIssuesHint";
 import { EnrichButton } from "@/components/books/EnrichButton";
 import { PageHeader } from "@/components/layout/PageHeader";
 
@@ -20,6 +21,7 @@ export default function BooksPage() {
           </div>
         }
       />
+      <DataIssuesHint />
       <BookTable />
     </div>
   );

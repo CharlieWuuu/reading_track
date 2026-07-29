@@ -23,7 +23,6 @@ const emptyForm = {
   sourceUrl: "",
   title: "",
   author: "",
-  isbn: "",
   coverUrl: "",
   publisher: "",
   platform: "其他" as BookPlatform,
@@ -32,6 +31,8 @@ const emptyForm = {
   domain: "",
   type: "",
   language: "",
+  pageCount: "",
+  wordCount: "",
   note: "",
 };
 
@@ -40,7 +41,6 @@ function bookToForm(book: Book): typeof emptyForm {
     sourceUrl: book.sourceUrl,
     title: book.title,
     author: book.author,
-    isbn: book.isbn,
     coverUrl: book.coverUrl,
     publisher: book.publisher,
     platform: book.platform,
@@ -49,6 +49,8 @@ function bookToForm(book: Book): typeof emptyForm {
     domain: book.domain,
     type: book.type,
     language: book.language,
+    pageCount: book.pageCount,
+    wordCount: book.wordCount,
     note: book.note,
   };
 }
@@ -90,10 +92,12 @@ export function BookForm({ book }: { book?: Book }) {
         ...f,
         title: data.title || f.title,
         author: data.author || f.author,
-        isbn: data.isbn || f.isbn,
         coverUrl: data.coverUrl || f.coverUrl,
         publisher: data.publisher || f.publisher,
         platform: data.platform || f.platform,
+        language: data.language || f.language,
+        pageCount: data.pageCount || f.pageCount,
+        wordCount: data.wordCount || f.wordCount,
       }));
     } catch (err) {
       setScrapeError(err instanceof Error ? err.message : "爬蟲失敗");
@@ -124,9 +128,11 @@ export function BookForm({ book }: { book?: Book }) {
       ...f,
       title: result.title || f.title,
       author: result.author || f.author,
-      isbn: result.isbn || f.isbn,
       coverUrl: result.coverUrl || f.coverUrl,
       publisher: result.publisher || f.publisher,
+      language: result.language || f.language,
+      pageCount: result.pageCount || f.pageCount,
+      wordCount: result.wordCount || f.wordCount,
     }));
     setSearchResults([]);
     setSearchQuery("");
@@ -143,7 +149,6 @@ export function BookForm({ book }: { book?: Book }) {
     const payload = {
       title: form.title,
       author: form.author,
-      isbn: form.isbn,
       coverUrl: form.coverUrl,
       publisher: form.publisher,
       platform: form.platform,
@@ -153,6 +158,8 @@ export function BookForm({ book }: { book?: Book }) {
       domain: form.domain,
       type: form.type,
       language: form.language,
+      pageCount: form.pageCount,
+      wordCount: form.wordCount,
       note: form.note,
     };
 
@@ -269,8 +276,15 @@ export function BookForm({ book }: { book?: Book }) {
                       <span>
                         <span className="block font-medium">{r.title}</span>
                         <span className="block text-xs text-gray-500">
-                          {r.author}
-                          {r.publisher ? ` · ${r.publisher}` : ""}
+                          {[
+                            r.author,
+                            r.publisher,
+                            r.pageCount && `${r.pageCount} 頁`,
+                            r.wordCount && `${Number(r.wordCount).toLocaleString()} 字`,
+                            r.source,
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
                         </span>
                       </span>
                     </button>
@@ -285,9 +299,10 @@ export function BookForm({ book }: { book?: Book }) {
       <div className="grid grid-cols-2 gap-4">
         <Field label="書名" value={form.title} onChange={(v) => set("title", v)} required />
         <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
-        <Field label="ISBN" value={form.isbn} onChange={(v) => set("isbn", v)} />
         <Field label="封面 URL" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
         <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
+        <Field label="頁數" value={form.pageCount} onChange={(v) => set("pageCount", v)} />
+        <Field label="字數" value={form.wordCount} onChange={(v) => set("wordCount", v)} />
 
         <div>
           <label className="block text-sm font-medium mb-1">平台</label>

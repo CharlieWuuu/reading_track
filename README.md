@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Reading Track
 
-## Getting Started
+用 Google Sheet 當資料庫的閱讀紀錄工具。
 
-First, run the development server:
+## 開發
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run dev   # http://localhost:4173
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Google Sheet 欄位
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+資料放在名為「書籍」的工作表，欄位一律用中文，方便直接打開 Sheet 編輯：
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| 欄位 | 說明 |
+| --- | --- |
+| 編號 | 每列的唯一 id，留空的話系統會自動補上 |
+| 書名 | 必填，其他欄位靠它自動補齊 |
+| 作者 / 出版社 | 可自動補齊 |
+| 封面網址 | 可自動補齊 |
+| 平台 | 博客來、讀墨、Kobo、Kindle、Hyread、Pubu、實體書、其他 |
+| 來源網址 | 書籍頁面連結 |
+| 開始日期 / 完成日期 | `YYYY-MM-DD` |
+| 領域 / 屬性 / 語言 | 分類，可在「設定」頁管理選項 |
+| 頁數 / 字數 | 可自動補齊（電子書多半只有字數） |
+| 筆記 | 自由填寫 |
 
-## Learn More
+幾個實務上的重點：
 
-To learn more about Next.js, take a look at the following resources:
+- **欄位順序可以隨便換**，程式是照欄名對應的，不是照位置。
+- **舊的英文欄名（`title`、`author`…）仍然讀得到**，不用手動改表；缺少的欄位會自動補到最右邊。
+- **自己加的欄位不會被動到**。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 自動補齊資料
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+書籍列表頁的「自動補齊資料」會掃描整張表，只填**空著的**欄位——你自己打的內容一律不覆蓋。同時會補上缺少的「編號」。
 
-## Deploy on Vercel
+資料來源都是免費、沒有 API 額度限制的：
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| 來源 | 方式 | 補什麼 |
+| --- | --- | --- |
+| 讀墨 Readmoo | 靜態網頁爬蟲 | 中文書的作者、出版社、語言、字數、封面 |
+| Open Library | 開放書目 API（免金鑰） | 西文書的作者、出版社、頁數、封面 |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+比對書名時會算相似度，**不夠像就寧可留白，也不寫入可能錯誤的資料**。
+
+> 中文書的「頁數」目前從缺——實體書通路（博客來、讀冊）不是搜尋頁要跑 JS，就是 TLS 憑證鏈有問題，所以中文書以「字數」為主。
+
+## 資料檢查
+
+書籍列表上方會提示直接改 Sheet 時常見的小問題（日期格式、完成日早於開始日、頁數不是數字、書名重複等）。**這些只是提醒，不會擋住任何操作，也不會自動改你的資料。**

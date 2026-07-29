@@ -16,7 +16,8 @@ export const kindleScraper: Scraper = {
     const title = await getText(page, "#productTitle");
     const author = await getText(page, "#bylineInfo a");
     const publisher = await getLabelValue(page, "Publisher");
-    const isbn = await getLabelValue(page, "ISBN-13");
+    const pageCount = (await getLabelValue(page, "Print length")).match(/\d+/)?.[0] ?? "";
+    const language = await getLabelValue(page, "Language");
 
     const coverUrl = await page.evaluate(() => {
       const scripts = Array.from(document.querySelectorAll("script"));
@@ -27,6 +28,6 @@ export const kindleScraper: Scraper = {
       return "";
     });
 
-    return { title, author, isbn, coverUrl, publisher, platform: "Kindle" };
+    return { title, author, coverUrl, publisher, platform: "Kindle", pageCount, language };
   },
 };

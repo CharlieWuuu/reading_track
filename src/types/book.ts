@@ -8,11 +8,21 @@ export type BookPlatform =
   | "實體書"
   | "其他";
 
+export const BOOK_PLATFORMS: BookPlatform[] = [
+  "博客來",
+  "讀墨",
+  "Kobo",
+  "Kindle",
+  "Hyread",
+  "Pubu",
+  "實體書",
+  "其他",
+];
+
 export interface Book {
   id: string;
   title: string;
   author: string;
-  isbn: string;
   coverUrl: string;
   publisher: string;
   platform: BookPlatform;
@@ -22,6 +32,10 @@ export interface Book {
   domain: string;
   type: string;
   language: string;
+  /** 紙本／電子書頁數，以字串保存，方便使用者直接在 Sheet 編輯 */
+  pageCount: string;
+  /** 電子書常見的總字數 */
+  wordCount: string;
   note: string;
 }
 

@@ -4,10 +4,12 @@ import { BookPlatform } from "@/types/book";
 export interface ScrapedBook {
   title: string;
   author: string;
-  isbn: string;
   coverUrl: string;
   publisher: string;
   platform: BookPlatform;
+  language?: string;
+  pageCount?: string;
+  wordCount?: string;
 }
 
 export interface Scraper {

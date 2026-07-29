@@ -12,7 +12,6 @@ export const pubuScraper: Scraper = {
     return {
       title,
       author: (book?.author as string) ?? "",
-      isbn: (book?.isbn as string) ?? "",
       coverUrl,
       publisher: (book?.publisher as string) ?? "",
       platform: "Pubu",

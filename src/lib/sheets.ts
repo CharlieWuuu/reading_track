@@ -1,30 +1,39 @@
-import { GoogleSpreadsheet } from "google-spreadsheet";
+import { GoogleSpreadsheet, GoogleSpreadsheetWorksheet } from "google-spreadsheet";
 import { OAuth2Client } from "google-auth-library";
-import { Book } from "@/types/book";
+import { Book, BookPlatform } from "@/types/book";
+import { BOOK_FIELDS, BookField, COLUMN_LABELS, mapHeaders } from "./sheetSchema";
 
 const BOOKS_SHEET_TITLE = "書籍";
 
-const BOOK_HEADERS: (keyof Book)[] = [
-  "id",
-  "title",
-  "author",
-  "isbn",
-  "coverUrl",
-  "publisher",
-  "platform",
-  "sourceUrl",
-  "startDate",
-  "endDate",
-  "domain",
-  "type",
-  "language",
-  "note",
-];
+const DEFAULT_HEADERS = BOOK_FIELDS.map((f) => COLUMN_LABELS[f]);
 
 function getAuthClient(accessToken: string) {
   const auth = new OAuth2Client();
   auth.setCredentials({ access_token: accessToken });
   return auth;
+}
+
+/**
+ * 現有表頭 -> 欄位對照。缺少的欄位（例如新增的頁數／字數）會補到表頭最右邊，
+ * 使用者自訂的欄位維持原位不動。
+ */
+async function resolveColumns(sheet: GoogleSpreadsheetWorksheet) {
+  await sheet.loadHeaderRow().catch(() => null);
+  const headers = sheet.headerValues ?? [];
+  let map = mapHeaders(headers);
+
+  const missing = BOOK_FIELDS.filter((f) => !map[f]);
+  if (missing.length > 0) {
+    // 保留使用者自訂欄位的位置，只在最右邊補上缺的欄
+    const nextHeaders = [
+      ...headers.filter((h) => h.trim()),
+      ...missing.map((f) => COLUMN_LABELS[f]),
+    ];
+    await sheet.setHeaderRow(nextHeaders);
+    map = mapHeaders(nextHeaders);
+  }
+
+  return map as Record<BookField, string>;
 }
 
 async function getBooksSheet(sheetId: string, accessToken: string) {
@@ -35,10 +44,11 @@ async function getBooksSheet(sheetId: string, accessToken: string) {
   if (!sheet) {
     sheet = await doc.addSheet({
       title: BOOKS_SHEET_TITLE,
-      headerValues: BOOK_HEADERS,
+      headerValues: DEFAULT_HEADERS,
     });
   }
-  return sheet;
+  const columns = await resolveColumns(sheet);
+  return { sheet, columns };
 }
 
 export async function verifySheetAccess(sheetId: string, accessToken: string) {
@@ -48,13 +58,22 @@ export async function verifySheetAccess(sheetId: string, accessToken: string) {
 }
 
 export async function listBooks(sheetId: string, accessToken: string): Promise<Book[]> {
-  const sheet = await getBooksSheet(sheetId, accessToken);
+  const { books } = await listBooksWithMeta(sheetId, accessToken);
+  return books;
+}
+
+/** 同時回報這次補了幾個編號，讓「補齊資料」可以顯示進度 */
+export async function listBooksWithMeta(
+  sheetId: string,
+  accessToken: string
+): Promise<{ books: Book[]; idsBackfilled: number }> {
+  const { sheet, columns } = await getBooksSheet(sheetId, accessToken);
   let rows = await sheet.getRows();
 
-  const rowsMissingId = rows.filter((row) => !row.get("id"));
+  const rowsMissingId = rows.filter((row) => !row.get(columns.id));
   if (rowsMissingId.length > 0) {
     for (const row of rowsMissingId) {
-      row.set("id", crypto.randomUUID());
+      row.set(columns.id, crypto.randomUUID());
       await row.save();
     }
     // re-read so we return the ids that were actually persisted, avoiding a
@@ -62,27 +81,37 @@ export async function listBooks(sheetId: string, accessToken: string): Promise<B
     rows = await sheet.getRows();
   }
 
-  return rows.map((row) => ({
-    id: row.get("id") ?? "",
-    title: row.get("title") ?? "",
-    author: row.get("author") ?? "",
-    isbn: row.get("isbn") ?? "",
-    coverUrl: row.get("coverUrl") ?? "",
-    publisher: row.get("publisher") ?? "",
-    platform: row.get("platform") ?? "其他",
-    sourceUrl: row.get("sourceUrl") ?? "",
-    startDate: row.get("startDate") || null,
-    endDate: row.get("endDate") || null,
-    domain: row.get("domain") ?? "",
-    type: row.get("type") ?? "",
-    language: row.get("language") ?? "",
-    note: row.get("note") ?? "",
-  }));
+  const books = rows.map((row) => {
+    const get = (field: BookField) => (row.get(columns[field]) ?? "").toString().trim();
+    return {
+      id: get("id"),
+      title: get("title"),
+      author: get("author"),
+      coverUrl: get("coverUrl"),
+      publisher: get("publisher"),
+      platform: (get("platform") || "其他") as BookPlatform,
+      sourceUrl: get("sourceUrl"),
+      startDate: get("startDate") || null,
+      endDate: get("endDate") || null,
+      domain: get("domain"),
+      type: get("type"),
+      language: get("language"),
+      pageCount: get("pageCount"),
+      wordCount: get("wordCount"),
+      note: get("note"),
+    };
+  });
+
+  return { books, idsBackfilled: rowsMissingId.length };
 }
 
 export async function addBookRow(sheetId: string, accessToken: string, book: Book) {
-  const sheet = await getBooksSheet(sheetId, accessToken);
-  await sheet.addRow({ ...book, startDate: book.startDate ?? "", endDate: book.endDate ?? "" });
+  const { sheet, columns } = await getBooksSheet(sheetId, accessToken);
+  const raw: Record<string, string> = {};
+  for (const field of BOOK_FIELDS) {
+    raw[columns[field]] = book[field] ?? "";
+  }
+  await sheet.addRow(raw);
 }
 
 export async function updateBookRow(
@@ -91,21 +120,22 @@ export async function updateBookRow(
   id: string,
   patch: Partial<Book>
 ) {
-  const sheet = await getBooksSheet(sheetId, accessToken);
+  const { sheet, columns } = await getBooksSheet(sheetId, accessToken);
   const rows = await sheet.getRows();
-  const row = rows.find((r) => r.get("id") === id);
+  const row = rows.find((r) => r.get(columns.id) === id);
   if (!row) throw new Error("找不到這筆書籍紀錄");
 
   for (const [key, value] of Object.entries(patch)) {
-    row.set(key, value ?? "");
+    const header = columns[key as BookField];
+    if (header) row.set(header, value ?? "");
   }
   await row.save();
 }
 
 export async function deleteBookRow(sheetId: string, accessToken: string, id: string) {
-  const sheet = await getBooksSheet(sheetId, accessToken);
+  const { sheet, columns } = await getBooksSheet(sheetId, accessToken);
   const rows = await sheet.getRows();
-  const row = rows.find((r) => r.get("id") === id);
+  const row = rows.find((r) => r.get(columns.id) === id);
   if (!row) return;
   await row.delete();
 }

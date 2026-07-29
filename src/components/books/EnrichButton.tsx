@@ -27,7 +27,10 @@ export function EnrichButton() {
           typeof data.updated === "number" ? `（已補齊 ${data.updated} 筆後中斷）` : "";
         throw new Error(`${data.error ?? "補齊失敗"}${progress}`);
       }
-      setMessage(`已補齊 ${data.updated} 筆（掃描 ${data.scanned} 筆，${data.skipped} 筆找不到資料）`);
+      const parts = [`已補齊 ${data.updated} 筆（掃描 ${data.scanned} 筆）`];
+      if (data.idsBackfilled > 0) parts.push(`補上 ${data.idsBackfilled} 個編號`);
+      if (data.skipped > 0) parts.push(`${data.skipped} 筆查不到資料`);
+      setMessage(parts.join("，"));
       setStatus("done");
       mutate();
     } catch (err) {
