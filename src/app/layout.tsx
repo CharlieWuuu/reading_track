@@ -4,6 +4,7 @@ import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
 import { ServiceWorkerRegistrar } from "@/components/layout/ServiceWorkerRegistrar";
 import { SessionProvider } from "@/components/auth/SessionProvider";
+import { SWRProvider } from "@/components/layout/SWRProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +34,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#111827",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({
@@ -48,8 +49,10 @@ export default function RootLayout({
     >
       <body className="flex h-full bg-gray-50 text-gray-900">
         <SessionProvider>
-          <AppShell>{children}</AppShell>
-          <ServiceWorkerRegistrar />
+          <SWRProvider>
+            <AppShell>{children}</AppShell>
+            <ServiceWorkerRegistrar />
+          </SWRProvider>
         </SessionProvider>
       </body>
     </html>
