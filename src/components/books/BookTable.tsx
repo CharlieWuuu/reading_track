@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
+import { BookViewMode, useBookViewStore } from "@/store/useBookViewStore";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
 import { useFitPageSize } from "@/lib/useFitPageSize";
@@ -9,6 +10,43 @@ import { ReadingStatus } from "@/types/book";
 
 /** 單筆高度：手機是卡片，桌機是含書封的表格列 */
 const ROW_HEIGHT = { mobile: 86, desktop: 68 };
+
+/** 書封牆的單張卡片尺寸，用來推算一頁排得下幾張 */
+const CARD_SIZE = {
+  mobile: { width: 116, height: 208 },
+  desktop: { width: 152, height: 268 },
+};
+
+type ViewMode = BookViewMode;
+
+/**
+ * 書封牆一頁放幾本：橫向看容器寬度排得下幾張，縱向看畫面剩多少高度，
+ * 一樣維持「剛好塞滿一畫面、不用捲動」的翻頁節奏。
+ */
+function useFitCardCount(ref: RefObject<HTMLElement | null>, reserved = 96): number {
+  const [count, setCount] = useState(12);
+
+  useEffect(() => {
+    function recalc() {
+      const el = ref.current;
+      if (!el) return;
+
+      const isMobile = window.innerWidth < 768;
+      const card = isMobile ? CARD_SIZE.mobile : CARD_SIZE.desktop;
+      const top = el.getBoundingClientRect().top;
+
+      const columns = Math.max(2, Math.floor(el.clientWidth / card.width));
+      const rows = Math.max(1, Math.floor((window.innerHeight - top - reserved) / card.height));
+      setCount(columns * rows);
+    }
+
+    recalc();
+    window.addEventListener("resize", recalc);
+    return () => window.removeEventListener("resize", recalc);
+  });
+
+  return count;
+}
 
 function Cover({ url, title }: { url: string; title: string }) {
   if (url) {
@@ -18,13 +56,57 @@ function Cover({ url, title }: { url: string; title: string }) {
         src={url}
         alt=""
         loading="lazy"
-        className="h-14 w-10 rounded-sm object-cover shadow-sm"
+        className="aspect-2/3 w-14 rounded-sm object-cover shadow-sm"
       />
     );
   }
   return (
-    <div className="flex h-14 w-10 items-center justify-center rounded-sm bg-gray-100 text-[9px] leading-tight text-gray-400">
+    <div className="flex aspect-2/3 w-14 items-center justify-center rounded-sm bg-gray-100 text-[12px] leading-tight text-gray-400">
       {title.slice(0, 2) || "—"}
+    </div>
+  );
+}
+
+/** 書封牆用的大書封，沒有書封時退回書名色塊，避免整面出現空洞 */
+function LargeCover({ url, title }: { url: string; title: string }) {
+  if (url) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={url}
+        alt=""
+        loading="lazy"
+        className="aspect-2/3 w-full rounded object-cover shadow-sm transition group-hover:shadow-md"
+      />
+    );
+  }
+  return (
+    <div className="flex aspect-2/3 w-full items-center justify-center rounded bg-gray-100 p-2 text-center text-xs leading-snug text-gray-400">
+      {title.slice(0, 12) || "—"}
+    </div>
+  );
+}
+
+function ViewToggle({ value, onChange }: { value: ViewMode; onChange: (v: ViewMode) => void }) {
+  const options: Array<{ id: ViewMode; label: string }> = [
+    { id: "table", label: "表格" },
+    { id: "card", label: "書封" },
+  ];
+
+  return (
+    <div className="inline-flex rounded border border-gray-300 p-0.5 text-xs">
+      {options.map((option) => (
+        <button
+          key={option.id}
+          onClick={() => onChange(option.id)}
+          aria-pressed={value === option.id}
+          className={`rounded px-2.5 py-1 ${
+            value === option.id ? "bg-gray-900 text-white" : "text-gray-500 hover:text-gray-900"
+          }`}
+        >
+          {option.label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -45,12 +127,58 @@ function StatusBadge({ status }: { status: ReadingStatus }) {
   );
 }
 
+const OPTION_BADGE_STYLES = [
+  "bg-green-50 text-green-800 ring-1 ring-green-200",
+  "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200",
+  "bg-lime-50 text-lime-800 ring-1 ring-lime-200",
+  "bg-teal-50 text-teal-800 ring-1 ring-teal-200",
+];
+
+function OptionBadge({ value, index }: { value: string; index: number }) {
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${OPTION_BADGE_STYLES[index % OPTION_BADGE_STYLES.length]}`}
+    >
+      {value}
+    </span>
+  );
+}
+
+function OptionList({ values }: { values: Array<string | undefined> }) {
+  const items = values
+    .flatMap((value) =>
+      value
+        ? value.split(/[｜|,]/).map((item) => item.trim())
+        : [],
+    )
+    .filter(Boolean);
+
+  if (items.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-1">
+      {items.map((item, index) => (
+        <OptionBadge key={`${item}-${index}`} value={item} index={index} />
+      ))}
+    </div>
+  );
+}
+
 export function BookTable() {
   const { sheetId } = useSheetStore();
   const { books, isLoading, error, mutate } = useBooks();
   const [page, setPage] = useState(0);
+  const { view, setView } = useBookViewStore();
   const containerRef = useRef<HTMLDivElement>(null);
-  const pageSize = useFitPageSize(containerRef, ROW_HEIGHT);
+  // 容器最上面還有一列檢視切換鈕，算可用高度時要扣掉
+  const rowPageSize = useFitPageSize(containerRef, ROW_HEIGHT, 136);
+  const cardPageSize = useFitCardCount(containerRef, 136);
+  const pageSize = view === "card" ? cardPageSize : rowPageSize;
+
+  function handleViewChange(next: ViewMode) {
+    setView(next);
+    setPage(0);
+  }
 
   const pageCount = Math.max(1, Math.ceil(books.length / pageSize));
   const currentPage = Math.min(page, pageCount - 1);
@@ -125,8 +253,42 @@ export function BookTable() {
       </div>
     ) : null;
 
+  if (view === "card") {
+    return (
+      <div ref={containerRef}>
+        <div className="mb-2 flex justify-end">
+          <ViewToggle value={view} onChange={handleViewChange} />
+        </div>
+
+        {/* 書封牆：一次看到很多本、也看得清楚封面，只留書名與完讀日期 */}
+        <div className="rounded-lg border bg-white p-3">
+          <ul className="grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-3 md:grid-cols-[repeat(auto-fill,minmax(8.5rem,1fr))] md:gap-4">
+            {pageBooks.map((b, i) => (
+              <li key={b.id || `cover-${i}`}>
+                <Link href={`/books/${b.id}/edit`} className="group block">
+                  <LargeCover url={b.coverUrl} title={b.title} />
+                  <p className="mt-1.5 line-clamp-2 text-xs font-medium leading-snug group-hover:underline">
+                    {b.title}
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-gray-400">
+                    {b.endDate ? `${b.endDate} 讀完` : b.status}
+                  </p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {pager}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div ref={containerRef}>
+      <div className="mb-2 flex justify-end">
+        <ViewToggle value={view} onChange={handleViewChange} />
+      </div>
+
       {/* 手機版：卡片列表，欄位太多的表格在小螢幕上不好讀 */}
       <div className="rounded-lg border bg-white md:hidden">
         <ul className="divide-y">
@@ -142,10 +304,10 @@ export function BookTable() {
                     {b.title}
                   </p>
                   <p className="truncate text-xs text-gray-500">{b.author}</p>
-                  <p className="mt-1 flex items-center gap-2 text-xs text-gray-400">
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-400">
                     <StatusBadge status={b.status} />
-                    <span>{[b.platform, b.domain, b.type].filter(Boolean).join(" · ")}</span>
-                  </p>
+                    <OptionList values={[b.platform, b.domain, b.type]} />
+                  </div>
                   <p className="text-xs text-gray-400">
                     {b.startDate ?? "—"} ～ {b.endDate ?? "—"}
                   </p>
@@ -161,7 +323,7 @@ export function BookTable() {
       <table className="w-full table-fixed text-sm">
         <thead className="bg-gray-100 text-left">
           <tr>
-            <th className="w-14 whitespace-nowrap px-4 py-2">封面</th>
+            <th className="w-24 whitespace-nowrap px-4 py-2">封面</th>
             <th className="w-80 min-w-70 whitespace-nowrap px-4 py-2">書名</th>
             <th className="w-35 whitespace-nowrap px-4 py-2">作者</th>
             <th className="w-22.5 whitespace-nowrap px-4 py-2">狀態</th>
@@ -202,7 +364,7 @@ export function BookTable() {
                 <StatusBadge status={b.status} />
               </td>
               <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
-                <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.platform}</span>
+                <OptionList values={[b.platform]} />
               </td>
               <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
                 <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.startDate ?? "—"}</span>
@@ -211,10 +373,10 @@ export function BookTable() {
                 <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.endDate ?? "—"}</span>
               </td>
               <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
-                <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.domain}</span>
+                <OptionList values={[b.domain]} />
               </td>
               <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
-                <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.type}</span>
+                <OptionList values={[b.type]} />
               </td>
               <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
                 <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.language}</span>

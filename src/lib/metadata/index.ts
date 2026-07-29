@@ -1,5 +1,7 @@
 import { Book } from "@/types/book";
 import { titleSimilarity } from "./http";
+import { googleBooksProvider } from "./googleBooks";
+import { ndlProvider } from "./ndl";
 import { openLibraryProvider } from "./openLibrary";
 import { readmooProvider } from "./readmoo";
 import {
@@ -16,11 +18,17 @@ export { ENRICHABLE_FIELDS, missingFields } from "./types";
 export type { BookMetadata, EnrichableField } from "./types";
 
 /**
- * 全部都是免費、沒有額度限制的來源：讀墨是靜態網頁爬蟲（中文書的作者／出版社／字數），
- * Open Library 是開放書目 API（西文書的作者／出版社／頁數）。
- * 中文書的「頁數」多半只有實體書通路才有，暫時從缺，以字數為主。
+ * 全部都是免費、免申請的來源，依「命中率高的排前面」排列：
+ * 讀墨是靜態網頁爬蟲（中文書的作者／出版社／字數）、Google Books 涵蓋日英中三種語言、
+ * 國會圖書館補日文書的書目、Open Library 收西文書。
+ * 中文書的「頁數」多半只有實體書通路才有，以字數為主。
  */
-const PROVIDERS: MetadataProvider[] = [readmooProvider, openLibraryProvider];
+const PROVIDERS: MetadataProvider[] = [
+  readmooProvider,
+  googleBooksProvider,
+  ndlProvider,
+  openLibraryProvider,
+];
 
 /** 低於這個相似度就當作搜到別本書，寧可留白也不要寫錯資料 */
 const MIN_TITLE_SIMILARITY = 0.75;
@@ -63,8 +71,14 @@ export async function fetchBookMetadata(
   const merged: BookMetadata = {};
   const sources: string[] = [];
 
+  // 頁數與字數只要有一個就算補到了，理由見 missingFields
+  const satisfied = (field: EnrichableField) =>
+    field === "pageCount" || field === "wordCount"
+      ? !isBlank(merged.pageCount) || !isBlank(merged.wordCount)
+      : !isBlank(merged[field]);
+
   for (const provider of PROVIDERS) {
-    if (wanted.every((field) => !isBlank(merged[field]))) break;
+    if (wanted.every(satisfied)) break;
 
     const result = await lookup(provider, query);
     if (!result) continue;
