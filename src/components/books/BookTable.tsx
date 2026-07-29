@@ -13,8 +13,8 @@ const ROW_HEIGHT = { mobile: 86, desktop: 68 };
 
 /** 書封牆的單張卡片尺寸，用來推算一頁排得下幾張 */
 const CARD_SIZE = {
-  mobile: { width: 116, height: 208 },
-  desktop: { width: 152, height: 268 },
+  mobile: { width: 98, height: 178 },
+  desktop: { width: 126, height: 224 },
 };
 
 /**
@@ -54,12 +54,12 @@ function Cover({ url, title }: { url: string; title: string }) {
         src={url}
         alt=""
         loading="lazy"
-        className="aspect-2/3 w-14 rounded-sm object-cover shadow-sm"
+        className="aspect-2/3 w-10 rounded-sm object-cover shadow-sm"
       />
     );
   }
   return (
-    <div className="flex aspect-2/3 w-14 items-center justify-center rounded-sm bg-gray-100 text-[12px] leading-tight text-gray-400">
+    <div className="flex aspect-2/3 w-10 items-center justify-center rounded-sm bg-gray-100 text-[11px] leading-tight text-gray-400">
       {title.slice(0, 2) || "—"}
     </div>
   );
@@ -198,12 +198,12 @@ export function BookTable() {
 
   const pager =
     pageCount > 1 ? (
-      <div className="flex items-center justify-center gap-4 border-t px-4 py-2">
+      <div className="flex items-center justify-center gap-4 border-t px-3 py-2">
         <button
           onClick={() => setPage((p) => Math.max(0, p - 1))}
           disabled={currentPage === 0}
           aria-label="上一頁"
-          className="text-gray-400 hover:text-gray-900 disabled:opacity-30 disabled:hover:text-gray-400"
+          className="flex h-7 w-7 items-center justify-center rounded-md border border-dashed border-gray-300 leading-none text-gray-400 hover:border-gray-500 hover:text-gray-900 disabled:opacity-30 disabled:hover:border-gray-300 disabled:hover:text-gray-400"
         >
           ‹
         </button>
@@ -214,7 +214,7 @@ export function BookTable() {
           onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
           disabled={currentPage === pageCount - 1}
           aria-label="下一頁"
-          className="text-gray-400 hover:text-gray-900 disabled:opacity-30 disabled:hover:text-gray-400"
+          className="flex h-7 w-7 items-center justify-center rounded-md border border-dashed border-gray-300 leading-none text-gray-400 hover:border-gray-500 hover:text-gray-900 disabled:opacity-30 disabled:hover:border-gray-300 disabled:hover:text-gray-400"
         >
           ›
         </button>
@@ -226,7 +226,7 @@ export function BookTable() {
       <div ref={containerRef}>
         {/* 書封牆：一次看到很多本、也看得清楚封面，只留書名與完讀日期 */}
         <div className="rounded-lg border bg-white p-3">
-          <ul className="grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-3 md:grid-cols-[repeat(auto-fill,minmax(8.5rem,1fr))] md:gap-4">
+          <ul className="grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2.5 md:grid-cols-[repeat(auto-fill,minmax(7rem,1fr))] md:gap-3">
             {pageBooks.map((b, i) => (
               <li key={b.id || `cover-${i}`}>
                 <Link href={`/books/${b.id}/edit`} className="group block">
@@ -250,7 +250,7 @@ export function BookTable() {
   return (
     <div ref={containerRef}>
       {/* 手機版：卡片列表，欄位太多的表格在小螢幕上不好讀 */}
-      <div className="rounded-lg border bg-white md:hidden">
+      <div className="overflow-hidden rounded-lg border bg-white md:hidden">
         <ul className="divide-y">
           {pageBooks.map((b, i) => (
             <li key={b.id || `card-${i}`}>
@@ -279,32 +279,33 @@ export function BookTable() {
         {pager}
       </div>
 
-      <div className="hidden w-full overflow-x-auto rounded-lg border bg-white md:block">
+      <div className="hidden w-full overflow-hidden rounded-lg border bg-white md:block">
       <table className="w-full table-fixed text-sm">
         <thead className="bg-gray-100 text-left">
+          {/* 欄寬用百分比，次要欄位隨螢幕變窄逐一收起，才不會撐出橫向捲軸 */}
           <tr>
-            <th className="w-24 whitespace-nowrap px-4 py-2">封面</th>
-            <th className="w-80 min-w-70 whitespace-nowrap px-4 py-2">書名</th>
-            <th className="w-35 whitespace-nowrap px-4 py-2">作者</th>
-            <th className="w-22.5 whitespace-nowrap px-4 py-2">狀態</th>
-            <th className="w-30 whitespace-nowrap px-4 py-2">平台</th>
-            <th className="w-27.5 whitespace-nowrap px-4 py-2">開始日期</th>
-            <th className="w-27.5 whitespace-nowrap px-4 py-2">完成日期</th>
-            <th className="w-30 whitespace-nowrap px-4 py-2">領域</th>
-            <th className="w-25 whitespace-nowrap px-4 py-2">屬性</th>
-            <th className="w-22.5 whitespace-nowrap px-4 py-2">語言</th>
-            <th className="w-22.5 whitespace-nowrap px-4 py-2" />
+            <th className="w-[9%] whitespace-nowrap px-3 py-2">封面</th>
+            <th className="w-[30%] whitespace-nowrap px-3 py-2">書名</th>
+            <th className="w-[16%] whitespace-nowrap px-3 py-2">作者</th>
+            <th className="w-[11%] whitespace-nowrap px-3 py-2">狀態</th>
+            <th className="hidden w-[11%] whitespace-nowrap px-3 py-2 xl:table-cell">平台</th>
+            <th className="hidden w-[11%] whitespace-nowrap px-3 py-2 2xl:table-cell">開始日期</th>
+            <th className="hidden w-[11%] whitespace-nowrap px-3 py-2 lg:table-cell">完成日期</th>
+            <th className="hidden w-[11%] whitespace-nowrap px-3 py-2 xl:table-cell">領域</th>
+            <th className="hidden w-[9%] whitespace-nowrap px-3 py-2 2xl:table-cell">屬性</th>
+            <th className="hidden w-[9%] whitespace-nowrap px-3 py-2 2xl:table-cell">語言</th>
+            <th className="w-[10%] whitespace-nowrap px-3 py-2" />
           </tr>
         </thead>
         <tbody>
           {pageBooks.map((b, i) => (
             <tr key={b.id || `row-${i}`} className="border-t hover:bg-gray-50">
-              <td className="px-4 py-2">
+              <td className="px-3 py-2">
                 <Link href={`/books/${b.id}/edit`} className="block">
                   <Cover url={b.coverUrl} title={b.title} />
                 </Link>
               </td>
-              <td className="max-w-0 overflow-hidden px-4 py-2 font-medium">
+              <td className="max-w-0 overflow-hidden px-3 py-2 font-medium">
                 <Link
                   href={`/books/${b.id}/edit`}
                   className="flex max-w-full items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap hover:underline"
@@ -317,31 +318,31 @@ export function BookTable() {
                   </span>
                 </Link>
               </td>
-              <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
+              <td className="max-w-0 overflow-hidden whitespace-nowrap px-3 py-2">
                 <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.author}</span>
               </td>
-              <td className="whitespace-nowrap px-4 py-2">
+              <td className="whitespace-nowrap px-3 py-2">
                 <StatusBadge status={b.status} />
               </td>
-              <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
+              <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 xl:table-cell">
                 <OptionList values={[b.platform]} />
               </td>
-              <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
+              <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 2xl:table-cell">
                 <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.startDate ?? "—"}</span>
               </td>
-              <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
+              <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 lg:table-cell">
                 <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.endDate ?? "—"}</span>
               </td>
-              <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
+              <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 xl:table-cell">
                 <OptionList values={[b.domain]} />
               </td>
-              <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
+              <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 2xl:table-cell">
                 <OptionList values={[b.type]} />
               </td>
-              <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
+              <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 2xl:table-cell">
                 <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.language}</span>
               </td>
-              <td className="whitespace-nowrap px-4 py-2 space-x-2">
+              <td className="whitespace-nowrap px-3 py-2 space-x-2">
                 <Link href={`/books/${b.id}/edit`} className="text-xs text-gray-600 hover:underline">
                   編輯
                 </Link>

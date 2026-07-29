@@ -28,7 +28,7 @@ export function MonthlyTrendChart({
   height?: number | `${number}%`;
 }) {
   return (
-    <div className="viz-root" data-palette="reading-track">
+    <div className="viz-root flex h-full min-h-0 flex-col" data-palette="reading-track">
       <style>{`
         .viz-root {
           color-scheme: light;
@@ -40,6 +40,7 @@ export function MonthlyTrendChart({
           --series-1: #184f95;
         }
       `}</style>
+      <div className="min-h-0 flex-1">
       <ResponsiveContainer width="100%" height={height}>
         <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid vertical={false} stroke="var(--grid)" strokeDasharray="3 3" />
@@ -78,6 +79,7 @@ export function MonthlyTrendChart({
           />
         </LineChart>
       </ResponsiveContainer>
+      </div>
     </div>
   );
 }

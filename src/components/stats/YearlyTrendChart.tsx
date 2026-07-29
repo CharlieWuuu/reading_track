@@ -42,7 +42,7 @@ export function YearlyTrendChart({
   }
 
   return (
-    <div className="viz-root" data-palette="reading-track">
+    <div className="viz-root flex h-full min-h-0 flex-col" data-palette="reading-track">
       <style>{`
         .viz-root {
           color-scheme: light;
@@ -55,7 +55,7 @@ export function YearlyTrendChart({
         }
       `}</style>
 
-      <div className="mb-3 flex justify-end gap-1">
+      <div className="mb-3 flex shrink-0 justify-end gap-1">
         <button
           onClick={() => setMode("yearly")}
           className={`rounded px-2 py-1 text-xs font-medium ${
@@ -78,6 +78,7 @@ export function YearlyTrendChart({
         </button>
       </div>
 
+      <div className="min-h-0 flex-1">
       <ResponsiveContainer width="100%" height={height}>
         {mode === "yearly" ? (
           <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
@@ -151,6 +152,7 @@ export function YearlyTrendChart({
           </AreaChart>
         )}
       </ResponsiveContainer>
+      </div>
     </div>
   );
 }

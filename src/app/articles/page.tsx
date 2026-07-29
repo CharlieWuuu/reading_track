@@ -24,8 +24,8 @@ function hostname(url: string): string {
   }
 }
 
-/** 單筆文章的高度：標題 + 日期 + 進度條 */
-const ROW_HEIGHT = { mobile: 92, desktop: 84 };
+/** 單筆文章的高度：標題 + 日期一行、進度條在右側 */
+const ROW_HEIGHT = { mobile: 62, desktop: 60 };
 
 export default function ArticlesPage() {
   const { token } = useInstapaperStore();
@@ -88,7 +88,8 @@ export default function ArticlesPage() {
   return (
     <div className="mx-auto max-w-5xl">
       <PageHeader title="文章紀錄" />
-      <div ref={containerRef} className="divide-y rounded-lg border bg-white">
+      {/* overflow-hidden：hover 底色才會被圓角裁掉，不會在頭尾兩列破圖 */}
+      <div ref={containerRef} className="divide-y overflow-hidden rounded-lg border bg-white">
         {pageArticles.map((a) => {
           const percent = Math.round((a.progress ?? 0) * 100);
           return (
@@ -97,24 +98,28 @@ export default function ArticlesPage() {
               href={instapaperReadUrl(a.bookmark_id, a.url)}
               target="_blank"
               rel="noopener noreferrer"
-              className="block px-3 py-3 hover:bg-gray-50 sm:px-4"
+              className="flex items-center gap-3 px-3 py-3 hover:bg-gray-50 sm:gap-4 sm:px-4"
             >
-              <div className="flex min-w-0 items-center justify-between gap-3">
-                <p className="min-w-0 flex-1 truncate whitespace-nowrap text-sm font-medium">
+              <div className="min-w-0 flex-1">
+                <p className="truncate whitespace-nowrap text-sm font-medium">
                   {a.title || a.url}
                 </p>
-                <span className="shrink-0 whitespace-nowrap text-xs tabular-nums text-gray-400">
+                <p className="mt-0.5 truncate text-xs text-gray-500">
+                  {formatDate(activityTime(a))} · {hostname(a.url)}
+                </p>
+              </div>
+
+              {/* 進度靠右，跟標題同一列，不再自己佔一整條寬度 */}
+              <div className="flex w-24 shrink-0 items-center gap-2 sm:w-32">
+                <div className="h-1 flex-1 overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    className="h-full rounded-full bg-gray-900"
+                    style={{ width: `${percent}%` }}
+                  />
+                </div>
+                <span className="w-9 shrink-0 whitespace-nowrap text-right text-xs tabular-nums text-gray-400">
                   {percent}%
                 </span>
-              </div>
-              <p className="mt-1 truncate text-xs text-gray-500">
-                {formatDate(activityTime(a))} · {hostname(a.url)}
-              </p>
-              <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-gray-100">
-                <div
-                  className="h-full rounded-full bg-gray-900"
-                  style={{ width: `${percent}%` }}
-                />
               </div>
             </a>
           );

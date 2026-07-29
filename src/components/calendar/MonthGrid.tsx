@@ -9,46 +9,29 @@ import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
-/** 一天最多先列幾篇文章，其餘收在「+N」後面 */
-const ARTICLE_PREVIEW_COUNT = 2;
-
-function DayArticles({
-  articles,
-  /** 格子底色，讓黏在底部的「+N 篇」不會透出下面的文章 */
-  bgClass,
-}: {
-  articles: InstapaperBookmark[];
-  bgClass: string;
-}) {
-  const [expanded, setExpanded] = useState(false);
-
+/** 格子裡只列第一篇文章，其餘用右邊的「+N」表示，完整清單看下方明細 */
+function DayArticles({ articles }: { articles: InstapaperBookmark[] }) {
   if (articles.length === 0) return null;
 
-  const hidden = articles.length - ARTICLE_PREVIEW_COUNT;
-  const shown = expanded ? articles : articles.slice(0, ARTICLE_PREVIEW_COUNT);
+  const first = articles[0];
+  const hidden = articles.length - 1;
 
   return (
-    <div className="mt-1 space-y-0.5">
-      {shown.map((a) => (
-        <a
-          key={a.bookmark_id}
-          href={instapaperReadUrl(a.bookmark_id, a.url)}
-          target="_blank"
-          rel="noopener noreferrer"
-          title={a.title || a.url}
-          className="block truncate rounded-sm bg-blue-50 px-1 py-0.5 text-[10px] text-blue-900 hover:bg-blue-100"
-        >
-          {a.title || a.url}
-        </a>
-      ))}
-
+    <div className="mt-1 flex items-center gap-1">
+      <a
+        href={instapaperReadUrl(first.bookmark_id, first.url)}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(e) => e.stopPropagation()}
+        title={first.title || first.url}
+        className="min-w-0 flex-1 truncate rounded-sm bg-blue-50 px-1 py-0.5 text-[10px] text-blue-900 hover:bg-blue-100"
+      >
+        {first.title || first.url}
+      </a>
       {hidden > 0 && (
-        <button
-          onClick={() => setExpanded((v) => !v)}
-          className={`sticky bottom-0 block w-full rounded-sm px-1 py-0.5 text-left text-[10px] font-medium text-gray-500 hover:text-gray-900 ${bgClass}`}
-        >
-          {expanded ? "收合" : `+${hidden} 篇`}
-        </button>
+        <span className="shrink-0 text-[10px] font-medium text-gray-500">
+          +{hidden}
+        </span>
       )}
     </div>
   );
@@ -277,7 +260,8 @@ export function MonthGrid({
         )}
       </div>
 
-      <div className="hidden min-h-0 flex-1 auto-rows-fr grid-cols-7 sm:grid">
+      {/* 格子內不捲動；平常靠「+N 篇」收合就放得下，展開時才由整個月曆區塊捲 */}
+      <div className="hidden min-h-0 flex-1 auto-rows-fr grid-cols-7 overflow-y-auto sm:grid">
         {days.map((day, i) => {
           const isToday = day.date.toDateString() === today.toDateString();
           const isLastCol = i % 7 === 6;
@@ -286,7 +270,7 @@ export function MonthGrid({
           return (
             <div
               key={i}
-              className={`min-h-28 overflow-y-auto p-1.5 ${isLastCol ? "" : "border-r"} ${
+              className={`min-h-28 p-1.5 ${isLastCol ? "" : "border-r"} ${
                 isLastRow ? "" : "border-b"
               } ${bgClass}`}
             >

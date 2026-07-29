@@ -44,7 +44,7 @@ export function DistributionPie({
   }
 
   return (
-    <div className="viz-root" data-palette="reading-track">
+    <div className="viz-root flex h-full min-h-0 flex-col" data-palette="reading-track">
       <style>{`
         .viz-root {
           color-scheme: light;
@@ -54,9 +54,10 @@ export function DistributionPie({
           --grid: #e1e0d9;
         }
       `}</style>
-      <p className="mb-2 text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+      <p className="mb-2 shrink-0 text-sm font-medium" style={{ color: "var(--text-primary)" }}>
         {title}
       </p>
+      <div className="min-h-0 flex-1">
       <ResponsiveContainer width="100%" height={height}>
         <PieChart>
           <Pie
@@ -98,6 +99,7 @@ export function DistributionPie({
           />
         </PieChart>
       </ResponsiveContainer>
+      </div>
     </div>
   );
 }
