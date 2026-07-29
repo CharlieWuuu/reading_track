@@ -24,7 +24,7 @@ export function SectionPager({ sections }: { sections: Section[] }) {
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={current === 0}
             aria-label="上一頁"
-            className="text-gray-400 hover:text-gray-900 disabled:opacity-30"
+            className="flex h-7 w-7 items-center justify-center rounded-md border border-dashed border-gray-300 leading-none text-gray-400 hover:border-gray-500 hover:text-gray-900 disabled:opacity-30 disabled:hover:border-gray-300 disabled:hover:text-gray-400"
           >
             ‹
           </button>
@@ -35,7 +35,7 @@ export function SectionPager({ sections }: { sections: Section[] }) {
             onClick={() => setPage((p) => Math.min(sections.length - 1, p + 1))}
             disabled={current === sections.length - 1}
             aria-label="下一頁"
-            className="text-gray-400 hover:text-gray-900 disabled:opacity-30"
+            className="flex h-7 w-7 items-center justify-center rounded-md border border-dashed border-gray-300 leading-none text-gray-400 hover:border-gray-500 hover:text-gray-900 disabled:opacity-30 disabled:hover:border-gray-300 disabled:hover:text-gray-400"
           >
             ›
           </button>
