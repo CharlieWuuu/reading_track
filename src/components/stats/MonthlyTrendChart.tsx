@@ -20,10 +20,12 @@ export function MonthlyTrendChart({
   data,
   unit = "本",
   seriesLabel = "完成本數",
+  height = 260,
 }: {
   data: MonthCount[];
   unit?: string;
   seriesLabel?: string;
+  height?: number | `${number}%`;
 }) {
   return (
     <div className="viz-root" data-palette="reading-track">
@@ -38,7 +40,7 @@ export function MonthlyTrendChart({
           --series-1: #184f95;
         }
       `}</style>
-      <ResponsiveContainer width="100%" height={260}>
+      <ResponsiveContainer width="100%" height={height}>
         <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid vertical={false} stroke="var(--grid)" strokeDasharray="3 3" />
           <XAxis

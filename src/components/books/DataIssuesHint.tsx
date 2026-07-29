@@ -20,40 +20,39 @@ export function DataIssuesHint() {
 
   if (dismissed || issues.length === 0) return null;
 
-  const shown = expanded ? issues : issues.slice(0, PREVIEW_COUNT);
-
   return (
-    <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-      <div className="flex items-start justify-between gap-4">
-        <p className="font-medium">
-          有 {issues.length} 筆資料看起來怪怪的（不影響使用，有空再修就好）
-        </p>
+    <div className="shrink-0 rounded border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs text-amber-900">
+      {/* 預設只佔一行，需要細節再展開，才不會把書單擠到要捲動 */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="min-w-0 flex-1 truncate text-left"
+        >
+          有 {issues.length} 筆資料看起來怪怪的（不影響使用）
+          <span className="ml-1 text-amber-700">{expanded ? "收合" : "查看"}</span>
+        </button>
         <button
           onClick={() => setDismissed(true)}
-          className="shrink-0 text-xs text-amber-700 hover:underline"
+          className="shrink-0 text-amber-700 hover:underline"
         >
           知道了
         </button>
       </div>
 
-      <ul className="mt-2 space-y-1 text-xs">
-        {shown.map((issue, i) => (
-          <li key={`${issue.bookId}-${issue.field}-${i}`}>
-            <Link href={`/books/${issue.bookId}/edit`} className="font-medium hover:underline">
-              {issue.title}
-            </Link>
-            <span className="text-amber-800">：{issue.message}</span>
-          </li>
-        ))}
-      </ul>
-
-      {issues.length > PREVIEW_COUNT && (
-        <button
-          onClick={() => setExpanded((v) => !v)}
-          className="mt-2 text-xs text-amber-700 hover:underline"
-        >
-          {expanded ? "收合" : `還有 ${issues.length - PREVIEW_COUNT} 筆…`}
-        </button>
+      {expanded && (
+        <ul className="mt-2 space-y-1">
+          {issues.slice(0, PREVIEW_COUNT).map((issue, i) => (
+            <li key={`${issue.bookId}-${issue.field}-${i}`} className="truncate">
+              <Link href={`/books/${issue.bookId}/edit`} className="font-medium hover:underline">
+                {issue.title}
+              </Link>
+              <span className="text-amber-800">：{issue.message}</span>
+            </li>
+          ))}
+          {issues.length > PREVIEW_COUNT && (
+            <li className="text-amber-700">還有 {issues.length - PREVIEW_COUNT} 筆…</li>
+          )}
+        </ul>
       )}
     </div>
   );

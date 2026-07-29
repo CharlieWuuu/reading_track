@@ -3,14 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AuthButton } from "@/components/auth/AuthButton";
+import { NAV_ITEMS } from "./navItems";
 
-const NAV_ITEMS = [
-  { href: "/books", label: "書籍紀錄", exact: true },
-  { href: "/articles", label: "文章紀錄", exact: true },
-  { href: "/stats", label: "統計" },
-  { href: "/calendar", label: "日曆" },
-  { href: "/settings", label: "設定" },
-];
+/** 側欄空間夠，用完整名稱；底部導覽列則用短標籤 */
+const FULL_LABELS: Record<string, string> = {
+  "/books": "書籍紀錄",
+  "/articles": "文章紀錄",
+};
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -30,13 +29,14 @@ export function Sidebar() {
             <li key={item.href}>
               <Link
                 href={item.href}
-                className={`block rounded px-3 py-2 text-sm ${
+                className={`flex items-center gap-2 rounded px-3 py-2 text-sm ${
                   active
                     ? "bg-gray-900 text-white"
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
-                {item.label}
+                <item.Icon active={active} />
+                {FULL_LABELS[item.href] ?? item.label}
               </Link>
             </li>
           );

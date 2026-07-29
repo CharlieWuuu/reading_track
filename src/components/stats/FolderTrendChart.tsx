@@ -31,9 +31,11 @@ function formatMonth(month: string) {
 export function FolderTrendChart({
   data,
   series,
+  height = 280,
 }: {
   data: FolderMonthPoint[];
   series: FolderSeries[];
+  height?: number | `${number}%`;
 }) {
   if (series.length === 0) {
     return (
@@ -54,7 +56,7 @@ export function FolderTrendChart({
           --grid: #e1e0d9;
         }
       `}</style>
-      <ResponsiveContainer width="100%" height={280}>
+      <ResponsiveContainer width="100%" height={height}>
         <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid vertical={false} stroke="var(--grid)" strokeDasharray="3 3" />
           <XAxis

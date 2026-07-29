@@ -49,8 +49,12 @@ export function buildMonthGrid(
   const startWeekday = firstOfMonth.getDay();
   const gridStart = new Date(year, month, 1 - startWeekday);
 
+  // 只產出這個月實際跨到的週數（4～6 列），避免尾端多出一整列全是別月的灰格
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const weekCount = Math.ceil((startWeekday + daysInMonth) / 7);
+
   const days: CalendarDay[] = [];
-  for (let i = 0; i < 42; i++) {
+  for (let i = 0; i < weekCount * 7; i++) {
     const date = new Date(gridStart);
     date.setDate(gridStart.getDate() + i);
     const key = dateKey(date);

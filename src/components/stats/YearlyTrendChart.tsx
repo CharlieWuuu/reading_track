@@ -17,9 +17,11 @@ import { QuarterCount, YearCount } from "@/lib/bookStats";
 export function YearlyTrendChart({
   data,
   quarterlyData,
+  height = 260,
 }: {
   data: YearCount[];
   quarterlyData: QuarterCount[];
+  height?: number | `${number}%`;
 }) {
   const [mode, setMode] = useState<"yearly" | "cumulative">("yearly");
 
@@ -76,7 +78,7 @@ export function YearlyTrendChart({
         </button>
       </div>
 
-      <ResponsiveContainer width="100%" height={260}>
+      <ResponsiveContainer width="100%" height={height}>
         {mode === "yearly" ? (
           <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
             <CartesianGrid vertical={false} stroke="var(--grid)" strokeDasharray="3 3" />

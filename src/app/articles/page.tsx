@@ -6,6 +6,7 @@ import { useFitPageSize } from "@/lib/useFitPageSize";
 import { useInstapaperStore } from "@/store/useInstapaperStore";
 import { useArticles } from "@/lib/useArticles";
 import { InstapaperBookmark } from "@/lib/instapaper/client";
+import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
 
 function formatDate(unixSeconds: number) {
   return new Date(unixSeconds * 1000).toLocaleDateString("zh-TW");
@@ -13,6 +14,14 @@ function formatDate(unixSeconds: number) {
 
 function activityTime(a: InstapaperBookmark): number {
   return a.progress_timestamp || a.time;
+}
+
+function hostname(url: string): string {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return "";
+  }
 }
 
 /** 單筆文章的高度：標題 + 日期 + 進度條 */
@@ -85,19 +94,21 @@ export default function ArticlesPage() {
           return (
             <a
               key={a.bookmark_id}
-              href={a.url}
+              href={instapaperReadUrl(a.bookmark_id, a.url)}
               target="_blank"
               rel="noopener noreferrer"
-              className="block px-4 py-3 hover:bg-gray-50"
+              className="block px-3 py-3 hover:bg-gray-50 sm:px-4"
             >
-              <div className="flex items-center justify-between gap-4">
-                <p className="truncate text-sm font-medium">{a.title || a.url}</p>
-                <span className="shrink-0 text-xs tabular-nums text-gray-400">
+              <div className="flex min-w-0 items-center justify-between gap-3">
+                <p className="min-w-0 flex-1 truncate whitespace-nowrap text-sm font-medium">
+                  {a.title || a.url}
+                </p>
+                <span className="shrink-0 whitespace-nowrap text-xs tabular-nums text-gray-400">
                   {percent}%
                 </span>
               </div>
-              <p className="mt-1 text-xs text-gray-500">
-                {formatDate(activityTime(a))} · {new URL(a.url).hostname}
+              <p className="mt-1 truncate text-xs text-gray-500">
+                {formatDate(activityTime(a))} · {hostname(a.url)}
               </p>
               <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-gray-100">
                 <div

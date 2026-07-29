@@ -26,10 +26,12 @@ export function DistributionPie({
   title,
   data,
   unit = "本",
+  height = 240,
 }: {
   title: string;
   data: DistributionSlice[];
   unit?: string;
+  height?: number | `${number}%`;
 }) {
   const slots = toSlots(data);
 
@@ -55,7 +57,7 @@ export function DistributionPie({
       <p className="mb-2 text-sm font-medium" style={{ color: "var(--text-primary)" }}>
         {title}
       </p>
-      <ResponsiveContainer width="100%" height={240}>
+      <ResponsiveContainer width="100%" height={height}>
         <PieChart>
           <Pie
             data={slots}

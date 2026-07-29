@@ -4,7 +4,8 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
 
-export function AuthButton() {
+/** compact：手機頂欄用，只顯示頭像 */
+export function AuthButton({ compact = false }: { compact?: boolean } = {}) {
   const { data: session, status } = useSession();
 
   useEffect(() => {
@@ -35,9 +36,11 @@ export function AuthButton() {
             {(session.user.name ?? session.user.email ?? "?").slice(0, 1)}
           </div>
         )}
-        <span className="truncate text-gray-700">
-          {session.user.name ?? session.user.email}
-        </span>
+        {!compact && (
+          <span className="truncate text-gray-700">
+            {session.user.name ?? session.user.email}
+          </span>
+        )}
       </Link>
     );
   }
@@ -45,9 +48,11 @@ export function AuthButton() {
   return (
     <button
       onClick={() => signIn("google")}
-      className="w-full rounded bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700"
+      className={`rounded bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700 ${
+        compact ? "whitespace-nowrap text-xs" : "w-full"
+      }`}
     >
-      使用 Google 登入
+      {compact ? "登入" : "使用 Google 登入"}
     </button>
   );
 }

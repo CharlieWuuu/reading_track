@@ -6,6 +6,7 @@ import { useSheetStore } from "@/store/useSheetStore";
 import { SheetPicker } from "@/components/settings/SheetPicker";
 import { InstapaperConnect } from "@/components/settings/InstapaperConnect";
 import { CategoryManager } from "@/components/settings/CategoryManager";
+import { EnrichButton } from "@/components/books/EnrichButton";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export default function SettingsPage() {
@@ -84,6 +85,16 @@ export default function SettingsPage() {
 
         <div className="border-t pt-4">
           <CategoryManager />
+        </div>
+
+        {/* 偶爾才會用到的維護動作，放這裡就好，別佔著書單頁的空間 */}
+        <div className="border-t pt-4">
+          <h3 className="mb-2 text-sm font-medium">資料維護</h3>
+          <p className="mb-3 text-xs text-gray-500">
+            從網路查書名、作者、書封等資料，補進 Sheet 裡沒填的欄位。
+            新增一批書之後跑一次就好。
+          </p>
+          <EnrichButton />
         </div>
       </div>
     </div>

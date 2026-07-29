@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { RefObject, useEffect, useRef, useState } from "react";
-import { BookViewMode, useBookViewStore } from "@/store/useBookViewStore";
+import { useBookViewStore } from "@/store/useBookViewStore";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
-import { useFitPageSize } from "@/lib/useFitPageSize";
+import { useFitPageSize, viewportBottom } from "@/lib/useFitPageSize";
 import { ReadingStatus } from "@/types/book";
 
 /** 單筆高度：手機是卡片，桌機是含書封的表格列 */
@@ -16,8 +16,6 @@ const CARD_SIZE = {
   mobile: { width: 116, height: 208 },
   desktop: { width: 152, height: 268 },
 };
-
-type ViewMode = BookViewMode;
 
 /**
  * 書封牆一頁放幾本：橫向看容器寬度排得下幾張，縱向看畫面剩多少高度，
@@ -36,7 +34,7 @@ function useFitCardCount(ref: RefObject<HTMLElement | null>, reserved = 96): num
       const top = el.getBoundingClientRect().top;
 
       const columns = Math.max(2, Math.floor(el.clientWidth / card.width));
-      const rows = Math.max(1, Math.floor((window.innerHeight - top - reserved) / card.height));
+      const rows = Math.max(1, Math.floor((viewportBottom(el) - top - reserved) / card.height));
       setCount(columns * rows);
     }
 
@@ -83,30 +81,6 @@ function LargeCover({ url, title }: { url: string; title: string }) {
   return (
     <div className="flex aspect-2/3 w-full items-center justify-center rounded bg-gray-100 p-2 text-center text-xs leading-snug text-gray-400">
       {title.slice(0, 12) || "—"}
-    </div>
-  );
-}
-
-function ViewToggle({ value, onChange }: { value: ViewMode; onChange: (v: ViewMode) => void }) {
-  const options: Array<{ id: ViewMode; label: string }> = [
-    { id: "table", label: "表格" },
-    { id: "card", label: "書封" },
-  ];
-
-  return (
-    <div className="inline-flex rounded border border-gray-300 p-0.5 text-xs">
-      {options.map((option) => (
-        <button
-          key={option.id}
-          onClick={() => onChange(option.id)}
-          aria-pressed={value === option.id}
-          className={`rounded px-2.5 py-1 ${
-            value === option.id ? "bg-gray-900 text-white" : "text-gray-500 hover:text-gray-900"
-          }`}
-        >
-          {option.label}
-        </button>
-      ))}
     </div>
   );
 }
@@ -168,17 +142,11 @@ export function BookTable() {
   const { sheetId } = useSheetStore();
   const { books, isLoading, error, mutate } = useBooks();
   const [page, setPage] = useState(0);
-  const { view, setView } = useBookViewStore();
+  const { view } = useBookViewStore();
   const containerRef = useRef<HTMLDivElement>(null);
-  // 容器最上面還有一列檢視切換鈕，算可用高度時要扣掉
-  const rowPageSize = useFitPageSize(containerRef, ROW_HEIGHT, 136);
-  const cardPageSize = useFitCardCount(containerRef, 136);
+  const rowPageSize = useFitPageSize(containerRef, ROW_HEIGHT);
+  const cardPageSize = useFitCardCount(containerRef);
   const pageSize = view === "card" ? cardPageSize : rowPageSize;
-
-  function handleViewChange(next: ViewMode) {
-    setView(next);
-    setPage(0);
-  }
 
   const pageCount = Math.max(1, Math.ceil(books.length / pageSize));
   const currentPage = Math.min(page, pageCount - 1);
@@ -256,10 +224,6 @@ export function BookTable() {
   if (view === "card") {
     return (
       <div ref={containerRef}>
-        <div className="mb-2 flex justify-end">
-          <ViewToggle value={view} onChange={handleViewChange} />
-        </div>
-
         {/* 書封牆：一次看到很多本、也看得清楚封面，只留書名與完讀日期 */}
         <div className="rounded-lg border bg-white p-3">
           <ul className="grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-3 md:grid-cols-[repeat(auto-fill,minmax(8.5rem,1fr))] md:gap-4">
@@ -285,10 +249,6 @@ export function BookTable() {
 
   return (
     <div ref={containerRef}>
-      <div className="mb-2 flex justify-end">
-        <ViewToggle value={view} onChange={handleViewChange} />
-      </div>
-
       {/* 手機版：卡片列表，欄位太多的表格在小螢幕上不好讀 */}
       <div className="rounded-lg border bg-white md:hidden">
         <ul className="divide-y">

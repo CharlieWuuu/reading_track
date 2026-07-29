@@ -45,7 +45,7 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto flex h-full min-h-0 max-w-5xl flex-col">
       <PageHeader title="日曆" />
       <MonthGrid books={books} articles={articles} />
     </div>
