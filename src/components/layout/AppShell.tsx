@@ -3,6 +3,7 @@
 import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./BottomNav";
 import { AuthButton } from "@/components/auth/AuthButton";
+import { RefreshButton } from "./RefreshButton";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -19,7 +20,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           style={{ paddingTop: "max(0.5rem, env(safe-area-inset-top))" }}
         >
           <span className="text-base font-semibold tracking-tight">Reading Track</span>
-          <AuthButton compact />
+          <div className="flex items-center gap-2">
+            <RefreshButton compact />
+            <AuthButton compact />
+          </div>
         </header>
 
         <main className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">

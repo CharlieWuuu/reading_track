@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { useSidebarStore } from "@/store/useSidebarStore";
 import { NAV_ITEMS } from "./navItems";
+import { RefreshButton } from "./RefreshButton";
 
 /** 側欄空間夠，用完整名稱；底部導覽列則用短標籤 */
 const FULL_LABELS: Record<string, string> = {
@@ -90,7 +91,12 @@ export function Sidebar() {
         })}
       </ul>
 
-      <div className={`border-t border-gray-900 ${collapsed ? "p-2" : "p-4"}`}>
+      <div
+        className={`flex flex-col gap-2 border-t border-gray-900 ${
+          collapsed ? "items-center p-2" : "p-4"
+        }`}
+      >
+        <RefreshButton compact={collapsed} />
         <AuthButton compact={collapsed} />
       </div>
     </nav>

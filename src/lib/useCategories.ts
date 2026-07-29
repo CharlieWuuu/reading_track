@@ -16,9 +16,7 @@ export function useCategories() {
   const { sheetId } = useSheetStore();
   const key = sheetId ? `/api/options?sheetId=${encodeURIComponent(sheetId)}` : null;
 
-  const { data, error, isLoading, mutate } = useSWR(key, fetcher, {
-    revalidateOnFocus: false,
-  });
+  const { data, error, isLoading, mutate } = useSWR(key, fetcher);
 
   const categories = data?.categories ?? DEFAULT_CATEGORIES;
 

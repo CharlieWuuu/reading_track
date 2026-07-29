@@ -1,0 +1,55 @@
+"use client";
+
+import { useState } from "react";
+import { useSWRConfig } from "swr";
+
+/** 手動重抓所有資料，順便顯示上次更新時間 */
+export function RefreshButton({ compact = false }: { compact?: boolean }) {
+  const { mutate } = useSWRConfig();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  async function handleRefresh() {
+    setIsRefreshing(true);
+    try {
+      // 第一個參數傳 () => true 代表重抓目前所有的 key
+      await mutate(() => true);
+      setLastUpdated(new Date());
+    } finally {
+      setIsRefreshing(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleRefresh}
+      disabled={isRefreshing}
+      title={
+        lastUpdated
+          ? `上次更新 ${lastUpdated.toLocaleTimeString("zh-Hant", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}`
+          : "重新整理資料"
+      }
+      aria-label="重新整理資料"
+      className="flex items-center gap-1.5 rounded border border-gray-900 px-2 py-1 text-xs font-medium transition-colors hover:bg-gray-900 hover:text-white disabled:opacity-50"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`}
+        aria-hidden
+      >
+        <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+        <polyline points="21 3 21 9 15 9" />
+      </svg>
+      {!compact && <span>{isRefreshing ? "更新中" : "重新整理"}</span>}
+    </button>
+  );
+}

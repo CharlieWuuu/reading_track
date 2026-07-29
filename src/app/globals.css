@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 :root {
+  /* 全站僅提供淺色主題；宣告 color-scheme 可擋掉 iOS/Android 的自動深色反轉 */
+  color-scheme: light;
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -12,11 +14,9 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  /* 補上 html 底色，避免手機捲動回彈時露出深色畫布 */
+  background: var(--background);
 }
 
 body {
