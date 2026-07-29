@@ -66,25 +66,7 @@ export function validateBook(book: Book): BookIssue[] {
   return issues;
 }
 
+// 同名書籍是正常的（不同版本、重讀、系列書），不列為問題。
 export function validateBooks(books: Book[]): BookIssue[] {
-  const issues = books.flatMap(validateBook);
-
-  const seen = new Map<string, string>();
-  for (const book of books) {
-    if (!book.title.trim()) continue;
-    const key = book.title.trim().toLowerCase();
-    const existing = seen.get(key);
-    if (existing) {
-      issues.push({
-        bookId: book.id,
-        title: book.title,
-        field: "title",
-        message: "有另一筆同名書籍，可能重複了",
-      });
-    } else {
-      seen.set(key, book.id);
-    }
-  }
-
-  return issues;
+  return books.flatMap(validateBook);
 }

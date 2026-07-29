@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { useFitPageSize } from "@/lib/useFitPageSize";
 import { useInstapaperStore } from "@/store/useInstapaperStore";
 import { useArticles } from "@/lib/useArticles";
 import { InstapaperBookmark } from "@/lib/instapaper/client";
@@ -14,18 +15,21 @@ function activityTime(a: InstapaperBookmark): number {
   return a.progress_timestamp || a.time;
 }
 
-const PAGE_SIZE = 10;
+/** 單筆文章的高度：標題 + 日期 + 進度條 */
+const ROW_HEIGHT = { mobile: 92, desktop: 84 };
 
 export default function ArticlesPage() {
   const { token } = useInstapaperStore();
   const { articles, isLoading, error } = useArticles();
   const [page, setPage] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const pageSize = useFitPageSize(containerRef, ROW_HEIGHT);
 
-  const pageCount = Math.max(1, Math.ceil(articles.length / PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(articles.length / pageSize));
   const currentPage = Math.min(page, pageCount - 1);
   const pageArticles = articles.slice(
-    currentPage * PAGE_SIZE,
-    currentPage * PAGE_SIZE + PAGE_SIZE
+    currentPage * pageSize,
+    currentPage * pageSize + pageSize
   );
 
   if (!token) {
@@ -75,7 +79,7 @@ export default function ArticlesPage() {
   return (
     <div className="mx-auto max-w-5xl">
       <PageHeader title="文章紀錄" />
-      <div className="divide-y rounded-lg border bg-white">
+      <div ref={containerRef} className="divide-y rounded-lg border bg-white">
         {pageArticles.map((a) => {
           const percent = Math.round((a.progress ?? 0) * 100);
           return (

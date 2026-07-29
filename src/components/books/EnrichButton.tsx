@@ -9,12 +9,14 @@ export function EnrichButton() {
   const { mutate } = useBooks();
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [failures, setFailures] = useState<string[]>([]);
 
   if (!sheetId) return null;
 
   async function handleClick() {
     setStatus("loading");
     setMessage("");
+    setFailures([]);
     try {
       const res = await fetch("/api/books/enrich", {
         method: "POST",
@@ -32,10 +34,12 @@ export function EnrichButton() {
       if (data.skipped > 0) parts.push(`${data.skipped} 筆查不到資料`);
       if (data.remaining > 0) parts.push(`還有 ${data.remaining} 筆，再按一次可繼續`);
       setMessage(parts.join("，"));
+      setFailures(data.failures ?? []);
       setStatus("done");
       mutate();
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "補齊失敗");
+      setFailures([]);
       setStatus("error");
     }
   }
@@ -45,6 +49,9 @@ export function EnrichButton() {
       {message && (
         <span className={`text-xs ${status === "error" ? "text-red-600" : "text-gray-500"}`}>
           {message}
+          {failures.length > 0 && (
+            <span className="block text-gray-400">查不到：{failures.join("、")}</span>
+          )}
         </span>
       )}
       <button

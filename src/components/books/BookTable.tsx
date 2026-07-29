@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
+import { useFitPageSize } from "@/lib/useFitPageSize";
 
-const PAGE_SIZE = 10;
+/** 單筆高度：手機是卡片，桌機是含書封的表格列 */
+const ROW_HEIGHT = { mobile: 86, desktop: 68 };
 
 function Cover({ url, title }: { url: string; title: string }) {
   if (url) {
@@ -30,13 +32,12 @@ export function BookTable() {
   const { sheetId } = useSheetStore();
   const { books, isLoading, error, mutate } = useBooks();
   const [page, setPage] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const pageSize = useFitPageSize(containerRef, ROW_HEIGHT);
 
-  const pageCount = Math.max(1, Math.ceil(books.length / PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(books.length / pageSize));
   const currentPage = Math.min(page, pageCount - 1);
-  const pageBooks = books.slice(
-    currentPage * PAGE_SIZE,
-    currentPage * PAGE_SIZE + PAGE_SIZE
-  );
+  const pageBooks = books.slice(currentPage * pageSize, currentPage * pageSize + pageSize);
 
   async function handleDelete(id: string) {
     if (!sheetId) return;
@@ -108,7 +109,7 @@ export function BookTable() {
     ) : null;
 
   return (
-    <>
+    <div ref={containerRef}>
       {/* 手機版：卡片列表，欄位太多的表格在小螢幕上不好讀 */}
       <div className="rounded-lg border bg-white md:hidden">
         <ul className="divide-y">
@@ -119,7 +120,7 @@ export function BookTable() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">
                     <span className="mr-2 text-xs tabular-nums text-gray-400">
-                      #{currentPage * PAGE_SIZE + i + 1}
+                      #{books.length - (currentPage * pageSize + i)}
                     </span>
                     {b.title}
                   </p>
@@ -165,7 +166,7 @@ export function BookTable() {
               <td className="px-4 py-2 font-medium">
                 <Link href={`/books/${b.id}/edit`} className="hover:underline">
                   <span className="mr-2 text-xs tabular-nums text-gray-400">
-                    #{currentPage * PAGE_SIZE + i + 1}
+                    #{books.length - (currentPage * pageSize + i)}
                   </span>
                   {b.title}
                 </Link>
@@ -194,6 +195,6 @@ export function BookTable() {
       </table>
         {pager}
       </div>
-    </>
+    </div>
   );
 }
