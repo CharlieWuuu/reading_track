@@ -215,18 +215,96 @@ export function MonthGrid({
         })}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto border-t p-3 sm:hidden">
+      {/* 格子內不捲動；平常靠「+N 篇」收合就放得下，展開時才由整個月曆區塊捲 */}
+      <div className="hidden min-h-0 flex-1 auto-rows-fr grid-cols-7 overflow-y-auto sm:grid">
+        {days.map((day, i) => {
+          const isToday = day.date.toDateString() === today.toDateString();
+          const isLastCol = i % 7 === 6;
+          const isLastRow = i >= days.length - 7;
+          const isSelected =
+            day.date.toDateString() === selected.toDateString();
+          return (
+            // 點整格選這天，明細列在月曆下方；格內的書封／文章連結照常可點
+            <div
+              key={i}
+              role="button"
+              tabIndex={0}
+              onClick={() => setSelectedTime(day.date.getTime())}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setSelectedTime(day.date.getTime());
+                }
+              }}
+              className={`min-h-28 cursor-pointer p-1.5 text-left ${isLastCol ? "" : "border-r"} ${
+                isLastRow ? "" : "border-b"
+              } ${
+                isSelected
+                  ? "bg-gray-100 ring-1 ring-inset ring-gray-900"
+                  : day.inCurrentMonth
+                    ? "bg-white hover:bg-gray-50"
+                    : "bg-gray-50"
+              }`}
+            >
+              {/* 日期與書封並排，省下日期獨占的那一行高度 */}
+              <div className="flex items-start gap-1">
+                <span
+                  className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs ${
+                    isToday
+                      ? "bg-gray-900 text-white"
+                      : day.inCurrentMonth
+                        ? "text-gray-700"
+                        : "text-gray-300"
+                  }`}
+                >
+                  {day.date.getDate()}
+                </span>
+
+                <div className="flex min-w-0 flex-1 flex-wrap gap-1">
+                  {day.books.map((b) => (
+                    <Link
+                      key={b.id}
+                      href={`/books/${b.id}/edit`}
+                      title={b.title}
+                      onClick={(e) => e.stopPropagation()}
+                      className="block"
+                    >
+                      {b.coverUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={b.coverUrl}
+                          alt={b.title}
+                          className="h-16 w-11 rounded-sm object-cover shadow-sm lg:h-20 lg:w-14"
+                        />
+                      ) : (
+                        <div className="flex h-16 w-11 items-center justify-center rounded-sm bg-gray-200 text-[10px] leading-tight text-gray-500 lg:h-20 lg:w-14">
+                          {b.title.slice(0, 2)}
+                        </div>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              <DayArticles articles={day.articles} />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 選取日的完整明細，手機佔滿剩餘空間，桌機固定一小塊在月曆下方 */}
+      <div className="min-h-0 flex-1 overflow-y-auto border-t p-3 sm:h-40 sm:flex-none">
         <p className="mb-2 text-xs font-medium text-gray-500">
           {selected.getMonth() + 1} 月 {selected.getDate()} 日
         </p>
         {selectedDay &&
         (selectedDay.books.length > 0 || selectedDay.articles.length > 0) ? (
-          <div className="space-y-2">
+          <div className="space-y-2 sm:grid sm:grid-cols-2 sm:gap-2 sm:space-y-0 lg:grid-cols-3">
             {selectedDay.books.map((b) => (
               <Link
                 key={b.id}
                 href={`/books/${b.id}/edit`}
-                className="flex items-center gap-2 rounded border px-2 py-1.5"
+                className="flex items-center gap-2 rounded border px-2 py-1.5 hover:bg-gray-50"
               >
                 {b.coverUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -249,7 +327,8 @@ export function MonthGrid({
                 href={instapaperReadUrl(a.bookmark_id, a.url)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block truncate rounded bg-blue-50 px-2 py-1.5 text-xs text-blue-900"
+                title={a.title || a.url}
+                className="block truncate rounded bg-blue-50 px-2 py-1.5 text-xs text-blue-900 hover:bg-blue-100"
               >
                 {a.title || a.url}
               </a>
@@ -258,65 +337,6 @@ export function MonthGrid({
         ) : (
           <p className="text-xs text-gray-400">這天沒有紀錄</p>
         )}
-      </div>
-
-      {/* 格子內不捲動；平常靠「+N 篇」收合就放得下，展開時才由整個月曆區塊捲 */}
-      <div className="hidden min-h-0 flex-1 auto-rows-fr grid-cols-7 overflow-y-auto sm:grid">
-        {days.map((day, i) => {
-          const isToday = day.date.toDateString() === today.toDateString();
-          const isLastCol = i % 7 === 6;
-          const isLastRow = i >= days.length - 7;
-          const bgClass = day.inCurrentMonth ? "bg-white" : "bg-gray-50";
-          return (
-            <div
-              key={i}
-              className={`min-h-28 p-1.5 ${isLastCol ? "" : "border-r"} ${
-                isLastRow ? "" : "border-b"
-              } ${bgClass}`}
-            >
-              {/* 日期與書封並排，省下日期獨占的那一行高度 */}
-              <div className="flex items-start gap-1">
-                <span
-                  className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs ${
-                    isToday
-                      ? "bg-gray-900 text-white"
-                      : day.inCurrentMonth
-                        ? "text-gray-700"
-                        : "text-gray-300"
-                  }`}
-                >
-                  {day.date.getDate()}
-                </span>
-
-                <div className="flex min-w-0 flex-1 flex-wrap gap-1">
-                  {day.books.map((b) => (
-                    <Link
-                      key={b.id}
-                      href={`/books/${b.id}/edit`}
-                      title={b.title}
-                      className="block"
-                    >
-                      {b.coverUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={b.coverUrl}
-                          alt={b.title}
-                          className="h-16 w-11 rounded-sm object-cover shadow-sm lg:h-20 lg:w-14"
-                        />
-                      ) : (
-                        <div className="flex h-16 w-11 items-center justify-center rounded-sm bg-gray-200 text-[10px] leading-tight text-gray-500 lg:h-20 lg:w-14">
-                          {b.title.slice(0, 2)}
-                        </div>
-                      )}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              <DayArticles articles={day.articles} bgClass={bgClass} />
-            </div>
-          );
-        })}
       </div>
     </div>
   );
