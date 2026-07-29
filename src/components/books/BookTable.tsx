@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { RefObject, useEffect, useRef, useState } from "react";
 import { useBookViewStore } from "@/store/useBookViewStore";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
-import { useFitPageSize, viewportBottom } from "@/lib/useFitPageSize";
+import { useFitPageSize, useFitRowsByMeasure, viewportBottom } from "@/lib/useFitPageSize";
 import { ReadingStatus } from "@/types/book";
 
 /** 單筆高度：手機是卡片，桌機是含書封的表格列 */
@@ -139,30 +140,26 @@ function OptionList({ values }: { values: Array<string | undefined> }) {
 }
 
 export function BookTable() {
+  const router = useRouter();
   const { sheetId } = useSheetStore();
-  const { books, isLoading, error, mutate } = useBooks();
+  const { books, isLoading, error } = useBooks();
   const [page, setPage] = useState(0);
   const { view } = useBookViewStore();
   const containerRef = useRef<HTMLDivElement>(null);
-  const rowPageSize = useFitPageSize(containerRef, ROW_HEIGHT);
+  const rowEstimate = useFitPageSize(containerRef, ROW_HEIGHT);
+  // 列表用估算值起頭、再依實際渲染高度修正；書封牆是格狀排列，維持純計算
+  const rowPageSize = useFitRowsByMeasure(
+    containerRef,
+    rowEstimate,
+    books.length,
+    view !== "card",
+  );
   const cardPageSize = useFitCardCount(containerRef);
   const pageSize = view === "card" ? cardPageSize : rowPageSize;
 
   const pageCount = Math.max(1, Math.ceil(books.length / pageSize));
   const currentPage = Math.min(page, pageCount - 1);
   const pageBooks = books.slice(currentPage * pageSize, currentPage * pageSize + pageSize);
-
-  async function handleDelete(id: string) {
-    if (!sheetId) return;
-    const res = await fetch(`/api/books/${id}?sheetId=${encodeURIComponent(sheetId)}`, {
-      method: "DELETE",
-    });
-    if (res.ok) {
-      mutate((current) => ({
-        books: (current?.books ?? []).filter((b) => b.id !== id),
-      }), { revalidate: false });
-    }
-  }
 
   if (!sheetId) {
     return (
@@ -231,7 +228,7 @@ export function BookTable() {
               <li key={b.id || `cover-${i}`}>
                 <Link href={`/books/${b.id}/edit`} className="group block">
                   <LargeCover url={b.coverUrl} title={b.title} />
-                  <p className="mt-1.5 line-clamp-2 text-xs font-medium leading-snug group-hover:underline">
+                  <p className="mt-1.5 line-clamp-2 text-xs font-medium leading-snug">
                     {b.title}
                   </p>
                   <p className="mt-0.5 text-[11px] text-gray-400">
@@ -253,7 +250,7 @@ export function BookTable() {
       <div className="overflow-hidden rounded-lg border bg-white md:hidden">
         <ul className="divide-y">
           {pageBooks.map((b, i) => (
-            <li key={b.id || `card-${i}`}>
+            <li key={b.id || `card-${i}`} data-fit-row>
               <Link href={`/books/${b.id}/edit`} className="flex gap-3 p-3 hover:bg-gray-50">
                 <Cover url={b.coverUrl} title={b.title} />
                 <div className="min-w-0 flex-1">
@@ -285,7 +282,8 @@ export function BookTable() {
           {/* 欄寬用百分比，次要欄位隨螢幕變窄逐一收起，才不會撐出橫向捲軸 */}
           <tr>
             <th className="w-[9%] whitespace-nowrap px-3 py-2">封面</th>
-            <th className="w-[30%] whitespace-nowrap px-3 py-2">書名</th>
+            {/* 少了操作欄，多出來的寬度給書名 */}
+            <th className="w-[40%] whitespace-nowrap px-3 py-2">書名</th>
             <th className="w-[16%] whitespace-nowrap px-3 py-2">作者</th>
             <th className="w-[11%] whitespace-nowrap px-3 py-2">狀態</th>
             <th className="hidden w-[11%] whitespace-nowrap px-3 py-2 xl:table-cell">平台</th>
@@ -294,29 +292,29 @@ export function BookTable() {
             <th className="hidden w-[11%] whitespace-nowrap px-3 py-2 xl:table-cell">領域</th>
             <th className="hidden w-[9%] whitespace-nowrap px-3 py-2 2xl:table-cell">屬性</th>
             <th className="hidden w-[9%] whitespace-nowrap px-3 py-2 2xl:table-cell">語言</th>
-            <th className="w-[10%] whitespace-nowrap px-3 py-2" />
           </tr>
         </thead>
         <tbody>
           {pageBooks.map((b, i) => (
-            <tr key={b.id || `row-${i}`} className="border-t hover:bg-gray-50">
+            // 整列點擊就進編輯頁，所以書名不再另外做成連結樣式
+            <tr
+              key={b.id || `row-${i}`}
+              data-fit-row
+              onClick={() => router.push(`/books/${b.id}/edit`)}
+              className="cursor-pointer border-t hover:bg-gray-50"
+            >
               <td className="px-3 py-2">
-                <Link href={`/books/${b.id}/edit`} className="block">
-                  <Cover url={b.coverUrl} title={b.title} />
-                </Link>
+                <Cover url={b.coverUrl} title={b.title} />
               </td>
               <td className="max-w-0 overflow-hidden px-3 py-2 font-medium">
-                <Link
-                  href={`/books/${b.id}/edit`}
-                  className="flex max-w-full items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap hover:underline"
-                >
+                <div className="flex max-w-full items-center gap-2 overflow-hidden whitespace-nowrap">
                   <span className="shrink-0 text-xs tabular-nums text-gray-400">
                     #{books.length - (currentPage * pageSize + i)}
                   </span>
                   <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
                     {b.title}
                   </span>
-                </Link>
+                </div>
               </td>
               <td className="max-w-0 overflow-hidden whitespace-nowrap px-3 py-2">
                 <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.author}</span>
@@ -341,17 +339,6 @@ export function BookTable() {
               </td>
               <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 2xl:table-cell">
                 <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.language}</span>
-              </td>
-              <td className="whitespace-nowrap px-3 py-2 space-x-2">
-                <Link href={`/books/${b.id}/edit`} className="text-xs text-gray-600 hover:underline">
-                  編輯
-                </Link>
-                <button
-                  onClick={() => handleDelete(b.id)}
-                  className="text-xs text-red-600 hover:underline"
-                >
-                  刪除
-                </button>
               </td>
             </tr>
           ))}

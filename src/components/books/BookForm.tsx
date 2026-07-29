@@ -56,6 +56,7 @@ export function BookForm({
   const [form, setForm] = useState<FormState>(toForm(book ?? initial ?? {}));
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const isEdit = Boolean(book);
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
@@ -116,6 +117,32 @@ export function BookForm({
       setSubmitError(err instanceof Error ? err.message : "儲存失敗");
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!book || !sheetId) return;
+
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      const res = await fetch(
+        `/api/books/${book.id}?sheetId=${encodeURIComponent(sheetId)}`,
+        { method: "DELETE" }
+      );
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "刪除失敗");
+      }
+      await mutate(
+        (current) => ({ books: (current?.books ?? []).filter((b) => b.id !== book.id) }),
+        { revalidate: false }
+      );
+      router.push("/books");
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "刪除失敗");
+      setSubmitting(false);
+      setConfirmDelete(false);
     }
   }
 
@@ -201,13 +228,47 @@ export function BookForm({
 
       {submitError && <p className="text-xs text-red-600">{submitError}</p>}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
-      >
-        {submitting ? "儲存中…" : isEdit ? "儲存變更" : "新增書籍"}
-      </button>
+      <div className="flex items-center justify-between gap-3">
+        <button
+          type="submit"
+          disabled={submitting}
+          className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+        >
+          {submitting ? "儲存中…" : isEdit ? "儲存變更" : "新增書籍"}
+        </button>
+
+        {/* 刪除只出現在編輯頁，按一次先要求確認，避免誤刪 */}
+        {isEdit &&
+          (confirmDelete ? (
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-gray-500">確定刪除這本書？</span>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={submitting}
+                className="rounded bg-red-600 px-3 py-1.5 font-medium text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                刪除
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                className="rounded border px-3 py-1.5 text-gray-600 hover:bg-gray-50"
+              >
+                取消
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              disabled={submitting}
+              className="text-xs text-red-600 hover:underline disabled:opacity-50"
+            >
+              刪除這本書
+            </button>
+          ))}
+      </div>
     </form>
   );
 }
