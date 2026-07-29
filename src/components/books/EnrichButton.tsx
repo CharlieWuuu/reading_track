@@ -30,6 +30,7 @@ export function EnrichButton() {
       const parts = [`已補齊 ${data.updated} 筆（掃描 ${data.scanned} 筆）`];
       if (data.idsBackfilled > 0) parts.push(`補上 ${data.idsBackfilled} 個編號`);
       if (data.skipped > 0) parts.push(`${data.skipped} 筆查不到資料`);
+      if (data.remaining > 0) parts.push(`還有 ${data.remaining} 筆，再按一次可繼續`);
       setMessage(parts.join("，"));
       setStatus("done");
       mutate();

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useInstapaperStore } from "@/store/useInstapaperStore";
 import { useArticles } from "@/lib/useArticles";
@@ -13,9 +14,19 @@ function activityTime(a: InstapaperBookmark): number {
   return a.progress_timestamp || a.time;
 }
 
+const PAGE_SIZE = 10;
+
 export default function ArticlesPage() {
   const { token } = useInstapaperStore();
   const { articles, isLoading, error } = useArticles();
+  const [page, setPage] = useState(0);
+
+  const pageCount = Math.max(1, Math.ceil(articles.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount - 1);
+  const pageArticles = articles.slice(
+    currentPage * PAGE_SIZE,
+    currentPage * PAGE_SIZE + PAGE_SIZE
+  );
 
   if (!token) {
     return (
@@ -65,7 +76,7 @@ export default function ArticlesPage() {
     <div className="mx-auto max-w-5xl">
       <PageHeader title="文章紀錄" />
       <div className="divide-y rounded-lg border bg-white">
-        {articles.map((a) => {
+        {pageArticles.map((a) => {
           const percent = Math.round((a.progress ?? 0) * 100);
           return (
             <a
@@ -93,6 +104,30 @@ export default function ArticlesPage() {
             </a>
           );
         })}
+
+        {pageCount > 1 && (
+          <div className="flex items-center justify-center gap-4 px-4 py-2">
+            <button
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={currentPage === 0}
+              aria-label="上一頁"
+              className="text-gray-400 hover:text-gray-900 disabled:opacity-30 disabled:hover:text-gray-400"
+            >
+              ‹
+            </button>
+            <span className="whitespace-nowrap text-xs text-gray-500">
+              第 {currentPage + 1} / {pageCount} 頁
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+              disabled={currentPage === pageCount - 1}
+              aria-label="下一頁"
+              className="text-gray-400 hover:text-gray-900 disabled:opacity-30 disabled:hover:text-gray-400"
+            >
+              ›
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

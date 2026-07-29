@@ -3,7 +3,8 @@ import { auth } from "@/auth";
 import { listBooksWithMeta, updateBookRow } from "@/lib/sheets";
 import { fetchBookMetadata, mergeEnrichment, missingFields } from "@/lib/metadata";
 
-export const maxDuration = 300;
+// Vercel Hobby 方案上限就是 60 秒；升級到 Pro 可以調到 300
+export const maxDuration = 60;
 
 /** 對來源網站客氣一點，每本之間停一下 */
 const DELAY_BETWEEN_BOOKS_MS = 400;
@@ -28,9 +29,17 @@ export async function POST(req: NextRequest) {
 
   let updated = 0;
   let skipped = 0;
+  let remaining = 0;
   const failures: string[] = [];
 
+  // 留一點餘裕收尾，時間不夠就先回報進度，使用者可以再按一次接著補
+  const deadline = Date.now() + (maxDuration - 8) * 1000;
+
   for (const [i, book] of candidates.entries()) {
+    if (Date.now() > deadline) {
+      remaining = candidates.length - i;
+      break;
+    }
     if (i > 0) await sleep(DELAY_BETWEEN_BOOKS_MS);
 
     const metadata = await fetchBookMetadata(book.title, missingFields(book));
@@ -59,6 +68,7 @@ export async function POST(req: NextRequest) {
     scanned: candidates.length,
     updated,
     skipped,
+    remaining,
     idsBackfilled,
     failures: failures.slice(0, 10),
   });

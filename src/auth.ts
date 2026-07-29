@@ -26,6 +26,8 @@ async function refreshAccessToken(refreshToken: string) {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  // 部署在 Vercel 時網域是平台給的，要信任 Host header 才能組出正確的 callback URL
+  trustHost: true,
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,

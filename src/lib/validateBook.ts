@@ -1,4 +1,4 @@
-import { Book, BOOK_PLATFORMS } from "@/types/book";
+import { Book, normalizePlatform } from "@/types/book";
 
 export interface BookIssue {
   bookId: string;
@@ -47,7 +47,7 @@ export function validateBook(book: Book): BookIssue[] {
     add("endDate", "完成日期早於開始日期");
   }
 
-  if (book.platform && !BOOK_PLATFORMS.includes(book.platform)) {
+  if (book.platform && !normalizePlatform(book.platform)) {
     add("platform", `平台「${book.platform}」不在選項內，會被歸到「其他」`);
   }
 

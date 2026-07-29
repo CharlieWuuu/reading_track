@@ -8,6 +8,44 @@ import { InstapaperBookmark } from "@/lib/instapaper/client";
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
+/** 一天最多先列幾篇文章，其餘收在「+N」後面 */
+const ARTICLE_PREVIEW_COUNT = 3;
+
+function DayArticles({ articles }: { articles: InstapaperBookmark[] }) {
+  const [expanded, setExpanded] = useState(false);
+
+  if (articles.length === 0) return null;
+
+  const hidden = articles.length - ARTICLE_PREVIEW_COUNT;
+  const shown = expanded ? articles : articles.slice(0, ARTICLE_PREVIEW_COUNT);
+
+  return (
+    <div className="mt-1 space-y-0.5">
+      {shown.map((a) => (
+        <a
+          key={a.bookmark_id}
+          href={a.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={a.title || a.url}
+          className="block truncate rounded-sm bg-blue-50 px-1 py-0.5 text-[10px] text-blue-900 hover:bg-blue-100"
+        >
+          {a.title || a.url}
+        </a>
+      ))}
+
+      {hidden > 0 && (
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="block w-full rounded-sm px-1 py-0.5 text-left text-[10px] text-gray-500 hover:bg-gray-100"
+        >
+          {expanded ? "收合" : `+${hidden} 篇`}
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function MonthGrid({
   books,
   articles,
@@ -57,7 +95,7 @@ export function MonthGrid({
 
   return (
     <div className="overflow-hidden rounded-lg border bg-white">
-      <div className="flex items-center justify-between border-b px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b px-3 py-3 sm:px-4">
         <div className="flex items-center gap-2">
           <button
             onClick={goPrev}
@@ -66,7 +104,7 @@ export function MonthGrid({
           >
             ‹
           </button>
-          <span className="w-28 text-center text-sm font-medium">
+          <span className="w-28 whitespace-nowrap text-center text-sm font-medium">
             {year} 年 {month + 1} 月
           </span>
           <button
@@ -124,7 +162,7 @@ export function MonthGrid({
           return (
             <div
               key={i}
-              className={`min-h-24 p-1.5 ${isLastCol ? "" : "border-r"} ${
+              className={`min-h-20 p-1 sm:min-h-24 sm:p-1.5 ${isLastCol ? "" : "border-r"} ${
                 isLastRow ? "" : "border-b"
               } ${day.inCurrentMonth ? "bg-white" : "bg-gray-50"}`}
             >
@@ -164,20 +202,7 @@ export function MonthGrid({
                 ))}
               </div>
 
-              <div className="mt-1 space-y-0.5">
-                {day.articles.map((a) => (
-                  <a
-                    key={a.bookmark_id}
-                    href={a.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={a.title || a.url}
-                    className="block truncate rounded-sm bg-blue-50 px-1 py-0.5 text-[10px] text-blue-900 hover:bg-blue-100"
-                  >
-                    {a.title || a.url}
-                  </a>
-                ))}
-              </div>
+              <DayArticles articles={day.articles} />
             </div>
           );
         })}

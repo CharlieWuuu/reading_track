@@ -19,6 +19,16 @@ export const BOOK_PLATFORMS: BookPlatform[] = [
   "其他",
 ];
 
+/**
+ * 使用者可能在 Sheet 打成「HyRead」「hyread」，那都是同一個平台。
+ * 對不上的才真的當成未知平台。
+ */
+export function normalizePlatform(raw: string): BookPlatform | null {
+  const value = raw.trim().toLowerCase();
+  if (!value) return null;
+  return BOOK_PLATFORMS.find((p) => p.toLowerCase() === value) ?? null;
+}
+
 export interface Book {
   id: string;
   title: string;

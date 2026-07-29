@@ -5,7 +5,26 @@ import { useState } from "react";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
+
+function Cover({ url, title }: { url: string; title: string }) {
+  if (url) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={url}
+        alt=""
+        loading="lazy"
+        className="h-14 w-10 rounded-sm object-cover shadow-sm"
+      />
+    );
+  }
+  return (
+    <div className="flex h-14 w-10 items-center justify-center rounded-sm bg-gray-100 text-[9px] leading-tight text-gray-400">
+      {title.slice(0, 2) || "—"}
+    </div>
+  );
+}
 
 export function BookTable() {
   const { sheetId } = useSheetStore();
@@ -63,11 +82,67 @@ export function BookTable() {
     );
   }
 
+  const pager =
+    pageCount > 1 ? (
+      <div className="flex items-center justify-center gap-4 border-t px-4 py-2">
+        <button
+          onClick={() => setPage((p) => Math.max(0, p - 1))}
+          disabled={currentPage === 0}
+          aria-label="上一頁"
+          className="text-gray-400 hover:text-gray-900 disabled:opacity-30 disabled:hover:text-gray-400"
+        >
+          ‹
+        </button>
+        <span className="whitespace-nowrap text-xs text-gray-500">
+          第 {currentPage + 1} / {pageCount} 頁
+        </span>
+        <button
+          onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+          disabled={currentPage === pageCount - 1}
+          aria-label="下一頁"
+          className="text-gray-400 hover:text-gray-900 disabled:opacity-30 disabled:hover:text-gray-400"
+        >
+          ›
+        </button>
+      </div>
+    ) : null;
+
   return (
-    <div className="w-full overflow-x-auto rounded-lg border bg-white">
+    <>
+      {/* 手機版：卡片列表，欄位太多的表格在小螢幕上不好讀 */}
+      <div className="rounded-lg border bg-white md:hidden">
+        <ul className="divide-y">
+          {pageBooks.map((b, i) => (
+            <li key={b.id || `card-${i}`}>
+              <Link href={`/books/${b.id}/edit`} className="flex gap-3 p-3 hover:bg-gray-50">
+                <Cover url={b.coverUrl} title={b.title} />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">
+                    <span className="mr-2 text-xs tabular-nums text-gray-400">
+                      #{currentPage * PAGE_SIZE + i + 1}
+                    </span>
+                    {b.title}
+                  </p>
+                  <p className="truncate text-xs text-gray-500">{b.author}</p>
+                  <p className="mt-1 text-xs text-gray-400">
+                    {[b.platform, b.domain, b.type].filter(Boolean).join(" · ")}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {b.startDate ?? "—"} ～ {b.endDate ?? "—"}
+                  </p>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        {pager}
+      </div>
+
+      <div className="hidden w-full overflow-x-auto rounded-lg border bg-white md:block">
       <table className="w-full text-sm">
         <thead className="bg-gray-100 text-left">
           <tr>
+            <th className="whitespace-nowrap px-4 py-2">封面</th>
             <th className="whitespace-nowrap px-4 py-2">書名</th>
             <th className="whitespace-nowrap px-4 py-2">作者</th>
             <th className="whitespace-nowrap px-4 py-2">平台</th>
@@ -82,8 +157,16 @@ export function BookTable() {
         <tbody>
           {pageBooks.map((b, i) => (
             <tr key={b.id || `row-${i}`} className="border-t hover:bg-gray-50">
+              <td className="px-4 py-2">
+                <Link href={`/books/${b.id}/edit`} className="block">
+                  <Cover url={b.coverUrl} title={b.title} />
+                </Link>
+              </td>
               <td className="px-4 py-2 font-medium">
                 <Link href={`/books/${b.id}/edit`} className="hover:underline">
+                  <span className="mr-2 text-xs tabular-nums text-gray-400">
+                    #{currentPage * PAGE_SIZE + i + 1}
+                  </span>
                   {b.title}
                 </Link>
               </td>
@@ -109,30 +192,8 @@ export function BookTable() {
           ))}
         </tbody>
       </table>
-
-      {pageCount > 1 && (
-        <div className="flex items-center justify-center gap-4 border-t px-4 py-2">
-          <button
-            onClick={() => setPage((p) => Math.max(0, p - 1))}
-            disabled={currentPage === 0}
-            aria-label="上一頁"
-            className="text-gray-400 hover:text-gray-900 disabled:opacity-30 disabled:hover:text-gray-400"
-          >
-            ‹
-          </button>
-          <span className="text-xs text-gray-500">
-            第 {currentPage + 1} / {pageCount} 頁
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
-            disabled={currentPage === pageCount - 1}
-            aria-label="下一頁"
-            className="text-gray-400 hover:text-gray-900 disabled:opacity-30 disabled:hover:text-gray-400"
-          >
-            ›
-          </button>
-        </div>
-      )}
-    </div>
+        {pager}
+      </div>
+    </>
   );
 }

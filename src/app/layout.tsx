@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { AppShell } from "@/components/layout/AppShell";
+import { ServiceWorkerRegistrar } from "@/components/layout/ServiceWorkerRegistrar";
 import { SessionProvider } from "@/components/auth/SessionProvider";
 
 const geistSans = Geist({
@@ -17,6 +18,22 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Reading Track",
   description: "個人書籍與文章追蹤",
+  appleWebApp: {
+    capable: true,
+    title: "Reading Track",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#111827",
 };
 
 export default function RootLayout({
@@ -31,8 +48,8 @@ export default function RootLayout({
     >
       <body className="flex h-full bg-gray-50 text-gray-900">
         <SessionProvider>
-          <Sidebar />
-          <main className="flex-1 overflow-y-auto p-6">{children}</main>
+          <AppShell>{children}</AppShell>
+          <ServiceWorkerRegistrar />
         </SessionProvider>
       </body>
     </html>

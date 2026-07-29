@@ -1,6 +1,6 @@
 import { GoogleSpreadsheet, GoogleSpreadsheetWorksheet } from "google-spreadsheet";
 import { OAuth2Client } from "google-auth-library";
-import { Book, BookPlatform } from "@/types/book";
+import { Book, BookPlatform, normalizePlatform } from "@/types/book";
 import { BOOK_FIELDS, BookField, COLUMN_LABELS, mapHeaders } from "./sheetSchema";
 
 const BOOKS_SHEET_TITLE = "書籍";
@@ -89,7 +89,8 @@ export async function listBooksWithMeta(
       author: get("author"),
       coverUrl: get("coverUrl"),
       publisher: get("publisher"),
-      platform: (get("platform") || "其他") as BookPlatform,
+      // 大小寫不同一律收斂成正式名稱，下拉選單才選得起來
+      platform: normalizePlatform(get("platform")) ?? ((get("platform") || "其他") as BookPlatform),
       sourceUrl: get("sourceUrl"),
       startDate: get("startDate") || null,
       endDate: get("endDate") || null,

@@ -296,7 +296,7 @@ export function BookForm({ book }: { book?: Book }) {
         </>
       )}
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="書名" value={form.title} onChange={(v) => set("title", v)} required />
         <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
         <Field label="封面 URL" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
