@@ -48,10 +48,22 @@ async function resolveColumns(sheet: GoogleSpreadsheetWorksheet) {
   const changed =
     nextHeaders.length !== headers.length || nextHeaders.some((h, i) => h !== headers[i]);
 
-  if (!changed) return map as Record<BookField, string>;
+  if (!changed) return assertComplete(map);
 
   await sheet.setHeaderRow(nextHeaders);
-  return mapHeaders(nextHeaders) as Record<BookField, string>;
+  return assertComplete(mapHeaders(nextHeaders));
+}
+
+/**
+ * 每個欄位都必須對應得到表頭。少一個就代表 COLUMN_LABELS 與 COLUMN_ALIASES 沒對上，
+ * 這時候硬跑下去會拿 undefined 去定位儲存格，寫壞使用者的資料——寧可直接失敗。
+ */
+function assertComplete(map: Partial<Record<BookField, string>>): Record<BookField, string> {
+  const missing = BOOK_FIELDS.filter((f) => !map[f]);
+  if (missing.length > 0) {
+    throw new Error(`表頭對應不完整，缺少：${missing.join(", ")}`);
+  }
+  return map as Record<BookField, string>;
 }
 
 /** 只砍掉尾端的空欄，中間的空欄要留著，不然整排資料會左移對不上 */

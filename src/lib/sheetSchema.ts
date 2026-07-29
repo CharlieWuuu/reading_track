@@ -26,7 +26,12 @@ export const COLUMN_LABELS: Record<BookField, string> = {
 
 export const BOOK_FIELDS = Object.keys(COLUMN_LABELS) as BookField[];
 
-/** 中文欄名以外，也接受的舊欄名／別名（比對時忽略大小寫與空白）。 */
+/**
+ * 中文欄名以外，也接受的舊欄名／別名（比對時忽略大小寫與空白）。
+ *
+ * 不用重複列出 COLUMN_LABELS 的正式名稱，`aliasesFor` 一定會把它加進去——
+ * 少寫一個就會發生「自己寫出去的欄名下次認不得」，進而重複補欄、撞名。
+ */
 const COLUMN_ALIASES: Record<BookField, string[]> = {
   id: ["id", "uuid", "識別碼"],
   title: ["title", "書名", "標題", "書籍名稱"],
@@ -49,6 +54,11 @@ function normalize(header: string) {
   return header.replace(/\s+/g, "").toLowerCase();
 }
 
+/** 正式中文欄名永遠算自己的別名，避免遷移後認不得自己寫出去的表頭 */
+function aliasesFor(field: BookField): string[] {
+  return [COLUMN_LABELS[field], ...COLUMN_ALIASES[field]].map(normalize);
+}
+
 /**
  * 把實際表頭對應回程式欄位。回傳 field -> 實際表頭字串，
  * 讓讀寫都用使用者當下的欄名，不會因為改成中文就找不到舊資料。
@@ -56,7 +66,7 @@ function normalize(header: string) {
 export function mapHeaders(headers: string[]): Partial<Record<BookField, string>> {
   const map: Partial<Record<BookField, string>> = {};
   for (const field of BOOK_FIELDS) {
-    const aliases = COLUMN_ALIASES[field].map(normalize);
+    const aliases = aliasesFor(field);
     const match = headers.find((h) => aliases.includes(normalize(h)));
     if (match) map[field] = match;
   }
