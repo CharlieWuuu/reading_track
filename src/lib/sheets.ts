@@ -14,26 +14,51 @@ function getAuthClient(accessToken: string) {
 }
 
 /**
- * 現有表頭 -> 欄位對照。缺少的欄位（例如新增的頁數／字數）會補到表頭最右邊，
- * 使用者自訂的欄位維持原位不動。
+ * 現有表頭 -> 欄位對照，順便把表頭整理成正式的中文欄名：
+ *
+ * - 認得的舊欄名（例如 `title`、`coverUrl`）就地改寫成中文，**位置不動**，
+ *   所以底下的資料不會跑掉
+ * - 缺少的欄位補到最右邊
+ * - 認不出來的欄位當成使用者自訂，原樣保留
  */
 async function resolveColumns(sheet: GoogleSpreadsheetWorksheet) {
   await sheet.loadHeaderRow().catch(() => null);
-  const headers = sheet.headerValues ?? [];
-  let map = mapHeaders(headers);
+  const headers = trimTrailingBlanks(sheet.headerValues ?? []);
+  const map = mapHeaders(headers);
 
-  const missing = BOOK_FIELDS.filter((f) => !map[f]);
-  if (missing.length > 0) {
-    // 保留使用者自訂欄位的位置，只在最右邊補上缺的欄
-    const nextHeaders = [
-      ...headers.filter((h) => h.trim()),
-      ...missing.map((f) => COLUMN_LABELS[f]),
-    ];
-    await sheet.setHeaderRow(nextHeaders);
-    map = mapHeaders(nextHeaders);
+  // 實際表頭 -> 欄位，用來判斷某一欄該不該改名
+  const fieldByHeader = new Map<string, BookField>();
+  for (const field of BOOK_FIELDS) {
+    const header = map[field];
+    if (header) fieldByHeader.set(header, field);
   }
 
-  return map as Record<BookField, string>;
+  const renamed = headers.map((header) => {
+    const field = fieldByHeader.get(header);
+    return field ? COLUMN_LABELS[field] : header;
+  });
+
+  const missing = BOOK_FIELDS.filter((f) => !map[f]);
+  // 萬一表裡同時有「coverUrl」和「封面網址」，改名會撞成兩個同名欄，
+  // 那就別改名了，只補缺的欄，交給使用者自己決定要留哪一個
+  const safeToRename = new Set(renamed).size === renamed.length;
+  const base = safeToRename ? renamed : headers;
+  const nextHeaders = [...base, ...missing.map((f) => COLUMN_LABELS[f])];
+
+  const changed =
+    nextHeaders.length !== headers.length || nextHeaders.some((h, i) => h !== headers[i]);
+
+  if (!changed) return map as Record<BookField, string>;
+
+  await sheet.setHeaderRow(nextHeaders);
+  return mapHeaders(nextHeaders) as Record<BookField, string>;
+}
+
+/** 只砍掉尾端的空欄，中間的空欄要留著，不然整排資料會左移對不上 */
+function trimTrailingBlanks(headers: string[]): string[] {
+  let end = headers.length;
+  while (end > 0 && !headers[end - 1]?.trim()) end--;
+  return headers.slice(0, end);
 }
 
 /** 表頭字串 -> 欄索引（0 起算），批次寫入時用來定位儲存格 */
