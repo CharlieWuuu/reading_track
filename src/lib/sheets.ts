@@ -1,6 +1,14 @@
 import { GoogleSpreadsheet, GoogleSpreadsheetWorksheet } from "google-spreadsheet";
 import { OAuth2Client } from "google-auth-library";
-import { Book, BookPlatform, normalizePlatform } from "@/types/book";
+import {
+  Book,
+  BookCategories,
+  BookPlatform,
+  DEFAULT_CATEGORIES,
+  inferStatus,
+  normalizePlatform,
+  normalizeStatus,
+} from "@/types/book";
 import { BOOK_FIELDS, BookField, COLUMN_LABELS, mapHeaders } from "./sheetSchema";
 
 const BOOKS_SHEET_TITLE = "書籍";
@@ -141,6 +149,8 @@ export async function listBooksWithMeta(
       publisher: get("publisher"),
       // 大小寫不同一律收斂成正式名稱，下拉選單才選得起來
       platform: normalizePlatform(get("platform")) ?? ((get("platform") || "其他") as BookPlatform),
+      // 舊資料沒有這欄，用日期推一個合理的預設值
+      status: normalizeStatus(get("status")) ?? inferStatus(get("startDate") || null, get("endDate") || null),
       sourceUrl: get("sourceUrl"),
       startDate: get("startDate") || null,
       endDate: get("endDate") || null,
@@ -220,6 +230,85 @@ export async function bulkUpdateBooks(
 
   await sheet.saveUpdatedCells();
   return written;
+}
+
+// ---------------------------------------------------------------------------
+// 自訂選項（領域／屬性／語言）
+//
+// 存在同一份試算表的「選項」工作表，兩欄：類別 | 選項。
+// 放雲端才不會換裝置就消失，而且使用者也能直接在 Sheet 裡編輯。
+// ---------------------------------------------------------------------------
+
+const OPTIONS_SHEET_TITLE = "選項";
+const OPTIONS_HEADERS = ["類別", "選項"];
+
+const CATEGORY_LABELS: Record<keyof BookCategories, string> = {
+  domain: "領域",
+  type: "屬性",
+  language: "語言",
+};
+
+function categoryKeyOf(label: string): keyof BookCategories | null {
+  const entry = Object.entries(CATEGORY_LABELS).find(([, name]) => name === label.trim());
+  return entry ? (entry[0] as keyof BookCategories) : null;
+}
+
+async function getOptionsSheet(sheetId: string, accessToken: string) {
+  const doc = new GoogleSpreadsheet(sheetId, getAuthClient(accessToken));
+  await doc.loadInfo();
+
+  let sheet = doc.sheetsByTitle[OPTIONS_SHEET_TITLE];
+  if (!sheet) {
+    sheet = await doc.addSheet({
+      title: OPTIONS_SHEET_TITLE,
+      headerValues: OPTIONS_HEADERS,
+    });
+    // 第一次建立時放入預設選項，不然使用者會看到空白下拉選單
+    await sheet.addRows(
+      (Object.keys(CATEGORY_LABELS) as (keyof BookCategories)[]).flatMap((key) =>
+        DEFAULT_CATEGORIES[key].map((option) => ({
+          類別: CATEGORY_LABELS[key],
+          選項: option,
+        }))
+      )
+    );
+  }
+  return sheet;
+}
+
+export async function listCategories(
+  sheetId: string,
+  accessToken: string
+): Promise<BookCategories> {
+  const sheet = await getOptionsSheet(sheetId, accessToken);
+  const rows = await sheet.getRows();
+
+  const categories: BookCategories = { domain: [], type: [], language: [] };
+  for (const row of rows) {
+    const key = categoryKeyOf((row.get("類別") ?? "").toString());
+    const option = (row.get("選項") ?? "").toString().trim();
+    if (!key || !option || categories[key].includes(option)) continue;
+    categories[key].push(option);
+  }
+  return categories;
+}
+
+/** 整組覆寫。選項數量不多，重寫比逐列比對簡單也不容易出錯。 */
+export async function saveCategories(
+  sheetId: string,
+  accessToken: string,
+  categories: BookCategories
+) {
+  const sheet = await getOptionsSheet(sheetId, accessToken);
+  await sheet.clearRows();
+  await sheet.addRows(
+    (Object.keys(CATEGORY_LABELS) as (keyof BookCategories)[]).flatMap((key) =>
+      categories[key].map((option) => ({
+        類別: CATEGORY_LABELS[key],
+        選項: option,
+      }))
+    )
+  );
 }
 
 export async function deleteBookRow(sheetId: string, accessToken: string, id: string) {

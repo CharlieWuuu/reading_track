@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useBookStore } from "@/store/useBookStore";
 import { BookCategories } from "@/types/book";
+import { useCategories } from "@/lib/useCategories";
 
 const LABELS: Record<keyof BookCategories, string> = {
   domain: "領域",
@@ -11,31 +11,29 @@ const LABELS: Record<keyof BookCategories, string> = {
 };
 
 function CategoryGroup({ categoryKey }: { categoryKey: keyof BookCategories }) {
-  const { categories, addCategoryOption, removeCategoryOption, renameCategoryOption } =
-    useBookStore();
+  const { categories, save } = useCategories();
   const options = categories[categoryKey];
   const [newValue, setNewValue] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
 
+  function replaceOptions(next: string[]) {
+    save({ ...categories, [categoryKey]: next });
+  }
+
   function handleAdd() {
     const value = newValue.trim();
-    if (!value) return;
-    addCategoryOption(categoryKey, value);
+    if (!value || options.includes(value)) return;
+    replaceOptions([...options, value]);
     setNewValue("");
   }
 
-  function startEdit(option: string) {
-    setEditing(option);
-    setEditValue(option);
-  }
-
   function commitEdit() {
-    if (editing) {
-      renameCategoryOption(categoryKey, editing, editValue.trim());
-    }
+    const from = editing;
+    const to = editValue.trim();
     setEditing(null);
-    setEditValue("");
+    if (!from || !to || from === to || options.includes(to)) return;
+    replaceOptions(options.map((o) => (o === from ? to : o)));
   }
 
   return (
@@ -61,14 +59,17 @@ function CategoryGroup({ categoryKey }: { categoryKey: keyof BookCategories }) {
                 <span className="flex-1 text-sm">{option}</span>
                 <button
                   type="button"
-                  onClick={() => startEdit(option)}
+                  onClick={() => {
+                    setEditing(option);
+                    setEditValue(option);
+                  }}
                   className="text-xs text-gray-500 hover:underline"
                 >
                   重新命名
                 </button>
                 <button
                   type="button"
-                  onClick={() => removeCategoryOption(categoryKey, option)}
+                  onClick={() => replaceOptions(options.filter((o) => o !== option))}
                   className="text-xs text-red-600 hover:underline"
                 >
                   刪除
@@ -108,9 +109,10 @@ export function CategoryManager() {
     <div>
       <h3 className="mb-2 text-sm font-medium">書籍分類選項</h3>
       <p className="mb-4 text-xs text-gray-500">
-        管理「領域」「屬性」「語言」的可選項目，可新增、刪除或重新命名。
+        管理「領域」「屬性」「語言」的可選項目。選項存在試算表的「選項」工作表，
+        換裝置也還在；編輯書籍時在下拉選單裡也能直接增修。
       </p>
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         <CategoryGroup categoryKey="domain" />
         <CategoryGroup categoryKey="type" />
         <CategoryGroup categoryKey="language" />

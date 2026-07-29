@@ -29,6 +29,26 @@ export function normalizePlatform(raw: string): BookPlatform | null {
   return BOOK_PLATFORMS.find((p) => p.toLowerCase() === value) ?? null;
 }
 
+/**
+ * 閱讀狀態刻意不開放自訂：統計與日曆要靠它做判斷，
+ * 可自訂的話語意會散掉。要自由分類請用領域／屬性／語言。
+ */
+export type ReadingStatus = "想讀" | "閱讀中" | "已讀完";
+
+export const READING_STATUSES: ReadingStatus[] = ["想讀", "閱讀中", "已讀完"];
+
+/** 沒填狀態的舊資料，用日期推一個合理的預設值 */
+export function inferStatus(startDate: string | null, endDate: string | null): ReadingStatus {
+  if (endDate) return "已讀完";
+  if (startDate) return "閱讀中";
+  return "想讀";
+}
+
+export function normalizeStatus(raw: string): ReadingStatus | null {
+  const value = raw.trim();
+  return READING_STATUSES.find((s) => s === value) ?? null;
+}
+
 export interface Book {
   id: string;
   title: string;
@@ -37,6 +57,7 @@ export interface Book {
   publisher: string;
   platform: BookPlatform;
   sourceUrl: string;
+  status: ReadingStatus;
   startDate: string | null;
   endDate: string | null;
   domain: string;

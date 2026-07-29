@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
 import { useFitPageSize } from "@/lib/useFitPageSize";
+import { ReadingStatus } from "@/types/book";
 
 /** 單筆高度：手機是卡片，桌機是含書封的表格列 */
 const ROW_HEIGHT = { mobile: 86, desktop: 68 };
@@ -25,6 +26,22 @@ function Cover({ url, title }: { url: string; title: string }) {
     <div className="flex h-14 w-10 items-center justify-center rounded-sm bg-gray-100 text-[9px] leading-tight text-gray-400">
       {title.slice(0, 2) || "—"}
     </div>
+  );
+}
+
+const STATUS_STYLES: Record<ReadingStatus, string> = {
+  想讀: "bg-gray-100 text-gray-600",
+  閱讀中: "bg-blue-50 text-blue-800",
+  已讀完: "bg-green-50 text-green-800",
+};
+
+function StatusBadge({ status }: { status: ReadingStatus }) {
+  return (
+    <span
+      className={`inline-block whitespace-nowrap rounded px-1.5 py-0.5 text-[11px] ${STATUS_STYLES[status] ?? STATUS_STYLES.想讀}`}
+    >
+      {status}
+    </span>
   );
 }
 
@@ -125,8 +142,9 @@ export function BookTable() {
                     {b.title}
                   </p>
                   <p className="truncate text-xs text-gray-500">{b.author}</p>
-                  <p className="mt-1 text-xs text-gray-400">
-                    {[b.platform, b.domain, b.type].filter(Boolean).join(" · ")}
+                  <p className="mt-1 flex items-center gap-2 text-xs text-gray-400">
+                    <StatusBadge status={b.status} />
+                    <span>{[b.platform, b.domain, b.type].filter(Boolean).join(" · ")}</span>
                   </p>
                   <p className="text-xs text-gray-400">
                     {b.startDate ?? "—"} ～ {b.endDate ?? "—"}
@@ -140,19 +158,20 @@ export function BookTable() {
       </div>
 
       <div className="hidden w-full overflow-x-auto rounded-lg border bg-white md:block">
-      <table className="w-full text-sm">
+      <table className="w-full table-fixed text-sm">
         <thead className="bg-gray-100 text-left">
           <tr>
-            <th className="whitespace-nowrap px-4 py-2">封面</th>
-            <th className="whitespace-nowrap px-4 py-2">書名</th>
-            <th className="whitespace-nowrap px-4 py-2">作者</th>
-            <th className="whitespace-nowrap px-4 py-2">平台</th>
-            <th className="whitespace-nowrap px-4 py-2">開始日期</th>
-            <th className="whitespace-nowrap px-4 py-2">完成日期</th>
-            <th className="whitespace-nowrap px-4 py-2">領域</th>
-            <th className="whitespace-nowrap px-4 py-2">屬性</th>
-            <th className="whitespace-nowrap px-4 py-2">語言</th>
-            <th className="whitespace-nowrap px-4 py-2" />
+            <th className="w-14 whitespace-nowrap px-4 py-2">封面</th>
+            <th className="w-80 min-w-70 whitespace-nowrap px-4 py-2">書名</th>
+            <th className="w-35 whitespace-nowrap px-4 py-2">作者</th>
+            <th className="w-22.5 whitespace-nowrap px-4 py-2">狀態</th>
+            <th className="w-30 whitespace-nowrap px-4 py-2">平台</th>
+            <th className="w-27.5 whitespace-nowrap px-4 py-2">開始日期</th>
+            <th className="w-27.5 whitespace-nowrap px-4 py-2">完成日期</th>
+            <th className="w-30 whitespace-nowrap px-4 py-2">領域</th>
+            <th className="w-25 whitespace-nowrap px-4 py-2">屬性</th>
+            <th className="w-22.5 whitespace-nowrap px-4 py-2">語言</th>
+            <th className="w-22.5 whitespace-nowrap px-4 py-2" />
           </tr>
         </thead>
         <tbody>
@@ -163,21 +182,43 @@ export function BookTable() {
                   <Cover url={b.coverUrl} title={b.title} />
                 </Link>
               </td>
-              <td className="px-4 py-2 font-medium">
-                <Link href={`/books/${b.id}/edit`} className="hover:underline">
-                  <span className="mr-2 text-xs tabular-nums text-gray-400">
+              <td className="max-w-0 overflow-hidden px-4 py-2 font-medium">
+                <Link
+                  href={`/books/${b.id}/edit`}
+                  className="flex max-w-full items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap hover:underline"
+                >
+                  <span className="shrink-0 text-xs tabular-nums text-gray-400">
                     #{books.length - (currentPage * pageSize + i)}
                   </span>
-                  {b.title}
+                  <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
+                    {b.title}
+                  </span>
                 </Link>
               </td>
-              <td className="whitespace-nowrap px-4 py-2">{b.author}</td>
-              <td className="whitespace-nowrap px-4 py-2">{b.platform}</td>
-              <td className="whitespace-nowrap px-4 py-2">{b.startDate ?? "—"}</td>
-              <td className="whitespace-nowrap px-4 py-2">{b.endDate ?? "—"}</td>
-              <td className="whitespace-nowrap px-4 py-2">{b.domain}</td>
-              <td className="whitespace-nowrap px-4 py-2">{b.type}</td>
-              <td className="whitespace-nowrap px-4 py-2">{b.language}</td>
+              <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
+                <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.author}</span>
+              </td>
+              <td className="whitespace-nowrap px-4 py-2">
+                <StatusBadge status={b.status} />
+              </td>
+              <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
+                <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.platform}</span>
+              </td>
+              <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
+                <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.startDate ?? "—"}</span>
+              </td>
+              <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
+                <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.endDate ?? "—"}</span>
+              </td>
+              <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
+                <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.domain}</span>
+              </td>
+              <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
+                <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.type}</span>
+              </td>
+              <td className="max-w-0 overflow-hidden whitespace-nowrap px-4 py-2">
+                <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.language}</span>
+              </td>
               <td className="whitespace-nowrap px-4 py-2 space-x-2">
                 <Link href={`/books/${b.id}/edit`} className="text-xs text-gray-600 hover:underline">
                   編輯

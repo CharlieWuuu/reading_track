@@ -2,22 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useBookStore } from "@/store/useBookStore";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
-import { Book, BookPlatform } from "@/types/book";
-import { BookSearchResult } from "@/app/api/search-book/route";
-
-const PLATFORMS: BookPlatform[] = [
-  "博客來",
-  "讀墨",
-  "Kobo",
-  "Kindle",
-  "Hyread",
-  "Pubu",
-  "實體書",
-  "其他",
-];
+import { Book, BookPlatform, BOOK_PLATFORMS, READING_STATUSES, ReadingStatus } from "@/types/book";
+import { CategorySelect } from "./CategorySelect";
 
 const emptyForm = {
   sourceUrl: "",
@@ -26,6 +14,7 @@ const emptyForm = {
   coverUrl: "",
   publisher: "",
   platform: "其他" as BookPlatform,
+  status: "想讀" as ReadingStatus,
   startDate: "",
   endDate: "",
   domain: "",
@@ -36,106 +25,41 @@ const emptyForm = {
   note: "",
 };
 
-function bookToForm(book: Book): typeof emptyForm {
+type FormState = typeof emptyForm;
+
+function toForm(book: Partial<Book>): FormState {
   return {
-    sourceUrl: book.sourceUrl,
-    title: book.title,
-    author: book.author,
-    coverUrl: book.coverUrl,
-    publisher: book.publisher,
-    platform: book.platform,
+    ...emptyForm,
+    ...Object.fromEntries(
+      Object.entries(book).filter(([, v]) => v !== undefined && v !== null)
+    ),
     startDate: book.startDate ?? "",
     endDate: book.endDate ?? "",
-    domain: book.domain,
-    type: book.type,
-    language: book.language,
-    pageCount: book.pageCount,
-    wordCount: book.wordCount,
-    note: book.note,
-  };
+  } as FormState;
 }
 
-export function BookForm({ book }: { book?: Book }) {
+export function BookForm({
+  book,
+  initial,
+  notice,
+}: {
+  /** 編輯既有書籍 */
+  book?: Book;
+  /** 新增時，由查詢步驟帶進來的預填資料 */
+  initial?: Partial<Book>;
+  /** 查詢步驟要轉達的訊息（例如查不到） */
+  notice?: string;
+}) {
   const router = useRouter();
-  const { categories, addCategoryOption } = useBookStore();
   const { sheetId } = useSheetStore();
   const { mutate } = useBooks();
-  const [form, setForm] = useState(book ? bookToForm(book) : emptyForm);
-  const [scraping, setScraping] = useState(false);
-  const [scrapeError, setScrapeError] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searching, setSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState<BookSearchResult[]>([]);
-  const [searchError, setSearchError] = useState("");
+  const [form, setForm] = useState<FormState>(toForm(book ?? initial ?? {}));
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const isEdit = Boolean(book);
 
-  function set<K extends keyof typeof emptyForm>(key: K, value: typeof emptyForm[K]) {
+  function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
-  }
-
-  async function handleScrape() {
-    if (!form.sourceUrl.trim()) return;
-    setScraping(true);
-    setScrapeError("");
-    try {
-      const res = await fetch("/api/scrape", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: form.sourceUrl }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "爬蟲失敗");
-
-      setForm((f) => ({
-        ...f,
-        title: data.title || f.title,
-        author: data.author || f.author,
-        coverUrl: data.coverUrl || f.coverUrl,
-        publisher: data.publisher || f.publisher,
-        platform: data.platform || f.platform,
-        language: data.language || f.language,
-        pageCount: data.pageCount || f.pageCount,
-        wordCount: data.wordCount || f.wordCount,
-      }));
-    } catch (err) {
-      setScrapeError(err instanceof Error ? err.message : "爬蟲失敗");
-    } finally {
-      setScraping(false);
-    }
-  }
-
-  async function handleSearch() {
-    if (!searchQuery.trim()) return;
-    setSearching(true);
-    setSearchError("");
-    setSearchResults([]);
-    try {
-      const res = await fetch(`/api/search-book?q=${encodeURIComponent(searchQuery)}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "搜尋失敗");
-      setSearchResults(data.results ?? []);
-    } catch (err) {
-      setSearchError(err instanceof Error ? err.message : "搜尋失敗");
-    } finally {
-      setSearching(false);
-    }
-  }
-
-  function applySearchResult(result: BookSearchResult) {
-    setForm((f) => ({
-      ...f,
-      title: result.title || f.title,
-      author: result.author || f.author,
-      coverUrl: result.coverUrl || f.coverUrl,
-      publisher: result.publisher || f.publisher,
-      language: result.language || f.language,
-      pageCount: result.pageCount || f.pageCount,
-      wordCount: result.wordCount || f.wordCount,
-    }));
-    setSearchResults([]);
-    setSearchQuery("");
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -153,6 +77,7 @@ export function BookForm({ book }: { book?: Book }) {
       publisher: form.publisher,
       platform: form.platform,
       sourceUrl: form.sourceUrl,
+      status: form.status,
       startDate: form.startDate || null,
       endDate: form.endDate || null,
       domain: form.domain,
@@ -185,10 +110,6 @@ export function BookForm({ book }: { book?: Book }) {
         if (!res.ok) throw new Error(data.error ?? "新增失敗");
       }
 
-      if (form.domain) addCategoryOption("domain", form.domain);
-      if (form.type) addCategoryOption("type", form.type);
-      if (form.language) addCategoryOption("language", form.language);
-
       await mutate();
       router.push("/books");
     } catch (err) {
@@ -199,121 +120,47 @@ export function BookForm({ book }: { book?: Book }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg border p-5 space-y-4">
-      {!isEdit && (
-        <>
-          <div>
-            <label className="block text-sm font-medium mb-1">書籍 URL</label>
-            <div className="flex gap-2">
-              <input
-                type="url"
-                placeholder="貼上博客來 / 讀墨 / Kobo 等連結"
-                value={form.sourceUrl}
-                onChange={(e) => set("sourceUrl", e.target.value)}
-                className="w-full rounded border px-3 py-2 text-sm"
-              />
-              <button
-                type="button"
-                onClick={handleScrape}
-                disabled={scraping || !form.sourceUrl.trim()}
-                className="shrink-0 rounded bg-gray-100 px-3 py-2 text-sm font-medium hover:bg-gray-200 disabled:opacity-50"
-              >
-                {scraping ? "抓取中…" : "抓取資料"}
-              </button>
-            </div>
-            {scrapeError ? (
-              <p className="mt-1 text-xs text-red-600">{scrapeError}</p>
-            ) : (
-              <p className="mt-1 text-xs text-gray-500">
-                目前支援讀墨、Kindle、Pubu 自動抓取；博客來、Kobo、Hyread
-                請用下方書名搜尋或手動輸入。
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">或用書名搜尋</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="輸入書名，例如：深度工作力"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleSearch();
-                  }
-                }}
-                className="w-full rounded border px-3 py-2 text-sm"
-              />
-              <button
-                type="button"
-                onClick={handleSearch}
-                disabled={searching || !searchQuery.trim()}
-                className="shrink-0 rounded bg-gray-100 px-3 py-2 text-sm font-medium hover:bg-gray-200 disabled:opacity-50"
-              >
-                {searching ? "搜尋中…" : "搜尋"}
-              </button>
-            </div>
-            {searchError && <p className="mt-1 text-xs text-red-600">{searchError}</p>}
-
-            {searchResults.length > 0 && (
-              <ul className="mt-2 divide-y rounded border">
-                {searchResults.map((r, i) => (
-                  <li key={i}>
-                    <button
-                      type="button"
-                      onClick={() => applySearchResult(r)}
-                      className="flex w-full items-center gap-3 p-2 text-left text-sm hover:bg-gray-50"
-                    >
-                      {r.coverUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={r.coverUrl} alt="" className="h-12 w-8 shrink-0 object-cover" />
-                      ) : (
-                        <div className="h-12 w-8 shrink-0 bg-gray-100" />
-                      )}
-                      <span>
-                        <span className="block font-medium">{r.title}</span>
-                        <span className="block text-xs text-gray-500">
-                          {[
-                            r.author,
-                            r.publisher,
-                            r.pageCount && `${r.pageCount} 頁`,
-                            r.wordCount && `${Number(r.wordCount).toLocaleString()} 字`,
-                            r.source,
-                          ]
-                            .filter(Boolean)
-                            .join(" · ")}
-                        </span>
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </>
+    <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border bg-white p-5">
+      {notice && (
+        <p className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          {notice}
+        </p>
       )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="書名" value={form.title} onChange={(v) => set("title", v)} required />
         <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
-        <Field label="封面 URL" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
         <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
+        <Field label="封面 URL" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
         <Field label="頁數" value={form.pageCount} onChange={(v) => set("pageCount", v)} />
         <Field label="字數" value={form.wordCount} onChange={(v) => set("wordCount", v)} />
+        <Field label="來源網址" value={form.sourceUrl} onChange={(v) => set("sourceUrl", v)} />
 
         <div>
-          <label className="block text-sm font-medium mb-1">平台</label>
+          <label className="mb-1 block text-sm font-medium">平台</label>
           <select
             value={form.platform}
             onChange={(e) => set("platform", e.target.value as BookPlatform)}
             className="w-full rounded border px-3 py-2 text-sm"
           >
-            {PLATFORMS.map((p) => (
+            {BOOK_PLATFORMS.map((p) => (
               <option key={p} value={p}>
                 {p}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium">閱讀狀態</label>
+          <select
+            value={form.status}
+            onChange={(e) => set("status", e.target.value as ReadingStatus)}
+            className="w-full rounded border px-3 py-2 text-sm"
+          >
+            {READING_STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {s}
               </option>
             ))}
           </select>
@@ -322,28 +169,28 @@ export function BookForm({ book }: { book?: Book }) {
         <Field label="開始日期" type="date" value={form.startDate} onChange={(v) => set("startDate", v)} />
         <Field label="完成日期" type="date" value={form.endDate} onChange={(v) => set("endDate", v)} />
 
-        <CategoryField
+        <CategorySelect
           label="領域"
+          categoryKey="domain"
           value={form.domain}
-          options={categories.domain}
           onChange={(v) => set("domain", v)}
         />
-        <CategoryField
+        <CategorySelect
           label="屬性"
+          categoryKey="type"
           value={form.type}
-          options={categories.type}
           onChange={(v) => set("type", v)}
         />
-        <CategoryField
+        <CategorySelect
           label="語言"
+          categoryKey="language"
           value={form.language}
-          options={categories.language}
           onChange={(v) => set("language", v)}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">筆記</label>
+        <label className="mb-1 block text-sm font-medium">筆記</label>
         <textarea
           value={form.note}
           onChange={(e) => set("note", e.target.value)}
@@ -380,7 +227,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium mb-1">{label}</label>
+      <label className="mb-1 block text-sm font-medium">{label}</label>
       <input
         type={type}
         value={value}
@@ -388,36 +235,6 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded border px-3 py-2 text-sm"
       />
-    </div>
-  );
-}
-
-function CategoryField({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: string[];
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-medium mb-1">{label}</label>
-      <input
-        list={`${label}-options`}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded border px-3 py-2 text-sm"
-        placeholder="選擇或輸入新分類"
-      />
-      <datalist id={`${label}-options`}>
-        {options.map((o) => (
-          <option key={o} value={o} />
-        ))}
-      </datalist>
     </div>
   );
 }
