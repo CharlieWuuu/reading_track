@@ -36,6 +36,15 @@ async function resolveColumns(sheet: GoogleSpreadsheetWorksheet) {
   return map as Record<BookField, string>;
 }
 
+/** 表頭字串 -> 欄索引（0 起算），批次寫入時用來定位儲存格 */
+function headerIndex(sheet: GoogleSpreadsheetWorksheet): Record<string, number> {
+  const index: Record<string, number> = {};
+  sheet.headerValues.forEach((header, i) => {
+    index[header] = i;
+  });
+  return index;
+}
+
 async function getBooksSheet(sheetId: string, accessToken: string) {
   const doc = new GoogleSpreadsheet(sheetId, getAuthClient(accessToken));
   await doc.loadInfo();
@@ -72,10 +81,14 @@ export async function listBooksWithMeta(
 
   const rowsMissingId = rows.filter((row) => !row.get(columns.id));
   if (rowsMissingId.length > 0) {
+    // 一列一次 row.save() 會打爆 Google Sheets 的每分鐘寫入配額，改成一次批次寫入
+    await sheet.loadCells();
+    const idColumn = headerIndex(sheet)[columns.id];
     for (const row of rowsMissingId) {
-      row.set(columns.id, crypto.randomUUID());
-      await row.save();
+      sheet.getCell(row.rowNumber - 1, idColumn).value = crypto.randomUUID();
     }
+    await sheet.saveUpdatedCells();
+
     // re-read so we return the ids that were actually persisted, avoiding a
     // mismatch if a concurrent call backfilled the same rows with different ids
     rows = await sheet.getRows();
@@ -131,6 +144,45 @@ export async function updateBookRow(
     if (header) row.set(header, value ?? "");
   }
   await row.save();
+}
+
+/**
+ * 一次寫回多筆書籍。
+ *
+ * 千萬別在迴圈裡呼叫 updateBookRow —— 那樣每本書都會重新載入試算表並各存一次檔，
+ * 幾十本書就會撞到 Google Sheets 每分鐘 60 次的寫入配額。這裡改成把所有異動
+ * 寫進儲存格快取，最後只送出一次批次更新。
+ *
+ * @returns 實際寫入的儲存格數量
+ */
+export async function bulkUpdateBooks(
+  sheetId: string,
+  accessToken: string,
+  patches: Map<string, Partial<Book>>
+): Promise<number> {
+  if (patches.size === 0) return 0;
+
+  const { sheet, columns } = await getBooksSheet(sheetId, accessToken);
+  const rows = await sheet.getRows();
+  await sheet.loadCells();
+
+  const index = headerIndex(sheet);
+  let written = 0;
+
+  for (const row of rows) {
+    const patch = patches.get(row.get(columns.id));
+    if (!patch) continue;
+
+    for (const [key, value] of Object.entries(patch)) {
+      const column = index[columns[key as BookField]];
+      if (column === undefined) continue;
+      sheet.getCell(row.rowNumber - 1, column).value = value ?? "";
+      written++;
+    }
+  }
+
+  await sheet.saveUpdatedCells();
+  return written;
 }
 
 export async function deleteBookRow(sheetId: string, accessToken: string, id: string) {
