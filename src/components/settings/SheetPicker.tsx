@@ -22,6 +22,7 @@ declare global {
     addView: (view: GoogleDocsView) => GooglePickerBuilder;
     setOAuthToken: (token: string) => GooglePickerBuilder;
     setDeveloperKey: (key: string) => GooglePickerBuilder;
+    setAppId: (appId: string) => GooglePickerBuilder;
     setCallback: (cb: (data: PickerResponse) => void) => GooglePickerBuilder;
     build: () => { setVisible: (visible: boolean) => void };
   }
@@ -35,6 +36,18 @@ declare global {
 }
 
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
+const APP_ID = process.env.NEXT_PUBLIC_GOOGLE_PROJECT_NUMBER;
+
+// Picker 的錯誤有時是 Error、有時是純物件，統一轉成看得懂的字串
+function describe(e: unknown): string {
+  if (e instanceof Error) return e.message;
+  if (typeof e === "string") return e;
+  try {
+    return JSON.stringify(e);
+  } catch {
+    return String(e);
+  }
+}
 
 export function SheetPicker({
   onSelect,
@@ -48,33 +61,51 @@ export function SheetPicker({
   function handleScriptLoad() {
     window.gapi.load("picker", {
       callback: () => setReady(true),
-      onerror: () => setError("Google Picker 模組載入失敗"),
+      onerror: (e: unknown) =>
+        setError(`Google Picker 模組載入失敗：${describe(e)}`),
     } as unknown as () => void);
   }
 
   function openPicker() {
-    if (!session?.accessToken || !API_KEY) {
-      setError("尚未登入或缺少設定，無法開啟選擇器");
+    if (!session?.accessToken) {
+      setError("尚未登入，無法開啟選擇器");
+      return;
+    }
+    if (!API_KEY) {
+      setError("缺少 NEXT_PUBLIC_GOOGLE_API_KEY（環境變數沒進 build）");
       return;
     }
 
-    const view = new window.google.picker.DocsView(
-      window.google.picker.ViewId.SPREADSHEETS
-    ).setMimeTypes("application/vnd.google-apps.spreadsheet");
+    try {
+      const view = new window.google.picker.DocsView(
+        window.google.picker.ViewId.SPREADSHEETS
+      ).setMimeTypes("application/vnd.google-apps.spreadsheet");
 
-    const picker = new window.google.picker.PickerBuilder()
-      .addView(view)
-      .setOAuthToken(session.accessToken)
-      .setDeveloperKey(API_KEY)
-      .setCallback((data: PickerResponse) => {
-        if (data.action === window.google.picker.Action.PICKED && data.docs?.[0]) {
-          const doc = data.docs[0];
-          onSelect(doc.id, doc.name);
-        }
-      })
-      .build();
+      const builder = new window.google.picker.PickerBuilder()
+        .addView(view)
+        .setOAuthToken(session.accessToken)
+        .setDeveloperKey(API_KEY);
 
-    picker.setVisible(true);
+      if (APP_ID) builder.setAppId(APP_ID);
+
+      const picker = builder
+        .setCallback((data: PickerResponse) => {
+          if (data.action === "error" || data.action === "cancel") {
+            setError(`Picker 回報：${describe(data)}`);
+            return;
+          }
+          if (data.action === window.google.picker.Action.PICKED && data.docs?.[0]) {
+            const doc = data.docs[0];
+            onSelect(doc.id, doc.name);
+          }
+        })
+        .build();
+
+      setError("");
+      picker.setVisible(true);
+    } catch (e) {
+      setError(`開啟 Picker 失敗：${describe(e)}`);
+    }
   }
 
   return (
@@ -82,7 +113,9 @@ export function SheetPicker({
       <Script
         src="https://apis.google.com/js/api.js"
         onLoad={handleScriptLoad}
-        onError={() => setError("無法載入 Google API script")}
+        onError={() =>
+          setError("無法載入 https://apis.google.com/js/api.js（被瀏覽器或網路擋掉）")
+        }
       />
       <button
         type="button"
@@ -92,7 +125,17 @@ export function SheetPicker({
       >
         {ready ? "選擇 Google Sheet" : "載入中…"}
       </button>
-      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+      {error && (
+        <div className="mt-2 space-y-1 wrap-break-word rounded bg-red-50 p-2 text-xs text-red-700">
+          <p className="font-medium">{error}</p>
+          <p className="text-red-500">
+            金鑰 {API_KEY ? `已載入（${API_KEY.slice(0, 8)}…）` : "未載入"}
+            ｜appId {APP_ID ?? "未設定"}
+            ｜來源 {typeof window !== "undefined" ? window.location.origin : "-"}
+            ｜cookie {typeof navigator !== "undefined" && navigator.cookieEnabled ? "可用" : "被停用"}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
