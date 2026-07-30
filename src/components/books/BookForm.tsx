@@ -44,7 +44,7 @@ type SectionKey = (typeof SECTIONS)[number]["key"];
 function Section({ active, children }: { active: boolean; children: React.ReactNode }) {
   return (
     <div
-      className={`min-h-0 shrink-0 grid-cols-1 gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-3 ${
+      className={`min-h-0 shrink-0 content-start grid-cols-1 gap-3 overflow-hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 ${
         active ? "grid" : "hidden"
       }`}
     >
@@ -269,7 +269,8 @@ export function BookForm({
         ))}
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-3">
+      {/* 分頁後每一頁都必須塞得下：這層不給捲，溢出代表分頁要再切細 */}
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
       <Section active={section === "basic"}>
         <Field label="書名" value={form.title} onChange={(v) => set("title", v)} required />
         <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
@@ -354,13 +355,13 @@ export function BookForm({
 
       {/* 筆記吃掉剩下的高度，欄位多寡不同時都不會擠出捲軸 */}
       <div
-        className={`min-h-40 flex-1 flex-col ${section === "note" ? "flex" : "hidden"} sm:flex`}
+        className={`min-h-0 flex-1 flex-col ${section === "note" ? "flex" : "hidden"} sm:flex`}
       >
         <label className="mb-1 block shrink-0 text-sm font-medium">筆記</label>
         <textarea
           value={form.note}
           onChange={(e) => set("note", e.target.value)}
-          className="min-h-16 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
+          className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
         />
       </div>
       </div>
