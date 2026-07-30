@@ -43,7 +43,11 @@ export async function POST(req: NextRequest) {
 
   const deadline = Date.now() + (maxDuration * 1000 - WRITE_BUDGET_MS);
   const patches = new Map<string, Partial<Book>>();
-  const failures: string[] = [];
+  /** 沒有任何來源認得這本書 */
+  const notFound: string[] = [];
+  /** 查到了，但剩下的空欄位沒有來源給得出來（多半是書封或頁數） */
+  const noNewData: string[] = [];
+  const sourceIssues = new Set<string>();
   let processed = 0;
 
   // 簡單的工作佇列：CONCURRENCY 條工人共用同一個索引
@@ -58,15 +62,25 @@ export async function POST(req: NextRequest) {
       lastAttempted = Math.max(lastAttempted, i);
       processed++;
 
-      const metadata = await fetchBookMetadata(book.title, missingFields(book));
+      const { metadata, matched, unavailable } = await fetchBookMetadata(
+        book.title,
+        missingFields(book),
+        { language: book.language }
+      );
+      for (const source of unavailable) sourceIssues.add(source);
+
       if (!metadata) {
-        failures.push(book.title);
+        // 補過資料的書只要還有一個空欄位就會再被掃到。分開回報，
+        // 才不會把「只剩書封補不到」講成「查不到這本書」。
+        (matched ? noNewData : notFound).push(book.title);
         continue;
       }
 
       const patch = mergeEnrichment(book, metadata);
       if (Object.keys(patch).length > 0) {
         patches.set(book.id, patch);
+      } else {
+        noNewData.push(book.title);
       }
     }
   }
@@ -89,11 +103,14 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     scanned: processed,
     updated: patches.size,
-    skipped: failures.length,
+    notFound: notFound.length,
+    noNewData: noNewData.length,
     remaining,
     // 還沒掃完就把游標交給前端，下次接著跑；掃完了就清掉，重按一次從頭來
     nextAfter: remaining > 0 && lastAttempted >= 0 ? candidates[lastAttempted].id : null,
     idsBackfilled,
-    failures: failures.slice(0, 10),
+    notFoundTitles: notFound.slice(0, 10),
+    noNewDataTitles: noNewData.slice(0, 10),
+    sourceIssues: [...sourceIssues],
   });
 }

@@ -57,17 +57,20 @@ function toMetadata(info: VolumeInfo, url: string): BookMetadata {
 }
 
 /**
- * Google Books 不需要 API key（未授權呼叫有速率限制，查不到就當作沒這個來源），
- * 是目前唯一同時涵蓋日文、英文、中文書的免費來源，日文書主要靠它。
+ * Google Books 同時涵蓋日文、英文、中文書，但免 API key 的匿名呼叫共用一份每日配額，
+ * 配額用完會回 429。那是「來源壞了」不是「書查不到」，所以用 strict 讓它丟錯往上報，
+ * 否則整批補齊都會謊稱查不到資料。設了 GOOGLE_BOOKS_API_KEY 就有自己的配額。
  */
 export const googleBooksProvider: MetadataProvider = {
   name: "Google Books",
 
   findCandidates: async (query) => {
+    const key = process.env.GOOGLE_BOOKS_API_KEY;
     const data = await fetchJson<{ items?: Volume[] }>(
       `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
         query
-      )}&maxResults=5&printType=books`
+      )}&maxResults=5&printType=books${key ? `&key=${key}` : ""}`,
+      { strict: true }
     );
     if (!data?.items?.length) return [];
 

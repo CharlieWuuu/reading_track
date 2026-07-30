@@ -5,7 +5,36 @@ const USER_AGENT =
 
 const DEFAULT_TIMEOUT_MS = 12000;
 
-export async function fetchText(url: string, timeoutMs = DEFAULT_TIMEOUT_MS): Promise<string | null> {
+/**
+ * 「來源暫時不能用」與「這本書查不到」是兩件事。
+ * Google Books 每日配額爆掉時回 429，若一律當成查不到，畫面就會謊稱
+ * 「31 筆查不到資料」，其實是所有查詢都沒真的問到。
+ */
+export class SourceUnavailableError extends Error {
+  constructor(public readonly detail: string) {
+    super(detail);
+    this.name = "SourceUnavailableError";
+  }
+}
+
+interface FetchOptions {
+  timeoutMs?: number;
+  /** 額外的 request header，例如某些站台會檢查 Referer 防盜連 */
+  headers?: Record<string, string>;
+  /** true 時連線失敗／HTTP 錯誤會丟 SourceUnavailableError，而不是回 null */
+  strict?: boolean;
+  /**
+   * 額外信任的中介憑證（PEM）。有些站台的 TLS 沒把中介憑證送齊，
+   * 瀏覽器與 curl 會自己補、Node 不會，直接 fetch 會失敗在
+   * UNABLE_TO_VERIFY_LEAF_SIGNATURE。補上缺的那張就能正常驗證，
+   * 根憑證仍然照驗，不是把驗證關掉。
+   */
+  extraCa?: string;
+}
+
+export async function fetchText(url: string, options: FetchOptions = {}): Promise<string | null> {
+  const { timeoutMs = DEFAULT_TIMEOUT_MS, headers, strict, extraCa } = options;
+  if (extraCa) return fetchTextWithCa(url, { timeoutMs, headers, strict, extraCa });
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -13,20 +42,79 @@ export async function fetchText(url: string, timeoutMs = DEFAULT_TIMEOUT_MS): Pr
       headers: {
         "User-Agent": USER_AGENT,
         "Accept-Language": "zh-TW,zh;q=0.9,en;q=0.8",
+        ...headers,
       },
       signal: controller.signal,
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      if (strict) throw new SourceUnavailableError(`HTTP ${res.status}`);
+      return null;
+    }
     return await res.text();
-  } catch {
+  } catch (err) {
+    if (err instanceof SourceUnavailableError) throw err;
+    if (strict) throw new SourceUnavailableError(err instanceof Error ? err.message : "連線失敗");
     return null;
   } finally {
     clearTimeout(timer);
   }
 }
 
-export async function fetchJson<T>(url: string, timeoutMs = DEFAULT_TIMEOUT_MS): Promise<T | null> {
-  const text = await fetchText(url, timeoutMs);
+/**
+ * 走 node:https 的版本，只有需要補中介憑證時才用。
+ * 內建的 fetch 沒有辦法指定 ca，所以這條路徑必須自己發請求。
+ */
+async function fetchTextWithCa(
+  url: string,
+  { timeoutMs, headers, strict, extraCa }: Required<Pick<FetchOptions, "timeoutMs" | "extraCa">> &
+    FetchOptions
+): Promise<string | null> {
+  const [https, tls] = await Promise.all([import("node:https"), import("node:tls")]);
+
+  return new Promise((resolve, reject) => {
+    const fail = (detail: string) => {
+      if (strict) reject(new SourceUnavailableError(detail));
+      else resolve(null);
+    };
+
+    const req = https.request(
+      url,
+      {
+        ca: [...tls.rootCertificates, extraCa],
+        headers: {
+          "User-Agent": USER_AGENT,
+          "Accept-Language": "zh-TW,zh;q=0.9,en;q=0.8",
+          // 自己處理解壓縮沒有意義，直接要未壓縮的內容
+          "Accept-Encoding": "identity",
+          ...headers,
+        },
+        timeout: timeoutMs,
+      },
+      (res) => {
+        if (!res.statusCode || res.statusCode < 200 || res.statusCode >= 300) {
+          res.resume();
+          fail(`HTTP ${res.statusCode ?? "?"}`);
+          return;
+        }
+        res.setEncoding("utf8");
+        let body = "";
+        res.on("data", (chunk) => (body += chunk));
+        res.on("end", () => resolve(body));
+        res.on("error", (err) => fail(err.message));
+      }
+    );
+
+    req.on("timeout", () => {
+      req.destroy();
+      fail(`逾時（${timeoutMs / 1000} 秒）`);
+    });
+    req.on("error", (err) => fail(err.message));
+    req.end();
+  });
+}
+
+export async function fetchJson<T>(url: string, options: FetchOptions = {}): Promise<T | null> {
+  const text = await fetchText(url, options);
   if (!text) return null;
   try {
     return JSON.parse(text) as T;
@@ -35,8 +123,29 @@ export async function fetchJson<T>(url: string, timeoutMs = DEFAULT_TIMEOUT_MS):
   }
 }
 
-export async function fetchDom(url: string, timeoutMs = DEFAULT_TIMEOUT_MS) {
-  const html = await fetchText(url, timeoutMs);
+/** 只確認資源存在（例如封面圖），不下載內容 */
+export async function resourceExists(
+  url: string,
+  headers?: Record<string, string>
+): Promise<boolean> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      headers: { "User-Agent": USER_AGENT, ...headers },
+      signal: controller.signal,
+    });
+    return res.ok && (res.headers.get("content-type") ?? "").startsWith("image/");
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export async function fetchDom(url: string, options: FetchOptions = {}) {
+  const html = await fetchText(url, options);
   return html ? cheerio.load(html) : null;
 }
 

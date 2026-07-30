@@ -1,9 +1,11 @@
 import { Book } from "@/types/book";
-import { titleSimilarity } from "./http";
+import { SourceUnavailableError, titleSimilarity } from "./http";
 import { googleBooksProvider } from "./googleBooks";
 import { ndlProvider } from "./ndl";
 import { openLibraryProvider } from "./openLibrary";
+import { pubuProvider } from "./pubu";
 import { readmooProvider } from "./readmoo";
+import { taazeProvider } from "./taaze";
 import {
   BookMetadata,
   Candidate,
@@ -19,14 +21,20 @@ export type { BookMetadata, EnrichableField } from "./types";
 
 /**
  * 全部都是免費、免申請的來源，依「命中率高的排前面」排列：
- * 讀墨是靜態網頁爬蟲（中文書的作者／出版社／字數）、Google Books 涵蓋日英中三種語言、
- * 國會圖書館補日文書的書目、Open Library 收西文書。
- * 中文書的「頁數」多半只有實體書通路才有，以字數為主。
+ * 讀冊與讀墨是靜態網頁爬蟲（中文書的作者／出版社／字數／頁數）、
+ * Google Books 涵蓋日英中三種語言、國會圖書館補日文書的書目與書封、
+ * Open Library 收西文書。中文書的「頁數」多半只有實體書通路才有，以字數為主。
+ *
+ * 讀冊放在讀墨前面：讀墨在機房 IP 會被 CloudFront 擋成 403，
+ * 線上環境只有讀冊與 Pubu 抓得到中文書（讀墨仍留著，本機開發時它的字數最完整）。
+ * searchBooks 是所有來源同時發查詢，fetchBookMetadata 則照這個順序補到齊為止。
  */
 const PROVIDERS: MetadataProvider[] = [
+  taazeProvider,
   readmooProvider,
-  googleBooksProvider,
+  pubuProvider,
   ndlProvider,
+  googleBooksProvider,
   openLibraryProvider,
 ];
 
@@ -49,15 +57,29 @@ function bestCandidate(candidates: Candidate[], query: string): Candidate | null
   return best;
 }
 
-async function lookup(provider: MetadataProvider, query: string): Promise<BookMetadata | null> {
-  try {
-    const candidates = await provider.findCandidates(query);
-    const match = bestCandidate(candidates, query);
-    if (!match) return null;
-    return await provider.fetchDetail(match.url);
-  } catch {
-    return null;
-  }
+async function lookup(
+  provider: MetadataProvider,
+  query: string,
+  hints?: LookupHints
+): Promise<BookMetadata | null> {
+  const candidates = await provider.findCandidates(query, hints);
+  const match = bestCandidate(candidates, query);
+  if (!match) return null;
+  return await provider.fetchDetail(match.url);
+}
+
+export interface LookupHints {
+  /** 使用者在 Sheet 標了語言時帶進來，純漢字的日文書名才問得到國會圖書館 */
+  language?: string;
+}
+
+export interface EnrichResult {
+  /** 這次真的補到的欄位；沒補到任何欄位時是 null */
+  metadata: BookMetadata | null;
+  /** 有來源認得這本書（就算它給不出我們還缺的欄位） */
+  matched: boolean;
+  /** 這次查詢中壞掉的來源，例如 Google Books 配額用完 */
+  unavailable: string[];
 }
 
 /**
@@ -66,10 +88,13 @@ async function lookup(provider: MetadataProvider, query: string): Promise<BookMe
  */
 export async function fetchBookMetadata(
   query: string,
-  wanted: readonly EnrichableField[] = ENRICHABLE_FIELDS
-): Promise<BookMetadata | null> {
+  wanted: readonly EnrichableField[] = ENRICHABLE_FIELDS,
+  hints?: LookupHints
+): Promise<EnrichResult> {
   const merged: BookMetadata = {};
   const sources: string[] = [];
+  const unavailable: string[] = [];
+  let matched = false;
 
   // 頁數與字數只要有一個就算補到了，理由見 missingFields
   const satisfied = (field: EnrichableField) =>
@@ -80,8 +105,18 @@ export async function fetchBookMetadata(
   for (const provider of PROVIDERS) {
     if (wanted.every(satisfied)) break;
 
-    const result = await lookup(provider, query);
+    let result: BookMetadata | null = null;
+    try {
+      result = await lookup(provider, query, hints);
+    } catch (err) {
+      // 來源壞掉（配額、封鎖、連線）要說出來，不能靜靜地當成「這本書查不到」
+      if (err instanceof SourceUnavailableError) {
+        unavailable.push(`${provider.name}（${err.detail}）`);
+      }
+      continue;
+    }
     if (!result) continue;
+    matched = true;
 
     // 已經有書名了，就要求後面的來源指的是同一本書，
     // 免得把 A 書的頁數寫到 B 書上
@@ -106,9 +141,9 @@ export async function fetchBookMetadata(
     }
   }
 
-  if (sources.length === 0) return null;
+  if (sources.length === 0) return { metadata: null, matched, unavailable };
   merged.source = sources.join("、");
-  return merged;
+  return { metadata: merged, matched, unavailable };
 }
 
 /** 只補書本目前空著的欄位，使用者自己填的內容一律不動 */
@@ -123,11 +158,11 @@ export function mergeEnrichment(book: Book, metadata: BookMetadata): Partial<Boo
 }
 
 /** 給「用書名搜尋」用：回傳多筆候選讓使用者自己挑 */
-export async function searchBooks(query: string): Promise<BookMetadata[]> {
+export async function searchBooks(query: string, hints?: LookupHints): Promise<BookMetadata[]> {
   const perProvider = await Promise.all(
     PROVIDERS.map(async (provider) => {
       try {
-        const candidates = await provider.findCandidates(query);
+        const candidates = await provider.findCandidates(query, hints);
         const top = candidates
           .map((c) => ({ c, score: titleSimilarity(c.title, query) }))
           .filter(({ score }) => score >= MIN_TITLE_SIMILARITY)

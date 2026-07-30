@@ -24,10 +24,19 @@ export interface Candidate {
   url: string;
 }
 
+export interface ProviderHints {
+  /** 書在 Sheet 上標的語言，讓來源決定要不要接手（例：純漢字的日文書名） */
+  language?: string;
+}
+
 export interface MetadataProvider {
   name: string;
-  /** 搜尋結果清單。查不到時回傳空陣列，不要 throw。 */
-  findCandidates: (query: string) => Promise<Candidate[]>;
+  /**
+   * 搜尋結果清單。查不到時回傳空陣列。
+   * 只有「來源本身壞掉」（配額用完、被封鎖、連不上）才丟 SourceUnavailableError，
+   * 那會被回報成來源問題，而不是「這本書查不到」。
+   */
+  findCandidates: (query: string, hints?: ProviderHints) => Promise<Candidate[]>;
   /** 讀取單一書籍頁的詳細資料 */
   fetchDetail: (url: string) => Promise<BookMetadata | null>;
 }
