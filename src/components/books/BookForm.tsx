@@ -252,7 +252,7 @@ export function BookForm({
             key={s.key}
             type="button"
             onClick={() => setSection(s.key)}
-            className={`-mb-px border-b-2 px-3 py-2 text-sm ${
+            className={`-mb-px flex-1 border-b-2 px-3 py-2 text-sm ${
               section === s.key
                 ? "border-gray-900 font-medium text-gray-900"
                 : "border-transparent text-gray-500"
@@ -263,6 +263,8 @@ export function BookForm({
         ))}
       </div>
 
+      {/* 欄位區自己捲，送出／刪除按鈕永遠固定在下方看得到 */}
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
       <Section active={section === "basic"}>
         <Field label="書名" value={form.title} onChange={(v) => set("title", v)} required />
         <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
@@ -336,7 +338,7 @@ export function BookForm({
 
       {/* 筆記吃掉剩下的高度，欄位多寡不同時都不會擠出捲軸 */}
       <div
-        className={`min-h-0 flex-1 flex-col ${section === "note" ? "flex" : "hidden"} sm:flex`}
+        className={`min-h-40 flex-1 flex-col ${section === "note" ? "flex" : "hidden"} sm:flex`}
       >
         <label className="mb-1 block shrink-0 text-sm font-medium">筆記</label>
         <textarea
@@ -345,10 +347,11 @@ export function BookForm({
           className="min-h-16 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
         />
       </div>
+      </div>
 
       {submitError && <p className="shrink-0 text-xs text-red-600">{submitError}</p>}
 
-      <div className="flex shrink-0 items-center justify-between gap-3">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
         <button
           type="submit"
           disabled={submitting}
@@ -407,7 +410,7 @@ function Field({
   required?: boolean;
 }) {
   return (
-    <div>
+    <div className="min-w-0">
       <label className="mb-1 block text-sm font-medium">{label}</label>
       <input
         type={type}
