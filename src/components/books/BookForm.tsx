@@ -26,9 +26,15 @@ const emptyForm = {
 
 type FormState = typeof emptyForm;
 
+/**
+ * 手機一頁只放三、四個欄位，切細一點才能「每頁都塞得下」——
+ * 這個 app 的排版原則是不出現捲軸，寧可多一個分頁。
+ */
 const SECTIONS = [
   { key: "basic", label: "基本" },
-  { key: "progress", label: "進度分類" },
+  { key: "source", label: "來源" },
+  { key: "progress", label: "進度" },
+  { key: "category", label: "分類" },
   { key: "note", label: "筆記" },
 ] as const;
 
@@ -252,7 +258,7 @@ export function BookForm({
             key={s.key}
             type="button"
             onClick={() => setSection(s.key)}
-            className={`-mb-px flex-1 border-b-2 px-3 py-2 text-sm ${
+            className={`-mb-px flex-1 border-b-2 px-1 py-2 text-sm ${
               section === s.key
                 ? "border-gray-900 font-medium text-gray-900"
                 : "border-transparent text-gray-500"
@@ -263,16 +269,18 @@ export function BookForm({
         ))}
       </div>
 
-      {/* 欄位區自己捲，送出／刪除按鈕永遠固定在下方看得到 */}
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+      <div className="flex min-h-0 flex-1 flex-col gap-3">
       <Section active={section === "basic"}>
         <Field label="書名" value={form.title} onChange={(v) => set("title", v)} required />
         <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
         <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
+      </Section>
+
+      <Section active={section === "source"}>
         <Field label="封面 URL" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
         <Field label="來源網址" value={form.sourceUrl} onChange={(v) => set("sourceUrl", v)} />
 
-        <div>
+        <div className="min-w-0">
           <label className="mb-1 block text-sm font-medium">平台</label>
           <select
             value={form.platform}
@@ -302,10 +310,13 @@ export function BookForm({
       </Section>
 
       <Section active={section === "progress"}>
-        <Field label="頁數" value={form.pageCount} onChange={(v) => set("pageCount", v)} />
-        <Field label="字數" value={form.wordCount} onChange={(v) => set("wordCount", v)} />
+        {/* 短欄位在手機兩兩並排；sm:contents 讓它在桌機溶解回原本的格線 */}
+        <div className="grid grid-cols-2 gap-3 sm:contents">
+          <Field label="頁數" value={form.pageCount} onChange={(v) => set("pageCount", v)} />
+          <Field label="字數" value={form.wordCount} onChange={(v) => set("wordCount", v)} />
+        </div>
 
-        <div>
+        <div className="min-w-0">
           <label className="mb-1 block text-sm font-medium">閱讀狀態</label>
           <p className="rounded border border-dashed bg-gray-50 px-3 py-2 text-sm text-gray-600">
             {status}
@@ -313,9 +324,14 @@ export function BookForm({
           </p>
         </div>
 
-        <Field label="開始日期" type="date" value={form.startDate} onChange={(v) => set("startDate", v)} />
-        <Field label="完成日期" type="date" value={form.endDate} onChange={(v) => set("endDate", v)} />
+        <div className="grid grid-cols-2 gap-3 sm:contents">
+          <Field label="開始日期" type="date" value={form.startDate} onChange={(v) => set("startDate", v)} />
+          <Field label="完成日期" type="date" value={form.endDate} onChange={(v) => set("endDate", v)} />
+        </div>
 
+      </Section>
+
+      <Section active={section === "category"}>
         <CategorySelect
           label="領域"
           categoryKey="domain"
