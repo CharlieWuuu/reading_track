@@ -7,8 +7,11 @@ import { Book } from "@/types/book";
 // Vercel Hobby 方案上限就是 60 秒；升級到 Pro 可以調到 300
 export const maxDuration = 60;
 
-/** 同時查幾本。查詢是網路等待為主，開幾條平行才跑得完，但也別把來源站打爆。 */
-const CONCURRENCY = 4;
+/**
+ * 同時查幾本。查詢是網路等待為主，開幾條平行才跑得完，但也別把來源站打爆——
+ * 開 4 條時 Google Books 匿名配額很容易被限流回 429，整批就白跑了。
+ */
+const CONCURRENCY = 2;
 
 /** 留給最後批次寫回 Sheet 的時間 */
 const WRITE_BUDGET_MS = 12000;

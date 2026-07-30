@@ -32,9 +32,63 @@ interface FetchOptions {
   extraCa?: string;
 }
 
+/** 被限速時的等待秒數：1、2、4 秒，最多重試三次 */
+const RETRY_DELAYS_MS = [1000, 2000, 4000];
+
+/** 429／503 是「等一下再來」，重試有機會成功；其他錯誤重試也是白費 */
+function isRateLimited(status: number) {
+  return status === 429 || status === 503;
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * 對方叫我們等多久就等多久（Retry-After 可能是秒數或日期），
+ * 沒給就用自己的退避時間。上限 10 秒，不然整批補齊會卡住。
+ */
+function retryDelay(res: Response, attempt: number): number {
+  const header = res.headers.get("retry-after");
+  const fallback = RETRY_DELAYS_MS[attempt];
+  if (!header) return fallback;
+  const seconds = Number(header);
+  const ms = Number.isFinite(seconds)
+    ? seconds * 1000
+    : new Date(header).getTime() - Date.now();
+  if (!Number.isFinite(ms) || ms <= 0) return fallback;
+  return Math.min(ms, 10000);
+}
+
 export async function fetchText(url: string, options: FetchOptions = {}): Promise<string | null> {
   const { timeoutMs = DEFAULT_TIMEOUT_MS, headers, strict, extraCa } = options;
   if (extraCa) return fetchTextWithCa(url, { timeoutMs, headers, strict, extraCa });
+
+  // 第一次加上重試次數，總共最多打 RETRY_DELAYS_MS.length + 1 次
+  for (let attempt = 0; ; attempt++) {
+    const outcome = await attemptFetchText(url, { timeoutMs, headers, strict }, attempt);
+    if (outcome.kind === "done") return outcome.text;
+
+    if (attempt >= RETRY_DELAYS_MS.length - 1) {
+      // 重試用完還是被擋，照 strict 的約定決定是丟錯還是當成查不到
+      if (strict) {
+        throw new SourceUnavailableError(`HTTP ${outcome.status}（重試多次仍被限流）`);
+      }
+      return null;
+    }
+    await sleep(outcome.delayMs);
+  }
+}
+
+type FetchOutcome =
+  | { kind: "done"; text: string | null }
+  | { kind: "rate-limited"; status: number; delayMs: number; text: null };
+
+async function attemptFetchText(
+  url: string,
+  { timeoutMs, headers, strict }: FetchOptions & { timeoutMs: number },
+  attempt: number
+): Promise<FetchOutcome> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -46,15 +100,23 @@ export async function fetchText(url: string, options: FetchOptions = {}): Promis
       },
       signal: controller.signal,
     });
+    if (isRateLimited(res.status)) {
+      return {
+        kind: "rate-limited",
+        status: res.status,
+        delayMs: retryDelay(res, attempt),
+        text: null,
+      };
+    }
     if (!res.ok) {
       if (strict) throw new SourceUnavailableError(`HTTP ${res.status}`);
-      return null;
+      return { kind: "done", text: null };
     }
-    return await res.text();
+    return { kind: "done", text: await res.text() };
   } catch (err) {
     if (err instanceof SourceUnavailableError) throw err;
     if (strict) throw new SourceUnavailableError(err instanceof Error ? err.message : "連線失敗");
-    return null;
+    return { kind: "done", text: null };
   } finally {
     clearTimeout(timer);
   }
