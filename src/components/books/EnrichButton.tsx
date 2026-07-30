@@ -10,6 +10,8 @@ export function EnrichButton() {
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [message, setMessage] = useState("");
   const [failures, setFailures] = useState<string[]>([]);
+  // 上次掃到哪一本，下次從那之後接著跑，避免每次都被同一批查不到的書卡住
+  const [after, setAfter] = useState<string | null>(null);
 
   if (!sheetId) return null;
 
@@ -21,7 +23,7 @@ export function EnrichButton() {
       const res = await fetch("/api/books/enrich", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sheetId }),
+        body: JSON.stringify({ sheetId, after }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -33,6 +35,7 @@ export function EnrichButton() {
       if (data.idsBackfilled > 0) parts.push(`補上 ${data.idsBackfilled} 個編號`);
       if (data.skipped > 0) parts.push(`${data.skipped} 筆查不到資料`);
       if (data.remaining > 0) parts.push(`還有 ${data.remaining} 筆，再按一次可繼續`);
+      setAfter(data.nextAfter ?? null);
       setMessage(parts.join("，"));
       setFailures(data.failures ?? []);
       setStatus("done");

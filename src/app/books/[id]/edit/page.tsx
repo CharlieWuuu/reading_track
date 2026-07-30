@@ -46,9 +46,11 @@ export default function EditBookPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto flex h-full min-h-0 max-w-5xl flex-col">
       <PageHeader title="編輯書籍" />
-      <BookForm key={book.id} book={book} />
+      <div className="min-h-0 flex-1">
+        <BookForm key={book.id} book={book} />
+      </div>
     </div>
   );
 }

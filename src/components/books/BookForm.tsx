@@ -146,15 +146,19 @@ export function BookForm({
     }
   }
 
+  // 跟其他頁一致：撐滿可用高度，靠三欄排版讓欄位在一頁內看完，不整頁捲動
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border bg-white p-5">
+    <form
+      onSubmit={handleSubmit}
+      className="flex h-full min-h-0 flex-col gap-3 rounded-lg border bg-white p-4 sm:p-5"
+    >
       {notice && (
-        <p className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+        <p className="shrink-0 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
           {notice}
         </p>
       )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid min-h-0 shrink-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <Field label="書名" value={form.title} onChange={(v) => set("title", v)} required />
         <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
         <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
@@ -216,19 +220,19 @@ export function BookForm({
         />
       </div>
 
-      <div>
-        <label className="mb-1 block text-sm font-medium">筆記</label>
+      {/* 筆記吃掉剩下的高度，欄位多寡不同時都不會擠出捲軸 */}
+      <div className="flex min-h-0 flex-1 flex-col">
+        <label className="mb-1 block shrink-0 text-sm font-medium">筆記</label>
         <textarea
           value={form.note}
           onChange={(e) => set("note", e.target.value)}
-          rows={3}
-          className="w-full rounded border px-3 py-2 text-sm"
+          className="min-h-16 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
         />
       </div>
 
-      {submitError && <p className="text-xs text-red-600">{submitError}</p>}
+      {submitError && <p className="shrink-0 text-xs text-red-600">{submitError}</p>}
 
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex shrink-0 items-center justify-between gap-3">
         <button
           type="submit"
           disabled={submitting}

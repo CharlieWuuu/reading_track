@@ -11,16 +11,18 @@ export interface LookupResult {
 }
 
 /**
- * 新增書籍的第一步：先查資料，查到了再進編輯頁。
+ * 新增書籍的第一步：先查資料，把查到什麼攤開給使用者看，他確認了才進編輯頁。
  *
- * 查不到也可以直接進下一步自己填——不讓使用者卡在這裡，
- * 但要讓他知道待會兒得自己動手。
+ * 刻意分成「查詢」和「繼續」兩個動作。查詢結果不確定性高（書名搜尋常常撈不到、
+ * 或撈到同名的另一本），如果按一下就跳頁，使用者是在賭下一頁會有東西。
+ * 先看到結果再決定，查壞了可以改關鍵字重查，不用退回上一頁。
  */
 export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => void }) {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [result, setResult] = useState<LookupResult | null>(null);
 
   const canSubmit = Boolean(title.trim() || url.trim());
 
@@ -42,12 +44,13 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
     return data.results?.[0] ?? null;
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleLookup(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit || loading) return;
 
     setLoading(true);
     setError("");
+    setResult(null);
     try {
       // 網址是明確指向某一本書的，比書名搜尋可靠，所以優先用
       const fromUrl = url.trim() ? await lookupByUrl().catch(() => null) : null;
@@ -59,7 +62,7 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
       if (url.trim()) merged.sourceUrl = url.trim();
 
       const found = Boolean(merged.author || merged.publisher || merged.coverUrl);
-      onDone({
+      setResult({
         prefill: merged,
         notice: found ? "" : "查不到這本書的資料，可以直接進下一步自己填。",
       });
@@ -70,17 +73,22 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
     }
   }
 
+  const found = result !== null && result.notice === "";
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border bg-white p-5">
+    <form onSubmit={handleLookup} className="space-y-4 rounded-lg border bg-white p-5">
       <p className="text-sm text-gray-500">
-        先查書籍資料，查到之後再進編輯頁。書名和網址擇一填寫即可，兩個都填會以網址為準。
+        先查書籍資料，確認查到的內容之後再進編輯頁。書名和網址擇一填寫即可，兩個都填會以網址為準。
       </p>
 
       <div>
         <label className="mb-1 block text-sm font-medium">書名</label>
         <input
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            setResult(null);
+          }}
           placeholder="例如：深度工作力"
           className="w-full rounded border px-3 py-2 text-sm"
         />
@@ -91,7 +99,10 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
         <input
           type="url"
           value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          onChange={(e) => {
+            setUrl(e.target.value);
+            setResult(null);
+          }}
           placeholder="貼上讀墨 / Kindle / Pubu 等連結"
           className="w-full rounded border px-3 py-2 text-sm"
         />
@@ -99,23 +110,78 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
 
       {error && <p className="text-xs text-red-600">{error}</p>}
 
-      <div className="flex items-center gap-3">
+      {result && (found ? <FoundCard prefill={result.prefill} /> : <NotFoundCard />)}
+
+      <div className="flex flex-wrap items-center gap-3">
         <button
           type="submit"
           disabled={!canSubmit || loading}
-          className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+          className={`rounded px-4 py-2 text-sm font-medium disabled:opacity-50 ${
+            found
+              ? "border border-gray-900 hover:bg-gray-100"
+              : "bg-gray-900 text-white hover:bg-gray-700"
+          }`}
         >
-          {loading ? "查詢中…" : "查詢並繼續"}
+          {loading ? "查詢中…" : result ? "重新查詢" : "查詢"}
         </button>
-        <button
-          type="button"
-          onClick={() => onDone({ prefill: {}, notice: "" })}
-          className="text-sm text-gray-500 hover:underline"
-        >
-          略過，直接手動輸入
-        </button>
+
+        {/* 查到了才給主要按鈕，讓「繼續」變成確認動作而不是碰運氣 */}
+        {result && (
+          <button
+            type="button"
+            onClick={() => onDone(result)}
+            className={`rounded px-4 py-2 text-sm font-medium ${
+              found
+                ? "bg-gray-900 text-white hover:bg-gray-700"
+                : "border border-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            {found ? "使用這筆資料，繼續" : "仍要繼續，手動填寫"}
+          </button>
+        )}
+
+        {!result && (
+          <button
+            type="button"
+            onClick={() => onDone({ prefill: {}, notice: "" })}
+            className="text-sm text-gray-500 hover:underline"
+          >
+            略過，直接手動輸入
+          </button>
+        )}
       </div>
     </form>
+  );
+}
+
+function FoundCard({ prefill }: { prefill: Partial<Book> }) {
+  return (
+    <div className="flex gap-3 rounded border border-green-200 bg-green-50 p-3">
+      {prefill.coverUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={prefill.coverUrl}
+          alt=""
+          loading="lazy"
+          className="aspect-2/3 w-12 shrink-0 rounded-sm object-cover shadow-sm"
+        />
+      )}
+      <div className="min-w-0 space-y-0.5 text-xs">
+        <p className="text-sm font-medium wrap-break-word">{prefill.title}</p>
+        {prefill.author && <p className="text-gray-600">作者：{prefill.author}</p>}
+        {prefill.publisher && <p className="text-gray-600">出版社：{prefill.publisher}</p>}
+        {prefill.pageCount && <p className="text-gray-600">頁數：{prefill.pageCount}</p>}
+        <p className="pt-0.5 text-green-700">查到資料了，確認沒錯就可以繼續。</p>
+      </div>
+    </div>
+  );
+}
+
+function NotFoundCard() {
+  return (
+    <div className="rounded border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+      查不到這本書的資料。可以換個關鍵字重查，或直接繼續自己填。
+    </div>
   );
 }
 

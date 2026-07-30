@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "請先登入" }, { status: 401 });
   }
 
-  const { sheetId } = (await req.json()) as { sheetId: string };
+  const { sheetId, after } = (await req.json()) as { sheetId: string; after?: string };
   if (!sheetId) return NextResponse.json({ error: "缺少 Sheet ID" }, { status: 400 });
 
   const accessToken = session.accessToken;
@@ -34,7 +34,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "讀取 Sheet 失敗" }, { status: 502 });
   }
 
-  const candidates = books.filter((b) => b.title && missingFields(b).length > 0);
+  const allCandidates = books.filter((b) => b.title && missingFields(b).length > 0);
+
+  // 查不到資料的書會一直留在候選名單裡。若每次都從頭掃，這些書會卡在前面把
+  // 時間吃光，後面的書永遠輪不到。用 after 帶上次掃到哪裡，從那之後接著跑。
+  const resumeAt = after ? allCandidates.findIndex((b) => b.id === after) + 1 : 0;
+  const candidates = resumeAt > 0 ? allCandidates.slice(resumeAt) : allCandidates;
 
   const deadline = Date.now() + (maxDuration * 1000 - WRITE_BUDGET_MS);
   const patches = new Map<string, Partial<Book>>();
@@ -43,12 +48,14 @@ export async function POST(req: NextRequest) {
 
   // 簡單的工作佇列：CONCURRENCY 條工人共用同一個索引
   let next = 0;
+  let lastAttempted = -1;
   async function worker() {
     while (true) {
       const i = next++;
       if (i >= candidates.length || Date.now() > deadline) return;
 
       const book = candidates[i];
+      lastAttempted = Math.max(lastAttempted, i);
       processed++;
 
       const metadata = await fetchBookMetadata(book.title, missingFields(book));
@@ -77,11 +84,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const remaining = Math.max(0, candidates.length - (lastAttempted + 1));
+
   return NextResponse.json({
     scanned: processed,
     updated: patches.size,
     skipped: failures.length,
-    remaining: Math.max(0, candidates.length - processed),
+    remaining,
+    // 還沒掃完就把游標交給前端，下次接著跑；掃完了就清掉，重按一次從頭來
+    nextAfter: remaining > 0 && lastAttempted >= 0 ? candidates[lastAttempted].id : null,
     idsBackfilled,
     failures: failures.slice(0, 10),
   });
