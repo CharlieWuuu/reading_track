@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Script from "next/script";
 import { useSession } from "next-auth/react";
 
@@ -130,41 +130,6 @@ export function SheetPicker({
           {error}
         </div>
       )}
-      <Diagnostics />
     </div>
-  );
-}
-
-// Picker 的 key 檢查是看瀏覽器送出的 referrer，
-// 而 referrer 在 PWA／App 內建瀏覽器裡會不一樣，所以直接印出來比對
-function Diagnostics() {
-  const [info, setInfo] = useState<string[]>([]);
-
-  useEffect(() => {
-    const standalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      "standalone" in navigator;
-    setInfo([
-      `金鑰 ${API_KEY ? `${API_KEY.slice(0, 8)}…（長度 ${API_KEY.length}）` : "未載入"}`,
-      `appId ${APP_ID ?? "未設定"}`,
-      `網址 ${window.location.href}`,
-      `referrer ${document.referrer || "（空的）"}`,
-      `開啟方式 ${standalone ? "PWA／獨立視窗" : "一般瀏覽器分頁"}`,
-      `cookie ${navigator.cookieEnabled ? "可用" : "被停用"}`,
-      `UA ${navigator.userAgent}`,
-    ]);
-  }, []);
-
-  if (!info.length) return null;
-
-  return (
-    <details className="mt-2 text-xs text-gray-500">
-      <summary className="cursor-pointer">連線診斷資訊</summary>
-      <ul className="mt-1 space-y-0.5 wrap-break-word rounded bg-gray-50 p-2">
-        {info.map((line) => (
-          <li key={line}>{line}</li>
-        ))}
-      </ul>
-    </details>
   );
 }
