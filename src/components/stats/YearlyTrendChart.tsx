@@ -74,7 +74,7 @@ export function YearlyTrendChart({
               : "text-gray-500 hover:bg-gray-100"
           }`}
         >
-          累積總數（每季）
+          累積總數
         </button>
       </div>
 
@@ -117,12 +117,16 @@ export function YearlyTrendChart({
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} stroke="var(--grid)" strokeDasharray="3 3" />
+            {/* 資料點仍是每季，但只在每年第一季標出年份，其餘留刻度線就好 */}
             <XAxis
               dataKey="quarter"
-              tick={{ fill: "var(--muted)", fontSize: 10 }}
+              tick={{ fill: "var(--muted)", fontSize: 12 }}
               axisLine={{ stroke: "var(--grid)" }}
-              tickLine={false}
-              interval={1}
+              tickLine={{ stroke: "var(--grid)" }}
+              interval={0}
+              tickFormatter={(value: string) =>
+                value.endsWith("-Q1") ? value.slice(0, 4) : ""
+              }
             />
             <YAxis
               allowDecimals={false}
@@ -139,6 +143,11 @@ export function YearlyTrendChart({
                 fontSize: 12,
               }}
               formatter={(value) => [`${value ?? 0} 本`, "累積完成"]}
+              labelFormatter={(label) => {
+                const [year, q] = String(label).split("-Q");
+                const endMonth = Number(q) * 3;
+                return `${year} 年 ${endMonth - 2}–${endMonth} 月`;
+              }}
             />
             <Area
               type="monotone"
