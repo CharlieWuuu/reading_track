@@ -30,7 +30,8 @@ export default function SettingsPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "連接失敗");
 
-      setSheet(id, name);
+      // 手動貼網址時拿不到檔名，改用 Sheet 自己的標題
+      setSheet(id, name || data.title || id);
     } catch (err) {
       setError(err instanceof Error ? err.message : "連接失敗");
     } finally {

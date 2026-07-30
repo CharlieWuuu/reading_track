@@ -130,6 +130,61 @@ export function SheetPicker({
           {error}
         </div>
       )}
+      <ManualSheetInput onSelect={onSelect} />
     </div>
+  );
+}
+
+/**
+ * Picker 是彈出視窗，在 iOS 加到主畫面的獨立視窗裡會開成空白頁，
+ * 所以永遠留一條手動貼網址的路。
+ */
+function ManualSheetInput({
+  onSelect,
+}: {
+  onSelect: (sheetId: string, name: string) => void;
+}) {
+  const [value, setValue] = useState("");
+  const [error, setError] = useState("");
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    const input = value.trim();
+    if (!input) return;
+
+    // 接受完整網址，也接受直接貼 ID
+    const fromUrl = input.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)?.[1];
+    const id = fromUrl ?? (/^[a-zA-Z0-9-_]{20,}$/.test(input) ? input : null);
+    if (!id) {
+      setError("看不出 Sheet ID，請貼完整的 Google Sheet 網址");
+      return;
+    }
+
+    setError("");
+    onSelect(id, "");
+  }
+
+  return (
+    <form onSubmit={submit} className="mt-3">
+      <label className="block text-xs text-gray-500">
+        或直接貼上 Google Sheet 網址
+      </label>
+      <div className="mt-1 flex gap-2">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="https://docs.google.com/spreadsheets/d/…"
+          className="min-w-0 flex-1 rounded border px-2 py-1.5 text-sm"
+        />
+        <button
+          type="submit"
+          className="shrink-0 rounded border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+        >
+          連接
+        </button>
+      </div>
+      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+    </form>
   );
 }
