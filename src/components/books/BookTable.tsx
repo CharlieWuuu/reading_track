@@ -204,8 +204,8 @@ export function BookTable() {
 
   const pager =
     pageCount > 1 ? (
-      // 間距留在分隔線上方，翻頁列本身不留 padding
-      <div className="mt-2 flex items-center justify-center gap-4 border-t">
+      // 間距由分隔線上下帶開，翻頁列本身不留左右 padding
+      <div className="mt-2 flex items-center justify-center gap-4 border-t pt-2">
         <button
           onClick={() => setPage(Math.max(0, currentPage - 1))}
           disabled={currentPage === 0}
