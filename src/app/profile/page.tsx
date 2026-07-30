@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { PageHeader } from "@/components/layout/PageHeader";
 
@@ -58,6 +59,14 @@ export default function ProfilePage() {
         >
           登出
         </button>
+      </div>
+
+      {/* 裝成 app 之後畫面會被快取，出問題時要看得出跑的是哪一版 */}
+      <div className="mt-4 flex items-center justify-between px-1 text-xs text-gray-400">
+        <span>版本 {process.env.NEXT_PUBLIC_APP_VERSION ?? "dev"}</span>
+        <Link href="/privacy" className="underline">
+          隱私權政策
+        </Link>
       </div>
     </div>
   );
