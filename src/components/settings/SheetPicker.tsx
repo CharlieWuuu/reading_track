@@ -117,20 +117,24 @@ export function SheetPicker({
           setError("無法載入 https://apis.google.com/js/api.js（被瀏覽器或網路擋掉）")
         }
       />
-      <button
-        type="button"
-        onClick={openPicker}
-        disabled={!ready}
-        className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
-      >
-        {ready ? "選擇 Google Sheet" : "載入中…"}
-      </button>
+      {/* 兩種連接方式併成一列，設定頁才不會被推出捲軸 */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <button
+          type="button"
+          onClick={openPicker}
+          disabled={!ready}
+          className="shrink-0 rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+        >
+          {ready ? "選擇 Google Sheet" : "載入中…"}
+        </button>
+        <span className="hidden text-xs text-gray-400 sm:inline">或</span>
+        <ManualSheetInput onSelect={onSelect} />
+      </div>
       {error && (
         <div className="mt-2 wrap-break-word rounded bg-red-50 p-2 text-xs text-red-700">
           {error}
         </div>
       )}
-      <ManualSheetInput onSelect={onSelect} />
     </div>
   );
 }
@@ -165,16 +169,13 @@ function ManualSheetInput({
   }
 
   return (
-    <form onSubmit={submit} className="mt-3">
-      <label className="block text-xs text-gray-500">
-        或直接貼上 Google Sheet 網址
-      </label>
-      <div className="mt-1 flex gap-2">
+    <form onSubmit={submit} className="min-w-0 flex-1">
+      <div className="flex gap-2">
         <input
           type="text"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="https://docs.google.com/spreadsheets/d/…"
+          placeholder="直接貼上 Sheet 網址"
           className="min-w-0 flex-1 rounded border px-2 py-1.5 text-sm"
         />
         <button

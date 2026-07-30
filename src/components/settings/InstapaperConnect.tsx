@@ -50,10 +50,10 @@ export function InstapaperConnect() {
     <div>
       <h3 className="mb-2 text-sm font-medium">Instapaper</h3>
       <p className="mb-3 text-xs text-gray-500">
-        輸入你的 Instapaper 帳號密碼以讀取已讀文章，密碼只會用來換取存取權杖，
-        不會被儲存。
+        用來讀取已讀文章。密碼只用於換取存取權杖，不會被儲存。
       </p>
-      <form onSubmit={handleConnect} className="space-y-2">
+      {/* 兩欄並排，設定頁在手機上才不用捲 */}
+      <form onSubmit={handleConnect} className="space-y-2 sm:grid sm:grid-cols-2 sm:gap-2 sm:space-y-0">
         <input
           type="text"
           placeholder="Instapaper 帳號（email）"
@@ -73,11 +73,11 @@ export function InstapaperConnect() {
         <button
           type="submit"
           disabled={connecting}
-          className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+          className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 sm:col-span-2 sm:justify-self-start"
         >
           {connecting ? "連接中…" : "連接 Instapaper"}
         </button>
-        {error && <p className="text-xs text-red-600">{error}</p>}
+        {error && <p className="text-xs text-red-600 sm:col-span-2">{error}</p>}
       </form>
     </div>
   );

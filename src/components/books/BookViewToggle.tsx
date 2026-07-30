@@ -1,6 +1,7 @@
 "use client";
 
 import { BookViewMode, useBookViewStore } from "@/store/useBookViewStore";
+import { useUrlParams } from "@/lib/useUrlParam";
 
 const OPTIONS: Array<{ id: BookViewMode; label: string; Icon: () => React.ReactElement }> = [
   {
@@ -28,14 +29,24 @@ const OPTIONS: Array<{ id: BookViewMode; label: string; Icon: () => React.ReactE
 
 /** 檢視切換：放在頁首那一列，不再另外佔一整行 */
 export function BookViewToggle() {
-  const { view, setView } = useBookViewStore();
+  const { view: savedView, setView: saveView } = useBookViewStore();
+  const { searchParams, setParams } = useUrlParams();
+  const urlView = searchParams.get("view");
+  // 網址說了算；沒指定時沿用上次的選擇
+  const view = urlView === "card" || urlView === "table" ? urlView : savedView;
+
+  function select(next: BookViewMode) {
+    saveView(next);
+    // 一頁裝得下幾本會跟著檢視方式變，舊頁碼沒有意義，順手清掉
+    setParams({ view: next, page: null });
+  }
 
   return (
     <div className="inline-flex rounded border border-gray-300 p-0.5">
       {OPTIONS.map((option) => (
         <button
           key={option.id}
-          onClick={() => setView(option.id)}
+          onClick={() => select(option.id)}
           aria-pressed={view === option.id}
           aria-label={option.label}
           title={option.label}

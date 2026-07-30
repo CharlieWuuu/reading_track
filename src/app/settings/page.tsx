@@ -59,7 +59,7 @@ export default function SettingsPage() {
           <div>
             <h3 className="mb-2 text-sm font-medium">連接 Google Sheet</h3>
             <p className="mb-3 text-xs text-gray-500">
-              先到{" "}
+              到{" "}
               <a
                 href="https://sheets.google.com"
                 target="_blank"
@@ -68,8 +68,7 @@ export default function SettingsPage() {
               >
                 sheets.google.com
               </a>{" "}
-              建立一份空白試算表（不用自己加欄位），接著點下方按鈕選取它。
-              這個 App 只能存取你選過的檔案，不會看到其他 Sheet。
+              建立一份空白試算表（欄位會自動建立），再從下方選取或貼上網址。
             </p>
 
             <SheetPicker onSelect={handlePicked} />
