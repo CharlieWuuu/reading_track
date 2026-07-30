@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
-import { Book, BookPlatform, BOOK_PLATFORMS, READING_STATUSES, ReadingStatus } from "@/types/book";
+import { Book, BookPlatform, BOOK_PLATFORMS, inferStatus } from "@/types/book";
 import { CategorySelect } from "./CategorySelect";
 
 const emptyForm = {
@@ -14,7 +14,6 @@ const emptyForm = {
   coverUrl: "",
   publisher: "",
   platform: "其他" as BookPlatform,
-  status: "想讀" as ReadingStatus,
   startDate: "",
   endDate: "",
   domain: "",
@@ -26,6 +25,45 @@ const emptyForm = {
 };
 
 type FormState = typeof emptyForm;
+
+const SECTIONS = [
+  { key: "basic", label: "基本" },
+  { key: "progress", label: "進度分類" },
+  { key: "note", label: "筆記" },
+] as const;
+
+type SectionKey = (typeof SECTIONS)[number]["key"];
+
+/** 手機只顯示選中的那頁，桌機（sm 以上）一律全部展開 */
+function Section({ active, children }: { active: boolean; children: React.ReactNode }) {
+  return (
+    <div
+      className={`min-h-0 shrink-0 grid-cols-1 gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-3 ${
+        active ? "grid" : "hidden"
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
+
+async function scrapeByUrl(url: string): Promise<Partial<Book> | null> {
+  const res = await fetch("/api/scrape", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data?.title ? data : null;
+}
+
+async function searchByTitle(title: string): Promise<Partial<Book> | null> {
+  const res = await fetch(`/api/search-book?q=${encodeURIComponent(title)}`);
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.results?.[0] ?? null;
+}
 
 function toForm(book: Partial<Book>): FormState {
   return {
@@ -57,7 +95,52 @@ export function BookForm({
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [section, setSection] = useState<SectionKey>("basic");
+  const [refetching, setRefetching] = useState(false);
+  const [refetchNote, setRefetchNote] = useState("");
   const isEdit = Boolean(book);
+  const status = inferStatus(form.startDate || null, form.endDate || null);
+
+  /**
+   * 用現在表單裡的書名／網址重查一次。刻意只補空欄位——
+   * 使用者手動改過的內容比外部來源可信，不能被一鍵蓋掉。
+   */
+  async function handleRefetch() {
+    const url = form.sourceUrl.trim();
+    const title = form.title.trim();
+    if (!url && !title) {
+      setRefetchNote("請先填書名或來源網址");
+      return;
+    }
+
+    setRefetching(true);
+    setRefetchNote("");
+    try {
+      const found = url ? await scrapeByUrl(url) : await searchByTitle(title);
+      if (!found) {
+        setRefetchNote("查不到這本書的資料");
+        return;
+      }
+
+      const filled: string[] = [];
+      setForm((f) => {
+        const next = { ...f };
+        for (const [key, value] of Object.entries(found)) {
+          const k = key as keyof FormState;
+          if (!(k in next) || typeof value !== "string" || !value.trim()) continue;
+          if (String(next[k] ?? "").trim()) continue;
+          (next[k] as string) = value;
+          filled.push(k);
+        }
+        return next;
+      });
+      setRefetchNote(filled.length ? `補上 ${filled.length} 個空欄位` : "沒有可補的空欄位");
+    } catch (err) {
+      setRefetchNote(err instanceof Error ? err.message : "抓取失敗");
+    } finally {
+      setRefetching(false);
+    }
+  }
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -78,7 +161,8 @@ export function BookForm({
       publisher: form.publisher,
       platform: form.platform,
       sourceUrl: form.sourceUrl,
-      status: form.status,
+      // 狀態不給使用者填，一律由日期推導，避免狀態跟日期互相矛盾
+      status: inferStatus(form.startDate || null, form.endDate || null),
       startDate: form.startDate || null,
       endDate: form.endDate || null,
       domain: form.domain,
@@ -158,13 +242,29 @@ export function BookForm({
         </p>
       )}
 
-      <div className="grid min-h-0 shrink-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {/* 手機一次只放得下一組欄位，用分頁切；桌機維持一次看完全部 */}
+      <div className="flex shrink-0 gap-1 border-b sm:hidden">
+        {SECTIONS.map((s) => (
+          <button
+            key={s.key}
+            type="button"
+            onClick={() => setSection(s.key)}
+            className={`-mb-px border-b-2 px-3 py-2 text-sm ${
+              section === s.key
+                ? "border-gray-900 font-medium text-gray-900"
+                : "border-transparent text-gray-500"
+            }`}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      <Section active={section === "basic"}>
         <Field label="書名" value={form.title} onChange={(v) => set("title", v)} required />
         <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
         <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
         <Field label="封面 URL" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
-        <Field label="頁數" value={form.pageCount} onChange={(v) => set("pageCount", v)} />
-        <Field label="字數" value={form.wordCount} onChange={(v) => set("wordCount", v)} />
         <Field label="來源網址" value={form.sourceUrl} onChange={(v) => set("sourceUrl", v)} />
 
         <div>
@@ -182,19 +282,30 @@ export function BookForm({
           </select>
         </div>
 
+        {/* 用現有的書名／網址重查，補上空欄位 */}
+        <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-3">
+          <button
+            type="button"
+            onClick={handleRefetch}
+            disabled={refetching}
+            className="rounded border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+          >
+            {refetching ? "抓取中…" : "重新抓取資料"}
+          </button>
+          {refetchNote && <span className="text-xs text-gray-500">{refetchNote}</span>}
+        </div>
+      </Section>
+
+      <Section active={section === "progress"}>
+        <Field label="頁數" value={form.pageCount} onChange={(v) => set("pageCount", v)} />
+        <Field label="字數" value={form.wordCount} onChange={(v) => set("wordCount", v)} />
+
         <div>
           <label className="mb-1 block text-sm font-medium">閱讀狀態</label>
-          <select
-            value={form.status}
-            onChange={(e) => set("status", e.target.value as ReadingStatus)}
-            className="w-full rounded border px-3 py-2 text-sm"
-          >
-            {READING_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
+          <p className="rounded border border-dashed bg-gray-50 px-3 py-2 text-sm text-gray-600">
+            {status}
+            <span className="ml-2 text-xs text-gray-400">依日期自動判斷</span>
+          </p>
         </div>
 
         <Field label="開始日期" type="date" value={form.startDate} onChange={(v) => set("startDate", v)} />
@@ -218,10 +329,12 @@ export function BookForm({
           value={form.language}
           onChange={(v) => set("language", v)}
         />
-      </div>
+      </Section>
 
       {/* 筆記吃掉剩下的高度，欄位多寡不同時都不會擠出捲軸 */}
-      <div className="flex min-h-0 flex-1 flex-col">
+      <div
+        className={`min-h-0 flex-1 flex-col ${section === "note" ? "flex" : "hidden"} sm:flex`}
+      >
         <label className="mb-1 block shrink-0 text-sm font-medium">筆記</label>
         <textarea
           value={form.note}
