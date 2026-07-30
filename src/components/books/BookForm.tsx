@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
@@ -89,6 +89,9 @@ export function BookForm({
   notice?: string;
 }) {
   const router = useRouter();
+  // 從書單進來時會帶著檢視方式與頁碼，存完要回到同一頁
+  const back = useSearchParams().get("back");
+  const backHref = back ? `/books?${back}` : "/books";
   const { sheetId } = useSheetStore();
   const { mutate } = useBooks();
   const [form, setForm] = useState<FormState>(toForm(book ?? initial ?? {}));
@@ -196,7 +199,7 @@ export function BookForm({
       }
 
       await mutate();
-      router.push("/books");
+      router.push(backHref);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "儲存失敗");
     } finally {
@@ -222,7 +225,7 @@ export function BookForm({
         (current) => ({ books: (current?.books ?? []).filter((b) => b.id !== book.id) }),
         { revalidate: false }
       );
-      router.push("/books");
+      router.push(backHref);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "刪除失敗");
       setSubmitting(false);

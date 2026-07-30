@@ -151,6 +151,9 @@ export function BookTable() {
   const view = urlView === "card" || urlView === "table" ? urlView : savedView;
   const page = Math.max(0, (Number(searchParams.get("page")) || 1) - 1);
   const setPage = (next: number) => setParams({ page: next === 0 ? null : String(next + 1) });
+  // 帶著目前的檢視與頁碼進編輯頁，存檔後才回得到同一頁
+  const query = searchParams.toString();
+  const editHref = (id: string) => `/books/${id}/edit${query ? `?back=${encodeURIComponent(query)}` : ""}`;
   const containerRef = useRef<HTMLDivElement>(null);
   const rowEstimate = useFitPageSize(containerRef, ROW_HEIGHT);
   // 列表用估算值起頭、再依實際渲染高度修正；書封牆是格狀排列，維持純計算
@@ -201,7 +204,8 @@ export function BookTable() {
 
   const pager =
     pageCount > 1 ? (
-      <div className="flex items-center justify-center gap-4 border-t px-3 py-2">
+      {/* 間距留在分隔線上方，翻頁列本身不留 padding */}
+      <div className="mt-2 flex items-center justify-center gap-4 border-t">
         <button
           onClick={() => setPage(Math.max(0, currentPage - 1))}
           disabled={currentPage === 0}
@@ -232,7 +236,7 @@ export function BookTable() {
           <ul className="grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2.5 md:grid-cols-[repeat(auto-fill,minmax(7rem,1fr))] md:gap-3">
             {pageBooks.map((b, i) => (
               <li key={b.id || `cover-${i}`}>
-                <Link href={`/books/${b.id}/edit`} className="group block">
+                <Link href={editHref(b.id)} className="group block">
                   <LargeCover url={b.coverUrl} title={b.title} />
                   <p className="mt-1.5 line-clamp-2 text-xs font-medium leading-snug">
                     {b.title}
@@ -257,7 +261,7 @@ export function BookTable() {
         <ul className="divide-y">
           {pageBooks.map((b, i) => (
             <li key={b.id || `card-${i}`} data-fit-row>
-              <Link href={`/books/${b.id}/edit`} className="flex gap-3 p-3 hover:bg-gray-50">
+              <Link href={editHref(b.id)} className="flex gap-3 p-3 hover:bg-gray-50">
                 <Cover url={b.coverUrl} title={b.title} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">
@@ -306,7 +310,7 @@ export function BookTable() {
             <tr
               key={b.id || `row-${i}`}
               data-fit-row
-              onClick={() => router.push(`/books/${b.id}/edit`)}
+              onClick={() => router.push(editHref(b.id))}
               className="cursor-pointer border-t hover:bg-gray-50"
             >
               <td className="px-3 py-2">
