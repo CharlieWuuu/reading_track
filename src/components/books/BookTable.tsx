@@ -15,8 +15,8 @@ const ROW_HEIGHT = { mobile: 86, desktop: 68 };
 
 /** 書封牆的單張卡片尺寸，用來推算一頁排得下幾張 */
 const CARD_SIZE = {
-  mobile: { width: 98, height: 178 },
-  desktop: { width: 126, height: 224 },
+  mobile: { width: 72, height: 134 },
+  desktop: { width: 90, height: 164 },
 };
 
 /**
