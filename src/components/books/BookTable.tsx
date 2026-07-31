@@ -233,7 +233,7 @@ export function BookTable() {
       <div ref={containerRef}>
         {/* 書封牆：一次看到很多本、也看得清楚封面，只留書名與完讀日期 */}
         <div className="rounded-lg border bg-white p-3">
-          <ul className="grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2.5 md:grid-cols-[repeat(auto-fill,minmax(7rem,1fr))] md:gap-3">
+          <ul className="grid grid-cols-[repeat(auto-fill,minmax(4rem,1fr))] gap-2 md:grid-cols-[repeat(auto-fill,minmax(5rem,1fr))] md:gap-2.5">
             {pageBooks.map((b, i) => (
               <li key={b.id || `cover-${i}`}>
                 <Link href={editHref(b.id)} className="group block">
