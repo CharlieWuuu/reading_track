@@ -34,7 +34,10 @@ export function RefreshButton({ compact = false }: { compact?: boolean }) {
           : "重新整理資料"
       }
       aria-label="重新整理資料"
-      className="flex items-center gap-1.5 rounded border border-gray-900 px-2 py-1 text-xs font-medium transition-colors hover:bg-gray-900 hover:text-white disabled:opacity-50"
+      /* 固定 h-8，跟同一排的頭像與「新增書籍」對齊 */
+      className={`flex h-8 items-center gap-1.5 rounded border border-gray-900 text-xs font-medium transition-colors hover:bg-gray-900 hover:text-white disabled:opacity-50 ${
+        compact ? "w-8 justify-center" : "px-2"
+      }`}
     >
       <svg
         viewBox="0 0 24 24"
