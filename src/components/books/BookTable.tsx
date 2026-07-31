@@ -156,15 +156,14 @@ export function BookTable() {
   const editHref = (id: string) => `/books/${id}/edit${query ? `?back=${encodeURIComponent(query)}` : ""}`;
   const containerRef = useRef<HTMLDivElement>(null);
   const rowEstimate = useFitPageSize(containerRef, ROW_HEIGHT);
-  // 列表用估算值起頭、再依實際渲染高度修正；書封牆是格狀排列，維持純計算
-  const rowPageSize = useFitRowsByMeasure(
+  const cardEstimate = useFitCardCount(containerRef);
+  // 兩種檢視都先估、再依實際渲染高度修正。書封的高度會隨書名行數變動，
+  // 純算常數一定有誤差，量測才保證不會溢出畫面。
+  const pageSize = useFitRowsByMeasure(
     containerRef,
-    rowEstimate,
+    view === "card" ? cardEstimate : rowEstimate,
     books.length,
-    view !== "card",
   );
-  const cardPageSize = useFitCardCount(containerRef);
-  const pageSize = view === "card" ? cardPageSize : rowPageSize;
 
   const pageCount = Math.max(1, Math.ceil(books.length / pageSize));
   const currentPage = Math.min(page, pageCount - 1);
@@ -235,7 +234,7 @@ export function BookTable() {
         <div className="rounded-lg border bg-white p-3">
           <ul className="grid grid-cols-[repeat(auto-fill,minmax(4rem,1fr))] gap-2 md:grid-cols-[repeat(auto-fill,minmax(5rem,1fr))] md:gap-2.5">
             {pageBooks.map((b, i) => (
-              <li key={b.id || `cover-${i}`}>
+              <li key={b.id || `cover-${i}`} data-fit-row>
                 <Link href={editHref(b.id)} className="group block">
                   <LargeCover url={b.coverUrl} title={b.title} />
                   <p className="mt-1.5 line-clamp-2 text-xs font-medium leading-snug">
