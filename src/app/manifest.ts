@@ -4,8 +4,8 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     // Bubblewrap 打包 TWA 時會以 id 認這個 app，之後不要再改
     id: "/books",
-    name: "Reading Track",
-    short_name: "Reading Track",
+    name: "ReadingTrack",
+    short_name: "ReadingTrack",
     description: "個人書籍與文章追蹤",
     start_url: "/books",
     // scope 決定哪些網址算「app 內」；超出範圍會跳出瀏覽器

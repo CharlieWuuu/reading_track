@@ -51,7 +51,7 @@ export function Sidebar() {
       >
         {!collapsed && (
           <span className="truncate text-lg font-semibold tracking-tight">
-            Reading Track
+            ReadingTrack
           </span>
         )}
         <button

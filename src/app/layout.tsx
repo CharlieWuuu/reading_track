@@ -17,11 +17,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Reading Track",
+  title: "ReadingTrack",
   description: "個人書籍與文章追蹤",
   appleWebApp: {
     capable: true,
-    title: "Reading Track",
+    title: "ReadingTrack",
     statusBarStyle: "default",
   },
   icons: {
