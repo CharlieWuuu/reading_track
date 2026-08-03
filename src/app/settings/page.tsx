@@ -30,7 +30,7 @@ export default function SettingsPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "連接失敗");
 
-      // 手動貼網址時拿不到檔名，改用 Sheet 自己的標題
+      // Picker 沒回檔名時退回用 Sheet 自己的標題
       setSheet(id, name || data.title || id);
     } catch (err) {
       setError(err instanceof Error ? err.message : "連接失敗");
@@ -68,7 +68,7 @@ export default function SettingsPage() {
               >
                 sheets.google.com
               </a>{" "}
-              建立一份空白試算表（欄位會自動建立），再從下方選取或貼上網址。
+              建立一份空白試算表（欄位會自動建立），再點下方按鈕選取它。這個 app 只能存取你選過的檔案。
             </p>
 
             <SheetPicker onSelect={handlePicked} />

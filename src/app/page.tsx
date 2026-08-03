@@ -45,12 +45,11 @@ export default function Home() {
         <h2 className="text-sm font-medium text-gray-900">為什麼需要存取你的 Google 試算表</h2>
         <p className="text-sm leading-relaxed text-gray-700">
           ReadingTrack 沒有自己的資料庫。你的閱讀紀錄從頭到尾都寫在你指定的那一份 Google
-          試算表裡，所以應用程式需要讀取與寫入該檔案的權限。連接方式有兩種：用 Google
-          檔案選擇器挑選，或直接貼上試算表網址——後者在手機上尤其重要，因為選擇器的彈出視窗
-          在部分行動瀏覽器中無法開啟。
+          試算表裡，所以應用程式需要讀取與寫入該檔案的權限。你用 Google
+          檔案選擇器挑選要連接的試算表，授權範圍僅限那一份檔案。
         </p>
         <p className="text-sm leading-relaxed text-gray-700">
-          應用程式只會寫入你明確連接的那一份試算表，不會列出、讀取或修改你的其他檔案，
+          應用程式只能存取你親手挑選的那一份試算表，看不到你雲端硬碟裡的其他檔案，
           也不會把你的內容保存在我們的伺服器上。
         </p>
       </section>

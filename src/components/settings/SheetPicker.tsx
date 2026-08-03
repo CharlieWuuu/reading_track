@@ -117,75 +117,19 @@ export function SheetPicker({
           setError("無法載入 https://apis.google.com/js/api.js（被瀏覽器或網路擋掉）")
         }
       />
-      {/* 兩種連接方式併成一列，設定頁才不會被推出捲軸 */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-        <button
-          type="button"
-          onClick={openPicker}
-          disabled={!ready}
-          className="shrink-0 rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
-        >
-          {ready ? "選擇 Google Sheet" : "載入中…"}
-        </button>
-        <span className="hidden text-xs text-gray-400 sm:inline">或</span>
-        <ManualSheetInput onSelect={onSelect} />
-      </div>
+      <button
+        type="button"
+        onClick={openPicker}
+        disabled={!ready}
+        className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+      >
+        {ready ? "選擇 Google Sheet" : "載入中…"}
+      </button>
       {error && (
         <div className="mt-2 wrap-break-word rounded bg-red-50 p-2 text-xs text-red-700">
           {error}
         </div>
       )}
     </div>
-  );
-}
-
-/**
- * Picker 是彈出視窗，在 iOS 加到主畫面的獨立視窗裡會開成空白頁，
- * 所以永遠留一條手動貼網址的路。
- */
-function ManualSheetInput({
-  onSelect,
-}: {
-  onSelect: (sheetId: string, name: string) => void;
-}) {
-  const [value, setValue] = useState("");
-  const [error, setError] = useState("");
-
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
-    const input = value.trim();
-    if (!input) return;
-
-    // 接受完整網址，也接受直接貼 ID
-    const fromUrl = input.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)?.[1];
-    const id = fromUrl ?? (/^[a-zA-Z0-9-_]{20,}$/.test(input) ? input : null);
-    if (!id) {
-      setError("看不出 Sheet ID，請貼完整的 Google Sheet 網址");
-      return;
-    }
-
-    setError("");
-    onSelect(id, "");
-  }
-
-  return (
-    <form onSubmit={submit} className="min-w-0 flex-1">
-      <div className="flex gap-2">
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="直接貼上 Sheet 網址"
-          className="min-w-0 flex-1 rounded border px-2 py-1.5 text-sm"
-        />
-        <button
-          type="submit"
-          className="shrink-0 rounded border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
-        >
-          連接
-        </button>
-      </div>
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
-    </form>
   );
 }

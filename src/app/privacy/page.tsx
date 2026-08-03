@@ -21,8 +21,8 @@ export default function PrivacyPage() {
       <section className="space-y-2">
         <h2 className="font-medium text-gray-900">我們存取哪些資料</h2>
         <p>
-          ReadingTrack 使用 Google 帳號登入，並在你授權後存取你指定的那份 Google
-          試算表，用來讀取與寫入你的書籍與文章紀錄。我們會取得你的姓名、電子郵件與大頭貼，
+          ReadingTrack 使用 Google 帳號登入，並在你透過 Google 檔案選擇器挑選後，
+          僅存取你指定的那一份 Google 試算表，用來讀取與寫入你的書籍與文章紀錄。我們會取得你的姓名、電子郵件與大頭貼，
           僅用於顯示登入狀態。
         </p>
       </section>
