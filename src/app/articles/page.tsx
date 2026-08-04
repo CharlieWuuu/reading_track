@@ -28,7 +28,7 @@ function hostname(url: string): string {
 }
 
 /** 單筆文章的高度：標題 + 日期一行、進度條在右側；手機的標籤可能換行 */
-const ROW_HEIGHT = { mobile: 72, desktop: 60 };
+const ROW_HEIGHT = { mobile: 66, desktop: 60 };
 
 function ArticlesList() {
   const { token } = useInstapaperStore();
@@ -51,7 +51,7 @@ function ArticlesList() {
 
   if (!token) {
     return (
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto w-full max-w-5xl">
         <PageHeader title="文章紀錄" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           請先到「設定」頁面連接 Instapaper
@@ -62,7 +62,7 @@ function ArticlesList() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto w-full max-w-5xl">
         <PageHeader title="文章紀錄" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           載入中…
@@ -73,7 +73,7 @@ function ArticlesList() {
 
   if (error) {
     return (
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto w-full max-w-5xl">
         <PageHeader title="文章紀錄" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-red-600">
           {error}
@@ -84,7 +84,7 @@ function ArticlesList() {
 
   if (articles.length === 0) {
     return (
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto w-full max-w-5xl">
         <PageHeader title="文章紀錄" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           尚無文章
@@ -94,7 +94,7 @@ function ArticlesList() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto w-full max-w-5xl">
       <PageHeader title="文章紀錄" />
       {/* overflow-hidden：hover 底色才會被圓角裁掉，不會在頭尾兩列破圖 */}
       <div ref={containerRef} className="divide-y overflow-hidden rounded-lg border bg-white">
@@ -121,6 +121,9 @@ function ArticlesList() {
                   <span className="shrink-0 truncate text-xs text-gray-500">
                     {formatDate(activityTime(a))} · {hostname(a.url)}
                   </span>
+                  <span className="shrink-0 text-xs tabular-nums text-gray-400 sm:hidden">
+                    {percent}%
+                  </span>
                   {a.tags && a.tags.length > 0 && (
                     <div className="min-w-0 overflow-hidden">
                       <TagList values={a.tags.map((tag) => tag.name)} wrap={false} />
@@ -129,15 +132,15 @@ function ArticlesList() {
                 </div>
               </div>
 
-              {/* 進度靠右，跟標題同一列，不再自己佔一整條寬度 */}
-              <div className="flex w-16 shrink-0 items-center gap-1.5 sm:w-32 sm:gap-2">
+              {/* 進度靠右，跟標題同一列；手機空間不夠，只在後設資料那行顯示百分比 */}
+              <div className="hidden w-32 shrink-0 items-center gap-2 sm:flex">
                 <div className="h-1 flex-1 overflow-hidden rounded-full bg-gray-100">
                   <div
                     className="h-full rounded-full bg-gray-900"
                     style={{ width: `${percent}%` }}
                   />
                 </div>
-                <span className="w-8 shrink-0 whitespace-nowrap text-right text-xs tabular-nums text-gray-400 sm:w-9">
+                <span className="w-9 shrink-0 whitespace-nowrap text-right text-xs tabular-nums text-gray-400">
                   {percent}%
                 </span>
               </div>
