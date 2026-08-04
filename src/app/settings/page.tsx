@@ -6,10 +6,12 @@ import { useSheetStore } from "@/store/useSheetStore";
 import { SheetPicker } from "@/components/settings/SheetPicker";
 import { InstapaperConnect } from "@/components/settings/InstapaperConnect";
 import { CategoryManager } from "@/components/settings/CategoryManager";
+import { DisplaySettings } from "@/components/settings/DisplaySettings";
+import { DataIssuesPanel } from "@/components/settings/DataIssuesPanel";
 import { EnrichButton } from "@/components/books/EnrichButton";
 import { PageHeader } from "@/components/layout/PageHeader";
 
-type SettingsTab = "connect" | "categories" | "maintenance";
+type SettingsTab = "connect" | "categories" | "display" | "maintenance";
 
 export default function SettingsPage() {
   const [tab, setTab] = useState<SettingsTab>("connect");
@@ -90,6 +92,7 @@ export default function SettingsPage() {
       ),
     },
     { key: "categories", label: "分類選項", node: <CategoryManager /> },
+    { key: "display", label: "顯示方式", node: <DisplaySettings /> },
     {
       key: "maintenance",
       label: "資料維護",
@@ -101,6 +104,10 @@ export default function SettingsPage() {
             新增一批書之後跑一次就好。
           </p>
           <EnrichButton />
+
+          <div className="mt-6 border-t pt-4">
+            <DataIssuesPanel />
+          </div>
         </div>
       ),
     },

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { BookTable } from "@/components/books/BookTable";
 import { BookViewToggle } from "@/components/books/BookViewToggle";
-import { DataIssuesHint } from "@/components/books/DataIssuesHint";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export default function BooksPage() {
@@ -25,7 +24,6 @@ export default function BooksPage() {
           </div>
         }
       />
-      <DataIssuesHint />
       <Suspense fallback={null}>
         <BookTable />
       </Suspense>

@@ -1,6 +1,6 @@
 "use client";
 
-import { BookViewMode, useBookViewStore } from "@/store/useBookViewStore";
+import { BookViewMode, isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
 import { useUrlParams } from "@/lib/useUrlParam";
 
 const OPTIONS: Array<{ id: BookViewMode; label: string; Icon: () => React.ReactElement }> = [
@@ -25,6 +25,17 @@ const OPTIONS: Array<{ id: BookViewMode; label: string; Icon: () => React.ReactE
       </svg>
     ),
   },
+  {
+    id: "detail",
+    label: "詳細資料",
+    Icon: () => (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+        <rect x="2" y="3" width="12" height="4.5" rx="1" />
+        <rect x="2" y="8.5" width="12" height="4.5" rx="1" />
+        <path d="M5.5 3v4.5M5.5 8.5V13" />
+      </svg>
+    ),
+  },
 ];
 
 /** 檢視切換：放在頁首那一列，不再另外佔一整行 */
@@ -33,7 +44,7 @@ export function BookViewToggle() {
   const { searchParams, setParams } = useUrlParams();
   const urlView = searchParams.get("view");
   // 網址說了算；沒指定時沿用上次的選擇
-  const view = urlView === "card" || urlView === "table" ? urlView : savedView;
+  const view = isBookViewMode(urlView) ? urlView : savedView;
 
   function select(next: BookViewMode) {
     saveView(next);
@@ -42,21 +53,23 @@ export function BookViewToggle() {
   }
 
   return (
-    <div className="inline-flex rounded border border-gray-300 p-0.5">
-      {OPTIONS.map((option) => (
-        <button
-          key={option.id}
-          onClick={() => select(option.id)}
-          aria-pressed={view === option.id}
-          aria-label={option.label}
-          title={option.label}
-          className={`rounded p-1.5 ${
-            view === option.id ? "bg-gray-900 text-white" : "text-gray-400 hover:text-gray-900"
-          }`}
-        >
-          <option.Icon />
-        </button>
-      ))}
+    <div className="inline-flex items-center gap-2">
+      <div className="inline-flex rounded border border-gray-300 p-0.5">
+        {OPTIONS.map((option) => (
+          <button
+            key={option.id}
+            onClick={() => select(option.id)}
+            aria-pressed={view === option.id}
+            aria-label={option.label}
+            title={option.label}
+            className={`rounded p-1.5 ${
+              view === option.id ? "bg-gray-900 text-white" : "text-gray-400 hover:text-gray-900"
+            }`}
+          >
+            <option.Icon />
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
