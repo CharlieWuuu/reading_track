@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { BookCategories, joinTags, splitTags } from "@/types/book";
 import { useCategories } from "@/lib/useCategories";
 
@@ -33,15 +34,42 @@ export function CategorySelect({
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const rootRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [rect, setRect] = useState<{ top: number; left: number; width: number } | null>(null);
 
-  // 點到別的地方就收起來
+  // 點到別的地方就收起來（選單被送到 body 底下，所以兩塊都要檢查）
   useEffect(() => {
     if (!open) return;
     function onPointerDown(e: MouseEvent) {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      if (rootRef.current?.contains(target) || panelRef.current?.contains(target)) return;
+      setOpen(false);
     }
     document.addEventListener("mousedown", onPointerDown);
     return () => document.removeEventListener("mousedown", onPointerDown);
+  }, [open]);
+
+  /**
+   * 選單用 portal 送到 body 並固定定位。
+   *
+   * 編輯表單刻意每一頁都不給捲（外層是 overflow-hidden），選單如果留在原地
+   * 會被裁掉一半；改成 fixed 就不受任何祖先的 overflow 影響。
+   */
+  useLayoutEffect(() => {
+    if (!open) return;
+    function measure() {
+      const el = rootRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setRect({ top: r.bottom + 4, left: r.left, width: r.width });
+    }
+    measure();
+    window.addEventListener("resize", measure);
+    window.addEventListener("scroll", measure, true);
+    return () => {
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure, true);
+    };
   }, [open]);
 
   const keyword = query.trim();
@@ -115,8 +143,11 @@ export function CategorySelect({
         )}
       </button>
 
-      {open && (
-        <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-lg border bg-white shadow-lg">
+      {open && rect && createPortal(
+        <div
+          ref={panelRef}
+          style={{ top: rect.top, left: rect.left, width: rect.width }}
+          className="fixed z-50 overflow-hidden rounded-lg border bg-white shadow-lg">
           <input
             autoFocus
             value={query}
@@ -223,7 +254,8 @@ export function CategorySelect({
               <li className="px-3 py-2 text-xs text-gray-400">還沒有任何選項</li>
             )}
           </ul>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

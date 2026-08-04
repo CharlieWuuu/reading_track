@@ -4,7 +4,7 @@ import { Suspense, useRef, useState } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PagerButton } from "@/components/ui/PagerButton";
 import { TagList } from "@/components/ui/TagBadge";
-import { useFitPageSize } from "@/lib/useFitPageSize";
+import { useFitPageSize, useFitRowsByMeasure } from "@/lib/useFitPageSize";
 import { usePagingMode } from "@/lib/usePagingMode";
 import { useInstapaperStore } from "@/store/useInstapaperStore";
 import { useArticles } from "@/lib/useArticles";
@@ -35,10 +35,12 @@ function ArticlesList() {
   const { articles, isLoading, error } = useArticles();
   const [page, setPage] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const fitPageSize = useFitPageSize(containerRef, ROW_HEIGHT);
+  const estimate = useFitPageSize(containerRef, ROW_HEIGHT);
   // 分頁／捲動是整個 app 共用的偏好，文章列表也跟著走
   const { scrolling } = usePagingMode();
 
+  // 有標籤的文章列會變高，純算常數會估太多，渲染後再量一次修正
+  const fitPageSize = useFitRowsByMeasure(containerRef, estimate, articles.length, !scrolling);
   const pageSize = scrolling ? Math.max(1, articles.length) : fitPageSize;
   const pageCount = Math.max(1, Math.ceil(articles.length / pageSize));
   const currentPage = Math.min(page, pageCount - 1);
@@ -104,6 +106,7 @@ function ArticlesList() {
               href={instapaperReadUrl(a.bookmark_id, a.url)}
               target="_blank"
               rel="noopener noreferrer"
+              data-fit-row
               className="flex items-center gap-3 px-3 py-3 hover:bg-gray-50 sm:gap-4 sm:px-4"
             >
               <div className="min-w-0 flex-1">

@@ -109,12 +109,20 @@ function StatusBadge({ status }: { status: ReadingStatus }) {
   );
 }
 
-/** 詳細檢視的一格：欄位名稱小、值大，沒填的一律顯示破折號才對得整齊 */
+/**
+ * 詳細檢視的一格：欄位名稱小、值大，沒填的一律顯示破折號才對得整齊。
+ *
+ * truncate 只給純文字用——標籤徽章的外框是 ring，畫在邊界外面，
+ * 套上 overflow-hidden 會被削掉一圈。
+ */
 function DetailField({ label, children }: { label: string; children: React.ReactNode }) {
+  const isText = typeof children === "string" || typeof children === "number";
   return (
     <div className="min-w-0">
-      <p className="text-[11px] text-gray-400">{label}</p>
-      <div className="truncate text-xs text-gray-700">{children || "—"}</div>
+      <p className="text-xs text-gray-400">{label}</p>
+      <div className={`text-sm text-gray-700 ${isText ? "truncate" : ""}`}>
+        {children || "—"}
+      </div>
     </div>
   );
 }
@@ -126,19 +134,23 @@ function DetailCard({ book, href, number }: { book: Book; href: string; number: 
       href={href}
       className="flex gap-4 rounded-lg border bg-white p-3 hover:bg-gray-50 md:p-4"
     >
-      <div className="w-16 shrink-0 md:w-20">
+      {/* 寬度是 aspect-2/3 換算來的：高度各加約 4px */}
+      <div className="w-[4.4rem] shrink-0 md:w-[5.4rem]">
         <LargeCover url={book.coverUrl} title={book.title} />
       </div>
 
       <div className="min-w-0 flex-1 space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs tabular-nums text-gray-400">#{number}</span>
-          <span className="min-w-0 truncate text-sm font-medium">{book.title}</span>
-          <StatusBadge status={book.status} />
+        {/* 書名與作者當成標題區，省下兩個欄位格 */}
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="min-w-0 truncate text-lg font-semibold">{book.title}</span>
+            <span className="text-xs tabular-nums text-gray-400">#{number}</span>
+            <StatusBadge status={book.status} />
+          </div>
+          <p className="truncate text-sm text-gray-500">{book.author || "—"}</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-3 lg:grid-cols-4">
-          <DetailField label="作者">{book.author}</DetailField>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-3 lg:grid-cols-5">
           <DetailField label="出版社">{book.publisher}</DetailField>
           <DetailField label="平台">
             <OptionList values={[book.platform]} />
@@ -152,7 +164,7 @@ function DetailCard({ book, href, number }: { book: Book; href: string; number: 
             <OptionList values={[book.domain]} />
           </DetailField>
           <DetailField label="屬性">
-            <OptionList values={[book.type]} />
+            <OptionList values={[book.type]} size="sm" />
           </DetailField>
           <DetailField label="來源網址">
             {book.sourceUrl ? <span className="truncate">{book.sourceUrl}</span> : ""}
@@ -160,7 +172,7 @@ function DetailCard({ book, href, number }: { book: Book; href: string; number: 
         </div>
 
         {book.note && (
-          <p className="line-clamp-2 rounded bg-gray-50 px-2 py-1 text-xs text-gray-600">
+          <p className="line-clamp-2 rounded bg-gray-50 px-2 py-1 text-sm text-gray-600">
             {book.note}
           </p>
         )}
@@ -386,7 +398,7 @@ export function BookTable() {
               <td className="whitespace-nowrap px-3 py-2">
                 <StatusBadge status={b.status} />
               </td>
-              <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 xl:table-cell">
+              <td className="hidden px-3 py-2 xl:table-cell">
                 <OptionList values={[b.platform]} />
               </td>
               <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 2xl:table-cell">
@@ -395,11 +407,11 @@ export function BookTable() {
               <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 lg:table-cell">
                 <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.endDate ?? "—"}</span>
               </td>
-              <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 xl:table-cell">
+              <td className="hidden px-3 py-2 xl:table-cell">
                 <OptionList values={[b.domain]} />
               </td>
-              <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 2xl:table-cell">
-                <OptionList values={[b.type]} />
+              <td className="hidden px-3 py-2 2xl:table-cell">
+                <OptionList values={[b.type]} size="sm" />
               </td>
               <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 2xl:table-cell">
                 <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.language}</span>
