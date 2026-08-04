@@ -21,14 +21,14 @@ function activityTime(a: InstapaperBookmark): number {
 
 function hostname(url: string): string {
   try {
-    return new URL(url).hostname;
+    return new URL(url).hostname.replace(/^www\./, "");
   } catch {
     return "";
   }
 }
 
-/** 單筆文章的高度：標題 + 日期一行、進度條在右側 */
-const ROW_HEIGHT = { mobile: 62, desktop: 60 };
+/** 單筆文章的高度：標題 + 日期一行、進度條在右側；手機的標籤可能換行 */
+const ROW_HEIGHT = { mobile: 72, desktop: 60 };
 
 function ArticlesList() {
   const { token } = useInstapaperStore();
@@ -107,14 +107,17 @@ function ArticlesList() {
               target="_blank"
               rel="noopener noreferrer"
               data-fit-row
-              className="flex items-center gap-3 px-3 py-3 hover:bg-gray-50 sm:gap-4 sm:px-4"
+              className="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 sm:gap-4 sm:px-4 sm:py-3"
             >
-              <div className="min-w-0 flex-1">
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
                 <p className="truncate whitespace-nowrap text-sm font-medium">
                   {a.title || a.url}
                 </p>
-                {/* 日期、網站與標籤同一行；標籤是 Instapaper 上自己加的，配色與書籍共用 */}
-                <div className="mt-0.5 flex min-w-0 items-center gap-2">
+                {/*
+                  日期、網站與標籤同一列；手機寬度不夠時標籤會換到下一行，
+                  硬擠在同一行只會被裁掉看不到。
+                */}
+                <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                   <span className="shrink-0 truncate text-xs text-gray-500">
                     {formatDate(activityTime(a))} · {hostname(a.url)}
                   </span>
@@ -127,14 +130,14 @@ function ArticlesList() {
               </div>
 
               {/* 進度靠右，跟標題同一列，不再自己佔一整條寬度 */}
-              <div className="flex w-24 shrink-0 items-center gap-2 sm:w-32">
+              <div className="flex w-16 shrink-0 items-center gap-1.5 sm:w-32 sm:gap-2">
                 <div className="h-1 flex-1 overflow-hidden rounded-full bg-gray-100">
                   <div
                     className="h-full rounded-full bg-gray-900"
                     style={{ width: `${percent}%` }}
                   />
                 </div>
-                <span className="w-9 shrink-0 whitespace-nowrap text-right text-xs tabular-nums text-gray-400">
+                <span className="w-8 shrink-0 whitespace-nowrap text-right text-xs tabular-nums text-gray-400 sm:w-9">
                   {percent}%
                 </span>
               </div>

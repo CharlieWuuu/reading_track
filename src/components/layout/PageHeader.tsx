@@ -14,10 +14,11 @@ export function PageHeader({
 }) {
   return (
     <div className="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-gray-900 pb-3 md:mb-5 md:gap-3">
-      <h2 className="whitespace-nowrap text-base font-semibold">{title}</h2>
-      <div className="flex items-center gap-2">
-        {action}
-        <div className="flex items-center gap-2 md:hidden">
+      {/* 手機不顯示標題：底部導覽已經標出在哪一頁，把寬度讓給操作區 */}
+      <h2 className="hidden whitespace-nowrap text-base font-semibold md:block">{title}</h2>
+      <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
+        <div className="min-w-0">{action}</div>
+        <div className="flex shrink-0 items-center gap-2 md:hidden">
           <RefreshButton compact />
           <AuthButton compact />
         </div>

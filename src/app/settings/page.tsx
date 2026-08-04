@@ -118,13 +118,16 @@ export default function SettingsPage() {
       <PageHeader
         title="設定"
         action={
-          // 分頁切換：每個區塊各自塞得下一個畫面，不用整頁往下捲
-          <div className="flex items-center gap-1 rounded-lg border p-1">
+          /*
+            分頁切換：每個區塊各自塞得下一個畫面，不用整頁往下捲。
+            手機放不下四個標籤，改成單行橫向捲動，不讓它折成兩行把頁首撐高。
+          */
+          <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-lg border p-1">
             {tabs.map((t) => (
               <button
                 key={t.key}
                 onClick={() => setTab(t.key)}
-                className={`rounded px-2.5 py-1.5 text-xs font-medium sm:text-sm ${
+                className={`shrink-0 whitespace-nowrap rounded px-2.5 py-1.5 text-xs font-medium sm:text-sm ${
                   tab === t.key
                     ? "bg-gray-900 text-white"
                     : "text-gray-500 hover:bg-gray-100"

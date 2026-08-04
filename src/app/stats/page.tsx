@@ -178,6 +178,7 @@ function BooksStats() {
       ? rankings.map((r) => ({
           key: r.key,
           label: r.label,
+          needsHeight: false,
           node: (
             <div className="rounded-lg border bg-white p-4">
               <RankingBar
@@ -193,6 +194,7 @@ function BooksStats() {
           {
             key: "ranking",
             label: "排行",
+            needsHeight: false,
             // 重讀排行帶書封，自己占一整列；作者與出版社排在下面兩欄
             node: (
               <div className="flex flex-col gap-4">
@@ -284,6 +286,7 @@ function ArticlesStats() {
     {
       key: "source",
       label: "來源網站",
+      needsHeight: false,
       node: (
         <div className="rounded-lg border bg-white p-5">
           <RankingBar

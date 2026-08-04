@@ -4,7 +4,18 @@ import { useState } from "react";
 import { PagerButton } from "@/components/ui/PagerButton";
 import { usePagingMode } from "@/lib/usePagingMode";
 
-export type Section = { key: string; label: string; node: React.ReactNode };
+export type Section = {
+  key: string;
+  label: string;
+  node: React.ReactNode;
+  /**
+   * 這個區塊需要外面給高度嗎？
+   *
+   * 圖表是 height="100%" 的 SVG，父層沒有高度就會縮成 0，所以預設為 true。
+   * 排行那種高度隨內容的清單要設 false，不然捲動模式會被硬撐成一個固定高度。
+   */
+  needsHeight?: boolean;
+};
 
 /**
  * 統計頁一次只顯示一個區塊，剛好塞滿畫面、用翻頁換下一個，
@@ -23,9 +34,18 @@ export function SectionPager({ sections }: { sections: Section[] }) {
     return (
       <div className="flex flex-col gap-6">
         {sections.map((section) => (
-          <div key={section.key} className="flex h-[26rem] flex-col gap-3.5 sm:h-[32rem]">
+          <div
+            key={section.key}
+            className={`flex flex-col gap-3.5 ${
+              section.needsHeight === false ? "" : "h-[26rem] sm:h-[32rem]"
+            }`}
+          >
             <h3 className="shrink-0 text-sm font-medium text-gray-500">{section.label}</h3>
-            <div className="flex min-h-0 flex-1 flex-col">{section.node}</div>
+            {section.needsHeight === false ? (
+              section.node
+            ) : (
+              <div className="flex min-h-0 flex-1 flex-col">{section.node}</div>
+            )}
           </div>
         ))}
       </div>

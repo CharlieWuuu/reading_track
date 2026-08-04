@@ -17,7 +17,7 @@ import { Book, ReadingStatus } from "@/types/book";
 const ROW_HEIGHT = { mobile: 86, desktop: 68 };
 
 /** 詳細檢視一張卡片就攤開所有欄位，高度自然高得多 */
-const DETAIL_ROW_HEIGHT = { mobile: 250, desktop: 210 };
+const DETAIL_ROW_HEIGHT = { mobile: 175, desktop: 200 };
 
 /** 書封牆的單張卡片尺寸，用來推算一頁排得下幾張 */
 const CARD_SIZE = {
@@ -118,11 +118,33 @@ function StatusBadge({ status }: { status: ReadingStatus }) {
 function DetailField({ label, children }: { label: string; children: React.ReactNode }) {
   const isText = typeof children === "string" || typeof children === "number";
   return (
-    <div className="flex min-w-0 flex-col gap-1">
-      <p className="text-xs text-gray-400">{label}</p>
-      <div className={`text-sm text-gray-700 ${isText ? "truncate" : ""}`}>
+    <div className="flex min-w-0 flex-col gap-0.5 md:gap-1">
+      <p className="text-[11px] leading-4 text-gray-400 md:text-xs">{label}</p>
+      <div className={`text-xs text-gray-700 md:text-sm ${isText ? "truncate" : ""}`}>
         {children || "—"}
       </div>
+    </div>
+  );
+}
+
+/** 筆記預設只露一行，太長會把卡片撐得比其他張高很多 */
+function Note({ text }: { text: string }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="flex flex-col gap-1 rounded bg-gray-50 px-2 py-1">
+      <p className={`text-xs text-gray-600 md:text-sm ${expanded ? "" : "line-clamp-1"}`}>{text}</p>
+      <button
+        type="button"
+        onClick={(e) => {
+          // 卡片本身可點進編輯頁，展開筆記不該順便換頁
+          e.stopPropagation();
+          setExpanded((v) => !v);
+        }}
+        className="self-start text-xs text-gray-400 hover:text-gray-700"
+      >
+        {expanded ? "收合" : "展開"}
+      </button>
     </div>
   );
 }
@@ -132,7 +154,9 @@ function DetailField({ label, children }: { label: string; children: React.React
  * 免得欄位少的時候封面自己撐出一張巨大的圖。
  */
 function DetailCover({ url, title }: { url: string; title: string }) {
-  const shape = "aspect-2/3 h-full max-h-[168px] w-auto shrink-0 rounded object-cover shadow-sm";
+  // 手機的卡片矮很多，封面也跟著壓低，才不會把欄位擠成細長條
+  const shape =
+    "aspect-2/3 h-full max-h-[84px] w-auto shrink-0 rounded object-cover shadow-sm md:max-h-[168px]";
   if (url) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
@@ -146,7 +170,13 @@ function DetailCover({ url, title }: { url: string; title: string }) {
   );
 }
 
-/** 一本書一張橫式卡片，Sheet 上的每個欄位都看得到，不用點進編輯頁 */
+/**
+ * 一本書一張橫式卡片，Sheet 上的每個欄位都看得到，不用點進編輯頁。
+ *
+ * 用 grid 排版，手機與桌機只差在封面跨幾列：
+ *   手機   封面｜標題區        桌機   封面｜標題區
+ *          欄位（整列）              封面｜欄位
+ */
 function DetailCard({
   book,
   href,
@@ -167,63 +197,74 @@ function DetailCard({
       onKeyDown={(e) => {
         if (e.key === "Enter") onOpen(href);
       }}
-      className="flex cursor-pointer items-stretch gap-4 rounded-lg border bg-white p-3 hover:bg-gray-50 md:p-4"
+      className="grid cursor-pointer grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 rounded-lg border bg-white p-2.5 hover:bg-gray-50 md:gap-x-4 md:gap-y-3 md:p-4"
     >
-      <DetailCover url={book.coverUrl} title={book.title} />
-
-      <div className="min-w-0 flex-1 space-y-2">
-        {/* 書名與作者當成標題區，省下兩個欄位格 */}
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="min-w-0 truncate text-lg font-semibold">{book.title}</span>
-            {number !== undefined && (
-              <span className="text-xs tabular-nums text-gray-400">#{number}</span>
-            )}
-            <StatusBadge status={book.status} />
-          </div>
-          <p className="truncate text-sm text-gray-500">{book.author || "—"}</p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3 lg:grid-cols-5">
-          <DetailField label="出版社">{book.publisher}</DetailField>
-          <DetailField label="平台">
-            <OptionList values={[book.platform]} />
-          </DetailField>
-          <DetailField label="語言">{book.language}</DetailField>
-          <DetailField label="開始日期">{book.startDate}</DetailField>
-          <DetailField label="完成日期">{book.endDate}</DetailField>
-          <DetailField label="頁數">{book.pageCount}</DetailField>
-          <DetailField label="字數">{book.wordCount}</DetailField>
-          <DetailField label="領域">
-            <OptionList values={[book.domain]} />
-          </DetailField>
-          <DetailField label="屬性">
-            <OptionList values={[book.type]} size="sm" />
-          </DetailField>
-          <DetailField label="來源網址">
-            {book.sourceUrl ? (
-              <a
-                href={book.sourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                title={book.sourceUrl}
-                className="block truncate text-blue-700 underline underline-offset-2 hover:text-blue-900"
-              >
-                {book.sourceUrl}
-              </a>
-            ) : (
-              ""
-            )}
-          </DetailField>
-        </div>
-
-        {book.note && (
-          <p className="line-clamp-2 rounded bg-gray-50 px-2 py-1 text-sm text-gray-600">
-            {book.note}
-          </p>
-        )}
+      <div className="row-start-1 md:row-span-2">
+        <DetailCover url={book.coverUrl} title={book.title} />
       </div>
+
+      {/* 書名與作者當成標題區，省下兩個欄位格 */}
+      <div className="col-start-2 flex min-w-0 flex-col gap-0.5 self-center md:self-start">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="min-w-0 truncate text-sm font-semibold md:text-lg">
+            {book.title}
+          </span>
+          {number !== undefined && (
+            <span className="text-xs tabular-nums text-gray-400">#{number}</span>
+          )}
+          <StatusBadge status={book.status} />
+        </div>
+        {/* 作者與出版社併成一行，兩邊都太長時各自截斷 */}
+        <div className="flex min-w-0 items-center gap-1.5 text-xs text-gray-500 md:text-sm">
+          <span className="min-w-0 truncate">{book.author || "—"}</span>
+          {book.publisher && (
+            <>
+              <span className="shrink-0 text-gray-300">｜</span>
+              <span className="min-w-0 truncate">{book.publisher}</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* 手機欄位多會太擠，只留兩欄；桌機接在標題下面、與封面並排 */}
+      <div className="col-span-2 grid grid-cols-3 gap-x-3 gap-y-1.5 md:col-span-1 md:col-start-2 md:gap-x-4 md:gap-y-3 lg:grid-cols-5">
+        <DetailField label="平台">
+          <OptionList values={[book.platform]} />
+        </DetailField>
+        <DetailField label="語言">{book.language}</DetailField>
+        <DetailField label="開始日期">{book.startDate}</DetailField>
+        <DetailField label="完成日期">{book.endDate}</DetailField>
+        <DetailField label="頁數">{book.pageCount}</DetailField>
+        <DetailField label="字數">{book.wordCount}</DetailField>
+        <DetailField label="領域">
+          <OptionList values={[book.domain]} />
+        </DetailField>
+        <DetailField label="屬性">
+          <OptionList values={[book.type]} size="sm" />
+        </DetailField>
+        <DetailField label="來源網址">
+          {book.sourceUrl ? (
+            <a
+              href={book.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              title={book.sourceUrl}
+              className="block truncate text-blue-700 underline underline-offset-2 hover:text-blue-900"
+            >
+              {book.sourceUrl}
+            </a>
+          ) : (
+            ""
+          )}
+        </DetailField>
+      </div>
+
+      {book.note && (
+        <div className="col-span-2 md:col-span-1 md:col-start-2">
+          <Note text={book.note} />
+        </div>
+      )}
     </div>
   );
 }
@@ -256,9 +297,13 @@ export function BookTable() {
   const query = searchParams.toString();
   const editHref = (id: string) => `/books/${id}/edit${query ? `?back=${encodeURIComponent(query)}` : ""}`;
   const containerRef = useRef<HTMLDivElement>(null);
+  // 詳細卡片很高，手機一頁可能只放得下一張，下限放寬到 1
+  const minRows = view === "detail" ? 1 : 3;
   const rowEstimate = useFitPageSize(
     containerRef,
     view === "detail" ? DETAIL_ROW_HEIGHT : ROW_HEIGHT,
+    96,
+    minRows,
   );
   const cardEstimate = useFitCardCount(containerRef);
   // 各種檢視都先估、再依實際渲染高度修正。書封的高度會隨書名行數變動，
@@ -269,6 +314,7 @@ export function BookTable() {
     view === "card" ? cardEstimate : rowEstimate,
     books.length,
     !scrolling,
+    minRows,
   );
 
   // 捲動模式：一次全部列出來，等於只有一頁

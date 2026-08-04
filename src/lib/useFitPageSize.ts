@@ -24,7 +24,9 @@ export function viewportBottom(el: HTMLElement): number {
 export function useFitPageSize(
   ref: RefObject<HTMLElement | null>,
   rowHeight: { mobile: number; desktop: number },
-  reserved = 96
+  reserved = 96,
+  /** 詳細檢視的卡片很高，手機上一頁只放得下一兩張，所以下限要能調 */
+  minRows = MIN_ROWS
 ): number {
   const [pageSize, setPageSize] = useState(FALLBACK_ROWS);
 
@@ -38,7 +40,7 @@ export function useFitPageSize(
       const perRow = isMobile ? rowHeight.mobile : rowHeight.desktop;
       const available = viewportBottom(el) - top - reserved;
 
-      setPageSize(Math.max(MIN_ROWS, Math.floor(available / perRow)));
+      setPageSize(Math.max(minRows, Math.floor(available / perRow)));
     }
 
     recalc();
@@ -71,7 +73,8 @@ export function useFitRowsByMeasure(
   ref: RefObject<HTMLElement | null>,
   estimate: number,
   max: number,
-  enabled = true
+  enabled = true,
+  minRows = MIN_ROWS
 ): number {
   // shrunk：這輪量測已經縮過就不再放大，否則會在「多一筆／少一筆」之間來回跳
   const [fit, setFit] = useState({ estimate, count: estimate, shrunk: false });
@@ -90,7 +93,7 @@ export function useFitRowsByMeasure(
     const overflow = el.getBoundingClientRect().bottom - viewportBottom(el);
 
     if (overflow > 0.5) {
-      setFit((f) => ({ ...f, count: Math.max(MIN_ROWS, f.count - 1), shrunk: true }));
+      setFit((f) => ({ ...f, count: Math.max(minRows, f.count - 1), shrunk: true }));
       return;
     }
 
@@ -101,7 +104,7 @@ export function useFitRowsByMeasure(
     if (rowHeight > 0 && -overflow >= rowHeight) {
       setFit((f) => ({ ...f, count: f.count + 1 }));
     }
-  }, [ref, enabled, count, max, fit.shrunk]);
+  }, [ref, enabled, count, max, fit.shrunk, minRows]);
 
-  return Math.max(MIN_ROWS, Math.min(count, Math.max(max, MIN_ROWS)));
+  return Math.max(minRows, Math.min(count, Math.max(max, minRows)));
 }

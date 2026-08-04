@@ -144,18 +144,12 @@ export function MonthGrid({
     goToMonth(month === 11 ? year + 1 : year, month === 11 ? 0 : month + 1);
   }
 
-  function goToday() {
-    setYear(today.getFullYear());
-    setMonth(today.getMonth());
-    setSelectedTime(today.getTime());
-  }
-
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border bg-white">
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b px-2 py-2 sm:px-4 sm:py-3">
         <div className="flex items-center gap-2">
           <PagerButton direction="prev" onClick={goPrev} label="上個月" />
-          <span className="w-28 whitespace-nowrap text-center text-sm font-medium">
+          <span className="w-22 whitespace-nowrap text-center text-sm font-medium">
             {year} 年 {month + 1} 月
           </span>
           <PagerButton direction="next" onClick={goNext} label="下個月" />
@@ -180,12 +174,6 @@ export function MonthGrid({
             }`}
           >
             文章
-          </button>
-          <button
-            onClick={goToday}
-            className="rounded border px-2 py-1 text-xs font-medium hover:bg-gray-100"
-          >
-            今天
           </button>
         </div>
       </div>
