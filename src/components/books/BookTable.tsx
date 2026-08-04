@@ -147,11 +147,27 @@ function DetailCover({ url, title }: { url: string; title: string }) {
 }
 
 /** 一本書一張橫式卡片，Sheet 上的每個欄位都看得到，不用點進編輯頁 */
-function DetailCard({ book, href, number }: { book: Book; href: string; number?: number }) {
+function DetailCard({
+  book,
+  href,
+  number,
+  onOpen,
+}: {
+  book: Book;
+  href: string;
+  number?: number;
+  onOpen: (href: string) => void;
+}) {
   return (
-    <Link
-      href={href}
-      className="flex items-stretch gap-4 rounded-lg border bg-white p-3 hover:bg-gray-50 md:p-4"
+    // 卡片本身不是 <a>：來源網址要能獨立點開，連結不能巢狀在連結裡
+    <div
+      role="link"
+      tabIndex={0}
+      onClick={() => onOpen(href)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") onOpen(href);
+      }}
+      className="flex cursor-pointer items-stretch gap-4 rounded-lg border bg-white p-3 hover:bg-gray-50 md:p-4"
     >
       <DetailCover url={book.coverUrl} title={book.title} />
 
@@ -185,7 +201,20 @@ function DetailCard({ book, href, number }: { book: Book; href: string; number?:
             <OptionList values={[book.type]} size="sm" />
           </DetailField>
           <DetailField label="來源網址">
-            {book.sourceUrl ? <span className="truncate">{book.sourceUrl}</span> : ""}
+            {book.sourceUrl ? (
+              <a
+                href={book.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                title={book.sourceUrl}
+                className="block truncate text-blue-700 underline underline-offset-2 hover:text-blue-900"
+              >
+                {book.sourceUrl}
+              </a>
+            ) : (
+              ""
+            )}
           </DetailField>
         </div>
 
@@ -195,7 +224,7 @@ function DetailCard({ book, href, number }: { book: Book; href: string; number?:
           </p>
         )}
       </div>
-    </Link>
+    </div>
   );
 }
 
@@ -312,6 +341,7 @@ export function BookTable() {
                 book={b}
                 href={editHref(b.id)}
                 number={numbers.get(b.id)}
+                onOpen={router.push}
               />
             </li>
           ))}
