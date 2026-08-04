@@ -10,7 +10,7 @@ export default function NewBookPage() {
 
   return (
     <div
-      className={`mx-auto flex h-full min-h-0 flex-col ${result ? "max-w-5xl" : "max-w-3xl"}`}
+      className={`mx-auto flex w-full min-h-0 flex-1 flex-col gap-3 md:gap-5 ${result ? "max-w-5xl" : "max-w-3xl"}`}
     >
       <PageHeader title={result ? "新增書籍" : "新增書籍 · 查詢資料"} />
       {result ? (

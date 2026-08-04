@@ -14,7 +14,7 @@ export default function EditBookPage() {
 
   if (!sheetId) {
     return (
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto w-full max-w-3xl">
         <PageHeader title="編輯書籍" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           請先到「設定」頁面連接 Google Sheet
@@ -25,7 +25,7 @@ export default function EditBookPage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto w-full max-w-3xl">
         <PageHeader title="編輯書籍" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           載入中…
@@ -36,7 +36,7 @@ export default function EditBookPage() {
 
   if (error || !book) {
     return (
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto w-full max-w-3xl">
         <PageHeader title="編輯書籍" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           {error || "找不到這本書"}
@@ -46,7 +46,7 @@ export default function EditBookPage() {
   }
 
   return (
-    <div className="mx-auto flex h-full min-h-0 max-w-5xl flex-col">
+    <div className="mx-auto flex w-full min-h-0 max-w-5xl flex-1 flex-col gap-3 md:gap-5">
       <PageHeader title="編輯書籍" />
       <div className="min-h-0 flex-1">
         <BookForm key={book.id} book={book} />
