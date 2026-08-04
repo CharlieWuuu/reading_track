@@ -23,7 +23,7 @@ export function SectionPager({ sections }: { sections: Section[] }) {
     return (
       <div className="flex flex-col gap-6 pb-6">
         {sections.map((section) => (
-          <div key={section.key} className="flex h-[22rem] flex-col sm:h-[26rem]">
+          <div key={section.key} className="flex h-[26rem] flex-col sm:h-[32rem]">
             <h3 className="mb-2 shrink-0 text-sm font-medium text-gray-500">{section.label}</h3>
             <div className="flex min-h-0 flex-1 flex-col">{section.node}</div>
           </div>

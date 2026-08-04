@@ -27,9 +27,9 @@ import {
   getArticleKpis,
   getArticleMonthlyTrend,
   getCompletionDistribution,
-  getFolderDistribution,
   getFolderMonthlyTrend,
   getSourceDistribution,
+  getTagDistribution,
 } from "@/lib/articleStats";
 
 type Tab = "books" | "articles";
@@ -211,7 +211,7 @@ function ArticlesStats() {
 
   const pies = [
     { key: "completion", label: "已完成／未完成", data: getCompletionDistribution(articles) },
-    { key: "folder", label: "資料夾分布", data: getFolderDistribution(articles) },
+    { key: "tag", label: "屬性分布", data: getTagDistribution(articles) },
     { key: "source", label: "來源網站分布（已完成）", data: getSourceDistribution(articles) },
   ];
 

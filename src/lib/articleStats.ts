@@ -80,12 +80,19 @@ export function getSourceDistribution(
     .sort((a, b) => b.value - a.value);
 }
 
-export function getFolderDistribution(
+/**
+ * 文章的「屬性」＝使用者在 Instapaper 上自己加的標籤。
+ * 一篇可以有多個標籤，每個各算一次，所以加總會大於文章數。
+ */
+export function getTagDistribution(
   articles: InstapaperBookmark[]
 ): DistributionSlice[] {
   const counts = new Map<string, number>();
   for (const a of articles) {
-    counts.set(a.folder, (counts.get(a.folder) ?? 0) + 1);
+    const names = (a.tags ?? []).map((t) => t.name?.trim()).filter(Boolean) as string[];
+    for (const name of names.length > 0 ? names : ["未分類"]) {
+      counts.set(name, (counts.get(name) ?? 0) + 1);
+    }
   }
   return Array.from(counts.entries())
     .map(([name, value]) => ({ name, value }))
