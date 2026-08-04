@@ -22,7 +22,6 @@ import {
   getPlatformDistribution,
   getQuarterlyTrend,
   getTypeDistribution,
-  getYearlyTrend,
 } from "@/lib/bookStats";
 import {
   getArticleKpis,
@@ -104,7 +103,6 @@ function BooksStats() {
   }
 
   const kpis = getKpis(books);
-  const yearly = getYearlyTrend(books);
   const quarterly = getQuarterlyTrend(books);
   const monthly = getMonthlyTrend(books);
 
@@ -123,7 +121,7 @@ function BooksStats() {
         <div className="flex min-h-0 flex-1 flex-col gap-3">
           <KpiCards {...kpis} />
           <Panel title="歷年完成本數">
-            <YearlyTrendChart data={yearly} quarterlyData={quarterly} height="100%" />
+            <YearlyTrendChart quarterlyData={quarterly} height="100%" />
           </Panel>
         </div>
       ),

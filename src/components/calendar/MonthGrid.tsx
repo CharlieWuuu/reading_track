@@ -6,6 +6,7 @@ import { buildMonthGrid, CalendarDay } from "@/lib/calendarUtils";
 import { Book } from "@/types/book";
 import { InstapaperBookmark } from "@/lib/instapaper/client";
 import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
+import { PagerButton } from "@/components/ui/PagerButton";
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
@@ -153,23 +154,11 @@ export function MonthGrid({
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border bg-white">
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b px-2 py-2 sm:px-4 sm:py-3">
         <div className="flex items-center gap-2">
-          <button
-            onClick={goPrev}
-            aria-label="上個月"
-            className="rounded px-2 py-1 text-gray-400 hover:bg-gray-100 hover:text-gray-900"
-          >
-            ‹
-          </button>
+          <PagerButton direction="prev" onClick={goPrev} label="上個月" />
           <span className="w-28 whitespace-nowrap text-center text-sm font-medium">
             {year} 年 {month + 1} 月
           </span>
-          <button
-            onClick={goNext}
-            aria-label="下個月"
-            className="rounded px-2 py-1 text-gray-400 hover:bg-gray-100 hover:text-gray-900"
-          >
-            ›
-          </button>
+          <PagerButton direction="next" onClick={goNext} label="下個月" />
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -330,10 +319,10 @@ export function MonthGrid({
                         <img
                           src={b.coverUrl}
                           alt={b.title}
-                          className="h-16 w-11 rounded-sm object-cover shadow-sm lg:h-20 lg:w-14"
+                          className="h-12 w-8 rounded-sm object-cover shadow-sm lg:h-14 lg:w-10"
                         />
                       ) : (
-                        <div className="flex h-16 w-11 items-center justify-center rounded-sm bg-gray-200 text-[10px] leading-tight text-gray-500 lg:h-20 lg:w-14">
+                        <div className="flex h-12 w-8 items-center justify-center rounded-sm bg-gray-200 text-[10px] leading-tight text-gray-500 lg:h-14 lg:w-10">
                           {b.title.slice(0, 2)}
                         </div>
                       )}

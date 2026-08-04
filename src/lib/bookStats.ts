@@ -33,9 +33,9 @@ export function getKpis(books: Book[]) {
     (b) => new Date(b.endDate!).getFullYear() === thisYear
   ).length;
 
-  const years = new Set(done.map((b) => new Date(b.endDate!).getFullYear()));
-  const monthsSpanned = years.size > 0 ? years.size * 12 : 1;
-  const avgPerMonth = done.length / monthsSpanned;
+  // 今年到目前為止的節奏：今年完成本數 ÷ 已經過完的月份數（8 月就除以 8）。
+  // 原本是拿「總本數 ÷ 有紀錄的年份 × 12」，會把幾年前只讀一本的年份也算成完整 12 個月。
+  const avgPerMonth = thisYearCount / (now.getMonth() + 1);
 
   return {
     total: done.length,

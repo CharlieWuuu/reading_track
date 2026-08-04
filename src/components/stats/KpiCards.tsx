@@ -8,9 +8,10 @@ export function KpiCards({
   avgPerMonth: number;
 }) {
   const items = [
-    { label: "累計完成", value: total, unit: "本" },
-    { label: "今年完成", value: thisYear, unit: "本" },
-    { label: "平均每月", value: avgPerMonth, unit: "本" },
+    { label: "累計完成", value: String(total), unit: "本" },
+    { label: "今年完成", value: String(thisYear), unit: "本" },
+    // 固定一位小數，1 本和 1.4 本差很多，整數會看不出來
+    { label: "平均每月", value: avgPerMonth.toFixed(1), unit: "本" },
   ];
 
   return (

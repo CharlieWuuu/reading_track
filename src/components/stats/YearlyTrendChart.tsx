@@ -12,28 +12,39 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { QuarterCount, YearCount } from "@/lib/bookStats";
+import { QuarterCount } from "@/lib/bookStats";
+
+/** 每一季只在第一季標出年份，其餘留刻度線就好，不然 X 軸會擠成一團 */
+function quarterTick(value: string) {
+  return value.endsWith("-Q1") ? value.slice(0, 4) : "";
+}
+
+function quarterLabel(label: unknown) {
+  const [year, q] = String(label).split("-Q");
+  const endMonth = Number(q) * 3;
+  return `${year} 年 ${endMonth - 2}–${endMonth} 月`;
+}
 
 export function YearlyTrendChart({
-  data,
   quarterlyData,
   height = 260,
 }: {
-  data: YearCount[];
   quarterlyData: QuarterCount[];
   height?: number | `${number}%`;
 }) {
-  const [mode, setMode] = useState<"yearly" | "cumulative">("yearly");
+  const [mode, setMode] = useState<"quarterly" | "cumulative">("quarterly");
 
-  const cumulativeData = useMemo(() => {
-    let running = 0;
-    return quarterlyData.map((d) => {
-      running += d.count;
-      return { quarter: d.quarter, total: running };
-    });
-  }, [quarterlyData]);
+  const cumulativeData = useMemo(
+    () =>
+      quarterlyData.reduce<Array<{ quarter: string; total: number }>>((acc, d) => {
+        const previous = acc.length > 0 ? acc[acc.length - 1].total : 0;
+        acc.push({ quarter: d.quarter, total: previous + d.count });
+        return acc;
+      }, []),
+    [quarterlyData]
+  );
 
-  if (data.length === 0) {
+  if (quarterlyData.length === 0) {
     return (
       <div className="flex h-64 items-center justify-center text-sm text-gray-400">
         尚無完成日期資料
@@ -57,14 +68,14 @@ export function YearlyTrendChart({
 
       <div className="mb-3 flex shrink-0 justify-end gap-1">
         <button
-          onClick={() => setMode("yearly")}
+          onClick={() => setMode("quarterly")}
           className={`rounded px-2 py-1 text-xs font-medium ${
-            mode === "yearly"
+            mode === "quarterly"
               ? "bg-gray-900 text-white"
               : "text-gray-500 hover:bg-gray-100"
           }`}
         >
-          每年新增
+          每季新增
         </button>
         <button
           onClick={() => setMode("cumulative")}
@@ -80,14 +91,16 @@ export function YearlyTrendChart({
 
       <div className="min-h-0 flex-1">
       <ResponsiveContainer width="100%" height={height}>
-        {mode === "yearly" ? (
-          <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+        {mode === "quarterly" ? (
+          <BarChart data={quarterlyData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
             <CartesianGrid vertical={false} stroke="var(--grid)" strokeDasharray="3 3" />
             <XAxis
-              dataKey="year"
+              dataKey="quarter"
               tick={{ fill: "var(--muted)", fontSize: 12 }}
               axisLine={{ stroke: "var(--grid)" }}
-              tickLine={false}
+              tickLine={{ stroke: "var(--grid)" }}
+              interval={0}
+              tickFormatter={quarterTick}
             />
             <YAxis
               allowDecimals={false}
@@ -105,6 +118,7 @@ export function YearlyTrendChart({
                 fontSize: 12,
               }}
               formatter={(value) => [`${value ?? 0} 本`, "完成本數"]}
+              labelFormatter={quarterLabel}
             />
             <Bar dataKey="count" fill="var(--series-1)" radius={[4, 4, 0, 0]} maxBarSize={40} />
           </BarChart>
@@ -117,16 +131,13 @@ export function YearlyTrendChart({
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} stroke="var(--grid)" strokeDasharray="3 3" />
-            {/* 資料點仍是每季，但只在每年第一季標出年份，其餘留刻度線就好 */}
             <XAxis
               dataKey="quarter"
               tick={{ fill: "var(--muted)", fontSize: 12 }}
               axisLine={{ stroke: "var(--grid)" }}
               tickLine={{ stroke: "var(--grid)" }}
               interval={0}
-              tickFormatter={(value: string) =>
-                value.endsWith("-Q1") ? value.slice(0, 4) : ""
-              }
+              tickFormatter={quarterTick}
             />
             <YAxis
               allowDecimals={false}
@@ -143,11 +154,7 @@ export function YearlyTrendChart({
                 fontSize: 12,
               }}
               formatter={(value) => [`${value ?? 0} 本`, "累積完成"]}
-              labelFormatter={(label) => {
-                const [year, q] = String(label).split("-Q");
-                const endMonth = Number(q) * 3;
-                return `${year} 年 ${endMonth - 2}–${endMonth} 月`;
-              }}
+              labelFormatter={quarterLabel}
             />
             <Area
               type="monotone"

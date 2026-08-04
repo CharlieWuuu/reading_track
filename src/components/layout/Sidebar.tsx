@@ -34,6 +34,19 @@ function CollapseIcon({ collapsed }: { collapsed: boolean }) {
   );
 }
 
+function CollapseButton({ collapsed, onClick }: { collapsed: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label={collapsed ? "展開側欄" : "收合側欄"}
+      title={collapsed ? "展開側欄" : "收合側欄"}
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded text-gray-400 hover:bg-gray-100 hover:text-gray-900"
+    >
+      <CollapseIcon collapsed={collapsed} />
+    </button>
+  );
+}
+
 export function Sidebar() {
   const pathname = usePathname();
   const { collapsed, toggle } = useSidebarStore();
@@ -54,14 +67,7 @@ export function Sidebar() {
             ReadingTrack
           </span>
         )}
-        <button
-          onClick={toggle}
-          aria-label={collapsed ? "展開側欄" : "收合側欄"}
-          title={collapsed ? "展開側欄" : "收合側欄"}
-          className="shrink-0 rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-900"
-        >
-          <CollapseIcon collapsed={collapsed} />
-        </button>
+        {collapsed && <CollapseButton collapsed={collapsed} onClick={toggle} />}
       </div>
 
       <ul className={`flex-1 space-y-1 overflow-y-auto ${collapsed ? "p-2" : "p-4"}`}>
@@ -96,7 +102,15 @@ export function Sidebar() {
           collapsed ? "items-center p-2" : "p-4"
         }`}
       >
-        <RefreshButton compact={collapsed} />
+        {/* 重新整理與收合放在帳號按鈕上面一排，工具類的操作集中在側欄底部 */}
+        <div
+          className={`flex items-center gap-1 ${
+            collapsed ? "flex-col" : "justify-between"
+          }`}
+        >
+          <RefreshButton compact={collapsed} />
+          {!collapsed && <CollapseButton collapsed={collapsed} onClick={toggle} />}
+        </div>
         <AuthButton compact={collapsed} />
       </div>
     </nav>
