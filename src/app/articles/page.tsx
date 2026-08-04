@@ -51,7 +51,7 @@ function ArticlesList() {
 
   if (!token) {
     return (
-      <div className="mx-auto w-full max-w-5xl">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 md:gap-5">
         <PageHeader title="文章紀錄" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           請先到「設定」頁面連接 Instapaper
@@ -62,7 +62,7 @@ function ArticlesList() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto w-full max-w-5xl">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 md:gap-5">
         <PageHeader title="文章紀錄" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           載入中…
@@ -73,7 +73,7 @@ function ArticlesList() {
 
   if (error) {
     return (
-      <div className="mx-auto w-full max-w-5xl">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 md:gap-5">
         <PageHeader title="文章紀錄" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-red-600">
           {error}
@@ -84,7 +84,7 @@ function ArticlesList() {
 
   if (articles.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-5xl">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 md:gap-5">
         <PageHeader title="文章紀錄" />
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           尚無文章
@@ -94,7 +94,7 @@ function ArticlesList() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-5xl">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 md:gap-5">
       <PageHeader title="文章紀錄" />
       {/* overflow-hidden：hover 底色才會被圓角裁掉，不會在頭尾兩列破圖 */}
       <div ref={containerRef} className="divide-y overflow-hidden rounded-lg border bg-white">

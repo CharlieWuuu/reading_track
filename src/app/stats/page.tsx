@@ -338,7 +338,7 @@ function StatsTabs() {
   const setTab = (next: Tab) => setParams({ tab: next === "books" ? null : next });
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col">
+    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-3 md:gap-5">
       <PageHeader
         title="統計"
         action={

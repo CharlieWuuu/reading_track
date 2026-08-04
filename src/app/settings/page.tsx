@@ -10,6 +10,7 @@ import { DisplaySettings } from "@/components/settings/DisplaySettings";
 import { DataIssuesPanel } from "@/components/settings/DataIssuesPanel";
 import { EnrichButton } from "@/components/books/EnrichButton";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { AuthButton } from "@/components/auth/AuthButton";
 
 type SettingsTab = "connect" | "categories" | "display" | "maintenance";
 
@@ -88,6 +89,12 @@ export default function SettingsPage() {
           <div className="border-t pt-4">
             <InstapaperConnect />
           </div>
+
+          {/* 帳號從手機頂欄搬過來：頻率低，不值得一直佔著頂欄的位子 */}
+          <div className="flex flex-col gap-2 border-t pt-4">
+            <h3 className="text-sm font-medium">帳號</h3>
+            <AuthButton />
+          </div>
         </div>
       ),
     },
@@ -114,7 +121,7 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col">
+    <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-3 md:gap-5">
       <PageHeader
         title="設定"
         action={

@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 
 export default function BooksPage() {
   return (
-    <div className="flex w-full flex-1 flex-col gap-2">
+    <div className="flex w-full flex-1 flex-col gap-3 md:gap-5">
       <PageHeader
         title="書籍紀錄"
         action={
