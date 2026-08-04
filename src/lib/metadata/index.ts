@@ -154,6 +154,11 @@ export function mergeEnrichment(book: Book, metadata: BookMetadata): Partial<Boo
       patch[field] = metadata[field];
     }
   }
+  // 來源網址不在 ENRICHABLE_FIELDS（它不是書的屬性，是「這次資料哪裡來的」），
+  // 但只要原本空著就一併補上，之後才查得回這筆資料的出處
+  if (isBlank(book.sourceUrl) && !isBlank(metadata.sourceUrl)) {
+    patch.sourceUrl = metadata.sourceUrl;
+  }
   return patch;
 }
 

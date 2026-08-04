@@ -10,6 +10,8 @@ export interface BookSearchResult {
   pageCount: string;
   wordCount: string;
   source: string;
+  /** 這筆資料是從哪個頁面抓來的，帶回去填「來源網址」 */
+  sourceUrl: string;
 }
 
 export async function GET(req: NextRequest) {
@@ -29,6 +31,7 @@ export async function GET(req: NextRequest) {
     pageCount: item.pageCount ?? "",
     wordCount: item.wordCount ?? "",
     source: item.source ?? "",
+    sourceUrl: item.sourceUrl ?? "",
   }));
 
   return NextResponse.json({ results });
