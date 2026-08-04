@@ -127,17 +127,33 @@ function DetailField({ label, children }: { label: string; children: React.React
   );
 }
 
+/**
+ * 詳細卡片的封面：跟著卡片一樣高（h-full），但不超過 168px，
+ * 免得欄位少的時候封面自己撐出一張巨大的圖。
+ */
+function DetailCover({ url, title }: { url: string; title: string }) {
+  const shape = "aspect-2/3 h-full max-h-[168px] w-auto shrink-0 rounded object-cover shadow-sm";
+  if (url) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={url} alt="" loading="lazy" className={shape} />
+    );
+  }
+  return (
+    <div className={`${shape} flex items-center justify-center bg-gray-100 p-2 text-center text-xs leading-snug text-gray-400`}>
+      {title.slice(0, 12) || "—"}
+    </div>
+  );
+}
+
 /** 一本書一張橫式卡片，Sheet 上的每個欄位都看得到，不用點進編輯頁 */
 function DetailCard({ book, href, number }: { book: Book; href: string; number: number }) {
   return (
     <Link
       href={href}
-      className="flex gap-4 rounded-lg border bg-white p-3 hover:bg-gray-50 md:p-4"
+      className="flex items-stretch gap-4 rounded-lg border bg-white p-3 hover:bg-gray-50 md:p-4"
     >
-      {/* 寬度是 aspect-2/3 換算來的：高度各加約 4px */}
-      <div className="w-[4.4rem] shrink-0 md:w-[5.4rem]">
-        <LargeCover url={book.coverUrl} title={book.title} />
-      </div>
+      <DetailCover url={book.coverUrl} title={book.title} />
 
       <div className="min-w-0 flex-1 space-y-2">
         {/* 書名與作者當成標題區，省下兩個欄位格 */}

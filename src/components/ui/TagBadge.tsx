@@ -11,10 +11,13 @@ import { splitTags } from "@/types/book";
 export function TagList({
   values,
   size = "md",
+  wrap = true,
 }: {
   values: Array<string | undefined>;
   /** sm：標籤多的欄位（例如屬性）用小一號，一格才擠得下 */
   size?: "sm" | "md";
+  /** false：擠在單行裡（例如文章列表），放不下的就讓外層裁掉 */
+  wrap?: boolean;
 }) {
   const { categories } = useCategories();
   const order = tagOrder(categories);
@@ -23,12 +26,12 @@ export function TagList({
   if (items.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className={`flex gap-1.5 ${wrap ? "flex-wrap" : "flex-nowrap"}`}>
       {items.map((item, index) => (
         <span
           key={`${item}-${index}`}
-          className={`inline-flex items-center rounded-full font-medium ${
-            size === "sm" ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-0.5 text-[11px]"
+          className={`inline-flex shrink-0 items-center rounded-full border font-medium leading-4 ${
+            size === "sm" ? "px-1.5 text-[10px]" : "px-2 text-[11px]"
           } ${tagColorClass(item, order)}`}
         >
           {item}

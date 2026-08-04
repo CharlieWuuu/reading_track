@@ -113,15 +113,17 @@ function ArticlesList() {
                 <p className="truncate whitespace-nowrap text-sm font-medium">
                   {a.title || a.url}
                 </p>
-                <p className="mt-0.5 truncate text-xs text-gray-500">
-                  {formatDate(activityTime(a))} · {hostname(a.url)}
-                </p>
-                {/* Instapaper 上自己加的標籤，跟書籍用同一套配色 */}
-                {a.tags && a.tags.length > 0 && (
-                  <div className="mt-1">
-                    <TagList values={a.tags.map((tag) => tag.name)} />
-                  </div>
-                )}
+                {/* 日期、網站與標籤同一行；標籤是 Instapaper 上自己加的，配色與書籍共用 */}
+                <div className="mt-0.5 flex min-w-0 items-center gap-2">
+                  <span className="shrink-0 truncate text-xs text-gray-500">
+                    {formatDate(activityTime(a))} · {hostname(a.url)}
+                  </span>
+                  {a.tags && a.tags.length > 0 && (
+                    <div className="min-w-0 overflow-hidden">
+                      <TagList values={a.tags.map((tag) => tag.name)} wrap={false} />
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* 進度靠右，跟標題同一列，不再自己佔一整條寬度 */}
