@@ -405,12 +405,11 @@ export function BookTable() {
           <ul className="grid grid-cols-[repeat(auto-fill,minmax(4rem,1fr))] gap-2 md:grid-cols-[repeat(auto-fill,minmax(5rem,1fr))] md:gap-2.5">
             {pageBooks.map((b, i) => (
               <li key={b.id || `cover-${i}`} data-fit-row>
-                <Link href={editHref(b.id)} className="group block">
+                {/* 書封、書名、日期三層都靠 gap 分開，卡片高度固定不隨書名長短跳動 */}
+                <Link href={editHref(b.id)} className="group flex flex-col gap-1">
                   <LargeCover url={b.coverUrl} title={b.title} />
-                  <p className="mt-1.5 line-clamp-2 text-xs font-medium leading-snug">
-                    {b.title}
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-gray-400">
+                  <p className="truncate text-xs font-medium leading-snug">{b.title}</p>
+                  <p className="truncate text-[10px] text-gray-400">
                     {b.endDate ? `${b.endDate} 讀完` : b.status}
                   </p>
                 </Link>
