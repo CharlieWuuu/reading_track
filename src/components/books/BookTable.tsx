@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { RefObject, useEffect, useRef, useState } from "react";
+import { RefObject, useEffect, useMemo, useRef, useState } from "react";
 import { PagerButton } from "@/components/ui/PagerButton";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
@@ -147,7 +147,7 @@ function DetailCover({ url, title }: { url: string; title: string }) {
 }
 
 /** 一本書一張橫式卡片，Sheet 上的每個欄位都看得到，不用點進編輯頁 */
-function DetailCard({ book, href, number }: { book: Book; href: string; number: number }) {
+function DetailCard({ book, href, number }: { book: Book; href: string; number?: number }) {
   return (
     <Link
       href={href}
@@ -160,7 +160,9 @@ function DetailCard({ book, href, number }: { book: Book; href: string; number: 
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="min-w-0 truncate text-lg font-semibold">{book.title}</span>
-            <span className="text-xs tabular-nums text-gray-400">#{number}</span>
+            {number !== undefined && (
+              <span className="text-xs tabular-nums text-gray-400">#{number}</span>
+            )}
             <StatusBadge status={book.status} />
           </div>
           <p className="truncate text-sm text-gray-500">{book.author || "—"}</p>
@@ -197,10 +199,22 @@ function DetailCard({ book, href, number }: { book: Book; href: string; number: 
   );
 }
 
+/**
+ * 只有「已讀完」的書有編號：編號代表「讀完的第幾本」，想讀與閱讀中還沒讀完，
+ * 給了號碼反而看不出順序。清單本來就已排序，這裡照順序由大到小配號。
+ */
+function completionNumbers(books: Book[]): Map<string, number> {
+  const done = books.filter((b) => b.status === "已讀完");
+  const numbers = new Map<string, number>();
+  done.forEach((b, i) => numbers.set(b.id, done.length - i));
+  return numbers;
+}
+
 export function BookTable() {
   const router = useRouter();
   const { sheetId } = useSheetStore();
   const { books, isLoading, error } = useBooks();
+  const numbers = useMemo(() => completionNumbers(books), [books]);
   const { searchParams, setParams } = useUrlParams();
   const { view: savedView } = useBookViewStore();
   // 檢視方式與頁碼都以網址為準，重新整理或分享連結才回得到同一個畫面
@@ -300,7 +314,7 @@ export function BookTable() {
               <DetailCard
                 book={b}
                 href={editHref(b.id)}
-                number={books.length - (currentPage * pageSize + i)}
+                number={numbers.get(b.id)}
               />
             </li>
           ))}
@@ -347,9 +361,11 @@ export function BookTable() {
                 <Cover url={b.coverUrl} title={b.title} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">
-                    <span className="mr-2 text-xs tabular-nums text-gray-400">
-                      #{books.length - (currentPage * pageSize + i)}
-                    </span>
+                    {numbers.has(b.id) && (
+                      <span className="mr-2 text-xs tabular-nums text-gray-400">
+                        #{numbers.get(b.id)}
+                      </span>
+                    )}
                     {b.title}
                   </p>
                   <p className="truncate text-xs text-gray-500">{b.author}</p>
@@ -398,12 +414,15 @@ export function BookTable() {
               <td className="px-3 py-2">
                 <Cover url={b.coverUrl} title={b.title} />
               </td>
-              <td className="max-w-0 overflow-hidden px-3 py-2 font-medium">
-                <div className="flex max-w-full items-center gap-2 overflow-hidden whitespace-nowrap">
-                  <span className="shrink-0 text-xs tabular-nums text-gray-400">
-                    #{books.length - (currentPage * pageSize + i)}
-                  </span>
-                  <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
+              <td className="max-w-0 overflow-hidden px-3 py-2 align-middle">
+                {/* 編號與書名是同一塊，一起垂直置中；沒有編號時那一行就不存在 */}
+                <div className="flex flex-col justify-center">
+                  {numbers.has(b.id) && (
+                    <span className="text-[11px] leading-4 tabular-nums text-gray-400">
+                      #{numbers.get(b.id)}
+                    </span>
+                  )}
+                  <span className="overflow-hidden text-ellipsis whitespace-nowrap text-base font-medium">
                     {b.title}
                   </span>
                 </div>

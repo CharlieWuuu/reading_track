@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { BookPagingMode, isPagingMode, useBookViewStore } from "@/store/useBookViewStore";
 import { useUrlParams } from "@/lib/useUrlParam";
 
@@ -11,8 +12,14 @@ import { useUrlParams } from "@/lib/useUrlParam";
  */
 export function usePagingMode(): { paging: BookPagingMode; scrolling: boolean } {
   const { paging: saved } = useBookViewStore();
-  const { searchParams } = useUrlParams();
+  const { searchParams, setParams } = useUrlParams();
   const fromUrl = searchParams.get("mode");
   const paging = isPagingMode(fromUrl) ? fromUrl : saved;
+
+  // 網址沒帶就補上目前這個（即使是預設值），讓網址永遠說得出現在是哪種瀏覽方式
+  useEffect(() => {
+    if (!isPagingMode(fromUrl)) setParams({ mode: paging });
+  }, [fromUrl, paging, setParams]);
+
   return { paging, scrolling: paging === "scroll" };
 }

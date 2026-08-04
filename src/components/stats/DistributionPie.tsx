@@ -121,7 +121,7 @@ export function DistributionPie({
           --grid: #e1e0d9;
         }
       `}</style>
-      <p className="mb-2 shrink-0 text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+      <p className="mb-3.5 shrink-0 text-sm font-medium" style={{ color: "var(--text-primary)" }}>
         {title}
       </p>
       <div className="min-h-0 flex-1">

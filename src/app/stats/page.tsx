@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense } from "react";
+import { useUrlParams } from "@/lib/useUrlParam";
 import { SectionPager, Section } from "@/components/stats/SectionPager";
 import { useIsMobile } from "@/lib/useIsMobile";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -12,6 +13,7 @@ import { KpiCards } from "@/components/stats/KpiCards";
 import { YearlyTrendChart } from "@/components/stats/YearlyTrendChart";
 import { MonthlyTrendChart } from "@/components/stats/MonthlyTrendChart";
 import { DistributionPie } from "@/components/stats/DistributionPie";
+import { RankingBar } from "@/components/stats/RankingBar";
 import { ArticleKpiCards } from "@/components/stats/ArticleKpiCards";
 import { FolderTrendChart } from "@/components/stats/FolderTrendChart";
 import {
@@ -22,6 +24,9 @@ import {
   getPlatformDistribution,
   getQuarterlyTrend,
   getTypeDistribution,
+  getAuthorRanking,
+  getPublisherRanking,
+  getRereadRanking,
 } from "@/lib/bookStats";
 import {
   getArticleKpis,
@@ -59,7 +64,7 @@ function TabButton({
 function Panel({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col rounded-lg border bg-white p-3 md:p-5">
-      {title && <p className="mb-2 shrink-0 text-sm font-medium">{title}</p>}
+      {title && <p className="mb-3.5 shrink-0 text-sm font-medium">{title}</p>}
       <div className="min-h-0 flex-1">{children}</div>
     </div>
   );
@@ -105,6 +110,13 @@ function BooksStats() {
   const kpis = getKpis(books);
   const quarterly = getQuarterlyTrend(books);
   const monthly = getMonthlyTrend(books);
+
+  const reread = { key: "reread", label: "重讀最多 Top 5", data: getRereadRanking(books), unit: "次" };
+  const rankings = [
+    reread,
+    { key: "author", label: "常讀作者 Top 5", data: getAuthorRanking(books), unit: "本" },
+    { key: "publisher", label: "常讀出版社 Top 5", data: getPublisherRanking(books), unit: "本" },
+  ];
 
   const pies = [
     { key: "domain", label: "領域分布", data: getDomainDistribution(books) },
@@ -159,6 +171,53 @@ function BooksStats() {
                     </div>
                   </div>
                 ))}
+              </div>
+            ),
+          },
+        ]),
+    // 排行：手機一頁一張，桌機兩張並排
+    ...(isMobile
+      ? rankings.map((r) => ({
+          key: r.key,
+          label: r.label,
+          node: (
+            <Panel>
+              <RankingBar
+                title={r.label}
+                data={r.data}
+                unit={r.unit}
+                showCover={r.key === "reread"}
+              />
+            </Panel>
+          ),
+        }))
+      : [
+          {
+            key: "ranking",
+            label: "排行",
+            // 重讀排行帶書封，自己占一整列；作者與出版社排在下面兩欄
+            node: (
+              <div className="flex min-h-0 flex-1 flex-col gap-4">
+                <div className="flex min-h-0 flex-1 flex-col rounded-lg border bg-white p-5">
+                  <RankingBar
+                    title={reread.label}
+                    data={reread.data}
+                    unit={reread.unit}
+                    showCover
+                  />
+                </div>
+                <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
+                  {rankings
+                    .filter((r) => r.key !== "reread")
+                    .map((r) => (
+                      <div
+                        key={r.key}
+                        className="flex min-h-0 flex-col rounded-lg border bg-white p-5"
+                      >
+                        <RankingBar title={r.label} data={r.data} unit={r.unit} />
+                      </div>
+                    ))}
+                </div>
               </div>
             ),
           },
@@ -269,8 +328,12 @@ function ArticlesStats() {
   return <SectionPager sections={sections} />;
 }
 
-export default function StatsPage() {
-  const [tab, setTab] = useState<Tab>("books");
+function StatsTabs() {
+  // 檢視哪一邊寫在網址上，重新整理或分享連結都回得到同一個畫面；預設書籍
+  const { searchParams, setParams } = useUrlParams();
+  const param = searchParams.get("tab");
+  const tab: Tab = param === "articles" ? "articles" : "books";
+  const setTab = (next: Tab) => setParams({ tab: next === "books" ? null : next });
 
   return (
     <div className="mx-auto flex h-full min-h-0 max-w-5xl flex-col">
@@ -289,5 +352,14 @@ export default function StatsPage() {
       />
       {tab === "books" ? <BooksStats /> : <ArticlesStats />}
     </div>
+  );
+}
+
+/** 讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */
+export default function StatsPage() {
+  return (
+    <Suspense fallback={null}>
+      <StatsTabs />
+    </Suspense>
   );
 }

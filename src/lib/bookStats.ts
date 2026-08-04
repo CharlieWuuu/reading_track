@@ -130,3 +130,70 @@ export function getLanguageDistribution(books: Book[]): DistributionSlice[] {
 export function getPlatformDistribution(books: Book[]): DistributionSlice[] {
   return distributionBy(books, "platform");
 }
+
+/**
+ * 作者欄位常常是好幾個人擠在一格（「A、B」），
+ * 而且從某些來源抓回來的會夾著「關注」這種按鈕文字，一併清掉。
+ */
+function splitPeople(raw: string): string[] {
+  return raw
+    .replace(/\s*關注\s*/g, "、")
+    .split(/[、,，;；/／]|\s{2,}/)
+    .map((name) => name.trim())
+    .filter(Boolean);
+}
+
+/** 排行的一列：除了名次資料，另外帶一張代表性書封 */
+export interface RankingItem extends DistributionSlice {
+  coverUrl?: string;
+}
+
+/**
+ * 出版社／作者／重讀排行：只有累積 2 本（次）以上的才上榜——出現一次的佔了長尾的
+ * 絕大多數，全列出來只是把圖表塞滿無法比較的長條。
+ */
+export function getPublisherRanking(books: Book[], limit = 5): RankingItem[] {
+  return rank(
+    books.map((b) => ({ names: b.publisher.trim() ? [b.publisher.trim()] : [], book: b })),
+    limit
+  );
+}
+
+export function getAuthorRanking(books: Book[], limit = 5): RankingItem[] {
+  return rank(
+    books.map((b) => ({ names: splitPeople(b.author), book: b })),
+    limit
+  );
+}
+
+/**
+ * 重讀排行：同一本書在表裡有幾筆讀完的紀錄就是讀過幾次。
+ *
+ * 用書名比對而不是 id——每讀一次就是新增一列，兩列的 id 本來就不同。
+ * 只算「已讀完」的，想讀／閱讀中那筆還沒完成，不該算成又讀了一次。
+ */
+export function getRereadRanking(books: Book[], limit = 5): RankingItem[] {
+  return rank(
+    completedBooks(books).map((b) => ({ names: b.title.trim() ? [b.title.trim()] : [], book: b })),
+    limit
+  );
+}
+
+function rank(groups: Array<{ names: string[]; book: Book }>, limit: number): RankingItem[] {
+  const counts = new Map<string, number>();
+  // 代表書封：取第一本有封面的，作者／出版社就用他最近的一本書當代表
+  const covers = new Map<string, string>();
+
+  for (const { names, book } of groups) {
+    for (const name of names) {
+      counts.set(name, (counts.get(name) ?? 0) + 1);
+      if (!covers.has(name) && book.coverUrl) covers.set(name, book.coverUrl);
+    }
+  }
+
+  return Array.from(counts.entries())
+    .filter(([, value]) => value >= 2)
+    .map(([name, value]) => ({ name, value, coverUrl: covers.get(name) }))
+    .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name, "zh-Hant"))
+    .slice(0, limit);
+}

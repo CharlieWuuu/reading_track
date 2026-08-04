@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { BookViewMode, isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
 import { useUrlParams } from "@/lib/useUrlParam";
 
@@ -45,6 +46,11 @@ export function BookViewToggle() {
   const urlView = searchParams.get("view");
   // 網址說了算；沒指定時沿用上次的選擇
   const view = isBookViewMode(urlView) ? urlView : savedView;
+
+  // 網址沒帶 view 就補上目前這個（即使是預設值），讓網址永遠說得出現在在看什麼
+  useEffect(() => {
+    if (!isBookViewMode(urlView)) setParams({ view });
+  }, [urlView, view, setParams]);
 
   function select(next: BookViewMode) {
     saveView(next);
