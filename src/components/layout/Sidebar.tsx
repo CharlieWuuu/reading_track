@@ -5,7 +5,7 @@ import { AuthButton } from "@/components/auth/AuthButton";
 import { useSidebarStore } from "@/store/useSidebarStore";
 import { NAV_ITEMS } from "./navItems";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { NavLink } from "./NavLink";
+import Link from "next/link";
 import { RefreshButton } from "./RefreshButton";
 
 /** 側欄空間夠，用完整名稱；底部導覽列則用短標籤 */
@@ -58,7 +58,7 @@ export function Sidebar() {
           const label = FULL_LABELS[item.href] ?? item.label;
           return (
             <li key={item.href}>
-              <NavLink
+              <Link
                 href={item.href}
                 title={collapsed ? label : undefined}
                 className={`flex items-center gap-2 rounded px-3 py-2 text-sm ${
@@ -71,7 +71,7 @@ export function Sidebar() {
               >
                 <item.Icon active={active} />
                 {!collapsed && label}
-              </NavLink>
+              </Link>
             </li>
           );
         })}

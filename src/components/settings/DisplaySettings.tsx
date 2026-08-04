@@ -15,8 +15,7 @@ export function DisplaySettings() {
     <div>
       <h3 className="mb-2 text-sm font-medium">瀏覽方式</h3>
       <p className="mb-3 text-xs text-gray-500">
-        套用到整個 app：書籍、文章與統計都跟著這個設定，也會寫進網址
-        （<code className="rounded bg-gray-100 px-1">?mode=</code>）。設定記在這台裝置上。
+        套用到整個 app：書籍、文章與統計都跟著這個設定，記在這台裝置上。
       </p>
       <div className="space-y-2">
         {OPTIONS.map((option) => (

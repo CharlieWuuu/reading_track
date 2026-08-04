@@ -16,10 +16,6 @@ export function isBookViewMode(value: string | null): value is BookViewMode {
 /** page：一頁剛好一畫面、用翻頁前進；scroll：整份列出來直接捲 */
 export type BookPagingMode = "page" | "scroll";
 
-export function isPagingMode(value: string | null): value is BookPagingMode {
-  return value === "page" || value === "scroll";
-}
-
 interface BookViewStore {
   view: BookViewMode;
   setView: (view: BookViewMode) => void;

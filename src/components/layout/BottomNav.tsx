@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "./navItems";
-import { NavLink } from "./NavLink";
+import Link from "next/link";
 
 /**
  * 手機版底部導覽列。桌機版走側欄（Sidebar），兩邊共用同一份 NAV_ITEMS。
@@ -23,7 +23,7 @@ export function BottomNav() {
             : pathname.startsWith(item.href);
           return (
             <li key={item.href} className="flex-1">
-              <NavLink
+              <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={`flex flex-col items-center gap-0.5 px-1 py-2 text-[10px] ${
@@ -32,7 +32,7 @@ export function BottomNav() {
               >
                 <item.Icon active={active} />
                 <span className="leading-none">{item.label}</span>
-              </NavLink>
+              </Link>
             </li>
           );
         })}
