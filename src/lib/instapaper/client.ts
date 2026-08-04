@@ -65,6 +65,8 @@ export interface InstapaperBookmark {
   progress_timestamp: number;
   starred: string;
   folder: string;
+  /** 使用者在 Instapaper 上自己加的標籤，沒加過的文章就沒有這個欄位 */
+  tags?: Array<{ id?: number; name?: string }>;
 }
 
 export interface InstapaperFolder {

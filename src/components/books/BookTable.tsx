@@ -3,15 +3,21 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { RefObject, useEffect, useRef, useState } from "react";
+import { PagerButton } from "@/components/ui/PagerButton";
 import { useUrlParams } from "@/lib/useUrlParam";
-import { useBookViewStore } from "@/store/useBookViewStore";
+import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
+import { usePagingMode } from "@/lib/usePagingMode";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
 import { useFitPageSize, useFitRowsByMeasure, viewportBottom } from "@/lib/useFitPageSize";
-import { ReadingStatus, splitTags } from "@/types/book";
+import { TagList as OptionList } from "@/components/ui/TagBadge";
+import { Book, ReadingStatus } from "@/types/book";
 
 /** 單筆高度：手機是卡片，桌機是含書封的表格列 */
 const ROW_HEIGHT = { mobile: 86, desktop: 68 };
+
+/** 詳細檢視一張卡片就攤開所有欄位，高度自然高得多 */
+const DETAIL_ROW_HEIGHT = { mobile: 250, desktop: 210 };
 
 /** 書封牆的單張卡片尺寸，用來推算一頁排得下幾張 */
 const CARD_SIZE = {
@@ -103,38 +109,63 @@ function StatusBadge({ status }: { status: ReadingStatus }) {
   );
 }
 
-const OPTION_BADGE_STYLES = [
-  "bg-green-50 text-green-800 ring-1 ring-green-200",
-  "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200",
-  "bg-lime-50 text-lime-800 ring-1 ring-lime-200",
-  "bg-teal-50 text-teal-800 ring-1 ring-teal-200",
-];
-
-function OptionBadge({ value, index }: { value: string; index: number }) {
+/** 詳細檢視的一格：欄位名稱小、值大，沒填的一律顯示破折號才對得整齊 */
+function DetailField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${OPTION_BADGE_STYLES[index % OPTION_BADGE_STYLES.length]}`}
-    >
-      {value}
-    </span>
+    <div className="min-w-0">
+      <p className="text-[11px] text-gray-400">{label}</p>
+      <div className="truncate text-xs text-gray-700">{children || "—"}</div>
+    </div>
   );
 }
 
-function OptionList({ values }: { values: Array<string | undefined> }) {
-  const items = values
-    .flatMap((value) =>
-      splitTags(value),
-    )
-    .filter(Boolean);
-
-  if (items.length === 0) return null;
-
+/** 一本書一張橫式卡片，Sheet 上的每個欄位都看得到，不用點進編輯頁 */
+function DetailCard({ book, href, number }: { book: Book; href: string; number: number }) {
   return (
-    <div className="flex flex-wrap gap-1">
-      {items.map((item, index) => (
-        <OptionBadge key={`${item}-${index}`} value={item} index={index} />
-      ))}
-    </div>
+    <Link
+      href={href}
+      className="flex gap-4 rounded-lg border bg-white p-3 hover:bg-gray-50 md:p-4"
+    >
+      <div className="w-16 shrink-0 md:w-20">
+        <LargeCover url={book.coverUrl} title={book.title} />
+      </div>
+
+      <div className="min-w-0 flex-1 space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs tabular-nums text-gray-400">#{number}</span>
+          <span className="min-w-0 truncate text-sm font-medium">{book.title}</span>
+          <StatusBadge status={book.status} />
+        </div>
+
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-3 lg:grid-cols-4">
+          <DetailField label="作者">{book.author}</DetailField>
+          <DetailField label="出版社">{book.publisher}</DetailField>
+          <DetailField label="平台">
+            <OptionList values={[book.platform]} />
+          </DetailField>
+          <DetailField label="語言">{book.language}</DetailField>
+          <DetailField label="開始日期">{book.startDate}</DetailField>
+          <DetailField label="完成日期">{book.endDate}</DetailField>
+          <DetailField label="頁數">{book.pageCount}</DetailField>
+          <DetailField label="字數">{book.wordCount}</DetailField>
+          <DetailField label="領域">
+            <OptionList values={[book.domain]} />
+          </DetailField>
+          <DetailField label="屬性">
+            <OptionList values={[book.type]} />
+          </DetailField>
+          <DetailField label="來源網址">
+            {book.sourceUrl ? <span className="truncate">{book.sourceUrl}</span> : ""}
+          </DetailField>
+        </div>
+
+        {book.note && (
+          <p className="line-clamp-2 rounded bg-gray-50 px-2 py-1 text-xs text-gray-600">
+            {book.note}
+          </p>
+        )}
+      </div>
+    </Link>
   );
 }
 
@@ -146,23 +177,31 @@ export function BookTable() {
   const { view: savedView } = useBookViewStore();
   // 檢視方式與頁碼都以網址為準，重新整理或分享連結才回得到同一個畫面
   const urlView = searchParams.get("view");
-  const view = urlView === "card" || urlView === "table" ? urlView : savedView;
+  const view = isBookViewMode(urlView) ? urlView : savedView;
+  const { scrolling } = usePagingMode();
   const page = Math.max(0, (Number(searchParams.get("page")) || 1) - 1);
   const setPage = (next: number) => setParams({ page: next === 0 ? null : String(next + 1) });
   // 帶著目前的檢視與頁碼進編輯頁，存檔後才回得到同一頁
   const query = searchParams.toString();
   const editHref = (id: string) => `/books/${id}/edit${query ? `?back=${encodeURIComponent(query)}` : ""}`;
   const containerRef = useRef<HTMLDivElement>(null);
-  const rowEstimate = useFitPageSize(containerRef, ROW_HEIGHT);
+  const rowEstimate = useFitPageSize(
+    containerRef,
+    view === "detail" ? DETAIL_ROW_HEIGHT : ROW_HEIGHT,
+  );
   const cardEstimate = useFitCardCount(containerRef);
-  // 兩種檢視都先估、再依實際渲染高度修正。書封的高度會隨書名行數變動，
+  // 各種檢視都先估、再依實際渲染高度修正。書封的高度會隨書名行數變動，
   // 純算常數一定有誤差，量測才保證不會溢出畫面。
-  const pageSize = useFitRowsByMeasure(
+  // 捲動模式不需要「剛好一畫面」，量測直接關掉。
+  const fitPageSize = useFitRowsByMeasure(
     containerRef,
     view === "card" ? cardEstimate : rowEstimate,
     books.length,
+    !scrolling,
   );
 
+  // 捲動模式：一次全部列出來，等於只有一頁
+  const pageSize = scrolling ? Math.max(1, books.length) : fitPageSize;
   const pageCount = Math.max(1, Math.ceil(books.length / pageSize));
   const currentPage = Math.min(page, pageCount - 1);
   const pageBooks = books.slice(currentPage * pageSize, currentPage * pageSize + pageSize);
@@ -201,33 +240,51 @@ export function BookTable() {
 
   const pager =
     pageCount > 1 ? (
-      // 間距由分隔線上下帶開，翻頁列本身不留左右 padding
-      <div className="mt-2 flex items-center justify-center gap-4 border-t pt-2">
-        <button
+      <div className="mt-2 flex items-center justify-center gap-4 p-2">
+        <PagerButton
+          direction="prev"
           onClick={() => setPage(Math.max(0, currentPage - 1))}
           disabled={currentPage === 0}
-          aria-label="上一頁"
-          className="flex h-7 w-7 items-center justify-center rounded-md border border-dashed border-gray-300 leading-none text-gray-400 hover:border-gray-500 hover:text-gray-900 disabled:opacity-30 disabled:hover:border-gray-300 disabled:hover:text-gray-400"
-        >
-          ‹
-        </button>
+          label="上一頁"
+        />
         <span className="whitespace-nowrap text-xs text-gray-500">
           第 {currentPage + 1} / {pageCount} 頁
         </span>
-        <button
+        <PagerButton
+          direction="next"
           onClick={() => setPage(Math.min(pageCount - 1, currentPage + 1))}
           disabled={currentPage === pageCount - 1}
-          aria-label="下一頁"
-          className="flex h-7 w-7 items-center justify-center rounded-md border border-dashed border-gray-300 leading-none text-gray-400 hover:border-gray-500 hover:text-gray-900 disabled:opacity-30 disabled:hover:border-gray-300 disabled:hover:text-gray-400"
-        >
-          ›
-        </button>
+          label="下一頁"
+        />
       </div>
     ) : null;
 
+  // 捲動模式下最底部要留白，不然最後一列會貼著畫面底緣
+  const scrollPad = scrolling ? "pb-6" : "";
+
+  if (view === "detail") {
+    return (
+      <div ref={containerRef} className={scrollPad}>
+        {/* 詳細檢視：一本一張橫式卡片，欄位全開，所以一頁只放得下兩三本 */}
+        <ul className="space-y-2">
+          {pageBooks.map((b, i) => (
+            <li key={b.id || `detail-${i}`} data-fit-row>
+              <DetailCard
+                book={b}
+                href={editHref(b.id)}
+                number={books.length - (currentPage * pageSize + i)}
+              />
+            </li>
+          ))}
+        </ul>
+        {pager}
+      </div>
+    );
+  }
+
   if (view === "card") {
     return (
-      <div ref={containerRef}>
+      <div ref={containerRef} className={scrollPad}>
         {/* 書封牆：一次看到很多本、也看得清楚封面，只留書名與完讀日期 */}
         <div className="rounded-lg border bg-white p-3">
           <ul className="grid grid-cols-[repeat(auto-fill,minmax(4rem,1fr))] gap-2 md:grid-cols-[repeat(auto-fill,minmax(5rem,1fr))] md:gap-2.5">
@@ -252,7 +309,7 @@ export function BookTable() {
   }
 
   return (
-    <div ref={containerRef}>
+    <div ref={containerRef} className={scrollPad}>
       {/* 手機版：卡片列表，欄位太多的表格在小螢幕上不好讀 */}
       <div className="overflow-hidden rounded-lg border bg-white md:hidden">
         <ul className="divide-y">

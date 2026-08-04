@@ -1,8 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PagerButton } from "@/components/ui/PagerButton";
+import { TagList } from "@/components/ui/TagBadge";
 import { useFitPageSize } from "@/lib/useFitPageSize";
+import { usePagingMode } from "@/lib/usePagingMode";
 import { useInstapaperStore } from "@/store/useInstapaperStore";
 import { useArticles } from "@/lib/useArticles";
 import { InstapaperBookmark } from "@/lib/instapaper/client";
@@ -27,13 +30,16 @@ function hostname(url: string): string {
 /** 單筆文章的高度：標題 + 日期一行、進度條在右側 */
 const ROW_HEIGHT = { mobile: 62, desktop: 60 };
 
-export default function ArticlesPage() {
+function ArticlesList() {
   const { token } = useInstapaperStore();
   const { articles, isLoading, error } = useArticles();
   const [page, setPage] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const pageSize = useFitPageSize(containerRef, ROW_HEIGHT);
+  const fitPageSize = useFitPageSize(containerRef, ROW_HEIGHT);
+  // 分頁／捲動是整個 app 共用的偏好，文章列表也跟著走
+  const { scrolling } = usePagingMode();
 
+  const pageSize = scrolling ? Math.max(1, articles.length) : fitPageSize;
   const pageCount = Math.max(1, Math.ceil(articles.length / pageSize));
   const currentPage = Math.min(page, pageCount - 1);
   const pageArticles = articles.slice(
@@ -86,7 +92,7 @@ export default function ArticlesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className={`mx-auto max-w-5xl ${scrolling ? "pb-6" : ""}`}>
       <PageHeader title="文章紀錄" />
       {/* overflow-hidden：hover 底色才會被圓角裁掉，不會在頭尾兩列破圖 */}
       <div ref={containerRef} className="divide-y overflow-hidden rounded-lg border bg-white">
@@ -107,6 +113,12 @@ export default function ArticlesPage() {
                 <p className="mt-0.5 truncate text-xs text-gray-500">
                   {formatDate(activityTime(a))} · {hostname(a.url)}
                 </p>
+                {/* Instapaper 上自己加的標籤，跟書籍用同一套配色 */}
+                {a.tags && a.tags.length > 0 && (
+                  <div className="mt-1">
+                    <TagList values={a.tags.map((tag) => tag.name)} />
+                  </div>
+                )}
               </div>
 
               {/* 進度靠右，跟標題同一列，不再自己佔一整條寬度 */}
@@ -127,28 +139,33 @@ export default function ArticlesPage() {
 
         {pageCount > 1 && (
           <div className="flex items-center justify-center gap-4 px-4 py-2">
-            <button
+            <PagerButton
+              direction="prev"
               onClick={() => setPage((p) => Math.max(0, p - 1))}
               disabled={currentPage === 0}
-              aria-label="上一頁"
-              className="text-gray-400 hover:text-gray-900 disabled:opacity-30 disabled:hover:text-gray-400"
-            >
-              ‹
-            </button>
+              label="上一頁"
+            />
             <span className="whitespace-nowrap text-xs text-gray-500">
               第 {currentPage + 1} / {pageCount} 頁
             </span>
-            <button
+            <PagerButton
+              direction="next"
               onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
               disabled={currentPage === pageCount - 1}
-              aria-label="下一頁"
-              className="text-gray-400 hover:text-gray-900 disabled:opacity-30 disabled:hover:text-gray-400"
-            >
-              ›
-            </button>
+              label="下一頁"
+            />
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+/** usePagingMode 會讀網址參數，靜態預先產生時要有 Suspense 邊界 */
+export default function ArticlesPage() {
+  return (
+    <Suspense fallback={null}>
+      <ArticlesList />
+    </Suspense>
   );
 }
