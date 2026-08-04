@@ -1,4 +1,4 @@
-import { Book } from "@/types/book";
+import { Book, splitTags } from "@/types/book";
 
 export interface YearCount {
   year: string;
@@ -97,12 +97,18 @@ export function getMonthlyTrend(books: Book[], monthsBack = 24): MonthCount[] {
   return Array.from(counts.entries()).map(([month, count]) => ({ month, count }));
 }
 
+/**
+ * 一格可能放了多個標籤（屬性可複選），每個都各算一次，
+ * 所以各項加總會大於書本數——這是分佈圖，不是圓餅百分比。
+ */
 function distributionBy(books: Book[], key: keyof Book): DistributionSlice[] {
   const counts = new Map<string, number>();
   for (const b of books) {
     const raw = b[key];
-    const value = typeof raw === "string" && raw.trim() ? raw : "未分類";
-    counts.set(value, (counts.get(value) ?? 0) + 1);
+    const tags = typeof raw === "string" ? splitTags(raw) : [];
+    for (const value of tags.length > 0 ? tags : ["未分類"]) {
+      counts.set(value, (counts.get(value) ?? 0) + 1);
+    }
   }
   return Array.from(counts.entries())
     .map(([name, value]) => ({ name, value }))

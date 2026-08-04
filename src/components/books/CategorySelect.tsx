@@ -1,23 +1,28 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BookCategories } from "@/types/book";
+import { BookCategories, joinTags, splitTags } from "@/types/book";
 import { useCategories } from "@/lib/useCategories";
 
 /**
  * 仿 Notion 的分類選擇器：下拉選單裡就能新增、改名、刪除選項，
  * 不用特地跑去設定頁。選項存在試算表的「選項」工作表。
+ *
+ * `multiple` 的欄位（屬性）可以複選，多個值以頓號存在同一格裡，
+ * 這樣 Sheet 那邊還是一欄，不用為了複選改表結構。
  */
 export function CategorySelect({
   label,
   categoryKey,
   value,
   onChange,
+  multiple = false,
 }: {
   label: string;
   categoryKey: keyof BookCategories;
   value: string;
   onChange: (value: string) => void;
+  multiple?: boolean;
 }) {
   const { categories, save } = useCategories();
   const options = categories[categoryKey];
@@ -48,10 +53,23 @@ export function CategorySelect({
     save({ ...categories, [categoryKey]: next });
   }
 
+  const selected = multiple ? splitTags(value) : value ? [value] : [];
+  const isSelected = (option: string) => selected.includes(option);
+
+  /** 單選＝取代並關閉；複選＝切換，選單留著讓使用者連續選 */
   function pick(option: string) {
-    onChange(option);
+    if (!multiple) {
+      onChange(option);
+      setQuery("");
+      setOpen(false);
+      return;
+    }
+    onChange(
+      joinTags(
+        isSelected(option) ? selected.filter((o) => o !== option) : [...selected, option]
+      )
+    );
     setQuery("");
-    setOpen(false);
   }
 
   function create() {
@@ -66,12 +84,12 @@ export function CategorySelect({
     if (!to || to === from || options.includes(to)) return;
     replaceOptions(options.map((o) => (o === from ? to : o)));
     // 目前選的就是被改名的那個，跟著改
-    if (value === from) onChange(to);
+    if (isSelected(from)) onChange(joinTags(selected.map((o) => (o === from ? to : o))));
   }
 
   function remove(option: string) {
     replaceOptions(options.filter((o) => o !== option));
-    if (value === option) onChange("");
+    if (isSelected(option)) onChange(joinTags(selected.filter((o) => o !== option)));
   }
 
   return (
@@ -83,7 +101,17 @@ export function CategorySelect({
         onClick={() => setOpen((v) => !v)}
         className="w-full rounded border px-3 py-2 text-left text-sm"
       >
-        {value || <span className="text-gray-400">選擇或新增{label}</span>}
+        {selected.length > 0 ? (
+          <span className="flex flex-wrap gap-1">
+            {selected.map((option) => (
+              <span key={option} className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">
+                {option}
+              </span>
+            ))}
+          </span>
+        ) : (
+          <span className="text-gray-400">選擇或新增{label}</span>
+        )}
       </button>
 
       {open && (
@@ -105,11 +133,15 @@ export function CategorySelect({
           />
 
           <ul className="max-h-56 overflow-y-auto py-1">
-            {value && (
+            {selected.length > 0 && (
               <li>
                 <button
                   type="button"
-                  onClick={() => pick("")}
+                  onClick={() => {
+                    onChange("");
+                    setQuery("");
+                    if (!multiple) setOpen(false);
+                  }}
                   className="w-full px-3 py-1.5 text-left text-xs text-gray-400 hover:bg-gray-50"
                 >
                   清除選擇
@@ -140,9 +172,14 @@ export function CategorySelect({
                       type="button"
                       onClick={() => pick(option)}
                       className={`flex-1 rounded px-2 py-1.5 text-left text-sm hover:bg-gray-50 ${
-                        option === value ? "font-medium" : ""
+                        isSelected(option) ? "font-medium" : ""
                       }`}
                     >
+                      {multiple && (
+                        <span className="mr-1.5 text-xs text-gray-400">
+                          {isSelected(option) ? "✓" : "＋"}
+                        </span>
+                      )}
                       {option}
                     </button>
                     <button

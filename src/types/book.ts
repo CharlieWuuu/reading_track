@@ -70,6 +70,26 @@ export interface Book {
   note: string;
 }
 
+/**
+ * 一格裡放多個標籤（目前用在「屬性」）。
+ *
+ * 分隔符寫入時固定用頓號，讀取時連逗號、直線都接受——使用者會直接在 Sheet 裡
+ * 手打，硬性要求某一種符號只會讓資料變髒。
+ */
+export const TAG_SEPARATOR = "、";
+
+export function splitTags(value: string | undefined | null): string[] {
+  if (!value) return [];
+  return value
+    .split(/[、,，｜|]/)
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+}
+
+export function joinTags(tags: string[]): string {
+  return tags.join(TAG_SEPARATOR);
+}
+
 export interface BookCategories {
   domain: string[];
   type: string[];

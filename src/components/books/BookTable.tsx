@@ -8,7 +8,7 @@ import { useBookViewStore } from "@/store/useBookViewStore";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
 import { useFitPageSize, useFitRowsByMeasure, viewportBottom } from "@/lib/useFitPageSize";
-import { ReadingStatus } from "@/types/book";
+import { ReadingStatus, splitTags } from "@/types/book";
 
 /** 單筆高度：手機是卡片，桌機是含書封的表格列 */
 const ROW_HEIGHT = { mobile: 86, desktop: 68 };
@@ -123,9 +123,7 @@ function OptionBadge({ value, index }: { value: string; index: number }) {
 function OptionList({ values }: { values: Array<string | undefined> }) {
   const items = values
     .flatMap((value) =>
-      value
-        ? value.split(/[｜|,]/).map((item) => item.trim())
-        : [],
+      splitTags(value),
     )
     .filter(Boolean);
 

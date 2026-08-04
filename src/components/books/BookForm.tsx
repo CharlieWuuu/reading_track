@@ -339,12 +339,14 @@ export function BookForm({
           categoryKey="domain"
           value={form.domain}
           onChange={(v) => set("domain", v)}
+          multiple
         />
         <CategorySelect
           label="屬性"
           categoryKey="type"
           value={form.type}
           onChange={(v) => set("type", v)}
+          multiple
         />
         <CategorySelect
           label="語言"
