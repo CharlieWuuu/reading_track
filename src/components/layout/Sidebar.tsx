@@ -1,10 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { useSidebarStore } from "@/store/useSidebarStore";
 import { NAV_ITEMS } from "./navItems";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { NavLink } from "./NavLink";
 import { RefreshButton } from "./RefreshButton";
 
 /** 側欄空間夠，用完整名稱；底部導覽列則用短標籤 */
@@ -12,27 +13,6 @@ const FULL_LABELS: Record<string, string> = {
   "/books": "書籍紀錄",
   "/articles": "文章紀錄",
 };
-
-function CollapseIcon({ collapsed }: { collapsed: boolean }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <rect
-        x="2.5"
-        y="3.5"
-        width="15"
-        height="13"
-        rx="2"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-      <path
-        d={collapsed ? "M12.5 3.5v13" : "M7.5 3.5v13"}
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
 
 function CollapseButton({ collapsed, onClick }: { collapsed: boolean; onClick: () => void }) {
   return (
@@ -42,7 +22,7 @@ function CollapseButton({ collapsed, onClick }: { collapsed: boolean; onClick: (
       title={collapsed ? "展開側欄" : "收合側欄"}
       className="flex h-8 w-8 shrink-0 items-center justify-center rounded text-gray-400 hover:bg-gray-100 hover:text-gray-900"
     >
-      <CollapseIcon collapsed={collapsed} />
+      {collapsed ? <PanelLeftOpen size={18} strokeWidth={1.5} /> : <PanelLeftClose size={18} strokeWidth={1.5} />}
     </button>
   );
 }
@@ -78,7 +58,7 @@ export function Sidebar() {
           const label = FULL_LABELS[item.href] ?? item.label;
           return (
             <li key={item.href}>
-              <Link
+              <NavLink
                 href={item.href}
                 title={collapsed ? label : undefined}
                 className={`flex items-center gap-2 rounded px-3 py-2 text-sm ${
@@ -91,7 +71,7 @@ export function Sidebar() {
               >
                 <item.Icon active={active} />
                 {!collapsed && label}
-              </Link>
+              </NavLink>
             </li>
           );
         })}

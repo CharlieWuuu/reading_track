@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useSWRConfig } from "swr";
+import { RefreshCw } from "lucide-react";
 
 /** 手動重抓所有資料，順便顯示上次更新時間 */
 export function RefreshButton({ compact = false }: { compact?: boolean }) {
@@ -39,19 +40,7 @@ export function RefreshButton({ compact = false }: { compact?: boolean }) {
         compact ? "w-8 justify-center" : "px-2"
       }`}
     >
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`}
-        aria-hidden
-      >
-        <path d="M21 12a9 9 0 1 1-2.64-6.36" />
-        <polyline points="21 3 21 9 15 9" />
-      </svg>
+      <RefreshCw size={14} className={isRefreshing ? "animate-spin" : ""} aria-hidden />
       {!compact && <span>{isRefreshing ? "更新中" : "重新整理"}</span>}
     </button>
   );

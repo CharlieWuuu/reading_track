@@ -94,7 +94,7 @@ function ArticlesList() {
   }
 
   return (
-    <div className={`mx-auto max-w-5xl ${scrolling ? "pb-6" : ""}`}>
+    <div className="mx-auto max-w-5xl">
       <PageHeader title="文章紀錄" />
       {/* overflow-hidden：hover 底色才會被圓角裁掉，不會在頭尾兩列破圖 */}
       <div ref={containerRef} className="divide-y overflow-hidden rounded-lg border bg-white">

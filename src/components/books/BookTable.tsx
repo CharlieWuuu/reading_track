@@ -168,7 +168,7 @@ function DetailCard({ book, href, number }: { book: Book; href: string; number?:
           <p className="truncate text-sm text-gray-500">{book.author || "—"}</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3 lg:grid-cols-5">
           <DetailField label="出版社">{book.publisher}</DetailField>
           <DetailField label="平台">
             <OptionList values={[book.platform]} />
@@ -301,12 +301,9 @@ export function BookTable() {
       </div>
     ) : null;
 
-  // 捲動模式下最底部要留白，不然最後一列會貼著畫面底緣
-  const scrollPad = scrolling ? "pb-6" : "";
-
   if (view === "detail") {
     return (
-      <div ref={containerRef} className={scrollPad}>
+      <div ref={containerRef}>
         {/* 詳細檢視：一本一張橫式卡片，欄位全開，所以一頁只放得下兩三本 */}
         <ul className="space-y-2">
           {pageBooks.map((b, i) => (
@@ -326,7 +323,7 @@ export function BookTable() {
 
   if (view === "card") {
     return (
-      <div ref={containerRef} className={scrollPad}>
+      <div ref={containerRef}>
         {/* 書封牆：一次看到很多本、也看得清楚封面，只留書名與完讀日期 */}
         <div className="rounded-lg border bg-white p-3">
           <ul className="grid grid-cols-[repeat(auto-fill,minmax(4rem,1fr))] gap-2 md:grid-cols-[repeat(auto-fill,minmax(5rem,1fr))] md:gap-2.5">
@@ -351,7 +348,7 @@ export function BookTable() {
   }
 
   return (
-    <div ref={containerRef} className={scrollPad}>
+    <div ref={containerRef}>
       {/* 手機版：卡片列表，欄位太多的表格在小螢幕上不好讀 */}
       <div className="overflow-hidden rounded-lg border bg-white md:hidden">
         <ul className="divide-y">

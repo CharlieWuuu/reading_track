@@ -21,7 +21,7 @@ export function SectionPager({ sections }: { sections: Section[] }) {
   // 每個區塊要給明確高度——圖表是 height="100%"，父層沒有高度的話會縮成 0 而看不見。
   if (scrolling) {
     return (
-      <div className="flex flex-col gap-6 pb-6">
+      <div className="flex flex-col gap-6">
         {sections.map((section) => (
           <div key={section.key} className="flex h-[26rem] flex-col sm:h-[32rem]">
             <h3 className="mb-3.5 shrink-0 text-sm font-medium text-gray-500">{section.label}</h3>

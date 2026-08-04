@@ -30,8 +30,10 @@ export function TagList({
       {items.map((item, index) => (
         <span
           key={`${item}-${index}`}
-          className={`inline-flex shrink-0 items-center rounded-full border font-medium leading-4 ${
-            size === "sm" ? "px-1.5 text-[10px]" : "px-2 text-[11px]"
+          /* 高度寫死，邊框算在裡面（box-border）：徽章的總高不會因為有沒有
+             邊框而變，跟同一行的文字對得起來 */
+          className={`inline-flex shrink-0 items-center rounded-full border box-border font-medium leading-none ${
+            size === "sm" ? "h-4 px-1.5 text-[10px]" : "h-5 px-2 text-[11px]"
           } ${tagColorClass(item, order)}`}
         >
           {item}

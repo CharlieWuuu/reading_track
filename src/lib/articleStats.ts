@@ -62,22 +62,39 @@ export function getArticleMonthlyTrend(
   return Array.from(counts.entries()).map(([month, count]) => ({ month, count }));
 }
 
-export function getSourceDistribution(
-  articles: InstapaperBookmark[]
-): DistributionSlice[] {
-  const counts = new Map<string, number>();
-  for (const a of articles.filter(isCompleted)) {
-    let host = "未知";
-    try {
-      host = new URL(a.url).hostname.replace(/^www\./, "");
-    } catch {
-      // ignore malformed URLs
-    }
-    counts.set(host, (counts.get(host) ?? 0) + 1);
+/**
+ * 來源網站排行：全部文章都算，並且分成已完成與未完成兩段。
+ *
+ * 網域只取第一段（去掉 www 之後的第一個標籤），像 medium.com 就顯示 medium——
+ * 完整網域太長，在長條旁邊會被截斷，反而看不出是哪個站。
+ */
+export function getSourceRanking(
+  articles: InstapaperBookmark[],
+  limit = 8
+): Array<DistributionSlice & { doneValue: number }> {
+  const totals = new Map<string, { value: number; doneValue: number }>();
+
+  for (const a of articles) {
+    const name = sourceName(a.url);
+    const entry = totals.get(name) ?? { value: 0, doneValue: 0 };
+    entry.value++;
+    if (isCompleted(a)) entry.doneValue++;
+    totals.set(name, entry);
   }
-  return Array.from(counts.entries())
-    .map(([name, value]) => ({ name, value }))
-    .sort((a, b) => b.value - a.value);
+
+  return Array.from(totals.entries())
+    .map(([name, entry]) => ({ name, ...entry }))
+    .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name))
+    .slice(0, limit);
+}
+
+function sourceName(url: string): string {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "");
+    return host.split(".")[0] || host;
+  } catch {
+    return "未知";
+  }
 }
 
 /**
@@ -97,57 +114,4 @@ export function getTagDistribution(
   return Array.from(counts.entries())
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value);
-}
-
-export interface FolderMonthPoint {
-  month: string;
-  [seriesKey: string]: number | string;
-}
-
-export interface FolderSeries {
-  folder: string;
-  completedKey: string;
-  incompleteKey: string;
-}
-
-export function getFolderMonthlyTrend(
-  articles: InstapaperBookmark[],
-  monthsBack = 24
-): { data: FolderMonthPoint[]; series: FolderSeries[] } {
-  const folders = Array.from(new Set(articles.map((a) => a.folder)));
-
-  const now = new Date();
-  const months: string[] = [];
-  for (let i = monthsBack - 1; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
-  }
-
-  const series: FolderSeries[] = folders.map((folder) => ({
-    folder,
-    completedKey: `${folder}__completed`,
-    incompleteKey: `${folder}__incomplete`,
-  }));
-
-  const data: FolderMonthPoint[] = months.map((month) => {
-    const point: FolderMonthPoint = { month };
-    for (const s of series) {
-      point[s.completedKey] = 0;
-      point[s.incompleteKey] = 0;
-    }
-    return point;
-  });
-  const byMonth = new Map(data.map((d) => [d.month, d]));
-
-  for (const a of articles) {
-    const d = new Date((a.progress_timestamp || a.time) * 1000);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    const point = byMonth.get(key);
-    if (!point) continue;
-    const s = series.find((s) => s.folder === a.folder)!;
-    const targetKey = isCompleted(a) ? s.completedKey : s.incompleteKey;
-    point[targetKey] = (point[targetKey] as number) + 1;
-  }
-
-  return { data, series };
 }

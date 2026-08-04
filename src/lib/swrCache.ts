@@ -13,6 +13,19 @@ interface Persisted {
  * 把 SWR 快取存進 localStorage，重新整理或關掉 App 再打開時，
  * 可以先用舊資料把畫面畫出來，再於背景重新抓。
  */
+/** 由 provider 設定；SWR 每次抓到資料就呼叫它，把快取寫回 localStorage */
+let saveCache: (() => void) | null = null;
+
+/**
+ * 立刻把目前的快取存起來。
+ *
+ * 只靠 beforeunload／visibilitychange 不夠可靠——手機被系統直接收掉、
+ * 或分頁當掉就沒存到，下次開啟又要空白等載入。抓到新資料就順手存一次最保險。
+ */
+export function persistSWRCache() {
+  saveCache?.();
+}
+
 export function localStorageProvider(): Cache {
   const map = new Map<string, State>();
 
@@ -46,6 +59,8 @@ export function localStorageProvider(): Cache {
       // 空間不足或隱私模式就放棄快取，不影響功能
     }
   };
+
+  saveCache = save;
 
   // 手機常常是直接切走 App，不會觸發 beforeunload，所以兩個都聽
   window.addEventListener("beforeunload", save);

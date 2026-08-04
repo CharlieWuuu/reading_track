@@ -1,42 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import { LayoutGrid, Rows3, StretchHorizontal } from "lucide-react";
 import { BookViewMode, isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
 import { useUrlParams } from "@/lib/useUrlParam";
 
 const OPTIONS: Array<{ id: BookViewMode; label: string; Icon: () => React.ReactElement }> = [
-  {
-    id: "table",
-    label: "表格",
-    Icon: () => (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-        <path d="M2 4h12M2 8h12M2 12h12" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    id: "card",
-    label: "書封",
-    Icon: () => (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-        <rect x="2" y="2.5" width="5" height="5" rx="1" />
-        <rect x="9" y="2.5" width="5" height="5" rx="1" />
-        <rect x="2" y="8.5" width="5" height="5" rx="1" />
-        <rect x="9" y="8.5" width="5" height="5" rx="1" />
-      </svg>
-    ),
-  },
-  {
-    id: "detail",
-    label: "詳細資料",
-    Icon: () => (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-        <rect x="2" y="3" width="12" height="4.5" rx="1" />
-        <rect x="2" y="8.5" width="12" height="4.5" rx="1" />
-        <path d="M5.5 3v4.5M5.5 8.5V13" />
-      </svg>
-    ),
-  },
+  { id: "table", label: "表格", Icon: () => <Rows3 size={16} strokeWidth={1.5} /> },
+  { id: "card", label: "書封", Icon: () => <LayoutGrid size={16} strokeWidth={1.5} /> },
+  { id: "detail", label: "詳細資料", Icon: () => <StretchHorizontal size={16} strokeWidth={1.5} /> },
 ];
 
 /** 檢視切換：放在頁首那一列，不再另外佔一整行 */

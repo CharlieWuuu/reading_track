@@ -15,7 +15,6 @@ import { MonthlyTrendChart } from "@/components/stats/MonthlyTrendChart";
 import { DistributionPie } from "@/components/stats/DistributionPie";
 import { RankingBar } from "@/components/stats/RankingBar";
 import { ArticleKpiCards } from "@/components/stats/ArticleKpiCards";
-import { FolderTrendChart } from "@/components/stats/FolderTrendChart";
 import {
   getDomainDistribution,
   getKpis,
@@ -32,8 +31,7 @@ import {
   getArticleKpis,
   getArticleMonthlyTrend,
   getCompletionDistribution,
-  getFolderMonthlyTrend,
-  getSourceDistribution,
+  getSourceRanking,
   getTagDistribution,
 } from "@/lib/articleStats";
 
@@ -181,14 +179,14 @@ function BooksStats() {
           key: r.key,
           label: r.label,
           node: (
-            <Panel>
+            <div className="rounded-lg border bg-white p-4">
               <RankingBar
                 title={r.label}
                 data={r.data}
                 unit={r.unit}
                 showCover={r.key === "reread"}
               />
-            </Panel>
+            </div>
           ),
         }))
       : [
@@ -197,8 +195,8 @@ function BooksStats() {
             label: "排行",
             // 重讀排行帶書封，自己占一整列；作者與出版社排在下面兩欄
             node: (
-              <div className="flex min-h-0 flex-1 flex-col gap-4">
-                <div className="flex min-h-0 flex-1 flex-col rounded-lg border bg-white p-5">
+              <div className="flex flex-col gap-4">
+                <div className="rounded-lg border bg-white p-5">
                   <RankingBar
                     title={reread.label}
                     data={reread.data}
@@ -206,14 +204,11 @@ function BooksStats() {
                     showCover
                   />
                 </div>
-                <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   {rankings
                     .filter((r) => r.key !== "reread")
                     .map((r) => (
-                      <div
-                        key={r.key}
-                        className="flex min-h-0 flex-col rounded-lg border bg-white p-5"
-                      >
+                      <div key={r.key} className="rounded-lg border bg-white p-5">
                         <RankingBar title={r.label} data={r.data} unit={r.unit} />
                       </div>
                     ))}
@@ -266,12 +261,11 @@ function ArticlesStats() {
 
   const kpis = getArticleKpis(articles);
   const monthly = getArticleMonthlyTrend(articles);
-  const folderTrend = getFolderMonthlyTrend(articles);
+  const sources = getSourceRanking(articles);
 
   const pies = [
     { key: "completion", label: "已完成／未完成", data: getCompletionDistribution(articles) },
     { key: "tag", label: "屬性分布", data: getTagDistribution(articles) },
-    { key: "source", label: "來源網站分布（已完成）", data: getSourceDistribution(articles) },
   ];
 
   const sections: Section[] = [
@@ -288,12 +282,17 @@ function ArticlesStats() {
       ),
     },
     {
-      key: "folders",
-      label: "資料夾趨勢",
+      key: "source",
+      label: "來源網站",
       node: (
-        <Panel title="資料夾趨勢（實線＝已完成、虛線＝未完成）">
-          <FolderTrendChart data={folderTrend.data} series={folderTrend.series} height="100%" />
-        </Panel>
+        <div className="rounded-lg border bg-white p-5">
+          <RankingBar
+            title="來源網站（深色＝已完成）"
+            data={sources}
+            unit="篇"
+            emptyHint="尚無文章"
+          />
+        </div>
       ),
     },
     ...(isMobile
@@ -311,7 +310,7 @@ function ArticlesStats() {
             key: "distribution",
             label: "分布",
             node: (
-              <div className="grid min-h-0 flex-1 grid-cols-3 gap-4">
+              <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
                 {pies.map((pie) => (
                   <div key={pie.key} className="flex min-h-0 flex-col rounded-lg border bg-white p-5">
                     <div className="min-h-0 flex-1">
@@ -336,7 +335,7 @@ function StatsTabs() {
   const setTab = (next: Tab) => setParams({ tab: next === "books" ? null : next });
 
   return (
-    <div className="mx-auto flex h-full min-h-0 max-w-5xl flex-col">
+    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col">
       <PageHeader
         title="統計"
         action={
