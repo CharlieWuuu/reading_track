@@ -1,4 +1,4 @@
-import { Book, normalizePlatform } from "@/types/book";
+import { Book } from "@/types/book";
 
 export interface BookIssue {
   bookId: string;
@@ -45,10 +45,6 @@ export function validateBook(book: Book): BookIssue[] {
     book.endDate < book.startDate
   ) {
     add("endDate", "完成日期早於開始日期");
-  }
-
-  if (book.platform && !normalizePlatform(book.platform)) {
-    add("platform", `平台「${book.platform}」不在選項內，會被歸到「其他」`);
   }
 
   for (const field of ["pageCount", "wordCount"] as const) {

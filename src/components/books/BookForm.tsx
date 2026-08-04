@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
-import { Book, BookPlatform, BOOK_PLATFORMS, inferStatus } from "@/types/book";
+import { Book, inferStatus } from "@/types/book";
 import { CategorySelect } from "./CategorySelect";
 
 const emptyForm = {
@@ -13,7 +13,7 @@ const emptyForm = {
   author: "",
   coverUrl: "",
   publisher: "",
-  platform: "其他" as BookPlatform,
+  platform: "其他",
   startDate: "",
   endDate: "",
   domain: "",
@@ -281,20 +281,12 @@ export function BookForm({
         <Field label="封面 URL" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
         <Field label="來源網址" value={form.sourceUrl} onChange={(v) => set("sourceUrl", v)} />
 
-        <div className="min-w-0">
-          <label className="mb-1 block text-sm font-medium">平台</label>
-          <select
-            value={form.platform}
-            onChange={(e) => set("platform", e.target.value as BookPlatform)}
-            className="w-full rounded border px-3 py-2 text-sm"
-          >
-            {BOOK_PLATFORMS.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-        </div>
+        <CategorySelect
+          label="平台"
+          categoryKey="platform"
+          value={form.platform}
+          onChange={(v) => set("platform", v)}
+        />
 
         {/* 用現有的書名／網址重查，補上空欄位 */}
         <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-3">

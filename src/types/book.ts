@@ -21,7 +21,7 @@ export const BOOK_PLATFORMS: BookPlatform[] = [
 
 /**
  * 使用者可能在 Sheet 打成「HyRead」「hyread」，那都是同一個平台。
- * 對不上的才真的當成未知平台。
+ * 只用來收斂大小寫；平台已經是可自訂的選項，對不上不代表資料有錯。
  */
 export function normalizePlatform(raw: string): BookPlatform | null {
   const value = raw.trim().toLowerCase();
@@ -55,7 +55,8 @@ export interface Book {
   author: string;
   coverUrl: string;
   publisher: string;
-  platform: BookPlatform;
+  /** 平台是可自訂的選項，不再限定在 BOOK_PLATFORMS 裡 */
+  platform: string;
   sourceUrl: string;
   status: ReadingStatus;
   startDate: string | null;
@@ -91,12 +92,14 @@ export function joinTags(tags: string[]): string {
 }
 
 export interface BookCategories {
+  platform: string[];
   domain: string[];
   type: string[];
   language: string[];
 }
 
 export const DEFAULT_CATEGORIES: BookCategories = {
+  platform: [...BOOK_PLATFORMS],
   domain: ["社會科學", "文學", "語言學", "歷史", "科普", "商業"],
   type: ["工具書", "小說", "散文", "詩", "傳記"],
   language: ["中文", "英文", "日文", "台文"],

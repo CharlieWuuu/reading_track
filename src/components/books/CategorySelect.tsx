@@ -25,7 +25,8 @@ export function CategorySelect({
   multiple?: boolean;
 }) {
   const { categories, save } = useCategories();
-  const options = categories[categoryKey];
+  // 舊版本的快取可能沒有這一組（例如剛加上的「平台」），兜底成空陣列
+  const options = categories[categoryKey] ?? [];
 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");

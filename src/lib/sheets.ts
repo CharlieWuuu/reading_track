@@ -3,7 +3,6 @@ import { OAuth2Client } from "google-auth-library";
 import {
   Book,
   BookCategories,
-  BookPlatform,
   DEFAULT_CATEGORIES,
   inferStatus,
   normalizePlatform,
@@ -147,8 +146,9 @@ export async function listBooksWithMeta(
       author: get("author"),
       coverUrl: get("coverUrl"),
       publisher: get("publisher"),
-      // 大小寫不同一律收斂成正式名稱，下拉選單才選得起來
-      platform: normalizePlatform(get("platform")) ?? ((get("platform") || "其他") as BookPlatform),
+      // 大小寫不同一律收斂成正式名稱（HyRead／hyread）；
+      // 認不得的就照原樣留著——平台已經是使用者可自訂的選項了
+      platform: normalizePlatform(get("platform")) ?? get("platform") ?? "",
       // 舊資料沒有這欄，用日期推一個合理的預設值
       status: normalizeStatus(get("status")) ?? inferStatus(get("startDate") || null, get("endDate") || null),
       sourceUrl: get("sourceUrl"),
@@ -243,6 +243,7 @@ const OPTIONS_SHEET_TITLE = "選項";
 const OPTIONS_HEADERS = ["類別", "選項"];
 
 const CATEGORY_LABELS: Record<keyof BookCategories, string> = {
+  platform: "平台",
   domain: "領域",
   type: "屬性",
   language: "語言",
@@ -283,12 +284,18 @@ export async function listCategories(
   const sheet = await getOptionsSheet(sheetId, accessToken);
   const rows = await sheet.getRows();
 
-  const categories: BookCategories = { domain: [], type: [], language: [] };
+  const categories: BookCategories = { platform: [], domain: [], type: [], language: [] };
   for (const row of rows) {
     const key = categoryKeyOf((row.get("類別") ?? "").toString());
     const option = (row.get("選項") ?? "").toString().trim();
     if (!key || !option || categories[key].includes(option)) continue;
     categories[key].push(option);
+  }
+
+  // 舊的試算表沒有「平台」那組，整組空白時退回預設值，
+  // 否則使用者會看到一個空的下拉選單，不知道該填什麼
+  for (const key of Object.keys(categories) as (keyof BookCategories)[]) {
+    if (categories[key].length === 0) categories[key] = [...DEFAULT_CATEGORIES[key]];
   }
   return categories;
 }

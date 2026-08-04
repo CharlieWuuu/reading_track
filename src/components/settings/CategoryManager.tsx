@@ -5,6 +5,7 @@ import { BookCategories } from "@/types/book";
 import { useCategories } from "@/lib/useCategories";
 
 const LABELS: Record<keyof BookCategories, string> = {
+  platform: "平台",
   domain: "領域",
   type: "屬性",
   language: "語言",
@@ -12,7 +13,8 @@ const LABELS: Record<keyof BookCategories, string> = {
 
 function CategoryGroup({ categoryKey }: { categoryKey: keyof BookCategories }) {
   const { categories, save } = useCategories();
-  const options = categories[categoryKey];
+  // 舊版本的快取可能沒有這一組（例如剛加上的「平台」），兜底成空陣列
+  const options = categories[categoryKey] ?? [];
   const [newValue, setNewValue] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -109,10 +111,11 @@ export function CategoryManager() {
     <div>
       <h3 className="mb-2 text-sm font-medium">書籍分類選項</h3>
       <p className="mb-4 text-xs text-gray-500">
-        管理「領域」「屬性」「語言」的可選項目。選項存在試算表的「選項」工作表，
+        管理「平台」「領域」「屬性」「語言」的可選項目。選項存在試算表的「選項」工作表，
         換裝置也還在；編輯書籍時在下拉選單裡也能直接增修。
       </p>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <CategoryGroup categoryKey="platform" />
         <CategoryGroup categoryKey="domain" />
         <CategoryGroup categoryKey="type" />
         <CategoryGroup categoryKey="language" />
