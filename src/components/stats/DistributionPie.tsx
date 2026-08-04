@@ -111,7 +111,7 @@ export function DistributionPie({
   }
 
   return (
-    <div className="viz-root flex h-full min-h-0 flex-col" data-palette="reading-track">
+    <div className="viz-root flex h-full min-h-0 flex-col gap-3.5" data-palette="reading-track">
       <style>{`
         .viz-root {
           color-scheme: light;
@@ -121,7 +121,7 @@ export function DistributionPie({
           --grid: #e1e0d9;
         }
       `}</style>
-      <p className="mb-3.5 shrink-0 text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+      <p className="shrink-0 text-sm font-medium" style={{ color: "var(--text-primary)" }}>
         {title}
       </p>
       <div className="min-h-0 flex-1">

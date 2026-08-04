@@ -30,8 +30,8 @@ export function RankingBar({
 
   return (
     // 高度隨內容，不撐滿面板——排行的列數本來就少，硬撐只會在下面留一大片空白
-    <div className="flex flex-col">
-      <p className="mb-3.5 shrink-0 text-sm font-medium">{title}</p>
+    <div className="flex flex-col gap-3.5">
+      <p className="shrink-0 text-sm font-medium">{title}</p>
 
       {data.length === 0 ? (
         // 每個都只出現一次時榜單會是空的，說清楚原因比留一張空圖好

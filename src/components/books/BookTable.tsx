@@ -118,7 +118,7 @@ function StatusBadge({ status }: { status: ReadingStatus }) {
 function DetailField({ label, children }: { label: string; children: React.ReactNode }) {
   const isText = typeof children === "string" || typeof children === "number";
   return (
-    <div className="min-w-0">
+    <div className="flex min-w-0 flex-col gap-1">
       <p className="text-xs text-gray-400">{label}</p>
       <div className={`text-sm text-gray-700 ${isText ? "truncate" : ""}`}>
         {children || "—"}
