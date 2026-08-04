@@ -325,7 +325,8 @@ export function BookForm({
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:contents">
+        {/* 日期在手機各佔一行：iOS 的原生日期控制項有最小寬度，兩兩並排會互相擠壓 */}
+        <div className="grid grid-cols-1 gap-3 sm:contents">
           <Field label="開始日期" type="date" value={form.startDate} onChange={(v) => set("startDate", v)} />
           <Field label="完成日期" type="date" value={form.endDate} onChange={(v) => set("endDate", v)} />
         </div>
@@ -434,7 +435,7 @@ function Field({
         value={value}
         required={required}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded border px-3 py-2 text-sm"
+        className="box-border block w-full min-w-0 max-w-full rounded border px-3 py-2 text-sm"
       />
     </div>
   );
