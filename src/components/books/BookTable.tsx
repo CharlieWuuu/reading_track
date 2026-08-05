@@ -55,7 +55,8 @@ function useFitCardCount(ref: RefObject<HTMLElement | null>, reserved = 96): num
   return count;
 }
 
-function Cover({ url, title }: { url: string; title: string }) {
+/** width：表格列不需要看清楚封面，小一點可以讓書名多拿一些寬度 */
+function Cover({ url, title, width = "w-10" }: { url: string; title: string; width?: string }) {
   if (url) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
@@ -63,12 +64,14 @@ function Cover({ url, title }: { url: string; title: string }) {
         src={url}
         alt=""
         loading="lazy"
-        className="aspect-2/3 w-10 rounded-sm object-cover shadow-sm"
+        className={`aspect-2/3 rounded-sm object-cover shadow-sm ${width}`}
       />
     );
   }
   return (
-    <div className="flex aspect-2/3 w-10 items-center justify-center rounded-sm bg-gray-100 text-[11px] leading-tight text-gray-400">
+    <div
+      className={`flex aspect-2/3 items-center justify-center rounded-sm bg-gray-100 text-[10px] leading-tight text-gray-400 ${width}`}
+    >
       {title.slice(0, 2) || "—"}
     </div>
   );
@@ -222,11 +225,13 @@ function DetailCard({
   href,
   number,
   onOpen,
+  tone,
 }: {
   book: Book;
   href: string;
   number?: number;
   onOpen: (href: string) => void;
+  tone: string;
 }) {
   return (
     // 卡片本身不是 <a>：來源網址要能獨立點開，連結不能巢狀在連結裡
@@ -237,7 +242,7 @@ function DetailCard({
       onKeyDown={(e) => {
         if (e.key === "Enter") onOpen(href);
       }}
-      className="grid cursor-pointer grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 rounded-lg border bg-white p-2.5 hover:bg-gray-50 md:gap-x-4 md:gap-y-3 md:p-4"
+      className={`grid cursor-pointer grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 p-2.5 md:gap-x-4 md:gap-y-3 md:p-4 ${tone}`}
     >
       <div className="row-start-1 md:row-span-2">
         <DetailCover url={book.coverUrl} title={book.title} />
@@ -310,6 +315,20 @@ function DetailCard({
 }
 
 /**
+ * 年度交錯底色：今年是白底，去年是灰底，前年又回到白底……
+ *
+ * 灰色沿用日曆「非本月」那格的底色，整個 app 只有一組「次要底色」。
+ * 還沒讀完的書沒有年份可分，一律當成今年。
+ */
+function yearTone(endDate: string | null, thisYear: number): string {
+  const year = endDate ? Number(endDate.slice(0, 4)) : thisYear;
+  const distance = Number.isNaN(year) ? 0 : Math.abs(thisYear - year);
+  return distance % 2 === 1
+    ? "bg-gray-100 hover:bg-gray-200"
+    : "bg-white hover:bg-gray-50";
+}
+
+/**
  * 只有「已讀完」的書有編號：編號代表「讀完的第幾本」，想讀與閱讀中還沒讀完，
  * 給了號碼反而看不出順序。清單本來就已排序，這裡照順序由大到小配號。
  */
@@ -325,6 +344,7 @@ export function BookTable() {
   const { sheetId } = useSheetStore();
   const { books, isLoading, error } = useBooks();
   const numbers = useMemo(() => completionNumbers(books), [books]);
+  const thisYear = new Date().getFullYear();
   const { searchParams, setParams } = useUrlParams();
   const { view: savedView } = useBookViewStore();
   // 檢視方式與頁碼都以網址為準，重新整理或分享連結才回得到同一個畫面
@@ -420,14 +440,16 @@ export function BookTable() {
     return (
       <div ref={containerRef}>
         {/* 詳細檢視：一本一張橫式卡片，欄位全開，所以一頁只放得下兩三本 */}
-        <ul className="space-y-2">
+        {/* 間距放在每一列內部，不用 gap——有縫的話年度底色就連不起來 */}
+        <ul className="overflow-hidden rounded-lg border bg-white">
           {pageBooks.map((b, i) => (
-            <li key={b.id || `detail-${i}`} data-fit-row>
+            <li key={b.id || `detail-${i}`} data-fit-row className="border-t first:border-t-0">
               <DetailCard
                 book={b}
                 href={editHref(b.id)}
                 number={numbers.get(b.id)}
                 onOpen={router.push}
+                tone={yearTone(b.endDate, thisYear)}
               />
             </li>
           ))}
@@ -442,9 +464,13 @@ export function BookTable() {
       <div ref={containerRef}>
         {/* 書封牆：一次看到很多本、也看得清楚封面，只留書名與完讀日期 */}
         <div className="rounded-lg border bg-white p-3">
-          <ul className="grid grid-cols-[repeat(auto-fill,minmax(4rem,1fr))] gap-2 md:grid-cols-[repeat(auto-fill,minmax(5rem,1fr))] md:gap-2.5">
+          <ul className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] md:grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))]">
             {pageBooks.map((b, i) => (
-              <li key={b.id || `cover-${i}`} data-fit-row>
+              <li
+                key={b.id || `cover-${i}`}
+                data-fit-row
+                className={`p-1.5 ${yearTone(b.endDate, thisYear)}`}
+              >
                 {/* 書封、書名、日期三層都靠 gap 分開，卡片高度固定不隨書名長短跳動 */}
                 <Link href={editHref(b.id)} className="group flex flex-col gap-1">
                   <LargeCover url={b.coverUrl} title={b.title} />
@@ -456,8 +482,8 @@ export function BookTable() {
               </li>
             ))}
           </ul>
-          {pager}
         </div>
+        {pager}
       </div>
     );
   }
@@ -469,7 +495,10 @@ export function BookTable() {
         <ul className="divide-y">
           {pageBooks.map((b, i) => (
             <li key={b.id || `card-${i}`} data-fit-row>
-              <Link href={editHref(b.id)} className="flex gap-3 p-3 hover:bg-gray-50">
+              <Link
+                href={editHref(b.id)}
+                className={`flex gap-3 p-3 ${yearTone(b.endDate, thisYear)}`}
+              >
                 <Cover url={b.coverUrl} title={b.title} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">
@@ -493,7 +522,6 @@ export function BookTable() {
             </li>
           ))}
         </ul>
-        {pager}
       </div>
 
       <div className="hidden w-full overflow-hidden rounded-lg border bg-white md:block">
@@ -501,17 +529,17 @@ export function BookTable() {
         <thead className="bg-gray-100 text-left">
           {/* 欄寬用百分比，次要欄位隨螢幕變窄逐一收起，才不會撐出橫向捲軸 */}
           <tr>
-            <th className="w-[9%] whitespace-nowrap px-3 py-2">封面</th>
-            {/* 少了操作欄，多出來的寬度給書名 */}
-            <th className="w-[40%] whitespace-nowrap px-3 py-2">書名</th>
-            <th className="w-[16%] whitespace-nowrap px-3 py-2">作者</th>
-            <th className="w-[11%] whitespace-nowrap px-3 py-2">狀態</th>
-            <th className="hidden w-[11%] whitespace-nowrap px-3 py-2 xl:table-cell">平台</th>
-            <th className="hidden w-[11%] whitespace-nowrap px-3 py-2 2xl:table-cell">開始日期</th>
-            <th className="hidden w-[11%] whitespace-nowrap px-3 py-2 lg:table-cell">完成日期</th>
-            <th className="hidden w-[11%] whitespace-nowrap px-3 py-2 xl:table-cell">領域</th>
-            <th className="hidden w-[9%] whitespace-nowrap px-3 py-2 2xl:table-cell">屬性</th>
-            <th className="hidden w-[9%] whitespace-nowrap px-3 py-2 2xl:table-cell">語言</th>
+            <th className="w-[6%] whitespace-nowrap px-3 py-2">封面</th>
+            {/* 書名字級縮小後空間變多，日期與分類可以提早出現 */}
+            <th className="w-[26%] whitespace-nowrap px-3 py-2">書名</th>
+            <th className="w-[13%] whitespace-nowrap px-3 py-2">作者</th>
+            <th className="w-[9%] whitespace-nowrap px-3 py-2">狀態</th>
+            <th className="hidden w-[10%] whitespace-nowrap px-3 py-2 lg:table-cell">平台</th>
+            <th className="hidden w-[10%] whitespace-nowrap px-3 py-2 xl:table-cell">開始日期</th>
+            <th className="hidden w-[10%] whitespace-nowrap px-3 py-2 lg:table-cell">完成日期</th>
+            <th className="hidden w-[10%] whitespace-nowrap px-3 py-2 lg:table-cell">領域</th>
+            <th className="hidden w-[10%] whitespace-nowrap px-3 py-2 xl:table-cell">屬性</th>
+            <th className="hidden w-[6%] whitespace-nowrap px-3 py-2 2xl:table-cell">語言</th>
           </tr>
         </thead>
         <tbody>
@@ -521,10 +549,10 @@ export function BookTable() {
               key={b.id || `row-${i}`}
               data-fit-row
               onClick={() => router.push(editHref(b.id))}
-              className="cursor-pointer border-t hover:bg-gray-50"
+              className={`cursor-pointer border-t ${yearTone(b.endDate, thisYear)}`}
             >
               <td className="px-3 py-2">
-                <Cover url={b.coverUrl} title={b.title} />
+                <Cover url={b.coverUrl} title={b.title} width="w-7" />
               </td>
               <td className="max-w-0 overflow-hidden px-3 py-2 align-middle">
                 {/* 編號與書名是同一塊，一起垂直置中；沒有編號時那一行就不存在 */}
@@ -534,7 +562,8 @@ export function BookTable() {
                       #{numbers.get(b.id)}
                     </span>
                   )}
-                  <span className="overflow-hidden text-ellipsis whitespace-nowrap text-base font-medium">
+                  {/* 書名至少要跟其他欄位一樣大（表格是 text-sm），再小就變成次要資訊了 */}
+                  <span className="overflow-hidden text-ellipsis whitespace-nowrap text-sm font-medium">
                     {b.title}
                   </span>
                 </div>
@@ -545,19 +574,19 @@ export function BookTable() {
               <td className="whitespace-nowrap px-3 py-2">
                 <StatusBadge status={b.status} />
               </td>
-              <td className="hidden px-3 py-2 xl:table-cell">
+              <td className="hidden px-3 py-2 lg:table-cell">
                 <OptionList values={[b.platform]} />
               </td>
-              <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 2xl:table-cell">
+              <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 xl:table-cell">
                 <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.startDate ?? "—"}</span>
               </td>
               <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 lg:table-cell">
                 <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.endDate ?? "—"}</span>
               </td>
-              <td className="hidden px-3 py-2 xl:table-cell">
+              <td className="hidden px-3 py-2 lg:table-cell">
                 <OptionList values={[b.domain]} />
               </td>
-              <td className="hidden px-3 py-2 2xl:table-cell">
+              <td className="hidden px-3 py-2 xl:table-cell">
                 <OptionList values={[b.type]} size="sm" />
               </td>
               <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 2xl:table-cell">
@@ -567,8 +596,10 @@ export function BookTable() {
           ))}
         </tbody>
       </table>
-        {pager}
       </div>
+
+      {/* 翻頁列放在框外，跟詳細檢視一致 */}
+      {pager}
     </div>
   );
 }
