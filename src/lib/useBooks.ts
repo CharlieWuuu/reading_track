@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import useSWR from "swr";
 import { useSheetStore } from "@/store/useSheetStore";
+import { readCached } from "@/lib/swrCache";
 import { Book, ReadingStatus } from "@/types/book";
 
 async function fetcher(url: string): Promise<{ books: Book[] }> {
@@ -34,7 +35,10 @@ export function useBooks() {
   const { sheetId } = useSheetStore();
   const key = sheetId ? `/api/books?sheetId=${encodeURIComponent(sheetId)}` : null;
 
-  const { data, error, isLoading, isValidating, mutate } = useSWR(key, fetcher);
+  // 先用上次存下來的資料把畫面畫出來，再於背景重新抓
+  const { data, error, isLoading, isValidating, mutate } = useSWR(key, fetcher, {
+    fallbackData: readCached<{ books: Book[] }>(key),
+  });
 
   const books = useMemo(() => sortBooks(data?.books ?? []), [data?.books]);
 

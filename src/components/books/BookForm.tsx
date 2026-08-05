@@ -39,7 +39,7 @@ const SECTIONS = [
   { key: "source", label: "來源" },
   { key: "progress", label: "進度" },
   { key: "category", label: "分類" },
-  { key: "note", label: "筆記／佳句" },
+  { key: "note", label: "筆記" },
 ] as const;
 
 type SectionKey = (typeof SECTIONS)[number]["key"];

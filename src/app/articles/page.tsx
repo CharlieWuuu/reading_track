@@ -7,6 +7,7 @@ import { TagList } from "@/components/ui/TagBadge";
 import { useFitPageSize, useFitRowsByMeasure } from "@/lib/useFitPageSize";
 import { usePagingMode } from "@/lib/usePagingMode";
 import { useInstapaperStore } from "@/store/useInstapaperStore";
+import { useMounted } from "@/lib/useMounted";
 import { useArticles } from "@/lib/useArticles";
 import { InstapaperBookmark } from "@/lib/instapaper/client";
 import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
@@ -32,6 +33,7 @@ const ROW_HEIGHT = { mobile: 66, desktop: 60 };
 
 function ArticlesList() {
   const { token } = useInstapaperStore();
+  const mounted = useMounted();
   const { articles, isLoading, error } = useArticles();
   const [page, setPage] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -49,11 +51,13 @@ function ArticlesList() {
     currentPage * pageSize + pageSize
   );
 
+  if (!mounted) return null;
+
   if (!token) {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 md:gap-5">
         <PageHeader title="文章紀錄" />
-        <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
+        <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           請先到「設定」頁面連接 Instapaper
         </div>
       </div>
@@ -64,7 +68,7 @@ function ArticlesList() {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 md:gap-5">
         <PageHeader title="文章紀錄" />
-        <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
+        <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           載入中…
         </div>
       </div>
@@ -75,7 +79,7 @@ function ArticlesList() {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 md:gap-5">
         <PageHeader title="文章紀錄" />
-        <div className="rounded-lg border bg-white p-8 text-center text-sm text-red-600">
+        <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-red-600">
           {error}
         </div>
       </div>
@@ -86,7 +90,7 @@ function ArticlesList() {
     return (
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 md:gap-5">
         <PageHeader title="文章紀錄" />
-        <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
+        <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
           尚無文章
         </div>
       </div>

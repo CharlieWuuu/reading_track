@@ -16,8 +16,8 @@ export function KpiCards({
     { label: "今年完成", value: String(thisYear), unit: "本" },
     // 固定一位小數，1 本和 1.4 本差很多，整數會看不出來
     { label: "平均每月", value: avgPerMonth.toFixed(1), unit: "本" },
-    { label: "寫了心得", value: String(withNote), unit: "本" },
-    { label: "記下佳句", value: String(withQuotes), unit: "本" },
+    { label: "心得", value: String(withNote), unit: "本" },
+    { label: "佳句", value: String(withQuotes), unit: "本" },
   ];
 
   return (

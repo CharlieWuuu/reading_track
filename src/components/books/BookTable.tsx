@@ -7,6 +7,7 @@ import { PagerButton } from "@/components/ui/PagerButton";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
 import { usePagingMode } from "@/lib/usePagingMode";
+import { useMounted } from "@/lib/useMounted";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
 import { useFitPageSize, useFitRowsByMeasure, viewportBottom } from "@/lib/useFitPageSize";
@@ -403,6 +404,7 @@ function completionNumbers(books: Book[]): Map<string, number> {
 export function BookTable() {
   const router = useRouter();
   const { sheetId } = useSheetStore();
+  const mounted = useMounted();
   const { books, isLoading, error } = useBooks();
   const numbers = useMemo(() => completionNumbers(books), [books]);
   const thisYear = new Date().getFullYear();
@@ -444,9 +446,12 @@ export function BookTable() {
   const currentPage = Math.min(page, pageCount - 1);
   const pageBooks = books.slice(currentPage * pageSize, currentPage * pageSize + pageSize);
 
+  // 還沒掛載完就什麼都別說，免得閃一下「請先連接」
+  if (!mounted) return null;
+
   if (!sheetId) {
     return (
-      <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
+      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
         請先到「設定」頁面連接 Google Sheet
       </div>
     );
@@ -454,7 +459,7 @@ export function BookTable() {
 
   if (isLoading) {
     return (
-      <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
+      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
         載入中…
       </div>
     );
@@ -462,7 +467,7 @@ export function BookTable() {
 
   if (error) {
     return (
-      <div className="rounded-lg border bg-white p-8 text-center text-sm text-red-600">
+      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-red-600">
         {error}
       </div>
     );
@@ -470,7 +475,7 @@ export function BookTable() {
 
   if (books.length === 0) {
     return (
-      <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
+      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
         尚未新增任何書籍
       </div>
     );
@@ -593,8 +598,9 @@ export function BookTable() {
       <div className="hidden w-full overflow-hidden rounded-lg border bg-white md:block">
       <table className="w-full table-fixed text-sm">
         <thead className="bg-gray-100 text-left">
-          {/* 欄寬用百分比，次要欄位隨螢幕變窄逐一收起，才不會撐出橫向捲軸 */}
-          <tr>
+          {/* 欄寬用百分比，次要欄位隨螢幕變窄逐一收起，才不會撐出橫向捲軸。
+              表頭也要留狀態色條的 3px，否則整個 tbody 會比表頭右移 3px */}
+          <tr className="border-l-[3px] border-l-transparent">
             <th className="w-[6%] whitespace-nowrap px-3 py-2">封面</th>
             {/* 書名字級縮小後空間變多，日期與分類可以提早出現 */}
             <th className="w-[26%] whitespace-nowrap px-3 py-2">書名</th>

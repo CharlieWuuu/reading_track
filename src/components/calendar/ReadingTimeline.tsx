@@ -7,190 +7,198 @@ import { tagColorClass, tagOrder } from "@/lib/tagColors";
 import { useCategories } from "@/lib/useCategories";
 import { Book, splitTags } from "@/types/book";
 
-/** 一次顯示幾個月。六個月大約是「最近在讀什麼」看得清楚、又看得出跨度的長度 */
-const MONTHS_IN_VIEW = 6;
+const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+/** 只留年月日：帶著時分秒去比較，跨日的天數會多算一天 */
 function parseDate(value: string | null): Date | null {
   if (!value) return null;
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date;
+  if (Number.isNaN(date.getTime())) return null;
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-function monthStart(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), 1);
+function addDays(date: Date, days: number): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
 }
 
-function addMonths(date: Date, months: number): Date {
-  return new Date(date.getFullYear(), date.getMonth() + months, 1);
+function daysBetween(from: Date, to: Date): number {
+  return Math.round((to.getTime() - from.getTime()) / DAY_MS);
 }
 
-interface Bar {
+/** 一本書在某一週裡佔到的格子 */
+interface Segment {
   book: Book;
-  /** 0–100，相對於目前視窗的左緣與寬度 */
-  left: number;
-  width: number;
-  /** 還在讀：右端不封口，畫成往右淡出 */
-  ongoing: boolean;
+  /** 這一週的第幾格開始（0–6）、佔幾格 */
+  start: number;
+  span: number;
+  /** 跨到上／下一週：那一端不封口，看得出來還沒結束 */
+  opensLeft: boolean;
+  opensRight: boolean;
 }
 
 /**
- * 閱讀期間時間軸。
+ * 閱讀期間：月曆的格線，加上橫跨多天的長條。
  *
- * 月曆只看得到「哪一天讀完」，看不出一本書讀了多久、也看不出同時在讀幾本。
- * 這裡把開始日期真正用起來——順帶讓沒填開始日期的書顯得突兀，
- * 那一區就是提醒自己去補的清單。
+ * 跟月曆看的是不同的事——月曆是「哪一天讀完」，這裡是「那幾天在讀什麼」。
+ * 用同一組格線但把書畫成跨天的長條，像行事曆上的多日行程，
+ * 一眼看得出一本書讀了多久、哪幾天同時在讀好幾本。
  */
-export function ReadingTimeline({ books }: { books: Book[] }) {
+export function ReadingTimeline({
+  books,
+  action,
+}: {
+  books: Book[];
+  action?: React.ReactNode;
+}) {
   const { categories } = useCategories();
   const order = tagOrder(categories);
 
   const today = new Date();
-  // offset 以月為單位，0 代表視窗結束於本月
-  const [offset, setOffset] = useState(0);
+  const [year, setYear] = useState(today.getFullYear());
+  const [month, setMonth] = useState(today.getMonth());
 
-  const windowEnd = addMonths(monthStart(today), offset + 1);
-  const windowStart = addMonths(windowEnd, -MONTHS_IN_VIEW);
-  const span = windowEnd.getTime() - windowStart.getTime();
+  // 這個月的格線：從當月一號所在那一週的週日開始，補滿整數週
+  const first = new Date(year, month, 1);
+  const gridStart = addDays(first, -first.getDay());
+  const last = new Date(year, month + 1, 0);
+  const weekCount = Math.ceil((daysBetween(gridStart, last) + 1) / 7);
 
-  const months = Array.from({ length: MONTHS_IN_VIEW }, (_, i) => addMonths(windowStart, i));
+  const weeks: Segment[][][] = [];
+  for (let w = 0; w < weekCount; w++) {
+    const weekStart = addDays(gridStart, w * 7);
+    const weekEnd = addDays(weekStart, 6);
 
-  const { bars, missingStart } = buildBars();
-
-  function buildBars() {
-    const bars: Bar[] = [];
-    const missingStart: Book[] = [];
-
+    const segments: Segment[] = [];
     for (const book of books) {
       const start = parseDate(book.startDate);
-      const end = parseDate(book.endDate);
+      if (!start) continue; // 沒有開始日期就畫不出期間
 
-      // 有讀完卻沒有開始日期的書，畫不出期間——列在下面提醒補資料
-      if (!start) {
-        if (end) missingStart.push(book);
-        continue;
-      }
+      // 還在讀的畫到今天為止
+      const end = parseDate(book.endDate) ?? today;
+      if (end < weekStart || start > weekEnd) continue;
 
-      const ongoing = !end;
-      const from = start.getTime();
-      // 還在讀的畫到今天為止；今天之前就讀完的畫到完成日
-      const to = (end ?? today).getTime() + DAY_MS;
+      const from = start < weekStart ? weekStart : start;
+      const to = end > weekEnd ? weekEnd : end;
 
-      // 完全落在視窗外就不畫
-      if (to <= windowStart.getTime() || from >= windowEnd.getTime()) continue;
-
-      const clampedFrom = Math.max(from, windowStart.getTime());
-      const clampedTo = Math.min(to, windowEnd.getTime());
-
-      bars.push({
+      segments.push({
         book,
-        left: ((clampedFrom - windowStart.getTime()) / span) * 100,
-        // 一天的書也要看得到，給一個最小寬度
-        width: Math.max(((clampedTo - clampedFrom) / span) * 100, 0.8),
-        ongoing,
+        start: daysBetween(weekStart, from),
+        span: daysBetween(from, to) + 1,
+        opensLeft: start < weekStart,
+        opensRight: end > weekEnd,
       });
     }
 
-    // 開始得早的排上面，同一天則長的在上面
-    bars.sort(
-      (a, b) =>
-        (parseDate(a.book.startDate)?.getTime() ?? 0) -
-          (parseDate(b.book.startDate)?.getTime() ?? 0) || b.width - a.width
-    );
-
-    return { bars, missingStart };
+    // 長的排上面；再把同一週裡不重疊的塞進同一列，列數才不會等於書本數
+    segments.sort((a, b) => b.span - a.span || a.start - b.start);
+    const lanes: Segment[][] = [];
+    for (const segment of segments) {
+      const lane = lanes.find((row) =>
+        row.every(
+          (s) => segment.start >= s.start + s.span || segment.start + segment.span <= s.start
+        )
+      );
+      if (lane) lane.push(segment);
+      else lanes.push([segment]);
+    }
+    weeks.push(lanes);
   }
 
-  const label = `${windowStart.getFullYear()} 年 ${windowStart.getMonth() + 1} 月 – ${
-    addMonths(windowEnd, -1).getFullYear()
-  } 年 ${addMonths(windowEnd, -1).getMonth() + 1} 月`;
+  function goMonth(delta: number) {
+    const next = new Date(year, month + delta, 1);
+    setYear(next.getFullYear());
+    setMonth(next.getMonth());
+  }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <div className="flex shrink-0 items-center justify-center gap-3">
-        <PagerButton direction="prev" onClick={() => setOffset((o) => o - 1)} label="往前一個月" />
-        <span className="whitespace-nowrap text-sm font-medium">{label}</span>
-        <PagerButton
-          direction="next"
-          onClick={() => setOffset((o) => o + 1)}
-          disabled={offset >= 0}
-          label="往後一個月"
-        />
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border bg-white">
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2 sm:px-4 sm:py-3">
+        <div className="flex items-center gap-2">
+          <PagerButton direction="prev" onClick={() => goMonth(-1)} label="上個月" />
+          <span className="w-22 whitespace-nowrap text-center text-sm font-medium">
+            {year} 年 {month + 1} 月
+          </span>
+          <PagerButton direction="next" onClick={() => goMonth(1)} label="下個月" />
+        </div>
+        {action}
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border bg-white">
-        {/* 月份刻度 */}
-        <div className="flex shrink-0 border-b bg-gray-50 text-[11px] text-gray-500">
-          {months.map((month) => (
-            <div
-              key={month.toISOString()}
-              className="flex-1 border-l px-2 py-1 first:border-l-0"
-            >
-              {month.getMonth() + 1} 月
-            </div>
-          ))}
-        </div>
+      <div className="grid shrink-0 grid-cols-7 border-b text-center text-xs text-gray-500">
+        {WEEKDAYS.map((w) => (
+          <div key={w} className="py-1.5">
+            {w}
+          </div>
+        ))}
+      </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          {bars.length === 0 ? (
-            <p className="p-8 text-center text-sm text-gray-500">
-              這段期間沒有紀錄。填了「開始日期」的書才畫得出閱讀期間。
-            </p>
-          ) : (
-            <ul className="divide-y">
-              {bars.map(({ book, left, width, ongoing }) => (
-                <li key={book.id} className="relative">
-                  <Link href={`/books/${book.id}/edit`} className="block px-2 py-1.5 hover:bg-gray-50">
-                    {/* 底層是月份格線，橫條疊在上面 */}
-                    <div className="relative h-6">
-                      <div className="absolute inset-0 flex">
-                        {months.map((month) => (
-                          <div key={month.toISOString()} className="flex-1 border-l first:border-l-0" />
-                        ))}
-                      </div>
-
-                      <div
-                        className={`absolute top-1 flex h-4 items-center overflow-hidden rounded px-1.5 text-[11px] whitespace-nowrap ${
-                          ongoing ? "rounded-r-none" : ""
-                        } ${tagColorClass(splitTags(book.domain)[0] ?? book.title, order)}`}
-                        style={{
-                          left: `${left}%`,
-                          width: `${width}%`,
-                          // 還在讀的右端淡出，表示「還沒結束」
-                          maskImage: ongoing
-                            ? "linear-gradient(to right, black 70%, transparent)"
-                            : undefined,
-                        }}
-                        title={`${book.title}｜${book.startDate ?? "?"} ～ ${book.endDate ?? "閱讀中"}`}
+      <div className="flex min-h-0 flex-1 flex-col divide-y">
+        {weeks.map((lanes, weekIndex) => {
+          const weekStart = addDays(gridStart, weekIndex * 7);
+          return (
+            <div key={weekIndex} className="flex min-h-0 flex-1 flex-col">
+              {/* 日期數字 */}
+              <div className="grid shrink-0 grid-cols-7">
+                {Array.from({ length: 7 }, (_, i) => {
+                  const date = addDays(weekStart, i);
+                  const inMonth = date.getMonth() === month;
+                  const isToday = date.toDateString() === today.toDateString();
+                  return (
+                    <div
+                      key={i}
+                      className={`border-l px-1 py-1 text-xs first:border-l-0 ${
+                        inMonth ? "text-gray-700" : "text-gray-300"
+                      }`}
+                    >
+                      <span
+                        className={
+                          isToday
+                            ? "inline-flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-white"
+                            : "inline-flex h-5 w-5 items-center justify-center"
+                        }
                       >
-                        {book.title}
-                      </div>
+                        {date.getDate()}
+                      </span>
                     </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
+                  );
+                })}
+              </div>
 
-          {missingStart.length > 0 && (
-            <div className="flex flex-col gap-1 border-t bg-amber-50/50 p-3">
-              <p className="text-xs font-medium text-amber-900">
-                {missingStart.length} 本讀完的書沒有開始日期，畫不出閱讀期間
-              </p>
-              <ul className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-amber-800">
-                {missingStart.slice(0, 8).map((book) => (
-                  <li key={book.id}>
-                    <Link href={`/books/${book.id}/edit`} className="hover:underline">
-                      {book.title}
-                    </Link>
-                  </li>
+              {/* 期間長條：一列一組互不重疊的書，跨幾天就有多寬 */}
+              <div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-hidden px-0.5 pb-1">
+                {lanes.map((lane, laneIndex) => (
+                  <div key={laneIndex} className="relative h-5 shrink-0">
+                    {lane.map((segment) => (
+                      <Link
+                        key={segment.book.id}
+                        href={`/books/${segment.book.id}/edit`}
+                        title={`${segment.book.title}｜${segment.book.startDate} ～ ${
+                          segment.book.endDate ?? "閱讀中"
+                        }`}
+                        style={{
+                          left: `${(segment.start / 7) * 100}%`,
+                          width: `${(segment.span / 7) * 100}%`,
+                        }}
+                        className={`absolute flex h-5 items-center overflow-hidden px-1.5 text-[11px] whitespace-nowrap hover:brightness-95 ${
+                          segment.opensLeft ? "" : "rounded-l"
+                        } ${segment.opensRight ? "" : "rounded-r"} ${tagColorClass(
+                          splitTags(segment.book.domain)[0] ?? segment.book.title,
+                          order
+                        )}`}
+                      >
+                        {/* 跨週的後半段不重複寫書名，免得整頁都是同一個書名 */}
+                        {!segment.opensLeft && (
+                          <span className="truncate">{segment.book.title}</span>
+                        )}
+                      </Link>
+                    ))}
+                  </div>
                 ))}
-                {missingStart.length > 8 && <li>還有 {missingStart.length - 8} 本…</li>}
-              </ul>
+              </div>
             </div>
-          )}
-        </div>
+          );
+        })}
       </div>
     </div>
   );

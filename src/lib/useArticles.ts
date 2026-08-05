@@ -1,6 +1,7 @@
 import useSWR from "swr";
 import { useInstapaperStore } from "@/store/useInstapaperStore";
 import { InstapaperBookmark } from "@/lib/instapaper/client";
+import { readCached } from "@/lib/swrCache";
 
 export function useArticles() {
   const { token, tokenSecret } = useInstapaperStore();
@@ -16,7 +17,7 @@ export function useArticles() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error ?? "讀取失敗");
     return data as { bookmarks: InstapaperBookmark[] };
-  });
+  }, { fallbackData: readCached<{ bookmarks: InstapaperBookmark[] }>(key) });
 
   return {
     articles: data?.bookmarks ?? [],

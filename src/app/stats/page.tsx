@@ -6,6 +6,7 @@ import { SectionPager, Section } from "@/components/stats/SectionPager";
 import { useIsMobile } from "@/lib/useIsMobile";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useSheetStore } from "@/store/useSheetStore";
+import { useMounted } from "@/lib/useMounted";
 import { useBooks } from "@/lib/useBooks";
 import { useInstapaperStore } from "@/store/useInstapaperStore";
 import { useArticles } from "@/lib/useArticles";
@@ -70,12 +71,15 @@ function Panel({ title, children }: { title?: string; children: React.ReactNode 
 
 function BooksStats() {
   const { sheetId } = useSheetStore();
+  const mounted = useMounted();
   const { books, isLoading, error } = useBooks();
   const isMobile = useIsMobile();
 
+  if (!mounted) return null;
+
   if (!sheetId) {
     return (
-      <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
+      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
         請先到「設定」頁面連接 Google Sheet
       </div>
     );
@@ -83,7 +87,7 @@ function BooksStats() {
 
   if (isLoading) {
     return (
-      <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
+      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
         載入中…
       </div>
     );
@@ -91,7 +95,7 @@ function BooksStats() {
 
   if (error) {
     return (
-      <div className="rounded-lg border bg-white p-8 text-center text-sm text-red-600">
+      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-red-600">
         {error}
       </div>
     );
@@ -99,7 +103,7 @@ function BooksStats() {
 
   if (books.length === 0) {
     return (
-      <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
+      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
         尚未新增任何書籍
       </div>
     );
@@ -226,12 +230,15 @@ function BooksStats() {
 
 function ArticlesStats() {
   const { token } = useInstapaperStore();
+  const mounted = useMounted();
   const { articles, isLoading, error } = useArticles();
   const isMobile = useIsMobile();
 
+  if (!mounted) return null;
+
   if (!token) {
     return (
-      <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
+      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
         請先到「設定」頁面連接 Instapaper
       </div>
     );
@@ -239,7 +246,7 @@ function ArticlesStats() {
 
   if (isLoading) {
     return (
-      <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
+      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
         載入中…
       </div>
     );
@@ -247,7 +254,7 @@ function ArticlesStats() {
 
   if (error) {
     return (
-      <div className="rounded-lg border bg-white p-8 text-center text-sm text-red-600">
+      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-red-600">
         {error}
       </div>
     );
@@ -255,7 +262,7 @@ function ArticlesStats() {
 
   if (articles.length === 0) {
     return (
-      <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
+      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
         尚無文章
       </div>
     );

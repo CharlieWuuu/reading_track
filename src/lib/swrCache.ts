@@ -71,6 +71,28 @@ export function localStorageProvider(): Cache {
   return map;
 }
 
+/**
+ * 直接從 localStorage 取某個 key 的舊資料。
+ *
+ * SWR 的 provider 也會讀同一份快取，但它是在 SWRConfig 掛載時才建立，
+ * 而 sheetId 是等 zustand 還原之後才出現的——兩者的時序不保證對得上，
+ * 中間那一瞬間畫面就會閃「載入中」。這個函式讓 hook 可以自己拿舊資料當
+ * fallback，不必去賭那個時序。
+ */
+export function readCached<T>(key: string | null): T | undefined {
+  if (!key || typeof window === "undefined") return undefined;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return undefined;
+    const parsed = JSON.parse(raw) as Persisted;
+    if (Date.now() - parsed.savedAt >= MAX_AGE_MS) return undefined;
+    const hit = parsed.entries.find(([k]) => k === key);
+    return hit ? (hit[1].data as T) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function clearSWRCache() {
   try {
     localStorage.removeItem(STORAGE_KEY);

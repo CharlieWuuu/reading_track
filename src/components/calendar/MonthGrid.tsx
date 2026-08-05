@@ -84,15 +84,16 @@ function DayDetail({ day }: { day?: CalendarDay }) {
 export function MonthGrid({
   books,
   articles,
+  action,
 }: {
   books: Book[];
   articles: InstapaperBookmark[];
+  /** 檢視切換：放在換月那一列的右邊，不另外佔一條 */
+  action?: React.ReactNode;
 }) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
-  const [showBooks, setShowBooks] = useState(true);
-  const [showArticles, setShowArticles] = useState(true);
   // 手機版點選的日期（存 timestamp 才好比對），明細列在格子下方
   const [selectedTime, setSelectedTime] = useState(() => today.getTime());
   const selected = new Date(selectedTime);
@@ -104,10 +105,10 @@ export function MonthGrid({
       buildMonthGrid(
         year,
         month,
-        showBooks ? books : [],
-        showArticles ? articles : [],
+        books,
+        articles,
       ),
-    [year, month, books, articles, showBooks, showArticles],
+    [year, month, books, articles],
   );
 
   const selectedDay = days.find(
@@ -146,7 +147,7 @@ export function MonthGrid({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border bg-white">
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b px-2 py-2 sm:px-4 sm:py-3">
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2 sm:px-4 sm:py-3">
         <div className="flex items-center gap-2">
           <PagerButton direction="prev" onClick={goPrev} label="上個月" />
           <span className="w-22 whitespace-nowrap text-center text-sm font-medium">
@@ -154,28 +155,7 @@ export function MonthGrid({
           </span>
           <PagerButton direction="next" onClick={goNext} label="下個月" />
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowBooks((v) => !v)}
-            className={`rounded border px-2 py-1 text-xs font-medium ${
-              showBooks
-                ? "border-gray-900 bg-gray-900 text-white"
-                : "border-gray-300 text-gray-400 hover:bg-gray-100"
-            }`}
-          >
-            書籍
-          </button>
-          <button
-            onClick={() => setShowArticles((v) => !v)}
-            className={`rounded border px-2 py-1 text-xs font-medium ${
-              showArticles
-                ? "border-gray-900 bg-gray-900 text-white"
-                : "border-gray-300 text-gray-400 hover:bg-gray-100"
-            }`}
-          >
-            文章
-          </button>
-        </div>
+        {action}
       </div>
 
       <div className="grid shrink-0 grid-cols-7 border-b text-center text-xs text-gray-500">
