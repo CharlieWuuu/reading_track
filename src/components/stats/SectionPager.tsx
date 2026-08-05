@@ -15,6 +15,11 @@ export type Section = {
    * 排行那種高度隨內容的清單要設 false，不然捲動模式會被硬撐成一個固定高度。
    */
   needsHeight?: boolean;
+  /**
+   * 捲動模式下要多高。趨勢圖只要看得出形狀就夠，給滿版高度會讓手機捲很久；
+   * 圓餅圖的標籤要位置，維持預設。
+   */
+  scrollHeight?: string;
 };
 
 /**
@@ -37,7 +42,9 @@ export function SectionPager({ sections }: { sections: Section[] }) {
           <div
             key={section.key}
             className={`flex flex-col gap-3.5 ${
-              section.needsHeight === false ? "" : "h-[26rem] sm:h-[32rem]"
+              section.needsHeight === false
+                ? ""
+                : section.scrollHeight ?? "h-[26rem] sm:h-[32rem]"
             }`}
           >
             <h3 className="shrink-0 text-sm font-medium text-gray-500">{section.label}</h3>

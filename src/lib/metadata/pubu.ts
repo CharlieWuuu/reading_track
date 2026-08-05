@@ -40,8 +40,56 @@ function bookJsonLd($: CheerioAPI): BookJsonLd | undefined {
 }
 
 /**
- * Pubu 沒有頁數也沒有字數，但作者／出版社／書封齊全，而且不像讀墨會擋機房 IP，
- * 是線上環境的中文書來源之一。
+ * 商品規格表：一列是「col-4 標籤 ＋ col-8 值」。
+ *
+ * 一頁上不只一本書——同一本的其他版本（紙本、套書）也會列出自己的規格，
+ * 而且欄位還不一樣（電子書給「字數」，另一版給「Pages」）。照文件順序切成
+ * 一塊一塊、用「ID」當分界，網址那本的那一塊排最前面，其餘的排在後面備用：
+ * 同一本書的不同版本，長度本來就是同一個量級，缺頁數時拿紙本的來補是合理的。
+ */
+function specsForBook($: CheerioAPI, bookId: string): Map<string, string>[] {
+  const blocks: Array<Map<string, string>> = [];
+  let current = new Map<string, string>();
+
+  $("div.row").each((_, el) => {
+    const row = $(el);
+    const label = row.children("div.col-4").first().text().trim();
+    const value = row.children('div[class^="col-8"]').first().text().trim();
+    if (!label || !value) return;
+
+    current.set(label, value);
+    if (label === "ID") {
+      blocks.push(current);
+      current = new Map();
+    }
+  });
+  if (current.size > 0) blocks.push(current);
+
+  const mine = blocks.filter((block) => block.get("ID")?.startsWith(bookId));
+  const others = blocks.filter((block) => !mine.includes(block));
+  return [...mine, ...others];
+}
+
+/** 先問這本書自己的規格，缺了才往其他版本找 */
+function pick(blocks: Map<string, string>[], labels: string[]): string {
+  for (const block of blocks) {
+    for (const label of labels) {
+      const value = digits(block.get(label));
+      if (value) return value;
+    }
+  }
+  return "";
+}
+
+/** 「83,068」→「83068」；千分位留著會讓後面的數字處理全部要重寫 */
+function digits(value: string | undefined): string {
+  const match = value?.match(/[\d,]+/);
+  return match ? match[0].replace(/,/g, "") : "";
+}
+
+/**
+ * Pubu 電子書城。作者／出版社／書封來自 JSON-LD，字數與頁數在商品規格表裡。
+ * 不像讀墨會擋機房 IP，是線上環境唯一抓得到中文電子書字數的來源。
  */
 export const pubuProvider: MetadataProvider = {
   name: "Pubu",
@@ -75,8 +123,12 @@ export const pubuProvider: MetadataProvider = {
     const title = data.name?.trim();
     if (!title) return null;
 
+    const specs = specsForBook($, url.match(/\/(?:ebook|album)\/(\d+)/)?.[1] ?? "");
+
     return {
       title,
+      wordCount: pick(specs, ["字數", "Word count"]),
+      pageCount: pick(specs, ["頁數", "Pages"]),
       author: data.author?.trim() ?? "",
       publisher: data.publisher?.trim() ?? "",
       language: data.inLanguage

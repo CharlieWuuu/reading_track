@@ -12,6 +12,7 @@ import { useInstapaperStore } from "@/store/useInstapaperStore";
 import { useArticles } from "@/lib/useArticles";
 import { KpiCards } from "@/components/stats/KpiCards";
 import { YearlyTrendChart } from "@/components/stats/YearlyTrendChart";
+import { CumulativeChart } from "@/components/stats/CumulativeChart";
 import { MonthlyTrendChart } from "@/components/stats/MonthlyTrendChart";
 import { DistributionPie } from "@/components/stats/DistributionPie";
 import { RankingBar } from "@/components/stats/RankingBar";
@@ -20,7 +21,6 @@ import {
   getDomainDistribution,
   getKpis,
   getLanguageDistribution,
-  getMonthlyTrend,
   getPlatformDistribution,
   getQuarterlyTrend,
   getTypeDistribution,
@@ -111,7 +111,6 @@ function BooksStats() {
 
   const kpis = getKpis(books);
   const quarterly = getQuarterlyTrend(books);
-  const monthly = getMonthlyTrend(books);
 
   const reread = { key: "reread", label: "重讀最多 Top 5", data: getRereadRanking(books), unit: "次" };
   const rankings = [
@@ -128,32 +127,67 @@ function BooksStats() {
   ];
 
   const sections: Section[] = [
-    {
-      key: "overview",
-      label: "概覽",
-      node: (
-        <div className="flex min-h-0 flex-1 flex-col gap-3">
-          <KpiCards {...kpis} />
-          <Panel title="歷年完成本數">
-            <YearlyTrendChart quarterlyData={quarterly} height="100%" />
-          </Panel>
-        </div>
-      ),
-    },
-    {
-      key: "monthly",
-      label: "月趨勢",
-      node: (
-        <Panel title="近 24 個月完成趨勢">
-          <MonthlyTrendChart data={monthly} height="100%" />
-        </Panel>
-      ),
-    },
+    // 手機把數字與歷年圖表拆成兩頁：擠在同一頁的話，五張數字卡先吃掉高度，
+    // 剩給圖表的不到 100px，長條會被壓成一條線
+    ...(isMobile
+      ? [
+          {
+            key: "overview",
+            label: "概覽",
+            needsHeight: false,
+            node: <KpiCards {...kpis} />,
+          },
+          {
+            key: "yearly",
+            label: "每季完成本數",
+            scrollHeight: "h-70 sm:h-[32rem]",
+            node: (
+              <Panel title="每季完成本數">
+                <YearlyTrendChart quarterlyData={quarterly} height="100%" />
+              </Panel>
+            ),
+          },
+          {
+            key: "cumulative",
+            label: "累積完成本數",
+            scrollHeight: "h-70 sm:h-[32rem]",
+            node: (
+              <Panel title="累積完成本數">
+                <CumulativeChart quarterlyData={quarterly} height="100%" />
+              </Panel>
+            ),
+          },
+        ]
+      : [
+          {
+            key: "overview",
+            label: "概覽",
+            node: (
+              <div className="flex min-h-0 flex-1 flex-col gap-3">
+                <KpiCards {...kpis} />
+                <Panel title="每季完成本數">
+                  <YearlyTrendChart quarterlyData={quarterly} height="100%" />
+                </Panel>
+              </div>
+            ),
+          },
+          {
+            key: "cumulative",
+            label: "累積完成本數",
+            node: (
+              <Panel title="累積完成本數">
+                <CumulativeChart quarterlyData={quarterly} height="100%" />
+              </Panel>
+            ),
+          },
+        ]),
     // 手機一頁放一個圓餅圖才看得清楚，桌機四張一次排完
     ...(isMobile
       ? pies.map((pie) => ({
           key: pie.key,
           label: pie.label,
+          // 圓餅本來就是圓的，容器做成正方形剛好貼合，不會上下留白
+          scrollHeight: "aspect-square",
           node: (
             <Panel>
               <DistributionPie title={pie.label} data={pie.data} height="100%" />
@@ -278,18 +312,45 @@ function ArticlesStats() {
   ];
 
   const sections: Section[] = [
-    {
-      key: "overview",
-      label: "概覽",
-      node: (
-        <div className="flex min-h-0 flex-1 flex-col gap-3">
-          <ArticleKpiCards {...kpis} />
-          <Panel title="近 24 個月完成趨勢">
-            <MonthlyTrendChart data={monthly} unit="篇" seriesLabel="完成篇數" height="100%" />
-          </Panel>
-        </div>
-      ),
-    },
+    // 手機把數字與趨勢圖拆成兩頁，理由同書籍：擠在一起圖表會被壓扁
+    ...(isMobile
+      ? [
+          {
+            key: "overview",
+            label: "概覽",
+            needsHeight: false,
+            node: <ArticleKpiCards {...kpis} />,
+          },
+          {
+            key: "monthly",
+            label: "每月完成篇數",
+            scrollHeight: "h-70 sm:h-[32rem]",
+            node: (
+              <Panel title="每月完成篇數">
+                <MonthlyTrendChart data={monthly} unit="篇" seriesLabel="完成篇數" height="100%" />
+              </Panel>
+            ),
+          },
+        ]
+      : [
+          {
+            key: "overview",
+            label: "概覽",
+            node: (
+              <div className="flex min-h-0 flex-1 flex-col gap-3">
+                <ArticleKpiCards {...kpis} />
+                <Panel title="每月完成篇數">
+                  <MonthlyTrendChart
+                    data={monthly}
+                    unit="篇"
+                    seriesLabel="完成篇數"
+                    height="100%"
+                  />
+                </Panel>
+              </div>
+            ),
+          },
+        ]),
     {
       key: "source",
       label: "來源網站",
@@ -309,6 +370,8 @@ function ArticlesStats() {
       ? pies.map((pie) => ({
           key: pie.key,
           label: pie.label,
+          // 圓餅本來就是圓的，容器做成正方形剛好貼合，不會上下留白
+          scrollHeight: "aspect-square",
           node: (
             <Panel>
               <DistributionPie title={pie.label} data={pie.data} unit="篇" height="100%" />

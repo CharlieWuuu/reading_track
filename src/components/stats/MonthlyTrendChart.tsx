@@ -1,22 +1,29 @@
 "use client";
 
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { RangedBarChart, RangeOption } from "@/components/stats/RangedBarChart";
 import { MonthCount } from "@/lib/bookStats";
-import { VIZ_TOKENS } from "@/lib/chartPalette";
 
-function formatMonth(month: string) {
-  const [, m] = month.split("-");
-  return `${Number(m)}月`;
+/** 資料一個月一根，區間長度用月來數 */
+const RANGES: RangeOption[] = [
+  { key: "all", label: "全部", size: 0 },
+  { key: "2y", label: "兩年", size: 24 },
+  { key: "1y", label: "一年", size: 12 },
+  { key: "6m", label: "六個月", size: 6 },
+];
+
+/** 根數多的時候只標一月（＝年份的起點），範圍小就每根都標月份 */
+function tick(value: string, dense: boolean) {
+  const [year, month] = value.split("-");
+  if (dense) return `${Number(month)}月`;
+  return month === "01" ? year : "";
 }
 
+function tooltipLabel(value: string) {
+  const [year, month] = value.split("-");
+  return `${year} 年 ${Number(month)} 月`;
+}
+
+/** 每月完成數。區間邏輯與每季完成本數一致 */
 export function MonthlyTrendChart({
   data,
   unit = "本",
@@ -29,48 +36,14 @@ export function MonthlyTrendChart({
   height?: number | `${number}%`;
 }) {
   return (
-    <div className="viz-root flex h-full min-h-0 flex-col" data-palette="reading-track">
-      <style>{`.viz-root {${VIZ_TOKENS}}`}</style>
-      <div className="min-h-0 flex-1">
-      <ResponsiveContainer width="100%" height={height}>
-        <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-          <CartesianGrid vertical={false} stroke="var(--grid)" strokeDasharray="3 3" />
-          <XAxis
-            dataKey="month"
-            tickFormatter={formatMonth}
-            tick={{ fill: "var(--muted)", fontSize: 11 }}
-            axisLine={{ stroke: "var(--grid)" }}
-            tickLine={false}
-            interval={1}
-          />
-          <YAxis
-            allowDecimals={false}
-            tick={{ fill: "var(--muted)", fontSize: 12 }}
-            axisLine={false}
-            tickLine={false}
-            width={28}
-          />
-          <Tooltip
-            labelFormatter={(label) => label as string}
-            contentStyle={{
-              background: "var(--surface-1)",
-              border: "1px solid var(--grid)",
-              borderRadius: 6,
-              fontSize: 12,
-            }}
-            formatter={(value) => [`${value ?? 0} ${unit}`, seriesLabel]}
-          />
-          <Line
-            type="monotone"
-            dataKey="count"
-            stroke="var(--series-1)"
-            strokeWidth={2}
-            dot={{ r: 3, fill: "var(--series-1)" }}
-            activeDot={{ r: 5 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-      </div>
-    </div>
+    <RangedBarChart
+      data={data.map((d) => ({ key: d.month, count: d.count }))}
+      ranges={RANGES}
+      tick={tick}
+      tooltipLabel={tooltipLabel}
+      unit={unit}
+      seriesLabel={seriesLabel}
+      height={height}
+    />
   );
 }

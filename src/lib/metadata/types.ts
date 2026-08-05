@@ -48,15 +48,10 @@ export function isBlank(value: string | null | undefined) {
 /**
  * 還沒補齊、而且「有機會補到」的欄位。
  *
- * 頁數與字數視為同一件事：電子書通路只給字數、圖書館書目只給頁數，
- * 沒有任何來源兩者都給。若把兩欄都當成必填，已經有字數的中文電子書
- * 會永遠停在「還缺頁數」，每次補齊都被重查一遍，把時間預算吃光，
- * 真正缺資料的書反而輪不到。
+ * 頁數與字數各算各的：兩個一起有最好用（一個看厚度、一個看實際份量），
+ * 而且 Pubu 的商品頁兩者都給得出來。代價是有些書（例如只查得到頁數的英文書）
+ * 每次補齊都會為了那個永遠補不到的字數再跑一輪來源。
  */
 export function missingFields(book: Book): EnrichableField[] {
-  const hasLength = !isBlank(book.pageCount) || !isBlank(book.wordCount);
-  return ENRICHABLE_FIELDS.filter((field) => {
-    if (field === "pageCount" || field === "wordCount") return !hasLength;
-    return isBlank(book[field]);
-  });
+  return ENRICHABLE_FIELDS.filter((field) => isBlank(book[field]));
 }

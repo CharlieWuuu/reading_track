@@ -95,11 +95,7 @@ export async function fetchBookMetadata(
   const unavailable: string[] = [];
   let matched = false;
 
-  // 頁數與字數只要有一個就算補到了，理由見 missingFields
-  const satisfied = (field: EnrichableField) =>
-    field === "pageCount" || field === "wordCount"
-      ? !isBlank(merged.pageCount) || !isBlank(merged.wordCount)
-      : !isBlank(merged[field]);
+  const satisfied = (field: EnrichableField) => !isBlank(merged[field]);
 
   for (const provider of PROVIDERS) {
     if (wanted.every(satisfied)) break;

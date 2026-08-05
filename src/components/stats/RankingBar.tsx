@@ -59,12 +59,9 @@ export function RankingBar({
                     className="h-full"
                     style={{
                       width: `${((item.doneValue ?? item.value) / max) * 100}%`,
-                      // 有分完成／未完成時，深淺代表的是「完成與否」，
-                      // 不能再用名次的深淺，否則兩種意義混在同一個顏色上
-                      background:
-                        item.doneValue === undefined
-                          ? SEQUENTIAL[i % SEQUENTIAL.length]
-                          : SEQUENTIAL[1],
+                      // 排行的長條全部同色（名次的深淺會被讀成假的差距），
+                      // 深淺在這裡只代表一件事：完成與未完成
+                      background: SEQUENTIAL[i % SEQUENTIAL.length],
                     }}
                   />
                   {item.doneValue !== undefined && (
@@ -72,7 +69,7 @@ export function RankingBar({
                       className="h-full"
                       style={{
                         width: `${((item.value - item.doneValue) / max) * 100}%`,
-                        background: "#cfe3e9",
+                        background: "#DCE6F1",
                       }}
                     />
                   )}
