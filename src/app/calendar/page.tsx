@@ -25,41 +25,6 @@ function CalendarViews() {
   const { searchParams, setParams } = useUrlParams();
   const view = searchParams.get("view") === "timeline" ? "timeline" : "month";
 
-  if (!mounted) return null;
-
-  if (!sheetId) {
-    return (
-      <div className="mx-auto max-w-5xl">
-        <PageHeader title="月曆" />
-        <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-          請先到「設定」頁面連接 Google Sheet
-        </div>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="mx-auto max-w-5xl">
-        <PageHeader title="月曆" />
-        <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-          載入中…
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="mx-auto max-w-5xl">
-        <PageHeader title="月曆" />
-        <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-red-600">
-          {error}
-        </div>
-      </div>
-    );
-  }
-
   // 檢視切換交給各自的頂列去畫，不另外佔頁首的位置
   const viewToggle = (
     <div className="inline-flex rounded border border-gray-300 p-0.5">
@@ -80,10 +45,30 @@ function CalendarViews() {
     </div>
   );
 
+  // 還沒有資料可畫時要顯示的訊息（isLoading 已經扣掉「有舊快取墊著」的情況）
+  const message = !mounted
+    ? ""
+    : error
+      ? error
+      : !sheetId
+        ? "請先到「設定」頁面連接 Google Sheet"
+        : isLoading
+          ? "載入中…"
+          : "";
+
   return (
     <div className="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col gap-3 md:gap-5">
       <PageHeader title="月曆" />
-      {view === "timeline" ? (
+      {/* 訊息框跟月曆佔一樣的空間，切換的時候版面不會跳動 */}
+      {message || !mounted ? (
+        <div
+          className={`flex min-h-0 flex-1 items-center justify-center rounded-lg border bg-white p-8 text-center text-sm ${
+            error ? "text-red-600" : "text-gray-500"
+          }`}
+        >
+          {message}
+        </div>
+      ) : view === "timeline" ? (
         <ReadingTimeline books={books} action={viewToggle} />
       ) : (
         <MonthGrid books={books} articles={articles} action={viewToggle} />

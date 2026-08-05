@@ -19,9 +19,12 @@ export function useArticles() {
     return data as { bookmarks: InstapaperBookmark[] };
   }, { fallbackData: readCached<{ bookmarks: InstapaperBookmark[] }>(key) });
 
+  const articles = data?.bookmarks ?? [];
+
   return {
-    articles: data?.bookmarks ?? [],
-    isLoading,
+    articles,
+    // 已經有舊資料墊著就不算「載入中」，理由同 useBooks
+    isLoading: isLoading && articles.length === 0,
     isValidating,
     error: error instanceof Error ? error.message : undefined,
     mutate,

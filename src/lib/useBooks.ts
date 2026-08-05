@@ -44,7 +44,8 @@ export function useBooks() {
 
   return {
     books,
-    isLoading,
+    // 已經有舊資料墊著就不算「載入中」——背景重抓不該把畫面換成載入中再換回來
+    isLoading: isLoading && books.length === 0,
     isValidating,
     error: error instanceof Error ? error.message : undefined,
     mutate,

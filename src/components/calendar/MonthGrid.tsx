@@ -141,6 +141,9 @@ export function MonthGrid({
     goToMonth(month === 0 ? year - 1 : year, month === 0 ? 11 : month - 1);
   }
 
+  /** 未來的月份沒有紀錄可看，翻過去只是一片空白 */
+  const atCurrentMonth = year === today.getFullYear() && month === today.getMonth();
+
   function goNext() {
     goToMonth(month === 11 ? year + 1 : year, month === 11 ? 0 : month + 1);
   }
@@ -153,7 +156,7 @@ export function MonthGrid({
           <span className="w-22 whitespace-nowrap text-center text-sm font-medium">
             {year} 年 {month + 1} 月
           </span>
-          <PagerButton direction="next" onClick={goNext} label="下個月" />
+          <PagerButton direction="next" onClick={goNext} disabled={atCurrentMonth} label="下個月" />
         </div>
         {action}
       </div>
