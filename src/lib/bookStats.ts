@@ -39,14 +39,15 @@ export function getKpis(books: Book[]) {
 
   // 有寫筆記的書、記下來的佳句數：鼓勵留下心得，不只看讀了幾本
   const withNote = books.filter((b) => b.note.trim()).length;
-  const quoteCount = books.reduce((sum, b) => sum + parseQuotes(b.quotes).length, 0);
+  // 以「本」為單位：同一本記了很多句也算一本，跟「寫了心得」同一個口徑
+  const withQuotes = books.filter((b) => parseQuotes(b.quotes).length > 0).length;
 
   return {
     total: done.length,
     thisYear: thisYearCount,
     avgPerMonth: Math.round(avgPerMonth * 10) / 10,
     withNote,
-    quoteCount,
+    withQuotes,
   };
 }
 

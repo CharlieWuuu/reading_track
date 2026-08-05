@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useSheetStore } from "@/store/useSheetStore";
@@ -417,13 +418,23 @@ export function BookForm({
       {submitError && <p className="shrink-0 text-xs text-red-600">{submitError}</p>}
 
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
-        >
-          {submitting ? "儲存中…" : isEdit ? "儲存變更" : "新增書籍"}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="submit"
+            disabled={submitting}
+            className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+          >
+            {submitting ? "儲存中…" : isEdit ? "儲存變更" : "新增書籍"}
+          </button>
+
+          {/* 誤點進編輯頁時的退路：不存檔就回書單，省下一次寫入 */}
+          <Link
+            href={backHref}
+            className="rounded border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+          >
+            返回
+          </Link>
+        </div>
 
         {/* 刪除只出現在編輯頁，按一次先要求確認，避免誤刪 */}
         {isEdit &&

@@ -77,6 +77,14 @@ export interface Book {
   quotes: string;
 }
 
+/** 字數／頁數顯示成千分位；資料裡本來就可能夾著逗號，先清掉再格式化 */
+export function formatCount(value: string | undefined | null): string {
+  if (!value) return "";
+  const digits = value.replace(/[,，\s]/g, "");
+  if (!/^\d+$/.test(digits)) return value;
+  return Number(digits).toLocaleString("zh-Hant");
+}
+
 export interface Quote {
   text: string;
   /** 沒寫章節就是空字串。電子書多半沒有頁碼，所以記章節而不是頁數 */

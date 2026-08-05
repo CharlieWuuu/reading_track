@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Book } from "@/types/book";
+import { Book, formatCount } from "@/types/book";
 
 export interface LookupResult {
   /** 查到的欄位，直接拿去帶入編輯表單 */
@@ -170,7 +170,7 @@ function FoundCard({ prefill }: { prefill: Partial<Book> }) {
         <p className="text-sm font-medium wrap-break-word">{prefill.title}</p>
         {prefill.author && <p className="text-gray-600">作者：{prefill.author}</p>}
         {prefill.publisher && <p className="text-gray-600">出版社：{prefill.publisher}</p>}
-        {prefill.pageCount && <p className="text-gray-600">頁數：{prefill.pageCount}</p>}
+        {prefill.pageCount && <p className="text-gray-600">頁數：{formatCount(prefill.pageCount)}</p>}
         <p className="pt-0.5 text-green-700">查到資料了，確認沒錯就可以繼續。</p>
       </div>
     </div>

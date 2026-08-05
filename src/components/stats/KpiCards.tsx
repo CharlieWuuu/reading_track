@@ -3,13 +3,13 @@ export function KpiCards({
   thisYear,
   avgPerMonth,
   withNote,
-  quoteCount,
+  withQuotes,
 }: {
   total: number;
   thisYear: number;
   avgPerMonth: number;
   withNote: number;
-  quoteCount: number;
+  withQuotes: number;
 }) {
   const items = [
     { label: "累計完成", value: String(total), unit: "本" },
@@ -17,7 +17,7 @@ export function KpiCards({
     // 固定一位小數，1 本和 1.4 本差很多，整數會看不出來
     { label: "平均每月", value: avgPerMonth.toFixed(1), unit: "本" },
     { label: "寫了心得", value: String(withNote), unit: "本" },
-    { label: "記下佳句", value: String(quoteCount), unit: "句" },
+    { label: "記下佳句", value: String(withQuotes), unit: "本" },
   ];
 
   return (

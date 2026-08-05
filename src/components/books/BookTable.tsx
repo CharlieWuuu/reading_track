@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { TagList as OptionList } from "@/components/ui/TagBadge";
 import { NotesDialog } from "./NotesDialog";
-import { Book, ReadingStatus, parseQuotes } from "@/types/book";
+import { Book, ReadingStatus, formatCount, parseQuotes } from "@/types/book";
 
 /** 單筆高度：手機是卡片，桌機是含書封的表格列 */
 const ROW_HEIGHT = { mobile: 86, desktop: 68 };
@@ -217,8 +217,10 @@ function PreviewButton({
         e.stopPropagation();
         onOpen();
       }}
-      className={`flex min-w-0 items-center gap-1.5 rounded bg-gray-50 px-2 py-1 text-left ${
-        text ? "cursor-pointer hover:bg-gray-100" : "cursor-default"
+      /* 白底＋細框：卡片列本身的底色會在白、灰、hover 之間變，
+         用灰底的話 hover 時就跟背景撞在一起看不見了 */
+      className={`flex min-w-0 items-center gap-1.5 rounded bg-white px-2 py-1 text-left ring-1 ring-gray-200 ${
+        text ? "cursor-pointer hover:ring-gray-400" : "cursor-default"
       }`}
     >
       <Icon size={13} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
@@ -289,7 +291,7 @@ function DetailCard({
 
       {/* 書名與作者當成標題區，省下兩個欄位格 */}
       {/* 桌機：標題區壓低一點，右欄的總高才貼得住封面 */}
-      <div className="col-start-2 flex min-w-0 flex-col gap-0.5 self-center md:self-start">
+      <div className="col-start-2 flex min-w-0 flex-col gap-1 self-center md:self-start">
         <div className="flex flex-wrap items-center gap-2">
           <span className="min-w-0 truncate text-sm font-semibold md:text-base">
             {book.title}
@@ -319,8 +321,8 @@ function DetailCard({
         <DetailField Icon={Languages} label="語言">{book.language}</DetailField>
         <DetailField Icon={CalendarPlus} label="開始日期">{book.startDate}</DetailField>
         <DetailField Icon={CalendarCheck} label="完成日期">{book.endDate}</DetailField>
-        <DetailField Icon={FileText} label="頁數">{book.pageCount}</DetailField>
-        <DetailField Icon={Type} label="字數">{book.wordCount}</DetailField>
+        <DetailField Icon={FileText} label="頁數">{formatCount(book.pageCount)}</DetailField>
+        <DetailField Icon={Type} label="字數">{formatCount(book.wordCount)}</DetailField>
         {/* 領域與屬性不放標題，彩色標籤自己說話 */}
         <div className="col-span-2 flex min-w-0 flex-wrap items-center gap-1.5 sm:col-span-1 lg:col-span-2">
           <OptionList values={[book.domain]} />

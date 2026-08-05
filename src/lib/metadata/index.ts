@@ -20,22 +20,21 @@ export { ENRICHABLE_FIELDS, missingFields } from "./types";
 export type { BookMetadata, EnrichableField } from "./types";
 
 /**
- * 全部都是免費、免申請的來源，依「命中率高的排前面」排列：
- * 讀冊與讀墨是靜態網頁爬蟲（中文書的作者／出版社／字數／頁數）、
- * Google Books 涵蓋日英中三種語言、國會圖書館補日文書的書目與書封、
- * Open Library 收西文書。中文書的「頁數」多半只有實體書通路才有，以字數為主。
+ * 全部都是免費、免申請的來源。順序＝「補得到頁數／字數」優先——
+ * 一輪查到 wanted 都補齊就會停，所以先問給得出長度的來源，
+ * 才不會被只回書名作者的來源把其他欄位填滿、長度卻永遠缺著。
  *
- * 讀冊放在讀墨前面：讀墨在機房 IP 會被 CloudFront 擋成 403，
- * 線上環境只有讀冊與 Pubu 抓得到中文書（讀墨仍留著，本機開發時它的字數最完整）。
- * searchBooks 是所有來源同時發查詢，fetchBookMetadata 則照這個順序補到齊為止。
+ * 讀冊排在讀墨前面是環境限制：讀墨在機房 IP 會被 CloudFront 擋成 403，
+ * 線上只有讀冊與 Pubu 抓得到中文書（讀墨仍留著，本機開發時它的字數最完整）。
+ * searchBooks 是所有來源同時發查詢，fetchBookMetadata 才照這個順序補到齊為止。
  */
 const PROVIDERS: MetadataProvider[] = [
-  taazeProvider,
-  readmooProvider,
-  pubuProvider,
-  ndlProvider,
-  googleBooksProvider,
-  openLibraryProvider,
+  taazeProvider, // 中文書頁數
+  pubuProvider, // 電子書字數
+  readmooProvider, // 電子書字數（線上會被擋，本機才抓得到）
+  ndlProvider, // 日文書頁數
+  googleBooksProvider, // 頁數（英文書為主）
+  openLibraryProvider, // 頁數
 ];
 
 /** 低於這個相似度就當作搜到別本書，寧可留白也不要寫錯資料 */

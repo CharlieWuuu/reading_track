@@ -11,7 +11,12 @@ const FALLBACK_ROWS = 10;
  */
 export function viewportBottom(el: HTMLElement): number {
   const main = el.closest("main");
-  return main ? main.getBoundingClientRect().bottom : window.innerHeight;
+  if (!main) return window.innerHeight;
+
+  // 扣掉 <main> 自己的下內距——它在 border box 裡面，
+  // 不扣的話每次都會多算一段高度，於是固定多塞一列、剛好溢出畫面
+  const padding = parseFloat(getComputedStyle(main).paddingBottom) || 0;
+  return main.getBoundingClientRect().bottom - padding;
 }
 
 /**
