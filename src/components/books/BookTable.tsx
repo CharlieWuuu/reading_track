@@ -98,9 +98,9 @@ function LargeCover({ url, title }: { url: string; title: string }) {
 }
 
 const STATUS_STYLES: Record<ReadingStatus, string> = {
-  想讀: "bg-gray-100 text-gray-600",
-  閱讀中: "bg-blue-50 text-blue-800",
-  已讀完: "bg-green-50 text-green-800",
+  想讀: "bg-stone-100 text-stone-600",
+  閱讀中: "bg-cyan-50 text-cyan-800",
+  已讀完: "bg-emerald-50 text-emerald-800",
 };
 
 function StatusBadge({ status }: { status: ReadingStatus }) {
@@ -315,17 +315,39 @@ function DetailCard({
 }
 
 /**
- * 年度交錯底色：今年是白底，去年是灰底，前年又回到白底……
- *
- * 灰色沿用日曆「非本月」那格的底色，整個 app 只有一組「次要底色」。
- * 還沒讀完的書沒有年份可分，一律當成今年。
+ * 每一列的底色：依完成年份交錯，今年白底、去年灰底、前年又回到白底……
+ * 灰色沿用日曆「非本月」那格的底色，整個 app 只有一組次要底色。
  */
-function yearTone(endDate: string | null, thisYear: number): string {
+function rowTone(endDate: string | null, thisYear: number): string {
   const year = endDate ? Number(endDate.slice(0, 4)) : thisYear;
   const distance = Number.isNaN(year) ? 0 : Math.abs(thisYear - year);
   return distance % 2 === 1
     ? "bg-gray-100 hover:bg-gray-200"
     : "bg-white hover:bg-gray-50";
+}
+
+/** 書封牆用的狀態標記：壓在封面左上角的小圓點，白邊讓它在任何封面上都看得見 */
+function StatusDot({ status }: { status: ReadingStatus }) {
+  if (status === "已讀完") return null;
+  const color = status === "想讀" ? "bg-amber-500" : "bg-cyan-600";
+  return (
+    <span
+      title={status}
+      className={`absolute left-1 top-1 h-2.5 w-2.5 rounded-full ring-2 ring-white ${color}`}
+    />
+  );
+}
+
+/**
+ * 還沒讀完的書在最左邊加一條色帶。
+ *
+ * 鋪滿整列的底色太髒，而且會跟年度交錯打架；細色條面積小、不干擾內容，
+ * 但垂直掃一眼就看得到「未讀區」的邊界到哪裡。
+ */
+function statusAccent(status: ReadingStatus): string {
+  if (status === "想讀") return "border-l-[3px] border-l-amber-500";
+  if (status === "閱讀中") return "border-l-[3px] border-l-cyan-600";
+  return "border-l-[3px] border-l-transparent";
 }
 
 /**
@@ -449,7 +471,7 @@ export function BookTable() {
                 href={editHref(b.id)}
                 number={numbers.get(b.id)}
                 onOpen={router.push}
-                tone={yearTone(b.endDate, thisYear)}
+                tone={`${rowTone(b.endDate, thisYear)} ${statusAccent(b.status)}`}
               />
             </li>
           ))}
@@ -469,11 +491,15 @@ export function BookTable() {
               <li
                 key={b.id || `cover-${i}`}
                 data-fit-row
-                className={`p-1.5 ${yearTone(b.endDate, thisYear)}`}
+                className={`p-1.5 ${rowTone(b.endDate, thisYear)}`}
               >
                 {/* 書封、書名、日期三層都靠 gap 分開，卡片高度固定不隨書名長短跳動 */}
                 <Link href={editHref(b.id)} className="group flex flex-col gap-1">
-                  <LargeCover url={b.coverUrl} title={b.title} />
+                  {/* 書封牆是一整面圖，左側色條會把版面切得很碎，改成封面角落的小圓點 */}
+                  <div className="relative">
+                    <LargeCover url={b.coverUrl} title={b.title} />
+                    <StatusDot status={b.status} />
+                  </div>
                   <p className="truncate text-xs font-medium leading-snug">{b.title}</p>
                   <p className="truncate text-[10px] text-gray-400">
                     {b.endDate ? `${b.endDate} 讀完` : b.status}
@@ -497,7 +523,7 @@ export function BookTable() {
             <li key={b.id || `card-${i}`} data-fit-row>
               <Link
                 href={editHref(b.id)}
-                className={`flex gap-3 p-3 ${yearTone(b.endDate, thisYear)}`}
+                className={`flex gap-3 p-3 ${rowTone(b.endDate, thisYear)} ${statusAccent(b.status)}`}
               >
                 <Cover url={b.coverUrl} title={b.title} />
                 <div className="min-w-0 flex-1">
@@ -549,7 +575,7 @@ export function BookTable() {
               key={b.id || `row-${i}`}
               data-fit-row
               onClick={() => router.push(editHref(b.id))}
-              className={`cursor-pointer border-t ${yearTone(b.endDate, thisYear)}`}
+              className={`cursor-pointer border-t ${rowTone(b.endDate, thisYear)} ${statusAccent(b.status)}`}
             >
               <td className="px-3 py-2">
                 <Cover url={b.coverUrl} title={b.title} width="w-7" />

@@ -15,12 +15,13 @@ const SAMPLE = [
   { title: "廚房", author: "吉本芭娜娜", tags: ["文學", "小說"], done: null },
 ];
 
+/** 與 lib/tagColors 同一組色相順序 */
 const TAG_STYLES: Record<string, string> = {
-  歷史: "bg-amber-50 text-amber-800 border-amber-200",
-  小說: "bg-sky-50 text-sky-800 border-sky-200",
-  效率: "bg-teal-50 text-teal-800 border-teal-200",
-  論述: "bg-violet-50 text-violet-800 border-violet-200",
-  文學: "bg-rose-50 text-rose-800 border-rose-200",
+  歷史: "bg-amber-50 text-amber-800",
+  小說: "bg-blue-50 text-blue-800",
+  效率: "bg-cyan-50 text-cyan-800",
+  論述: "bg-violet-50 text-violet-800",
+  文學: "bg-rose-50 text-rose-800",
 };
 
 const FEATURES = [
@@ -101,7 +102,7 @@ export default function Home() {
                   {book.tags.map((tag) => (
                     <span
                       key={tag}
-                      className={`inline-flex h-5 items-center rounded-full border px-2 text-[11px] font-medium ${TAG_STYLES[tag]}`}
+                      className={`inline-flex h-5 items-center rounded px-1.5 text-[11px] font-medium ${TAG_STYLES[tag]}`}
                     >
                       {tag}
                     </span>

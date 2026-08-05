@@ -10,27 +10,30 @@ import { BookCategories } from "@/types/book";
  * 只有底色與文字色、沒有外框——跟閱讀狀態的徽章同一種風格，
  * 一排標籤放在一起才不會像一堆按鈕。
  *
+ * 色相順序與圖表的 CATEGORICAL 對齊（海藍綠→橘紅→藍→沙金→…），
+ * 所以同一份資料在標籤與圓餅圖上看起來是同一組配色。
+ *
  * 這裡的 class 必須寫成完整字串，Tailwind 是掃原始碼決定要產出哪些樣式的，
  * 用樣板字串拼出來的 class 不會被產生。
  */
 export const TAG_COLORS = [
-  "bg-rose-50 text-rose-800",
-  "bg-orange-50 text-orange-800",
-  "bg-amber-50 text-amber-800",
-  "bg-lime-50 text-lime-800",
-  "bg-green-50 text-green-800",
-  "bg-emerald-50 text-emerald-800",
-  "bg-teal-50 text-teal-800",
   "bg-cyan-50 text-cyan-800",
-  "bg-sky-50 text-sky-800",
+  "bg-orange-50 text-orange-800",
   "bg-blue-50 text-blue-800",
-  "bg-indigo-50 text-indigo-800",
-  "bg-violet-50 text-violet-800",
-  "bg-purple-50 text-purple-800",
+  "bg-amber-50 text-amber-800",
   "bg-fuchsia-50 text-fuchsia-800",
+  "bg-emerald-50 text-emerald-800",
+  "bg-violet-50 text-violet-800",
+  "bg-rose-50 text-rose-800",
+  "bg-teal-50 text-teal-800",
+  "bg-red-50 text-red-800",
+  "bg-sky-50 text-sky-800",
+  "bg-yellow-50 text-yellow-800",
+  "bg-purple-50 text-purple-800",
   "bg-pink-50 text-pink-800",
+  "bg-lime-50 text-lime-800",
   "bg-stone-100 text-stone-700",
-];
+]
 
 /**
  * 選項全部串起來當作配色順序，各類別之間也不會撞色。

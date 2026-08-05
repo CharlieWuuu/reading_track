@@ -1,9 +1,8 @@
 "use client";
 
 import { RankingItem } from "@/lib/bookStats";
+import { SEQUENTIAL } from "@/lib/chartPalette";
 
-/** 同一組深淺，名次越前面越深——排行不需要八種顏色，那只會變成裝飾 */
-const SHADES = ["#184f95", "#2a63aa", "#3d78bf", "#5a90cf", "#82abdc"];
 
 /**
  * 排行用純 CSS 長條，不走 recharts。
@@ -60,7 +59,7 @@ export function RankingBar({
                     className="h-full"
                     style={{
                       width: `${((item.doneValue ?? item.value) / max) * 100}%`,
-                      background: SHADES[i % SHADES.length],
+                      background: SEQUENTIAL[i % SEQUENTIAL.length],
                     }}
                   />
                   {item.doneValue !== undefined && (
@@ -68,7 +67,7 @@ export function RankingBar({
                       className="h-full"
                       style={{
                         width: `${((item.value - item.doneValue) / max) * 100}%`,
-                        background: "#c7d6ea",
+                        background: "#cfe3e9",
                       }}
                     />
                   )}

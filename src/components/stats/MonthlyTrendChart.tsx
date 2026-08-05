@@ -10,6 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import { MonthCount } from "@/lib/bookStats";
+import { VIZ_TOKENS } from "@/lib/chartPalette";
 
 function formatMonth(month: string) {
   const [, m] = month.split("-");
@@ -29,17 +30,7 @@ export function MonthlyTrendChart({
 }) {
   return (
     <div className="viz-root flex h-full min-h-0 flex-col" data-palette="reading-track">
-      <style>{`
-        .viz-root {
-          color-scheme: light;
-          --surface-1: #fcfcfb;
-          --text-primary: #0b0b0b;
-          --text-secondary: #52514e;
-          --muted: #898781;
-          --grid: #e1e0d9;
-          --series-1: #184f95;
-        }
-      `}</style>
+      <style>{`.viz-root {${VIZ_TOKENS}}`}</style>
       <div className="min-h-0 flex-1">
       <ResponsiveContainer width="100%" height={height}>
         <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>

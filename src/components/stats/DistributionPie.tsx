@@ -2,17 +2,8 @@
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { DistributionSlice } from "@/lib/bookStats";
+import { CATEGORICAL, VIZ_TOKENS } from "@/lib/chartPalette";
 
-const CATEGORICAL = [
-  "#184f95",
-  "#eb6834",
-  "#1baf7a",
-  "#eda100",
-  "#e87ba4",
-  "#008300",
-  "#4a3aa7",
-  "#e34948",
-];
 
 /**
  * 佔比太小的區塊不拉線標示——線和字會互相疊在一起，反而什麼都看不清楚。
@@ -112,15 +103,7 @@ export function DistributionPie({
 
   return (
     <div className="viz-root flex h-full min-h-0 flex-col gap-3.5" data-palette="reading-track">
-      <style>{`
-        .viz-root {
-          color-scheme: light;
-          --surface-1: #fcfcfb;
-          --text-primary: #0b0b0b;
-          --text-secondary: #52514e;
-          --grid: #e1e0d9;
-        }
-      `}</style>
+      <style>{`.viz-root {${VIZ_TOKENS}}`}</style>
       <p className="shrink-0 text-sm font-medium" style={{ color: "var(--text-primary)" }}>
         {title}
       </p>

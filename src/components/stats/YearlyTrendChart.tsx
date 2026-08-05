@@ -13,6 +13,7 @@ import {
   YAxis,
 } from "recharts";
 import { QuarterCount } from "@/lib/bookStats";
+import { VIZ_TOKENS } from "@/lib/chartPalette";
 
 /** 每一季只在第一季標出年份，其餘留刻度線就好，不然 X 軸會擠成一團 */
 function quarterTick(value: string) {
@@ -54,17 +55,7 @@ export function YearlyTrendChart({
 
   return (
     <div className="viz-root flex h-full min-h-0 flex-col" data-palette="reading-track">
-      <style>{`
-        .viz-root {
-          color-scheme: light;
-          --surface-1: #fcfcfb;
-          --text-primary: #0b0b0b;
-          --text-secondary: #52514e;
-          --muted: #898781;
-          --grid: #e1e0d9;
-          --series-1: #184f95;
-        }
-      `}</style>
+      <style>{`.viz-root {${VIZ_TOKENS}}`}</style>
 
       <div className="mb-3 flex shrink-0 justify-end gap-1">
         <button
