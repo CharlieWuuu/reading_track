@@ -27,7 +27,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           - 一般的區塊捲動容器會把 padding-bottom 畫在原本的內容框底部，
             內容溢出時捲到底就沒有留白；flex 容器則會把它算進捲動範圍。
           - 頁面根元素用 flex-1（不是 h-full）就拿得到明確高度，
-            日曆、書單那種「剛好一畫面」的版型才排得出來；內容變長時
+            月曆、書單那種「剛好一畫面」的版型才排得出來；內容變長時
             flex 項目會自己長高，多出來的部分照樣可以捲。
         */}
         <main ref={mainRef} className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3 sm:p-4 md:p-6">

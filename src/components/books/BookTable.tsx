@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { RefObject, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { RefObject, useEffect, useMemo, useRef, useState } from "react";
 import { PagerButton } from "@/components/ui/PagerButton";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
@@ -10,9 +10,21 @@ import { usePagingMode } from "@/lib/usePagingMode";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
 import { useFitPageSize, useFitRowsByMeasure, viewportBottom } from "@/lib/useFitPageSize";
-import { ChevronDown } from "lucide-react";
+import {
+  CalendarCheck,
+  CalendarPlus,
+  FileText,
+  Languages,
+  Link as LinkIcon,
+  NotebookPen,
+  Quote,
+  Store,
+  Type,
+  type LucideIcon,
+} from "lucide-react";
 import { TagList as OptionList } from "@/components/ui/TagBadge";
-import { Book, ReadingStatus } from "@/types/book";
+import { NotesDialog } from "./NotesDialog";
+import { Book, ReadingStatus, parseQuotes } from "@/types/book";
 
 /** 單筆高度：手機是卡片，桌機是含書封的表格列 */
 const ROW_HEIGHT = { mobile: 86, desktop: 68 };
@@ -64,7 +76,7 @@ function Cover({ url, title, width = "w-10" }: { url: string; title: string; wid
         src={url}
         alt=""
         loading="lazy"
-        className={`aspect-2/3 rounded-sm object-cover shadow-sm ${width}`}
+        className={`aspect-2/3 rounded-sm object-cover shadow ring-1 ring-black/10 ${width}`}
       />
     );
   }
@@ -86,7 +98,7 @@ function LargeCover({ url, title }: { url: string; title: string }) {
         src={url}
         alt=""
         loading="lazy"
-        className="aspect-2/3 w-full rounded object-cover shadow-sm transition group-hover:shadow-md"
+        className="aspect-2/3 w-full rounded object-cover shadow ring-1 ring-black/10 transition group-hover:shadow-md"
       />
     );
   }
@@ -98,9 +110,9 @@ function LargeCover({ url, title }: { url: string; title: string }) {
 }
 
 const STATUS_STYLES: Record<ReadingStatus, string> = {
-  想讀: "bg-stone-100 text-stone-600",
-  閱讀中: "bg-cyan-50 text-cyan-800",
-  已讀完: "bg-emerald-50 text-emerald-800",
+  想讀: "bg-[#EAE3D8] text-[#5C4A3D]",
+  閱讀中: "bg-[#DCE6F1] text-[#2B5A8E]",
+  已讀完: "bg-[#DFEDE7] text-[#3F7A67]",
 };
 
 function StatusBadge({ status }: { status: ReadingStatus }) {
@@ -114,17 +126,25 @@ function StatusBadge({ status }: { status: ReadingStatus }) {
 }
 
 /**
- * 詳細檢視的一格：欄位名稱小、值大，沒填的一律顯示破折號才對得整齊。
+ * 詳細檢視的一格：圖示代替欄位名稱，省下一整行文字。
  *
- * truncate 只給純文字用——標籤徽章的外框是 ring，畫在邊界外面，
- * 套上 overflow-hidden 會被削掉一圈。
+ * 圖示只用在語意明確的欄位（日期、頁數、平台…），tooltip 補上名稱；
+ * 領域與屬性沒有公認的圖示，那兩格直接不放標題——彩色標籤本身就看得懂。
  */
-function DetailField({ label, children }: { label: string; children: React.ReactNode }) {
+function DetailField({
+  Icon,
+  label,
+  children,
+}: {
+  Icon: LucideIcon;
+  label: string;
+  children: React.ReactNode;
+}) {
   const isText = typeof children === "string" || typeof children === "number";
   return (
-    <div className="flex min-w-0 flex-col gap-0.5 md:gap-1">
-      <p className="text-[11px] leading-4 text-gray-400 md:text-xs">{label}</p>
-      <div className={`text-xs text-gray-700 md:text-sm ${isText ? "truncate" : ""}`}>
+    <div className="flex min-w-0 items-center gap-1.5" title={label}>
+      <Icon size={13} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
+      <div className={`min-w-0 text-xs text-gray-700 md:text-sm ${isText ? "truncate" : ""}`}>
         {children || "—"}
       </div>
     </div>
@@ -132,63 +152,81 @@ function DetailField({ label, children }: { label: string; children: React.React
 }
 
 /**
- * 筆記預設只露一行，太長會把卡片撐得比其他張高很多。
+ * 心得與佳句在卡片上只露一行預覽，點了開彈出視窗看全文。
  *
- * 展開鍵只在文字真的被截掉時才出現——只有一行的筆記給一顆按鈕，
- * 按下去什麼都不會變，反而讓人困惑。是否溢出得渲染後量才知道。
+ * 直接展開會把卡片撐得比其他張高好幾倍，一頁放得下幾張也跟著跳動。
  */
-function Note({ text }: { text: string }) {
-  const [expanded, setExpanded] = useState(false);
-  const [overflowing, setOverflowing] = useState(false);
-  const textRef = useRef<HTMLParagraphElement>(null);
-
-  useLayoutEffect(() => {
-    const el = textRef.current;
-    if (!el) return;
-
-    const measure = () => {
-      // 展開狀態下量不到截斷與否，先維持上一次的結果
-      if (expanded) return;
-      setOverflowing(el.scrollHeight > el.clientHeight + 1);
-    };
-
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [text, expanded]);
+function NotesPreview({ book }: { book: Book }) {
+  const [open, setOpen] = useState<"note" | "quotes" | null>(null);
+  const quotes = parseQuotes(book.quotes);
+  const note = book.note.trim();
 
   return (
-    // 整塊筆記都不觸發卡片的點擊：想展開／想選取文字時不該被帶去編輯頁
-    <div
-      onClick={(e) => e.stopPropagation()}
-      className="flex items-start gap-2 rounded bg-gray-50 px-2 py-1"
-    >
-      <p
-        ref={textRef}
-        /* whitespace-pre-wrap：筆記裡的換行照原樣顯示，不要被折成一整段 */
-        className={`min-w-0 flex-1 whitespace-pre-wrap break-words text-xs text-gray-600 md:text-sm ${
-          expanded ? "" : "line-clamp-1"
-        }`}
-      >
-        {text}
-      </p>
+    <>
+      {/* 兩個各自獨立的按鈕：點心得只看心得、點佳句只看佳句 */}
+      <div className="grid grid-cols-2 gap-2">
+        <PreviewButton
+          Icon={NotebookPen}
+          label="心得"
+          text={note}
+          onOpen={() => setOpen("note")}
+        />
+        <PreviewButton
+          Icon={Quote}
+          label="佳句"
+          text={quotes[0]?.text ?? ""}
+          extra={quotes.length > 1 ? `${quotes.length} 句` : undefined}
+          onOpen={() => setOpen("quotes")}
+        />
+      </div>
 
-      {(overflowing || expanded) && (
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          aria-label={expanded ? "收合筆記" : "展開筆記"}
-          aria-expanded={expanded}
-          className="shrink-0 rounded p-0.5 text-gray-400 hover:bg-gray-200 hover:text-gray-700"
-        >
-          <ChevronDown
-            size={14}
-            className={`transition-transform ${expanded ? "rotate-180" : ""}`}
-          />
-        </button>
+      {open && (
+        <NotesDialog
+          title={book.title}
+          note={book.note}
+          quotes={book.quotes}
+          show={open}
+          onClose={() => setOpen(null)}
+        />
       )}
-    </div>
+    </>
+  );
+}
+
+/** 沒有內容的那一格也保留位置（顯示破折號），各張卡片的欄位才對得整齊 */
+function PreviewButton({
+  Icon,
+  label,
+  text,
+  extra,
+  onOpen,
+}: {
+  Icon: LucideIcon;
+  label: string;
+  text: string;
+  extra?: string;
+  onOpen: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={!text}
+      title={label}
+      onClick={(e) => {
+        // 卡片本身會進編輯頁，這裡只開視窗
+        e.stopPropagation();
+        onOpen();
+      }}
+      className={`flex min-w-0 items-center gap-1.5 rounded bg-gray-50 px-2 py-1 text-left ${
+        text ? "cursor-pointer hover:bg-gray-100" : "cursor-default"
+      }`}
+    >
+      <Icon size={13} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
+      <span className="min-w-0 flex-1 truncate text-xs text-gray-600 md:text-sm">
+        {text || "—"}
+      </span>
+      {extra && <span className="shrink-0 text-[11px] text-gray-400">{extra}</span>}
+    </button>
   );
 }
 
@@ -199,7 +237,7 @@ function Note({ text }: { text: string }) {
 function DetailCover({ url, title }: { url: string; title: string }) {
   // 手機的卡片矮很多，封面也跟著壓低，才不會把欄位擠成細長條
   const shape =
-    "aspect-2/3 h-full max-h-[84px] w-auto shrink-0 rounded object-cover shadow-sm md:max-h-[168px]";
+    "aspect-2/3 h-full max-h-[84px] w-auto shrink-0 rounded object-cover shadow ring-1 ring-black/10 md:max-h-[168px]";
   if (url) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
@@ -244,14 +282,16 @@ function DetailCard({
       }}
       className={`grid cursor-pointer grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 p-2.5 md:gap-x-4 md:gap-y-3 md:p-4 ${tone}`}
     >
-      <div className="row-start-1 md:row-span-2">
+      {/* 桌機：封面跨滿右邊三列（標題／欄位／心得佳句） */}
+      <div className="row-start-1 md:row-span-3">
         <DetailCover url={book.coverUrl} title={book.title} />
       </div>
 
       {/* 書名與作者當成標題區，省下兩個欄位格 */}
+      {/* 桌機：標題區壓低一點，右欄的總高才貼得住封面 */}
       <div className="col-start-2 flex min-w-0 flex-col gap-0.5 self-center md:self-start">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="min-w-0 truncate text-sm font-semibold md:text-lg">
+          <span className="min-w-0 truncate text-sm font-semibold md:text-base">
             {book.title}
           </span>
           {number !== undefined && (
@@ -260,7 +300,7 @@ function DetailCard({
           <StatusBadge status={book.status} />
         </div>
         {/* 作者與出版社併成一行，兩邊都太長時各自截斷 */}
-        <div className="flex min-w-0 items-center gap-1.5 text-xs text-gray-500 md:text-sm">
+        <div className="flex min-w-0 items-center gap-1.5 text-xs text-gray-500">
           <span className="min-w-0 truncate">{book.author || "—"}</span>
           {book.publisher && (
             <>
@@ -273,21 +313,20 @@ function DetailCard({
 
       {/* 手機欄位多會太擠，只留兩欄；桌機接在標題下面、與封面並排 */}
       <div className="col-span-2 grid grid-cols-3 gap-x-3 gap-y-1.5 md:col-span-1 md:col-start-2 md:gap-x-4 md:gap-y-3 lg:grid-cols-5">
-        <DetailField label="平台">
+        <DetailField Icon={Store} label="平台">
           <OptionList values={[book.platform]} />
         </DetailField>
-        <DetailField label="語言">{book.language}</DetailField>
-        <DetailField label="開始日期">{book.startDate}</DetailField>
-        <DetailField label="完成日期">{book.endDate}</DetailField>
-        <DetailField label="頁數">{book.pageCount}</DetailField>
-        <DetailField label="字數">{book.wordCount}</DetailField>
-        <DetailField label="領域">
+        <DetailField Icon={Languages} label="語言">{book.language}</DetailField>
+        <DetailField Icon={CalendarPlus} label="開始日期">{book.startDate}</DetailField>
+        <DetailField Icon={CalendarCheck} label="完成日期">{book.endDate}</DetailField>
+        <DetailField Icon={FileText} label="頁數">{book.pageCount}</DetailField>
+        <DetailField Icon={Type} label="字數">{book.wordCount}</DetailField>
+        {/* 領域與屬性不放標題，彩色標籤自己說話 */}
+        <div className="col-span-2 flex min-w-0 flex-wrap items-center gap-1.5 sm:col-span-1 lg:col-span-2">
           <OptionList values={[book.domain]} />
-        </DetailField>
-        <DetailField label="屬性">
-          <OptionList values={[book.type]} size="sm" />
-        </DetailField>
-        <DetailField label="來源網址">
+          <OptionList values={[book.type]} outline />
+        </div>
+        <DetailField Icon={LinkIcon} label="來源網址">
           {book.sourceUrl ? (
             <a
               href={book.sourceUrl}
@@ -305,11 +344,9 @@ function DetailCard({
         </DetailField>
       </div>
 
-      {book.note && (
-        <div className="col-span-2 md:col-span-1 md:col-start-2">
-          <Note text={book.note} />
-        </div>
-      )}
+      <div className="col-span-2 md:col-span-1 md:col-start-2">
+        <NotesPreview book={book} />
+      </div>
     </div>
   );
 }
@@ -326,15 +363,15 @@ function rowTone(endDate: string | null, thisYear: number): string {
     : "bg-white hover:bg-gray-50";
 }
 
-/** 書封牆用的狀態標記：壓在封面左上角的小圓點，白邊讓它在任何封面上都看得見 */
+/** 書封牆用的狀態標記：壓在封面左上角的小標籤，白邊讓它在任何封面上都看得見 */
 function StatusDot({ status }: { status: ReadingStatus }) {
   if (status === "已讀完") return null;
-  const color = status === "想讀" ? "bg-amber-500" : "bg-cyan-600";
   return (
     <span
-      title={status}
-      className={`absolute left-1 top-1 h-2.5 w-2.5 rounded-full ring-2 ring-white ${color}`}
-    />
+      className={`absolute left-1 top-1 rounded px-1 py-px text-[10px] leading-4 ring-2 ring-white ${STATUS_STYLES[status]}`}
+    >
+      {status}
+    </span>
   );
 }
 
@@ -345,8 +382,8 @@ function StatusDot({ status }: { status: ReadingStatus }) {
  * 但垂直掃一眼就看得到「未讀區」的邊界到哪裡。
  */
 function statusAccent(status: ReadingStatus): string {
-  if (status === "想讀") return "border-l-[3px] border-l-amber-500";
-  if (status === "閱讀中") return "border-l-[3px] border-l-cyan-600";
+  if (status === "想讀") return "border-l-[3px] border-l-[#E8C862]";
+  if (status === "閱讀中") return "border-l-[3px] border-l-[#4A8AB5]";
   return "border-l-[3px] border-l-transparent";
 }
 
@@ -538,7 +575,8 @@ export function BookTable() {
                   <p className="truncate text-xs text-gray-500">{b.author}</p>
                   <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-400">
                     <StatusBadge status={b.status} />
-                    <OptionList values={[b.platform, b.domain, b.type]} />
+                    <OptionList values={[b.platform, b.domain]} />
+                    <OptionList values={[b.type]} outline />
                   </div>
                   <p className="text-xs text-gray-400">
                     {b.startDate ?? "—"} ～ {b.endDate ?? "—"}
@@ -613,7 +651,7 @@ export function BookTable() {
                 <OptionList values={[b.domain]} />
               </td>
               <td className="hidden px-3 py-2 xl:table-cell">
-                <OptionList values={[b.type]} size="sm" />
+                <OptionList values={[b.type]} outline />
               </td>
               <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 2xl:table-cell">
                 <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.language}</span>

@@ -30,7 +30,7 @@ export function normalizePlatform(raw: string): BookPlatform | null {
 }
 
 /**
- * 閱讀狀態刻意不開放自訂：統計與日曆要靠它做判斷，
+ * 閱讀狀態刻意不開放自訂：統計與月曆要靠它做判斷，
  * 可自訂的話語意會散掉。要自由分類請用領域／屬性／語言。
  */
 export type ReadingStatus = "想讀" | "閱讀中" | "已讀完";
@@ -69,6 +69,32 @@ export interface Book {
   /** 電子書常見的總字數 */
   wordCount: string;
   note: string;
+  /**
+   * 佳句，一行一句，章節寫在行尾的括號裡：
+   *   真正的問題不是資源，而是注意力（第3章）
+   * 用純文字而不是 JSON，是為了讓使用者可以直接在 Sheet 裡讀與改。
+   */
+  quotes: string;
+}
+
+export interface Quote {
+  text: string;
+  /** 沒寫章節就是空字串。電子書多半沒有頁碼，所以記章節而不是頁數 */
+  chapter: string;
+}
+
+/** 行尾的括號（全形或半形）視為章節，其餘都是句子本身 */
+export function parseQuotes(raw: string | undefined | null): Quote[] {
+  if (!raw) return [];
+  return raw
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const match = line.match(/^(.*?)\s*[（(]([^（()）]*)[)）]\s*$/);
+      if (!match || !match[1].trim()) return { text: line, chapter: "" };
+      return { text: match[1].trim(), chapter: match[2].trim() };
+    });
 }
 
 /**

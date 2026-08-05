@@ -59,7 +59,12 @@ export function RankingBar({
                     className="h-full"
                     style={{
                       width: `${((item.doneValue ?? item.value) / max) * 100}%`,
-                      background: SEQUENTIAL[i % SEQUENTIAL.length],
+                      // 有分完成／未完成時，深淺代表的是「完成與否」，
+                      // 不能再用名次的深淺，否則兩種意義混在同一個顏色上
+                      background:
+                        item.doneValue === undefined
+                          ? SEQUENTIAL[i % SEQUENTIAL.length]
+                          : SEQUENTIAL[1],
                     }}
                   />
                   {item.doneValue !== undefined && (

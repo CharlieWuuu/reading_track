@@ -12,12 +12,15 @@ export function TagList({
   values,
   size = "md",
   wrap = true,
+  outline = false,
 }: {
   values: Array<string | undefined>;
   /** sm：標籤多的欄位（例如屬性）用小一號，一格才擠得下 */
   size?: "sm" | "md";
   /** false：擠在單行裡（例如文章列表），放不下的就讓外層裁掉 */
   wrap?: boolean;
+  /** 外框版：跟同一排的實底標籤（領域）區分開來，用在屬性 */
+  outline?: boolean;
 }) {
   const { categories } = useCategories();
   const order = tagOrder(categories);
@@ -33,7 +36,7 @@ export function TagList({
           /* 高度寫死，跟同一行的文字對得起來 */
           className={`inline-flex shrink-0 items-center rounded font-medium leading-none ${
             size === "sm" ? "h-4 px-1.5 text-[10px]" : "h-5 px-1.5 text-[11px]"
-          } ${tagColorClass(item, order)}`}
+          } ${tagColorClass(item, order, outline)}`}
         >
           {item}
         </span>

@@ -82,9 +82,12 @@ export function getSourceRanking(
     totals.set(name, entry);
   }
 
+  // 依「讀完幾篇」排序：存了很多卻沒讀的站排在後面，榜單才反映實際閱讀
   return Array.from(totals.entries())
     .map(([name, entry]) => ({ name, ...entry }))
-    .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name))
+    .sort(
+      (a, b) => b.doneValue - a.doneValue || b.value - a.value || a.name.localeCompare(b.name)
+    )
     .slice(0, limit);
 }
 

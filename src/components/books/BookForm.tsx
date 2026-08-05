@@ -6,6 +6,8 @@ import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
 import { Book, inferStatus } from "@/types/book";
 import { CategorySelect } from "./CategorySelect";
+import { usePagingMode } from "@/lib/usePagingMode";
+import { useIsMobile } from "@/lib/useIsMobile";
 
 const emptyForm = {
   sourceUrl: "",
@@ -22,6 +24,7 @@ const emptyForm = {
   pageCount: "",
   wordCount: "",
   note: "",
+  quotes: "",
 };
 
 type FormState = typeof emptyForm;
@@ -35,17 +38,35 @@ const SECTIONS = [
   { key: "source", label: "來源" },
   { key: "progress", label: "進度" },
   { key: "category", label: "分類" },
-  { key: "note", label: "筆記" },
+  { key: "note", label: "筆記／佳句" },
 ] as const;
 
 type SectionKey = (typeof SECTIONS)[number]["key"];
 
-/** 手機只顯示選中的那頁，桌機（sm 以上）一律全部展開 */
-function Section({ active, children }: { active: boolean; children: React.ReactNode }) {
+/** 大螢幕一頁塞得下更多欄位，不用拆到五個頁籤 */
+const WIDE_TABS: Array<{ key: SectionKey; label: string; sections: SectionKey[] }> = [
+  { key: "basic", label: "書籍資料", sections: ["basic", "source"] },
+  { key: "progress", label: "進度與分類", sections: ["progress", "category"] },
+  { key: "note", label: "筆記／佳句", sections: ["note"] },
+];
+
+/**
+ * 分頁模式：只顯示選中的那一頁（各種螢幕都一樣）。
+ * 捲動模式：全部展開，往下捲即可。
+ */
+function Section({
+  active,
+  paged,
+  children,
+}: {
+  active: boolean;
+  paged: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <div
-      className={`min-h-0 shrink-0 content-start grid-cols-1 gap-3 overflow-hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 ${
-        active ? "grid" : "hidden"
+      className={`min-h-0 shrink-0 content-start grid-cols-1 gap-3 overflow-hidden sm:grid-cols-2 lg:grid-cols-3 ${
+        !paged || active ? "grid" : "hidden"
       }`}
     >
       {children}
@@ -109,6 +130,17 @@ export function BookForm({
   const [refetchNote, setRefetchNote] = useState("");
   const isEdit = Boolean(book);
   const status = inferStatus(form.startDate || null, form.endDate || null);
+  // 瀏覽方式是整個 app 共用的偏好，編輯頁的分頁／捲動也跟著它走
+  const { paging } = usePagingMode();
+  const paged = paging === "page";
+  const isMobile = useIsMobile();
+  const tabs = isMobile
+    ? SECTIONS.map((s) => ({ key: s.key, label: s.label, sections: [s.key] as SectionKey[] }))
+    : WIDE_TABS;
+  // 目前這個頁籤涵蓋哪些區塊；捲動模式下全部都顯示
+  const visible = new Set(
+    tabs.find((t) => t.sections.includes(section))?.sections ?? [section]
+  );
 
   /**
    * 用現在表單裡的書名／網址重查一次。刻意只補空欄位——
@@ -180,6 +212,7 @@ export function BookForm({
       pageCount: form.pageCount,
       wordCount: form.wordCount,
       note: form.note,
+      quotes: form.quotes,
     };
 
     setSubmitting(true);
@@ -252,8 +285,9 @@ export function BookForm({
       )}
 
       {/* 手機一次只放得下一組欄位，用分頁切；桌機維持一次看完全部 */}
-      <div className="flex shrink-0 gap-1 border-b sm:hidden">
-        {SECTIONS.map((s) => (
+      {/* 分頁模式時大螢幕也用頁籤，不再只在手機顯示 */}
+      <div className={`shrink-0 gap-1 border-b ${paged ? "flex" : "hidden"}`}>
+        {tabs.map((s) => (
           <button
             key={s.key}
             type="button"
@@ -271,13 +305,13 @@ export function BookForm({
 
       {/* 分頁後每一頁都必須塞得下：這層不給捲，溢出代表分頁要再切細 */}
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
-      <Section active={section === "basic"}>
+      <Section paged={paged} active={visible.has("basic")}>
         <Field label="書名" value={form.title} onChange={(v) => set("title", v)} required />
         <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
         <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
       </Section>
 
-      <Section active={section === "source"}>
+      <Section paged={paged} active={visible.has("source")}>
         <Field label="封面 URL" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
         <Field label="來源網址" value={form.sourceUrl} onChange={(v) => set("sourceUrl", v)} />
 
@@ -302,7 +336,7 @@ export function BookForm({
         </div>
       </Section>
 
-      <Section active={section === "progress"}>
+      <Section paged={paged} active={visible.has("progress")}>
         {/* 短欄位在手機兩兩並排；sm:contents 讓它在桌機溶解回原本的格線 */}
         <div className="grid grid-cols-2 gap-3 sm:contents">
           <Field label="頁數" value={form.pageCount} onChange={(v) => set("pageCount", v)} />
@@ -325,7 +359,7 @@ export function BookForm({
 
       </Section>
 
-      <Section active={section === "category"}>
+      <Section paged={paged} active={visible.has("category")}>
         <CategorySelect
           label="領域"
           categoryKey="domain"
@@ -348,16 +382,35 @@ export function BookForm({
         />
       </Section>
 
-      {/* 筆記吃掉剩下的高度，欄位多寡不同時都不會擠出捲軸 */}
+      {/* 筆記與佳句吃掉剩下的高度，欄位多寡不同時都不會擠出捲軸 */}
       <div
-        className={`min-h-0 flex-1 flex-col ${section === "note" ? "flex" : "hidden"} sm:flex`}
+        className={`min-h-0 flex-1 flex-col gap-3 sm:flex-row ${
+          !paged || visible.has("note") ? "flex" : "hidden"
+        }`}
       >
-        <label className="mb-1 block shrink-0 text-sm font-medium">筆記</label>
-        <textarea
-          value={form.note}
-          onChange={(e) => set("note", e.target.value)}
-          className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
-        />
+        <div className="flex min-h-0 flex-1 flex-col gap-1">
+          <label className="shrink-0 text-sm font-medium">筆記</label>
+          <textarea
+            value={form.note}
+            onChange={(e) => set("note", e.target.value)}
+            className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div className="flex min-h-0 flex-1 flex-col gap-1">
+          <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
+            佳句
+            <span className="text-xs font-normal text-gray-400">
+              一行一句，章節寫在行尾括號裡
+            </span>
+          </label>
+          <textarea
+            value={form.quotes}
+            onChange={(e) => set("quotes", e.target.value)}
+            placeholder={"真正的問題不是資源，而是注意力（第3章）\n自由來自於選擇不做什麼（第7章）"}
+            className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
+          />
+        </div>
       </div>
       </div>
 

@@ -160,6 +160,7 @@ export async function listBooksWithMeta(
       pageCount: get("pageCount"),
       wordCount: get("wordCount"),
       note: get("note"),
+      quotes: get("quotes"),
     };
   });
 

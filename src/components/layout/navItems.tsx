@@ -27,6 +27,6 @@ export const NAV_ITEMS: Array<{
     Icon: () => <Newspaper size={20} strokeWidth={1.5} />,
   },
   { href: "/stats", label: "統計", Icon: () => <ChartPie size={20} strokeWidth={1.5} /> },
-  { href: "/calendar", label: "日曆", Icon: () => <CalendarDays size={20} strokeWidth={1.5} /> },
+  { href: "/calendar", label: "月曆", Icon: () => <CalendarDays size={20} strokeWidth={1.5} /> },
   { href: "/settings", label: "設定", Icon: () => <Settings size={20} strokeWidth={1.5} /> },
 ];

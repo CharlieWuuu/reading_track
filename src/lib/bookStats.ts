@@ -1,4 +1,4 @@
-import { Book, splitTags } from "@/types/book";
+import { Book, parseQuotes, splitTags } from "@/types/book";
 
 export interface YearCount {
   year: string;
@@ -37,10 +37,16 @@ export function getKpis(books: Book[]) {
   // 原本是拿「總本數 ÷ 有紀錄的年份 × 12」，會把幾年前只讀一本的年份也算成完整 12 個月。
   const avgPerMonth = thisYearCount / (now.getMonth() + 1);
 
+  // 有寫筆記的書、記下來的佳句數：鼓勵留下心得，不只看讀了幾本
+  const withNote = books.filter((b) => b.note.trim()).length;
+  const quoteCount = books.reduce((sum, b) => sum + parseQuotes(b.quotes).length, 0);
+
   return {
     total: done.length,
     thisYear: thisYearCount,
     avgPerMonth: Math.round(avgPerMonth * 10) / 10,
+    withNote,
+    quoteCount,
   };
 }
 

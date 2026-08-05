@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 /**
- * 前／後翻的圓角虛線按鈕。列表翻頁、統計區塊翻頁、日曆換月都是同一個動作，
+ * 前／後翻的圓角虛線按鈕。列表翻頁、統計區塊翻頁、月曆換月都是同一個動作，
  * 樣式集中在這裡，才不會每個地方各長一套。
  */
 export function PagerButton({

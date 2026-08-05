@@ -10,30 +10,44 @@ import { BookCategories } from "@/types/book";
  * 只有底色與文字色、沒有外框——跟閱讀狀態的徽章同一種風格，
  * 一排標籤放在一起才不會像一堆按鈕。
  *
- * 色相順序與圖表的 CATEGORICAL 對齊（海藍綠→橘紅→藍→沙金→…），
- * 所以同一份資料在標籤與圓餅圖上看起來是同一組配色。
+ * 色相與圖表的 CATEGORICAL 是同一組品牌色（深藍→珊瑚橙→薄荷綠→金黃→…），
+ * 只是標籤用的是同色相的淺底＋深字。刻意只留五個色相、各兩階——
+ * 標籤是輔助辨識，十六種顏色只會讓畫面變花。
  *
  * 這裡的 class 必須寫成完整字串，Tailwind 是掃原始碼決定要產出哪些樣式的，
  * 用樣板字串拼出來的 class 不會被產生。
  */
 export const TAG_COLORS = [
-  "bg-cyan-50 text-cyan-800",
-  "bg-orange-50 text-orange-800",
-  "bg-blue-50 text-blue-800",
-  "bg-amber-50 text-amber-800",
-  "bg-fuchsia-50 text-fuchsia-800",
-  "bg-emerald-50 text-emerald-800",
-  "bg-violet-50 text-violet-800",
-  "bg-rose-50 text-rose-800",
-  "bg-teal-50 text-teal-800",
-  "bg-red-50 text-red-800",
-  "bg-sky-50 text-sky-800",
-  "bg-yellow-50 text-yellow-800",
-  "bg-purple-50 text-purple-800",
-  "bg-pink-50 text-pink-800",
-  "bg-lime-50 text-lime-800",
-  "bg-stone-100 text-stone-700",
-]
+  "bg-[#DCE6F1] text-[#2B5A8E]", // 深藍
+  "bg-[#F6E0D6] text-[#A85B41]", // 珊瑚橙
+  "bg-[#DFEDE7] text-[#3F7A67]", // 薄荷綠
+  "bg-[#F7EDCF] text-[#8A6D1B]", // 金黃
+  "bg-[#E2ECF5] text-[#3D6E92]", // 柔和藍
+  "bg-[#EAE3D8] text-[#5C4A3D]", // 米白／深棕
+  "bg-[#CFE0EF] text-[#24486F]", // 深藍（深）
+  "bg-[#F0D3C6] text-[#8F4A33]", // 珊瑚橙（深）
+  "bg-[#D2E5DC] text-[#33604F]", // 薄荷綠（深）
+  "bg-[#F2E3BC] text-[#75591A]", // 金黃（深）
+];
+
+/**
+ * 同一組色相的外框版，給「屬性」用。
+ *
+ * 領域與屬性放在一起時，光靠色相分不出是哪一種分類——同樣是淺底彩字，
+ * 看起來就是一排一樣的東西。改成一實一虛，用「樣式」而不是「顏色」區分類別。
+ */
+export const TAG_OUTLINE_COLORS = [
+  "bg-white text-[#2B5A8E] ring-1 ring-inset ring-[#B9CDE2]",
+  "bg-white text-[#A85B41] ring-1 ring-inset ring-[#E6C3B4]",
+  "bg-white text-[#3F7A67] ring-1 ring-inset ring-[#BBD8CD]",
+  "bg-white text-[#8A6D1B] ring-1 ring-inset ring-[#E3D2A0]",
+  "bg-white text-[#3D6E92] ring-1 ring-inset ring-[#C2D6E6]",
+  "bg-white text-[#5C4A3D] ring-1 ring-inset ring-[#D5CABB]",
+  "bg-white text-[#24486F] ring-1 ring-inset ring-[#A9C2DA]",
+  "bg-white text-[#8F4A33] ring-1 ring-inset ring-[#DFB4A3]",
+  "bg-white text-[#33604F] ring-1 ring-inset ring-[#AFCEC1]",
+  "bg-white text-[#75591A] ring-1 ring-inset ring-[#DCC793]",
+];
 
 /**
  * 選項全部串起來當作配色順序，各類別之間也不會撞色。
@@ -59,7 +73,8 @@ function hash(value: string): number {
   return Math.abs(h);
 }
 
-export function tagColorClass(tag: string, order: string[]): string {
+export function tagColorClass(tag: string, order: string[], outline = false): string {
+  const palette = outline ? TAG_OUTLINE_COLORS : TAG_COLORS;
   const index = order.indexOf(tag);
-  return TAG_COLORS[(index >= 0 ? index : hash(tag)) % TAG_COLORS.length];
+  return palette[(index >= 0 ? index : hash(tag)) % palette.length];
 }

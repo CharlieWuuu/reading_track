@@ -23,6 +23,7 @@ export const COLUMN_LABELS: Record<BookField, string> = {
   pageCount: "頁數",
   wordCount: "字數",
   note: "筆記",
+  quotes: "佳句",
 };
 
 export const BOOK_FIELDS = Object.keys(COLUMN_LABELS) as BookField[];
@@ -50,6 +51,7 @@ const COLUMN_ALIASES: Record<BookField, string[]> = {
   pageCount: ["pagecount", "pages", "頁數", "總頁數"],
   wordCount: ["wordcount", "words", "字數", "總字數"],
   note: ["note", "notes", "筆記", "備註", "心得"],
+  quotes: ["quotes", "quote", "佳句", "摘錄", "劃線"],
 };
 
 function normalize(header: string) {
