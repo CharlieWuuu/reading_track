@@ -58,6 +58,10 @@ export function getYearlyTrend(books: Book[]): YearCount[] {
     .sort((a, b) => a.year.localeCompare(b.year));
 }
 
+/**
+ * 每季完成本數。沒讀完任何一本的季別要補 0——把空白的季直接跳過，
+ * X 軸的間距就不再等於時間長度，趨勢會被壓縮成假的樣子。
+ */
 export function getQuarterlyTrend(books: Book[]): QuarterCount[] {
   const done = completedBooks(books);
   if (done.length === 0) return [];
@@ -66,13 +70,31 @@ export function getQuarterlyTrend(books: Book[]): QuarterCount[] {
   for (const b of done) {
     const d = new Date(b.endDate!);
     const quarter = Math.floor(d.getMonth() / 3) + 1;
-    const key = `${d.getFullYear()}-Q${quarter}`;
-    counts.set(key, (counts.get(key) ?? 0) + 1);
+    counts.set(`${d.getFullYear()}-Q${quarter}`, (counts.get(`${d.getFullYear()}-Q${quarter}`) ?? 0) + 1);
   }
 
-  return Array.from(counts.entries())
-    .map(([quarter, count]) => ({ quarter, count }))
-    .sort((a, b) => a.quarter.localeCompare(b.quarter));
+  const times = done.map((b) => new Date(b.endDate!)).filter((d) => !Number.isNaN(d.getTime()));
+  const first = new Date(Math.min(...times.map((d) => d.getTime())));
+  const now = new Date();
+
+  const series: QuarterCount[] = [];
+  let year = first.getFullYear();
+  let quarter = Math.floor(first.getMonth() / 3) + 1;
+  const lastYear = now.getFullYear();
+  const lastQuarter = Math.floor(now.getMonth() / 3) + 1;
+
+  while (year < lastYear || (year === lastYear && quarter <= lastQuarter)) {
+    const key = `${year}-Q${quarter}`;
+    series.push({ quarter: key, count: counts.get(key) ?? 0 });
+    if (quarter === 4) {
+      quarter = 1;
+      year++;
+    } else {
+      quarter++;
+    }
+  }
+
+  return series;
 }
 
 export function getMonthlyTrend(books: Book[], monthsBack = 24): MonthCount[] {

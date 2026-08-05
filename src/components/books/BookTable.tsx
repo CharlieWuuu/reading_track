@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { RefObject, useEffect, useMemo, useRef, useState } from "react";
+import { RefObject, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { PagerButton } from "@/components/ui/PagerButton";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
@@ -10,6 +10,7 @@ import { usePagingMode } from "@/lib/usePagingMode";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
 import { useFitPageSize, useFitRowsByMeasure, viewportBottom } from "@/lib/useFitPageSize";
+import { ChevronDown } from "lucide-react";
 import { TagList as OptionList } from "@/components/ui/TagBadge";
 import { Book, ReadingStatus } from "@/types/book";
 
@@ -127,24 +128,63 @@ function DetailField({ label, children }: { label: string; children: React.React
   );
 }
 
-/** 筆記預設只露一行，太長會把卡片撐得比其他張高很多 */
+/**
+ * 筆記預設只露一行，太長會把卡片撐得比其他張高很多。
+ *
+ * 展開鍵只在文字真的被截掉時才出現——只有一行的筆記給一顆按鈕，
+ * 按下去什麼都不會變，反而讓人困惑。是否溢出得渲染後量才知道。
+ */
 function Note({ text }: { text: string }) {
   const [expanded, setExpanded] = useState(false);
+  const [overflowing, setOverflowing] = useState(false);
+  const textRef = useRef<HTMLParagraphElement>(null);
+
+  useLayoutEffect(() => {
+    const el = textRef.current;
+    if (!el) return;
+
+    const measure = () => {
+      // 展開狀態下量不到截斷與否，先維持上一次的結果
+      if (expanded) return;
+      setOverflowing(el.scrollHeight > el.clientHeight + 1);
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [text, expanded]);
 
   return (
-    <div className="flex flex-col gap-1 rounded bg-gray-50 px-2 py-1">
-      <p className={`text-xs text-gray-600 md:text-sm ${expanded ? "" : "line-clamp-1"}`}>{text}</p>
-      <button
-        type="button"
-        onClick={(e) => {
-          // 卡片本身可點進編輯頁，展開筆記不該順便換頁
-          e.stopPropagation();
-          setExpanded((v) => !v);
-        }}
-        className="self-start text-xs text-gray-400 hover:text-gray-700"
+    // 整塊筆記都不觸發卡片的點擊：想展開／想選取文字時不該被帶去編輯頁
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="flex items-start gap-2 rounded bg-gray-50 px-2 py-1"
+    >
+      <p
+        ref={textRef}
+        /* whitespace-pre-wrap：筆記裡的換行照原樣顯示，不要被折成一整段 */
+        className={`min-w-0 flex-1 whitespace-pre-wrap break-words text-xs text-gray-600 md:text-sm ${
+          expanded ? "" : "line-clamp-1"
+        }`}
       >
-        {expanded ? "收合" : "展開"}
-      </button>
+        {text}
+      </p>
+
+      {(overflowing || expanded) && (
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          aria-label={expanded ? "收合筆記" : "展開筆記"}
+          aria-expanded={expanded}
+          className="shrink-0 rounded p-0.5 text-gray-400 hover:bg-gray-200 hover:text-gray-700"
+        >
+          <ChevronDown
+            size={14}
+            className={`transition-transform ${expanded ? "rotate-180" : ""}`}
+          />
+        </button>
+      )}
     </div>
   );
 }
