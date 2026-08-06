@@ -212,8 +212,7 @@ export function ReadingTimeline({
                           {segment.book.title}
                         </span>
                         <span className="relative h-1.5 shrink-0">
-                          {/* 線淡一階，書名維持深色：一格裡好幾條線時，深色的線會比書名還搶眼 */}
-                          <span className="absolute inset-x-0 top-1/2 h-0.5 -translate-y-1/2 bg-[#7C9CBF]" />
+                          <span className="absolute inset-x-0 top-1/2 h-0.5 -translate-y-1/2 bg-[#2B5A8E]" />
                           {/* 頭尾的點：只在真正的開始／讀完那天才畫；還在讀的線停在今天但不封口 */}
                           {!segment.opensLeft && (
                             <span className="absolute left-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-[#2B5A8E]" />
