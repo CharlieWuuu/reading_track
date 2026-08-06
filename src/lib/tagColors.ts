@@ -35,18 +35,19 @@ export const TAG_COLORS = [
  *
  * 領域與屬性放在一起時，光靠色相分不出是哪一種分類——同樣是淺底彩字，
  * 看起來就是一排一樣的東西。改成一實一虛，用「樣式」而不是「顏色」區分類別。
+ * 外框版不給底色：白底疊在交錯的年度底色上會變成一塊塊補丁。
  */
 export const TAG_OUTLINE_COLORS = [
-  "bg-white text-[#2B5A8E] ring-1 ring-inset ring-[#B9CDE2]",
-  "bg-white text-[#A85B41] ring-1 ring-inset ring-[#E6C3B4]",
-  "bg-white text-[#3F7A67] ring-1 ring-inset ring-[#BBD8CD]",
-  "bg-white text-[#8A6D1B] ring-1 ring-inset ring-[#E3D2A0]",
-  "bg-white text-[#3D6E92] ring-1 ring-inset ring-[#C2D6E6]",
-  "bg-white text-[#5C4A3D] ring-1 ring-inset ring-[#D5CABB]",
-  "bg-white text-[#24486F] ring-1 ring-inset ring-[#A9C2DA]",
-  "bg-white text-[#8F4A33] ring-1 ring-inset ring-[#DFB4A3]",
-  "bg-white text-[#33604F] ring-1 ring-inset ring-[#AFCEC1]",
-  "bg-white text-[#75591A] ring-1 ring-inset ring-[#DCC793]",
+  "text-[#2B5A8E] ring-1 ring-inset ring-[#B9CDE2]",
+  "text-[#A85B41] ring-1 ring-inset ring-[#E6C3B4]",
+  "text-[#3F7A67] ring-1 ring-inset ring-[#BBD8CD]",
+  "text-[#8A6D1B] ring-1 ring-inset ring-[#E3D2A0]",
+  "text-[#3D6E92] ring-1 ring-inset ring-[#C2D6E6]",
+  "text-[#5C4A3D] ring-1 ring-inset ring-[#D5CABB]",
+  "text-[#24486F] ring-1 ring-inset ring-[#A9C2DA]",
+  "text-[#8F4A33] ring-1 ring-inset ring-[#DFB4A3]",
+  "text-[#33604F] ring-1 ring-inset ring-[#AFCEC1]",
+  "text-[#75591A] ring-1 ring-inset ring-[#DCC793]",
 ];
 
 /**

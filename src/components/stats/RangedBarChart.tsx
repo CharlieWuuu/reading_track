@@ -18,6 +18,16 @@ export interface RangeOption {
   label: string;
   /** 看得到幾個資料點；0 代表全部 */
   size: number;
+  /**
+   * 這個區間要畫哪一組資料。
+   *
+   * 區間短的時候會換成比較細的刻度（例如季→月）：只看半年的話，
+   * 兩根季長條看不出這半年發生什麼事。
+   */
+  data: TrendPoint[];
+  /** dense＝這一段的根數少，標籤放得下完整寫法 */
+  tick: (value: string, dense: boolean) => string;
+  tooltipLabel: (value: string) => string;
 }
 
 export interface TrendPoint {
@@ -35,20 +45,13 @@ export interface TrendPoint {
  * 全部攤開時近期的起伏會被幾年的資料壓平，所以可以縮到半年再前後翻。
  */
 export function RangedBarChart({
-  data,
   ranges,
-  tick,
-  tooltipLabel,
   unit,
   seriesLabel,
   emptyText = "尚無資料",
   height = 260,
 }: {
-  data: TrendPoint[];
   ranges: RangeOption[];
-  /** dense＝這一段的根數少，標籤放得下完整寫法 */
-  tick: (value: string, dense: boolean) => string;
-  tooltipLabel: (value: string) => string;
   unit: string;
   seriesLabel: string;
   emptyText?: string;
@@ -58,6 +61,9 @@ export function RangedBarChart({
   /** 往前翻幾個區間，0 是最新的那一段 */
   const [offset, setOffset] = useState(0);
 
+  const range = ranges.find((r) => r.key === rangeKey) ?? ranges[0];
+  const data = range?.data ?? [];
+
   if (data.length === 0) {
     return (
       <div className="flex h-64 items-center justify-center text-sm text-gray-400">
@@ -66,7 +72,7 @@ export function RangedBarChart({
     );
   }
 
-  const size = ranges.find((r) => r.key === rangeKey)?.size ?? 0;
+  const size = range?.size ?? 0;
   const windowed = size > 0;
   // 從最新往回數：offset 個區間之前的那一段
   const end = windowed ? Math.max(size, data.length - offset * size) : data.length;
@@ -126,7 +132,7 @@ export function RangedBarChart({
               axisLine={{ stroke: "var(--grid)" }}
               tickLine={{ stroke: "var(--grid)" }}
               interval={0}
-              tickFormatter={(value: string) => tick(value, visible.length <= 8)}
+              tickFormatter={(value: string) => range.tick(value, visible.length <= 12)}
             />
             <YAxis
               allowDecimals={false}
@@ -144,7 +150,7 @@ export function RangedBarChart({
                 fontSize: 12,
               }}
               formatter={(value) => [`${value ?? 0} ${unit}`, seriesLabel]}
-              labelFormatter={(label) => tooltipLabel(String(label))}
+              labelFormatter={(label) => range.tooltipLabel(String(label))}
             />
             <Bar dataKey="count" fill="var(--series-1)" radius={[4, 4, 0, 0]} maxBarSize={40} />
           </BarChart>

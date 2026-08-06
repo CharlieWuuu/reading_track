@@ -188,7 +188,7 @@ export function MonthGrid({
                   ? "bg-gray-100"
                   : day.inCurrentMonth
                     ? "bg-white"
-                    : "bg-gray-50"
+                    : "border-gray-100 bg-gray-50"
               }`}
             >
               <span
@@ -206,7 +206,11 @@ export function MonthGrid({
               </span>
 
               {/* 格子太窄，只放第一本的小書封，其餘用 +N 表示，點下去看下方明細 */}
-              <span className="relative flex h-8 w-[1.35rem] shrink-0 items-center justify-center">
+              <span
+                className={`relative flex h-8 w-[1.35rem] shrink-0 items-center justify-center ${
+                  day.inCurrentMonth ? "" : "opacity-50"
+                }`}
+              >
                 {day.books.length > 0 &&
                   (day.books[0].coverUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -225,7 +229,11 @@ export function MonthGrid({
                 )}
               </span>
 
-              <span className="flex h-1.5 shrink-0 items-center">
+              <span
+                className={`flex h-1.5 shrink-0 items-center ${
+                  day.inCurrentMonth ? "" : "opacity-50"
+                }`}
+              >
                 {day.articles.length > 0 && (
                   <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
                 )}
@@ -259,7 +267,8 @@ export function MonthGrid({
               } ${
                 day.inCurrentMonth
                   ? "bg-white hover:bg-gray-50"
-                  : "bg-gray-50 hover:bg-gray-100"
+                  // 非當月只有格線淡一階；整格降透明度會連書封一起變灰，反而髒
+                  : "border-gray-100 bg-gray-50 hover:bg-gray-100"
               }`}
             >
               {/* 日期與書封並排，省下日期獨占的那一行高度 */}
@@ -276,7 +285,12 @@ export function MonthGrid({
                   {day.date.getDate()}
                 </span>
 
-                <div className="flex min-w-0 flex-1 flex-wrap gap-1">
+                {/* 書封在日期右邊的剩餘空間裡置中，一格只有一本時才不會孤零零貼著日期 */}
+                <div
+                  className={`flex min-w-0 flex-1 flex-wrap justify-center gap-1 ${
+                    day.inCurrentMonth ? "" : "opacity-50"
+                  }`}
+                >
                   {day.books.map((b) => (
                     <Link
                       key={b.id}
@@ -302,7 +316,10 @@ export function MonthGrid({
                 </div>
               </div>
 
-              <DayArticles articles={day.articles} />
+              {/* 非當月只淡化內容，格子底色與日期維持原樣 */}
+              <div className={day.inCurrentMonth ? "" : "opacity-50"}>
+                <DayArticles articles={day.articles} />
+              </div>
             </div>
           );
         })}

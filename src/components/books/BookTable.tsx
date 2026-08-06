@@ -113,7 +113,8 @@ function LargeCover({ url, title }: { url: string; title: string }) {
 const STATUS_STYLES: Record<ReadingStatus, string> = {
   想讀: "bg-[#EAE3D8] text-[#5C4A3D]",
   閱讀中: "bg-[#DCE6F1] text-[#2B5A8E]",
-  已讀完: "bg-[#DFEDE7] text-[#3F7A67]",
+  // 已讀完是多數狀態，給顏色只會讓整張表變花；灰色＝「這件事結束了」
+  已讀完: "bg-gray-100 text-gray-500",
 };
 
 function StatusBadge({ status }: { status: ReadingStatus }) {
@@ -384,9 +385,19 @@ function StatusDot({ status }: { status: ReadingStatus }) {
  * 鋪滿整列的底色太髒，而且會跟年度交錯打架；細色條面積小、不干擾內容，
  * 但垂直掃一眼就看得到「未讀區」的邊界到哪裡。
  */
+/**
+ * 表格用的色條顏色：畫成絕對定位的一條，不佔版面寬度。
+ * 用該狀態徽章的底色，色條與徽章才是同一件事的兩種畫法。
+ */
+function accentColor(status: ReadingStatus): string | null {
+  if (status === "想讀") return "#EAE3D8";
+  if (status === "閱讀中") return "#DCE6F1";
+  return null;
+}
+
 function statusAccent(status: ReadingStatus): string {
-  if (status === "想讀") return "border-l-[3px] border-l-[#E8C862]";
-  if (status === "閱讀中") return "border-l-[3px] border-l-[#4A8AB5]";
+  if (status === "想讀") return "border-l-[3px] border-l-[#EAE3D8]";
+  if (status === "閱讀中") return "border-l-[3px] border-l-[#DCE6F1]";
   return "border-l-[3px] border-l-transparent";
 }
 
@@ -569,8 +580,12 @@ export function BookTable() {
                 href={editHref(b.id)}
                 className={`flex gap-3 p-3 ${rowTone(b.endDate, thisYear)} ${statusAccent(b.status)}`}
               >
-                <Cover url={b.coverUrl} title={b.title} />
-                <div className="min-w-0 flex-1">
+                <Cover url={b.coverUrl} title={b.title} width="w-8" />
+                {/*
+                  手機一列只留兩行：書名，以及「狀態＋作者＋日期」。
+                  標籤留給卡片與詳細檢視——在這裡塞滿只會讓每一列長到一頁放不了幾本。
+                */}
+                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <p className="truncate text-sm font-medium">
                     {numbers.has(b.id) && (
                       <span className="mr-2 text-xs tabular-nums text-gray-400">
@@ -579,15 +594,13 @@ export function BookTable() {
                     )}
                     {b.title}
                   </p>
-                  <p className="truncate text-xs text-gray-500">{b.author}</p>
-                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-400">
+                  <div className="flex items-center gap-2 text-xs text-gray-400">
                     <StatusBadge status={b.status} />
-                    <OptionList values={[b.platform, b.domain]} />
-                    <OptionList values={[b.type]} outline />
+                    <span className="min-w-0 flex-1 truncate text-gray-500">{b.author}</span>
+                    <span className="shrink-0 tabular-nums">
+                      {b.endDate ?? b.startDate ?? "—"}
+                    </span>
                   </div>
-                  <p className="text-xs text-gray-400">
-                    {b.startDate ?? "—"} ～ {b.endDate ?? "—"}
-                  </p>
                 </div>
               </Link>
             </li>
@@ -598,9 +611,8 @@ export function BookTable() {
       <div className="hidden w-full overflow-hidden rounded-lg border bg-white md:block">
       <table className="w-full table-fixed text-sm">
         <thead className="bg-gray-100 text-left">
-          {/* 欄寬用百分比，次要欄位隨螢幕變窄逐一收起，才不會撐出橫向捲軸。
-              表頭也要留狀態色條的 3px，否則整個 tbody 會比表頭右移 3px */}
-          <tr className="border-l-[3px] border-l-transparent">
+          {/* 欄寬用百分比，次要欄位隨螢幕變窄逐一收起，才不會撐出橫向捲軸 */}
+          <tr>
             <th className="w-[6%] whitespace-nowrap px-3 py-2">封面</th>
             {/* 書名字級縮小後空間變多，日期與分類可以提早出現 */}
             <th className="w-[26%] whitespace-nowrap px-3 py-2">書名</th>
@@ -621,9 +633,19 @@ export function BookTable() {
               key={b.id || `row-${i}`}
               data-fit-row
               onClick={() => router.push(editHref(b.id))}
-              className={`cursor-pointer border-t ${rowTone(b.endDate, thisYear)} ${statusAccent(b.status)}`}
+              className={`cursor-pointer border-t ${rowTone(b.endDate, thisYear)}`}
             >
-              <td className="px-3 py-2">
+              {/*
+                狀態色條疊在第一格上，不用 border-l——那會把整個 tbody 往右推 3px，
+                表頭得跟著補一條透明的才對得齊，是很容易再壞掉的做法。
+              */}
+              <td className="relative px-3 py-2">
+                {accentColor(b.status) && (
+                  <span
+                    className="absolute inset-y-0 left-0 w-[3px]"
+                    style={{ background: accentColor(b.status) ?? undefined }}
+                  />
+                )}
                 <Cover url={b.coverUrl} title={b.title} width="w-7" />
               </td>
               <td className="max-w-0 overflow-hidden px-3 py-2 align-middle">

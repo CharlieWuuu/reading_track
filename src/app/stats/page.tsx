@@ -20,6 +20,7 @@ import { ArticleKpiCards } from "@/components/stats/ArticleKpiCards";
 import {
   getDomainDistribution,
   getKpis,
+  getMonthlyTrend,
   getLanguageDistribution,
   getPlatformDistribution,
   getQuarterlyTrend,
@@ -111,6 +112,8 @@ function BooksStats() {
 
   const kpis = getKpis(books);
   const quarterly = getQuarterlyTrend(books);
+  // 一年／六個月的區間用月當刻度，所以月的資料也要備著
+  const monthly = getMonthlyTrend(books);
 
   const reread = { key: "reread", label: "重讀最多 Top 5", data: getRereadRanking(books), unit: "次" };
   const rankings = [
@@ -143,7 +146,7 @@ function BooksStats() {
             scrollHeight: "h-70 sm:h-[32rem]",
             node: (
               <Panel title="每季完成本數">
-                <YearlyTrendChart quarterlyData={quarterly} height="100%" />
+                <YearlyTrendChart quarterlyData={quarterly} monthlyData={monthly} height="100%" />
               </Panel>
             ),
           },
@@ -166,7 +169,7 @@ function BooksStats() {
               <div className="flex min-h-0 flex-1 flex-col gap-3">
                 <KpiCards {...kpis} />
                 <Panel title="每季完成本數">
-                  <YearlyTrendChart quarterlyData={quarterly} height="100%" />
+                  <YearlyTrendChart quarterlyData={quarterly} monthlyData={monthly} height="100%" />
                 </Panel>
               </div>
             ),
