@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
+import { LockZoomInStandalone } from "@/components/layout/LockZoomInStandalone";
 import { ServiceWorkerRegistrar } from "@/components/layout/ServiceWorkerRegistrar";
 import { SessionProvider } from "@/components/auth/SessionProvider";
 import { SWRProvider } from "@/components/layout/SWRProvider";
@@ -52,6 +53,7 @@ export default function RootLayout({
           <SWRProvider>
             <AppShell>{children}</AppShell>
             <ServiceWorkerRegistrar />
+            <LockZoomInStandalone />
           </SWRProvider>
         </SessionProvider>
       </body>
