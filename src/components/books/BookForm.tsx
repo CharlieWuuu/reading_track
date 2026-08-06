@@ -26,6 +26,8 @@ const emptyForm = {
   wordCount: "",
   note: "",
   quotes: "",
+  keywords: "",
+  relatedArticles: "",
 };
 
 type FormState = typeof emptyForm;
@@ -40,6 +42,7 @@ const SECTIONS = [
   { key: "progress", label: "進度" },
   { key: "category", label: "分類" },
   { key: "note", label: "筆記" },
+  { key: "keywords", label: "關鍵字" },
 ] as const;
 
 type SectionKey = (typeof SECTIONS)[number]["key"];
@@ -49,6 +52,7 @@ const WIDE_TABS: Array<{ key: SectionKey; label: string; sections: SectionKey[] 
   { key: "basic", label: "書籍資料", sections: ["basic", "source"] },
   { key: "progress", label: "進度與分類", sections: ["progress", "category"] },
   { key: "note", label: "筆記／佳句", sections: ["note"] },
+  { key: "keywords", label: "關鍵字", sections: ["keywords"] },
 ];
 
 /**
@@ -214,6 +218,8 @@ export function BookForm({
       wordCount: form.wordCount,
       note: form.note,
       quotes: form.quotes,
+      keywords: form.keywords,
+      relatedArticles: form.relatedArticles,
     };
 
     setSubmitting(true);
@@ -409,6 +415,46 @@ export function BookForm({
             value={form.quotes}
             onChange={(e) => set("quotes", e.target.value)}
             placeholder={"真正的問題不是資源，而是注意力（第3章）\n自由來自於選擇不做什麼（第7章）"}
+            className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
+          />
+        </div>
+      </div>
+
+      {/*
+        關鍵字與相關文章。跟筆記同樣是一行一筆的自由文字——記的當下不分類，
+        要畫成地圖還是清單是之後看的時候的事。
+      */}
+      <div
+        className={`min-h-0 flex-1 flex-col gap-3 sm:flex-row ${
+          !paged || visible.has("keywords") ? "flex" : "hidden"
+        }`}
+      >
+        <div className="flex min-h-0 flex-1 flex-col gap-1">
+          <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
+            關鍵字
+            <span className="text-xs font-normal text-gray-400">
+              一行一個：地名、人名、事件、專有名詞
+            </span>
+          </label>
+          <textarea
+            value={form.keywords}
+            onChange={(e) => set("keywords", e.target.value)}
+            placeholder={"西藏拉薩\n四川阿壩\n葉石濤"}
+            className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div className="flex min-h-0 flex-1 flex-col gap-1">
+          <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
+            相關文章
+            <span className="text-xs font-normal text-gray-400">
+              一行一個 Instapaper 網址
+            </span>
+          </label>
+          <textarea
+            value={form.relatedArticles}
+            onChange={(e) => set("relatedArticles", e.target.value)}
+            placeholder={"https://www.instapaper.com/read/1234567890"}
             className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
           />
         </div>

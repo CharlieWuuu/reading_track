@@ -161,6 +161,8 @@ export async function listBooksWithMeta(
       wordCount: get("wordCount"),
       note: get("note"),
       quotes: get("quotes"),
+      keywords: get("keywords"),
+      relatedArticles: get("relatedArticles"),
     };
   });
 

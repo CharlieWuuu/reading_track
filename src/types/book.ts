@@ -75,6 +75,18 @@ export interface Book {
    * 用純文字而不是 JSON，是為了讓使用者可以直接在 Sheet 裡讀與改。
    */
   quotes: string;
+  /**
+   * 書裡出現、想記下來的東西：地名、人名、事件、專有名詞都算。一行一個。
+   *
+   * 不分成「地點」「人物」等多個欄位——記的當下不該被要求先分類，
+   * 那一下的猶豫就是之後不想記的原因。要怎麼呈現是看的時候再決定的事。
+   */
+  keywords: string;
+  /**
+   * 跟這本書有關的文章，一行一個 Instapaper 網址。
+   * 存網址而不是 id，是為了在 Sheet 裡看得出那是什麼。
+   */
+  relatedArticles: string;
 }
 
 /** 字數／頁數顯示成千分位；資料裡本來就可能夾著逗號，先清掉再格式化 */
@@ -123,6 +135,15 @@ export function splitTags(value: string | undefined | null): string[] {
 
 export function joinTags(tags: string[]): string {
   return tags.join(TAG_SEPARATOR);
+}
+
+/** 一行一筆的欄位（關鍵字、相關文章）共用的解析：去空白、去空行 */
+export function splitLines(raw: string | undefined | null): string[] {
+  if (!raw) return [];
+  return raw
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
 }
 
 export interface BookCategories {

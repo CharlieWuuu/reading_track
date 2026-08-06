@@ -10,6 +10,8 @@ import { usePagingMode } from "@/lib/usePagingMode";
 import { useMounted } from "@/lib/useMounted";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
+import { useArticles } from "@/lib/useArticles";
+import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
 import { useFitPageSize, useFitRowsByMeasure, viewportBottom } from "@/lib/useFitPageSize";
 import {
   CalendarCheck,
@@ -19,13 +21,15 @@ import {
   Link as LinkIcon,
   NotebookPen,
   Quote,
+  Newspaper,
   Store,
+  Tag,
   Type,
   type LucideIcon,
 } from "lucide-react";
 import { TagList as OptionList } from "@/components/ui/TagBadge";
 import { NotesDialog } from "./NotesDialog";
-import { Book, ReadingStatus, formatCount, parseQuotes } from "@/types/book";
+import { Book, ReadingStatus, formatCount, parseQuotes, splitLines } from "@/types/book";
 
 /** 單筆高度：手機是卡片，桌機是含書封的表格列 */
 const ROW_HEIGHT = { mobile: 86, desktop: 68 };
@@ -268,12 +272,15 @@ function DetailCard({
   number,
   onOpen,
   tone,
+  articleTitles,
 }: {
   book: Book;
   href: string;
   number?: number;
   onOpen: (href: string) => void;
   tone: string;
+  /** Instapaper 網址 → 標題；沒抓到就顯示網址本身 */
+  articleTitles: Map<string, string>;
 }) {
   return (
     // 卡片本身不是 <a>：來源網址要能獨立點開，連結不能巢狀在連結裡
@@ -348,9 +355,70 @@ function DetailCard({
         </DetailField>
       </div>
 
+      {splitLines(book.keywords).length > 0 && (
+        <div className="col-span-2 flex min-w-0 flex-wrap items-center gap-1.5 md:col-span-1 md:col-start-2">
+          <Tag size={13} strokeWidth={1.5} className="shrink-0 text-gray-400" />
+          {splitLines(book.keywords).map((keyword) => (
+            <Link
+              key={keyword}
+              href={`/books?keyword=${encodeURIComponent(keyword)}`}
+              onClick={(e) => e.stopPropagation()}
+              className="rounded bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-600 hover:bg-gray-200"
+            >
+              {keyword}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {splitLines(book.relatedArticles).length > 0 && (
+        <div className="col-span-2 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 md:col-span-1 md:col-start-2">
+          <Newspaper size={13} strokeWidth={1.5} className="shrink-0 text-gray-400" />
+          {splitLines(book.relatedArticles).map((url) => (
+            <a
+              key={url}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              title={url}
+              className="min-w-0 truncate text-[11px] text-blue-700 underline underline-offset-2 hover:text-blue-900"
+            >
+              {articleTitles.get(url) ?? url}
+            </a>
+          ))}
+        </div>
+      )}
+
       <div className="col-span-2 md:col-span-1 md:col-start-2">
         <NotesPreview book={book} />
       </div>
+    </div>
+  );
+}
+
+/** 目前篩選中的關鍵字。放在清單上方，因為它會改變下面看到的是什麼 */
+function KeywordFilter({
+  keyword,
+  count,
+  onClear,
+}: {
+  keyword: string;
+  count: number;
+  onClear: () => void;
+}) {
+  return (
+    <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-lg border bg-white px-3 py-2 text-sm">
+      <Tag size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
+      <span className="font-medium">{keyword}</span>
+      <span className="text-xs text-gray-400">{count} 本</span>
+      <button
+        type="button"
+        onClick={onClear}
+        className="ml-auto rounded px-2 py-0.5 text-xs text-gray-500 hover:bg-gray-100"
+      >
+        清除
+      </button>
     </div>
   );
 }
@@ -416,8 +484,8 @@ export function BookTable() {
   const router = useRouter();
   const { sheetId } = useSheetStore();
   const mounted = useMounted();
-  const { books, isLoading, error } = useBooks();
-  const numbers = useMemo(() => completionNumbers(books), [books]);
+  const { books: allBooks, isLoading, error } = useBooks();
+  const numbers = useMemo(() => completionNumbers(allBooks), [allBooks]);
   const thisYear = new Date().getFullYear();
   const { searchParams, setParams } = useUrlParams();
   const { view: savedView } = useBookViewStore();
@@ -425,8 +493,24 @@ export function BookTable() {
   const urlView = searchParams.get("view");
   const view = isBookViewMode(urlView) ? urlView : savedView;
   const { scrolling } = usePagingMode();
+  // 反查：帶著 ?keyword= 就只看提到這個關鍵字的書
+  const keyword = searchParams.get("keyword") ?? "";
+  const books = keyword
+    ? allBooks.filter((b) => splitLines(b.keywords).includes(keyword))
+    : allBooks;
   const page = Math.max(0, (Number(searchParams.get("page")) || 1) - 1);
   const setPage = (next: number) => setParams({ page: next === 0 ? null : String(next + 1) });
+  const clearKeyword = () => setParams({ keyword: null, page: null });
+  // 相關文章存的是網址，標題從已經抓下來的 Instapaper 清單對回去。
+  // 兩種網址都收：使用者可能貼 Instapaper 的閱讀頁，也可能貼原文網址。
+  // 對不到（沒連 Instapaper、文章已刪）就顯示網址本身，不會壞。
+  const { articles } = useArticles();
+  const articleTitles = new Map<string, string>();
+  for (const a of articles) {
+    const title = a.title || a.url;
+    if (a.url) articleTitles.set(a.url, title);
+    articleTitles.set(instapaperReadUrl(a.bookmark_id, a.url), title);
+  }
   // 帶著目前的檢視與頁碼進編輯頁，存檔後才回得到同一頁
   const query = searchParams.toString();
   const editHref = (id: string) => `/books/${id}/edit${query ? `?back=${encodeURIComponent(query)}` : ""}`;
@@ -486,8 +570,11 @@ export function BookTable() {
 
   if (books.length === 0) {
     return (
-      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-        尚未新增任何書籍
+      <div className="flex w-full flex-col gap-3">
+        {keyword && <KeywordFilter keyword={keyword} count={0} onClear={clearKeyword} />}
+        <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
+          {keyword ? "沒有書提到這個關鍵字" : "尚未新增任何書籍"}
+        </div>
       </div>
     );
   }
@@ -527,6 +614,7 @@ export function BookTable() {
                 number={numbers.get(b.id)}
                 onOpen={router.push}
                 tone={`${rowTone(b.endDate, thisYear)} ${statusAccent(b.status)}`}
+                articleTitles={articleTitles}
               />
             </li>
           ))}
@@ -570,7 +658,11 @@ export function BookTable() {
   }
 
   return (
-    <div ref={containerRef}>
+    <div ref={containerRef} className="flex flex-col gap-3">
+      {keyword && (
+        <KeywordFilter keyword={keyword} count={books.length} onClear={clearKeyword} />
+      )}
+
       {/* 手機版：卡片列表，欄位太多的表格在小螢幕上不好讀 */}
       <div className="overflow-hidden rounded-lg border bg-white md:hidden">
         <ul className="divide-y">
