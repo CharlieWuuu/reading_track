@@ -21,15 +21,20 @@ interface PageHeaderProps {
 export function PageHeader({ title, action }: PageHeaderProps) {
   const { data: session, status } = useSession();
   const showAuth = status !== "loading" && !session?.user; // 登入後入口在設定頁，未登入時手機只剩這裡
+
   const empty = !action && !showAuth; // 手機沒標題又沒按鈕，整條連線一起收起來
   const hidden = empty ? styles.hideOnMobile : "";
 
   return (
     <>
       <div className={`${styles.bar} ${hidden}`}>
+        {/* 手機不顯示標題，寬度讓給操作區 */}
         <h2 className={styles.title}>{title}</h2>
+
         <div className={styles.actions}>
           <div className="min-w-0">{action}</div>
+
+          {/* 重新整理改用下拉手勢、帳號在設定頁；未登入時例外，不然手機沒有入口 */}
           {showAuth && (
             <div className={styles.auth}>
               <AuthButton compact />
