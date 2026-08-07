@@ -20,7 +20,7 @@ const styles = {
   linkActive: "bg-gray-900 text-white",
   linkIdle: "text-gray-700 hover:bg-gray-100",
   footer: "flex flex-col gap-2 border-t border-gray-900",
-  tools: "flex items-center gap-1",
+  tools: "flex items-center gap-1 flex-row-reverse",
   iconButton:
     "flex h-8 w-8 shrink-0 items-center justify-center rounded text-gray-400 hover:bg-gray-100 hover:text-gray-900",
 };
@@ -108,9 +108,10 @@ export function Sidebar() {
 
       <div className={`${styles.footer} ${collapsed ? "items-center p-2" : "p-4"}`}>
         {/* 工具類操作固定在帳號按鈕上面一排，收合前後都在同一個位置 */}
-        <div className={`${styles.tools} ${collapsed ? "flex-col" : "justify-end"}`}>
+        <div className={`${styles.tools} ${collapsed ? "flex-col" : "justify-between"}`}>
+                    <CollapseButton collapsed={collapsed} onClick={toggle} />
           {showRefresh && <RefreshButton compact={collapsed} />}
-          <CollapseButton collapsed={collapsed} onClick={toggle} />
+
         </div>
         <AuthButton compact={collapsed} />
       </div>
