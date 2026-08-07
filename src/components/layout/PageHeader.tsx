@@ -21,7 +21,7 @@ type PageHeaderProps = {
 /** 頁首與它下面那條線，上下間距都由 main 的 gap 決定 */
 export function PageHeader({ title, action }: PageHeaderProps) {
   const { data: session, status } = useSession();
-  const showAuth = status !== "loading" && !session?.user; // 登入後入口在設定頁，未登入時手機只剩這裡
+  const showAuth = status !== "loading" && !session?.user; // 登入後帳號的入口在設定頁
 
   // 桌機永遠有標題，所以只有手機會整條變空；顯示與否交給 CSS，用 JS 判斷會閃
   const emptyOnMobile = !action && !showAuth;
@@ -37,7 +37,7 @@ export function PageHeader({ title, action }: PageHeaderProps) {
         <div className={styles.actions}>
           <div className="min-w-0">{action}</div>
 
-          {/* 重新整理改用下拉手勢、帳號在設定頁；未登入時例外，不然手機沒有入口 */}
+          {/* 手機唯一的登入入口 */}
           {showAuth && (
             <div className={styles.auth}>
               <AuthButton compact />
