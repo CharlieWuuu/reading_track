@@ -17,7 +17,7 @@ export default function BooksPage() {
             </Suspense>
             <Link
               href="/books/new"
-              className="rounded bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700 md:px-4 md:py-2"
+              className="flex h-8 items-center rounded bg-gray-900 px-3 text-sm font-medium text-white hover:bg-gray-700 md:h-9 md:px-4"
             >
               新增書籍
             </Link>

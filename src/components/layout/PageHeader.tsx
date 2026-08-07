@@ -14,7 +14,7 @@ type PageHeaderProps = {
 
 /** 頁首與它下面那條線，上下間距都由 main 的 gap 決定 */
 export function PageHeader({ title, action }: PageHeaderProps) {
-  // 手機不顯示標題，所以沒有 action 就整條沒東西可看；桌機照常，用 CSS 藏才不會閃
+  // 手機不顯示標題，所以沒有 action 就整條沒東西可看；桌機照常；用 CSS 藏才不會閃
   const nothingOnMobile = !action;
 
   return (

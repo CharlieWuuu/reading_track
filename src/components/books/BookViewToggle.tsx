@@ -2,13 +2,17 @@
 
 import { useEffect } from "react";
 import { LayoutGrid, Rows3, StretchHorizontal } from "lucide-react";
-import { BookViewMode, isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
 import { useUrlParams } from "@/lib/useUrlParam";
+import { BookViewMode, isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
 
 const OPTIONS: Array<{ id: BookViewMode; label: string; Icon: () => React.ReactElement }> = [
   { id: "table", label: "表格", Icon: () => <Rows3 size={16} strokeWidth={1.5} /> },
   { id: "card", label: "書封", Icon: () => <LayoutGrid size={16} strokeWidth={1.5} /> },
-  { id: "detail", label: "詳細資料", Icon: () => <StretchHorizontal size={16} strokeWidth={1.5} /> },
+  {
+    id: "detail",
+    label: "詳細資料",
+    Icon: () => <StretchHorizontal size={16} strokeWidth={1.5} />,
+  },
 ];
 
 /** 檢視切換：放在頁首那一列，不再另外佔一整行 */
@@ -31,23 +35,21 @@ export function BookViewToggle() {
   }
 
   return (
-    <div className="inline-flex items-center gap-2">
-      <div className="inline-flex rounded border border-gray-300 p-0.5">
-        {OPTIONS.map((option) => (
-          <button
-            key={option.id}
-            onClick={() => select(option.id)}
-            aria-pressed={view === option.id}
-            aria-label={option.label}
-            title={option.label}
-            className={`rounded p-1.5 ${
-              view === option.id ? "bg-gray-900 text-white" : "text-gray-400 hover:text-gray-900"
-            }`}
-          >
-            <option.Icon />
-          </button>
-        ))}
-      </div>
+    <div className="inline-flex h-8 items-center rounded border border-gray-300 p-0.5 md:h-9">
+      {OPTIONS.map((option) => (
+        <button
+          key={option.id}
+          onClick={() => select(option.id)}
+          aria-pressed={view === option.id}
+          aria-label={option.label}
+          title={option.label}
+          className={`flex h-full items-center rounded px-1.5 ${
+            view === option.id ? "bg-gray-900 text-white" : "text-gray-400 hover:text-gray-900"
+          }`}
+        >
+          <option.Icon />
+        </button>
+      ))}
     </div>
   );
 }
