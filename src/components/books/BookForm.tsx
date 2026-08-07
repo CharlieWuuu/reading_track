@@ -419,7 +419,7 @@ export function BookForm({
               value={form.quotes}
               onChange={(e) => set("quotes", e.target.value)}
               placeholder={
-                "真正的問題不是資源，而是注意力（第3章）\n自由來自於選擇不做什麼（第7章）"
+                "第一句摘抄的句子（第3章）\n第二句摘抄的句子（第7章）"
               }
               className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
             />
@@ -445,7 +445,7 @@ export function BookForm({
             <textarea
               value={form.keywords}
               onChange={(e) => set("keywords", e.target.value)}
-              placeholder={"西藏拉薩\n四川阿壩\n葉石濤"}
+              placeholder={"京都\n工業革命\n量子力學"}
               className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
             />
           </div>

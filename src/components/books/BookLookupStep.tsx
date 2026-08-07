@@ -89,7 +89,7 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
             setTitle(e.target.value);
             setResult(null);
           }}
-          placeholder="例如：深度工作力"
+          placeholder="輸入書名"
           className="w-full rounded border px-3 py-2 text-sm"
         />
       </div>
@@ -103,7 +103,7 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
             setUrl(e.target.value);
             setResult(null);
           }}
-          placeholder="貼上讀墨 / Kindle / Pubu 等連結"
+          placeholder="貼上電子書或書店連結"
           className="w-full rounded border px-3 py-2 text-sm"
         />
       </div>
