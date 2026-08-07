@@ -13,10 +13,10 @@ const styles = {
   line: "h-px shrink-0 bg-gray-900",
 };
 
-interface PageHeaderProps {
+type PageHeaderProps = {
   title: string;
   action?: React.ReactNode; // 頁首右側的操作區
-}
+};
 
 /** 頁首與它下面那條線，上下間距都由 main 的 gap 決定 */
 export function PageHeader({ title, action }: PageHeaderProps) {
