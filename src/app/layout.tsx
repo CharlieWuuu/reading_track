@@ -6,6 +6,8 @@ import { LockZoomInStandalone } from "@/components/layout/LockZoomInStandalone";
 import { ServiceWorkerRegistrar } from "@/components/layout/ServiceWorkerRegistrar";
 import { SessionProvider } from "@/components/auth/SessionProvider";
 import { SWRProvider } from "@/components/layout/SWRProvider";
+import { COMMIT_HOOK_INSTALLER } from "react-component-overlay";
+import { DebugSetup } from "./DebugSetup";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,10 +50,18 @@ export default function RootLayout({
       lang="zh-Hant"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      {/* render 計數的掛鉤要早於所有 bundle，所以直接寫在 head */}
+      <head>
+        {process.env.NODE_ENV === "development" && (
+          <script dangerouslySetInnerHTML={{ __html: COMMIT_HOOK_INSTALLER }} />
+        )}
+      </head>
       <body className="flex h-full bg-gray-50 text-gray-900">
         <SessionProvider>
           <SWRProvider>
-            <AppShell>{children}</AppShell>
+            <DebugSetup>
+              <AppShell>{children}</AppShell>
+            </DebugSetup>
             <ServiceWorkerRegistrar />
             <LockZoomInStandalone />
           </SWRProvider>
