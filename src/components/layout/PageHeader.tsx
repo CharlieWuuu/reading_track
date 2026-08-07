@@ -5,7 +5,8 @@ import { AuthButton } from "@/components/auth/AuthButton";
 
 const styles = {
   bar: "flex shrink-0 flex-wrap items-center justify-between gap-2 md:gap-3",
-  hideOnMobile: "hidden md:flex",
+  hideBar: "hidden md:flex",
+  hideLine: "hidden md:block",
   title: "hidden whitespace-nowrap text-base font-semibold md:block", // 手機靠底部導覽辨識頁面
   actions: "flex min-w-0 flex-1 items-center justify-end gap-2",
   auth: "flex shrink-0 items-center gap-2 md:hidden",
@@ -22,12 +23,14 @@ export function PageHeader({ title, action }: PageHeaderProps) {
   const { data: session, status } = useSession();
   const showAuth = status !== "loading" && !session?.user; // 登入後入口在設定頁，未登入時手機只剩這裡
 
-  const empty = !action && !showAuth; // 手機沒標題又沒按鈕，整條連線一起收起來
-  const hidden = empty ? styles.hideOnMobile : "";
+  // 桌機永遠有標題，所以只有手機會整條變空；顯示與否交給 CSS，用 JS 判斷會閃
+  const emptyOnMobile = !action && !showAuth;
+  const hideBar = emptyOnMobile ? styles.hideBar : "";
+  const hideLine = emptyOnMobile ? styles.hideLine : "";
 
   return (
     <>
-      <div className={`${styles.bar} ${hidden}`}>
+      <div className={`${styles.bar} ${hideBar}`}>
         {/* 手機不顯示標題，寬度讓給操作區 */}
         <h2 className={styles.title}>{title}</h2>
 
@@ -43,7 +46,7 @@ export function PageHeader({ title, action }: PageHeaderProps) {
         </div>
       </div>
 
-      <div className={`${styles.line} ${hidden}`} />
+      <div className={`${styles.line} ${hideLine}`} />
     </>
   );
 }
