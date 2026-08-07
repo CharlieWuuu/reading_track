@@ -10,6 +10,7 @@ import { DisplaySettings } from "@/components/settings/DisplaySettings";
 import { DataIssuesPanel } from "@/components/settings/DataIssuesPanel";
 import { EnrichButton } from "@/components/books/EnrichButton";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { SignInPrompt } from "@/components/auth/SignInPrompt";
 import { AuthButton } from "@/components/auth/AuthButton";
 
 type SettingsTab = "connect" | "categories" | "display" | "maintenance";
@@ -44,11 +45,9 @@ export default function SettingsPage() {
 
   if (!session?.user) {
     return (
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 md:gap-5">
         <PageHeader title="設定" />
-        <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-          請先登入 Google 帳號
-        </div>
+        <SignInPrompt />
       </div>
     );
   }
