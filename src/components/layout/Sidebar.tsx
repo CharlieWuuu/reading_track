@@ -109,9 +109,8 @@ export function Sidebar() {
       <div className={`${styles.footer} ${collapsed ? "items-center p-2" : "p-4"}`}>
         {/* 工具類操作固定在帳號按鈕上面一排，收合前後都在同一個位置 */}
         <div className={`${styles.tools} ${collapsed ? "flex-col" : "justify-between"}`}>
-                    <CollapseButton collapsed={collapsed} onClick={toggle} />
+          <CollapseButton collapsed={collapsed} onClick={toggle} />
           {showRefresh && <RefreshButton compact={collapsed} />}
-
         </div>
         <AuthButton compact={collapsed} />
       </div>
