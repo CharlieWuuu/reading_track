@@ -7,7 +7,7 @@ import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { useSidebarStore } from "@/store/useSidebarStore";
-import { NAV_ITEMS } from "./navItems";
+import { NAV_ITEMS, NavItem } from "./navItems";
 import { RefreshButton } from "./RefreshButton";
 
 const styles = {
@@ -16,6 +16,7 @@ const styles = {
   title: "truncate text-lg font-semibold tracking-tight",
   list: "flex-1 space-y-1 overflow-y-auto",
   link: "flex items-center gap-2 rounded px-3 py-2 text-sm",
+  linkCollapsed: "justify-center px-0",
   linkActive: "bg-gray-900 text-white",
   linkIdle: "text-gray-700 hover:bg-gray-100",
   footer: "flex flex-col gap-2 border-t border-gray-900",
@@ -48,6 +49,34 @@ function CollapseButton({ collapsed, onClick }: CollapseButtonProps) {
   );
 }
 
+function isActive(item: NavItem, pathname: string) {
+  return item.exact ? pathname === item.href : pathname.startsWith(item.href);
+}
+
+type NavLinkProps = {
+  item: NavItem;
+  collapsed: boolean;
+  active: boolean;
+};
+
+function NavLink({ item, collapsed, active }: NavLinkProps) {
+  const label = FULL_LABELS[item.href] ?? item.label; // 側欄空間夠，用完整名稱
+  return (
+    <li>
+      <Link
+        href={item.href}
+        title={collapsed ? label : undefined}
+        className={`${styles.link} ${collapsed ? styles.linkCollapsed : ""} ${
+          active ? styles.linkActive : styles.linkIdle
+        }`}
+      >
+        <item.Icon active={active} />
+        {!collapsed && label}
+      </Link>
+    </li>
+  );
+}
+
 export function Sidebar() {
   const pathname = usePathname();
   const { collapsed, toggle } = useSidebarStore();
@@ -67,24 +96,14 @@ export function Sidebar() {
       </div>
 
       <ul className={`${styles.list} ${collapsed ? "p-2" : "p-4"}`}>
-        {NAV_ITEMS.map((item) => {
-          const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
-          const label = FULL_LABELS[item.href] ?? item.label;
-          return (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                title={collapsed ? label : undefined}
-                className={`${styles.link} ${collapsed ? "justify-center px-0" : ""} ${
-                  active ? styles.linkActive : styles.linkIdle
-                }`}
-              >
-                <item.Icon active={active} />
-                {!collapsed && label}
-              </Link>
-            </li>
-          );
-        })}
+        {NAV_ITEMS.map((item) => (
+          <NavLink
+            key={item.href}
+            item={item}
+            collapsed={collapsed}
+            active={isActive(item, pathname)}
+          />
+        ))}
       </ul>
 
       <div className={`${styles.footer} ${collapsed ? "items-center p-2" : "p-4"}`}>

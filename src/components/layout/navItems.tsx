@@ -4,16 +4,14 @@ import { CalendarDays, ChartPie, Library, Newspaper, Settings } from "lucide-rea
 
 type IconProps = { active?: boolean };
 
-/**
- * 圖示改用 lucide-react：一整套的筆畫粗細、圓角與視覺重量都一致，
- * 比先前一顆一顆手畫的 SVG 好看也好維護（tree-shaking，只會打包用到的那幾顆）。
- */
-export const NAV_ITEMS: Array<{
+export type NavItem = {
   href: string;
   label: string;
   exact?: boolean;
   Icon: (props: IconProps) => React.ReactElement;
-}> = [
+};
+
+export const NAV_ITEMS: NavItem[] = [
   {
     href: "/books",
     label: "書籍",
