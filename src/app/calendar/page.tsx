@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import { CalendarDays, GanttChartSquare } from "lucide-react";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { PageMessage, PageShell } from "@/components/layout/PageShell";
 import { MonthGrid } from "@/components/calendar/MonthGrid";
 import { ReadingTimeline } from "@/components/calendar/ReadingTimeline";
 import { useUrlParams } from "@/lib/useUrlParam";
@@ -57,23 +57,18 @@ function CalendarViews() {
           : "";
 
   return (
-    <div className="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col gap-3 md:gap-5">
-      <PageHeader title="月曆" />
+    <PageShell title="月曆" fill>
       {/* 訊息框跟月曆佔一樣的空間，切換的時候版面不會跳動 */}
       {message || !mounted ? (
-        <div
-          className={`flex min-h-0 flex-1 items-center justify-center rounded-lg border bg-white p-8 text-center text-sm ${
-            error ? "text-red-600" : "text-gray-500"
-          }`}
-        >
+        <PageMessage tone={error ? "error" : "muted"} fill>
           {message}
-        </div>
+        </PageMessage>
       ) : view === "timeline" ? (
         <ReadingTimeline books={books} action={viewToggle} />
       ) : (
         <MonthGrid books={books} articles={articles} action={viewToggle} />
       )}
-    </div>
+    </PageShell>
   );
 }
 

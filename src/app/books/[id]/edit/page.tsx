@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { BookForm } from "@/components/books/BookForm";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { PageMessage, PageShell } from "@/components/layout/PageShell";
 
 export default function EditBookPage() {
   const { id } = useParams<{ id: string }>();
@@ -12,45 +12,25 @@ export default function EditBookPage() {
   const { books, isLoading, error } = useBooks();
   const book = books.find((b) => b.id === id);
 
-  if (!sheetId) {
+  if (!sheetId || isLoading || error || !book) {
     return (
-      <div className="mx-auto w-full max-w-3xl">
-        <PageHeader title="編輯書籍" />
-        <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-          請先到「設定」頁面連接 Google Sheet
-        </div>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="mx-auto w-full max-w-3xl">
-        <PageHeader title="編輯書籍" />
-        <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-          載入中…
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !book) {
-    return (
-      <div className="mx-auto w-full max-w-3xl">
-        <PageHeader title="編輯書籍" />
-        <div className="rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-          {error || "找不到這本書"}
-        </div>
-      </div>
+      <PageShell title="編輯書籍" width="form">
+        <PageMessage tone={error ? "error" : "muted"}>
+          {!sheetId
+            ? "請先到「設定」頁面連接 Google Sheet"
+            : isLoading
+              ? "載入中…"
+              : error || "找不到這本書"}
+        </PageMessage>
+      </PageShell>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full min-h-0 max-w-5xl flex-1 flex-col gap-3 md:gap-5">
-      <PageHeader title="編輯書籍" />
+    <PageShell title="編輯書籍" fill>
       <div className="min-h-0 flex-1">
         <BookForm key={book.id} book={book} />
       </div>
-    </div>
+    </PageShell>
   );
 }

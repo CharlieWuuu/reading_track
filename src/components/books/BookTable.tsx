@@ -10,6 +10,7 @@ import { usePagingMode } from "@/lib/usePagingMode";
 import { useMounted } from "@/lib/useMounted";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
+import { PageMessage } from "@/components/layout/PageShell";
 import { useArticles } from "@/lib/useArticles";
 import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
 import { useFitPageSize, useFitRowsByMeasure, viewportBottom } from "@/lib/useFitPageSize";
@@ -546,25 +547,19 @@ export function BookTable() {
 
   if (!sheetId) {
     return (
-      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-        請先到「設定」頁面連接 Google Sheet
-      </div>
+      <PageMessage>請先到「設定」頁面連接 Google Sheet</PageMessage>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-        載入中…
-      </div>
+      <PageMessage>載入中…</PageMessage>
     );
   }
 
   if (error) {
     return (
-      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-red-600">
-        {error}
-      </div>
+      <PageMessage tone="error">{error}</PageMessage>
     );
   }
 
@@ -572,9 +567,7 @@ export function BookTable() {
     return (
       <div className="flex w-full flex-col gap-3">
         {keyword && <KeywordFilter keyword={keyword} count={0} onClear={clearKeyword} />}
-        <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-          {keyword ? "沒有書提到這個關鍵字" : "尚未新增任何書籍"}
-        </div>
+        <PageMessage>{keyword ? "沒有書提到這個關鍵字" : "尚未新增任何書籍"}</PageMessage>
       </div>
     );
   }

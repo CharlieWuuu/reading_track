@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { PageMessage, PageShell } from "@/components/layout/PageShell";
 import { SignInPrompt } from "@/components/auth/SignInPrompt";
 
 export default function ProfilePage() {
@@ -10,28 +10,22 @@ export default function ProfilePage() {
 
   if (status === "loading") {
     return (
-      <div className="mx-auto flex w-full max-w-md flex-col gap-3 md:gap-5">
-        <PageHeader title="個人資訊" />
-        <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-          載入中…
-        </div>
-      </div>
+      <PageShell title="個人資訊" width="narrow">
+        <PageMessage>載入中…</PageMessage>
+      </PageShell>
     );
   }
 
   if (!session?.user) {
     return (
-      <div className="mx-auto flex w-full max-w-md flex-col gap-3 md:gap-5">
-        <PageHeader title="個人資訊" />
+      <PageShell title="個人資訊" width="narrow">
         <SignInPrompt />
-      </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col gap-3 md:gap-5">
-      <PageHeader title="個人資訊" />
-
+    <PageShell title="個人資訊" width="narrow">
       <div className="flex w-full flex-col gap-6 rounded-lg border bg-white p-5">
         <div className="flex items-center gap-4">
           {session.user.image ? (
@@ -67,6 +61,6 @@ export default function ProfilePage() {
           隱私權政策
         </Link>
       </div>
-    </div>
+    </PageShell>
   );
 }

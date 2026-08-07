@@ -9,7 +9,7 @@ import { CategoryManager } from "@/components/settings/CategoryManager";
 import { DisplaySettings } from "@/components/settings/DisplaySettings";
 import { DataIssuesPanel } from "@/components/settings/DataIssuesPanel";
 import { EnrichButton } from "@/components/books/EnrichButton";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { PageShell } from "@/components/layout/PageShell";
 import { SignInPrompt } from "@/components/auth/SignInPrompt";
 import { AuthButton } from "@/components/auth/AuthButton";
 
@@ -45,10 +45,9 @@ export default function SettingsPage() {
 
   if (!session?.user) {
     return (
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 md:gap-5">
-        <PageHeader title="設定" />
+      <PageShell title="設定" width="form">
         <SignInPrompt />
-      </div>
+      </PageShell>
     );
   }
 
@@ -120,35 +119,35 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-3 md:gap-5">
-      <PageHeader
-        title="設定"
-        action={
-          /*
-            分頁切換：每個區塊各自塞得下一個畫面，不用整頁往下捲。
-            手機放不下四個標籤，改成單行橫向捲動，不讓它折成兩行把頁首撐高。
-          */
-          <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-lg border p-1">
-            {tabs.map((t) => (
-              <button
-                key={t.key}
-                onClick={() => setTab(t.key)}
-                className={`shrink-0 whitespace-nowrap rounded px-2.5 py-1.5 text-xs font-medium sm:text-sm ${
-                  tab === t.key
-                    ? "bg-gray-900 text-white"
-                    : "text-gray-500 hover:bg-gray-100"
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-        }
-      />
-
+    <PageShell
+      title="設定"
+      width="form"
+      fill
+      action={
+        /*
+          分頁切換：每個區塊各自塞得下一個畫面，不用整頁往下捲。
+          手機放不下四個標籤，改成單行橫向捲動，不讓它折成兩行把頁首撐高。
+        */
+        <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-lg border p-1">
+          {tabs.map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`shrink-0 whitespace-nowrap rounded px-2.5 py-1.5 text-xs font-medium sm:text-sm ${
+                tab === t.key
+                  ? "bg-gray-900 text-white"
+                  : "text-gray-500 hover:bg-gray-100"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      }
+    >
       <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-white p-4 md:p-5">
         {tabs.find((t) => t.key === tab)?.node}
       </div>
-    </div>
+    </PageShell>
   );
 }

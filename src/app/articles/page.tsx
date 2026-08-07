@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useRef, useState } from "react";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { PageMessage, PageShell } from "@/components/layout/PageShell";
 import { PagerButton } from "@/components/ui/PagerButton";
 import { TagList } from "@/components/ui/TagBadge";
 import { useFitPageSize, useFitRowsByMeasure } from "@/lib/useFitPageSize";
@@ -55,51 +55,38 @@ function ArticlesList() {
 
   if (!token) {
     return (
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 md:gap-5">
-        <PageHeader title="文章紀錄" />
-        <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-          請先到「設定」頁面連接 Instapaper
-        </div>
-      </div>
+      <PageShell title="文章紀錄">
+        <PageMessage>請先到「設定」頁面連接 Instapaper</PageMessage>
+      </PageShell>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 md:gap-5">
-        <PageHeader title="文章紀錄" />
-        <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-          載入中…
-        </div>
-      </div>
+      <PageShell title="文章紀錄">
+        <PageMessage>載入中…</PageMessage>
+      </PageShell>
     );
   }
 
   if (error) {
     return (
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 md:gap-5">
-        <PageHeader title="文章紀錄" />
-        <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-red-600">
-          {error}
-        </div>
-      </div>
+      <PageShell title="文章紀錄">
+        <PageMessage tone="error">{error}</PageMessage>
+      </PageShell>
     );
   }
 
   if (articles.length === 0) {
     return (
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 md:gap-5">
-        <PageHeader title="文章紀錄" />
-        <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-          尚無文章
-        </div>
-      </div>
+      <PageShell title="文章紀錄">
+        <PageMessage>尚無文章</PageMessage>
+      </PageShell>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 md:gap-5">
-      <PageHeader title="文章紀錄" />
+    <PageShell title="文章紀錄">
       {/* overflow-hidden：hover 底色才會被圓角裁掉，不會在頭尾兩列破圖 */}
       <div ref={containerRef} className="divide-y overflow-hidden rounded-lg border bg-white">
         {pageArticles.map((a) => {
@@ -172,7 +159,7 @@ function ArticlesList() {
           </div>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }
 

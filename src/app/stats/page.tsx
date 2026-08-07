@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { SectionPager, Section } from "@/components/stats/SectionPager";
 import { useIsMobile } from "@/lib/useIsMobile";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { PageMessage, PageShell } from "@/components/layout/PageShell";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useMounted } from "@/lib/useMounted";
 import { useBooks } from "@/lib/useBooks";
@@ -80,33 +80,25 @@ function BooksStats() {
 
   if (!sheetId) {
     return (
-      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-        請先到「設定」頁面連接 Google Sheet
-      </div>
+      <PageMessage>請先到「設定」頁面連接 Google Sheet</PageMessage>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-        載入中…
-      </div>
+      <PageMessage>載入中…</PageMessage>
     );
   }
 
   if (error) {
     return (
-      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-red-600">
-        {error}
-      </div>
+      <PageMessage tone="error">{error}</PageMessage>
     );
   }
 
   if (books.length === 0) {
     return (
-      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-        尚未新增任何書籍
-      </div>
+      <PageMessage>尚未新增任何書籍</PageMessage>
     );
   }
 
@@ -275,33 +267,25 @@ function ArticlesStats() {
 
   if (!token) {
     return (
-      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-        請先到「設定」頁面連接 Instapaper
-      </div>
+      <PageMessage>請先到「設定」頁面連接 Instapaper</PageMessage>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-        載入中…
-      </div>
+      <PageMessage>載入中…</PageMessage>
     );
   }
 
   if (error) {
     return (
-      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-red-600">
-        {error}
-      </div>
+      <PageMessage tone="error">{error}</PageMessage>
     );
   }
 
   if (articles.length === 0) {
     return (
-      <div className="w-full rounded-lg border bg-white p-8 text-center text-sm text-gray-500">
-        尚無文章
-      </div>
+      <PageMessage>尚無文章</PageMessage>
     );
   }
 
@@ -411,22 +395,22 @@ function StatsTabs() {
   const setTab = (next: Tab) => setParams({ tab: next === "books" ? null : next });
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-3 md:gap-5">
-      <PageHeader
-        title="統計"
-        action={
-          <div className="flex items-center gap-1 rounded-lg border p-1">
-            <TabButton active={tab === "books"} onClick={() => setTab("books")}>
-              書籍
-            </TabButton>
-            <TabButton active={tab === "articles"} onClick={() => setTab("articles")}>
-              文章
-            </TabButton>
-          </div>
-        }
-      />
+    <PageShell
+      title="統計"
+      fill
+      action={
+        <div className="flex items-center gap-1 rounded-lg border p-1">
+          <TabButton active={tab === "books"} onClick={() => setTab("books")}>
+            書籍
+          </TabButton>
+          <TabButton active={tab === "articles"} onClick={() => setTab("articles")}>
+            文章
+          </TabButton>
+        </div>
+      }
+    >
       {tab === "books" ? <BooksStats /> : <ArticlesStats />}
-    </div>
+    </PageShell>
   );
 }
 
