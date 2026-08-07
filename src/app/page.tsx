@@ -1,11 +1,10 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { CalendarDays, ChartPie, Sparkles, Table2 } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "ReadingTrack — 用你自己的 Google 試算表記錄閱讀",
-  description:
-    "ReadingTrack 是個人閱讀紀錄工具，書籍與文章資料存在你自己的 Google 試算表裡。",
+  description: "ReadingTrack 是個人閱讀紀錄工具，書籍與文章資料存在你自己的 Google 試算表裡。",
 };
 
 /** 示意用的假書單。用真的欄位排出真的樣子，比截圖好維護，也不會有解析度問題 */
@@ -60,8 +59,7 @@ export default function Home() {
       <header className="flex flex-col gap-4">
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">ReadingTrack</h1>
         <p className="text-base leading-relaxed text-gray-700 sm:text-lg">
-          記錄你讀過的書與文章。資料存在你自己的 Google
-          試算表裡，隨時可以直接打開來看、修改或匯出。
+          記錄你讀過的書與文章。資料存在你自己的 Google 試算表裡，隨時可以直接打開來看、修改或匯出。
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <Link
@@ -91,9 +89,7 @@ export default function Home() {
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
                   <p className="flex items-center gap-2 text-sm font-medium">
-                    <span className="text-xs tabular-nums text-gray-400">
-                      #{SAMPLE.length - i}
-                    </span>
+                    <span className="text-xs text-gray-400 tabular-nums">#{SAMPLE.length - i}</span>
                     <span className="truncate">{book.title}</span>
                   </p>
                   <p className="truncate text-xs text-gray-500">{book.author}</p>
@@ -115,9 +111,7 @@ export default function Home() {
             ))}
           </ul>
         </div>
-        <p className="text-center text-xs text-gray-400">
-          這是介面示意，書目為範例資料
-        </p>
+        <p className="text-center text-xs text-gray-400">這是介面示意，書目為範例資料</p>
       </section>
 
       <section className="flex flex-col gap-4">

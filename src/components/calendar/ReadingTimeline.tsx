@@ -50,13 +50,7 @@ type Week = Segment[][];
  * 顏色統一：線的位置與長度已經說完了全部的資訊，
  * 再按分類上色只會讓人以為顏色另有含意。
  */
-export function ReadingTimeline({
-  books,
-  action,
-}: {
-  books: Book[];
-  action?: React.ReactNode;
-}) {
+export function ReadingTimeline({ books, action }: { books: Book[]; action?: React.ReactNode }) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -100,8 +94,8 @@ export function ReadingTimeline({
     for (const segment of segments) {
       const lane = lanes.find((row) =>
         row.every(
-          (s) => segment.start >= s.start + s.span || segment.start + segment.span <= s.start
-        )
+          (s) => segment.start >= s.start + s.span || segment.start + segment.span <= s.start,
+        ),
       );
       if (lane) lane.push(segment);
       else lanes.push([segment]);
@@ -124,7 +118,7 @@ export function ReadingTimeline({
       <div className="flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2 sm:px-4 sm:py-3">
         <div className="flex items-center gap-2">
           <PagerButton direction="prev" onClick={() => goMonth(-1)} label="上個月" />
-          <span className="w-22 whitespace-nowrap text-center text-sm font-medium">
+          <span className="w-22 text-center text-sm font-medium whitespace-nowrap">
             {year} 年 {month + 1} 月
           </span>
           <PagerButton
@@ -215,17 +209,16 @@ export function ReadingTimeline({
                           <span className="absolute inset-x-0 top-1/2 h-0.5 -translate-y-1/2 bg-[#2B5A8E]" />
                           {/* 頭尾的點：只在真正的開始／讀完那天才畫；還在讀的線停在今天但不封口 */}
                           {!segment.opensLeft && (
-                            <span className="absolute left-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-[#2B5A8E]" />
+                            <span className="absolute top-1/2 left-0 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-[#2B5A8E]" />
                           )}
                           {!segment.opensRight && !segment.ongoing && (
-                            <span className="absolute right-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-[#2B5A8E]" />
+                            <span className="absolute top-1/2 right-0 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-[#2B5A8E]" />
                           )}
                         </span>
                       </Link>
                     ))}
                   </div>
                 ))}
-
               </div>
             </div>
           );

@@ -3,7 +3,6 @@
 import { RankingItem } from "@/lib/bookStats";
 import { SEQUENTIAL } from "@/lib/chartPalette";
 
-
 /**
  * 排行用純 CSS 長條，不走 recharts。
  *
@@ -48,7 +47,7 @@ export function RankingBar({
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="min-w-0 truncate text-xs text-gray-700">{item.name}</span>
-                  <span className="shrink-0 text-xs tabular-nums text-gray-400">
+                  <span className="shrink-0 text-xs text-gray-400 tabular-nums">
                     {item.doneValue !== undefined
                       ? `${item.doneValue} / ${item.value} ${unit}`
                       : `${item.value} ${unit}`}

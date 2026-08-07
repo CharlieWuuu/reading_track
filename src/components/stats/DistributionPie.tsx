@@ -4,7 +4,6 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { DistributionSlice } from "@/lib/bookStats";
 import { CATEGORICAL, VIZ_TOKENS } from "@/lib/chartPalette";
 
-
 /**
  * 佔比太小的區塊不拉線標示——線和字會互相疊在一起，反而什麼都看不清楚。
  * 這些項目仍然畫在圓環上，滑過去（手機是點一下）看得到名稱與本數。
@@ -108,45 +107,45 @@ export function DistributionPie({
         {title}
       </p>
       <div className="min-h-0 flex-1">
-      <ResponsiveContainer width="100%" height={height}>
-        {/* 半徑用百分比，容器多高就畫多大；外圈留白給拉線的標籤 */}
-        <PieChart margin={{ top: 8, right: 56, bottom: 8, left: 56 }}>
-          <Pie
-            data={slots}
-            dataKey="value"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            innerRadius="52%"
-            outerRadius="78%"
-            // 從正上方開始、順時針排；預設是三點鐘方向逆時針
-            startAngle={90}
-            endAngle={-270}
-            paddingAngle={2}
-            label={renderLabel}
-            labelLine={renderLabelLine}
-            isAnimationActive={false}
-          >
-            {slots.map((_, i) => (
-              <Cell
-                key={i}
-                fill={CATEGORICAL[i % CATEGORICAL.length]}
-                stroke="var(--surface-1)"
-                strokeWidth={2}
-              />
-            ))}
-          </Pie>
-          <Tooltip
-            contentStyle={{
-              background: "var(--surface-1)",
-              border: "1px solid var(--grid)",
-              borderRadius: 6,
-              fontSize: 12,
-            }}
-            formatter={(value, name) => [`${value ?? 0} ${unit}`, name]}
-          />
-        </PieChart>
-      </ResponsiveContainer>
+        <ResponsiveContainer width="100%" height={height}>
+          {/* 半徑用百分比，容器多高就畫多大；外圈留白給拉線的標籤 */}
+          <PieChart margin={{ top: 8, right: 56, bottom: 8, left: 56 }}>
+            <Pie
+              data={slots}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              innerRadius="52%"
+              outerRadius="78%"
+              // 從正上方開始、順時針排；預設是三點鐘方向逆時針
+              startAngle={90}
+              endAngle={-270}
+              paddingAngle={2}
+              label={renderLabel}
+              labelLine={renderLabelLine}
+              isAnimationActive={false}
+            >
+              {slots.map((_, i) => (
+                <Cell
+                  key={i}
+                  fill={CATEGORICAL[i % CATEGORICAL.length]}
+                  stroke="var(--surface-1)"
+                  strokeWidth={2}
+                />
+              ))}
+            </Pie>
+            <Tooltip
+              contentStyle={{
+                background: "var(--surface-1)",
+                border: "1px solid var(--grid)",
+                borderRadius: 6,
+                fontSize: 12,
+              }}
+              formatter={(value, name) => [`${value ?? 0} ${unit}`, name]}
+            />
+          </PieChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );

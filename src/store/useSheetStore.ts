@@ -30,6 +30,6 @@ export const useSheetStore = create<SheetStore>()(
       onRehydrateStorage: () => () => {
         useSheetStore.setState({ hydrated: true });
       },
-    }
-  )
+    },
+  ),
 );

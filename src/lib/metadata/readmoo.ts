@@ -10,7 +10,7 @@ export const readmooProvider: MetadataProvider = {
 
   findCandidates: async (query) => {
     const $ = await fetchDom(
-      `https://readmoo.com/search/keyword?q=${encodeURIComponent(query)}&pi=0&st=true`
+      `https://readmoo.com/search/keyword?q=${encodeURIComponent(query)}&pi=0&st=true`,
     );
     if (!$) return [];
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Script from "next/script";
+import { useState } from "react";
 import { useSession } from "next-auth/react";
 
 declare global {
@@ -49,11 +49,7 @@ function describe(e: unknown): string {
   }
 }
 
-export function SheetPicker({
-  onSelect,
-}: {
-  onSelect: (sheetId: string, name: string) => void;
-}) {
+export function SheetPicker({ onSelect }: { onSelect: (sheetId: string, name: string) => void }) {
   const { data: session } = useSession();
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
@@ -61,8 +57,7 @@ export function SheetPicker({
   function handleScriptLoad() {
     window.gapi.load("picker", {
       callback: () => setReady(true),
-      onerror: (e: unknown) =>
-        setError(`Google Picker 模組載入失敗：${describe(e)}`),
+      onerror: (e: unknown) => setError(`Google Picker 模組載入失敗：${describe(e)}`),
     } as unknown as () => void);
   }
 
@@ -78,7 +73,7 @@ export function SheetPicker({
 
     try {
       const view = new window.google.picker.DocsView(
-        window.google.picker.ViewId.SPREADSHEETS
+        window.google.picker.ViewId.SPREADSHEETS,
       ).setMimeTypes("application/vnd.google-apps.spreadsheet");
 
       const builder = new window.google.picker.PickerBuilder()
@@ -113,9 +108,7 @@ export function SheetPicker({
       <Script
         src="https://apis.google.com/js/api.js"
         onLoad={handleScriptLoad}
-        onError={() =>
-          setError("無法載入 https://apis.google.com/js/api.js（被瀏覽器或網路擋掉）")
-        }
+        onError={() => setError("無法載入 https://apis.google.com/js/api.js（被瀏覽器或網路擋掉）")}
       />
       <button
         type="button"
@@ -126,7 +119,7 @@ export function SheetPicker({
         {ready ? "選擇 Google Sheet" : "載入中…"}
       </button>
       {error && (
-        <div className="mt-2 wrap-break-word rounded bg-red-50 p-2 text-xs text-red-700">
+        <div className="mt-2 rounded bg-red-50 p-2 text-xs wrap-break-word text-red-700">
           {error}
         </div>
       )}

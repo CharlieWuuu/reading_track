@@ -1,35 +1,16 @@
 "use client";
 
 import { Suspense } from "react";
-import { useUrlParams } from "@/lib/useUrlParam";
-import { SectionPager, Section } from "@/components/stats/SectionPager";
-import { useIsMobile } from "@/lib/useIsMobile";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
-import { useSheetStore } from "@/store/useSheetStore";
-import { useMounted } from "@/lib/useMounted";
-import { useBooks } from "@/lib/useBooks";
-import { useInstapaperStore } from "@/store/useInstapaperStore";
-import { useArticles } from "@/lib/useArticles";
-import { KpiCards } from "@/components/stats/KpiCards";
-import { YearlyTrendChart } from "@/components/stats/YearlyTrendChart";
-import { CumulativeChart } from "@/components/stats/CumulativeChart";
-import { MonthlyTrendChart } from "@/components/stats/MonthlyTrendChart";
-import { DistributionPie } from "@/components/stats/DistributionPie";
-import { RankingBar } from "@/components/stats/RankingBar";
 import { ArticleKpiCards } from "@/components/stats/ArticleKpiCards";
-import {
-  getDomainDistribution,
-  getKpis,
-  getMonthlyTrend,
-  getLanguageDistribution,
-  getPlatformDistribution,
-  getQuarterlyTrend,
-  getTypeDistribution,
-  getAuthorRanking,
-  getPublisherRanking,
-  getRereadRanking,
-} from "@/lib/bookStats";
+import { CumulativeChart } from "@/components/stats/CumulativeChart";
+import { DistributionPie } from "@/components/stats/DistributionPie";
+import { KpiCards } from "@/components/stats/KpiCards";
+import { MonthlyTrendChart } from "@/components/stats/MonthlyTrendChart";
+import { RankingBar } from "@/components/stats/RankingBar";
+import { Section, SectionPager } from "@/components/stats/SectionPager";
+import { YearlyTrendChart } from "@/components/stats/YearlyTrendChart";
 import {
   getArticleKpis,
   getArticleMonthlyTrend,
@@ -37,6 +18,25 @@ import {
   getSourceRanking,
   getTagDistribution,
 } from "@/lib/articleStats";
+import {
+  getAuthorRanking,
+  getDomainDistribution,
+  getKpis,
+  getLanguageDistribution,
+  getMonthlyTrend,
+  getPlatformDistribution,
+  getPublisherRanking,
+  getQuarterlyTrend,
+  getRereadRanking,
+  getTypeDistribution,
+} from "@/lib/bookStats";
+import { useArticles } from "@/lib/useArticles";
+import { useBooks } from "@/lib/useBooks";
+import { useIsMobile } from "@/lib/useIsMobile";
+import { useMounted } from "@/lib/useMounted";
+import { useUrlParams } from "@/lib/useUrlParam";
+import { useInstapaperStore } from "@/store/useInstapaperStore";
+import { useSheetStore } from "@/store/useSheetStore";
 
 const TABS = [
   { key: "books", label: "書籍" },
@@ -85,27 +85,19 @@ function BooksStats() {
   if (!mounted) return null;
 
   if (!sheetId) {
-    return (
-      <PageMessage>請先到「設定」頁面連接 Google Sheet</PageMessage>
-    );
+    return <PageMessage>請先到「設定」頁面連接 Google Sheet</PageMessage>;
   }
 
   if (isLoading) {
-    return (
-      <PageMessage>載入中…</PageMessage>
-    );
+    return <PageMessage>載入中…</PageMessage>;
   }
 
   if (error) {
-    return (
-      <PageMessage tone="error">{error}</PageMessage>
-    );
+    return <PageMessage tone="error">{error}</PageMessage>;
   }
 
   if (books.length === 0) {
-    return (
-      <PageMessage>尚未新增任何書籍</PageMessage>
-    );
+    return <PageMessage>尚未新增任何書籍</PageMessage>;
   }
 
   const kpis = getKpis(books);
@@ -113,7 +105,12 @@ function BooksStats() {
   // 一年／六個月的區間用月當刻度，所以月的資料也要備著
   const monthly = getMonthlyTrend(books);
 
-  const reread = { key: "reread", label: "重讀最多 Top 5", data: getRereadRanking(books), unit: "次" };
+  const reread = {
+    key: "reread",
+    label: "重讀最多 Top 5",
+    data: getRereadRanking(books),
+    unit: "次",
+  };
   const rankings = [
     reread,
     { key: "author", label: "常讀作者 Top 5", data: getAuthorRanking(books), unit: "本" },
@@ -202,7 +199,10 @@ function BooksStats() {
             node: (
               <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
                 {pies.map((pie) => (
-                  <div key={pie.key} className="flex min-h-0 flex-col rounded-lg border bg-white p-5">
+                  <div
+                    key={pie.key}
+                    className="flex min-h-0 flex-col rounded-lg border bg-white p-5"
+                  >
                     <div className="min-h-0 flex-1">
                       <DistributionPie title={pie.label} data={pie.data} height="100%" />
                     </div>
@@ -272,27 +272,19 @@ function ArticlesStats() {
   if (!mounted) return null;
 
   if (!token) {
-    return (
-      <PageMessage>請先到「設定」頁面連接 Instapaper</PageMessage>
-    );
+    return <PageMessage>請先到「設定」頁面連接 Instapaper</PageMessage>;
   }
 
   if (isLoading) {
-    return (
-      <PageMessage>載入中…</PageMessage>
-    );
+    return <PageMessage>載入中…</PageMessage>;
   }
 
   if (error) {
-    return (
-      <PageMessage tone="error">{error}</PageMessage>
-    );
+    return <PageMessage tone="error">{error}</PageMessage>;
   }
 
   if (articles.length === 0) {
-    return (
-      <PageMessage>尚無文章</PageMessage>
-    );
+    return <PageMessage>尚無文章</PageMessage>;
   }
 
   const kpis = getArticleKpis(articles);
@@ -378,7 +370,10 @@ function ArticlesStats() {
             node: (
               <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
                 {pies.map((pie) => (
-                  <div key={pie.key} className="flex min-h-0 flex-col rounded-lg border bg-white p-5">
+                  <div
+                    key={pie.key}
+                    className="flex min-h-0 flex-col rounded-lg border bg-white p-5"
+                  >
                     <div className="min-h-0 flex-1">
                       <DistributionPie title={pie.label} data={pie.data} unit="篇" height="100%" />
                     </div>

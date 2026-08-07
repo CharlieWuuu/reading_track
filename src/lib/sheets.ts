@@ -1,5 +1,5 @@
-import { GoogleSpreadsheet, GoogleSpreadsheetWorksheet } from "google-spreadsheet";
 import { OAuth2Client } from "google-auth-library";
+import { GoogleSpreadsheet, GoogleSpreadsheetWorksheet } from "google-spreadsheet";
 import {
   Book,
   BookCategories,
@@ -118,7 +118,7 @@ export async function listBooks(sheetId: string, accessToken: string): Promise<B
 /** 同時回報這次補了幾個編號，讓「補齊資料」可以顯示進度 */
 export async function listBooksWithMeta(
   sheetId: string,
-  accessToken: string
+  accessToken: string,
 ): Promise<{ books: Book[]; idsBackfilled: number }> {
   const { sheet, columns } = await getBooksSheet(sheetId, accessToken);
   let rows = await sheet.getRows();
@@ -150,7 +150,9 @@ export async function listBooksWithMeta(
       // 認不得的就照原樣留著——平台已經是使用者可自訂的選項了
       platform: normalizePlatform(get("platform")) ?? get("platform") ?? "",
       // 舊資料沒有這欄，用日期推一個合理的預設值
-      status: normalizeStatus(get("status")) ?? inferStatus(get("startDate") || null, get("endDate") || null),
+      status:
+        normalizeStatus(get("status")) ??
+        inferStatus(get("startDate") || null, get("endDate") || null),
       sourceUrl: get("sourceUrl"),
       startDate: get("startDate") || null,
       endDate: get("endDate") || null,
@@ -182,7 +184,7 @@ export async function updateBookRow(
   sheetId: string,
   accessToken: string,
   id: string,
-  patch: Partial<Book>
+  patch: Partial<Book>,
 ) {
   const { sheet, columns } = await getBooksSheet(sheetId, accessToken);
   const rows = await sheet.getRows();
@@ -208,7 +210,7 @@ export async function updateBookRow(
 export async function bulkUpdateBooks(
   sheetId: string,
   accessToken: string,
-  patches: Map<string, Partial<Book>>
+  patches: Map<string, Partial<Book>>,
 ): Promise<number> {
   if (patches.size === 0) return 0;
 
@@ -273,8 +275,8 @@ async function getOptionsSheet(sheetId: string, accessToken: string) {
         DEFAULT_CATEGORIES[key].map((option) => ({
           類別: CATEGORY_LABELS[key],
           選項: option,
-        }))
-      )
+        })),
+      ),
     );
   }
   return sheet;
@@ -282,7 +284,7 @@ async function getOptionsSheet(sheetId: string, accessToken: string) {
 
 export async function listCategories(
   sheetId: string,
-  accessToken: string
+  accessToken: string,
 ): Promise<BookCategories> {
   const sheet = await getOptionsSheet(sheetId, accessToken);
   const rows = await sheet.getRows();
@@ -307,7 +309,7 @@ export async function listCategories(
 export async function saveCategories(
   sheetId: string,
   accessToken: string,
-  categories: BookCategories
+  categories: BookCategories,
 ) {
   const sheet = await getOptionsSheet(sheetId, accessToken);
   await sheet.clearRows();
@@ -316,8 +318,8 @@ export async function saveCategories(
       categories[key].map((option) => ({
         類別: CATEGORY_LABELS[key],
         選項: option,
-      }))
-    )
+      })),
+    ),
   );
 }
 

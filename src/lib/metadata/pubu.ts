@@ -132,7 +132,7 @@ export const pubuProvider: MetadataProvider = {
       author: data.author?.trim() ?? "",
       publisher: data.publisher?.trim() ?? "",
       language: data.inLanguage
-        ? LANGUAGE_BY_TAG[data.inLanguage] ?? normalizeLanguage(data.inLanguage)
+        ? (LANGUAGE_BY_TAG[data.inLanguage] ?? normalizeLanguage(data.inLanguage))
         : "",
       coverUrl: data.image?.trim() ?? "",
       source: "Pubu",

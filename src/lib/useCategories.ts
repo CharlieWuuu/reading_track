@@ -36,7 +36,7 @@ export function useCategories() {
         }
         return { categories: next };
       },
-      { optimisticData: { categories: next }, rollbackOnError: true, revalidate: false }
+      { optimisticData: { categories: next }, rollbackOnError: true, revalidate: false },
     );
   }
 

@@ -27,7 +27,7 @@ export function useUrlParams() {
       const query = params.toString();
       router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
-    [pathname, router, searchParams]
+    [pathname, router, searchParams],
   );
 
   return { searchParams, setParams };

@@ -1,6 +1,6 @@
-import { Book } from "@/types/book";
-import { InstapaperBookmark } from "@/lib/instapaper/client";
 import { isCompleted } from "@/lib/articleStats";
+import { InstapaperBookmark } from "@/lib/instapaper/client";
+import { Book } from "@/types/book";
 
 export interface CalendarDay {
   date: Date;
@@ -11,7 +11,7 @@ export interface CalendarDay {
 
 function dateKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
-    d.getDate()
+    d.getDate(),
   ).padStart(2, "0")}`;
 }
 
@@ -19,7 +19,7 @@ export function buildMonthGrid(
   year: number,
   month: number,
   books: Book[],
-  articles: InstapaperBookmark[] = []
+  articles: InstapaperBookmark[] = [],
 ): CalendarDay[] {
   const booksByDay = new Map<string, Book[]>();
   for (const b of books) {

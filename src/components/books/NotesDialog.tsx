@@ -63,7 +63,7 @@ export function NotesDialog({
             <section className="flex flex-col gap-1.5">
               <h3 className="text-xs font-medium text-gray-500">心得</h3>
               {/* 保留原本的換行，Sheet 裡怎麼打就怎麼顯示 */}
-              <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-gray-700">
+              <p className="text-sm leading-relaxed break-words whitespace-pre-wrap text-gray-700">
                 {note}
               </p>
             </section>

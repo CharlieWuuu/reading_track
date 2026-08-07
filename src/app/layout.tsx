@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { COMMIT_HOOK_INSTALLER } from "react-component-overlay";
+import { SessionProvider } from "@/components/auth/SessionProvider";
 import { AppShell } from "@/components/layout/AppShell";
 import { LockZoomInStandalone } from "@/components/layout/LockZoomInStandalone";
 import { ServiceWorkerRegistrar } from "@/components/layout/ServiceWorkerRegistrar";
-import { SessionProvider } from "@/components/auth/SessionProvider";
 import { SWRProvider } from "@/components/layout/SWRProvider";
-import { COMMIT_HOOK_INSTALLER } from "react-component-overlay";
 import { DebugSetup } from "./DebugSetup";
 
 const geistSans = Geist({

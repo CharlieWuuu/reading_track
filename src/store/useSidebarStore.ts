@@ -13,6 +13,6 @@ export const useSidebarStore = create<SidebarStore>()(
       collapsed: false,
       toggle: () => set((s) => ({ collapsed: !s.collapsed })),
     }),
-    { name: "reading-track-sidebar" }
-  )
+    { name: "reading-track-sidebar" },
+  ),
 );

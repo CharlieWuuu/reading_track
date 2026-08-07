@@ -49,7 +49,7 @@ function toMetadata(doc: OpenLibraryDoc, url: string): BookMetadata {
     author: doc.author_name?.join(", ") ?? "",
     publisher: doc.publisher?.[0] ?? "",
     pageCount: doc.number_of_pages_median ? String(doc.number_of_pages_median) : "",
-    language: doc.language?.length ? LANGUAGE_NAMES[doc.language[0]] ?? "" : "",
+    language: doc.language?.length ? (LANGUAGE_NAMES[doc.language[0]] ?? "") : "",
     coverUrl: doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` : "",
     source: "Open Library",
     sourceUrl: url,
@@ -66,8 +66,8 @@ export const openLibraryProvider: MetadataProvider = {
   findCandidates: async (query) => {
     const data = await fetchJson<{ docs?: OpenLibraryDoc[] }>(
       `https://openlibrary.org/search.json?q=${encodeURIComponent(
-        query
-      )}&limit=5&fields=${SEARCH_FIELDS}`
+        query,
+      )}&limit=5&fields=${SEARCH_FIELDS}`,
     );
     if (!data?.docs?.length) return [];
 

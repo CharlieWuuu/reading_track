@@ -1,5 +1,5 @@
-import { Scraper } from "./types";
 import { getJsonLd, getMeta } from "./helpers";
+import { Scraper } from "./types";
 
 export const pubuScraper: Scraper = {
   platform: "Pubu",

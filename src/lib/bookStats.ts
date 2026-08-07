@@ -29,9 +29,7 @@ export function getKpis(books: Book[]) {
   const now = new Date();
   const thisYear = now.getFullYear();
 
-  const thisYearCount = done.filter(
-    (b) => new Date(b.endDate!).getFullYear() === thisYear
-  ).length;
+  const thisYearCount = done.filter((b) => new Date(b.endDate!).getFullYear() === thisYear).length;
 
   // 今年到目前為止的節奏：今年完成本數 ÷ 已經過完的月份數（8 月就除以 8）。
   // 原本是拿「總本數 ÷ 有紀錄的年份 × 12」，會把幾年前只讀一本的年份也算成完整 12 個月。
@@ -77,7 +75,10 @@ export function getQuarterlyTrend(books: Book[]): QuarterCount[] {
   for (const b of done) {
     const d = new Date(b.endDate!);
     const quarter = Math.floor(d.getMonth() / 3) + 1;
-    counts.set(`${d.getFullYear()}-Q${quarter}`, (counts.get(`${d.getFullYear()}-Q${quarter}`) ?? 0) + 1);
+    counts.set(
+      `${d.getFullYear()}-Q${quarter}`,
+      (counts.get(`${d.getFullYear()}-Q${quarter}`) ?? 0) + 1,
+    );
   }
 
   const times = done.map((b) => new Date(b.endDate!)).filter((d) => !Number.isNaN(d.getTime()));
@@ -184,14 +185,14 @@ export interface RankingItem extends DistributionSlice {
 export function getPublisherRanking(books: Book[], limit = 5): RankingItem[] {
   return rank(
     books.map((b) => ({ names: b.publisher.trim() ? [b.publisher.trim()] : [], book: b })),
-    limit
+    limit,
   );
 }
 
 export function getAuthorRanking(books: Book[], limit = 5): RankingItem[] {
   return rank(
     books.map((b) => ({ names: splitPeople(b.author), book: b })),
-    limit
+    limit,
   );
 }
 
@@ -204,7 +205,7 @@ export function getAuthorRanking(books: Book[], limit = 5): RankingItem[] {
 export function getRereadRanking(books: Book[], limit = 5): RankingItem[] {
   return rank(
     completedBooks(books).map((b) => ({ names: b.title.trim() ? [b.title.trim()] : [], book: b })),
-    limit
+    limit,
   );
 }
 

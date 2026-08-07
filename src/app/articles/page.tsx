@@ -5,13 +5,13 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { PagerButton } from "@/components/ui/PagerButton";
 import { TagList } from "@/components/ui/TagBadge";
-import { useFitPageSize, useFitRowsByMeasure } from "@/lib/useFitPageSize";
-import { usePagingMode } from "@/lib/usePagingMode";
-import { useInstapaperStore } from "@/store/useInstapaperStore";
-import { useMounted } from "@/lib/useMounted";
-import { useArticles } from "@/lib/useArticles";
 import { InstapaperBookmark } from "@/lib/instapaper/client";
 import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
+import { useArticles } from "@/lib/useArticles";
+import { useFitPageSize, useFitRowsByMeasure } from "@/lib/useFitPageSize";
+import { useMounted } from "@/lib/useMounted";
+import { usePagingMode } from "@/lib/usePagingMode";
+import { useInstapaperStore } from "@/store/useInstapaperStore";
 
 function formatDate(unixSeconds: number) {
   return new Date(unixSeconds * 1000).toLocaleDateString("zh-TW");
@@ -47,10 +47,7 @@ function ArticlesList() {
   const pageSize = scrolling ? Math.max(1, articles.length) : fitPageSize;
   const pageCount = Math.max(1, Math.ceil(articles.length / pageSize));
   const currentPage = Math.min(page, pageCount - 1);
-  const pageArticles = articles.slice(
-    currentPage * pageSize,
-    currentPage * pageSize + pageSize
-  );
+  const pageArticles = articles.slice(currentPage * pageSize, currentPage * pageSize + pageSize);
 
   if (!mounted) return null;
 
@@ -107,9 +104,7 @@ function ArticlesList() {
               className="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 sm:gap-4 sm:px-4 sm:py-3"
             >
               <div className="flex min-w-0 flex-1 flex-col gap-1">
-                <p className="truncate whitespace-nowrap text-sm font-medium">
-                  {a.title || a.url}
-                </p>
+                <p className="truncate text-sm font-medium whitespace-nowrap">{a.title || a.url}</p>
                 {/*
                   日期、網站與標籤同一列；手機寬度不夠時標籤會換到下一行，
                   硬擠在同一行只會被裁掉看不到。
@@ -118,7 +113,7 @@ function ArticlesList() {
                   <span className="shrink-0 truncate text-xs text-gray-500">
                     {formatDate(activityTime(a))} · {hostname(a.url)}
                   </span>
-                  <span className="shrink-0 text-xs tabular-nums text-gray-400 sm:hidden">
+                  <span className="shrink-0 text-xs text-gray-400 tabular-nums sm:hidden">
                     {percent}%
                   </span>
                   {a.tags && a.tags.length > 0 && (
@@ -137,7 +132,7 @@ function ArticlesList() {
                     style={{ width: `${percent}%` }}
                   />
                 </div>
-                <span className="w-9 shrink-0 whitespace-nowrap text-right text-xs tabular-nums text-gray-400">
+                <span className="w-9 shrink-0 text-right text-xs whitespace-nowrap text-gray-400 tabular-nums">
                   {percent}%
                 </span>
               </div>
@@ -153,7 +148,7 @@ function ArticlesList() {
               disabled={currentPage === 0}
               label="上一頁"
             />
-            <span className="whitespace-nowrap text-xs text-gray-500">
+            <span className="text-xs whitespace-nowrap text-gray-500">
               第 {currentPage + 1} / {pageCount} 頁
             </span>
             <PagerButton

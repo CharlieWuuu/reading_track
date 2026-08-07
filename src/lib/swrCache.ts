@@ -53,7 +53,7 @@ export function localStorageProvider(): Cache {
       }
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ savedAt: Date.now(), entries } satisfies Persisted)
+        JSON.stringify({ savedAt: Date.now(), entries } satisfies Persisted),
       );
     } catch {
       // 空間不足或隱私模式就放棄快取，不影響功能

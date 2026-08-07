@@ -18,6 +18,6 @@ export const useInstapaperStore = create<InstapaperStore>()(
       setAccess: (token, tokenSecret, username) => set({ token, tokenSecret, username }),
       disconnect: () => set({ token: "", tokenSecret: "", username: "" }),
     }),
-    { name: "reading-track-instapaper" }
-  )
+    { name: "reading-track-instapaper" },
+  ),
 );

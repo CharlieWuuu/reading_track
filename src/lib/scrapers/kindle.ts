@@ -1,5 +1,5 @@
-import { Scraper } from "./types";
 import { getText } from "./helpers";
+import { Scraper } from "./types";
 
 async function getLabelValue(page: import("playwright-core").Page, label: string): Promise<string> {
   const el = await page.$(`text=${label}`);

@@ -45,10 +45,31 @@ export function YearlyTrendChart({
   const months = monthlyData.map((d) => ({ key: d.month, count: d.count }));
 
   const ranges: RangeOption[] = [
-    { key: "all", label: "全部", size: 0, data: quarters, tick: quarterTick, tooltipLabel: quarterLabel },
-    { key: "2y", label: "兩年", size: 8, data: quarters, tick: quarterTick, tooltipLabel: quarterLabel },
+    {
+      key: "all",
+      label: "全部",
+      size: 0,
+      data: quarters,
+      tick: quarterTick,
+      tooltipLabel: quarterLabel,
+    },
+    {
+      key: "2y",
+      label: "兩年",
+      size: 8,
+      data: quarters,
+      tick: quarterTick,
+      tooltipLabel: quarterLabel,
+    },
     { key: "1y", label: "一年", size: 12, data: months, tick: monthTick, tooltipLabel: monthLabel },
-    { key: "6m", label: "六個月", size: 6, data: months, tick: monthTick, tooltipLabel: monthLabel },
+    {
+      key: "6m",
+      label: "六個月",
+      size: 6,
+      data: months,
+      tick: monthTick,
+      tooltipLabel: monthLabel,
+    },
   ];
 
   return (

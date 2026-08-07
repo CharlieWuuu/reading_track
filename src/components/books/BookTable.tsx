@@ -3,34 +3,34 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { RefObject, useEffect, useMemo, useRef, useState } from "react";
-import { PagerButton } from "@/components/ui/PagerButton";
-import { useUrlParams } from "@/lib/useUrlParam";
-import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
-import { usePagingMode } from "@/lib/usePagingMode";
-import { useMounted } from "@/lib/useMounted";
-import { useSheetStore } from "@/store/useSheetStore";
-import { useBooks } from "@/lib/useBooks";
-import { PageMessage } from "@/components/layout/PageMessage";
-import { useArticles } from "@/lib/useArticles";
-import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
-import { useFitPageSize, useFitRowsByMeasure, viewportBottom } from "@/lib/useFitPageSize";
 import {
   CalendarCheck,
   CalendarPlus,
   FileText,
   Languages,
   Link as LinkIcon,
+  Newspaper,
   NotebookPen,
   Quote,
-  Newspaper,
   Store,
   Tag,
   Type,
   type LucideIcon,
 } from "lucide-react";
+import { PageMessage } from "@/components/layout/PageMessage";
+import { PagerButton } from "@/components/ui/PagerButton";
 import { TagList as OptionList } from "@/components/ui/TagBadge";
+import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
+import { useArticles } from "@/lib/useArticles";
+import { useBooks } from "@/lib/useBooks";
+import { useFitPageSize, useFitRowsByMeasure, viewportBottom } from "@/lib/useFitPageSize";
+import { useMounted } from "@/lib/useMounted";
+import { usePagingMode } from "@/lib/usePagingMode";
+import { useUrlParams } from "@/lib/useUrlParam";
+import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
+import { useSheetStore } from "@/store/useSheetStore";
+import { Book, formatCount, parseQuotes, ReadingStatus, splitLines } from "@/types/book";
 import { NotesDialog } from "./NotesDialog";
-import { Book, ReadingStatus, formatCount, parseQuotes, splitLines } from "@/types/book";
 
 /** 單筆高度：手機是卡片，桌機是含書封的表格列 */
 const ROW_HEIGHT = { mobile: 86, desktop: 68 };
@@ -125,7 +125,7 @@ const STATUS_STYLES: Record<ReadingStatus, string> = {
 function StatusBadge({ status }: { status: ReadingStatus }) {
   return (
     <span
-      className={`inline-block whitespace-nowrap rounded px-1.5 py-0.5 text-[11px] ${STATUS_STYLES[status] ?? STATUS_STYLES.想讀}`}
+      className={`inline-block rounded px-1.5 py-0.5 text-[11px] whitespace-nowrap ${STATUS_STYLES[status] ?? STATUS_STYLES.想讀}`}
     >
       {status}
     </span>
@@ -172,12 +172,7 @@ function NotesPreview({ book }: { book: Book }) {
     <>
       {/* 兩個各自獨立的按鈕：點心得只看心得、點佳句只看佳句 */}
       <div className="grid grid-cols-2 gap-2">
-        <PreviewButton
-          Icon={NotebookPen}
-          label="心得"
-          text={note}
-          onOpen={() => setOpen("note")}
-        />
+        <PreviewButton Icon={NotebookPen} label="心得" text={note} onOpen={() => setOpen("note")} />
         <PreviewButton
           Icon={Quote}
           label="佳句"
@@ -254,7 +249,9 @@ function DetailCover({ url, title }: { url: string; title: string }) {
     );
   }
   return (
-    <div className={`${shape} flex items-center justify-center bg-gray-100 p-2 text-center text-xs leading-snug text-gray-400`}>
+    <div
+      className={`${shape} flex items-center justify-center bg-gray-100 p-2 text-center text-xs leading-snug text-gray-400`}
+    >
       {title.slice(0, 12) || "—"}
     </div>
   );
@@ -303,11 +300,9 @@ function DetailCard({
       {/* 桌機：標題區壓低一點，右欄的總高才貼得住封面 */}
       <div className="col-start-2 flex min-w-0 flex-col gap-1 self-center md:self-start">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="min-w-0 truncate text-sm font-semibold md:text-base">
-            {book.title}
-          </span>
+          <span className="min-w-0 truncate text-sm font-semibold md:text-base">{book.title}</span>
           {number !== undefined && (
-            <span className="text-xs tabular-nums text-gray-400">#{number}</span>
+            <span className="text-xs text-gray-400 tabular-nums">#{number}</span>
           )}
           <StatusBadge status={book.status} />
         </div>
@@ -328,11 +323,21 @@ function DetailCard({
         <DetailField Icon={Store} label="平台">
           <OptionList values={[book.platform]} />
         </DetailField>
-        <DetailField Icon={Languages} label="語言">{book.language}</DetailField>
-        <DetailField Icon={CalendarPlus} label="開始日期">{book.startDate}</DetailField>
-        <DetailField Icon={CalendarCheck} label="完成日期">{book.endDate}</DetailField>
-        <DetailField Icon={FileText} label="頁數">{formatCount(book.pageCount)}</DetailField>
-        <DetailField Icon={Type} label="字數">{formatCount(book.wordCount)}</DetailField>
+        <DetailField Icon={Languages} label="語言">
+          {book.language}
+        </DetailField>
+        <DetailField Icon={CalendarPlus} label="開始日期">
+          {book.startDate}
+        </DetailField>
+        <DetailField Icon={CalendarCheck} label="完成日期">
+          {book.endDate}
+        </DetailField>
+        <DetailField Icon={FileText} label="頁數">
+          {formatCount(book.pageCount)}
+        </DetailField>
+        <DetailField Icon={Type} label="字數">
+          {formatCount(book.wordCount)}
+        </DetailField>
         {/* 領域與屬性不放標題，彩色標籤自己說話 */}
         <div className="col-span-2 flex min-w-0 flex-wrap items-center gap-1.5 sm:col-span-1 lg:col-span-2">
           <OptionList values={[book.domain]} />
@@ -431,9 +436,7 @@ function KeywordFilter({
 function rowTone(endDate: string | null, thisYear: number): string {
   const year = endDate ? Number(endDate.slice(0, 4)) : thisYear;
   const distance = Number.isNaN(year) ? 0 : Math.abs(thisYear - year);
-  return distance % 2 === 1
-    ? "bg-gray-100 hover:bg-gray-200"
-    : "bg-white hover:bg-gray-50";
+  return distance % 2 === 1 ? "bg-gray-100 hover:bg-gray-200" : "bg-white hover:bg-gray-50";
 }
 
 /** 書封牆用的狀態標記：壓在封面左上角的小標籤，白邊讓它在任何封面上都看得見 */
@@ -441,7 +444,7 @@ function StatusDot({ status }: { status: ReadingStatus }) {
   if (status === "已讀完") return null;
   return (
     <span
-      className={`absolute left-1 top-1 rounded px-1 py-px text-[10px] leading-4 ring-2 ring-white ${STATUS_STYLES[status]}`}
+      className={`absolute top-1 left-1 rounded px-1 py-px text-[10px] leading-4 ring-2 ring-white ${STATUS_STYLES[status]}`}
     >
       {status}
     </span>
@@ -514,7 +517,8 @@ export function BookTable() {
   }
   // 帶著目前的檢視與頁碼進編輯頁，存檔後才回得到同一頁
   const query = searchParams.toString();
-  const editHref = (id: string) => `/books/${id}/edit${query ? `?back=${encodeURIComponent(query)}` : ""}`;
+  const editHref = (id: string) =>
+    `/books/${id}/edit${query ? `?back=${encodeURIComponent(query)}` : ""}`;
   const containerRef = useRef<HTMLDivElement>(null);
   // 詳細卡片很高，手機一頁可能只放得下一張，下限放寬到 1
   const minRows = view === "detail" ? 1 : 3;
@@ -546,21 +550,15 @@ export function BookTable() {
   if (!mounted) return null;
 
   if (!sheetId) {
-    return (
-      <PageMessage>請先到「設定」頁面連接 Google Sheet</PageMessage>
-    );
+    return <PageMessage>請先到「設定」頁面連接 Google Sheet</PageMessage>;
   }
 
   if (isLoading) {
-    return (
-      <PageMessage>載入中…</PageMessage>
-    );
+    return <PageMessage>載入中…</PageMessage>;
   }
 
   if (error) {
-    return (
-      <PageMessage tone="error">{error}</PageMessage>
-    );
+    return <PageMessage tone="error">{error}</PageMessage>;
   }
 
   if (books.length === 0) {
@@ -581,7 +579,7 @@ export function BookTable() {
           disabled={currentPage === 0}
           label="上一頁"
         />
-        <span className="whitespace-nowrap text-xs text-gray-500">
+        <span className="text-xs whitespace-nowrap text-gray-500">
           第 {currentPage + 1} / {pageCount} 頁
         </span>
         <PagerButton
@@ -636,7 +634,7 @@ export function BookTable() {
                     <LargeCover url={b.coverUrl} title={b.title} />
                     <StatusDot status={b.status} />
                   </div>
-                  <p className="truncate text-xs font-medium leading-snug">{b.title}</p>
+                  <p className="truncate text-xs leading-snug font-medium">{b.title}</p>
                   <p className="truncate text-[10px] text-gray-400">
                     {b.endDate ? `${b.endDate} 讀完` : b.status}
                   </p>
@@ -652,9 +650,7 @@ export function BookTable() {
 
   return (
     <div ref={containerRef} className="flex flex-col gap-3">
-      {keyword && (
-        <KeywordFilter keyword={keyword} count={books.length} onClear={clearKeyword} />
-      )}
+      {keyword && <KeywordFilter keyword={keyword} count={books.length} onClear={clearKeyword} />}
 
       {/* 手機版：卡片列表，欄位太多的表格在小螢幕上不好讀 */}
       <div className="overflow-hidden rounded-lg border bg-white md:hidden">
@@ -673,7 +669,7 @@ export function BookTable() {
                 <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <p className="truncate text-sm font-medium">
                     {numbers.has(b.id) && (
-                      <span className="mr-2 text-xs tabular-nums text-gray-400">
+                      <span className="mr-2 text-xs text-gray-400 tabular-nums">
                         #{numbers.get(b.id)}
                       </span>
                     )}
@@ -682,9 +678,7 @@ export function BookTable() {
                   <div className="flex items-center gap-2 text-xs text-gray-400">
                     <StatusBadge status={b.status} />
                     <span className="min-w-0 flex-1 truncate text-gray-500">{b.author}</span>
-                    <span className="shrink-0 tabular-nums">
-                      {b.endDate ?? b.startDate ?? "—"}
-                    </span>
+                    <span className="shrink-0 tabular-nums">{b.endDate ?? b.startDate ?? "—"}</span>
                   </div>
                 </div>
               </Link>
@@ -694,87 +688,95 @@ export function BookTable() {
       </div>
 
       <div className="hidden w-full overflow-hidden rounded-lg border bg-white md:block">
-      <table className="w-full table-fixed text-sm">
-        <thead className="bg-gray-100 text-left">
-          {/* 欄寬用百分比，次要欄位隨螢幕變窄逐一收起，才不會撐出橫向捲軸 */}
-          <tr>
-            <th className="w-[6%] whitespace-nowrap px-3 py-2">封面</th>
-            {/* 書名字級縮小後空間變多，日期與分類可以提早出現 */}
-            <th className="w-[26%] whitespace-nowrap px-3 py-2">書名</th>
-            <th className="w-[13%] whitespace-nowrap px-3 py-2">作者</th>
-            <th className="w-[9%] whitespace-nowrap px-3 py-2">狀態</th>
-            <th className="hidden w-[10%] whitespace-nowrap px-3 py-2 lg:table-cell">平台</th>
-            <th className="hidden w-[10%] whitespace-nowrap px-3 py-2 xl:table-cell">開始日期</th>
-            <th className="hidden w-[10%] whitespace-nowrap px-3 py-2 lg:table-cell">完成日期</th>
-            <th className="hidden w-[10%] whitespace-nowrap px-3 py-2 lg:table-cell">領域</th>
-            <th className="hidden w-[10%] whitespace-nowrap px-3 py-2 xl:table-cell">屬性</th>
-            <th className="hidden w-[6%] whitespace-nowrap px-3 py-2 2xl:table-cell">語言</th>
-          </tr>
-        </thead>
-        <tbody>
-          {pageBooks.map((b, i) => (
-            // 整列點擊就進編輯頁，所以書名不再另外做成連結樣式
-            <tr
-              key={b.id || `row-${i}`}
-              data-fit-row
-              onClick={() => router.push(editHref(b.id))}
-              className={`cursor-pointer border-t ${rowTone(b.endDate, thisYear)}`}
-            >
-              {/*
+        <table className="w-full table-fixed text-sm">
+          <thead className="bg-gray-100 text-left">
+            {/* 欄寬用百分比，次要欄位隨螢幕變窄逐一收起，才不會撐出橫向捲軸 */}
+            <tr>
+              <th className="w-[6%] px-3 py-2 whitespace-nowrap">封面</th>
+              {/* 書名字級縮小後空間變多，日期與分類可以提早出現 */}
+              <th className="w-[26%] px-3 py-2 whitespace-nowrap">書名</th>
+              <th className="w-[13%] px-3 py-2 whitespace-nowrap">作者</th>
+              <th className="w-[9%] px-3 py-2 whitespace-nowrap">狀態</th>
+              <th className="hidden w-[10%] px-3 py-2 whitespace-nowrap lg:table-cell">平台</th>
+              <th className="hidden w-[10%] px-3 py-2 whitespace-nowrap xl:table-cell">開始日期</th>
+              <th className="hidden w-[10%] px-3 py-2 whitespace-nowrap lg:table-cell">完成日期</th>
+              <th className="hidden w-[10%] px-3 py-2 whitespace-nowrap lg:table-cell">領域</th>
+              <th className="hidden w-[10%] px-3 py-2 whitespace-nowrap xl:table-cell">屬性</th>
+              <th className="hidden w-[6%] px-3 py-2 whitespace-nowrap 2xl:table-cell">語言</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pageBooks.map((b, i) => (
+              // 整列點擊就進編輯頁，所以書名不再另外做成連結樣式
+              <tr
+                key={b.id || `row-${i}`}
+                data-fit-row
+                onClick={() => router.push(editHref(b.id))}
+                className={`cursor-pointer border-t ${rowTone(b.endDate, thisYear)}`}
+              >
+                {/*
                 狀態色條疊在第一格上，不用 border-l——那會把整個 tbody 往右推 3px，
                 表頭得跟著補一條透明的才對得齊，是很容易再壞掉的做法。
               */}
-              <td className="relative px-3 py-2">
-                {accentColor(b.status) && (
-                  <span
-                    className="absolute inset-y-0 left-0 w-[3px]"
-                    style={{ background: accentColor(b.status) ?? undefined }}
-                  />
-                )}
-                <Cover url={b.coverUrl} title={b.title} width="w-7" />
-              </td>
-              <td className="max-w-0 overflow-hidden px-3 py-2 align-middle">
-                {/* 編號與書名是同一塊，一起垂直置中；沒有編號時那一行就不存在 */}
-                <div className="flex flex-col justify-center">
-                  {numbers.has(b.id) && (
-                    <span className="text-[11px] leading-4 tabular-nums text-gray-400">
-                      #{numbers.get(b.id)}
-                    </span>
+                <td className="relative px-3 py-2">
+                  {accentColor(b.status) && (
+                    <span
+                      className="absolute inset-y-0 left-0 w-[3px]"
+                      style={{ background: accentColor(b.status) ?? undefined }}
+                    />
                   )}
-                  {/* 書名至少要跟其他欄位一樣大（表格是 text-sm），再小就變成次要資訊了 */}
-                  <span className="overflow-hidden text-ellipsis whitespace-nowrap text-sm font-medium">
-                    {b.title}
+                  <Cover url={b.coverUrl} title={b.title} width="w-7" />
+                </td>
+                <td className="max-w-0 overflow-hidden px-3 py-2 align-middle">
+                  {/* 編號與書名是同一塊，一起垂直置中；沒有編號時那一行就不存在 */}
+                  <div className="flex flex-col justify-center">
+                    {numbers.has(b.id) && (
+                      <span className="text-[11px] leading-4 text-gray-400 tabular-nums">
+                        #{numbers.get(b.id)}
+                      </span>
+                    )}
+                    {/* 書名至少要跟其他欄位一樣大（表格是 text-sm），再小就變成次要資訊了 */}
+                    <span className="overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap">
+                      {b.title}
+                    </span>
+                  </div>
+                </td>
+                <td className="max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap">
+                  <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
+                    {b.author}
                   </span>
-                </div>
-              </td>
-              <td className="max-w-0 overflow-hidden whitespace-nowrap px-3 py-2">
-                <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.author}</span>
-              </td>
-              <td className="whitespace-nowrap px-3 py-2">
-                <StatusBadge status={b.status} />
-              </td>
-              <td className="hidden px-3 py-2 lg:table-cell">
-                <OptionList values={[b.platform]} />
-              </td>
-              <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 xl:table-cell">
-                <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.startDate ?? "—"}</span>
-              </td>
-              <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 lg:table-cell">
-                <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.endDate ?? "—"}</span>
-              </td>
-              <td className="hidden px-3 py-2 lg:table-cell">
-                <OptionList values={[b.domain]} />
-              </td>
-              <td className="hidden px-3 py-2 xl:table-cell">
-                <OptionList values={[b.type]} outline />
-              </td>
-              <td className="hidden max-w-0 overflow-hidden whitespace-nowrap px-3 py-2 2xl:table-cell">
-                <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{b.language}</span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                </td>
+                <td className="px-3 py-2 whitespace-nowrap">
+                  <StatusBadge status={b.status} />
+                </td>
+                <td className="hidden px-3 py-2 lg:table-cell">
+                  <OptionList values={[b.platform]} />
+                </td>
+                <td className="hidden max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap xl:table-cell">
+                  <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
+                    {b.startDate ?? "—"}
+                  </span>
+                </td>
+                <td className="hidden max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap lg:table-cell">
+                  <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
+                    {b.endDate ?? "—"}
+                  </span>
+                </td>
+                <td className="hidden px-3 py-2 lg:table-cell">
+                  <OptionList values={[b.domain]} />
+                </td>
+                <td className="hidden px-3 py-2 xl:table-cell">
+                  <OptionList values={[b.type]} outline />
+                </td>
+                <td className="hidden max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap 2xl:table-cell">
+                  <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
+                    {b.language}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {/* 翻頁列放在框外，跟詳細檢視一致 */}

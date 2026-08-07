@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { BookCategories } from "@/types/book";
 import { useCategories } from "@/lib/useCategories";
+import { BookCategories } from "@/types/book";
 
 const LABELS: Record<keyof BookCategories, string> = {
   platform: "平台",

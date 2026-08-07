@@ -18,11 +18,15 @@ export interface InstapaperAccessToken {
 
 export async function getAccessToken(
   username: string,
-  password: string
+  password: string,
 ): Promise<InstapaperAccessToken> {
   const { consumerKey, consumerSecret } = requireEnv();
   const url = `${BASE_URL}/oauth/access_token`;
-  const params = { x_auth_username: username, x_auth_password: password, x_auth_mode: "client_auth" };
+  const params = {
+    x_auth_username: username,
+    x_auth_password: password,
+    x_auth_mode: "client_auth",
+  };
 
   const authHeader = buildOAuthHeader({
     method: "POST",
@@ -74,9 +78,7 @@ export interface InstapaperFolder {
   title: string;
 }
 
-export async function listFolders(
-  access: InstapaperAccessToken
-): Promise<InstapaperFolder[]> {
+export async function listFolders(access: InstapaperAccessToken): Promise<InstapaperFolder[]> {
   const { consumerKey, consumerSecret } = requireEnv();
   const url = `${BASE_URL}/folders/list`;
 
@@ -102,14 +104,14 @@ export async function listFolders(
   const data = await res.json();
   return (data as unknown[]).filter(
     (item): item is InstapaperFolder =>
-      typeof item === "object" && item !== null && (item as { type?: string }).type === "folder"
+      typeof item === "object" && item !== null && (item as { type?: string }).type === "folder",
   );
 }
 
 async function listBookmarksInFolder(
   access: InstapaperAccessToken,
   folder: string,
-  folderLabel: string
+  folderLabel: string,
 ): Promise<InstapaperBookmark[]> {
   const { consumerKey, consumerSecret } = requireEnv();
   const url = `${BASE_URL}/bookmarks/list`;
@@ -141,14 +143,12 @@ async function listBookmarksInFolder(
   const data = await res.json();
   const bookmarks = (data as unknown[]).filter(
     (item): item is Omit<InstapaperBookmark, "folder"> =>
-      typeof item === "object" && item !== null && (item as { type?: string }).type === "bookmark"
+      typeof item === "object" && item !== null && (item as { type?: string }).type === "bookmark",
   );
   return bookmarks.map((b) => ({ ...b, folder: folderLabel }));
 }
 
-export async function listBookmarks(
-  access: InstapaperAccessToken
-): Promise<InstapaperBookmark[]> {
+export async function listBookmarks(access: InstapaperAccessToken): Promise<InstapaperBookmark[]> {
   const customFolders = await listFolders(access);
   const folders = [
     { id: "unread", label: "未讀" },
@@ -158,7 +158,7 @@ export async function listBookmarks(
   ];
 
   const results = await Promise.all(
-    folders.map((f) => listBookmarksInFolder(access, f.id, f.label))
+    folders.map((f) => listBookmarksInFolder(access, f.id, f.label)),
   );
 
   // folders is ordered built-in-first, custom-last, so later writes (custom

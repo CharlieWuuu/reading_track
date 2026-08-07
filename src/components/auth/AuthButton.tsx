@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
+import { useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 
 /** compact：手機頂欄用，只顯示頭像 */
@@ -26,20 +26,14 @@ export function AuthButton({ compact = false }: { compact?: boolean } = {}) {
       >
         {session.user.image ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={session.user.image}
-            alt=""
-            className="h-8 w-8 shrink-0 rounded-full"
-          />
+          <img src={session.user.image} alt="" className="h-8 w-8 shrink-0 rounded-full" />
         ) : (
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs text-gray-600">
             {(session.user.name ?? session.user.email ?? "?").slice(0, 1)}
           </div>
         )}
         {!compact && (
-          <span className="truncate text-gray-700">
-            {session.user.name ?? session.user.email}
-          </span>
+          <span className="truncate text-gray-700">{session.user.name ?? session.user.email}</span>
         )}
       </Link>
     );
@@ -49,7 +43,7 @@ export function AuthButton({ compact = false }: { compact?: boolean } = {}) {
     <button
       onClick={() => signIn("google")}
       className={`rounded bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700 ${
-        compact ? "whitespace-nowrap text-xs" : "w-full"
+        compact ? "text-xs whitespace-nowrap" : "w-full"
       }`}
     >
       {compact ? "登入" : "使用 Google 登入"}

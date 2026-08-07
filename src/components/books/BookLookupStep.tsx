@@ -170,7 +170,9 @@ function FoundCard({ prefill }: { prefill: Partial<Book> }) {
         <p className="text-sm font-medium wrap-break-word">{prefill.title}</p>
         {prefill.author && <p className="text-gray-600">作者：{prefill.author}</p>}
         {prefill.publisher && <p className="text-gray-600">出版社：{prefill.publisher}</p>}
-        {prefill.pageCount && <p className="text-gray-600">頁數：{formatCount(prefill.pageCount)}</p>}
+        {prefill.pageCount && (
+          <p className="text-gray-600">頁數：{formatCount(prefill.pageCount)}</p>
+        )}
         <p className="pt-0.5 text-green-700">查到資料了，確認沒錯就可以繼續。</p>
       </div>
     </div>
@@ -188,6 +190,6 @@ function NotFoundCard() {
 /** 去掉空字串，才不會用空值蓋掉另一個來源查到的內容 */
 function clean(source: Partial<Book>): Partial<Book> {
   return Object.fromEntries(
-    Object.entries(source).filter(([, v]) => typeof v !== "string" || v.trim() !== "")
+    Object.entries(source).filter(([, v]) => typeof v !== "string" || v.trim() !== ""),
   ) as Partial<Book>;
 }

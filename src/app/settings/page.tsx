@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { useSheetStore } from "@/store/useSheetStore";
-import { SheetPicker } from "@/components/settings/SheetPicker";
-import { InstapaperConnect } from "@/components/settings/InstapaperConnect";
-import { CategoryManager } from "@/components/settings/CategoryManager";
-import { DisplaySettings } from "@/components/settings/DisplaySettings";
-import { DataIssuesPanel } from "@/components/settings/DataIssuesPanel";
+import { AuthButton } from "@/components/auth/AuthButton";
+import { SignInPrompt } from "@/components/auth/SignInPrompt";
 import { EnrichButton } from "@/components/books/EnrichButton";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { SignInPrompt } from "@/components/auth/SignInPrompt";
-import { AuthButton } from "@/components/auth/AuthButton";
+import { CategoryManager } from "@/components/settings/CategoryManager";
+import { DataIssuesPanel } from "@/components/settings/DataIssuesPanel";
+import { DisplaySettings } from "@/components/settings/DisplaySettings";
+import { InstapaperConnect } from "@/components/settings/InstapaperConnect";
+import { SheetPicker } from "@/components/settings/SheetPicker";
+import { useSheetStore } from "@/store/useSheetStore";
 
 type SettingsTab = "connect" | "categories" | "display" | "maintenance";
 
@@ -70,7 +70,8 @@ export default function SettingsPage() {
               >
                 sheets.google.com
               </a>{" "}
-              建立一份空白試算表（欄位會自動建立），再點下方按鈕選取它。這個 app 只能存取你選過的檔案。
+              建立一份空白試算表（欄位會自動建立），再點下方按鈕選取它。這個 app
+              只能存取你選過的檔案。
             </p>
 
             <SheetPicker onSelect={handlePicked} />
@@ -79,9 +80,7 @@ export default function SettingsPage() {
             {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
 
             {sheetId && !verifying && (
-              <p className="mt-2 text-xs text-green-600">
-                已連接：{sheetName || sheetId}
-              </p>
+              <p className="mt-2 text-xs text-green-600">已連接：{sheetName || sheetId}</p>
             )}
           </div>
 
@@ -106,8 +105,7 @@ export default function SettingsPage() {
       node: (
         <div>
           <p className="mb-3 text-xs text-gray-500">
-            從網路查書名、作者、書封等資料，補進 Sheet 裡沒填的欄位。
-            新增一批書之後跑一次就好。
+            從網路查書名、作者、書封等資料，補進 Sheet 裡沒填的欄位。 新增一批書之後跑一次就好。
           </p>
           <EnrichButton />
 
@@ -130,10 +128,8 @@ export default function SettingsPage() {
               <button
                 key={t.key}
                 onClick={() => setTab(t.key)}
-                className={`shrink-0 whitespace-nowrap rounded px-2.5 py-1.5 text-xs font-medium sm:text-sm ${
-                  tab === t.key
-                    ? "bg-gray-900 text-white"
-                    : "text-gray-500 hover:bg-gray-100"
+                className={`shrink-0 rounded px-2.5 py-1.5 text-xs font-medium whitespace-nowrap sm:text-sm ${
+                  tab === t.key ? "bg-gray-900 text-white" : "text-gray-500 hover:bg-gray-100"
                 }`}
               >
                 {t.label}

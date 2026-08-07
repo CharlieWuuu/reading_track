@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { useSidebarStore } from "@/store/useSidebarStore";
 import { NAV_ITEMS } from "./navItems";
@@ -91,7 +91,7 @@ export function Sidebar() {
       <div className={`${styles.footer} ${collapsed ? "items-center p-2" : "p-4"}`}>
         {/* 工具類操作集中在帳號按鈕上面一排 */}
         {showTools && (
-          <div className={`${styles.tools} ${collapsed ? "flex-col" : "justify-between"}`}>
+          <div className={`${styles.tools} ${collapsed ? "flex-col" : "justify-end"}`}>
             {showRefresh && <RefreshButton compact={collapsed} />}
             {!collapsed && <CollapseButton collapsed={collapsed} onClick={toggle} />}
           </div>

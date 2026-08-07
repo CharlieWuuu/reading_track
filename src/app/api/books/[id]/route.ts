@@ -9,10 +9,7 @@ async function requireSession() {
   return session;
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: "請先登入" }, { status: 401 });
 
@@ -31,10 +28,7 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: "請先登入" }, { status: 401 });
 

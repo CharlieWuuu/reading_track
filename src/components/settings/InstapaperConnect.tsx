@@ -53,7 +53,10 @@ export function InstapaperConnect() {
         用來讀取已讀文章。密碼只用於換取存取權杖，不會被儲存。
       </p>
       {/* 兩欄並排，設定頁在手機上才不用捲 */}
-      <form onSubmit={handleConnect} className="space-y-2 sm:grid sm:grid-cols-2 sm:gap-2 sm:space-y-0">
+      <form
+        onSubmit={handleConnect}
+        className="space-y-2 sm:grid sm:grid-cols-2 sm:gap-2 sm:space-y-0"
+      >
         <input
           type="text"
           placeholder="Instapaper 帳號（email）"

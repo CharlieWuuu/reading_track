@@ -31,6 +31,6 @@ export const useBookViewStore = create<BookViewStore>()(
       paging: "page",
       setPaging: (paging) => set({ paging }),
     }),
-    { name: "reading-track-book-view" }
-  )
+    { name: "reading-track-book-view" },
+  ),
 );

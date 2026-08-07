@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { bulkUpdateBooks, listBooksWithMeta } from "@/lib/sheets";
 import { fetchBookMetadata, mergeEnrichment, missingFields } from "@/lib/metadata";
+import { bulkUpdateBooks, listBooksWithMeta } from "@/lib/sheets";
 import { Book } from "@/types/book";
 
 // Vercel Hobby 方案上限就是 60 秒；升級到 Pro 可以調到 300
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
       const { metadata, matched, unavailable } = await fetchBookMetadata(
         book.title,
         missingFields(book),
-        { language: book.language }
+        { language: book.language },
       );
       for (const source of unavailable) sourceIssues.add(source);
 
@@ -95,10 +95,7 @@ export async function POST(req: NextRequest) {
     await bulkUpdateBooks(sheetId, accessToken, patches);
   } catch (err) {
     console.error("enrich: 寫回 Sheet 失敗", err);
-    return NextResponse.json(
-      { error: "寫回 Sheet 失敗，請稍後再試", updated: 0 },
-      { status: 502 }
-    );
+    return NextResponse.json({ error: "寫回 Sheet 失敗，請稍後再試", updated: 0 }, { status: 502 });
   }
 
   const remaining = Math.max(0, candidates.length - (lastAttempted + 1));

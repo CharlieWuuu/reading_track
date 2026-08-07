@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useSWRConfig } from "swr";
 import { RefreshCw } from "lucide-react";
+import { useSWRConfig } from "swr";
 
 /** 手動重抓所有資料，順便顯示上次更新時間 */
 export function RefreshButton({ compact = false }: { compact?: boolean }) {

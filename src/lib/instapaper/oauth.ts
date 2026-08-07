@@ -3,7 +3,7 @@ import crypto from "crypto";
 function percentEncode(value: string): string {
   return encodeURIComponent(value).replace(
     /[!'()*]/g,
-    (c) => "%" + c.charCodeAt(0).toString(16).toUpperCase()
+    (c) => "%" + c.charCodeAt(0).toString(16).toUpperCase(),
   );
 }
 
@@ -41,17 +41,12 @@ export function buildOAuthHeader({
     .map((k) => `${percentEncode(k)}=${percentEncode(allParams[k])}`)
     .join("&");
 
-  const baseString = [
-    method.toUpperCase(),
-    percentEncode(url),
-    percentEncode(paramString),
-  ].join("&");
+  const baseString = [method.toUpperCase(), percentEncode(url), percentEncode(paramString)].join(
+    "&",
+  );
 
   const signingKey = `${percentEncode(consumerSecret)}&${percentEncode(tokenSecret ?? "")}`;
-  const signature = crypto
-    .createHmac("sha1", signingKey)
-    .update(baseString)
-    .digest("base64");
+  const signature = crypto.createHmac("sha1", signingKey).update(baseString).digest("base64");
 
   const headerParams: Record<string, string> = { ...oauthParams, oauth_signature: signature };
   const headerString = Object.keys(headerParams)

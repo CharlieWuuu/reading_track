@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { PagerButton } from "@/components/ui/PagerButton";
 import { buildMonthGrid, CalendarDay } from "@/lib/calendarUtils";
-import { Book } from "@/types/book";
 import { InstapaperBookmark } from "@/lib/instapaper/client";
 import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
-import { PagerButton } from "@/components/ui/PagerButton";
+import { Book } from "@/types/book";
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
@@ -30,9 +30,7 @@ function DayArticles({ articles }: { articles: InstapaperBookmark[] }) {
         {first.title || first.url}
       </a>
       {hidden > 0 && (
-        <span className="shrink-0 text-[10px] font-medium text-gray-500">
-          +{hidden}
-        </span>
+        <span className="shrink-0 text-[10px] font-medium text-gray-500">+{hidden}</span>
       )}
     </div>
   );
@@ -54,11 +52,7 @@ function DayDetail({ day }: { day?: CalendarDay }) {
         >
           {b.coverUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={b.coverUrl}
-              alt=""
-              className="h-9 w-6 rounded-sm object-cover"
-            />
+            <img src={b.coverUrl} alt="" className="h-9 w-6 rounded-sm object-cover" />
           ) : (
             <div className="h-9 w-6 rounded-sm bg-gray-200" />
           )}
@@ -101,19 +95,11 @@ export function MonthGrid({
   const [popupTime, setPopupTime] = useState<number | null>(null);
 
   const days = useMemo(
-    () =>
-      buildMonthGrid(
-        year,
-        month,
-        books,
-        articles,
-      ),
+    () => buildMonthGrid(year, month, books, articles),
     [year, month, books, articles],
   );
 
-  const selectedDay = days.find(
-    (d) => d.date.toDateString() === selected.toDateString(),
-  );
+  const selectedDay = days.find((d) => d.date.toDateString() === selected.toDateString());
 
   useEffect(() => {
     if (popupTime === null) return;
@@ -126,8 +112,7 @@ export function MonthGrid({
 
   const popupDate = popupTime === null ? null : new Date(popupTime);
   const popupDay =
-    popupDate &&
-    days.find((d) => d.date.toDateString() === popupDate.toDateString());
+    popupDate && days.find((d) => d.date.toDateString() === popupDate.toDateString());
 
   /** 換月時把選取日移到該月 1 號，手機版下方明細才不會停在別的月份 */
   function goToMonth(nextYear: number, nextMonth: number) {
@@ -153,7 +138,7 @@ export function MonthGrid({
       <div className="flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2 sm:px-4 sm:py-3">
         <div className="flex items-center gap-2">
           <PagerButton direction="prev" onClick={goPrev} label="上個月" />
-          <span className="w-22 whitespace-nowrap text-center text-sm font-medium">
+          <span className="w-22 text-center text-sm font-medium whitespace-nowrap">
             {year} 年 {month + 1} 月
           </span>
           <PagerButton direction="next" onClick={goNext} disabled={atCurrentMonth} label="下個月" />
@@ -173,8 +158,7 @@ export function MonthGrid({
       <div className="grid shrink-0 grid-cols-7 sm:hidden">
         {days.map((day, i) => {
           const isToday = day.date.toDateString() === today.toDateString();
-          const isSelected =
-            day.date.toDateString() === selected.toDateString();
+          const isSelected = day.date.toDateString() === selected.toDateString();
           const isLastCol = i % 7 === 6;
           const isLastRow = i >= days.length - 7;
           return (
@@ -223,7 +207,7 @@ export function MonthGrid({
                     <span className="h-full w-full rounded-[2px] bg-gray-300" />
                   ))}
                 {day.books.length > 1 && (
-                  <span className="absolute -right-1 -top-1 rounded-full bg-gray-900 px-1 text-[8px] leading-[1.2] text-white">
+                  <span className="absolute -top-1 -right-1 rounded-full bg-gray-900 px-1 text-[8px] leading-[1.2] text-white">
                     +{day.books.length - 1}
                   </span>
                 )}
@@ -267,8 +251,8 @@ export function MonthGrid({
               } ${
                 day.inCurrentMonth
                   ? "bg-white hover:bg-gray-50"
-                  // 非當月只有格線淡一階；整格降透明度會連書封一起變灰，反而髒
-                  : "border-gray-100 bg-gray-50 hover:bg-gray-100"
+                  : // 非當月只有格線淡一階；整格降透明度會連書封一起變灰，反而髒
+                    "border-gray-100 bg-gray-50 hover:bg-gray-100"
               }`}
             >
               {/* 日期與書封並排，省下日期獨占的那一行高度 */}
@@ -348,8 +332,7 @@ export function MonthGrid({
           >
             <div className="mb-3 flex items-center justify-between">
               <p className="text-sm font-medium">
-                {popupDate.getFullYear()} 年 {popupDate.getMonth() + 1} 月{" "}
-                {popupDate.getDate()} 日
+                {popupDate.getFullYear()} 年 {popupDate.getMonth() + 1} 月 {popupDate.getDate()} 日
               </p>
               <button
                 onClick={() => setPopupTime(null)}

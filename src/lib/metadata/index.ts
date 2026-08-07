@@ -1,6 +1,6 @@
 import { Book } from "@/types/book";
-import { SourceUnavailableError, titleSimilarity } from "./http";
 import { googleBooksProvider } from "./googleBooks";
+import { SourceUnavailableError, titleSimilarity } from "./http";
 import { ndlProvider } from "./ndl";
 import { openLibraryProvider } from "./openLibrary";
 import { pubuProvider } from "./pubu";
@@ -9,10 +9,10 @@ import { taazeProvider } from "./taaze";
 import {
   BookMetadata,
   Candidate,
-  EnrichableField,
   ENRICHABLE_FIELDS,
-  MetadataProvider,
+  EnrichableField,
   isBlank,
+  MetadataProvider,
   missingFields,
 } from "./types";
 
@@ -59,7 +59,7 @@ function bestCandidate(candidates: Candidate[], query: string): Candidate | null
 async function lookup(
   provider: MetadataProvider,
   query: string,
-  hints?: LookupHints
+  hints?: LookupHints,
 ): Promise<BookMetadata | null> {
   const candidates = await provider.findCandidates(query, hints);
   const match = bestCandidate(candidates, query);
@@ -88,7 +88,7 @@ export interface EnrichResult {
 export async function fetchBookMetadata(
   query: string,
   wanted: readonly EnrichableField[] = ENRICHABLE_FIELDS,
-  hints?: LookupHints
+  hints?: LookupHints,
 ): Promise<EnrichResult> {
   const merged: BookMetadata = {};
   const sources: string[] = [];
@@ -174,7 +174,7 @@ export async function searchBooks(query: string, hints?: LookupHints): Promise<B
       } catch {
         return [];
       }
-    })
+    }),
   );
 
   return perProvider.flat();

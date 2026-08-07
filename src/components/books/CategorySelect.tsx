@@ -2,8 +2,8 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { BookCategories, joinTags, splitTags } from "@/types/book";
 import { useCategories } from "@/lib/useCategories";
+import { BookCategories, joinTags, splitTags } from "@/types/book";
 
 /**
  * 仿 Notion 的分類選擇器：下拉選單裡就能新增、改名、刪除選項，
@@ -94,9 +94,7 @@ export function CategorySelect({
       return;
     }
     onChange(
-      joinTags(
-        isSelected(option) ? selected.filter((o) => o !== option) : [...selected, option]
-      )
+      joinTags(isSelected(option) ? selected.filter((o) => o !== option) : [...selected, option]),
     );
     setQuery("");
   }
@@ -143,120 +141,123 @@ export function CategorySelect({
         )}
       </button>
 
-      {open && rect && createPortal(
-        <div
-          ref={panelRef}
-          style={{ top: rect.top, left: rect.left, width: rect.width }}
-          className="fixed z-50 overflow-hidden rounded-lg border bg-white shadow-lg">
-          <input
-            autoFocus
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                if (canCreate) create();
-                else if (filtered.length > 0) pick(filtered[0]);
-              }
-              if (e.key === "Escape") setOpen(false);
-            }}
-            placeholder={`搜尋或新增${label}`}
-            className="w-full border-b px-3 py-2 text-sm outline-none"
-          />
+      {open &&
+        rect &&
+        createPortal(
+          <div
+            ref={panelRef}
+            style={{ top: rect.top, left: rect.left, width: rect.width }}
+            className="fixed z-50 overflow-hidden rounded-lg border bg-white shadow-lg"
+          >
+            <input
+              autoFocus
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (canCreate) create();
+                  else if (filtered.length > 0) pick(filtered[0]);
+                }
+                if (e.key === "Escape") setOpen(false);
+              }}
+              placeholder={`搜尋或新增${label}`}
+              className="w-full border-b px-3 py-2 text-sm outline-none"
+            />
 
-          <ul className="max-h-56 overflow-y-auto py-1">
-            {selected.length > 0 && (
-              <li>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onChange("");
-                    setQuery("");
-                    if (!multiple) setOpen(false);
-                  }}
-                  className="w-full px-3 py-1.5 text-left text-xs text-gray-400 hover:bg-gray-50"
-                >
-                  清除選擇
-                </button>
-              </li>
-            )}
-
-            {filtered.map((option) => (
-              <li key={option} className="group flex items-center gap-1 px-1">
-                {editing === option ? (
-                  <input
-                    autoFocus
-                    value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        rename(option);
-                      }
-                      if (e.key === "Escape") setEditing(null);
+            <ul className="max-h-56 overflow-y-auto py-1">
+              {selected.length > 0 && (
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onChange("");
+                      setQuery("");
+                      if (!multiple) setOpen(false);
                     }}
-                    onBlur={() => rename(option)}
-                    className="my-0.5 w-full rounded border px-2 py-1 text-sm"
-                  />
-                ) : (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => pick(option)}
-                      className={`flex-1 rounded px-2 py-1.5 text-left text-sm hover:bg-gray-50 ${
-                        isSelected(option) ? "font-medium" : ""
-                      }`}
-                    >
-                      {multiple && (
-                        <span className="mr-1.5 text-xs text-gray-400">
-                          {isSelected(option) ? "✓" : "＋"}
-                        </span>
-                      )}
-                      {option}
-                    </button>
-                    <button
-                      type="button"
-                      aria-label={`重新命名 ${option}`}
-                      onClick={() => {
-                        setEditing(option);
-                        setEditValue(option);
+                    className="w-full px-3 py-1.5 text-left text-xs text-gray-400 hover:bg-gray-50"
+                  >
+                    清除選擇
+                  </button>
+                </li>
+              )}
+
+              {filtered.map((option) => (
+                <li key={option} className="group flex items-center gap-1 px-1">
+                  {editing === option ? (
+                    <input
+                      autoFocus
+                      value={editValue}
+                      onChange={(e) => setEditValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          rename(option);
+                        }
+                        if (e.key === "Escape") setEditing(null);
                       }}
-                      className="rounded px-1.5 py-1 text-xs text-gray-400 opacity-0 hover:bg-gray-100 hover:text-gray-700 group-hover:opacity-100"
-                    >
-                      改名
-                    </button>
-                    <button
-                      type="button"
-                      aria-label={`刪除 ${option}`}
-                      onClick={() => remove(option)}
-                      className="rounded px-1.5 py-1 text-xs text-gray-400 opacity-0 hover:bg-gray-100 hover:text-red-600 group-hover:opacity-100"
-                    >
-                      刪除
-                    </button>
-                  </>
-                )}
-              </li>
-            ))}
+                      onBlur={() => rename(option)}
+                      className="my-0.5 w-full rounded border px-2 py-1 text-sm"
+                    />
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => pick(option)}
+                        className={`flex-1 rounded px-2 py-1.5 text-left text-sm hover:bg-gray-50 ${
+                          isSelected(option) ? "font-medium" : ""
+                        }`}
+                      >
+                        {multiple && (
+                          <span className="mr-1.5 text-xs text-gray-400">
+                            {isSelected(option) ? "✓" : "＋"}
+                          </span>
+                        )}
+                        {option}
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`重新命名 ${option}`}
+                        onClick={() => {
+                          setEditing(option);
+                          setEditValue(option);
+                        }}
+                        className="rounded px-1.5 py-1 text-xs text-gray-400 opacity-0 group-hover:opacity-100 hover:bg-gray-100 hover:text-gray-700"
+                      >
+                        改名
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`刪除 ${option}`}
+                        onClick={() => remove(option)}
+                        className="rounded px-1.5 py-1 text-xs text-gray-400 opacity-0 group-hover:opacity-100 hover:bg-gray-100 hover:text-red-600"
+                      >
+                        刪除
+                      </button>
+                    </>
+                  )}
+                </li>
+              ))}
 
-            {canCreate && (
-              <li>
-                <button
-                  type="button"
-                  onClick={create}
-                  className="w-full px-3 py-1.5 text-left text-sm hover:bg-gray-50"
-                >
-                  新增「<span className="font-medium">{keyword}</span>」
-                </button>
-              </li>
-            )}
+              {canCreate && (
+                <li>
+                  <button
+                    type="button"
+                    onClick={create}
+                    className="w-full px-3 py-1.5 text-left text-sm hover:bg-gray-50"
+                  >
+                    新增「<span className="font-medium">{keyword}</span>」
+                  </button>
+                </li>
+              )}
 
-            {filtered.length === 0 && !canCreate && (
-              <li className="px-3 py-2 text-xs text-gray-400">還沒有任何選項</li>
-            )}
-          </ul>
-        </div>,
-        document.body
-      )}
+              {filtered.length === 0 && !canCreate && (
+                <li className="px-3 py-2 text-xs text-gray-400">還沒有任何選項</li>
+              )}
+            </ul>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

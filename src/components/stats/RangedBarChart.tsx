@@ -1,15 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { PagerButton } from "@/components/ui/PagerButton";
 import { VIZ_TOKENS } from "@/lib/chartPalette";
 
@@ -66,9 +58,7 @@ export function RangedBarChart({
 
   if (data.length === 0) {
     return (
-      <div className="flex h-64 items-center justify-center text-sm text-gray-400">
-        {emptyText}
-      </div>
+      <div className="flex h-64 items-center justify-center text-sm text-gray-400">{emptyText}</div>
     );
   }
 

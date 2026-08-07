@@ -23,7 +23,9 @@ export const NDL_REFERER = { Referer: "https://ndlsearch.ndl.go.jp/" };
 async function coverIfExists(isbn: string): Promise<string> {
   if (!isbn) return "";
   const url = ndlThumbnailUrl(isbn);
-  return (await resourceExists(url, NDL_REFERER)) ? `/api/cover?src=${encodeURIComponent(url)}` : "";
+  return (await resourceExists(url, NDL_REFERER))
+    ? `/api/cover?src=${encodeURIComponent(url)}`
+    : "";
 }
 
 const cache = new Map<string, BookMetadata & { isbn?: string }>();
@@ -62,9 +64,9 @@ export const ndlProvider: MetadataProvider = {
 
     const xml = await fetchText(
       `https://ndlsearch.ndl.go.jp/api/opensearch?title=${encodeURIComponent(
-        query
+        query,
       )}&cnt=5&mediatype=books`,
-      { strict: true }
+      { strict: true },
     );
     if (!xml) return [];
 

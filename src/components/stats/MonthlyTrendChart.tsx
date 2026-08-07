@@ -35,7 +35,5 @@ export function MonthlyTrendChart({
     { key: "6m", label: "六個月", size: 6 },
   ].map((r) => ({ ...r, data: months, tick: monthTick, tooltipLabel: monthLabel }));
 
-  return (
-    <RangedBarChart ranges={ranges} unit={unit} seriesLabel={seriesLabel} height={height} />
-  );
+  return <RangedBarChart ranges={ranges} unit={unit} seriesLabel={seriesLabel} height={height} />;
 }

@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
+import { SignInPrompt } from "@/components/auth/SignInPrompt";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
-import { SignInPrompt } from "@/components/auth/SignInPrompt";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -12,7 +12,7 @@ export default function ProfilePage() {
   if (status === "loading") {
     return (
       <>
-      <PageHeader title="個人資訊" />
+        <PageHeader title="個人資訊" />
         <PageMessage>載入中…</PageMessage>
       </>
     );
@@ -21,7 +21,7 @@ export default function ProfilePage() {
   if (!session?.user) {
     return (
       <>
-      <PageHeader title="個人資訊" />
+        <PageHeader title="個人資訊" />
         <SignInPrompt />
       </>
     );
@@ -34,11 +34,7 @@ export default function ProfilePage() {
         <div className="flex items-center gap-4">
           {session.user.image ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={session.user.image}
-              alt=""
-              className="h-14 w-14 rounded-full"
-            />
+            <img src={session.user.image} alt="" className="h-14 w-14 rounded-full" />
           ) : (
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-200 text-lg text-gray-600">
               {(session.user.name ?? session.user.email ?? "?").slice(0, 1)}

@@ -49,7 +49,7 @@ function toMetadata(info: VolumeInfo, url: string): BookMetadata {
     author: info.authors?.join(", ") ?? "",
     publisher: info.publisher ?? "",
     pageCount: info.pageCount ? String(info.pageCount) : "",
-    language: info.language ? LANGUAGE_NAMES[info.language] ?? "" : "",
+    language: info.language ? (LANGUAGE_NAMES[info.language] ?? "") : "",
     coverUrl: cover ? toHttps(cover) : "",
     source: "Google Books",
     sourceUrl: url,
@@ -68,9 +68,9 @@ export const googleBooksProvider: MetadataProvider = {
     const key = process.env.GOOGLE_BOOKS_API_KEY;
     const data = await fetchJson<{ items?: Volume[] }>(
       `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
-        query
+        query,
       )}&maxResults=5&printType=books${key ? `&key=${key}` : ""}`,
-      { strict: true }
+      { strict: true },
     );
     if (!data?.items?.length) return [];
 

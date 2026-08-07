@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     console.error("verifySheetAccess failed:", err);
     return NextResponse.json(
       { error: "無法讀取這個 Sheet，請確認 ID 正確，且此 Google 帳號有編輯權限" },
-      { status: 502 }
+      { status: 502 },
     );
   }
 }

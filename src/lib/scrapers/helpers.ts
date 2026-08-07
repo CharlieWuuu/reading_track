@@ -1,9 +1,7 @@
 import type { Page } from "playwright-core";
 
 export async function getMeta(page: Page, property: string): Promise<string> {
-  const el = await page.$(
-    `meta[property="${property}"], meta[name="${property}"]`
-  );
+  const el = await page.$(`meta[property="${property}"], meta[name="${property}"]`);
   if (!el) return "";
   return (await el.getAttribute("content")) ?? "";
 }

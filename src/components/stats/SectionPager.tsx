@@ -44,7 +44,7 @@ export function SectionPager({ sections }: { sections: Section[] }) {
             className={`flex flex-col gap-3.5 ${
               section.needsHeight === false
                 ? ""
-                : section.scrollHeight ?? "h-[26rem] sm:h-[32rem]"
+                : (section.scrollHeight ?? "h-[26rem] sm:h-[32rem]")
             }`}
           >
             <h3 className="shrink-0 text-sm font-medium text-gray-500">{section.label}</h3>
@@ -71,7 +71,7 @@ export function SectionPager({ sections }: { sections: Section[] }) {
             disabled={current === 0}
             label="上一頁"
           />
-          <span className="whitespace-nowrap text-xs text-gray-500">
+          <span className="text-xs whitespace-nowrap text-gray-500">
             {sections[current]?.label}（{current + 1} / {sections.length}）
           </span>
           <PagerButton

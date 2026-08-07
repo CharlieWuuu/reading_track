@@ -1,6 +1,6 @@
-import { Scraper } from "./types";
-import { getMeta, getText } from "./helpers";
 import { normalizeLanguage } from "../metadata/readmoo";
+import { getMeta, getText } from "./helpers";
+import { Scraper } from "./types";
 
 export const readmooScraper: Scraper = {
   platform: "讀墨",

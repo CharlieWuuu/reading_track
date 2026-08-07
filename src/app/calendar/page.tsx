@@ -2,15 +2,15 @@
 
 import { Suspense } from "react";
 import { CalendarDays, GanttChartSquare } from "lucide-react";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { PageMessage } from "@/components/layout/PageMessage";
 import { MonthGrid } from "@/components/calendar/MonthGrid";
 import { ReadingTimeline } from "@/components/calendar/ReadingTimeline";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { PageMessage } from "@/components/layout/PageMessage";
+import { useArticles } from "@/lib/useArticles";
+import { useBooks } from "@/lib/useBooks";
+import { useMounted } from "@/lib/useMounted";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { useSheetStore } from "@/store/useSheetStore";
-import { useMounted } from "@/lib/useMounted";
-import { useBooks } from "@/lib/useBooks";
-import { useArticles } from "@/lib/useArticles";
 
 /** 月曆看「哪一天讀完」，時間軸看「一本書讀了多久、同時在讀幾本」 */
 const VIEWS = [

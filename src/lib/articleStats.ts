@@ -1,5 +1,5 @@
-import { InstapaperBookmark } from "@/lib/instapaper/client";
 import { DistributionSlice, MonthCount } from "@/lib/bookStats";
+import { InstapaperBookmark } from "@/lib/instapaper/client";
 
 export const COMPLETION_THRESHOLD = 0.9;
 
@@ -17,7 +17,7 @@ export function getArticleKpis(articles: InstapaperBookmark[]) {
   const thisYear = now.getFullYear();
 
   const thisYearCount = completed.filter(
-    (a) => new Date(activityTime(a) * 1000).getFullYear() === thisYear
+    (a) => new Date(activityTime(a) * 1000).getFullYear() === thisYear,
   ).length;
 
   return {
@@ -27,9 +27,7 @@ export function getArticleKpis(articles: InstapaperBookmark[]) {
   };
 }
 
-export function getCompletionDistribution(
-  articles: InstapaperBookmark[]
-): DistributionSlice[] {
+export function getCompletionDistribution(articles: InstapaperBookmark[]): DistributionSlice[] {
   const completed = articles.filter(isCompleted).length;
   return [
     { name: "已讀完", value: completed },
@@ -39,7 +37,7 @@ export function getCompletionDistribution(
 
 export function getArticleMonthlyTrend(
   articles: InstapaperBookmark[],
-  monthsBack = 24
+  monthsBack = 24,
 ): MonthCount[] {
   const completed = articles.filter(isCompleted);
   const counts = new Map<string, number>();
@@ -70,7 +68,7 @@ export function getArticleMonthlyTrend(
  */
 export function getSourceRanking(
   articles: InstapaperBookmark[],
-  limit = 8
+  limit = 8,
 ): Array<DistributionSlice & { doneValue: number }> {
   const totals = new Map<string, { value: number; doneValue: number }>();
 
@@ -85,9 +83,7 @@ export function getSourceRanking(
   // 依「讀完幾篇」排序：存了很多卻沒讀的站排在後面，榜單才反映實際閱讀
   return Array.from(totals.entries())
     .map(([name, entry]) => ({ name, ...entry }))
-    .sort(
-      (a, b) => b.doneValue - a.doneValue || b.value - a.value || a.name.localeCompare(b.name)
-    )
+    .sort((a, b) => b.doneValue - a.doneValue || b.value - a.value || a.name.localeCompare(b.name))
     .slice(0, limit);
 }
 
@@ -104,9 +100,7 @@ function sourceName(url: string): string {
  * 文章的「屬性」＝使用者在 Instapaper 上自己加的標籤。
  * 一篇可以有多個標籤，每個各算一次，所以加總會大於文章數。
  */
-export function getTagDistribution(
-  articles: InstapaperBookmark[]
-): DistributionSlice[] {
+export function getTagDistribution(articles: InstapaperBookmark[]): DistributionSlice[] {
   const counts = new Map<string, number>();
   for (const a of articles) {
     const names = (a.tags ?? []).map((t) => t.name?.trim()).filter(Boolean) as string[];

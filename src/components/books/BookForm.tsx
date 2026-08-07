@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
+import { useIsMobile } from "@/lib/useIsMobile";
+import { usePagingMode } from "@/lib/usePagingMode";
+import { useSheetStore } from "@/store/useSheetStore";
 import { Book, inferStatus } from "@/types/book";
 import { CategorySelect } from "./CategorySelect";
-import { usePagingMode } from "@/lib/usePagingMode";
-import { useIsMobile } from "@/lib/useIsMobile";
 
 const emptyForm = {
   sourceUrl: "",
@@ -70,7 +70,7 @@ function Section({
 }) {
   return (
     <div
-      className={`min-h-0 shrink-0 content-start grid-cols-1 gap-3 overflow-hidden sm:grid-cols-2 lg:grid-cols-3 ${
+      className={`min-h-0 shrink-0 grid-cols-1 content-start gap-3 overflow-hidden sm:grid-cols-2 lg:grid-cols-3 ${
         !paged || active ? "grid" : "hidden"
       }`}
     >
@@ -100,9 +100,7 @@ async function searchByTitle(title: string): Promise<Partial<Book> | null> {
 function toForm(book: Partial<Book>): FormState {
   return {
     ...emptyForm,
-    ...Object.fromEntries(
-      Object.entries(book).filter(([, v]) => v !== undefined && v !== null)
-    ),
+    ...Object.fromEntries(Object.entries(book).filter(([, v]) => v !== undefined && v !== null)),
     startDate: book.startDate ?? "",
     endDate: book.endDate ?? "",
   } as FormState;
@@ -143,9 +141,7 @@ export function BookForm({
     ? SECTIONS.map((s) => ({ key: s.key, label: s.label, sections: [s.key] as SectionKey[] }))
     : WIDE_TABS;
   // 目前這個頁籤涵蓋哪些區塊；捲動模式下全部都顯示
-  const visible = new Set(
-    tabs.find((t) => t.sections.includes(section))?.sections ?? [section]
-  );
+  const visible = new Set(tabs.find((t) => t.sections.includes(section))?.sections ?? [section]);
 
   /**
    * 用現在表單裡的書名／網址重查一次。刻意只補空欄位——
@@ -259,17 +255,16 @@ export function BookForm({
     setSubmitting(true);
     setSubmitError("");
     try {
-      const res = await fetch(
-        `/api/books/${book.id}?sheetId=${encodeURIComponent(sheetId)}`,
-        { method: "DELETE" }
-      );
+      const res = await fetch(`/api/books/${book.id}?sheetId=${encodeURIComponent(sheetId)}`, {
+        method: "DELETE",
+      });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error ?? "刪除失敗");
       }
       await mutate(
         (current) => ({ books: (current?.books ?? []).filter((b) => b.id !== book.id) }),
-        { revalidate: false }
+        { revalidate: false },
       );
       router.push(backHref);
     } catch (err) {
@@ -312,153 +307,162 @@ export function BookForm({
 
       {/* 分頁後每一頁都必須塞得下：這層不給捲，溢出代表分頁要再切細 */}
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
-      <Section paged={paged} active={visible.has("basic")}>
-        <Field label="書名" value={form.title} onChange={(v) => set("title", v)} required />
-        <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
-        <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
-      </Section>
+        <Section paged={paged} active={visible.has("basic")}>
+          <Field label="書名" value={form.title} onChange={(v) => set("title", v)} required />
+          <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
+          <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
+        </Section>
 
-      <Section paged={paged} active={visible.has("source")}>
-        <Field label="封面 URL" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
-        <Field label="來源網址" value={form.sourceUrl} onChange={(v) => set("sourceUrl", v)} />
+        <Section paged={paged} active={visible.has("source")}>
+          <Field label="封面 URL" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
+          <Field label="來源網址" value={form.sourceUrl} onChange={(v) => set("sourceUrl", v)} />
 
-        <CategorySelect
-          label="平台"
-          categoryKey="platform"
-          value={form.platform}
-          onChange={(v) => set("platform", v)}
-        />
-
-        {/* 用現有的書名／網址重查，補上空欄位 */}
-        <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-3">
-          <button
-            type="button"
-            onClick={handleRefetch}
-            disabled={refetching}
-            className="rounded border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
-          >
-            {refetching ? "抓取中…" : "重新抓取資料"}
-          </button>
-          {refetchNote && <span className="text-xs text-gray-500">{refetchNote}</span>}
-        </div>
-      </Section>
-
-      <Section paged={paged} active={visible.has("progress")}>
-        {/* 短欄位在手機兩兩並排；sm:contents 讓它在桌機溶解回原本的格線 */}
-        <div className="grid grid-cols-2 gap-3 sm:contents">
-          <Field label="頁數" value={form.pageCount} onChange={(v) => set("pageCount", v)} />
-          <Field label="字數" value={form.wordCount} onChange={(v) => set("wordCount", v)} />
-        </div>
-
-        <div className="min-w-0">
-          <label className="mb-1 block text-sm font-medium">閱讀狀態</label>
-          <p className="rounded border border-dashed bg-gray-50 px-3 py-2 text-sm text-gray-600">
-            {status}
-            <span className="ml-2 text-xs text-gray-400">依日期自動判斷</span>
-          </p>
-        </div>
-
-        {/* 日期在手機各佔一行：iOS 的原生日期控制項有最小寬度，兩兩並排會互相擠壓 */}
-        <div className="grid grid-cols-1 gap-3 sm:contents">
-          <Field label="開始日期" type="date" value={form.startDate} onChange={(v) => set("startDate", v)} />
-          <Field label="完成日期" type="date" value={form.endDate} onChange={(v) => set("endDate", v)} />
-        </div>
-
-      </Section>
-
-      <Section paged={paged} active={visible.has("category")}>
-        <CategorySelect
-          label="領域"
-          categoryKey="domain"
-          value={form.domain}
-          onChange={(v) => set("domain", v)}
-          multiple
-        />
-        <CategorySelect
-          label="屬性"
-          categoryKey="type"
-          value={form.type}
-          onChange={(v) => set("type", v)}
-          multiple
-        />
-        <CategorySelect
-          label="語言"
-          categoryKey="language"
-          value={form.language}
-          onChange={(v) => set("language", v)}
-        />
-      </Section>
-
-      {/* 筆記與佳句吃掉剩下的高度，欄位多寡不同時都不會擠出捲軸 */}
-      <div
-        className={`min-h-0 flex-1 flex-col gap-3 sm:flex-row ${
-          !paged || visible.has("note") ? "flex" : "hidden"
-        }`}
-      >
-        <div className="flex min-h-0 flex-1 flex-col gap-1">
-          <label className="shrink-0 text-sm font-medium">筆記</label>
-          <textarea
-            value={form.note}
-            onChange={(e) => set("note", e.target.value)}
-            className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
+          <CategorySelect
+            label="平台"
+            categoryKey="platform"
+            value={form.platform}
+            onChange={(v) => set("platform", v)}
           />
-        </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-1">
-          <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
-            佳句
-            <span className="text-xs font-normal text-gray-400">
-              一行一句，章節寫在行尾括號裡
-            </span>
-          </label>
-          <textarea
-            value={form.quotes}
-            onChange={(e) => set("quotes", e.target.value)}
-            placeholder={"真正的問題不是資源，而是注意力（第3章）\n自由來自於選擇不做什麼（第7章）"}
-            className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
+          {/* 用現有的書名／網址重查，補上空欄位 */}
+          <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-3">
+            <button
+              type="button"
+              onClick={handleRefetch}
+              disabled={refetching}
+              className="rounded border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+            >
+              {refetching ? "抓取中…" : "重新抓取資料"}
+            </button>
+            {refetchNote && <span className="text-xs text-gray-500">{refetchNote}</span>}
+          </div>
+        </Section>
+
+        <Section paged={paged} active={visible.has("progress")}>
+          {/* 短欄位在手機兩兩並排；sm:contents 讓它在桌機溶解回原本的格線 */}
+          <div className="grid grid-cols-2 gap-3 sm:contents">
+            <Field label="頁數" value={form.pageCount} onChange={(v) => set("pageCount", v)} />
+            <Field label="字數" value={form.wordCount} onChange={(v) => set("wordCount", v)} />
+          </div>
+
+          <div className="min-w-0">
+            <label className="mb-1 block text-sm font-medium">閱讀狀態</label>
+            <p className="rounded border border-dashed bg-gray-50 px-3 py-2 text-sm text-gray-600">
+              {status}
+              <span className="ml-2 text-xs text-gray-400">依日期自動判斷</span>
+            </p>
+          </div>
+
+          {/* 日期在手機各佔一行：iOS 的原生日期控制項有最小寬度，兩兩並排會互相擠壓 */}
+          <div className="grid grid-cols-1 gap-3 sm:contents">
+            <Field
+              label="開始日期"
+              type="date"
+              value={form.startDate}
+              onChange={(v) => set("startDate", v)}
+            />
+            <Field
+              label="完成日期"
+              type="date"
+              value={form.endDate}
+              onChange={(v) => set("endDate", v)}
+            />
+          </div>
+        </Section>
+
+        <Section paged={paged} active={visible.has("category")}>
+          <CategorySelect
+            label="領域"
+            categoryKey="domain"
+            value={form.domain}
+            onChange={(v) => set("domain", v)}
+            multiple
           />
-        </div>
-      </div>
+          <CategorySelect
+            label="屬性"
+            categoryKey="type"
+            value={form.type}
+            onChange={(v) => set("type", v)}
+            multiple
+          />
+          <CategorySelect
+            label="語言"
+            categoryKey="language"
+            value={form.language}
+            onChange={(v) => set("language", v)}
+          />
+        </Section>
 
-      {/*
+        {/* 筆記與佳句吃掉剩下的高度，欄位多寡不同時都不會擠出捲軸 */}
+        <div
+          className={`min-h-0 flex-1 flex-col gap-3 sm:flex-row ${
+            !paged || visible.has("note") ? "flex" : "hidden"
+          }`}
+        >
+          <div className="flex min-h-0 flex-1 flex-col gap-1">
+            <label className="shrink-0 text-sm font-medium">筆記</label>
+            <textarea
+              value={form.note}
+              onChange={(e) => set("note", e.target.value)}
+              className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
+            />
+          </div>
+
+          <div className="flex min-h-0 flex-1 flex-col gap-1">
+            <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
+              佳句
+              <span className="text-xs font-normal text-gray-400">
+                一行一句，章節寫在行尾括號裡
+              </span>
+            </label>
+            <textarea
+              value={form.quotes}
+              onChange={(e) => set("quotes", e.target.value)}
+              placeholder={
+                "真正的問題不是資源，而是注意力（第3章）\n自由來自於選擇不做什麼（第7章）"
+              }
+              className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
+            />
+          </div>
+        </div>
+
+        {/*
         關鍵字與相關文章。跟筆記同樣是一行一筆的自由文字——記的當下不分類，
         要畫成地圖還是清單是之後看的時候的事。
       */}
-      <div
-        className={`min-h-0 flex-1 flex-col gap-3 sm:flex-row ${
-          !paged || visible.has("keywords") ? "flex" : "hidden"
-        }`}
-      >
-        <div className="flex min-h-0 flex-1 flex-col gap-1">
-          <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
-            關鍵字
-            <span className="text-xs font-normal text-gray-400">
-              一行一個：地名、人名、事件、專有名詞
-            </span>
-          </label>
-          <textarea
-            value={form.keywords}
-            onChange={(e) => set("keywords", e.target.value)}
-            placeholder={"西藏拉薩\n四川阿壩\n葉石濤"}
-            className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
-          />
-        </div>
+        <div
+          className={`min-h-0 flex-1 flex-col gap-3 sm:flex-row ${
+            !paged || visible.has("keywords") ? "flex" : "hidden"
+          }`}
+        >
+          <div className="flex min-h-0 flex-1 flex-col gap-1">
+            <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
+              關鍵字
+              <span className="text-xs font-normal text-gray-400">
+                一行一個：地名、人名、事件、專有名詞
+              </span>
+            </label>
+            <textarea
+              value={form.keywords}
+              onChange={(e) => set("keywords", e.target.value)}
+              placeholder={"西藏拉薩\n四川阿壩\n葉石濤"}
+              className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
+            />
+          </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-1">
-          <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
-            相關文章
-            <span className="text-xs font-normal text-gray-400">
-              一行一個 Instapaper 網址
-            </span>
-          </label>
-          <textarea
-            value={form.relatedArticles}
-            onChange={(e) => set("relatedArticles", e.target.value)}
-            placeholder={"https://www.instapaper.com/read/1234567890"}
-            className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
-          />
+          <div className="flex min-h-0 flex-1 flex-col gap-1">
+            <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
+              相關文章
+              <span className="text-xs font-normal text-gray-400">一行一個 Instapaper 網址</span>
+            </label>
+            <textarea
+              value={form.relatedArticles}
+              onChange={(e) => set("relatedArticles", e.target.value)}
+              placeholder={"https://www.instapaper.com/read/1234567890"}
+              className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
+            />
+          </div>
         </div>
-      </div>
       </div>
 
       {submitError && <p className="shrink-0 text-xs text-red-600">{submitError}</p>}
@@ -539,7 +543,7 @@ function Field({
         value={value}
         required={required}
         onChange={(e) => onChange(e.target.value)}
-        className="box-border block w-full min-w-0 max-w-full rounded border px-3 py-2 text-sm"
+        className="box-border block w-full max-w-full min-w-0 rounded border px-3 py-2 text-sm"
       />
     </div>
   );

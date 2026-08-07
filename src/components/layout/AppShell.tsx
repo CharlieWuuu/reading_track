@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef } from "react";
-import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./BottomNav";
 import { PullToRefresh } from "./PullToRefresh";
+import { Sidebar } from "./Sidebar";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const mainRef = useRef<HTMLElement>(null);

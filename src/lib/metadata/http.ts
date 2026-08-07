@@ -53,9 +53,7 @@ function retryDelay(res: Response, attempt: number): number {
   const fallback = RETRY_DELAYS_MS[attempt];
   if (!header) return fallback;
   const seconds = Number(header);
-  const ms = Number.isFinite(seconds)
-    ? seconds * 1000
-    : new Date(header).getTime() - Date.now();
+  const ms = Number.isFinite(seconds) ? seconds * 1000 : new Date(header).getTime() - Date.now();
   if (!Number.isFinite(ms) || ms <= 0) return fallback;
   return Math.min(ms, 10000);
 }
@@ -87,7 +85,7 @@ type FetchOutcome =
 async function attemptFetchText(
   url: string,
   { timeoutMs, headers, strict }: FetchOptions & { timeoutMs: number },
-  attempt: number
+  attempt: number,
 ): Promise<FetchOutcome> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -128,8 +126,12 @@ async function attemptFetchText(
  */
 async function fetchTextWithCa(
   url: string,
-  { timeoutMs, headers, strict, extraCa }: Required<Pick<FetchOptions, "timeoutMs" | "extraCa">> &
-    FetchOptions
+  {
+    timeoutMs,
+    headers,
+    strict,
+    extraCa,
+  }: Required<Pick<FetchOptions, "timeoutMs" | "extraCa">> & FetchOptions,
 ): Promise<string | null> {
   const [https, tls] = await Promise.all([import("node:https"), import("node:tls")]);
 
@@ -163,7 +165,7 @@ async function fetchTextWithCa(
         res.on("data", (chunk) => (body += chunk));
         res.on("end", () => resolve(body));
         res.on("error", (err) => fail(err.message));
-      }
+      },
     );
 
     req.on("timeout", () => {
@@ -188,7 +190,7 @@ export async function fetchJson<T>(url: string, options: FetchOptions = {}): Pro
 /** 只確認資源存在（例如封面圖），不下載內容 */
 export async function resourceExists(
   url: string,
-  headers?: Record<string, string>
+  headers?: Record<string, string>,
 ): Promise<boolean> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 8000);
@@ -292,8 +294,5 @@ function score(candidate: string, query: string): number {
  * 完整標題只當作次要依據，權重打折。
  */
 export function titleSimilarity(candidate: string, query: string): number {
-  return Math.max(
-    score(mainTitle(candidate), mainTitle(query)),
-    score(candidate, query) * 0.9
-  );
+  return Math.max(score(mainTitle(candidate), mainTitle(query)), score(candidate, query) * 0.9);
 }

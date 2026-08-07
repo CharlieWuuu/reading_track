@@ -1,12 +1,5 @@
 export type BookPlatform =
-  | "博客來"
-  | "讀墨"
-  | "Kobo"
-  | "Kindle"
-  | "Hyread"
-  | "Pubu"
-  | "實體書"
-  | "其他";
+  "博客來" | "讀墨" | "Kobo" | "Kindle" | "Hyread" | "Pubu" | "實體書" | "其他";
 
 export const BOOK_PLATFORMS: BookPlatform[] = [
   "博客來",

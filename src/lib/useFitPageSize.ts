@@ -31,7 +31,7 @@ export function useFitPageSize(
   rowHeight: { mobile: number; desktop: number },
   reserved = 96,
   /** 詳細檢視的卡片很高，手機上一頁只放得下一兩張，所以下限要能調 */
-  minRows = MIN_ROWS
+  minRows = MIN_ROWS,
 ): number {
   const [pageSize, setPageSize] = useState(FALLBACK_ROWS);
 
@@ -79,7 +79,7 @@ export function useFitRowsByMeasure(
   estimate: number,
   max: number,
   enabled = true,
-  minRows = MIN_ROWS
+  minRows = MIN_ROWS,
 ): number {
   // shrunk：這輪量測已經縮過就不再放大，否則會在「多一筆／少一筆」之間來回跳
   const [fit, setFit] = useState({ estimate, count: estimate, shrunk: false });

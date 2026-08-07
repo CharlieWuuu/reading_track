@@ -13,7 +13,14 @@ function prodInfo($: CheerioAPI): Map<string, string> {
   const info = new Map<string, string>();
   $(".prodInfo_boldSpan").each((_, el) => {
     const cell = $(el);
-    const label = cell.clone().children().remove().end().text().replace(/[:：\s]*$/, "").trim();
+    const label = cell
+      .clone()
+      .children()
+      .remove()
+      .end()
+      .text()
+      .replace(/[:：\s]*$/, "")
+      .trim();
     const value = cell.children("span").first().text().trim();
     if (label && value && !info.has(label)) info.set(label, value);
   });
@@ -37,9 +44,9 @@ export const taazeProvider: MetadataProvider = {
   findCandidates: async (query) => {
     const $ = await fetchDom(
       `https://www.taaze.tw/rwd_searchResult.html?keyType%5B%5D=0&keyword%5B%5D=${encodeURIComponent(
-        query
+        query,
       )}`,
-      TLS
+      TLS,
     );
     if (!$) return [];
 
@@ -66,7 +73,10 @@ export const taazeProvider: MetadataProvider = {
     const info = prodInfo($);
     const metadata: BookMetadata = {
       title,
-      author: $(".authorBrand a").map((_, a) => $(a).text().trim()).get().join(", "),
+      author: $(".authorBrand a")
+        .map((_, a) => $(a).text().trim())
+        .get()
+        .join(", "),
       publisher: info.get("出版社") ?? "",
       language: normalizeLanguage(info.get("語言") ?? ""),
       pageCount: digitsOnly(info.get("頁數") ?? ""),
