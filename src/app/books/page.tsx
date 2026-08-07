@@ -8,7 +8,6 @@ export default function BooksPage() {
   return (
     <PageShell
       title="書籍紀錄"
-      width="full"
       fill
       action={
         <div className="flex items-center gap-2">

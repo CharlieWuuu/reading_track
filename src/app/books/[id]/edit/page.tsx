@@ -14,7 +14,7 @@ export default function EditBookPage() {
 
   if (!sheetId || isLoading || error || !book) {
     return (
-      <PageShell title="編輯書籍" width="form">
+      <PageShell title="編輯書籍">
         <PageMessage tone={error ? "error" : "muted"}>
           {!sheetId
             ? "請先到「設定」頁面連接 Google Sheet"

@@ -45,7 +45,7 @@ export default function SettingsPage() {
 
   if (!session?.user) {
     return (
-      <PageShell title="設定" width="form">
+      <PageShell title="設定">
         <SignInPrompt />
       </PageShell>
     );
@@ -121,13 +121,9 @@ export default function SettingsPage() {
   return (
     <PageShell
       title="設定"
-      width="form"
       fill
       action={
-        /*
-          分頁切換：每個區塊各自塞得下一個畫面，不用整頁往下捲。
-          手機放不下四個標籤，改成單行橫向捲動，不讓它折成兩行把頁首撐高。
-        */
+        // 手機放不下四個標籤，改成單行橫向捲動，不折成兩行把頁首撐高
         <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-lg border p-1">
           {tabs.map((t) => (
             <button

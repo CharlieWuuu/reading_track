@@ -10,7 +10,7 @@ export default function ProfilePage() {
 
   if (status === "loading") {
     return (
-      <PageShell title="個人資訊" width="narrow">
+      <PageShell title="個人資訊">
         <PageMessage>載入中…</PageMessage>
       </PageShell>
     );
@@ -18,14 +18,14 @@ export default function ProfilePage() {
 
   if (!session?.user) {
     return (
-      <PageShell title="個人資訊" width="narrow">
+      <PageShell title="個人資訊">
         <SignInPrompt />
       </PageShell>
     );
   }
 
   return (
-    <PageShell title="個人資訊" width="narrow">
+    <PageShell title="個人資訊">
       <div className="flex w-full flex-col gap-6 rounded-lg border bg-white p-5">
         <div className="flex items-center gap-4">
           {session.user.image ? (

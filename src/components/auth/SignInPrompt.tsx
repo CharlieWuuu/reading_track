@@ -2,12 +2,7 @@
 
 import { signIn } from "next-auth/react";
 
-/**
- * 未登入時的整塊提示：整個框就是登入按鈕，按下去直接進 Google 的授權頁。
- *
- * 不做「進頁面自動轉走」——使用者在授權頁按取消回來會立刻又被送出去，
- * 等於進不了這一頁。留一下按鈕，動作一樣是一步。
- */
+/** 整個框就是登入按鈕；不自動轉走，不然在授權頁按取消回來會又被送出去 */
 export function SignInPrompt({ text = "請先登入 Google 帳號" }: { text?: string }) {
   return (
     <button

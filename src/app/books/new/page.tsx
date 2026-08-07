@@ -12,7 +12,6 @@ export default function NewBookPage() {
     // 查詢階段只有一個輸入框，用窄版；填表階段欄位多，放寬
     <PageShell
       title={result ? "新增書籍" : "新增書籍 · 查詢資料"}
-      width={result ? "wide" : "form"}
       fill
     >
       {result ? (

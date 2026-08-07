@@ -37,7 +37,12 @@ import {
   getTagDistribution,
 } from "@/lib/articleStats";
 
-type Tab = "books" | "articles";
+const TABS = [
+  { key: "books", label: "書籍" },
+  { key: "articles", label: "文章" },
+] as const;
+
+type Tab = (typeof TABS)[number]["key"];
 
 function TabButton({
   active,
@@ -400,12 +405,11 @@ function StatsTabs() {
       fill
       action={
         <div className="flex items-center gap-1 rounded-lg border p-1">
-          <TabButton active={tab === "books"} onClick={() => setTab("books")}>
-            書籍
-          </TabButton>
-          <TabButton active={tab === "articles"} onClick={() => setTab("articles")}>
-            文章
-          </TabButton>
+          {TABS.map((t) => (
+            <TabButton key={t.key} active={tab === t.key} onClick={() => setTab(t.key)}>
+              {t.label}
+            </TabButton>
+          ))}
         </div>
       }
     >
