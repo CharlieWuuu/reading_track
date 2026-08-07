@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
@@ -59,8 +60,7 @@ export function Sidebar() {
     <nav className={`${styles.nav} ${collapsed ? "w-16" : "w-56"}`}>
       <div className={styles.brand}>
         {collapsed ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src="/icon.svg" alt="ReadingTrack" className="h-8 w-8 rounded-lg" />
+          <Image src="/icon.svg" alt="ReadingTrack" width={32} height={32} className="rounded-lg" />
         ) : (
           <span className={styles.title}>ReadingTrack</span>
         )}
@@ -89,7 +89,7 @@ export function Sidebar() {
 
       <div className={`${styles.footer} ${collapsed ? "items-center p-2" : "p-4"}`}>
         {/* 工具類操作固定在帳號按鈕上面一排，收合前後都在同一個位置 */}
-        <div className={`${styles.tools} ${collapsed ? "flex-col" : "justify-between"}`}>
+        <div className={`${styles.tools} ${collapsed ? "flex-col" : "justify-end"}`}>
           {showRefresh && <RefreshButton compact={collapsed} />}
           <CollapseButton collapsed={collapsed} onClick={toggle} />
         </div>
