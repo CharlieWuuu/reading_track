@@ -1,7 +1,8 @@
 "use client";
 
 import { Suspense, useRef, useState } from "react";
-import { PageMessage, PageShell } from "@/components/layout/PageShell";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { PageMessage } from "@/components/layout/PageMessage";
 import { PagerButton } from "@/components/ui/PagerButton";
 import { TagList } from "@/components/ui/TagBadge";
 import { useFitPageSize, useFitRowsByMeasure } from "@/lib/useFitPageSize";
@@ -55,38 +56,43 @@ function ArticlesList() {
 
   if (!token) {
     return (
-      <PageShell title="文章紀錄">
+      <>
+        <PageHeader title="文章紀錄" />
         <PageMessage>請先到「設定」頁面連接 Instapaper</PageMessage>
-      </PageShell>
+      </>
     );
   }
 
   if (isLoading) {
     return (
-      <PageShell title="文章紀錄">
+      <>
+        <PageHeader title="文章紀錄" />
         <PageMessage>載入中…</PageMessage>
-      </PageShell>
+      </>
     );
   }
 
   if (error) {
     return (
-      <PageShell title="文章紀錄">
+      <>
+        <PageHeader title="文章紀錄" />
         <PageMessage tone="error">{error}</PageMessage>
-      </PageShell>
+      </>
     );
   }
 
   if (articles.length === 0) {
     return (
-      <PageShell title="文章紀錄">
+      <>
+        <PageHeader title="文章紀錄" />
         <PageMessage>尚無文章</PageMessage>
-      </PageShell>
+      </>
     );
   }
 
   return (
-    <PageShell title="文章紀錄">
+    <>
+      <PageHeader title="文章紀錄" />
       {/* overflow-hidden：hover 底色才會被圓角裁掉，不會在頭尾兩列破圖 */}
       <div ref={containerRef} className="divide-y overflow-hidden rounded-lg border bg-white">
         {pageArticles.map((a) => {
@@ -159,7 +165,7 @@ function ArticlesList() {
           </div>
         )}
       </div>
-    </PageShell>
+    </>
   );
 }
 

@@ -4,7 +4,8 @@ import { useParams } from "next/navigation";
 import { BookForm } from "@/components/books/BookForm";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
-import { PageMessage, PageShell } from "@/components/layout/PageShell";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { PageMessage } from "@/components/layout/PageMessage";
 
 export default function EditBookPage() {
   const { id } = useParams<{ id: string }>();
@@ -14,7 +15,8 @@ export default function EditBookPage() {
 
   if (!sheetId || isLoading || error || !book) {
     return (
-      <PageShell title="編輯書籍">
+      <>
+        <PageHeader title="編輯書籍" />
         <PageMessage tone={error ? "error" : "muted"}>
           {!sheetId
             ? "請先到「設定」頁面連接 Google Sheet"
@@ -22,15 +24,16 @@ export default function EditBookPage() {
               ? "載入中…"
               : error || "找不到這本書"}
         </PageMessage>
-      </PageShell>
+      </>
     );
   }
 
   return (
-    <PageShell title="編輯書籍" fill>
+    <>
+      <PageHeader title="編輯書籍" />
       <div className="min-h-0 flex-1">
         <BookForm key={book.id} book={book} />
       </div>
-    </PageShell>
+    </>
   );
 }

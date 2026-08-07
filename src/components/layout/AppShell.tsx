@@ -30,7 +30,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             月曆、書單那種「剛好一畫面」的版型才排得出來；內容變長時
             flex 項目會自己長高，多出來的部分照樣可以捲。
         */}
-        <main ref={mainRef} className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3 sm:p-4 md:p-6">
+        <main
+          ref={mainRef}
+          className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3 sm:p-4 md:gap-5 md:p-6"
+        >
           {children}
         </main>
 

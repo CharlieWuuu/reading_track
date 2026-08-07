@@ -4,7 +4,8 @@ import { Suspense } from "react";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { SectionPager, Section } from "@/components/stats/SectionPager";
 import { useIsMobile } from "@/lib/useIsMobile";
-import { PageMessage, PageShell } from "@/components/layout/PageShell";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { PageMessage } from "@/components/layout/PageMessage";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useMounted } from "@/lib/useMounted";
 import { useBooks } from "@/lib/useBooks";
@@ -400,21 +401,21 @@ function StatsTabs() {
   const setTab = (next: Tab) => setParams({ tab: next === "books" ? null : next });
 
   return (
-    <PageShell
-      title="統計"
-      fill
-      action={
-        <div className="flex items-center gap-1 rounded-lg border p-1">
-          {TABS.map((t) => (
-            <TabButton key={t.key} active={tab === t.key} onClick={() => setTab(t.key)}>
-              {t.label}
-            </TabButton>
-          ))}
-        </div>
-      }
-    >
+    <>
+      <PageHeader
+        title="統計"
+        action={
+          <div className="flex items-center gap-1 rounded-lg border p-1">
+            {TABS.map((t) => (
+              <TabButton key={t.key} active={tab === t.key} onClick={() => setTab(t.key)}>
+                {t.label}
+              </TabButton>
+            ))}
+          </div>
+        }
+      />
       {tab === "books" ? <BooksStats /> : <ArticlesStats />}
-    </PageShell>
+    </>
   );
 }
 

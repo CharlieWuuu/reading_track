@@ -10,7 +10,7 @@ import { usePagingMode } from "@/lib/usePagingMode";
 import { useMounted } from "@/lib/useMounted";
 import { useSheetStore } from "@/store/useSheetStore";
 import { useBooks } from "@/lib/useBooks";
-import { PageMessage } from "@/components/layout/PageShell";
+import { PageMessage } from "@/components/layout/PageMessage";
 import { useArticles } from "@/lib/useArticles";
 import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
 import { useFitPageSize, useFitRowsByMeasure, viewportBottom } from "@/lib/useFitPageSize";
