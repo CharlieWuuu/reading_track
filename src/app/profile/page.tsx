@@ -5,6 +5,7 @@ import { signOut, useSession } from "next-auth/react";
 import { SignInPrompt } from "@/components/auth/SignInPrompt";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
+import { clearLocalData } from "@/lib/clearLocalData";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -47,7 +48,10 @@ export default function ProfilePage() {
         </div>
 
         <button
-          onClick={() => signOut()}
+          onClick={() => {
+            clearLocalData();
+            signOut();
+          }}
           className="w-full rounded border px-3 py-2 text-sm font-medium hover:bg-gray-100"
         >
           登出

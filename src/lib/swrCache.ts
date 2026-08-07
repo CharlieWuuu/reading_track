@@ -15,6 +15,8 @@ interface Persisted {
  */
 /** 由 provider 設定；SWR 每次抓到資料就呼叫它，把快取寫回 localStorage */
 let saveCache: (() => void) | null = null;
+/** 清掉之後就不准再寫回去，否則 beforeunload 又把資料存了一次 */
+let disabled = false;
 
 /**
  * 立刻把目前的快取存起來。
@@ -44,6 +46,7 @@ export function localStorageProvider(): Cache {
   }
 
   const save = () => {
+    if (disabled) return;
     try {
       // 只留成功抓到的資料，錯誤與載入狀態不必留到下次
       const entries: Persisted["entries"] = [];
@@ -94,6 +97,7 @@ export function readCached<T>(key: string | null): T | undefined {
 }
 
 export function clearSWRCache() {
+  disabled = true;
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch {
