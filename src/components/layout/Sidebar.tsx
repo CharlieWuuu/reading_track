@@ -11,7 +11,7 @@ import { RefreshButton } from "./RefreshButton";
 
 const styles = {
   nav: "flex h-full shrink-0 flex-col border-r border-gray-900 bg-white",
-  brand: "flex items-center gap-1 border-b border-gray-900 px-3 py-4",
+  brand: "flex items-center justify-center gap-1 border-b border-gray-900 px-3 py-4",
   title: "truncate text-lg font-semibold tracking-tight",
   list: "flex-1 space-y-1 overflow-y-auto",
   link: "flex items-center gap-2 rounded px-3 py-2 text-sm",
@@ -54,14 +54,13 @@ export function Sidebar() {
 
   // 沒登入就沒有資料可以重抓，按鈕不該出現
   const showRefresh = Boolean(session?.user);
-  // 收合時收合鈕在最上面，這一排可能整排沒東西
-  const showTools = showRefresh || !collapsed;
 
   return (
     <nav className={`${styles.nav} ${collapsed ? "w-16" : "w-56"}`}>
-      <div className={`${styles.brand} ${collapsed ? "justify-center" : "justify-between"}`}>
+      <div className={styles.brand}>
         {collapsed ? (
-          <CollapseButton collapsed={collapsed} onClick={toggle} />
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src="/icon.svg" alt="ReadingTrack" className="h-8 w-8 rounded-lg" />
         ) : (
           <span className={styles.title}>ReadingTrack</span>
         )}
@@ -89,13 +88,11 @@ export function Sidebar() {
       </ul>
 
       <div className={`${styles.footer} ${collapsed ? "items-center p-2" : "p-4"}`}>
-        {/* 工具類操作集中在帳號按鈕上面一排 */}
-        {showTools && (
-          <div className={`${styles.tools} ${collapsed ? "flex-col" : "justify-end"}`}>
-            {showRefresh && <RefreshButton compact={collapsed} />}
-            {!collapsed && <CollapseButton collapsed={collapsed} onClick={toggle} />}
-          </div>
-        )}
+        {/* 工具類操作固定在帳號按鈕上面一排，收合前後都在同一個位置 */}
+        <div className={`${styles.tools} ${collapsed ? "flex-col" : "justify-between"}`}>
+          {showRefresh && <RefreshButton compact={collapsed} />}
+          <CollapseButton collapsed={collapsed} onClick={toggle} />
+        </div>
         <AuthButton compact={collapsed} />
       </div>
     </nav>
