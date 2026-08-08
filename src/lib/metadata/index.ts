@@ -142,6 +142,22 @@ export async function fetchBookMetadata(
 }
 
 /** 只補書本目前空著的欄位，使用者自己填的內容一律不動 */
+/**
+ * 抓回來的書名比現有的「更完整」時才回傳它，否則回空字串。
+ *
+ * 更完整＝包含現有書名而且更長，多半是補上副標題（「深度工作力」→
+ * 「深度工作力：淺薄時代，個人成功的關鍵能力」）。完全不同的書名一律不動——
+ * 那代表配對可能錯了，改掉會讓使用者的書變成別本書。
+ */
+export function fullerTitle(current: string, candidate: string | undefined): string {
+  const now = (current ?? "").trim();
+  const next = (candidate ?? "").trim();
+  if (!now || !next || next.length <= now.length) return "";
+
+  const loose = (value: string) => value.replace(/\s+/g, "").toLowerCase();
+  return loose(next).startsWith(loose(now)) ? next : "";
+}
+
 export function mergeEnrichment(book: Book, metadata: BookMetadata): Partial<Book> {
   const patch: Partial<Book> = {};
   for (const field of missingFields(book)) {
@@ -149,6 +165,10 @@ export function mergeEnrichment(book: Book, metadata: BookMetadata): Partial<Boo
       patch[field] = metadata[field];
     }
   }
+  // 書名本來就不是空的，所以不在 missingFields 裡；但只要抓到更完整的版本就補上去
+  const fuller = fullerTitle(book.title, metadata.title);
+  if (fuller) patch.title = fuller;
+
   // 來源網址不在 ENRICHABLE_FIELDS（它不是書的屬性，是「這次資料哪裡來的」），
   // 但只要原本空著就一併補上，之後才查得回這筆資料的出處
   if (isBlank(book.sourceUrl) && !isBlank(metadata.sourceUrl)) {

@@ -37,13 +37,13 @@ export function useKeywordInfos() {
     return result as EnrichResult;
   }
 
-  /** 手動改一筆；改完重讀主檔，畫面才會跟著更新 */
-  async function save(keyword: KeywordInfo) {
+  /** 手動改一筆；改名時連帶改寫引用它的書。改完重讀，畫面才會跟著更新 */
+  async function save(keyword: KeywordInfo, previousName?: string) {
     if (!sheetId) throw new Error("請先連接 Google Sheet");
     const res = await fetch("/api/keywords", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sheetId, keyword }),
+      body: JSON.stringify({ sheetId, keyword, previousName }),
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));

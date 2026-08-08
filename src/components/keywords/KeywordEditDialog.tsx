@@ -18,6 +18,7 @@ const styles = {
 };
 
 const FIELDS = [
+  { key: "name", label: "名稱", hint: "改名會連帶改寫所有提到它的書" },
   { key: "topics", label: "學科", hint: "多個以頓號分隔" },
   { key: "coordinates", label: "座標", hint: "緯度,經度，例如 35.0117,135.7683" },
   { key: "span", label: "起訖", hint: "例如 1809－1882；西元前寫成 -384" },
@@ -26,7 +27,8 @@ const FIELDS = [
 
 type KeywordEditDialogProps = {
   info: KeywordInfo;
-  onSave: (info: KeywordInfo) => Promise<void>;
+  /** previousName 給改名用：書籍表靠名字指向主檔，改名要連帶改寫那些書 */
+  onSave: (info: KeywordInfo, previousName: string) => Promise<void>;
   onClose: () => void;
 };
 
@@ -39,10 +41,14 @@ export function KeywordEditDialog({ info, onSave, onClose }: KeywordEditDialogPr
   const set = (key: keyof KeywordInfo, value: string) => setForm((f) => ({ ...f, [key]: value }));
 
   async function handleSave() {
+    if (!form.name.trim()) {
+      setError("名稱不能是空的");
+      return;
+    }
     setSaving(true);
     setError("");
     try {
-      await onSave(form);
+      await onSave({ ...form, name: form.name.trim() }, info.name);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "儲存失敗");

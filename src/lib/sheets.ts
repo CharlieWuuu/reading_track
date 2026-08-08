@@ -13,6 +13,7 @@ import {
   normalizeStatus,
   parseQuotes,
   parseVocabulary,
+  splitLines,
 } from "@/types/book";
 import { KeywordInfo } from "@/types/keyword";
 import { QuoteRow, VocabularyRow } from "@/types/record";
@@ -33,7 +34,7 @@ function getAuthClient(accessToken: string) {
  *
  * - 認得的舊欄名（例如 `title`、`coverUrl`）就地改寫成中文，**位置不動**，
  *   所以底下的資料不會跑掉
- * - 缺少的欄位補到最右邊
+ * - 缺少的欄位補到最右邊（不能插在中間，理由見下）
  * - 認不出來的欄位當成使用者自訂，原樣保留
  */
 async function resolveColumns(sheet: GoogleSpreadsheetWorksheet) {
@@ -58,6 +59,11 @@ async function resolveColumns(sheet: GoogleSpreadsheetWorksheet) {
   // 那就別改名了，只補缺的欄，交給使用者自己決定要留哪一個
   const safeToRename = new Set(renamed).size === renamed.length;
   const base = safeToRename ? renamed : headers;
+  //
+  // 一律補在最右邊，不要試著插在「它應該在」的位置：setHeaderRow 只重寫表頭
+  // 那一列，底下的資料不會跟著右移，在中間插一欄會讓右邊每一欄都對錯資料。
+  // 想調欄位順序請直接在 Sheet 上整欄搬移，app 是靠表頭名字對應的，位置不影響。
+  //
   const nextHeaders = [...base, ...missing.map((f) => COLUMN_LABELS[f])];
 
   const changed =
@@ -165,6 +171,7 @@ export async function listBooksWithMeta(
       startDate: get("startDate") || null,
       endDate: get("endDate") || null,
       domain: get("domain"),
+      subDomain: get("subDomain"),
       type: get("type"),
       language: get("language"),
       pageCount: get("pageCount"),
@@ -259,6 +266,7 @@ const OPTIONS_HEADERS = ["類別", "選項"];
 const CATEGORY_LABELS: Record<keyof BookCategories, string> = {
   platform: "平台",
   domain: "領域",
+  subDomain: "次領域",
   type: "屬性",
   language: "語言",
 };
@@ -298,7 +306,13 @@ export async function listCategories(
   const sheet = await getOptionsSheet(sheetId, accessToken);
   const rows = await sheet.getRows();
 
-  const categories: BookCategories = { platform: [], domain: [], type: [], language: [] };
+  const categories: BookCategories = {
+    platform: [],
+    domain: [],
+    subDomain: [],
+    type: [],
+    language: [],
+  };
   for (const row of rows) {
     const key = categoryKeyOf((row.get("類別") ?? "").toString());
     const option = (row.get("選項") ?? "").toString().trim();
@@ -409,12 +423,55 @@ export async function saveKeywordInfos(sheetId: string, accessToken: string, inf
   if (added.length > 0) await sheet.addRows(added);
 }
 
+/**
+ * 關鍵字改名：主檔那一列跟著改，同時改寫所有引用它的書。
+ *
+ * 這是整套設計裡唯一會斷掉的地方——書籍表用「名字」指向主檔，名字一改就對不上。
+ * 所以改名一定要走這條路；直接在 Sheet 上改主檔的名稱，那些書就會變成引用一個
+ * 不存在的關鍵字（關鍵字頁會把它列成「沒有書在用」）。
+ *
+ * @returns 連帶改到幾本書
+ */
+export async function renameKeyword(
+  sheetId: string,
+  accessToken: string,
+  from: string,
+  to: string,
+): Promise<number> {
+  const books = await listBooks(sheetId, accessToken);
+  const patches = new Map<string, Partial<Book>>();
+
+  for (const book of books) {
+    const lines = splitLines(book.keywords);
+    if (!lines.includes(from)) continue;
+    // 改成一個已經存在的名字＝合併，所以要去重，不然那本書會出現兩個一樣的關鍵字
+    const next = [...new Set(lines.map((line) => (line === from ? to : line)))];
+    patches.set(book.id, { keywords: next.join("\n") });
+  }
+
+  await bulkUpdateBooks(sheetId, accessToken, patches);
+  return patches.size;
+}
+
 /** 使用者親手改的那一列，整列照寫——這裡不是自動補齊，不必保護既有值 */
-export async function replaceKeywordInfo(sheetId: string, accessToken: string, info: KeywordInfo) {
+export async function replaceKeywordInfo(
+  sheetId: string,
+  accessToken: string,
+  info: KeywordInfo,
+  /** 改名時傳入原本的名字，才找得到要改的是哪一列 */
+  previousName?: string,
+) {
   const sheet = await getKeywordsSheet(sheetId, accessToken);
   const rows = await sheet.getRows();
-  const row = rows.find((r) => (r.get("名稱") ?? "").toString().trim() === info.name);
+  const named = (row: GoogleSpreadsheetRow) => (row.get("名稱") ?? "").toString().trim();
 
+  // 改名時，改成的那個名字可能已經有一列（＝合併），留一列就好
+  if (previousName && previousName !== info.name) {
+    const duplicate = rows.find((row) => named(row) === info.name);
+    if (duplicate) await duplicate.delete();
+  }
+
+  const row = rows.find((r) => named(r) === (previousName || info.name));
   if (!row) {
     await sheet.addRows([toRowValues(info)]);
     return;

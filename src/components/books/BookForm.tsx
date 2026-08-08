@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { fullerTitle } from "@/lib/metadata";
 import { useBooks } from "@/lib/useBooks";
 import { useRecords } from "@/lib/useRecords";
 import { useSheetStore } from "@/store/useSheetStore";
@@ -32,6 +33,7 @@ const emptyForm = {
   startDate: "",
   endDate: "",
   domain: "",
+  subDomain: "",
   type: "",
   language: "",
   pageCount: "",
@@ -149,9 +151,15 @@ export function BookForm({
           (next[k] as string) = value;
           filled.push(k);
         }
+        // 書名是唯一的例外：抓到更完整的版本（多半是補上副標題）就換掉
+        const fuller = fullerTitle(f.title, found.title);
+        if (fuller) {
+          next.title = fuller;
+          filled.push("title");
+        }
         return next;
       });
-      setRefetchNote(filled.length ? `補上 ${filled.length} 個空欄位` : "沒有可補的空欄位");
+      setRefetchNote(filled.length ? `補上 ${filled.length} 個欄位` : "沒有可補的欄位");
     } catch (err) {
       setRefetchNote(err instanceof Error ? err.message : "抓取失敗");
     } finally {
@@ -183,6 +191,7 @@ export function BookForm({
       startDate: form.startDate || null,
       endDate: form.endDate || null,
       domain: form.domain,
+      subDomain: form.subDomain,
       type: form.type,
       language: form.language,
       pageCount: form.pageCount,
@@ -337,12 +346,18 @@ export function BookForm({
         </Section>
 
         <Section>
+          {/* 領域改成單選：它問的是「為什麼讀這本書」，一本書只會有一個答案 */}
           <CategorySelect
             label="領域"
             categoryKey="domain"
             value={form.domain}
             onChange={(v) => set("domain", v)}
-            multiple
+          />
+          <CategorySelect
+            label="次領域"
+            categoryKey="subDomain"
+            value={form.subDomain}
+            onChange={(v) => set("subDomain", v)}
           />
           <CategorySelect
             label="屬性"

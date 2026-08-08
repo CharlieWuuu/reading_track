@@ -55,6 +55,8 @@ export interface Book {
   startDate: string | null;
   endDate: string | null;
   domain: string;
+  /** 領域底下的細分，例如 領域「心理」→ 次領域「正念」；沒有就是空字串 */
+  subDomain: string;
   type: string;
   language: string;
   /** 紙本／電子書頁數，以字串保存，方便使用者直接在 Sheet 編輯 */
@@ -199,13 +201,43 @@ function parseLegacyVocabulary(line: string): VocabularyItem {
 export interface BookCategories {
   platform: string[];
   domain: string[];
+  subDomain: string[];
   type: string[];
   language: string[];
 }
 
 export const DEFAULT_CATEGORIES: BookCategories = {
   platform: [...BOOK_PLATFORMS],
-  domain: ["社會科學", "文學", "語言學", "歷史", "科普", "商業"],
+  // 領域是「為什麼讀這本書」，不是圖書館的分類法——所以有「雞湯」也有「專注力」
+  // 次領域一開始是空的：怎麼細分要看實際讀了什麼，預設一套只會擋路
+  subDomain: [],
+  domain: [
+    "人類學",
+    "心理",
+    "文學",
+    "台灣文學",
+    "正念",
+    "地理",
+    "成功學",
+    "成長",
+    "社會科學",
+    "政治",
+    "娛樂",
+    "健康",
+    "商業",
+    "專注力",
+    "理財",
+    "設計",
+    "報導文學",
+    "登山",
+    "程式",
+    "極簡主義",
+    "腦科學",
+    "語言學習",
+    "閱讀",
+    "職涯",
+    "雞湯",
+  ],
   type: ["工具書", "小說", "散文", "詩", "傳記"],
   language: ["中文", "英文", "日文", "台文"],
 };

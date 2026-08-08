@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { lookupKeyword } from "@/lib/keywords/wikipedia";
-import { listKeywordInfos, replaceKeywordInfo, saveKeywordInfos } from "@/lib/sheets";
+import {
+  listKeywordInfos,
+  renameKeyword,
+  replaceKeywordInfo,
+  saveKeywordInfos,
+} from "@/lib/sheets";
 import { KeywordInfo } from "@/types/keyword";
 
 /** 一次補太多會打爆維基也拖垮 request，多的留給下一次 */
@@ -81,14 +86,26 @@ export async function PUT(req: NextRequest) {
   const session = await auth();
   if (!session?.accessToken) return NextResponse.json({ error: "請先登入" }, { status: 401 });
 
-  const { sheetId, keyword } = (await req.json()) as { sheetId: string; keyword: KeywordInfo };
+  const { sheetId, keyword, previousName } = (await req.json()) as {
+    sheetId: string;
+    keyword: KeywordInfo;
+    /** 有改名時帶原本的名字進來 */
+    previousName?: string;
+  };
   if (!sheetId || !keyword?.name) {
     return NextResponse.json({ error: "缺少必要欄位" }, { status: 400 });
   }
 
   try {
-    await replaceKeywordInfo(sheetId, session.accessToken, keyword);
-    return NextResponse.json({ ok: true });
+    await replaceKeywordInfo(sheetId, session.accessToken, keyword, previousName);
+
+    // 書籍表用名字指向主檔，改名一定要連帶改寫，不然那些書就對不上了
+    const renamed =
+      previousName && previousName !== keyword.name
+        ? await renameKeyword(sheetId, session.accessToken, previousName, keyword.name)
+        : 0;
+
+    return NextResponse.json({ ok: true, renamed });
   } catch (err) {
     console.error("replaceKeywordInfo failed:", err);
     return NextResponse.json({ error: "儲存關鍵字失敗" }, { status: 502 });

@@ -150,6 +150,43 @@ export function getDomainDistribution(books: Book[]): DistributionSlice[] {
   return distributionBy(books, "domain");
 }
 
+export interface DistributionGroup {
+  name: string;
+  children: DistributionSlice[];
+}
+
+/**
+ * 領域底下再分次領域。沒填次領域的書歸在一個跟領域同名的格子裡，
+ * 不另外造一個「其他」——那會讓「心理」看起來有一個叫其他的子分類。
+ */
+export function getDomainGroups(books: Book[]): DistributionGroup[] {
+  const groups = new Map<string, Map<string, number>>();
+
+  // 跟其他分佈圖同一個口徑：算所有書，不只讀完的
+  for (const book of books) {
+    const domains = splitTags(book.domain);
+    for (const domain of domains.length > 0 ? domains : ["未分類"]) {
+      const children = groups.get(domain) ?? new Map<string, number>();
+      const leaf = book.subDomain.trim() || domain;
+      children.set(leaf, (children.get(leaf) ?? 0) + 1);
+      groups.set(domain, children);
+    }
+  }
+
+  return [...groups.entries()]
+    .map(([name, children]) => ({
+      name,
+      children: [...children.entries()]
+        .map(([child, value]) => ({ name: child, value }))
+        .sort((a, b) => b.value - a.value),
+    }))
+    .sort(
+      (a, b) =>
+        b.children.reduce((sum, c) => sum + c.value, 0) -
+        a.children.reduce((sum, c) => sum + c.value, 0),
+    );
+}
+
 export function getTypeDistribution(books: Book[]): DistributionSlice[] {
   return distributionBy(books, "type");
 }

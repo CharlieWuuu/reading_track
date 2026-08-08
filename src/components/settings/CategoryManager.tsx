@@ -7,20 +7,21 @@ import { BookCategories } from "@/types/book";
 const LABELS: Record<keyof BookCategories, string> = {
   platform: "平台",
   domain: "領域",
+  subDomain: "次領域",
   type: "屬性",
   language: "語言",
 };
 
 function CategoryGroup({ categoryKey }: { categoryKey: keyof BookCategories }) {
-  const { categories, save } = useCategories();
+  const { stored, save } = useCategories();
   // 舊版本的快取可能沒有這一組（例如剛加上的「平台」），兜底成空陣列
-  const options = categories[categoryKey] ?? [];
+  const options = stored[categoryKey] ?? [];
   const [newValue, setNewValue] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
 
   function replaceOptions(next: string[]) {
-    save({ ...categories, [categoryKey]: next });
+    save({ ...stored, [categoryKey]: next });
   }
 
   function handleAdd() {

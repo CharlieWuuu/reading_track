@@ -6,6 +6,7 @@ import { PageMessage } from "@/components/layout/PageMessage";
 import { ArticleKpiCards } from "@/components/stats/ArticleKpiCards";
 import { CumulativeChart } from "@/components/stats/CumulativeChart";
 import { DistributionPie } from "@/components/stats/DistributionPie";
+import { DistributionTreemap } from "@/components/stats/DistributionTreemap";
 import { KpiCards } from "@/components/stats/KpiCards";
 import { MonthlyTrendChart } from "@/components/stats/MonthlyTrendChart";
 import { RankingBar } from "@/components/stats/RankingBar";
@@ -20,7 +21,7 @@ import {
 } from "@/lib/articleStats";
 import {
   getAuthorRanking,
-  getDomainDistribution,
+  getDomainGroups,
   getKpis,
   getLanguageDistribution,
   getMonthlyTrend,
@@ -119,9 +120,17 @@ function BooksStats() {
     { key: "publisher", label: "常讀出版社 Top 5", data: getPublisherRanking(books), unit: "本" },
   ];
 
+  /**
+   * 領域與屬性的類別多到二十幾個，圓餅畫不下：小的那些會變成分不出來的細線，
+   * 顏色也不夠分。改用樹狀圖——面積就是量，類別再多都塞得進一個畫面。
+   * 語言與平台只有幾個類別，而且問的本來就是比例，維持圓餅。
+   */
+  const treemaps = [
+    { key: "domain", label: "領域分布", groups: getDomainGroups(books), data: undefined },
+    { key: "type", label: "屬性分布", data: getTypeDistribution(books), groups: undefined },
+  ];
+
   const pies = [
-    { key: "domain", label: "領域分布", data: getDomainDistribution(books) },
-    { key: "type", label: "屬性分布", data: getTypeDistribution(books) },
     { key: "language", label: "語言分布", data: getLanguageDistribution(books) },
     { key: "platform", label: "平台分布", data: getPlatformDistribution(books) },
   ];
@@ -181,7 +190,18 @@ function BooksStats() {
             ),
           },
         ]),
-    // 手機一頁放一個圓餅圖才看得清楚，桌機四張一次排完
+    // 樹狀圖一頁一張：格子上的字要看得清楚，兩張並排會擠到讀不出來
+    ...treemaps.map((chart) => ({
+      key: chart.key,
+      label: chart.label,
+      scrollHeight: "h-80 sm:h-[32rem]",
+      node: (
+        <Panel>
+          <DistributionTreemap title={chart.label} data={chart.data} groups={chart.groups} />
+        </Panel>
+      ),
+    })),
+    // 手機一頁放一個圓餅圖才看得清楚，桌機兩張一次排完
     ...(isMobile
       ? pies.map((pie) => ({
           key: pie.key,
