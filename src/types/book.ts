@@ -62,22 +62,13 @@ export interface Book {
   /** 電子書常見的總字數 */
   wordCount: string;
   note: string;
-  /**
-   * 佳句，一行一句，章節寫在行尾的括號裡：
-   *   真正的問題不是資源，而是注意力（第3章）
-   * 用純文字而不是 JSON，是為了讓使用者可以直接在 Sheet 裡讀與改。
-   */
+  /** @deprecated 佳句搬到「佳句」分頁了，這欄只留給遷移讀取，app 不再寫入 */
   quotes: string;
   /** 書裡想記下來的東西，一行一個；刻意不分地點／人物，記的當下不該先分類 */
   keywords: string;
   /** 相關文章，一行一個 Instapaper 網址；存網址而不是 id 才看得出是什麼 */
   relatedArticles: string;
-  /**
-   * 生難字詞，一行一個「詞：例句（章節）」。
-   *
-   * 跟關鍵字分開存：單字要綁著讀到它的那一句才有用，而且刻意不跨書共用——
-   * 同一個詞在不同書裡是不同的相遇。
-   */
+  /** @deprecated 單字搬到「單字」分頁了，這欄只留給遷移讀取，app 不再寫入 */
   vocabulary: string;
 }
 
@@ -130,18 +121,6 @@ function parseLegacyQuote(line: string): Quote {
   const match = line.match(/^(.*?)\s*[（(]([^（()）]*)[)）]\s*$/);
   if (!match || !match[1].trim()) return { text: line, chapter: "", note: "" };
   return { text: match[1].trim(), chapter: match[2].trim(), note: "" };
-}
-
-export function joinQuotes(quotes: Quote[]): string {
-  return quotes
-    .filter((quote) => quote.text.trim())
-    .map((quote) => {
-      const parts = [quote.text, quote.chapter, quote.note].map((part) => part.trim());
-      // 尾端的空欄位直接砍掉，只記了一句就不要留一排孤零零的分隔線
-      while (parts.length > 1 && !parts[parts.length - 1]) parts.pop();
-      return parts.join(QUOTE_SEPARATOR);
-    })
-    .join("\n");
 }
 
 /**
@@ -215,25 +194,6 @@ function parseLegacyVocabulary(line: string): VocabularyItem {
     chapter: quote?.chapter ?? "",
     language: "",
   };
-}
-
-export function joinVocabulary(items: VocabularyItem[]): string {
-  return items
-    .filter((item) => item.word.trim())
-    .map((item) => {
-      const parts = [
-        item.word,
-        item.wordTranslation,
-        item.sentence,
-        item.sentenceTranslation,
-        item.chapter,
-        item.language,
-      ].map((part) => part.trim());
-      // 尾端的空欄位直接砍掉，只記了一個詞就不要留一排孤零零的分隔線
-      while (parts.length > 1 && !parts[parts.length - 1]) parts.pop();
-      return parts.join(VOCABULARY_SEPARATOR);
-    })
-    .join("\n");
 }
 
 export interface BookCategories {

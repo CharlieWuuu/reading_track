@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Quote as QuoteIcon, X } from "lucide-react";
-import { parseQuotes } from "@/types/book";
+import { QuoteRow } from "@/types/record";
 
 /**
  * 心得與佳句的彈出視窗。
@@ -19,7 +19,7 @@ export function NotesDialog({
 }: {
   title: string;
   note: string;
-  quotes: string;
+  quotes: QuoteRow[];
   /** 從哪一顆按鈕點進來的：只顯示那一塊，不用在視窗裡再找一次 */
   show?: "note" | "quotes" | "all";
   onClose: () => void;
@@ -32,7 +32,7 @@ export function NotesDialog({
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
 
-  const list = parseQuotes(quotes);
+  const list = quotes;
 
   return (
     <div
@@ -73,9 +73,9 @@ export function NotesDialog({
             <section className="flex flex-col gap-1.5">
               <h3 className="text-xs font-medium text-gray-500">佳句（{list.length}）</h3>
               <ul className="flex flex-col gap-2">
-                {list.map((quote, i) => (
+                {list.map((quote) => (
                   <li
-                    key={i}
+                    key={quote.id}
                     className="flex items-start gap-2 rounded bg-[#F7EDCF]/50 px-2.5 py-2"
                   >
                     <QuoteIcon size={12} className="mt-1 shrink-0 text-[#B08A2E]" />

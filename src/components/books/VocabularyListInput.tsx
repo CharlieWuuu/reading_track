@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { Plus, X } from "lucide-react";
-import { joinVocabulary, parseVocabulary, VocabularyItem } from "@/types/book";
+import { EMPTY_VOCABULARY, VocabularyRow } from "@/types/record";
 
 const styles = {
   wrap: "flex min-h-0 flex-1 flex-col items-stretch gap-1.5 overflow-y-auto",
@@ -15,83 +14,70 @@ const styles = {
   add: "flex shrink-0 items-center justify-center gap-1 self-start rounded border border-dashed px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50",
 };
 
-const EMPTY_ITEM: VocabularyItem = {
-  word: "",
-  wordTranslation: "",
-  sentence: "",
-  sentenceTranslation: "",
-  chapter: "",
-  language: "",
-};
-
 type VocabularyListInputProps = {
-  /** 一行一筆、以直線分隔六個欄位的原始文字 */
-  value: string;
-  onChange: (value: string) => void;
+  /** 這本書在單字分頁裡的那幾列 */
+  rows: VocabularyRow[];
+  onChange: (rows: VocabularyRow[]) => void;
   /** 這本書的語言。新增的單字預設就是它，要不一樣再自己改 */
   bookLanguage: string;
 };
 
-/** 單字一個一組：詞與例句各配一個翻譯欄，存回去仍是 Sheet 讀得懂的一行一筆 */
-export function VocabularyListInput({ value, onChange, bookLanguage }: VocabularyListInputProps) {
-  // 剛按「新增」的空白列在文字裡表示不出來，所以列自己留一份狀態
-  const [items, setItems] = useState<VocabularyItem[]>(() => parseVocabulary(value));
-  const [emitted, setEmitted] = useState(value);
+/** 單字一個一組：詞與例句各配一個翻譯欄，各自是單字分頁裡的一列 */
+export function VocabularyListInput({ rows, onChange, bookLanguage }: VocabularyListInputProps) {
+  const update = (i: number, patch: Partial<VocabularyRow>) =>
+    onChange(rows.map((row, j) => (j === i ? { ...row, ...patch } : row)));
 
-  // 外面換了一本書（或重新抓資料）才需要重讀，自己送出去的那份不算
-  if (value !== emitted) {
-    setEmitted(value);
-    setItems(parseVocabulary(value));
-  }
-
-  function commit(next: VocabularyItem[]) {
-    setItems(next);
-    const text = joinVocabulary(next);
-    setEmitted(text);
-    onChange(text);
-  }
-
-  const update = (i: number, patch: Partial<VocabularyItem>) =>
-    commit(items.map((item, j) => (j === i ? { ...item, ...patch } : item)));
+  // 編號在這裡就先發，存檔時才認得出哪一列是哪一列
+  const add = () =>
+    onChange([
+      ...rows,
+      {
+        id: crypto.randomUUID(),
+        bookId: "",
+        bookTitle: "",
+        ...EMPTY_VOCABULARY,
+        language: bookLanguage,
+      },
+    ]);
 
   return (
     <div className={styles.wrap}>
       <div className={styles.list}>
-        {items.map((item, i) => (
-          <div key={i} className={styles.row}>
+        {rows.map((row, i) => (
+          <div key={row.id} className={styles.row}>
             <div className={styles.fields}>
               <input
-                value={item.word}
+                value={row.word}
                 onChange={(e) => update(i, { word: e.target.value })}
                 placeholder="詞"
                 className={styles.input}
               />
               <input
-                value={item.wordTranslation}
+                value={row.wordTranslation}
                 onChange={(e) => update(i, { wordTranslation: e.target.value })}
                 placeholder="詞的翻譯"
                 className={styles.input}
               />
               <textarea
-                value={item.sentence}
+                value={row.sentence}
                 onChange={(e) => update(i, { sentence: e.target.value })}
                 placeholder="讀到它的那一句"
                 className={styles.sentence}
               />
               <textarea
-                value={item.sentenceTranslation}
+                value={row.sentenceTranslation}
                 onChange={(e) => update(i, { sentenceTranslation: e.target.value })}
                 placeholder="例句的翻譯"
                 className={styles.sentence}
               />
               <input
-                value={item.chapter}
+                value={row.chapter}
                 onChange={(e) => update(i, { chapter: e.target.value })}
                 placeholder="章節"
                 className={styles.input}
               />
               <input
-                value={item.language}
+                value={row.language}
                 onChange={(e) => update(i, { language: e.target.value })}
                 placeholder={bookLanguage ? `語言（預設 ${bookLanguage}）` : "語言"}
                 className={styles.input}
@@ -100,7 +86,7 @@ export function VocabularyListInput({ value, onChange, bookLanguage }: Vocabular
             <button
               type="button"
               aria-label="刪除這個單字"
-              onClick={() => commit(items.filter((_, j) => j !== i))}
+              onClick={() => onChange(rows.filter((_, j) => j !== i))}
               className={styles.remove}
             >
               <X size={14} strokeWidth={1.5} />
@@ -109,11 +95,7 @@ export function VocabularyListInput({ value, onChange, bookLanguage }: Vocabular
         ))}
       </div>
 
-      <button
-        type="button"
-        onClick={() => commit([...items, { ...EMPTY_ITEM, language: bookLanguage }])}
-        className={styles.add}
-      >
+      <button type="button" onClick={add} className={styles.add}>
         <Plus size={14} strokeWidth={1.5} />
         新增一個
       </button>

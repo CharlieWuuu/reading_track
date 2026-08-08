@@ -5,54 +5,34 @@ import { BooksGate } from "@/components/layout/BooksGate";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { VocabularyEdit, VocabularyEditDialog } from "@/components/notes/VocabularyEditDialog";
 import { VocabularyPanel } from "@/components/notes/VocabularyPanel";
-import { useBookPatch } from "@/lib/useBookPatch";
+import { useRecords } from "@/lib/useRecords";
 import { getVocabularyEntries, VocabularyEntry } from "@/lib/vocabularyStats";
-import { Book, joinVocabulary, parseVocabulary } from "@/types/book";
+import { Book } from "@/types/book";
 
 function Vocabulary({ books }: { books: Book[] }) {
-  const patchBook = useBookPatch();
+  const { vocabulary, saveBookRows } = useRecords();
   const [editing, setEditing] = useState<VocabularyEntry | null>(null);
 
   /**
-   * 單字存在各自的書裡，所以一筆一筆寫回它來的那本書的那一行。
-   * 同一本書可能改到多筆，先按書合併再送出，才不會對同一列連打好幾次 PATCH。
+   * 一個詞可能來自好幾本書，改的是各自那一列。
+   * 寫回去是「整本書的紀錄換一批」，所以先按書分組，一本送一次。
    */
   async function save(edits: VocabularyEdit[]) {
-    const byBook = new Map<string, VocabularyEdit[]>();
-    for (const edit of edits) {
-      const list = byBook.get(edit.bookId);
-      if (list) list.push(edit);
-      else byBook.set(edit.bookId, [edit]);
-    }
+    const touched = new Set(edits.map((edit) => edit.bookId));
 
-    for (const [bookId, list] of byBook) {
+    for (const bookId of touched) {
+      const kept = edits.filter((edit) => edit.bookId === bookId && !edit.deleted);
+      const untouched = vocabulary.filter(
+        (row) => row.bookId === bookId && !edits.some((edit) => edit.id === row.id),
+      );
       const book = books.find((b) => b.id === bookId);
-      if (!book) continue;
-
-      const items = parseVocabulary(book.vocabulary);
-      const deleted = new Set(list.filter((edit) => edit.deleted).map((edit) => edit.index));
-      for (const edit of list) {
-        if (edit.deleted) continue;
-        items[edit.index] = {
-          word: edit.word,
-          wordTranslation: edit.wordTranslation,
-          sentence: edit.sentence,
-          sentenceTranslation: edit.sentenceTranslation,
-          chapter: edit.chapter,
-          language: edit.language,
-        };
-      }
-
-      // 刪除是整行拿掉，所以留到最後才過濾——中途刪會讓後面的 index 全部位移
-      await patchBook(bookId, {
-        vocabulary: joinVocabulary(items.filter((_, i) => !deleted.has(i))),
-      });
+      await saveBookRows("vocabulary", bookId, book?.title ?? "", [...untouched, ...kept]);
     }
   }
 
   return (
     <>
-      <VocabularyPanel entries={getVocabularyEntries(books)} onEdit={setEditing} />
+      <VocabularyPanel entries={getVocabularyEntries(vocabulary, books)} onEdit={setEditing} />
 
       {editing && (
         <VocabularyEditDialog entry={editing} onSave={save} onClose={() => setEditing(null)} />

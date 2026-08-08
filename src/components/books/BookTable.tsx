@@ -23,10 +23,12 @@ import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
 import { useArticles } from "@/lib/useArticles";
 import { useBooks } from "@/lib/useBooks";
 import { useMounted } from "@/lib/useMounted";
+import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
 import { useSheetStore } from "@/store/useSheetStore";
-import { Book, formatCount, parseQuotes, ReadingStatus, splitLines } from "@/types/book";
+import { Book, formatCount, ReadingStatus, splitLines } from "@/types/book";
+import { QuoteRow } from "@/types/record";
 import { NotesDialog } from "./NotesDialog";
 
 /** width：表格列不需要看清楚封面，小一點可以讓書名多拿一些寬度 */
@@ -119,9 +121,8 @@ function DetailField({
  *
  * 直接展開會把卡片撐得比其他張高好幾倍，一頁放得下幾張也跟著跳動。
  */
-function NotesPreview({ book }: { book: Book }) {
+function NotesPreview({ book, quotes }: { book: Book; quotes: QuoteRow[] }) {
   const [open, setOpen] = useState<"note" | "quotes" | null>(null);
-  const quotes = parseQuotes(book.quotes);
   const note = book.note.trim();
 
   return (
@@ -142,7 +143,7 @@ function NotesPreview({ book }: { book: Book }) {
         <NotesDialog
           title={book.title}
           note={book.note}
-          quotes={book.quotes}
+          quotes={quotes}
           show={open}
           onClose={() => setOpen(null)}
         />
@@ -227,6 +228,7 @@ function DetailCard({
   onOpen,
   tone,
   articleTitles,
+  quotes,
 }: {
   book: Book;
   href: string;
@@ -235,6 +237,8 @@ function DetailCard({
   tone: string;
   /** Instapaper 網址 → 標題；沒抓到就顯示網址本身 */
   articleTitles: Map<string, string>;
+  /** 這本書在佳句分頁裡的那幾列 */
+  quotes: QuoteRow[];
 }) {
   return (
     // 卡片本身不是 <a>：來源網址要能獨立點開，連結不能巢狀在連結裡
@@ -353,7 +357,7 @@ function DetailCard({
       )}
 
       <div className="col-span-2 md:col-span-1 md:col-start-2">
-        <NotesPreview book={book} />
+        <NotesPreview book={book} quotes={quotes} />
       </div>
     </div>
   );
@@ -462,6 +466,14 @@ export function BookTable() {
   // 兩種網址都收：使用者可能貼 Instapaper 的閱讀頁，也可能貼原文網址。
   // 對不到（沒連 Instapaper、文章已刪）就顯示網址本身，不會壞。
   const { articles } = useArticles();
+  // 佳句在自己的分頁裡，先按書分好組再發給每一張卡片
+  const { quotes } = useRecords();
+  const quotesByBook = new Map<string, QuoteRow[]>();
+  for (const row of quotes) {
+    const list = quotesByBook.get(row.bookId);
+    if (list) list.push(row);
+    else quotesByBook.set(row.bookId, [row]);
+  }
   const articleTitles = new Map<string, string>();
   for (const a of articles) {
     const title = a.title || a.url;
@@ -512,6 +524,7 @@ export function BookTable() {
                 onOpen={router.push}
                 tone={`${rowTone(b.endDate, thisYear)} ${statusAccent(b.status)}`}
                 articleTitles={articleTitles}
+                quotes={quotesByBook.get(b.id) ?? []}
               />
             </li>
           ))}

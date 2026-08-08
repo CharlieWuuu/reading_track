@@ -8,10 +8,11 @@ import { PageMessage } from "@/components/layout/PageMessage";
 import { NoteEditDialog } from "@/components/notes/NoteEditDialog";
 import { QuoteEditDialog } from "@/components/notes/QuoteEditDialog";
 import { RecordCard } from "@/components/notes/RecordCard";
-import { getNoteRecords, getQuoteRecords, NoteRecord, QuoteRecord } from "@/lib/quoteStats";
 import { useBookPatch } from "@/lib/useBookPatch";
+import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
-import { Book, joinQuotes, parseQuotes } from "@/types/book";
+import { getNoteRecords, getQuoteRecords, NoteRecord, QuoteRecord } from "@/lib/vocabularyStats";
+import { Book } from "@/types/book";
 
 const styles = {
   tabs: "flex items-center gap-1 rounded-lg border p-1",
@@ -52,22 +53,16 @@ function TabButton({ active, onClick, children }: TabButtonProps) {
 }
 
 function Quotes({ books }: { books: Book[] }) {
-  const patchBook = useBookPatch();
+  const { quotes, saveBookRows } = useRecords();
   const [editing, setEditing] = useState<QuoteRecord | null>(null);
-  const records = getQuoteRecords(books);
+  const records = getQuoteRecords(quotes, books);
 
-  /** 改回它來的那本書的那一行；刪除是整行拿掉 */
+  /** 寫回去是「整本書的紀錄換一批」，所以把那本書的其他列原樣帶上 */
   async function save(record: QuoteRecord, remove: boolean) {
+    const others = quotes.filter((row) => row.bookId === record.bookId && row.id !== record.id);
+    const next = remove ? others : [...others, record];
     const book = books.find((b) => b.id === record.bookId);
-    if (!book) return;
-
-    const quotes = parseQuotes(book.quotes).map((quote, i) =>
-      i === record.index
-        ? { text: record.text, chapter: record.chapter, note: record.note }
-        : quote,
-    );
-    const next = remove ? quotes.filter((_, i) => i !== record.index) : quotes;
-    await patchBook(record.bookId, { quotes: joinQuotes(next) });
+    await saveBookRows("quotes", record.bookId, book?.title ?? "", next);
   }
 
   if (records.length === 0) {
@@ -79,7 +74,7 @@ function Quotes({ books }: { books: Book[] }) {
       <div className={styles.list}>
         {records.map((record) => (
           <RecordCard
-            key={`${record.bookId}-${record.index}`}
+            key={record.id}
             title={record.bookTitle}
             coverUrl={record.bookCover}
             onClick={() => setEditing(record)}

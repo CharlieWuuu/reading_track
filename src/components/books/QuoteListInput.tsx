@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { Plus, X } from "lucide-react";
-import { joinQuotes, parseQuotes, Quote } from "@/types/book";
+import { EMPTY_QUOTE, QuoteRow } from "@/types/record";
 
 const styles = {
   wrap: "flex min-h-0 flex-1 flex-col items-stretch gap-1.5 overflow-y-auto",
@@ -13,44 +12,29 @@ const styles = {
   note: "min-h-10 w-full resize-none rounded border px-3 py-1.5 text-sm",
   chapter: "w-full rounded border px-3 py-1 text-xs",
   remove: "shrink-0 rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-red-600",
-  add: "flex shrink-0 self-start items-center justify-center gap-1 rounded border border-dashed px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50",
+  add: "flex shrink-0 items-center justify-center gap-1 self-start rounded border border-dashed px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50",
 };
-
-const EMPTY_QUOTE: Quote = { text: "", chapter: "", note: "" };
 
 type QuoteListInputProps = {
-  /** 一行一句、以直線分隔三個欄位的原始文字 */
-  value: string;
-  onChange: (value: string) => void;
+  /** 這本書在佳句分頁裡的那幾列 */
+  rows: QuoteRow[];
+  onChange: (rows: QuoteRow[]) => void;
 };
 
-/** 佳句一句一組：句子、心得、章節分開填，存回去仍是 Sheet 讀得懂的一行一句 */
-export function QuoteListInput({ value, onChange }: QuoteListInputProps) {
-  // 剛按「新增」的空白句在文字裡表示不出來，所以列自己留一份狀態
-  const [rows, setRows] = useState<Quote[]>(() => parseQuotes(value));
-  const [emitted, setEmitted] = useState(value);
+/** 佳句一句一組：句子、心得、章節分開填，各自是佳句分頁裡的一列 */
+export function QuoteListInput({ rows, onChange }: QuoteListInputProps) {
+  const update = (i: number, patch: Partial<QuoteRow>) =>
+    onChange(rows.map((row, j) => (j === i ? { ...row, ...patch } : row)));
 
-  // 外面換了一本書（或重新抓資料）才需要重讀，自己送出去的那份不算
-  if (value !== emitted) {
-    setEmitted(value);
-    setRows(parseQuotes(value));
-  }
-
-  function commit(next: Quote[]) {
-    setRows(next);
-    const text = joinQuotes(next);
-    setEmitted(text);
-    onChange(text);
-  }
-
-  const update = (i: number, patch: Partial<Quote>) =>
-    commit(rows.map((row, j) => (j === i ? { ...row, ...patch } : row)));
+  // 編號在這裡就先發，存檔時才認得出哪一列是哪一列
+  const add = () =>
+    onChange([...rows, { id: crypto.randomUUID(), bookId: "", bookTitle: "", ...EMPTY_QUOTE }]);
 
   return (
     <div className={styles.wrap}>
       <div className={styles.list}>
         {rows.map((row, i) => (
-          <div key={i} className={styles.row}>
+          <div key={row.id} className={styles.row}>
             <div className={styles.fields}>
               <textarea
                 value={row.text}
@@ -74,7 +58,7 @@ export function QuoteListInput({ value, onChange }: QuoteListInputProps) {
             <button
               type="button"
               aria-label="刪除這一句"
-              onClick={() => commit(rows.filter((_, j) => j !== i))}
+              onClick={() => onChange(rows.filter((_, j) => j !== i))}
               className={styles.remove}
             >
               <X size={14} strokeWidth={1.5} />
@@ -83,7 +67,7 @@ export function QuoteListInput({ value, onChange }: QuoteListInputProps) {
         ))}
       </div>
 
-      <button type="button" onClick={() => commit([...rows, EMPTY_QUOTE])} className={styles.add}>
+      <button type="button" onClick={add} className={styles.add}>
         <Plus size={14} strokeWidth={1.5} />
         新增一句
       </button>

@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useBooks } from "@/lib/useBooks";
+import { useRecords } from "@/lib/useRecords";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Book, inferStatus } from "@/types/book";
+import { QuoteRow, VocabularyRow } from "@/types/record";
 import { ArticleSelect } from "./ArticleSelect";
 import { CategorySelect } from "./CategorySelect";
 import { compactLines, LineListInput } from "./LineListInput";
@@ -35,10 +37,8 @@ const emptyForm = {
   pageCount: "",
   wordCount: "",
   note: "",
-  quotes: "",
   keywords: "",
   relatedArticles: "",
-  vocabulary: "",
 };
 
 type FormState = typeof emptyForm;
@@ -97,6 +97,19 @@ export function BookForm({
   const backHref = back ? `/books?${back}` : "/books";
   const { sheetId } = useSheetStore();
   const { mutate } = useBooks();
+  // 單字與佳句各自一張表，跟著這本書一起存
+  const { vocabulary, quotes, saveBookRows } = useRecords();
+  const bookId = book?.id ?? "";
+  const [vocabularyRows, setVocabularyRows] = useState<VocabularyRow[]>([]);
+  const [quoteRows, setQuoteRows] = useState<QuoteRow[]>([]);
+  const [loadedFor, setLoadedFor] = useState<string | null>(null);
+
+  // 紀錄是非同步抓回來的，抓到之後才填得進來；換一本書也要重填
+  if (loadedFor !== bookId) {
+    setLoadedFor(bookId);
+    setVocabularyRows(vocabulary.filter((row) => row.bookId === bookId));
+    setQuoteRows(quotes.filter((row) => row.bookId === bookId));
+  }
   const [form, setForm] = useState<FormState>(toForm(book ?? initial ?? {}));
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -175,15 +188,17 @@ export function BookForm({
       pageCount: form.pageCount,
       wordCount: form.wordCount,
       note: form.note,
-      quotes: form.quotes,
+      // 舊欄位不再由 app 寫入，但也不主動清掉——遷移完再自己刪
+      quotes: book?.quotes ?? "",
+      vocabulary: book?.vocabulary ?? "",
       keywords: compactLines(form.keywords),
       relatedArticles: form.relatedArticles,
-      vocabulary: form.vocabulary,
     };
 
     setSubmitting(true);
     setSubmitError("");
     try {
+      let savedId = book?.id ?? "";
       if (isEdit && book) {
         const res = await fetch(`/api/books/${book.id}`, {
           method: "PATCH",
@@ -201,7 +216,22 @@ export function BookForm({
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "新增失敗");
+        savedId = newBook.id;
       }
+
+      // 紀錄要等書存好才寫得進去：它們靠書籍編號認人，新增時那個編號才剛生出來
+      await saveBookRows(
+        "vocabulary",
+        savedId,
+        form.title,
+        vocabularyRows.map((row) => ({ ...row, bookId: savedId, bookTitle: form.title })),
+      );
+      await saveBookRows(
+        "quotes",
+        savedId,
+        form.title,
+        quoteRows.map((row) => ({ ...row, bookId: savedId, bookTitle: form.title })),
+      );
 
       await mutate();
       router.push(backHref);
@@ -345,7 +375,7 @@ export function BookForm({
               佳句
               <span className="text-xs font-normal text-gray-400">一句一組，章節可留空</span>
             </label>
-            <QuoteListInput value={form.quotes} onChange={(v) => set("quotes", v)} />
+            <QuoteListInput rows={quoteRows} onChange={setQuoteRows} />
           </div>
         </div>
 
@@ -394,8 +424,8 @@ export function BookForm({
             </span>
           </label>
           <VocabularyListInput
-            value={form.vocabulary}
-            onChange={(v) => set("vocabulary", v)}
+            rows={vocabularyRows}
+            onChange={setVocabularyRows}
             bookLanguage={form.language}
           />
         </div>

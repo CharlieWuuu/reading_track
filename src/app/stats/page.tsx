@@ -34,6 +34,7 @@ import { useArticles } from "@/lib/useArticles";
 import { useBooks } from "@/lib/useBooks";
 import { useIsMobile } from "@/lib/useIsMobile";
 import { useMounted } from "@/lib/useMounted";
+import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { useInstapaperStore } from "@/store/useInstapaperStore";
 import { useSheetStore } from "@/store/useSheetStore";
@@ -80,6 +81,7 @@ function BooksStats() {
   const { sheetId } = useSheetStore();
   const mounted = useMounted();
   const { books, isLoading, error } = useBooks();
+  const { quotes } = useRecords();
   const isMobile = useIsMobile();
 
   if (!mounted) return null;
@@ -100,7 +102,7 @@ function BooksStats() {
     return <PageMessage>尚未新增任何書籍</PageMessage>;
   }
 
-  const kpis = getKpis(books);
+  const kpis = getKpis(books, quotes);
   const quarterly = getQuarterlyTrend(books);
   // 一年／六個月的區間用月當刻度，所以月的資料也要備著
   const monthly = getMonthlyTrend(books);

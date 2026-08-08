@@ -1,18 +1,8 @@
-import { Book, parseVocabulary } from "@/types/book";
+import { Book } from "@/types/book";
+import { QuoteRow, VocabularyRow } from "@/types/record";
 
-export type VocabularyEncounter = {
-  word: string;
-  wordTranslation: string;
-  sentence: string;
-  sentenceTranslation: string;
-  chapter: string;
-  /** 沒特別填就是書的語言 */
-  language: string;
-  bookId: string;
-  bookTitle: string;
+export type VocabularyEncounter = VocabularyRow & {
   bookCover: string;
-  /** 在那本書的單字欄裡是第幾筆；要改回去就得知道改哪一行 */
-  index: number;
 };
 
 export type VocabularyEntry = {
@@ -21,25 +11,31 @@ export type VocabularyEntry = {
   encounters: VocabularyEncounter[];
 };
 
-export function getVocabularyEntries(books: Book[]): VocabularyEntry[] {
+/**
+ * 書名與語言都以書籍表為準：紀錄表上的書名只是給人看的快照，
+ * 書改名之後那一欄可能還是舊的，顯示要用活的那一份。
+ */
+function withBook<T extends { bookId: string; bookTitle: string }>(
+  row: T,
+  books: Map<string, Book>,
+): T & { bookCover: string } {
+  const book = books.get(row.bookId);
+  return { ...row, bookTitle: book?.title || row.bookTitle, bookCover: book?.coverUrl ?? "" };
+}
+
+export function getVocabularyEntries(rows: VocabularyRow[], books: Book[]): VocabularyEntry[] {
+  const byId = new Map(books.map((book) => [book.id, book]));
   const map = new Map<string, VocabularyEncounter[]>();
 
-  for (const book of books) {
-    parseVocabulary(book.vocabulary).forEach((item, index) => {
-      if (!item.word) return;
-      const encounter = {
-        ...item,
-        // 沒填就跟著書走，這是絕大多數的情況
-        language: item.language || book.language,
-        bookId: book.id,
-        bookTitle: book.title,
-        bookCover: book.coverUrl,
-        index,
-      };
-      const list = map.get(item.word);
-      if (list) list.push(encounter);
-      else map.set(item.word, [encounter]);
-    });
+  for (const row of rows) {
+    const encounter = {
+      ...withBook(row, byId),
+      // 沒填就跟著書走，這是絕大多數的情況
+      language: row.language || byId.get(row.bookId)?.language || "",
+    };
+    const list = map.get(row.word);
+    if (list) list.push(encounter);
+    else map.set(row.word, [encounter]);
   }
 
   return [...map.entries()]
@@ -48,4 +44,30 @@ export function getVocabularyEntries(books: Book[]): VocabularyEntry[] {
       (a, b) =>
         b.encounters.length - a.encounters.length || a.word.localeCompare(b.word, "zh-Hant"),
     );
+}
+
+export type QuoteRecord = QuoteRow & { bookCover: string };
+
+export function getQuoteRecords(rows: QuoteRow[], books: Book[]): QuoteRecord[] {
+  const byId = new Map(books.map((book) => [book.id, book]));
+  return rows.map((row) => withBook(row, byId));
+}
+
+export type NoteRecord = {
+  note: string;
+  bookId: string;
+  bookTitle: string;
+  bookCover: string;
+};
+
+/** 心得一本一則，還是書籍表的欄位；沒寫的不列 */
+export function getNoteRecords(books: Book[]): NoteRecord[] {
+  return books
+    .filter((book) => book.note.trim())
+    .map((book) => ({
+      note: book.note,
+      bookId: book.id,
+      bookTitle: book.title,
+      bookCover: book.coverUrl,
+    }));
 }

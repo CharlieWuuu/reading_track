@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Dialog } from "@/components/ui/Dialog";
-import { NoteRecord } from "@/lib/quoteStats";
+import { NoteRecord } from "@/lib/vocabularyStats";
 
 const styles = {
   form: "flex flex-col gap-3",

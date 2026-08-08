@@ -1,5 +1,9 @@
 import { OAuth2Client } from "google-auth-library";
-import { GoogleSpreadsheet, GoogleSpreadsheetWorksheet } from "google-spreadsheet";
+import {
+  GoogleSpreadsheet,
+  GoogleSpreadsheetRow,
+  GoogleSpreadsheetWorksheet,
+} from "google-spreadsheet";
 import {
   Book,
   BookCategories,
@@ -7,8 +11,11 @@ import {
   inferStatus,
   normalizePlatform,
   normalizeStatus,
+  parseQuotes,
+  parseVocabulary,
 } from "@/types/book";
 import { KeywordInfo } from "@/types/keyword";
+import { QuoteRow, VocabularyRow } from "@/types/record";
 import { BOOK_FIELDS, BookField, COLUMN_LABELS, mapHeaders } from "./sheetSchema";
 
 const BOOKS_SHEET_TITLE = "書籍";
@@ -425,4 +432,207 @@ function toRowValues(info: KeywordInfo): Record<string, string> {
     維基連結: info.wikiUrl,
     摘要: info.summary,
   };
+}
+
+const VOCABULARY_SHEET_TITLE = "單字";
+const VOCABULARY_HEADERS = [
+  "編號",
+  "書籍編號",
+  "書名",
+  "詞",
+  "詞翻譯",
+  "例句",
+  "例句翻譯",
+  "章節",
+  "語言",
+];
+
+const QUOTES_SHEET_TITLE = "佳句";
+const QUOTE_HEADERS = ["編號", "書籍編號", "書名", "佳句", "章節", "心得"];
+
+async function getRecordSheet(
+  sheetId: string,
+  accessToken: string,
+  title: string,
+  headerValues: string[],
+) {
+  const doc = new GoogleSpreadsheet(sheetId, getAuthClient(accessToken));
+  await doc.loadInfo();
+
+  const sheet = doc.sheetsByTitle[title];
+  if (sheet) return sheet;
+  return doc.addSheet({ title, headerValues });
+}
+
+function text(row: GoogleSpreadsheetRow, header: string): string {
+  return (row.get(header) ?? "").toString().trim();
+}
+
+export async function listVocabularyRows(
+  sheetId: string,
+  accessToken: string,
+): Promise<VocabularyRow[]> {
+  const sheet = await getRecordSheet(
+    sheetId,
+    accessToken,
+    VOCABULARY_SHEET_TITLE,
+    VOCABULARY_HEADERS,
+  );
+  const rows = await sheet.getRows();
+
+  return rows
+    .map((row) => ({
+      id: text(row, "編號"),
+      bookId: text(row, "書籍編號"),
+      bookTitle: text(row, "書名"),
+      word: text(row, "詞"),
+      wordTranslation: text(row, "詞翻譯"),
+      sentence: text(row, "例句"),
+      sentenceTranslation: text(row, "例句翻譯"),
+      chapter: text(row, "章節"),
+      language: text(row, "語言"),
+    }))
+    .filter((item) => item.word);
+}
+
+export async function listQuoteRows(sheetId: string, accessToken: string): Promise<QuoteRow[]> {
+  const sheet = await getRecordSheet(sheetId, accessToken, QUOTES_SHEET_TITLE, QUOTE_HEADERS);
+  const rows = await sheet.getRows();
+
+  return rows
+    .map((row) => ({
+      id: text(row, "編號"),
+      bookId: text(row, "書籍編號"),
+      bookTitle: text(row, "書名"),
+      text: text(row, "佳句"),
+      chapter: text(row, "章節"),
+      note: text(row, "心得"),
+    }))
+    .filter((item) => item.text);
+}
+
+/**
+ * 一本書的紀錄整批換掉：先刪掉屬於它的列，再把新的加回去。
+ *
+ * 不做逐列比對是刻意的——一本書的單字或佳句頂多幾十筆，整批換掉的邏輯
+ * 少一個數量級的分支，也不會有「改到一半失敗、剩下半新半舊」的狀態。
+ * 刪除要由後往前，不然刪掉一列會讓後面每一列的位置都往前跑。
+ */
+async function replaceBookRows(
+  sheet: GoogleSpreadsheetWorksheet,
+  bookId: string,
+  values: Record<string, string>[],
+) {
+  const rows = await sheet.getRows();
+  const mine = rows.filter((row) => text(row, "書籍編號") === bookId);
+  for (const row of mine.reverse()) await row.delete();
+  if (values.length > 0) await sheet.addRows(values);
+}
+
+export async function replaceBookVocabulary(
+  sheetId: string,
+  accessToken: string,
+  bookId: string,
+  bookTitle: string,
+  items: VocabularyRow[],
+) {
+  const sheet = await getRecordSheet(
+    sheetId,
+    accessToken,
+    VOCABULARY_SHEET_TITLE,
+    VOCABULARY_HEADERS,
+  );
+  await replaceBookRows(
+    sheet,
+    bookId,
+    items
+      .filter((item) => item.word.trim())
+      .map((item) => ({
+        編號: item.id || crypto.randomUUID(),
+        書籍編號: bookId,
+        書名: bookTitle,
+        詞: item.word,
+        詞翻譯: item.wordTranslation,
+        例句: item.sentence,
+        例句翻譯: item.sentenceTranslation,
+        章節: item.chapter,
+        語言: item.language,
+      })),
+  );
+}
+
+export async function replaceBookQuotes(
+  sheetId: string,
+  accessToken: string,
+  bookId: string,
+  bookTitle: string,
+  items: QuoteRow[],
+) {
+  const sheet = await getRecordSheet(sheetId, accessToken, QUOTES_SHEET_TITLE, QUOTE_HEADERS);
+  await replaceBookRows(
+    sheet,
+    bookId,
+    items
+      .filter((item) => item.text.trim())
+      .map((item) => ({
+        編號: item.id || crypto.randomUUID(),
+        書籍編號: bookId,
+        書名: bookTitle,
+        佳句: item.text,
+        章節: item.chapter,
+        心得: item.note,
+      })),
+  );
+}
+
+/**
+ * 把書籍表裡舊的「單字」「佳句」儲存格搬進各自的分頁。
+ *
+ * 只搬、不刪：舊欄位留著當退路，確認新表沒問題之後再手動清掉。
+ * 已經有紀錄的書會整個跳過，所以重跑幾次都不會變出重複的列。
+ */
+export async function migrateNotesToSheets(
+  sheetId: string,
+  accessToken: string,
+): Promise<{ books: number; vocabulary: number; quotes: number }> {
+  const books = await listBooks(sheetId, accessToken);
+  const [existingVocabulary, existingQuotes] = await Promise.all([
+    listVocabularyRows(sheetId, accessToken),
+    listQuoteRows(sheetId, accessToken),
+  ]);
+  const hasVocabulary = new Set(existingVocabulary.map((row) => row.bookId));
+  const hasQuotes = new Set(existingQuotes.map((row) => row.bookId));
+
+  const moved = { books: 0, vocabulary: 0, quotes: 0 };
+
+  for (const book of books) {
+    const vocabulary = hasVocabulary.has(book.id) ? [] : parseVocabulary(book.vocabulary);
+    const quotes = hasQuotes.has(book.id) ? [] : parseQuotes(book.quotes);
+    if (vocabulary.length === 0 && quotes.length === 0) continue;
+
+    if (vocabulary.length > 0) {
+      await replaceBookVocabulary(
+        sheetId,
+        accessToken,
+        book.id,
+        book.title,
+        vocabulary.map((item) => ({ ...item, id: "", bookId: book.id, bookTitle: book.title })),
+      );
+      moved.vocabulary += vocabulary.length;
+    }
+
+    if (quotes.length > 0) {
+      await replaceBookQuotes(
+        sheetId,
+        accessToken,
+        book.id,
+        book.title,
+        quotes.map((quote) => ({ ...quote, id: "", bookId: book.id, bookTitle: book.title })),
+      );
+      moved.quotes += quotes.length;
+    }
+    moved.books++;
+  }
+
+  return moved;
 }

@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Dialog } from "@/components/ui/Dialog";
 import { useCategories } from "@/lib/useCategories";
-import { VocabularyEntry } from "@/lib/vocabularyStats";
+import { VocabularyEncounter, VocabularyEntry } from "@/lib/vocabularyStats";
+import { VocabularyRow } from "@/types/record";
 
 const styles = {
   form: "flex flex-col gap-3",
@@ -30,19 +31,18 @@ const styles = {
   error: "text-xs text-red-600",
 };
 
-/** 一次要改的一筆：哪本書的第幾行，加上改成什麼 */
-export type VocabularyEdit = {
-  bookId: string;
-  index: number;
-  word: string;
-  wordTranslation: string;
-  sentence: string;
-  sentenceTranslation: string;
-  chapter: string;
-  language: string;
-  /** 標記刪除：存檔時把這一行從書的單字欄整行拿掉 */
+/** 一次要改的一筆紀錄，加上「這一列要不要留」 */
+export type VocabularyEdit = VocabularyRow & {
+  /** 標記刪除：存檔時把這一列從單字分頁拿掉 */
   deleted?: boolean;
 };
+
+/** 從畫面用的相遇取回那一列紀錄本身：封面是顯示用的，不屬於紀錄 */
+function toRow(encounter: VocabularyEncounter): VocabularyRow {
+  const { bookCover, ...row } = encounter;
+  void bookCover;
+  return row;
+}
 
 type VocabularyEditDialogProps = {
   entry: VocabularyEntry;
@@ -54,16 +54,8 @@ type VocabularyEditDialogProps = {
 export function VocabularyEditDialog({ entry, onSave, onClose }: VocabularyEditDialogProps) {
   const { categories } = useCategories();
   const [edits, setEdits] = useState<VocabularyEdit[]>(() =>
-    entry.encounters.map((e) => ({
-      bookId: e.bookId,
-      index: e.index,
-      word: e.word,
-      wordTranslation: e.wordTranslation,
-      sentence: e.sentence,
-      sentenceTranslation: e.sentenceTranslation,
-      chapter: e.chapter,
-      language: e.language,
-    })),
+    // bookCover 只是顯示用的，不屬於那一列紀錄，寫回去時不該跟著跑
+    entry.encounters.map((encounter) => toRow(encounter)),
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -96,7 +88,7 @@ export function VocabularyEditDialog({ entry, onSave, onClose }: VocabularyEditD
           if (edit.deleted) {
             return (
               // 刪掉的先留一列可以反悔，按了儲存才真的寫回去
-              <p key={`${edit.bookId}-${edit.index}`} className={styles.removed}>
+              <p key={edit.id} className={styles.removed}>
                 {encounter.bookTitle}
                 <button
                   type="button"
@@ -110,7 +102,7 @@ export function VocabularyEditDialog({ entry, onSave, onClose }: VocabularyEditD
           }
 
           return (
-            <div key={`${edit.bookId}-${edit.index}`} className={styles.group}>
+            <div key={edit.id} className={styles.group}>
               <div className={styles.head}>
                 {encounter.bookCover ? (
                   // eslint-disable-next-line @next/next/no-img-element

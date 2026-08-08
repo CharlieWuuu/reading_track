@@ -1,4 +1,5 @@
-import { Book, parseQuotes, splitTags } from "@/types/book";
+import { Book, splitTags } from "@/types/book";
+import { QuoteRow } from "@/types/record";
 
 export interface YearCount {
   year: string;
@@ -24,7 +25,7 @@ function completedBooks(books: Book[]): Book[] {
   return books.filter((b) => b.endDate);
 }
 
-export function getKpis(books: Book[]) {
+export function getKpis(books: Book[], quotes: QuoteRow[]) {
   const done = completedBooks(books);
   const now = new Date();
   const thisYear = now.getFullYear();
@@ -38,7 +39,7 @@ export function getKpis(books: Book[]) {
   // 有寫筆記的書、記下來的佳句數：鼓勵留下心得，不只看讀了幾本
   const withNote = books.filter((b) => b.note.trim()).length;
   // 以「本」為單位：同一本記了很多句也算一本，跟「寫了心得」同一個口徑
-  const withQuotes = books.filter((b) => parseQuotes(b.quotes).length > 0).length;
+  const withQuotes = new Set(quotes.map((q) => q.bookId)).size;
 
   return {
     total: done.length,
