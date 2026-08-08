@@ -8,6 +8,7 @@ import {
   normalizePlatform,
   normalizeStatus,
 } from "@/types/book";
+import { KeywordInfo } from "@/types/keyword";
 import { BOOK_FIELDS, BookField, COLUMN_LABELS, mapHeaders } from "./sheetSchema";
 
 const BOOKS_SHEET_TITLE = "書籍";
@@ -165,6 +166,7 @@ export async function listBooksWithMeta(
       quotes: get("quotes"),
       keywords: get("keywords"),
       relatedArticles: get("relatedArticles"),
+      vocabulary: get("vocabulary"),
     };
   });
 
@@ -329,4 +331,98 @@ export async function deleteBookRow(sheetId: string, accessToken: string, id: st
   const row = rows.find((r) => r.get(columns.id) === id);
   if (!row) return;
   await row.delete();
+}
+
+const KEYWORDS_SHEET_TITLE = "關鍵字";
+const KEYWORD_HEADERS = ["名稱", "學科", "座標", "起訖", "維基連結", "摘要"];
+
+async function getKeywordsSheet(sheetId: string, accessToken: string) {
+  const doc = new GoogleSpreadsheet(sheetId, getAuthClient(accessToken));
+  await doc.loadInfo();
+
+  let sheet = doc.sheetsByTitle[KEYWORDS_SHEET_TITLE];
+  if (!sheet) {
+    sheet = await doc.addSheet({
+      title: KEYWORDS_SHEET_TITLE,
+      headerValues: KEYWORD_HEADERS,
+    });
+  }
+  return sheet;
+}
+
+/** 關鍵字主檔跨書共用，查過的就不再查一次 */
+export async function listKeywordInfos(
+  sheetId: string,
+  accessToken: string,
+): Promise<KeywordInfo[]> {
+  const sheet = await getKeywordsSheet(sheetId, accessToken);
+  const rows = await sheet.getRows();
+
+  return rows
+    .map((row) => ({
+      name: (row.get("名稱") ?? "").toString().trim(),
+      topics: (row.get("學科") ?? "").toString().trim(),
+      coordinates: (row.get("座標") ?? "").toString().trim(),
+      span: (row.get("起訖") ?? "").toString().trim(),
+      wikiUrl: (row.get("維基連結") ?? "").toString().trim(),
+      summary: (row.get("摘要") ?? "").toString().trim(),
+    }))
+    .filter((info) => info.name);
+}
+
+/**
+ * 新的加一列，已經在表裡的就地更新。
+ *
+ * 不能只做 append：查不到的詞也會留下一列空白，之後重查就得改那一列，
+ * 不然同一個名字會愈疊愈多列。
+ */
+export async function saveKeywordInfos(sheetId: string, accessToken: string, infos: KeywordInfo[]) {
+  if (infos.length === 0) return;
+  const sheet = await getKeywordsSheet(sheetId, accessToken);
+  const rows = await sheet.getRows();
+  const byName = new Map(rows.map((row) => [(row.get("名稱") ?? "").toString().trim(), row]));
+
+  const added = [];
+  for (const info of infos) {
+    const row = byName.get(info.name);
+    if (!row) {
+      added.push(toRowValues(info));
+      continue;
+    }
+    // 只填空格。使用者可以直接在 Sheet 上手動補資料，手寫的比維基查回來的可信，
+    // 不能被一鍵補齊蓋掉——理由同書籍的「重新抓取」。
+    let changed = false;
+    for (const [header, value] of Object.entries(toRowValues(info))) {
+      if (!value || (row.get(header) ?? "").toString().trim()) continue;
+      row.set(header, value);
+      changed = true;
+    }
+    if (changed) await row.save();
+  }
+  if (added.length > 0) await sheet.addRows(added);
+}
+
+/** 使用者親手改的那一列，整列照寫——這裡不是自動補齊，不必保護既有值 */
+export async function replaceKeywordInfo(sheetId: string, accessToken: string, info: KeywordInfo) {
+  const sheet = await getKeywordsSheet(sheetId, accessToken);
+  const rows = await sheet.getRows();
+  const row = rows.find((r) => (r.get("名稱") ?? "").toString().trim() === info.name);
+
+  if (!row) {
+    await sheet.addRows([toRowValues(info)]);
+    return;
+  }
+  for (const [header, value] of Object.entries(toRowValues(info))) row.set(header, value);
+  await row.save();
+}
+
+function toRowValues(info: KeywordInfo): Record<string, string> {
+  return {
+    名稱: info.name,
+    學科: info.topics,
+    座標: info.coordinates,
+    起訖: info.span,
+    維基連結: info.wikiUrl,
+    摘要: info.summary,
+  };
 }

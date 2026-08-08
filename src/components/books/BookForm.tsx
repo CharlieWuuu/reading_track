@@ -4,11 +4,21 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useBooks } from "@/lib/useBooks";
-import { useIsMobile } from "@/lib/useIsMobile";
-import { usePagingMode } from "@/lib/usePagingMode";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Book, inferStatus } from "@/types/book";
+import { ArticleSelect } from "./ArticleSelect";
 import { CategorySelect } from "./CategorySelect";
+import { compactLines, LineListInput } from "./LineListInput";
+import { QuoteListInput } from "./QuoteListInput";
+import { VocabularyListInput } from "./VocabularyListInput";
+
+const TEXTAREA_CLASS = "min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm";
+
+/** iOS 的原生日期控制項有自己的最小寬度，不關掉外觀就會撐破手機寬度 */
+const DATE_INPUT_CLASS = "appearance-none";
+
+/** 捲動模式下四塊平分高度會被壓扁，給個下限；分頁模式一次只顯示一塊，撐滿就夠 */
+const TEXTAREA_MIN = "min-h-36";
 
 const emptyForm = {
   sourceUrl: "",
@@ -28,52 +38,15 @@ const emptyForm = {
   quotes: "",
   keywords: "",
   relatedArticles: "",
+  vocabulary: "",
 };
 
 type FormState = typeof emptyForm;
 
-/**
- * 手機一頁只放三、四個欄位，切細一點才能「每頁都塞得下」——
- * 這個 app 的排版原則是不出現捲軸，寧可多一個分頁。
- */
-const SECTIONS = [
-  { key: "basic", label: "基本" },
-  { key: "source", label: "來源" },
-  { key: "progress", label: "進度" },
-  { key: "category", label: "分類" },
-  { key: "note", label: "筆記" },
-  { key: "keywords", label: "關鍵字" },
-] as const;
-
-type SectionKey = (typeof SECTIONS)[number]["key"];
-
-/** 大螢幕一頁塞得下更多欄位，不用拆到五個頁籤 */
-const WIDE_TABS: Array<{ key: SectionKey; label: string; sections: SectionKey[] }> = [
-  { key: "basic", label: "書籍資料", sections: ["basic", "source"] },
-  { key: "progress", label: "進度與分類", sections: ["progress", "category"] },
-  { key: "note", label: "筆記／佳句", sections: ["note"] },
-  { key: "keywords", label: "關鍵字", sections: ["keywords"] },
-];
-
-/**
- * 分頁模式：只顯示選中的那一頁（各種螢幕都一樣）。
- * 捲動模式：全部展開，往下捲即可。
- */
-function Section({
-  active,
-  paged,
-  children,
-}: {
-  active: boolean;
-  paged: boolean;
-  children: React.ReactNode;
-}) {
+/** 一組相關欄位排成同一片格線 */
+function Section({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      className={`min-h-0 shrink-0 grid-cols-1 content-start gap-3 overflow-hidden sm:grid-cols-2 lg:grid-cols-3 ${
-        !paged || active ? "grid" : "hidden"
-      }`}
-    >
+    <div className="grid min-h-0 shrink-0 grid-cols-1 content-start gap-3 overflow-hidden sm:grid-cols-2 lg:grid-cols-3">
       {children}
     </div>
   );
@@ -128,20 +101,9 @@ export function BookForm({
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [section, setSection] = useState<SectionKey>("basic");
   const [refetching, setRefetching] = useState(false);
   const [refetchNote, setRefetchNote] = useState("");
   const isEdit = Boolean(book);
-  const status = inferStatus(form.startDate || null, form.endDate || null);
-  // 瀏覽方式是整個 app 共用的偏好，編輯頁的分頁／捲動也跟著它走
-  const { paging } = usePagingMode();
-  const paged = paging === "page";
-  const isMobile = useIsMobile();
-  const tabs = isMobile
-    ? SECTIONS.map((s) => ({ key: s.key, label: s.label, sections: [s.key] as SectionKey[] }))
-    : WIDE_TABS;
-  // 目前這個頁籤涵蓋哪些區塊；捲動模式下全部都顯示
-  const visible = new Set(tabs.find((t) => t.sections.includes(section))?.sections ?? [section]);
 
   /**
    * 用現在表單裡的書名／網址重查一次。刻意只補空欄位——
@@ -214,8 +176,9 @@ export function BookForm({
       wordCount: form.wordCount,
       note: form.note,
       quotes: form.quotes,
-      keywords: form.keywords,
+      keywords: compactLines(form.keywords),
       relatedArticles: form.relatedArticles,
+      vocabulary: form.vocabulary,
     };
 
     setSubmitting(true);
@@ -286,34 +249,15 @@ export function BookForm({
         </p>
       )}
 
-      {/* 手機一次只放得下一組欄位，用分頁切；桌機維持一次看完全部 */}
-      {/* 分頁模式時大螢幕也用頁籤，不再只在手機顯示 */}
-      <div className={`shrink-0 gap-1 border-b ${paged ? "flex" : "hidden"}`}>
-        {tabs.map((s) => (
-          <button
-            key={s.key}
-            type="button"
-            onClick={() => setSection(s.key)}
-            className={`-mb-px flex-1 border-b-2 px-1 py-2 text-sm ${
-              section === s.key
-                ? "border-gray-900 font-medium text-gray-900"
-                : "border-transparent text-gray-500"
-            }`}
-          >
-            {s.label}
-          </button>
-        ))}
-      </div>
-
-      {/* 分頁後每一頁都必須塞得下：這層不給捲，溢出代表分頁要再切細 */}
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
-        <Section paged={paged} active={visible.has("basic")}>
+      {/* 欄位一路往下排，整份表單直接捲 */}
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+        <Section>
           <Field label="書名" value={form.title} onChange={(v) => set("title", v)} required />
           <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
           <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
         </Section>
 
-        <Section paged={paged} active={visible.has("source")}>
+        <Section>
           <Field label="封面 URL" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
           <Field label="來源網址" value={form.sourceUrl} onChange={(v) => set("sourceUrl", v)} />
 
@@ -338,23 +282,15 @@ export function BookForm({
           </div>
         </Section>
 
-        <Section paged={paged} active={visible.has("progress")}>
+        <Section>
           {/* 短欄位在手機兩兩並排；sm:contents 讓它在桌機溶解回原本的格線 */}
           <div className="grid grid-cols-2 gap-3 sm:contents">
             <Field label="頁數" value={form.pageCount} onChange={(v) => set("pageCount", v)} />
             <Field label="字數" value={form.wordCount} onChange={(v) => set("wordCount", v)} />
           </div>
 
-          <div className="min-w-0">
-            <label className="mb-1 block text-sm font-medium">閱讀狀態</label>
-            <p className="rounded border border-dashed bg-gray-50 px-3 py-2 text-sm text-gray-600">
-              {status}
-              <span className="ml-2 text-xs text-gray-400">依日期自動判斷</span>
-            </p>
-          </div>
-
           {/* 日期在手機各佔一行：iOS 的原生日期控制項有最小寬度，兩兩並排會互相擠壓 */}
-          <div className="grid grid-cols-1 gap-3 sm:contents">
+          <div className="grid min-w-0 grid-cols-1 gap-3 sm:contents">
             <Field
               label="開始日期"
               type="date"
@@ -370,7 +306,7 @@ export function BookForm({
           </div>
         </Section>
 
-        <Section paged={paged} active={visible.has("category")}>
+        <Section>
           <CategorySelect
             label="領域"
             categoryKey="domain"
@@ -394,35 +330,22 @@ export function BookForm({
         </Section>
 
         {/* 筆記與佳句吃掉剩下的高度，欄位多寡不同時都不會擠出捲軸 */}
-        <div
-          className={`min-h-0 flex-1 flex-col gap-3 sm:flex-row ${
-            !paged || visible.has("note") ? "flex" : "hidden"
-          }`}
-        >
+        <div className="flex min-h-0 shrink-0 flex-col gap-3 sm:flex-row">
           <div className="flex min-h-0 flex-1 flex-col gap-1">
             <label className="shrink-0 text-sm font-medium">筆記</label>
             <textarea
               value={form.note}
               onChange={(e) => set("note", e.target.value)}
-              className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
+              className={`${TEXTAREA_CLASS} ${TEXTAREA_MIN}`}
             />
           </div>
 
           <div className="flex min-h-0 flex-1 flex-col gap-1">
             <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
               佳句
-              <span className="text-xs font-normal text-gray-400">
-                一行一句，章節寫在行尾括號裡
-              </span>
+              <span className="text-xs font-normal text-gray-400">一句一組，章節可留空</span>
             </label>
-            <textarea
-              value={form.quotes}
-              onChange={(e) => set("quotes", e.target.value)}
-              placeholder={
-                "第一句摘抄的句子（第3章）\n第二句摘抄的句子（第7章）"
-              }
-              className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
-            />
+            <QuoteListInput value={form.quotes} onChange={(v) => set("quotes", v)} />
           </div>
         </div>
 
@@ -430,23 +353,18 @@ export function BookForm({
         關鍵字與相關文章。跟筆記同樣是一行一筆的自由文字——記的當下不分類，
         要畫成地圖還是清單是之後看的時候的事。
       */}
-        <div
-          className={`min-h-0 flex-1 flex-col gap-3 sm:flex-row ${
-            !paged || visible.has("keywords") ? "flex" : "hidden"
-          }`}
-        >
+        <div className="flex min-h-0 shrink-0 flex-col gap-3 sm:flex-row">
           <div className="flex min-h-0 flex-1 flex-col gap-1">
             <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
               關鍵字
               <span className="text-xs font-normal text-gray-400">
-                一行一個：地名、人名、事件、專有名詞
+                一個一組：地名、人名、事件、專有名詞
               </span>
             </label>
-            <textarea
+            <LineListInput
               value={form.keywords}
-              onChange={(e) => set("keywords", e.target.value)}
-              placeholder={"京都\n工業革命\n量子力學"}
-              className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
+              onChange={(v) => set("keywords", v)}
+              placeholder="京都"
             />
           </div>
 
@@ -455,13 +373,31 @@ export function BookForm({
               相關文章
               <span className="text-xs font-normal text-gray-400">一行一個 Instapaper 網址</span>
             </label>
+            <ArticleSelect
+              value={form.relatedArticles}
+              onChange={(v) => set("relatedArticles", v)}
+            />
             <textarea
               value={form.relatedArticles}
               onChange={(e) => set("relatedArticles", e.target.value)}
               placeholder={"https://www.instapaper.com/read/1234567890"}
-              className="min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm"
+              className={`${TEXTAREA_CLASS} ${TEXTAREA_MIN}`}
             />
           </div>
+        </div>
+
+        <div className="flex min-h-0 shrink-0 flex-col gap-1">
+          <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
+            單字
+            <span className="text-xs font-normal text-gray-400">
+              一個一組，例句與章節可留空；刻意不跨書共用
+            </span>
+          </label>
+          <VocabularyListInput
+            value={form.vocabulary}
+            onChange={(v) => set("vocabulary", v)}
+            bookLanguage={form.language}
+          />
         </div>
       </div>
 
@@ -543,7 +479,9 @@ function Field({
         value={value}
         required={required}
         onChange={(e) => onChange(e.target.value)}
-        className="box-border block w-full max-w-full min-w-0 rounded border px-3 py-2 text-sm"
+        className={`box-border block w-full max-w-full min-w-0 rounded border px-3 py-2 text-sm ${
+          type === "date" ? DATE_INPUT_CLASS : ""
+        }`}
       />
     </div>
   );

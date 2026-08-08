@@ -1,0 +1,42 @@
+"use client";
+
+export type Section = {
+  key: string;
+  label: string;
+  node: React.ReactNode;
+  /**
+   * 這個區塊需要外面給高度嗎？
+   *
+   * 圖表是 height="100%" 的 SVG，父層沒有高度就會縮成 0，所以預設為 true。
+   * 排行那種高度隨內容的清單要設 false，不然會被硬撐成一個固定高度。
+   */
+  needsHeight?: boolean;
+  /**
+   * 這個區塊要多高。趨勢圖只要看得出形狀就夠，給滿版高度會讓手機捲很久；
+   * 圓餅圖的標籤要位置，維持預設。
+   */
+  scrollHeight?: string;
+};
+
+/** 統計頁的區塊一路往下排。每個區塊要給明確高度——圖表是 height="100%"，父層沒高度會縮成 0 */
+export function SectionList({ sections }: { sections: Section[] }) {
+  return (
+    <div className="flex flex-col gap-6">
+      {sections.map((section) => (
+        <div
+          key={section.key}
+          className={`flex flex-col gap-3.5 ${
+            section.needsHeight === false ? "" : (section.scrollHeight ?? "h-[26rem] sm:h-[32rem]")
+          }`}
+        >
+          <h3 className="shrink-0 text-sm font-medium text-gray-500">{section.label}</h3>
+          {section.needsHeight === false ? (
+            section.node
+          ) : (
+            <div className="flex min-h-0 flex-1 flex-col">{section.node}</div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}

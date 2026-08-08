@@ -1,16 +1,13 @@
 "use client";
 
-import { Suspense, useRef, useState } from "react";
+import { Suspense } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
-import { PagerButton } from "@/components/ui/PagerButton";
 import { TagList } from "@/components/ui/TagBadge";
 import { InstapaperBookmark } from "@/lib/instapaper/client";
 import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
 import { useArticles } from "@/lib/useArticles";
-import { useFitPageSize, useFitRowsByMeasure } from "@/lib/useFitPageSize";
 import { useMounted } from "@/lib/useMounted";
-import { usePagingMode } from "@/lib/usePagingMode";
 import { useInstapaperStore } from "@/store/useInstapaperStore";
 
 function formatDate(unixSeconds: number) {
@@ -29,26 +26,10 @@ function hostname(url: string): string {
   }
 }
 
-/** 單筆文章的高度：標題 + 日期一行、進度條在右側；手機的標籤可能換行 */
-const ROW_HEIGHT = { mobile: 66, desktop: 60 };
-
 function ArticlesList() {
   const { token } = useInstapaperStore();
   const mounted = useMounted();
   const { articles, isLoading, error } = useArticles();
-  const [page, setPage] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const estimate = useFitPageSize(containerRef, ROW_HEIGHT);
-  // 分頁／捲動是整個 app 共用的偏好，文章列表也跟著走
-  const { scrolling } = usePagingMode();
-
-  // 有標籤的文章列會變高，純算常數會估太多，渲染後再量一次修正
-  const fitPageSize = useFitRowsByMeasure(containerRef, estimate, articles.length, !scrolling);
-  const pageSize = scrolling ? Math.max(1, articles.length) : fitPageSize;
-  const pageCount = Math.max(1, Math.ceil(articles.length / pageSize));
-  const currentPage = Math.min(page, pageCount - 1);
-  const pageArticles = articles.slice(currentPage * pageSize, currentPage * pageSize + pageSize);
-
   if (!mounted) return null;
 
   if (!token) {
@@ -91,8 +72,8 @@ function ArticlesList() {
     <>
       <PageHeader title="文章紀錄" />
       {/* overflow-hidden：hover 底色才會被圓角裁掉，不會在頭尾兩列破圖 */}
-      <div ref={containerRef} className="divide-y overflow-hidden rounded-lg border bg-white">
-        {pageArticles.map((a) => {
+      <div className="divide-y overflow-hidden rounded-lg border bg-white">
+        {articles.map((a) => {
           const percent = Math.round((a.progress ?? 0) * 100);
           return (
             <a
@@ -100,7 +81,6 @@ function ArticlesList() {
               href={instapaperReadUrl(a.bookmark_id, a.url)}
               target="_blank"
               rel="noopener noreferrer"
-              data-fit-row
               className="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 sm:gap-4 sm:px-4 sm:py-3"
             >
               <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -139,32 +119,12 @@ function ArticlesList() {
             </a>
           );
         })}
-
-        {pageCount > 1 && (
-          <div className="flex items-center justify-center gap-4 px-4 py-2">
-            <PagerButton
-              direction="prev"
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={currentPage === 0}
-              label="上一頁"
-            />
-            <span className="text-xs whitespace-nowrap text-gray-500">
-              第 {currentPage + 1} / {pageCount} 頁
-            </span>
-            <PagerButton
-              direction="next"
-              onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
-              disabled={currentPage === pageCount - 1}
-              label="下一頁"
-            />
-          </div>
-        )}
       </div>
     </>
   );
 }
 
-/** usePagingMode 會讀網址參數，靜態預先產生時要有 Suspense 邊界 */
+/** 底下讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */
 export default function ArticlesPage() {
   return (
     <Suspense fallback={null}>

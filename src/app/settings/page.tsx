@@ -8,7 +8,6 @@ import { EnrichButton } from "@/components/books/EnrichButton";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CategoryManager } from "@/components/settings/CategoryManager";
 import { DataIssuesPanel } from "@/components/settings/DataIssuesPanel";
-import { DisplaySettings } from "@/components/settings/DisplaySettings";
 import { InstapaperConnect } from "@/components/settings/InstapaperConnect";
 import { SheetPicker } from "@/components/settings/SheetPicker";
 import { useSheetStore } from "@/store/useSheetStore";
@@ -97,7 +96,6 @@ export default function SettingsPage() {
       ),
     },
     { key: "categories", label: "分類選項", node: <CategoryManager /> },
-    { key: "display", label: "顯示方式", node: <DisplaySettings /> },
     {
       key: "maintenance",
       label: "資料維護",

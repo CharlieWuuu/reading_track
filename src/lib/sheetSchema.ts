@@ -26,6 +26,7 @@ export const COLUMN_LABELS: Record<BookField, string> = {
   quotes: "佳句",
   keywords: "關鍵字",
   relatedArticles: "相關文章",
+  vocabulary: "單字",
 };
 
 export const BOOK_FIELDS = Object.keys(COLUMN_LABELS) as BookField[];
@@ -56,6 +57,7 @@ const COLUMN_ALIASES: Record<BookField, string[]> = {
   quotes: ["quotes", "quote", "佳句", "摘錄", "劃線"],
   keywords: ["keywords", "keyword", "關鍵字", "關鍵詞", "詞條"],
   relatedArticles: ["relatedarticles", "articles", "相關文章", "延伸閱讀"],
+  vocabulary: ["vocabulary", "words", "單字", "生難字詞", "生字"],
 };
 
 function normalize(header: string) {

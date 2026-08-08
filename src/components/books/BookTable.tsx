@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { RefObject, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   CalendarCheck,
   CalendarPlus,
@@ -18,60 +18,16 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { PageMessage } from "@/components/layout/PageMessage";
-import { PagerButton } from "@/components/ui/PagerButton";
 import { TagList as OptionList } from "@/components/ui/TagBadge";
 import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
 import { useArticles } from "@/lib/useArticles";
 import { useBooks } from "@/lib/useBooks";
-import { useFitPageSize, useFitRowsByMeasure, viewportBottom } from "@/lib/useFitPageSize";
 import { useMounted } from "@/lib/useMounted";
-import { usePagingMode } from "@/lib/usePagingMode";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Book, formatCount, parseQuotes, ReadingStatus, splitLines } from "@/types/book";
 import { NotesDialog } from "./NotesDialog";
-
-/** 單筆高度：手機是卡片，桌機是含書封的表格列 */
-const ROW_HEIGHT = { mobile: 86, desktop: 68 };
-
-/** 詳細檢視一張卡片就攤開所有欄位，高度自然高得多 */
-const DETAIL_ROW_HEIGHT = { mobile: 175, desktop: 200 };
-
-/** 書封牆的單張卡片尺寸，用來推算一頁排得下幾張 */
-const CARD_SIZE = {
-  mobile: { width: 72, height: 134 },
-  desktop: { width: 90, height: 164 },
-};
-
-/**
- * 書封牆一頁放幾本：橫向看容器寬度排得下幾張，縱向看畫面剩多少高度，
- * 一樣維持「剛好塞滿一畫面、不用捲動」的翻頁節奏。
- */
-function useFitCardCount(ref: RefObject<HTMLElement | null>, reserved = 96): number {
-  const [count, setCount] = useState(12);
-
-  useEffect(() => {
-    function recalc() {
-      const el = ref.current;
-      if (!el) return;
-
-      const isMobile = window.innerWidth < 768;
-      const card = isMobile ? CARD_SIZE.mobile : CARD_SIZE.desktop;
-      const top = el.getBoundingClientRect().top;
-
-      const columns = Math.max(2, Math.floor(el.clientWidth / card.width));
-      const rows = Math.max(1, Math.floor((viewportBottom(el) - top - reserved) / card.height));
-      setCount(columns * rows);
-    }
-
-    recalc();
-    window.addEventListener("resize", recalc);
-    return () => window.removeEventListener("resize", recalc);
-  });
-
-  return count;
-}
 
 /** width：表格列不需要看清楚封面，小一點可以讓書名多拿一些寬度 */
 function Cover({ url, title, width = "w-10" }: { url: string; title: string; width?: string }) {
@@ -493,18 +449,15 @@ export function BookTable() {
   const thisYear = new Date().getFullYear();
   const { searchParams, setParams } = useUrlParams();
   const { view: savedView } = useBookViewStore();
-  // 檢視方式與頁碼都以網址為準，重新整理或分享連結才回得到同一個畫面
+  // 檢視方式以網址為準，重新整理或分享連結才回得到同一個畫面
   const urlView = searchParams.get("view");
   const view = isBookViewMode(urlView) ? urlView : savedView;
-  const { scrolling } = usePagingMode();
   // 反查：帶著 ?keyword= 就只看提到這個關鍵字的書
   const keyword = searchParams.get("keyword") ?? "";
   const books = keyword
     ? allBooks.filter((b) => splitLines(b.keywords).includes(keyword))
     : allBooks;
-  const page = Math.max(0, (Number(searchParams.get("page")) || 1) - 1);
-  const setPage = (next: number) => setParams({ page: next === 0 ? null : String(next + 1) });
-  const clearKeyword = () => setParams({ keyword: null, page: null });
+  const clearKeyword = () => setParams({ keyword: null });
   // 相關文章存的是網址，標題從已經抓下來的 Instapaper 清單對回去。
   // 兩種網址都收：使用者可能貼 Instapaper 的閱讀頁，也可能貼原文網址。
   // 對不到（沒連 Instapaper、文章已刪）就顯示網址本身，不會壞。
@@ -515,36 +468,10 @@ export function BookTable() {
     if (a.url) articleTitles.set(a.url, title);
     articleTitles.set(instapaperReadUrl(a.bookmark_id, a.url), title);
   }
-  // 帶著目前的檢視與頁碼進編輯頁，存檔後才回得到同一頁
+  // 帶著目前的檢視進編輯頁，存檔後才回得到同一個畫面
   const query = searchParams.toString();
   const editHref = (id: string) =>
     `/books/${id}/edit${query ? `?back=${encodeURIComponent(query)}` : ""}`;
-  const containerRef = useRef<HTMLDivElement>(null);
-  // 詳細卡片很高，手機一頁可能只放得下一張，下限放寬到 1
-  const minRows = view === "detail" ? 1 : 3;
-  const rowEstimate = useFitPageSize(
-    containerRef,
-    view === "detail" ? DETAIL_ROW_HEIGHT : ROW_HEIGHT,
-    96,
-    minRows,
-  );
-  const cardEstimate = useFitCardCount(containerRef);
-  // 各種檢視都先估、再依實際渲染高度修正。書封的高度會隨書名行數變動，
-  // 純算常數一定有誤差，量測才保證不會溢出畫面。
-  // 捲動模式不需要「剛好一畫面」，量測直接關掉。
-  const fitPageSize = useFitRowsByMeasure(
-    containerRef,
-    view === "card" ? cardEstimate : rowEstimate,
-    books.length,
-    !scrolling,
-    minRows,
-  );
-
-  // 捲動模式：一次全部列出來，等於只有一頁
-  const pageSize = scrolling ? Math.max(1, books.length) : fitPageSize;
-  const pageCount = Math.max(1, Math.ceil(books.length / pageSize));
-  const currentPage = Math.min(page, pageCount - 1);
-  const pageBooks = books.slice(currentPage * pageSize, currentPage * pageSize + pageSize);
 
   // 還沒掛載完就什麼都別說，免得閃一下「請先連接」
   if (!mounted) return null;
@@ -570,35 +497,14 @@ export function BookTable() {
     );
   }
 
-  const pager =
-    pageCount > 1 ? (
-      <div className="mt-2 flex items-center justify-center gap-4 p-2">
-        <PagerButton
-          direction="prev"
-          onClick={() => setPage(Math.max(0, currentPage - 1))}
-          disabled={currentPage === 0}
-          label="上一頁"
-        />
-        <span className="text-xs whitespace-nowrap text-gray-500">
-          第 {currentPage + 1} / {pageCount} 頁
-        </span>
-        <PagerButton
-          direction="next"
-          onClick={() => setPage(Math.min(pageCount - 1, currentPage + 1))}
-          disabled={currentPage === pageCount - 1}
-          label="下一頁"
-        />
-      </div>
-    ) : null;
-
   if (view === "detail") {
     return (
-      <div ref={containerRef}>
+      <div>
         {/* 詳細檢視：一本一張橫式卡片，欄位全開，所以一頁只放得下兩三本 */}
         {/* 間距放在每一列內部，不用 gap——有縫的話年度底色就連不起來 */}
         <ul className="overflow-hidden rounded-lg border bg-white">
-          {pageBooks.map((b, i) => (
-            <li key={b.id || `detail-${i}`} data-fit-row className="border-t first:border-t-0">
+          {books.map((b, i) => (
+            <li key={b.id || `detail-${i}`} className="border-t first:border-t-0">
               <DetailCard
                 book={b}
                 href={editHref(b.id)}
@@ -610,21 +516,20 @@ export function BookTable() {
             </li>
           ))}
         </ul>
-        {pager}
       </div>
     );
   }
 
   if (view === "card") {
     return (
-      <div ref={containerRef}>
+      <div>
         {/* 書封牆：一次看到很多本、也看得清楚封面，只留書名與完讀日期 */}
         <div className="rounded-lg border bg-white p-3">
           <ul className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] md:grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))]">
-            {pageBooks.map((b, i) => (
+            {books.map((b, i) => (
               <li
                 key={b.id || `cover-${i}`}
-                data-fit-row
+
                 className={`p-1.5 ${rowTone(b.endDate, thisYear)}`}
               >
                 {/* 書封、書名、日期三層都靠 gap 分開，卡片高度固定不隨書名長短跳動 */}
@@ -643,20 +548,19 @@ export function BookTable() {
             ))}
           </ul>
         </div>
-        {pager}
       </div>
     );
   }
 
   return (
-    <div ref={containerRef} className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3">
       {keyword && <KeywordFilter keyword={keyword} count={books.length} onClear={clearKeyword} />}
 
       {/* 手機版：卡片列表，欄位太多的表格在小螢幕上不好讀 */}
       <div className="overflow-hidden rounded-lg border bg-white md:hidden">
         <ul className="divide-y">
-          {pageBooks.map((b, i) => (
-            <li key={b.id || `card-${i}`} data-fit-row>
+          {books.map((b, i) => (
+            <li key={b.id || `card-${i}`}>
               <Link
                 href={editHref(b.id)}
                 className={`flex gap-3 p-3 ${rowTone(b.endDate, thisYear)} ${statusAccent(b.status)}`}
@@ -706,11 +610,11 @@ export function BookTable() {
             </tr>
           </thead>
           <tbody>
-            {pageBooks.map((b, i) => (
+            {books.map((b, i) => (
               // 整列點擊就進編輯頁，所以書名不再另外做成連結樣式
               <tr
                 key={b.id || `row-${i}`}
-                data-fit-row
+
                 onClick={() => router.push(editHref(b.id))}
                 className={`cursor-pointer border-t ${rowTone(b.endDate, thisYear)}`}
               >
@@ -780,7 +684,6 @@ export function BookTable() {
       </div>
 
       {/* 翻頁列放在框外，跟詳細檢視一致 */}
-      {pager}
     </div>
   );
 }

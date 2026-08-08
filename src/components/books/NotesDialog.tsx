@@ -79,9 +79,14 @@ export function NotesDialog({
                     className="flex items-start gap-2 rounded bg-[#F7EDCF]/50 px-2.5 py-2"
                   >
                     <QuoteIcon size={12} className="mt-1 shrink-0 text-[#B08A2E]" />
-                    <p className="min-w-0 flex-1 text-sm leading-relaxed text-gray-700">
-                      {quote.text}
-                    </p>
+                    <div className="flex min-w-0 flex-1 flex-col gap-1">
+                      <p className="text-sm leading-relaxed text-gray-700">{quote.text}</p>
+                      {quote.note && (
+                        <p className="border-l-2 pl-2 text-xs leading-relaxed text-gray-500">
+                          {quote.note}
+                        </p>
+                      )}
+                    </div>
                     {quote.chapter && (
                       <span className="shrink-0 text-xs text-gray-400">{quote.chapter}</span>
                     )}

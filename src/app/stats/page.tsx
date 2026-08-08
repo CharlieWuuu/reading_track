@@ -9,7 +9,7 @@ import { DistributionPie } from "@/components/stats/DistributionPie";
 import { KpiCards } from "@/components/stats/KpiCards";
 import { MonthlyTrendChart } from "@/components/stats/MonthlyTrendChart";
 import { RankingBar } from "@/components/stats/RankingBar";
-import { Section, SectionPager } from "@/components/stats/SectionPager";
+import { Section, SectionList } from "@/components/stats/SectionList";
 import { YearlyTrendChart } from "@/components/stats/YearlyTrendChart";
 import {
   getArticleKpis,
@@ -260,7 +260,7 @@ function BooksStats() {
         ]),
   ];
 
-  return <SectionPager sections={sections} />;
+  return <SectionList sections={sections} />;
 }
 
 function ArticlesStats() {
@@ -385,7 +385,7 @@ function ArticlesStats() {
         ]),
   ];
 
-  return <SectionPager sections={sections} />;
+  return <SectionList sections={sections} />;
 }
 
 function StatsTabs() {

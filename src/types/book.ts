@@ -72,6 +72,13 @@ export interface Book {
   keywords: string;
   /** 相關文章，一行一個 Instapaper 網址；存網址而不是 id 才看得出是什麼 */
   relatedArticles: string;
+  /**
+   * 生難字詞，一行一個「詞：例句（章節）」。
+   *
+   * 跟關鍵字分開存：單字要綁著讀到它的那一句才有用，而且刻意不跨書共用——
+   * 同一個詞在不同書裡是不同的相遇。
+   */
+  vocabulary: string;
 }
 
 /** 字數／頁數顯示成千分位；資料裡本來就可能夾著逗號，先清掉再格式化 */
@@ -82,24 +89,59 @@ export function formatCount(value: string | undefined | null): string {
   return Number(digits).toLocaleString("zh-Hant");
 }
 
-export interface Quote {
-  text: string;
-  /** 沒寫章節就是空字串。電子書多半沒有頁碼，所以記章節而不是頁數 */
-  chapter: string;
-}
-
-/** 行尾的括號（全形或半形）視為章節，其餘都是句子本身 */
-export function parseQuotes(raw: string | undefined | null): Quote[] {
+/** 一行一筆的欄位（關鍵字、相關文章）共用的解析：去空白、去空行 */
+export function splitLines(raw: string | undefined | null): string[] {
   if (!raw) return [];
   return raw
     .split(/\r?\n/)
     .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      const match = line.match(/^(.*?)\s*[（(]([^（()）]*)[)）]\s*$/);
-      if (!match || !match[1].trim()) return { text: line, chapter: "" };
-      return { text: match[1].trim(), chapter: match[2].trim() };
-    });
+    .filter(Boolean);
+}
+
+export interface Quote {
+  text: string;
+  /** 沒寫章節就是空字串。電子書多半沒有頁碼，所以記章節而不是頁數 */
+  chapter: string;
+  /** 讀到這句時想說的話，跟整本書的心得分開 */
+  note: string;
+}
+
+/**
+ * 佳句一行一句，三個欄位以直線分隔：
+ *   真正的問題不是資源，而是注意力｜第3章｜這句話解釋了我為什麼老是覺得沒時間
+ *
+ * 用固定分隔符而不是括號：句子與心得裡本來就常有括號，靠括號位置去猜哪個是
+ * 章節一定會出錯。尾端沒填的欄位可以整個省略。
+ */
+export const QUOTE_SEPARATOR = "｜";
+
+export function parseQuotes(raw: string | undefined | null): Quote[] {
+  return splitLines(raw).map((line) => {
+    // 舊格式「句子（章節）」還讀得到，不用手動改表
+    if (!line.includes(QUOTE_SEPARATOR)) return parseLegacyQuote(line);
+
+    const [text, chapter, note] = line.split(QUOTE_SEPARATOR).map((part) => part.trim());
+    return { text: text ?? "", chapter: chapter ?? "", note: note ?? "" };
+  });
+}
+
+/** 舊格式：行尾的括號（全形或半形）視為章節，其餘都是句子本身 */
+function parseLegacyQuote(line: string): Quote {
+  const match = line.match(/^(.*?)\s*[（(]([^（()）]*)[)）]\s*$/);
+  if (!match || !match[1].trim()) return { text: line, chapter: "", note: "" };
+  return { text: match[1].trim(), chapter: match[2].trim(), note: "" };
+}
+
+export function joinQuotes(quotes: Quote[]): string {
+  return quotes
+    .filter((quote) => quote.text.trim())
+    .map((quote) => {
+      const parts = [quote.text, quote.chapter, quote.note].map((part) => part.trim());
+      // 尾端的空欄位直接砍掉，只記了一句就不要留一排孤零零的分隔線
+      while (parts.length > 1 && !parts[parts.length - 1]) parts.pop();
+      return parts.join(QUOTE_SEPARATOR);
+    })
+    .join("\n");
 }
 
 /**
@@ -122,13 +164,76 @@ export function joinTags(tags: string[]): string {
   return tags.join(TAG_SEPARATOR);
 }
 
-/** 一行一筆的欄位（關鍵字、相關文章）共用的解析：去空白、去空行 */
-export function splitLines(raw: string | undefined | null): string[] {
-  if (!raw) return [];
-  return raw
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
+export interface VocabularyItem {
+  word: string;
+  /** 詞的翻譯／解釋，沒有就是空字串 */
+  wordTranslation: string;
+  sentence: string;
+  sentenceTranslation: string;
+  chapter: string;
+  /** 這個詞是什麼語言。空字串代表跟著書的語言走 */
+  language: string;
+}
+
+/**
+ * 單字一行一筆，六個欄位以直線分隔：
+ *   apposition｜同位語｜The city, Kyoto, was...｜京都這座城市……｜第3章｜英文
+ *
+ * 用固定分隔符而不是括號：翻譯、例句、章節裡本來就常有括號，
+ * 靠括號位置去猜哪個是哪個一定會出錯。尾端沒填的欄位可以整個省略。
+ */
+export const VOCABULARY_SEPARATOR = "｜";
+
+export function parseVocabulary(raw: string | undefined | null): VocabularyItem[] {
+  return splitLines(raw).map((line) => {
+    // 舊格式「詞：例句（章節）」還讀得到，不用手動改表
+    if (!line.includes(VOCABULARY_SEPARATOR)) return parseLegacyVocabulary(line);
+
+    const [word, wordTranslation, sentence, sentenceTranslation, chapter, language] = line
+      .split(VOCABULARY_SEPARATOR)
+      .map((part) => part.trim());
+    return {
+      word: word ?? "",
+      wordTranslation: wordTranslation ?? "",
+      sentence: sentence ?? "",
+      sentenceTranslation: sentenceTranslation ?? "",
+      chapter: chapter ?? "",
+      language: language ?? "",
+    };
+  });
+}
+
+/** 舊格式：詞：例句（章節） */
+function parseLegacyVocabulary(line: string): VocabularyItem {
+  const [head, ...rest] = line.split(/[:：]/);
+  const quote = parseQuotes(rest.join("：").trim())[0];
+  return {
+    word: head.trim(),
+    wordTranslation: "",
+    sentence: quote?.text ?? "",
+    sentenceTranslation: "",
+    chapter: quote?.chapter ?? "",
+    language: "",
+  };
+}
+
+export function joinVocabulary(items: VocabularyItem[]): string {
+  return items
+    .filter((item) => item.word.trim())
+    .map((item) => {
+      const parts = [
+        item.word,
+        item.wordTranslation,
+        item.sentence,
+        item.sentenceTranslation,
+        item.chapter,
+        item.language,
+      ].map((part) => part.trim());
+      // 尾端的空欄位直接砍掉，只記了一個詞就不要留一排孤零零的分隔線
+      while (parts.length > 1 && !parts[parts.length - 1]) parts.pop();
+      return parts.join(VOCABULARY_SEPARATOR);
+    })
+    .join("\n");
 }
 
 export interface BookCategories {
