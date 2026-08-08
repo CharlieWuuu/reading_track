@@ -1,7 +1,8 @@
 "use client";
 
 const styles = {
-  card: "flex cursor-pointer items-start gap-3 rounded-lg border bg-white p-4 hover:border-gray-400",
+  // 不畫框，改用分隔線隔開：一頁很多則的時候，滿版的框線比內容還搶眼
+  card: "flex cursor-pointer items-start gap-3 py-4 hover:bg-gray-50",
   side: "flex w-14 shrink-0 flex-col gap-1.5",
   cover: "aspect-2/3 w-full rounded-sm object-cover shadow ring-1 ring-black/10",
   blank:

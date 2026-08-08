@@ -18,8 +18,8 @@ const styles = {
   tab: "rounded px-3 py-1.5 text-sm font-medium",
   tabActive: "bg-gray-900 text-white",
   tabIdle: "text-gray-500 hover:bg-gray-100",
-  // 內文長度差很多，排成多欄只會高高低低；一則一列反而好讀
-  list: "flex flex-col gap-3",
+  // 內文長度差很多，排成多欄只會高高低低；一則一列往下排反而好讀
+  list: "flex flex-col divide-y",
   quote: "flex items-start gap-2",
   mark: "mt-0.5 shrink-0 text-[#B08A2E]",
   text: "text-sm leading-relaxed whitespace-pre-wrap text-gray-700",
@@ -28,8 +28,8 @@ const styles = {
 };
 
 const TABS = [
-  { key: "quotes", label: "佳句" },
   { key: "notes", label: "心得" },
+  { key: "quotes", label: "佳句" },
 ] as const;
 
 type Tab = (typeof TABS)[number]["key"];
@@ -137,10 +137,10 @@ function Notes({ books }: { books: Book[] }) {
 }
 
 function NotesTabs() {
-  // 看哪一邊寫在網址上，重新整理或分享連結都回得到同一個畫面；預設佳句
+  // 看哪一邊寫在網址上，重新整理或分享連結都回得到同一個畫面；預設心得
   const { searchParams, setParams } = useUrlParams();
-  const tab: Tab = searchParams.get("tab") === "notes" ? "notes" : "quotes";
-  const setTab = (next: Tab) => setParams({ tab: next === "quotes" ? null : next });
+  const tab: Tab = searchParams.get("tab") === "quotes" ? "quotes" : "notes";
+  const setTab = (next: Tab) => setParams({ tab: next === "notes" ? null : next });
 
   return (
     <>
@@ -157,7 +157,7 @@ function NotesTabs() {
         }
       />
       <BooksGate>
-        {(books) => (tab === "quotes" ? <Quotes books={books} /> : <Notes books={books} />)}
+        {(books) => (tab === "notes" ? <Notes books={books} /> : <Quotes books={books} />)}
       </BooksGate>
     </>
   );
