@@ -21,7 +21,7 @@ export type Section = {
 /** 統計頁的區塊一路往下排。每個區塊要給明確高度——圖表是 height="100%"，父層沒高度會縮成 0 */
 export function SectionList({ sections }: { sections: Section[] }) {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex shrink-0 flex-col gap-6">
       {sections.map((section) => (
         <div
           key={section.key}

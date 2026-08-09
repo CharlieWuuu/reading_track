@@ -202,22 +202,47 @@ function BooksStats() {
             ),
           },
         ]),
-    // 樹狀圖一頁一張：格子上的字要看得清楚，兩張並排會擠到讀不出來
-    ...treemaps.map((chart) => ({
-      key: chart.key,
-      label: chart.label,
-      scrollHeight: "h-80 sm:h-[32rem]",
-      node: (
-        <Panel>
-          <DistributionTreemap
-            title={chart.label}
-            data={chart.data}
-            groups={chart.groups}
-            colorful={chart.colorful}
-          />
-        </Panel>
-      ),
-    })),
+    // 樹狀圖：窄的時候一張一頁（格子上的字擠在一起會讀不出來），
+    // 寬到放得下兩張還能看清楚字，才並排
+    ...(isMobile
+      ? treemaps.map((chart) => ({
+          key: chart.key,
+          label: chart.label,
+          scrollHeight: "h-80 sm:h-[32rem]",
+          node: (
+            <Panel>
+              <DistributionTreemap
+                title={chart.label}
+                data={chart.data}
+                groups={chart.groups}
+                colorful={chart.colorful}
+              />
+            </Panel>
+          ),
+        }))
+      : [
+          {
+            key: "treemaps",
+            label: "分布",
+            needsHeight: false,
+            node: (
+              <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                {treemaps.map((chart) => (
+                  <div key={chart.key} className="flex h-104 flex-col xl:h-128">
+                    <Panel>
+                      <DistributionTreemap
+                        title={chart.label}
+                        data={chart.data}
+                        groups={chart.groups}
+                        colorful={chart.colorful}
+                      />
+                    </Panel>
+                  </div>
+                ))}
+              </div>
+            ),
+          },
+        ]),
     // 手機一頁放一個圓餅圖才看得清楚，桌機兩張一次排完
     ...(isMobile
       ? pies.map((pie) => ({

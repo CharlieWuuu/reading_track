@@ -10,6 +10,9 @@ const styles = {
   chart: "min-h-0 flex-1",
   empty: "flex h-full items-center justify-center text-xs text-gray-400",
   tooltip: "rounded border bg-white px-2 py-1 text-xs shadow",
+  legend: "flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1.5",
+  legendItem: "flex items-center gap-1.5 text-xs",
+  swatch: "size-2.5 shrink-0 rounded-[2px]",
 };
 
 /**
@@ -74,6 +77,18 @@ export function DistributionTreemap({
           </Treemap>
         </ResponsiveContainer>
       </div>
+
+      {/* 兩層時上層＝一個色，格子小到寫不下名字也還認得出是哪個領域 */}
+      {shaded.length > 1 && groups && (
+        <ul className={styles.legend}>
+          {shaded.map((group) => (
+            <li key={group.name} className={styles.legendItem}>
+              <span className={styles.swatch} style={{ background: group.color }} />
+              <span style={{ color: "var(--text-secondary)" }}>{group.name}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
