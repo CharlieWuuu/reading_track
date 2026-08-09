@@ -5,7 +5,7 @@ import { Plus, X } from "lucide-react";
 import { splitLines } from "@/types/book";
 
 const styles = {
-  wrap: "flex min-h-0 flex-1 flex-col items-stretch gap-1.5 overflow-y-auto",
+  wrap: "flex flex-col items-stretch gap-1.5 md:min-h-0 md:flex-1 md:overflow-y-auto",
   list: "flex shrink-0 flex-col gap-1.5",
   row: "flex items-center gap-1",
   input: "min-w-0 flex-1 rounded border px-3 py-1.5 text-sm",

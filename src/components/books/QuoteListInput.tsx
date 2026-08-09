@@ -4,7 +4,7 @@ import { Plus, X } from "lucide-react";
 import { EMPTY_QUOTE, QuoteRow } from "@/types/record";
 
 const styles = {
-  wrap: "flex min-h-0 flex-1 flex-col items-stretch gap-1.5 overflow-y-auto",
+  wrap: "flex flex-col items-stretch gap-1.5 md:min-h-0 md:flex-1 md:overflow-y-auto",
   list: "flex shrink-0 flex-col gap-2",
   row: "flex items-start gap-1",
   fields: "flex min-w-0 flex-1 flex-col gap-1",

@@ -31,7 +31,7 @@ export default function EditBookPage() {
   return (
     <>
       <PageHeader title="編輯書籍" />
-      <div className="min-h-0 flex-1">
+      <div className="shrink-0 md:min-h-0 md:flex-1">
         <BookForm key={book.id} book={book} />
       </div>
     </>

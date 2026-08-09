@@ -136,7 +136,7 @@ export default function SettingsPage() {
           </div>
         }
       />
-      <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-white p-4 md:p-5">
+      <div className="shrink-0 rounded-lg border bg-white p-4 md:min-h-0 md:flex-1 md:overflow-y-auto md:p-5">
         {tabs.find((t) => t.key === tab)?.node}
       </div>
     </>

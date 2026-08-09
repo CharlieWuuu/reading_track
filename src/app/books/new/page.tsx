@@ -12,7 +12,7 @@ export default function NewBookPage() {
     <>
       <PageHeader title={result ? "新增書籍" : "新增書籍 · 查詢資料"} />
       {result ? (
-        <div className="min-h-0 flex-1">
+        <div className="shrink-0 md:min-h-0 md:flex-1">
           <BookForm initial={result.prefill} notice={result.notice} />
         </div>
       ) : (

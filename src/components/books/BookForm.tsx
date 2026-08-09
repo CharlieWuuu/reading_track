@@ -48,7 +48,7 @@ type FormState = typeof emptyForm;
 /** 一組相關欄位排成同一片格線 */
 function Section({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid min-h-0 shrink-0 grid-cols-1 content-start gap-3 overflow-hidden sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid min-h-0 shrink-0 grid-cols-1 content-start gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {children}
     </div>
   );
@@ -280,11 +280,12 @@ export function BookForm({
     }
   }
 
-  // 跟其他頁一致：撐滿可用高度，靠三欄排版讓欄位在一頁內看完，不整頁捲動
+  // 桌機撐滿可用高度，靠三欄排版讓欄位在一頁內看完；
+  // 手機排不成三欄，改成表單自己長高、交給外層的主捲動區捲
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex h-full min-h-0 flex-col gap-3 rounded-lg border bg-white p-4 sm:p-5"
+      className="flex flex-col gap-3 rounded-lg border bg-white p-4 sm:p-5 md:h-full md:min-h-0"
     >
       {notice && (
         <p className="shrink-0 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
@@ -292,8 +293,8 @@ export function BookForm({
         </p>
       )}
 
-      {/* 欄位一路往下排，整份表單直接捲 */}
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+      {/* 欄位一路往下排；桌機在這層捲，手機不自己捲，跟著整頁捲 */}
+      <div className="flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
         <Section>
           <Field label="書名" value={form.title} onChange={(v) => set("title", v)} required />
           <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
