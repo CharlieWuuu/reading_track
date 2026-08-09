@@ -21,11 +21,13 @@ const styles = {
   tabIdle: "text-gray-500 hover:bg-gray-100",
   // 內文長度差很多，排成多欄只會高高低低；一則一列往下排反而好讀
   list: "flex flex-col divide-y",
-  quote: "flex items-start gap-2",
-  mark: "mt-0.5 shrink-0 text-[#B08A2E]",
+  // 引號上下框住句子：開頭在左上、結尾在右下，像被「」夾著。
+  // w-fit 讓這一塊縮到跟句子一樣寬，短句的收尾引號才不會被推到整列的最右邊
+  quote: "flex w-fit max-w-full flex-col gap-1",
+  markOpen: "rotate-180 self-start text-[#B08A2E]",
+  markClose: "self-end text-[#B08A2E]",
   text: "text-sm leading-relaxed whitespace-pre-wrap text-gray-700",
   note: "border-l-2 pl-2 text-xs leading-relaxed text-gray-500",
-  chapter: "text-[11px] text-gray-400",
 };
 
 const TABS = [
@@ -77,14 +79,15 @@ function Quotes({ books }: { books: Book[] }) {
             key={record.id}
             title={record.bookTitle}
             coverUrl={record.bookCover}
+            meta={record.chapter}
             onClick={() => setEditing(record)}
           >
             <div className={styles.quote}>
-              <QuoteIcon size={14} strokeWidth={1.5} className={styles.mark} />
+              <QuoteIcon size={12} strokeWidth={1.5} className={styles.markOpen} />
               <p className={styles.text}>{record.text}</p>
+              <QuoteIcon size={12} strokeWidth={1.5} className={styles.markClose} />
             </div>
             {record.note && <p className={styles.note}>{record.note}</p>}
-            {record.chapter && <p className={styles.chapter}>{record.chapter}</p>}
           </RecordCard>
         ))}
       </div>

@@ -11,13 +11,11 @@ import {
   inferStatus,
   normalizePlatform,
   normalizeStatus,
-  parseQuotes,
-  parseVocabulary,
   splitLines,
 } from "@/types/book";
 import { KeywordInfo } from "@/types/keyword";
 import { QuoteRow, VocabularyRow } from "@/types/record";
-import { BOOK_FIELDS, BookField, COLUMN_LABELS, mapHeaders } from "./sheetSchema";
+import { BOOK_FIELDS, BookField, COLUMN_LABELS, ColumnMap, mapHeaders } from "./sheetSchema";
 
 const BOOKS_SHEET_TITLE = "書籍";
 
@@ -79,12 +77,12 @@ async function resolveColumns(sheet: GoogleSpreadsheetWorksheet) {
  * 每個欄位都必須對應得到表頭。少一個就代表 COLUMN_LABELS 與 COLUMN_ALIASES 沒對上，
  * 這時候硬跑下去會拿 undefined 去定位儲存格，寫壞使用者的資料——寧可直接失敗。
  */
-function assertComplete(map: Partial<Record<BookField, string>>): Record<BookField, string> {
+function assertComplete(map: Partial<Record<BookField, string>>): ColumnMap {
   const missing = BOOK_FIELDS.filter((f) => !map[f]);
   if (missing.length > 0) {
     throw new Error(`表頭對應不完整，缺少：${missing.join(", ")}`);
   }
-  return map as Record<BookField, string>;
+  return map as ColumnMap;
 }
 
 /** 只砍掉尾端的空欄，中間的空欄要留著，不然整排資料會左移對不上 */
@@ -153,7 +151,7 @@ export async function listBooksWithMeta(
   }
 
   const books = rows.map((row) => {
-    const get = (field: BookField) => (row.get(columns[field]) ?? "").toString().trim();
+    const get = (field: BookField) => (row.get(columns[field] ?? "") ?? "").toString().trim();
     return {
       id: get("id"),
       title: get("title"),
@@ -242,7 +240,8 @@ export async function bulkUpdateBooks(
     if (!patch) continue;
 
     for (const [key, value] of Object.entries(patch)) {
-      const column = index[columns[key as BookField]];
+      const header = columns[key as BookField];
+      const column = header ? index[header] : undefined;
       if (column === undefined) continue;
       sheet.getCell(row.rowNumber - 1, column).value = value ?? "";
       written++;
@@ -525,6 +524,31 @@ function text(row: GoogleSpreadsheetRow, header: string): string {
   return (row.get(header) ?? "").toString().trim();
 }
 
+/**
+ * 補上沒有編號的列。
+ *
+ * 手動在 Sheet 上加一列、或是早期搬移留下來的列都可能沒有編號，
+ * 而編輯是靠編號認人的——沒有編號那一列就改不動。
+ *
+ * 一列一次 row.save() 會打爆 Google Sheets 的每分鐘寫入配額，改成一次批次寫入。
+ */
+async function backfillIds(sheet: GoogleSpreadsheetWorksheet, rows: GoogleSpreadsheetRow[]) {
+  const missing = rows.filter((row) => !text(row, "編號"));
+  if (missing.length === 0) return rows;
+
+  await sheet.loadCells();
+  const column = headerIndex(sheet)["編號"];
+  if (column === undefined) return rows;
+
+  for (const row of missing) {
+    sheet.getCell(row.rowNumber - 1, column).value = crypto.randomUUID();
+  }
+  await sheet.saveUpdatedCells();
+
+  // 重讀一次，回傳的才是真的寫進去的那些編號
+  return sheet.getRows();
+}
+
 export async function listVocabularyRows(
   sheetId: string,
   accessToken: string,
@@ -535,7 +559,7 @@ export async function listVocabularyRows(
     VOCABULARY_SHEET_TITLE,
     VOCABULARY_HEADERS,
   );
-  const rows = await sheet.getRows();
+  const rows = await backfillIds(sheet, await sheet.getRows());
 
   return rows
     .map((row) => ({
@@ -554,7 +578,7 @@ export async function listVocabularyRows(
 
 export async function listQuoteRows(sheetId: string, accessToken: string): Promise<QuoteRow[]> {
   const sheet = await getRecordSheet(sheetId, accessToken, QUOTES_SHEET_TITLE, QUOTE_HEADERS);
-  const rows = await sheet.getRows();
+  const rows = await backfillIds(sheet, await sheet.getRows());
 
   return rows
     .map((row) => ({
@@ -640,56 +664,4 @@ export async function replaceBookQuotes(
         心得: item.note,
       })),
   );
-}
-
-/**
- * 把書籍表裡舊的「單字」「佳句」儲存格搬進各自的分頁。
- *
- * 只搬、不刪：舊欄位留著當退路，確認新表沒問題之後再手動清掉。
- * 已經有紀錄的書會整個跳過，所以重跑幾次都不會變出重複的列。
- */
-export async function migrateNotesToSheets(
-  sheetId: string,
-  accessToken: string,
-): Promise<{ books: number; vocabulary: number; quotes: number }> {
-  const books = await listBooks(sheetId, accessToken);
-  const [existingVocabulary, existingQuotes] = await Promise.all([
-    listVocabularyRows(sheetId, accessToken),
-    listQuoteRows(sheetId, accessToken),
-  ]);
-  const hasVocabulary = new Set(existingVocabulary.map((row) => row.bookId));
-  const hasQuotes = new Set(existingQuotes.map((row) => row.bookId));
-
-  const moved = { books: 0, vocabulary: 0, quotes: 0 };
-
-  for (const book of books) {
-    const vocabulary = hasVocabulary.has(book.id) ? [] : parseVocabulary(book.vocabulary);
-    const quotes = hasQuotes.has(book.id) ? [] : parseQuotes(book.quotes);
-    if (vocabulary.length === 0 && quotes.length === 0) continue;
-
-    if (vocabulary.length > 0) {
-      await replaceBookVocabulary(
-        sheetId,
-        accessToken,
-        book.id,
-        book.title,
-        vocabulary.map((item) => ({ ...item, id: "", bookId: book.id, bookTitle: book.title })),
-      );
-      moved.vocabulary += vocabulary.length;
-    }
-
-    if (quotes.length > 0) {
-      await replaceBookQuotes(
-        sheetId,
-        accessToken,
-        book.id,
-        book.title,
-        quotes.map((quote) => ({ ...quote, id: "", bookId: book.id, bookTitle: book.title })),
-      );
-      moved.quotes += quotes.length;
-    }
-    moved.books++;
-  }
-
-  return moved;
 }

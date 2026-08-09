@@ -21,6 +21,9 @@ const styles = {
  */
 const MIN_OPACITY = 0.35;
 
+/** 超出色票的那些共用灰色，不自己生新顏色 */
+const OVERFLOW_COLOR = "#9CA3AF";
+
 const LABEL_MIN_WIDTH = 48;
 const LABEL_MIN_HEIGHT = 26;
 
@@ -29,6 +32,8 @@ type DistributionTreemapProps = {
   /** 給了 groups 就畫兩層（大格子＝上層），否則一層 */
   data?: DistributionSlice[];
   groups?: DistributionGroup[];
+  /** 一層時每格各自一色。類別少的時候比較好認，多到超過色票就沒有意義 */
+  colorful?: boolean;
   unit?: string;
 };
 
@@ -37,9 +42,10 @@ export function DistributionTreemap({
   title,
   data,
   groups,
+  colorful = false,
   unit = "本",
 }: DistributionTreemapProps) {
-  const shaded = groups ? shadeGroups(groups) : shadeFlat(data ?? []);
+  const shaded = groups ? shadeGroups(groups) : shadeFlat(data ?? [], colorful);
 
   if (shaded.length === 0) {
     return <div className={styles.empty}>尚無資料</div>;
@@ -76,11 +82,20 @@ export function DistributionTreemap({
  * 一層：只有面積在說話，所以同一個色相靠明度分辨相鄰的格子。
  * 兩層：顏色改成分群用——同一個上層共用一色，這時候顏色是有意義的。
  */
-function shadeFlat(data: DistributionSlice[]) {
+function shadeFlat(data: DistributionSlice[], colorful: boolean) {
+  if (!colorful) {
+    return data.map((slice, i) => ({
+      ...slice,
+      color: SERIES_PRIMARY,
+      opacity: Math.max(MIN_OPACITY, 1 - i / data.length),
+    }));
+  }
+
+  // 色票只有八階，第九名之後一律灰色——循環使用會讓不同的類別撞成同色
   return data.map((slice, i) => ({
     ...slice,
-    color: SERIES_PRIMARY,
-    opacity: Math.max(MIN_OPACITY, 1 - i / data.length),
+    color: i < CATEGORICAL.length ? CATEGORICAL[i] : OVERFLOW_COLOR,
+    opacity: 1,
   }));
 }
 

@@ -16,7 +16,6 @@ const styles = {
   blank:
     "flex aspect-2/3 w-4 items-center justify-center rounded-[2px] bg-gray-100 text-[7px] leading-none text-gray-400",
   sentence: "text-xs leading-relaxed text-gray-600",
-  meta: "text-[11px] text-gray-400",
   empty: "py-6 text-center text-xs text-gray-400",
 };
 
@@ -74,7 +73,6 @@ export function VocabularyPanel({ entries, onEdit }: VocabularyPanelProps) {
                 {encounter.sentenceTranslation && (
                   <p className={styles.sentence}>{encounter.sentenceTranslation}</p>
                 )}
-                {encounter.chapter && <p className={styles.meta}>{encounter.chapter}</p>}
               </div>
             ))}
           </div>

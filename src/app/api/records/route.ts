@@ -3,7 +3,6 @@ import { auth } from "@/auth";
 import {
   listQuoteRows,
   listVocabularyRows,
-  migrateNotesToSheets,
   replaceBookQuotes,
   replaceBookVocabulary,
 } from "@/lib/sheets";
@@ -73,22 +72,5 @@ export async function PUT(req: NextRequest) {
   } catch (err) {
     console.error("replaceBookRecords failed:", err);
     return NextResponse.json({ error: "儲存失敗" }, { status: 502 });
-  }
-}
-
-/** 把書籍表舊的儲存格搬進新分頁，只搬不刪 */
-export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session?.accessToken) return NextResponse.json({ error: "請先登入" }, { status: 401 });
-
-  const { sheetId } = (await req.json()) as { sheetId: string };
-  if (!sheetId) return NextResponse.json({ error: "缺少 Sheet ID" }, { status: 400 });
-
-  try {
-    const moved = await migrateNotesToSheets(sheetId, session.accessToken);
-    return NextResponse.json(moved);
-  } catch (err) {
-    console.error("migrateNotesToSheets failed:", err);
-    return NextResponse.json({ error: "搬移失敗" }, { status: 502 });
   }
 }

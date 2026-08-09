@@ -7,7 +7,7 @@ import { fullerTitle } from "@/lib/metadata";
 import { useBooks } from "@/lib/useBooks";
 import { useRecords } from "@/lib/useRecords";
 import { useSheetStore } from "@/store/useSheetStore";
-import { Book, inferStatus } from "@/types/book";
+import { Book, inferStatus, splitLines } from "@/types/book";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { ArticleSelect } from "./ArticleSelect";
 import { CategorySelect } from "./CategorySelect";
@@ -98,7 +98,11 @@ export function BookForm({
   const back = useSearchParams().get("back");
   const backHref = back ? `/books?${back}` : "/books";
   const { sheetId } = useSheetStore();
-  const { mutate } = useBooks();
+  const { books: allBooks, mutate } = useBooks();
+  // 已經用過的關鍵字拿來當建議，免得同一個東西被打成兩種寫法
+  const keywordSuggestions = [...new Set(allBooks.flatMap((b) => splitLines(b.keywords)))].sort(
+    (a, b) => a.localeCompare(b, "zh-Hant"),
+  );
   // 單字與佳句各自一張表，跟著這本書一起存
   const { vocabulary, quotes, saveBookRows } = useRecords();
   const bookId = book?.id ?? "";
@@ -410,6 +414,7 @@ export function BookForm({
               value={form.keywords}
               onChange={(v) => set("keywords", v)}
               placeholder="京都"
+              suggestions={keywordSuggestions}
             />
           </div>
 

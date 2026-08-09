@@ -30,7 +30,31 @@ export const COLUMN_LABELS: Record<BookField, string> = {
   vocabulary: "單字",
 };
 
-export const BOOK_FIELDS = Object.keys(COLUMN_LABELS) as BookField[];
+/**
+ * app 不再維護的欄位：不會補回缺少的欄，也不會寫入，但表上還在的話仍然讀得到。
+ *
+ * - 佳句、單字：搬到各自的分頁了
+ * - 閱讀狀態：一律由開始／完成日期推導，存一份只是重複
+ *
+ * 從 Sheet 刪掉之後它們不會再長回來。
+ */
+export type LegacyField = "quotes" | "vocabulary" | "status";
+
+/** app 會維護的欄位型別：一定對應得到表頭 */
+export type ManagedField = Exclude<BookField, LegacyField>;
+
+export const LEGACY_FIELDS: LegacyField[] = ["quotes", "vocabulary", "status"];
+
+/** app 會維護的欄位：缺了就補、寫入時一定填 */
+export const BOOK_FIELDS = (Object.keys(COLUMN_LABELS) as BookField[]).filter(
+  (field): field is ManagedField => !LEGACY_FIELDS.includes(field as LegacyField),
+);
+
+/** 讀取時要對應的全部欄位（含已經搬走、但表上可能還在的那些） */
+export const READABLE_FIELDS = Object.keys(COLUMN_LABELS) as BookField[];
+
+/** 維護中的欄位一定有表頭，搬走的不保證還在 */
+export type ColumnMap = Record<ManagedField, string> & Partial<Record<LegacyField, string>>;
 
 /**
  * 中文欄名以外，也接受的舊欄名／別名（比對時忽略大小寫與空白）。
@@ -77,7 +101,7 @@ function aliasesFor(field: BookField): string[] {
  */
 export function mapHeaders(headers: string[]): Partial<Record<BookField, string>> {
   const map: Partial<Record<BookField, string>> = {};
-  for (const field of BOOK_FIELDS) {
+  for (const field of READABLE_FIELDS) {
     const aliases = aliasesFor(field);
     const match = headers.find((h) => aliases.includes(normalize(h)));
     if (match) map[field] = match;

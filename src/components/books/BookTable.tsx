@@ -105,12 +105,15 @@ function DetailField({
   label: string;
   children: React.ReactNode;
 }) {
+  // 空的就整格不畫。留一排「—」只是把卡片撐高，沒有告訴讀者任何事
+  if (children === "" || children === null || children === undefined) return null;
+
   const isText = typeof children === "string" || typeof children === "number";
   return (
     <div className="flex min-w-0 items-center gap-1.5" title={label}>
       <Icon size={13} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
       <div className={`min-w-0 text-xs text-gray-700 md:text-sm ${isText ? "truncate" : ""}`}>
-        {children || "—"}
+        {children}
       </div>
     </div>
   );
@@ -124,19 +127,32 @@ function DetailField({
 function NotesPreview({ book, quotes }: { book: Book; quotes: QuoteRow[] }) {
   const [open, setOpen] = useState<"note" | "quotes" | null>(null);
   const note = book.note.trim();
+  const firstQuote = quotes[0]?.text ?? "";
+
+  // 兩邊都沒東西就整塊不畫，不要留兩個空框把卡片撐高
+  if (!note && !firstQuote) return null;
 
   return (
     <>
       {/* 兩個各自獨立的按鈕：點心得只看心得、點佳句只看佳句 */}
       <div className="grid grid-cols-2 gap-2">
-        <PreviewButton Icon={NotebookPen} label="心得" text={note} onOpen={() => setOpen("note")} />
-        <PreviewButton
-          Icon={Quote}
-          label="佳句"
-          text={quotes[0]?.text ?? ""}
-          extra={quotes.length > 1 ? `${quotes.length} 句` : undefined}
-          onOpen={() => setOpen("quotes")}
-        />
+        {note && (
+          <PreviewButton
+            Icon={NotebookPen}
+            label="心得"
+            text={note}
+            onOpen={() => setOpen("note")}
+          />
+        )}
+        {firstQuote && (
+          <PreviewButton
+            Icon={Quote}
+            label="佳句"
+            text={firstQuote}
+            extra={quotes.length > 1 ? `${quotes.length} 句` : undefined}
+            onOpen={() => setOpen("quotes")}
+          />
+        )}
       </div>
 
       {open && (
@@ -152,7 +168,7 @@ function NotesPreview({ book, quotes }: { book: Book; quotes: QuoteRow[] }) {
   );
 }
 
-/** 沒有內容的那一格也保留位置（顯示破折號），各張卡片的欄位才對得整齊 */
+/** 有內容才會被畫出來，所以這裡不必處理空的情況 */
 function PreviewButton({
   Icon,
   label,
@@ -169,7 +185,6 @@ function PreviewButton({
   return (
     <button
       type="button"
-      disabled={!text}
       title={label}
       onClick={(e) => {
         // 卡片本身會進編輯頁，這裡只開視窗
@@ -178,14 +193,10 @@ function PreviewButton({
       }}
       /* 白底＋細框：卡片列本身的底色會在白、灰、hover 之間變，
          用灰底的話 hover 時就跟背景撞在一起看不見了 */
-      className={`flex min-w-0 items-center gap-1.5 rounded bg-white px-2 py-1 text-left ring-1 ring-gray-200 ${
-        text ? "cursor-pointer hover:ring-gray-400" : "cursor-default"
-      }`}
+      className="flex min-w-0 cursor-pointer items-center gap-1.5 rounded bg-white px-2 py-1 text-left ring-1 ring-gray-200 hover:ring-gray-400"
     >
       <Icon size={13} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
-      <span className="min-w-0 flex-1 truncate text-xs text-gray-600 md:text-sm">
-        {text || "—"}
-      </span>
+      <span className="min-w-0 flex-1 truncate text-xs text-gray-600 md:text-sm">{text}</span>
       {extra && <span className="shrink-0 text-[11px] text-gray-400">{extra}</span>}
     </button>
   );
@@ -278,11 +289,16 @@ function DetailCard({
         </div>
       </div>
 
-      {/* 手機欄位多會太擠，只留兩欄；桌機接在標題下面、與封面並排 */}
-      <div className="col-span-2 grid grid-cols-3 gap-x-3 gap-y-1.5 md:col-span-1 md:col-start-2 md:gap-x-4 md:gap-y-3 lg:grid-cols-5">
-        <DetailField Icon={Store} label="平台">
-          <OptionList values={[book.platform]} />
-        </DetailField>
+      {/*
+        欄位排成會換行的一排，而不是固定格線：空欄位已經整格不畫，
+        用格線的話那些洞會留在原地，卡片看起來又空又長。
+      */}
+      <div className="col-span-2 flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1.5 md:col-span-1 md:col-start-2">
+        {book.platform && (
+          <DetailField Icon={Store} label="平台">
+            <OptionList values={[book.platform]} />
+          </DetailField>
+        )}
         <DetailField Icon={Languages} label="語言">
           {book.language}
         </DetailField>
@@ -298,27 +314,27 @@ function DetailCard({
         <DetailField Icon={Type} label="字數">
           {formatCount(book.wordCount)}
         </DetailField>
-        {/* 領域與屬性不放標題，彩色標籤自己說話 */}
-        <div className="col-span-2 flex min-w-0 flex-wrap items-center gap-1.5 sm:col-span-1 lg:col-span-2">
-          <OptionList values={[book.domain]} />
+        {/* 領域、次領域與屬性不放標題，彩色標籤自己說話 */}
+        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+          <OptionList values={[book.domain, book.subDomain]} />
           <OptionList values={[book.type]} outline />
         </div>
-        <DetailField Icon={LinkIcon} label="來源網址">
-          {book.sourceUrl ? (
+
+        {book.sourceUrl && (
+          <DetailField Icon={LinkIcon} label="來源網址">
             <a
               href={book.sourceUrl}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               title={book.sourceUrl}
-              className="block truncate text-blue-700 underline underline-offset-2 hover:text-blue-900"
+              // 網址又長又不重要，給它一個上限，別讓它吃掉整行
+              className="block max-w-48 truncate text-blue-700 underline underline-offset-2 hover:text-blue-900"
             >
               {book.sourceUrl}
             </a>
-          ) : (
-            ""
-          )}
-        </DetailField>
+          </DetailField>
+        )}
       </div>
 
       {splitLines(book.keywords).length > 0 && (

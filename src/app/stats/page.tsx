@@ -126,8 +126,20 @@ function BooksStats() {
    * 語言與平台只有幾個類別，而且問的本來就是比例，維持圓餅。
    */
   const treemaps = [
-    { key: "domain", label: "領域分布", groups: getDomainGroups(books), data: undefined },
-    { key: "type", label: "屬性分布", data: getTypeDistribution(books), groups: undefined },
+    {
+      key: "domain",
+      label: "領域分布",
+      groups: getDomainGroups(books),
+      data: undefined,
+      colorful: false,
+    },
+    {
+      key: "type",
+      label: "屬性分布",
+      data: getTypeDistribution(books),
+      groups: undefined,
+      colorful: true,
+    },
   ];
 
   const pies = [
@@ -197,7 +209,12 @@ function BooksStats() {
       scrollHeight: "h-80 sm:h-[32rem]",
       node: (
         <Panel>
-          <DistributionTreemap title={chart.label} data={chart.data} groups={chart.groups} />
+          <DistributionTreemap
+            title={chart.label}
+            data={chart.data}
+            groups={chart.groups}
+            colorful={chart.colorful}
+          />
         </Panel>
       ),
     })),

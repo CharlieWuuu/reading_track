@@ -9,7 +9,6 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { CategoryManager } from "@/components/settings/CategoryManager";
 import { DataIssuesPanel } from "@/components/settings/DataIssuesPanel";
 import { InstapaperConnect } from "@/components/settings/InstapaperConnect";
-import { MigrateNotesButton } from "@/components/settings/MigrateNotesButton";
 import { SheetPicker } from "@/components/settings/SheetPicker";
 import { useSheetStore } from "@/store/useSheetStore";
 
@@ -107,14 +106,6 @@ export default function SettingsPage() {
             從網路查書名、作者、書封等資料，補進 Sheet 裡沒填的欄位。 新增一批書之後跑一次就好。
           </p>
           <EnrichButton />
-
-          <div className="mt-6 border-t pt-4">
-            <p className="mb-3 text-xs text-gray-500">
-              把書籍表裡的「單字」「佳句」搬到各自的分頁，一列一筆。
-              只搬不刪，確認新分頁沒問題之後再自己清掉書籍表的舊欄位。
-            </p>
-            <MigrateNotesButton />
-          </div>
 
           <div className="mt-6 border-t pt-4">
             <DataIssuesPanel />
