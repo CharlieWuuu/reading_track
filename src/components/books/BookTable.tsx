@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import {
   CalendarCheck,
   CalendarPlus,
+  ExternalLink,
   FileText,
   Languages,
   Link as LinkIcon,
@@ -260,10 +261,10 @@ function DetailCard({
       onKeyDown={(e) => {
         if (e.key === "Enter") onOpen(href);
       }}
-      className={`grid cursor-pointer grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 p-2.5 md:gap-x-4 md:gap-y-3 md:p-4 ${tone}`}
+      className={`grid cursor-pointer grid-cols-[auto_1fr] gap-x-3 gap-y-2 p-2.5 md:gap-x-4 md:gap-y-2.5 md:p-4 ${tone}`}
     >
-      {/* 桌機：封面跨滿右邊三列（標題／欄位／心得佳句） */}
-      <div className="row-start-1 md:row-span-3">
+      {/* 桌機：封面跨滿右邊兩列（標題／內容） */}
+      <div className="row-start-1 md:row-span-2">
         <DetailCover url={book.coverUrl} title={book.title} />
       </div>
 
@@ -290,90 +291,97 @@ function DetailCard({
       </div>
 
       {/*
-        欄位排成會換行的一排，而不是固定格線：空欄位已經整格不畫，
-        用格線的話那些洞會留在原地，卡片看起來又空又長。
+        內容分左右兩欄：左邊是短欄位（日期、頁數…），右邊是關鍵字、文章、心得佳句。
+        短欄位擠在同一排會被長欄位推得參差不齊，長內容混進去又會把那排撐開。
       */}
-      <div className="col-span-2 flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1.5 md:col-span-1 md:col-start-2">
-        {book.platform && (
-          <DetailField Icon={Store} label="平台">
-            <OptionList values={[book.platform]} />
+      {/* 左欄裝的都是短欄位，只給它一小塊寬度，長內容才拿得到剩下的空間 */}
+      <div className="col-span-2 grid min-w-0 grid-cols-1 gap-x-5 gap-y-2 md:col-span-1 md:col-start-2 md:grid-cols-[minmax(0,17rem)_minmax(0,1fr)]">
+        {/* 左欄的短欄位走兩格格線，圖示才會對齊成兩直排 */}
+        <div className="grid min-w-0 grid-cols-2 items-center gap-x-3 gap-y-1.5 self-start">
+          {book.platform && (
+            <DetailField Icon={Store} label="平台">
+              <OptionList values={[book.platform]} />
+            </DetailField>
+          )}
+          <DetailField Icon={Languages} label="語言">
+            {book.language}
           </DetailField>
-        )}
-        <DetailField Icon={Languages} label="語言">
-          {book.language}
-        </DetailField>
-        <DetailField Icon={CalendarPlus} label="開始日期">
-          {book.startDate}
-        </DetailField>
-        <DetailField Icon={CalendarCheck} label="完成日期">
-          {book.endDate}
-        </DetailField>
-        <DetailField Icon={FileText} label="頁數">
-          {formatCount(book.pageCount)}
-        </DetailField>
-        <DetailField Icon={Type} label="字數">
-          {formatCount(book.wordCount)}
-        </DetailField>
-        {/* 領域、次領域與屬性不放標題，彩色標籤自己說話 */}
-        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-          <OptionList values={[book.domain, book.subDomain]} />
-          <OptionList values={[book.type]} outline />
-        </div>
-
-        {book.sourceUrl && (
-          <DetailField Icon={LinkIcon} label="來源網址">
-            <a
-              href={book.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              title={book.sourceUrl}
-              // 網址又長又不重要，給它一個上限，別讓它吃掉整行
-              className="block max-w-48 truncate text-blue-700 underline underline-offset-2 hover:text-blue-900"
-            >
-              {book.sourceUrl}
-            </a>
+          <DetailField Icon={CalendarPlus} label="開始日期">
+            {book.startDate}
           </DetailField>
-        )}
-      </div>
+          <DetailField Icon={CalendarCheck} label="完成日期">
+            {book.endDate}
+          </DetailField>
+          <DetailField Icon={FileText} label="頁數">
+            {formatCount(book.pageCount)}
+          </DetailField>
+          <DetailField Icon={Type} label="字數">
+            {formatCount(book.wordCount)}
+          </DetailField>
 
-      {splitLines(book.keywords).length > 0 && (
-        <div className="col-span-2 flex min-w-0 flex-wrap items-center gap-1.5 md:col-span-1 md:col-start-2">
-          <Tag size={13} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-          {splitLines(book.keywords).map((keyword) => (
-            <Link
-              key={keyword}
-              href={`/books?keyword=${encodeURIComponent(keyword)}`}
-              onClick={(e) => e.stopPropagation()}
-              className="rounded bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-600 hover:bg-gray-200"
-            >
-              {keyword}
-            </Link>
-          ))}
+          {/* 領域、次領域與屬性不放標題，彩色標籤自己說話 */}
+          <div className="col-span-2 flex min-w-0 flex-wrap items-center gap-1.5">
+            <OptionList values={[book.domain, book.subDomain]} />
+            <OptionList values={[book.type]} outline />
+          </div>
+
+          {book.sourceUrl && (
+            <DetailField Icon={LinkIcon} label="來源網址">
+              {/* 網址本身又長又不好認，只留「來源」兩個字，開新分頁的圖示說明它會跳走 */}
+              <a
+                href={book.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                title={book.sourceUrl}
+                className="inline-flex items-center gap-1 text-blue-700 underline underline-offset-2 hover:text-blue-900"
+              >
+                來源
+                <ExternalLink size={12} strokeWidth={1.5} aria-hidden />
+              </a>
+            </DetailField>
+          )}
         </div>
-      )}
 
-      {splitLines(book.relatedArticles).length > 0 && (
-        <div className="col-span-2 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 md:col-span-1 md:col-start-2">
-          <Newspaper size={13} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-          {splitLines(book.relatedArticles).map((url) => (
-            <a
-              key={url}
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              title={url}
-              className="min-w-0 truncate text-[11px] text-blue-700 underline underline-offset-2 hover:text-blue-900"
-            >
-              {articleTitles.get(url) ?? url}
-            </a>
-          ))}
+        {/* 右欄：三塊都是會換行的長內容，直接一塊疊一塊 */}
+        <div className="flex min-w-0 flex-col gap-2 self-start md:border-l md:border-gray-100 md:pl-5">
+          {splitLines(book.keywords).length > 0 && (
+            <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+              <Tag size={13} strokeWidth={1.5} className="shrink-0 text-gray-400" />
+              {splitLines(book.keywords).map((keyword) => (
+                <Link
+                  key={keyword}
+                  href={`/books?keyword=${encodeURIComponent(keyword)}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="rounded bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-600 hover:bg-gray-200"
+                >
+                  {keyword}
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {splitLines(book.relatedArticles).length > 0 && (
+            <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+              <Newspaper size={13} strokeWidth={1.5} className="shrink-0 text-gray-400" />
+              {splitLines(book.relatedArticles).map((url) => (
+                <a
+                  key={url}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  title={url}
+                  className="min-w-0 truncate text-[11px] text-blue-700 underline underline-offset-2 hover:text-blue-900"
+                >
+                  {articleTitles.get(url) ?? url}
+                </a>
+              ))}
+            </div>
+          )}
+
+          <NotesPreview book={book} quotes={quotes} />
         </div>
-      )}
-
-      <div className="col-span-2 md:col-span-1 md:col-start-2">
-        <NotesPreview book={book} quotes={quotes} />
       </div>
     </div>
   );
