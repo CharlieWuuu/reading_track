@@ -246,14 +246,16 @@ export function MonthGrid({
                   setPopupTime(day.date.getTime());
                 }
               }}
-              className={`min-h-28 cursor-pointer overflow-hidden p-1.5 text-left ${isLastCol ? "" : "border-r"} ${
-                isLastRow ? "" : "border-b"
-              } ${
+              className={
                 day.inCurrentMonth
-                  ? "bg-white hover:bg-gray-50"
+                  ? // 當月四邊都框起來；負邊界讓相鄰的框疊在一起，不會變兩倍粗，
+                    // z-10 則讓黑框壓過隔壁非當月的淡格線
+                    "relative z-10 -mr-px -mb-px min-h-28 cursor-pointer overflow-hidden border border-gray-900 bg-white p-1.5 text-left hover:bg-gray-50"
                   : // 非當月只有格線淡一階；整格降透明度會連書封一起變灰，反而髒
-                    "border-gray-100 bg-gray-50 hover:bg-gray-100"
-              }`}
+                    `min-h-28 cursor-pointer overflow-hidden border-gray-100 bg-gray-50 p-1.5 text-left hover:bg-gray-100 ${
+                      isLastCol ? "" : "border-r"
+                    } ${isLastRow ? "" : "border-b"}`
+              }
             >
               {/* 日期與書封並排，省下日期獨占的那一行高度 */}
               <div className="flex items-start gap-1">
