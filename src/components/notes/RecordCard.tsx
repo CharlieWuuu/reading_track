@@ -2,10 +2,11 @@
 
 const styles = {
   // 不畫框，改用分隔線隔開：一頁很多則的時候，滿版的框線比內容還搶眼
-  card: "flex cursor-pointer items-start gap-3 py-4 hover:bg-gray-50",
-  cover: "aspect-2/3 w-14 shrink-0 rounded-sm object-cover shadow ring-1 ring-black/10",
+  card: "flex cursor-pointer items-start gap-3 py-3 hover:bg-gray-50 md:py-4",
+  // 手機封面縮一號，長句才不會被擠成又細又長的一條
+  cover: "aspect-2/3 w-10 shrink-0 rounded-sm object-cover shadow ring-1 ring-black/10 md:w-14",
   blank:
-    "flex aspect-2/3 w-14 shrink-0 items-center justify-center rounded-sm bg-gray-100 text-[10px] leading-tight text-gray-400",
+    "flex aspect-2/3 w-10 shrink-0 items-center justify-center rounded-sm bg-gray-100 text-[10px] leading-tight text-gray-400 md:w-14",
   body: "flex min-w-0 flex-1 flex-col gap-2",
   head: "flex min-w-0 items-baseline gap-2",
   // 書名是這一則的標題，不是附註，所以比內文大一級也粗一點

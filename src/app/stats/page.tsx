@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
+import { CalendarBody } from "@/components/calendar/CalendarBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { ArticleKpiCards } from "@/components/stats/ArticleKpiCards";
@@ -40,12 +41,14 @@ import { useUrlParams } from "@/lib/useUrlParam";
 import { useInstapaperStore } from "@/store/useInstapaperStore";
 import { useSheetStore } from "@/store/useSheetStore";
 
-const TABS = [
+type Tab = "books" | "articles" | "calendar";
+
+const TABS: { key: Tab; label: string; mobileOnly?: boolean }[] = [
   { key: "books", label: "書籍" },
   { key: "articles", label: "文章" },
-] as const;
-
-type Tab = (typeof TABS)[number]["key"];
+  // 手機底部只有五格，月曆挪進來當分頁，空出來的那格給「筆記」；桌機側欄仍是獨立一頁
+  { key: "calendar", label: "月曆", mobileOnly: true },
+];
 
 function TabButton({
   active,
@@ -455,8 +458,11 @@ function ArticlesStats() {
 function StatsTabs() {
   // 檢視哪一邊寫在網址上，重新整理或分享連結都回得到同一個畫面；預設書籍
   const { searchParams, setParams } = useUrlParams();
+  const isMobile = useIsMobile();
   const param = searchParams.get("tab");
-  const tab: Tab = param === "articles" ? "articles" : "books";
+  // 桌機沒有月曆這一頁，網址帶著也退回書籍
+  const tab: Tab =
+    param === "articles" ? "articles" : param === "calendar" && isMobile ? "calendar" : "books";
   const setTab = (next: Tab) => setParams({ tab: next === "books" ? null : next });
 
   return (
@@ -465,7 +471,7 @@ function StatsTabs() {
         title="統計"
         action={
           <div className="flex items-center gap-1 rounded-lg border p-1">
-            {TABS.map((t) => (
+            {TABS.filter((t) => !t.mobileOnly || isMobile).map((t) => (
               <TabButton key={t.key} active={tab === t.key} onClick={() => setTab(t.key)}>
                 {t.label}
               </TabButton>
@@ -473,7 +479,7 @@ function StatsTabs() {
           </div>
         }
       />
-      {tab === "books" ? <BooksStats /> : <ArticlesStats />}
+      {tab === "calendar" ? <CalendarBody /> : tab === "books" ? <BooksStats /> : <ArticlesStats />}
     </>
   );
 }

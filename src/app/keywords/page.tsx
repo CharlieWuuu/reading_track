@@ -2,8 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { Suspense, useState } from "react";
-import { KeywordCard } from "@/components/keywords/KeywordCard";
-import { KeywordEditDialog } from "@/components/keywords/KeywordEditDialog";
+import { KeywordCards } from "@/components/keywords/KeywordCards";
 import { KeywordTimeline } from "@/components/keywords/KeywordTimeline";
 import { KeywordTreemap } from "@/components/keywords/KeywordTreemap";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -14,7 +13,6 @@ import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { useMounted } from "@/lib/useMounted";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { useSheetStore } from "@/store/useSheetStore";
-import { EMPTY_KEYWORD_INFO } from "@/types/keyword";
 
 /** leaflet 直接碰 window，不能在伺服器端預先產生 */
 const KeywordMap = dynamic(
@@ -31,7 +29,6 @@ const styles = {
   // 圖表與地圖各自吃滿一頁，不再上下疊
 
   panel: "rounded-lg border bg-white p-4 md:p-5",
-  cards: "grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3",
   action: "flex items-stretch gap-2",
   enrich:
     "flex items-center rounded border px-3 text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50",
@@ -78,8 +75,7 @@ function Keywords() {
   const { sheetId } = useSheetStore();
   const mounted = useMounted();
   const { books, isLoading, error } = useBooks();
-  const { byName, enrich, save } = useKeywordInfos();
-  const [editingKeyword, setEditingKeyword] = useState<string | null>(null);
+  const { byName, enrich } = useKeywordInfos();
   const [enriching, setEnriching] = useState(false);
   const [note, setNote] = useState("");
 
@@ -185,25 +181,8 @@ function Keywords() {
         </div>
       ) : (
         <div className={styles.body}>
-          <div className={styles.cards}>
-            {entries.map((entry) => (
-              <KeywordCard
-                key={entry.name}
-                entry={entry}
-                info={byName.get(entry.name)}
-                onEdit={() => setEditingKeyword(entry.name)}
-              />
-            ))}
-          </div>
+          <KeywordCards books={books} />
         </div>
-      )}
-
-      {editingKeyword && (
-        <KeywordEditDialog
-          info={byName.get(editingKeyword) ?? { name: editingKeyword, ...EMPTY_KEYWORD_INFO }}
-          onSave={save}
-          onClose={() => setEditingKeyword(null)}
-        />
       )}
     </>
   );

@@ -2,13 +2,16 @@
 
 import { Suspense, useState } from "react";
 import { Quote as QuoteIcon } from "lucide-react";
+import { KeywordCards } from "@/components/keywords/KeywordCards";
 import { BooksGate } from "@/components/layout/BooksGate";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { NoteEditDialog } from "@/components/notes/NoteEditDialog";
 import { QuoteEditDialog } from "@/components/notes/QuoteEditDialog";
 import { RecordCard } from "@/components/notes/RecordCard";
+import { VocabularySection } from "@/components/notes/VocabularySection";
 import { useBookPatch } from "@/lib/useBookPatch";
+import { useIsMobile } from "@/lib/useIsMobile";
 import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { getNoteRecords, getQuoteRecords, NoteRecord, QuoteRecord } from "@/lib/vocabularyStats";
@@ -30,12 +33,18 @@ const styles = {
   note: "border-l-2 pl-2 text-xs leading-relaxed text-gray-500",
 };
 
-const TABS = [
+type Tab = "notes" | "quotes" | "vocabulary" | "keywords";
+
+/**
+ * 手機底部導覽只有五格，單字與關鍵字塞不進去，改成掛在筆記底下——
+ * 它們本來就都是「從書裡摘出來的東西」。桌機側欄有各自的頁，就不重複。
+ */
+const TABS: { key: Tab; label: string; mobileOnly?: boolean }[] = [
   { key: "notes", label: "心得" },
   { key: "quotes", label: "佳句" },
-] as const;
-
-type Tab = (typeof TABS)[number]["key"];
+  { key: "vocabulary", label: "單字", mobileOnly: true },
+  { key: "keywords", label: "關鍵字", mobileOnly: true },
+];
 
 type TabButtonProps = {
   active: boolean;
@@ -137,7 +146,11 @@ function Notes({ books }: { books: Book[] }) {
 function NotesTabs() {
   // 看哪一邊寫在網址上，重新整理或分享連結都回得到同一個畫面；預設心得
   const { searchParams, setParams } = useUrlParams();
-  const tab: Tab = searchParams.get("tab") === "quotes" ? "quotes" : "notes";
+  const isMobile = useIsMobile();
+  const param = searchParams.get("tab");
+  const available = TABS.filter((t) => !t.mobileOnly || isMobile);
+  // 桌機沒有單字／關鍵字這兩頁，網址帶著也退回心得
+  const tab: Tab = available.some((t) => t.key === param) ? (param as Tab) : "notes";
   const setTab = (next: Tab) => setParams({ tab: next === "notes" ? null : next });
 
   return (
@@ -146,7 +159,7 @@ function NotesTabs() {
         title="筆記"
         action={
           <div className={styles.tabs}>
-            {TABS.map((t) => (
+            {available.map((t) => (
               <TabButton key={t.key} active={tab === t.key} onClick={() => setTab(t.key)}>
                 {t.label}
               </TabButton>
@@ -155,7 +168,17 @@ function NotesTabs() {
         }
       />
       <BooksGate>
-        {(books) => (tab === "notes" ? <Notes books={books} /> : <Quotes books={books} />)}
+        {(books) =>
+          tab === "keywords" ? (
+            <KeywordCards books={books} />
+          ) : tab === "vocabulary" ? (
+            <VocabularySection books={books} />
+          ) : tab === "quotes" ? (
+            <Quotes books={books} />
+          ) : (
+            <Notes books={books} />
+          )
+        }
       </BooksGate>
     </>
   );

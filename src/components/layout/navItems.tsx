@@ -50,10 +50,15 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: "/notes",
     label: "筆記",
-    sidebarOnly: true,
     Icon: () => <NotebookPen size={20} strokeWidth={1.5} />,
   },
   { href: "/stats", label: "統計", Icon: () => <ChartPie size={20} strokeWidth={1.5} /> },
-  { href: "/calendar", label: "月曆", Icon: () => <CalendarDays size={20} strokeWidth={1.5} /> },
+  // 月曆在手機是統計頁的一個分頁，底部那格讓給筆記
+  {
+    href: "/calendar",
+    label: "月曆",
+    sidebarOnly: true,
+    Icon: () => <CalendarDays size={20} strokeWidth={1.5} />,
+  },
   { href: "/settings", label: "設定", Icon: () => <Settings size={20} strokeWidth={1.5} /> },
 ];
