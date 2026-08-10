@@ -2,6 +2,7 @@
 
 import { Suspense } from "react";
 import { CalendarBody } from "@/components/calendar/CalendarBody";
+import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { ArticleKpiCards } from "@/components/stats/ArticleKpiCards";
@@ -479,7 +480,15 @@ function StatsTabs() {
           </div>
         }
       />
-      {tab === "calendar" ? <CalendarBody /> : tab === "books" ? <BooksStats /> : <ArticlesStats />}
+      <PageBody>
+        {tab === "calendar" ? (
+          <CalendarBody />
+        ) : tab === "books" ? (
+          <BooksStats />
+        ) : (
+          <ArticlesStats />
+        )}
+      </PageBody>
     </>
   );
 }

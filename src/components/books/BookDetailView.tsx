@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
+import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { TagList as OptionList, StatusBadge } from "@/components/ui/TagBadge";
@@ -40,9 +41,7 @@ function Cover({ url, title }: { url: string; title: string }) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="flex flex-col gap-3">
-      <h3 className="border-b border-gray-200 pb-1.5 text-xs text-gray-400">
-        {title}
-      </h3>
+      <h3 className="border-b border-gray-200 pb-1.5 text-xs text-gray-400">{title}</h3>
       {children}
     </section>
   );
@@ -215,111 +214,105 @@ export function BookDetailView() {
     <>
       <PageHeader
         title="書籍資訊"
+        backHref={backHref}
         action={
-          <div className="flex items-center gap-2">
-            <Link
-              href={backHref}
-              className="flex h-8 items-center gap-1 rounded border px-3 text-sm text-gray-600 hover:bg-gray-100 md:h-9"
-            >
-              <ArrowLeft size={14} strokeWidth={1.5} aria-hidden />
-              返回
-            </Link>
-            <Link
-              href={`/books/${book.id}/edit${back ? `?back=${encodeURIComponent(back)}` : ""}`}
-              className="flex h-8 items-center rounded bg-gray-900 px-3 text-sm font-medium text-white hover:bg-gray-700 md:h-9 md:px-4"
-            >
-              編輯
-            </Link>
-          </div>
+          <Link
+            href={`/books/${book.id}/edit${back ? `?back=${encodeURIComponent(back)}` : ""}`}
+            className="flex h-8 items-center rounded bg-gray-900 px-3 text-sm font-medium text-white hover:bg-gray-700 md:h-9 md:px-4"
+          >
+            編輯
+          </Link>
         }
       />
 
       {/* 一份文件：單欄、靠章節標題分段，不切成一張張卡片 */}
-      <article className="flex w-full flex-col gap-8">
-        {/* 書名頁：封面在左，右邊一條垂直線隔開書名與所有欄位 */}
-        {/* 不設 items-start，右欄才會被拉到跟封面一樣高，那條垂直線就不會半途斷掉 */}
-        <header className="flex gap-4 md:gap-6">
-          <Cover url={book.coverUrl} title={book.title} />
-          <div className="flex min-w-0 flex-1 flex-col gap-4 border-l border-gray-200 pl-4 md:pl-6">
-            <h2 className="text-xl leading-snug font-semibold break-words text-gray-900 md:text-2xl">
-              {book.title}
-            </h2>
-            <BookFacts book={book} />
-          </div>
-        </header>
-
-        {/* 書本身的事實在上面的書名頁；這一節以下全是我加上去的，用章節線隔開 */}
-        <Section title="標記">
-          <MyMarks book={book} />
-        </Section>
-
-        {keywords.length > 0 && (
-          <Section title="關鍵字">
-            <div className="flex flex-wrap items-center gap-1.5">
-              {keywords.map((keyword) => (
-                <Link
-                  key={keyword}
-                  href={`/books?keyword=${encodeURIComponent(keyword)}`}
-                  className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200"
-                >
-                  {keyword}
-                </Link>
-              ))}
+      <PageBody>
+        <article className="flex w-full flex-col gap-8 pb-4">
+          {/* 書名頁：封面在左，右邊一條垂直線隔開書名與所有欄位 */}
+          {/* 不設 items-start，右欄才會被拉到跟封面一樣高，那條垂直線就不會半途斷掉 */}
+          <header className="flex gap-4 md:gap-6">
+            <Cover url={book.coverUrl} title={book.title} />
+            <div className="flex min-w-0 flex-1 flex-col gap-4 border-l border-gray-200 pl-4 md:pl-6">
+              <h2 className="text-xl leading-snug font-semibold break-words text-gray-900 md:text-2xl">
+                {book.title}
+              </h2>
+              <BookFacts book={book} />
             </div>
-          </Section>
-        )}
+          </header>
 
-        {bookQuotes.length > 0 && (
-          <Section title="佳句">
-            <ul className="flex flex-col gap-5">
-              {bookQuotes.map((row) => (
-                <QuoteItem key={row.id} quote={row} />
-              ))}
-            </ul>
+          {/* 書本身的事實在上面的書名頁；這一節以下全是我加上去的，用章節線隔開 */}
+          <Section title="標記">
+            <MyMarks book={book} />
           </Section>
-        )}
 
-        {bookVocabulary.length > 0 && (
-          <Section title="單字">
-            <ul className="flex flex-col gap-4">
-              {bookVocabulary.map((row) => (
-                <VocabularyItem key={row.id} row={row} />
-              ))}
-            </ul>
-          </Section>
-        )}
-
-        {note && (
-          <Section title="心得">
-            {/* 心得是這一頁唯一的長文，用襯線字與寬行距，看起來就是一段文章 */}
-            {/* 只有這一段限行長：一行拉到整個寬螢幕會讀不下去，短欄位則沒這問題 */}
-            <p className="max-w-3xl font-serif text-[15px] leading-[1.9] whitespace-pre-wrap text-gray-800 md:text-base">
-              {note}
-            </p>
-          </Section>
-        )}
-
-        {relatedArticles.length > 0 && (
-          <Section title="相關文章">
-            <ul className="flex flex-col gap-1.5">
-              {relatedArticles.map((url) => (
-                <li key={url} className="min-w-0">
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={url}
-                    className="inline-flex max-w-full items-center gap-1 text-sm text-blue-700 underline underline-offset-2 hover:text-blue-900"
+          {keywords.length > 0 && (
+            <Section title="關鍵字">
+              <div className="flex flex-wrap items-center gap-1.5">
+                {keywords.map((keyword) => (
+                  <Link
+                    key={keyword}
+                    href={`/books?keyword=${encodeURIComponent(keyword)}`}
+                    className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200"
                   >
-                    <span className="truncate">{articleTitles.get(url) ?? url}</span>
-                    <ExternalLink size={12} strokeWidth={1.5} className="shrink-0" aria-hidden />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </Section>
-        )}
-      </article>
+                    {keyword}
+                  </Link>
+                ))}
+              </div>
+            </Section>
+          )}
+
+          {bookQuotes.length > 0 && (
+            <Section title="佳句">
+              <ul className="flex flex-col gap-5">
+                {bookQuotes.map((row) => (
+                  <QuoteItem key={row.id} quote={row} />
+                ))}
+              </ul>
+            </Section>
+          )}
+
+          {bookVocabulary.length > 0 && (
+            <Section title="單字">
+              <ul className="flex flex-col gap-4">
+                {bookVocabulary.map((row) => (
+                  <VocabularyItem key={row.id} row={row} />
+                ))}
+              </ul>
+            </Section>
+          )}
+
+          {note && (
+            <Section title="心得">
+              {/* 心得是這一頁唯一的長文，用襯線字與寬行距，看起來就是一段文章 */}
+              {/* 只有這一段限行長：一行拉到整個寬螢幕會讀不下去，短欄位則沒這問題 */}
+              <p className="max-w-3xl font-serif text-[15px] leading-[1.9] whitespace-pre-wrap text-gray-800 md:text-base">
+                {note}
+              </p>
+            </Section>
+          )}
+
+          {relatedArticles.length > 0 && (
+            <Section title="相關文章">
+              <ul className="flex flex-col gap-1.5">
+                {relatedArticles.map((url) => (
+                  <li key={url} className="min-w-0">
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={url}
+                      className="inline-flex max-w-full items-center gap-1 text-sm text-blue-700 underline underline-offset-2 hover:text-blue-900"
+                    >
+                      <span className="truncate">{articleTitles.get(url) ?? url}</span>
+                      <ExternalLink size={12} strokeWidth={1.5} className="shrink-0" aria-hidden />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          )}
+        </article>
+      </PageBody>
     </>
   );
 }

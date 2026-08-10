@@ -25,8 +25,9 @@ export function PullToRefresh({ scrollRef }: { scrollRef: RefObject<HTMLElement 
     let startY: number | null = null;
 
     function onTouchStart(e: TouchEvent) {
-      // 只有在最頂端往下拉才算，否則會跟正常捲動打架
-      startY = el!.scrollTop <= 0 ? e.touches[0].clientY : null;
+      // 捲的是頁面內容區（PageBody），只有在它最頂端往下拉才算，否則會跟正常捲動打架
+      const scroller = el!.querySelector("[data-scroll]");
+      startY = (scroller?.scrollTop ?? 0) <= 0 ? e.touches[0].clientY : null;
     }
 
     function onTouchMove(e: TouchEvent) {

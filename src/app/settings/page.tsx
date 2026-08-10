@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { SignInPrompt } from "@/components/auth/SignInPrompt";
 import { EnrichButton } from "@/components/books/EnrichButton";
+import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CategoryManager } from "@/components/settings/CategoryManager";
 import { DataIssuesPanel } from "@/components/settings/DataIssuesPanel";
@@ -136,9 +137,11 @@ export default function SettingsPage() {
           </div>
         }
       />
-      <div className="shrink-0 rounded-lg border bg-white p-4 md:min-h-0 md:flex-1 md:overflow-y-auto md:p-5">
-        {tabs.find((t) => t.key === tab)?.node}
-      </div>
+      <PageBody>
+        <div className="shrink-0 rounded-lg border bg-white p-4 md:min-h-0 md:flex-1 md:overflow-y-auto md:p-5">
+          {tabs.find((t) => t.key === tab)?.node}
+        </div>
+      </PageBody>
     </>
   );
 }

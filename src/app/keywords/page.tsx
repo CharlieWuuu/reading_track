@@ -5,6 +5,7 @@ import { Suspense, useState } from "react";
 import { KeywordCards } from "@/components/keywords/KeywordCards";
 import { KeywordTimeline } from "@/components/keywords/KeywordTimeline";
 import { KeywordTreemap } from "@/components/keywords/KeywordTreemap";
+import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { getKeywordEntries } from "@/lib/keywordStats";
@@ -145,45 +146,47 @@ function Keywords() {
         }
       />
 
-      {!mounted ? null : !sheetId ? (
-        <PageMessage>請先到「設定」頁面連接 Google Sheet</PageMessage>
-      ) : isLoading ? (
-        <PageMessage>載入中…</PageMessage>
-      ) : error ? (
-        <PageMessage tone="error">{error}</PageMessage>
-      ) : entries.length === 0 ? (
-        <PageMessage>還沒有任何關鍵字，先到書籍的「關鍵字」欄記幾個</PageMessage>
-      ) : tab === "chart" ? (
-        <div className={styles.body}>
-          <div className={`${styles.panel} ${styles.full}`}>
-            <p className={styles.panelTitle}>依學科分群（格子大小＝被幾本書提到）</p>
-            <div className={styles.chart}>
-              <KeywordTreemap entries={entries} infos={byName} />
+      <PageBody>
+        {!mounted ? null : !sheetId ? (
+          <PageMessage>請先到「設定」頁面連接 Google Sheet</PageMessage>
+        ) : isLoading ? (
+          <PageMessage>載入中…</PageMessage>
+        ) : error ? (
+          <PageMessage tone="error">{error}</PageMessage>
+        ) : entries.length === 0 ? (
+          <PageMessage>還沒有任何關鍵字，先到書籍的「關鍵字」欄記幾個</PageMessage>
+        ) : tab === "chart" ? (
+          <div className={styles.body}>
+            <div className={`${styles.panel} ${styles.full}`}>
+              <p className={styles.panelTitle}>依學科分群（格子大小＝被幾本書提到）</p>
+              <div className={styles.chart}>
+                <KeywordTreemap entries={entries} infos={byName} />
+              </div>
             </div>
           </div>
-        </div>
-      ) : tab === "timeline" ? (
-        <div className={styles.body}>
-          <div className={`${styles.panel} ${styles.full}`}>
-            <p className={styles.panelTitle}>有生卒／起訖的關鍵字</p>
-            <div className={styles.chart}>
-              <KeywordTimeline entries={entries} infos={byName} />
+        ) : tab === "timeline" ? (
+          <div className={styles.body}>
+            <div className={`${styles.panel} ${styles.full}`}>
+              <p className={styles.panelTitle}>有生卒／起訖的關鍵字</p>
+              <div className={styles.chart}>
+                <KeywordTimeline entries={entries} infos={byName} />
+              </div>
             </div>
           </div>
-        </div>
-      ) : tab === "map" ? (
-        <div className={styles.body}>
-          <div className={`${styles.panel} ${styles.full}`}>
-            <div className={styles.chart}>
-              <KeywordMap books={books} infos={byName} />
+        ) : tab === "map" ? (
+          <div className={styles.body}>
+            <div className={`${styles.panel} ${styles.full}`}>
+              <div className={styles.chart}>
+                <KeywordMap books={books} infos={byName} />
+              </div>
             </div>
           </div>
-        </div>
-      ) : (
-        <div className={styles.body}>
-          <KeywordCards books={books} />
-        </div>
-      )}
+        ) : (
+          <div className={styles.body}>
+            <KeywordCards books={books} />
+          </div>
+        )}
+      </PageBody>
     </>
   );
 }

@@ -142,7 +142,11 @@ export function BookForm({
   // 從書單進來時會帶著檢視方式與頁碼，存完要回到同一頁
   const { searchParams, setParams } = useUrlParams();
   const back = searchParams.get("back");
-  const backHref = back ? `/books?${back}` : "/books";
+  const listHref = back ? `/books?${back}` : "/books";
+  // 編輯是從書籍資訊進來的，離開就回那一頁；新增沒有資訊頁可回，直接回書單
+  const backHref = book
+    ? `/books/${book.id}${back ? `?back=${encodeURIComponent(back)}` : ""}`
+    : listHref;
 
   // 看哪一頁寫在網址上，重新整理或分享連結都回得到同一個分頁；預設書籍資訊
   const tabParam = searchParams.get("tab");
@@ -328,7 +332,7 @@ export function BookForm({
         (current) => ({ books: (current?.books ?? []).filter((b) => b.id !== book.id) }),
         { revalidate: false },
       );
-      router.push(backHref);
+      router.push(listHref);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "刪除失敗");
       setSubmitting(false);

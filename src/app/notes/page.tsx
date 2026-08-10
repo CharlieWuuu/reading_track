@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { Quote as QuoteIcon } from "lucide-react";
 import { KeywordCards } from "@/components/keywords/KeywordCards";
 import { BooksGate } from "@/components/layout/BooksGate";
+import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { NoteEditDialog } from "@/components/notes/NoteEditDialog";
@@ -167,19 +168,21 @@ function NotesTabs() {
           </div>
         }
       />
-      <BooksGate>
-        {(books) =>
-          tab === "keywords" ? (
-            <KeywordCards books={books} />
-          ) : tab === "vocabulary" ? (
-            <VocabularySection books={books} />
-          ) : tab === "quotes" ? (
-            <Quotes books={books} />
-          ) : (
-            <Notes books={books} />
-          )
-        }
-      </BooksGate>
+      <PageBody>
+        <BooksGate>
+          {(books) =>
+            tab === "keywords" ? (
+              <KeywordCards books={books} />
+            ) : tab === "vocabulary" ? (
+              <VocabularySection books={books} />
+            ) : tab === "quotes" ? (
+              <Quotes books={books} />
+            ) : (
+              <Notes books={books} />
+            )
+          }
+        </BooksGate>
+      </PageBody>
     </>
   );
 }
