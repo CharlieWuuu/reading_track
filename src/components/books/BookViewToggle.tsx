@@ -1,18 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
-import { LayoutGrid, Rows3, StretchHorizontal } from "lucide-react";
+import { LayoutGrid, Rows3 } from "lucide-react";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { BookViewMode, isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
 
 const OPTIONS: Array<{ id: BookViewMode; label: string; Icon: () => React.ReactElement }> = [
   { id: "table", label: "表格", Icon: () => <Rows3 size={16} strokeWidth={1.5} /> },
   { id: "card", label: "書封", Icon: () => <LayoutGrid size={16} strokeWidth={1.5} /> },
-  {
-    id: "detail",
-    label: "詳細資料",
-    Icon: () => <StretchHorizontal size={16} strokeWidth={1.5} />,
-  },
 ];
 
 /** 檢視切換：放在頁首那一列，不再另外佔一整行 */

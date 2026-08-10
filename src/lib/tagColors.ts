@@ -51,6 +51,23 @@ export const TAG_OUTLINE_COLORS = [
 ];
 
 /**
+ * 依「欄位」上色：所有領域同一個顏色、所有次領域同一個顏色。
+ *
+ * 一列裡並排的標籤，讀者要先知道「這是哪一種分類」，才輪到「是哪一個值」。
+ * 逐個標籤配色的話同一列會出現五種顏色，看起來像五件不重要的事各喊各的。
+ * 次領域用領域的外框版：同一個色系代表它們是同一件事的粗細兩層。
+ */
+export const TAG_TONES = {
+  domain: "bg-[#DFEDE7] text-[#3F7A67]",
+  subDomain: "text-[#3F7A67] ring-1 ring-inset ring-[#BBD8CD]",
+  platform: "bg-[#E2ECF5] text-[#3D6E92]",
+  type: "text-[#A85B41] ring-1 ring-inset ring-[#E6C3B4]",
+  language: "bg-[#F7EDCF] text-[#8A6D1B]",
+} as const;
+
+export type TagTone = keyof typeof TAG_TONES;
+
+/**
  * 選項全部串起來當作配色順序，各類別之間也不會撞色。
  *
  * 各組都用 `?? []` 兜底：本機快取（swrCache）裡可能還躺著舊版本的回應，

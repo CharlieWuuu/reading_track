@@ -3,10 +3,9 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
-import { StatusBadge } from "@/components/books/BookDetailCard";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
-import { TagList as OptionList } from "@/components/ui/TagBadge";
+import { TagList as OptionList, StatusBadge } from "@/components/ui/TagBadge";
 import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
 import { useArticles } from "@/lib/useArticles";
 import { useBooks } from "@/lib/useBooks";
@@ -110,7 +109,9 @@ function BookFields({ book }: { book: Book }) {
         </Field>
         <Field label="作者">{book.author}</Field>
         <Field label="出版社">{book.publisher}</Field>
-        <Field label="平台">{book.platform && <OptionList values={[book.platform]} />}</Field>
+        <Field label="平台">
+          {book.platform && <OptionList values={[book.platform]} tone="platform" />}
+        </Field>
         <Field label="語言">{book.language}</Field>
         <Field label="來源">
           {book.sourceUrl && (
@@ -133,9 +134,14 @@ function BookFields({ book }: { book: Book }) {
         <Field label="頁數">{formatCount(book.pageCount)}</Field>
         <Field label="字數">{formatCount(book.wordCount)}</Field>
         <Field label="領域">
-          {(book.domain || book.subDomain) && <OptionList values={[book.domain, book.subDomain]} />}
+          {(book.domain || book.subDomain) && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <OptionList values={[book.domain]} tone="domain" />
+              <OptionList values={[book.subDomain]} tone="subDomain" />
+            </div>
+          )}
         </Field>
-        <Field label="屬性">{book.type && <OptionList values={[book.type]} outline />}</Field>
+        <Field label="屬性">{book.type && <OptionList values={[book.type]} tone="type" />}</Field>
       </div>
     </div>
   );

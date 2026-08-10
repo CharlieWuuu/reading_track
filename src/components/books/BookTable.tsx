@@ -5,18 +5,13 @@ import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { Tag } from "lucide-react";
 import { PageMessage } from "@/components/layout/PageMessage";
-import { TagList as OptionList } from "@/components/ui/TagBadge";
-import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
-import { useArticles } from "@/lib/useArticles";
+import { TagList as OptionList, STATUS_STYLES, StatusBadge } from "@/components/ui/TagBadge";
 import { useBooks } from "@/lib/useBooks";
 import { useMounted } from "@/lib/useMounted";
-import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Book, ReadingStatus, splitLines } from "@/types/book";
-import { QuoteRow } from "@/types/record";
-import { BookDetailCard, StatusBadge, STATUS_STYLES } from "./BookDetailCard";
 
 /** width：表格列不需要看清楚封面，小一點可以讓書名多拿一些寬度 */
 function Cover({ url, title, width = "w-10" }: { url: string; title: string; width?: string }) {
@@ -159,24 +154,6 @@ export function BookTable() {
     ? allBooks.filter((b) => splitLines(b.keywords).includes(keyword))
     : allBooks;
   const clearKeyword = () => setParams({ keyword: null });
-  // 相關文章存的是網址，標題從已經抓下來的 Instapaper 清單對回去。
-  // 兩種網址都收：使用者可能貼 Instapaper 的閱讀頁，也可能貼原文網址。
-  // 對不到（沒連 Instapaper、文章已刪）就顯示網址本身，不會壞。
-  const { articles } = useArticles();
-  // 佳句在自己的分頁裡，先按書分好組再發給每一張卡片
-  const { quotes } = useRecords();
-  const quotesByBook = new Map<string, QuoteRow[]>();
-  for (const row of quotes) {
-    const list = quotesByBook.get(row.bookId);
-    if (list) list.push(row);
-    else quotesByBook.set(row.bookId, [row]);
-  }
-  const articleTitles = new Map<string, string>();
-  for (const a of articles) {
-    const title = a.title || a.url;
-    if (a.url) articleTitles.set(a.url, title);
-    articleTitles.set(instapaperReadUrl(a.bookmark_id, a.url), title);
-  }
   // 帶著目前的檢視進詳細頁，一路傳到編輯頁，存檔後才回得到同一個畫面
   const query = searchParams.toString();
   const detailHref = (id: string) =>
@@ -202,30 +179,6 @@ export function BookTable() {
       <div className="flex w-full flex-col gap-3">
         {keyword && <KeywordFilter keyword={keyword} count={0} onClear={clearKeyword} />}
         <PageMessage>{keyword ? "沒有書提到這個關鍵字" : "尚未新增任何書籍"}</PageMessage>
-      </div>
-    );
-  }
-
-  if (view === "detail") {
-    return (
-      <div>
-        {/* 詳細檢視：一本一張橫式卡片，欄位全開，所以一頁只放得下兩三本 */}
-        {/* 間距放在每一列內部，不用 gap——有縫的話年度底色就連不起來 */}
-        <ul className="overflow-hidden rounded-lg border bg-white">
-          {books.map((b, i) => (
-            <li key={b.id || `detail-${i}`} className="border-t first:border-t-0">
-              <BookDetailCard
-                book={b}
-                href={detailHref(b.id)}
-                number={numbers.get(b.id)}
-                onOpen={router.push}
-                tone={`${rowTone(b.endDate, thisYear)} ${statusAccent(b.status)}`}
-                articleTitles={articleTitles}
-                quotes={quotesByBook.get(b.id) ?? []}
-              />
-            </li>
-          ))}
-        </ul>
       </div>
     );
   }
@@ -273,26 +226,34 @@ export function BookTable() {
             <li key={b.id || `card-${i}`}>
               <Link
                 href={detailHref(b.id)}
-                className={`flex gap-3 p-3 ${rowTone(b.endDate, thisYear)} ${statusAccent(b.status)}`}
+                className={`flex items-center gap-3 p-3 ${rowTone(b.endDate, thisYear)} ${statusAccent(b.status)}`}
               >
                 <Cover url={b.coverUrl} title={b.title} width="w-8" />
-                {/*
-                  手機一列只留兩行：書名，以及「狀態＋作者＋日期」。
-                  標籤留給卡片與詳細檢視——在這裡塞滿只會讓每一列長到一頁放不了幾本。
-                */}
-                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <p className="truncate text-sm font-medium">
+                {/* 手機一列固定兩行：第一行是書名與狀態，第二行擠進作者、標籤與日期 */}
+                <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
+                  <p className="flex min-w-0 items-center gap-2 text-sm font-medium">
                     {numbers.has(b.id) && (
-                      <span className="mr-2 text-xs text-gray-400 tabular-nums">
+                      <span className="shrink-0 text-xs text-gray-400 tabular-nums">
                         #{numbers.get(b.id)}
                       </span>
                     )}
-                    {b.title}
-                  </p>
-                  <div className="flex items-center gap-2 text-xs text-gray-400">
+                    <span className="min-w-0 flex-1 truncate">{b.title}</span>
                     <StatusBadge status={b.status} />
-                    <span className="min-w-0 flex-1 truncate text-gray-500">{b.author}</span>
-                    <span className="shrink-0 tabular-nums">{b.endDate ?? b.startDate ?? "—"}</span>
+                  </p>
+                  {/* 長度無上限的欄位（關鍵字、文章、心得）永遠不進這行，列高才不會跟著資料跳 */}
+                  <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                    {/* 作者與標籤共用剩下的寬度，塞不下就讓外層裁掉，日期永遠留在最右邊 */}
+                    <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
+                      <span className="max-w-[45%] shrink-0 truncate text-gray-500">
+                        {b.author}
+                      </span>
+                      <OptionList values={[b.platform]} tone="platform" size="sm" wrap={false} />
+                      <OptionList values={[b.domain]} tone="domain" size="sm" wrap={false} />
+                      <OptionList values={[b.subDomain]} tone="subDomain" size="sm" wrap={false} />
+                      <OptionList values={[b.type]} tone="type" size="sm" wrap={false} />
+                    </div>
+                    {/* 只放完成日期：閱讀中的書還沒有結束時間，顯示「—」正好說明它還沒讀完 */}
+                    <span className="shrink-0 tabular-nums">{b.endDate || "—"}</span>
                   </div>
                 </div>
               </Link>
@@ -364,7 +325,7 @@ export function BookTable() {
                   <StatusBadge status={b.status} />
                 </td>
                 <td className="hidden px-3 py-2 lg:table-cell">
-                  <OptionList values={[b.platform]} />
+                  <OptionList values={[b.platform]} tone="platform" />
                 </td>
                 <td className="hidden max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap xl:table-cell">
                   <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
@@ -377,10 +338,10 @@ export function BookTable() {
                   </span>
                 </td>
                 <td className="hidden px-3 py-2 lg:table-cell">
-                  <OptionList values={[b.domain]} />
+                  <OptionList values={[b.domain]} tone="domain" />
                 </td>
                 <td className="hidden px-3 py-2 xl:table-cell">
-                  <OptionList values={[b.type]} outline />
+                  <OptionList values={[b.type]} tone="type" />
                 </td>
                 <td className="hidden max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap 2xl:table-cell">
                   <span className="block overflow-hidden text-ellipsis whitespace-nowrap">

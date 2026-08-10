@@ -1,26 +1,43 @@
 "use client";
 
-import { tagColorClass, tagOrder } from "@/lib/tagColors";
+import { TAG_TONES, tagColorClass, tagOrder, TagTone } from "@/lib/tagColors";
 import { useCategories } from "@/lib/useCategories";
-import { splitTags } from "@/types/book";
+import { ReadingStatus, splitTags } from "@/types/book";
+
+export const STATUS_STYLES: Record<ReadingStatus, string> = {
+  想讀: "bg-[#EAE3D8] text-[#5C4A3D]",
+  閱讀中: "bg-[#DCE6F1] text-[#2B5A8E]",
+  // 已讀完是多數狀態，給顏色只會讓整張表變花；灰色＝「這件事結束了」
+  已讀完: "bg-gray-100 text-gray-500",
+};
+
+export function StatusBadge({ status }: { status: ReadingStatus }) {
+  return (
+    <span
+      className={`inline-block shrink-0 rounded px-1.5 py-0.5 text-[11px] whitespace-nowrap ${STATUS_STYLES[status] ?? STATUS_STYLES.想讀}`}
+    >
+      {status}
+    </span>
+  );
+}
 
 /**
- * 標籤徽章。顏色由標籤本身決定（見 lib/tagColors），
- * 所以書單、文章列表、詳細檢視裡的同一個標籤永遠是同一個顏色。
+ * 標籤徽章。給了 tone 就整組同色，代表「這一格是哪一種分類」；
+ * 沒給 tone（例如文章的自由標籤）才退回逐個標籤配色（見 lib/tagColors）。
  */
 export function TagList({
   values,
+  tone,
   size = "md",
   wrap = true,
-  outline = false,
 }: {
   values: Array<string | undefined>;
+  /** 這組標籤屬於哪個欄位，同欄位永遠同色 */
+  tone?: TagTone;
   /** sm：標籤多的欄位（例如屬性）用小一號，一格才擠得下 */
   size?: "sm" | "md";
   /** false：擠在單行裡（例如文章列表），放不下的就讓外層裁掉 */
   wrap?: boolean;
-  /** 外框版：跟同一排的實底標籤（領域）區分開來，用在屬性 */
-  outline?: boolean;
 }) {
   const { categories } = useCategories();
   const order = tagOrder(categories);
@@ -36,7 +53,7 @@ export function TagList({
           /* 高度寫死，跟同一行的文字對得起來 */
           className={`inline-flex shrink-0 items-center rounded leading-none font-medium ${
             size === "sm" ? "h-4 px-1.5 text-[10px]" : "h-5 px-1.5 text-[11px]"
-          } ${tagColorClass(item, order, outline)}`}
+          } ${tone ? TAG_TONES[tone] : tagColorClass(item, order)}`}
         >
           {item}
         </span>
