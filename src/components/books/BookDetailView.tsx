@@ -17,7 +17,9 @@ import { QuoteRow, VocabularyRow } from "@/types/record";
 
 /** 詳細頁的封面：固定寬度，資訊區才不會隨封面比例左右跳 */
 function Cover({ url, title }: { url: string; title: string }) {
-  const shape = "aspect-2/3 w-24 shrink-0 rounded object-cover shadow ring-1 ring-black/10 md:w-32";
+  // self-start：右欄被拉高時封面要維持自己的比例，不能跟著一起拉長
+  const shape =
+    "aspect-2/3 w-24 shrink-0 self-start rounded object-cover shadow ring-1 ring-black/10 md:w-32";
   if (url) {
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={url} alt="" className={shape} />;
@@ -38,7 +40,7 @@ function Cover({ url, title }: { url: string; title: string }) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="flex flex-col gap-3">
-      <h3 className="border-b border-gray-200 pb-1.5 text-xs tracking-[0.2em] text-gray-400">
+      <h3 className="border-b border-gray-200 pb-1.5 text-xs text-gray-400">
         {title}
       </h3>
       {children}
@@ -100,19 +102,26 @@ function VocabularyItem({ row }: { row: VocabularyRow }) {
 }
 
 /** 短欄位排成兩欄的資訊表，每列之間一條淺色分隔線，讀起來像一份目錄 */
-function BookFields({ book }: { book: Book }) {
+function Fields({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-1 gap-x-10 sm:grid-cols-2">
-      <div className="divide-y divide-gray-100">
-        <Field label="狀態">
-          <StatusBadge status={book.status} />
-        </Field>
+    <div className="grid grid-cols-1 gap-x-10 sm:grid-cols-2 [&>div]:divide-y [&>div]:divide-gray-100">
+      {children}
+    </div>
+  );
+}
+
+/** 這本書本身的事實：換誰來讀都一樣，所以跟書名放在一起當書名頁 */
+function BookFacts({ book }: { book: Book }) {
+  return (
+    <Fields>
+      <div>
         <Field label="作者">{book.author}</Field>
         <Field label="出版社">{book.publisher}</Field>
-        <Field label="平台">
-          {book.platform && <OptionList values={[book.platform]} tone="platform" />}
-        </Field>
         <Field label="語言">{book.language}</Field>
+      </div>
+      <div>
+        <Field label="頁數">{formatCount(book.pageCount)}</Field>
+        <Field label="字數">{formatCount(book.wordCount)}</Field>
         <Field label="來源">
           {book.sourceUrl && (
             <a
@@ -128,11 +137,25 @@ function BookFields({ book }: { book: Book }) {
           )}
         </Field>
       </div>
-      <div className="divide-y divide-gray-100">
+    </Fields>
+  );
+}
+
+/** 我對這本書做的事：狀態、讀的時間、在哪讀、怎麼歸類，換個人就是另一組答案 */
+function MyMarks({ book }: { book: Book }) {
+  return (
+    <Fields>
+      <div>
+        <Field label="狀態">
+          <StatusBadge status={book.status} />
+        </Field>
         <Field label="開始日期">{book.startDate}</Field>
         <Field label="完成日期">{book.endDate}</Field>
-        <Field label="頁數">{formatCount(book.pageCount)}</Field>
-        <Field label="字數">{formatCount(book.wordCount)}</Field>
+      </div>
+      <div>
+        <Field label="平台">
+          {book.platform && <OptionList values={[book.platform]} tone="platform" />}
+        </Field>
         <Field label="領域">
           {(book.domain || book.subDomain) && (
             <div className="flex flex-wrap items-center gap-1.5">
@@ -143,7 +166,7 @@ function BookFields({ book }: { book: Book }) {
         </Field>
         <Field label="屬性">{book.type && <OptionList values={[book.type]} tone="type" />}</Field>
       </div>
-    </div>
+    </Fields>
   );
 }
 
@@ -211,18 +234,24 @@ export function BookDetailView() {
         }
       />
 
-      {/* 一份文件：單欄、限定行長、靠章節標題分段，不切成一張張卡片 */}
-      <article className="mx-auto flex w-full max-w-3xl flex-col gap-8 pb-4">
+      {/* 一份文件：單欄、靠章節標題分段，不切成一張張卡片 */}
+      <article className="flex w-full flex-col gap-8">
         {/* 書名頁：封面在左，右邊一條垂直線隔開書名與所有欄位 */}
-        <header className="flex items-start gap-4 md:gap-6">
+        {/* 不設 items-start，右欄才會被拉到跟封面一樣高，那條垂直線就不會半途斷掉 */}
+        <header className="flex gap-4 md:gap-6">
           <Cover url={book.coverUrl} title={book.title} />
           <div className="flex min-w-0 flex-1 flex-col gap-4 border-l border-gray-200 pl-4 md:pl-6">
             <h2 className="text-xl leading-snug font-semibold break-words text-gray-900 md:text-2xl">
               {book.title}
             </h2>
-            <BookFields book={book} />
+            <BookFacts book={book} />
           </div>
         </header>
+
+        {/* 書本身的事實在上面的書名頁；這一節以下全是我加上去的，用章節線隔開 */}
+        <Section title="標記">
+          <MyMarks book={book} />
+        </Section>
 
         {keywords.length > 0 && (
           <Section title="關鍵字">
@@ -263,7 +292,8 @@ export function BookDetailView() {
         {note && (
           <Section title="心得">
             {/* 心得是這一頁唯一的長文，用襯線字與寬行距，看起來就是一段文章 */}
-            <p className="font-serif text-[15px] leading-[1.9] whitespace-pre-wrap text-gray-800 md:text-base">
+            {/* 只有這一段限行長：一行拉到整個寬螢幕會讀不下去，短欄位則沒這問題 */}
+            <p className="max-w-3xl font-serif text-[15px] leading-[1.9] whitespace-pre-wrap text-gray-800 md:text-base">
               {note}
             </p>
           </Section>
