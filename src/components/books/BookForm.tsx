@@ -3,6 +3,20 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import {
+  CalendarCheck,
+  CalendarPlus,
+  FileText,
+  Languages,
+  Link as LinkIcon,
+  Newspaper,
+  NotebookPen,
+  Quote,
+  Store,
+  Tag,
+  Type,
+  type LucideIcon,
+} from "lucide-react";
 import { fullerTitle } from "@/lib/metadata";
 import { useBooks } from "@/lib/useBooks";
 import { useRecords } from "@/lib/useRecords";
@@ -44,6 +58,32 @@ const emptyForm = {
 };
 
 type FormState = typeof emptyForm;
+
+type Tab = "basic" | "meta" | "notes" | "marks";
+
+/** 欄位多到一頁看不完，照「填寫時想的是同一件事」分頁 */
+const TABS: { key: Tab; label: string }[] = [
+  { key: "basic", label: "基本資料" },
+  { key: "meta", label: "分類與進度" },
+  { key: "notes", label: "筆記佳句" },
+  { key: "marks", label: "關鍵字單字" },
+];
+
+const tabStyles = {
+  bar: "flex shrink-0 items-center gap-1 overflow-x-auto rounded-lg border p-1",
+  tab: "shrink-0 rounded px-3 py-1.5 text-sm font-medium whitespace-nowrap",
+  active: "bg-gray-900 text-white",
+  idle: "text-gray-500 hover:bg-gray-100",
+};
+
+/** 沒選到的分頁留在畫面上但藏起來，切回來時打到一半的內容還在 */
+function TabPanel({ active, children }: { active: boolean; children: React.ReactNode }) {
+  return (
+    <div className={`flex-col gap-3 md:min-h-0 md:flex-1 ${active ? "flex" : "hidden"}`}>
+      {children}
+    </div>
+  );
+}
 
 /** 一組相關欄位排成同一片格線 */
 function Section({ children }: { children: React.ReactNode }) {
@@ -122,6 +162,7 @@ export function BookForm({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [refetching, setRefetching] = useState(false);
   const [refetchNote, setRefetchNote] = useState("");
+  const [tab, setTab] = useState<Tab>("basic");
   const isEdit = Boolean(book);
 
   /**
@@ -177,7 +218,12 @@ export function BookForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.title.trim()) return;
+    // 書名可能藏在別的分頁裡，瀏覽器沒辦法聚焦提示，改自己切回去講
+    if (!form.title.trim()) {
+      setTab("basic");
+      setSubmitError("請填書名");
+      return;
+    }
     if (!sheetId) {
       setSubmitError("請先到「設定」頁面連接 Google Sheet");
       return;
@@ -293,163 +339,208 @@ export function BookForm({
         </p>
       )}
 
+      <div className={tabStyles.bar}>
+        {TABS.map((t) => (
+          <button
+            key={t.key}
+            type="button"
+            onClick={() => setTab(t.key)}
+            className={`${tabStyles.tab} ${tab === t.key ? tabStyles.active : tabStyles.idle}`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
       {/* 欄位一路往下排；桌機在這層捲，手機不自己捲，跟著整頁捲 */}
       <div className="flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
-        <Section>
-          <Field label="書名" value={form.title} onChange={(v) => set("title", v)} required />
-          <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
-          <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
-        </Section>
+        <TabPanel active={tab === "basic"}>
+          {/* 這一頁的欄位兩兩成對（作者｜出版社、頁數｜字數…），書名自己獨佔一行 */}
+          <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3">
+            <div className="col-span-2">
+              <Field label="書名" value={form.title} onChange={(v) => set("title", v)} />
+            </div>
 
-        <Section>
-          <Field label="封面 URL" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
-          <Field label="來源網址" value={form.sourceUrl} onChange={(v) => set("sourceUrl", v)} />
+            <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
+            <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
 
-          <CategorySelect
-            label="平台"
-            categoryKey="platform"
-            value={form.platform}
-            onChange={(v) => set("platform", v)}
-          />
-
-          {/* 用現有的書名／網址重查，補上空欄位 */}
-          <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-3">
-            <button
-              type="button"
-              onClick={handleRefetch}
-              disabled={refetching}
-              className="rounded border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
-            >
-              {refetching ? "抓取中…" : "重新抓取資料"}
-            </button>
-            {refetchNote && <span className="text-xs text-gray-500">{refetchNote}</span>}
-          </div>
-        </Section>
-
-        <Section>
-          {/* 短欄位在手機兩兩並排；sm:contents 讓它在桌機溶解回原本的格線 */}
-          <div className="grid grid-cols-2 gap-3 sm:contents">
-            <Field label="頁數" value={form.pageCount} onChange={(v) => set("pageCount", v)} />
-            <Field label="字數" value={form.wordCount} onChange={(v) => set("wordCount", v)} />
-          </div>
-
-          {/* 日期在手機各佔一行：iOS 的原生日期控制項有最小寬度，兩兩並排會互相擠壓 */}
-          <div className="grid min-w-0 grid-cols-1 gap-3 sm:contents">
+            <Field label="封面網址" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
             <Field
-              label="開始日期"
-              type="date"
-              value={form.startDate}
-              onChange={(v) => set("startDate", v)}
+              label="來源網址"
+              Icon={LinkIcon}
+              value={form.sourceUrl}
+              onChange={(v) => set("sourceUrl", v)}
+            />
+
+            <Field
+              label="頁數"
+              Icon={FileText}
+              value={form.pageCount}
+              onChange={(v) => set("pageCount", v)}
             />
             <Field
-              label="完成日期"
-              type="date"
-              value={form.endDate}
-              onChange={(v) => set("endDate", v)}
+              label="字數"
+              Icon={Type}
+              value={form.wordCount}
+              onChange={(v) => set("wordCount", v)}
             />
-          </div>
-        </Section>
 
-        <Section>
-          {/* 領域改成單選：它問的是「為什麼讀這本書」，一本書只會有一個答案 */}
-          <CategorySelect
-            label="領域"
-            categoryKey="domain"
-            value={form.domain}
-            onChange={(v) => set("domain", v)}
-          />
-          <CategorySelect
-            label="次領域"
-            categoryKey="subDomain"
-            value={form.subDomain}
-            onChange={(v) => set("subDomain", v)}
-          />
-          <CategorySelect
-            label="屬性"
-            categoryKey="type"
-            value={form.type}
-            onChange={(v) => set("type", v)}
-            multiple
-          />
-          <CategorySelect
-            label="語言"
-            categoryKey="language"
-            value={form.language}
-            onChange={(v) => set("language", v)}
-          />
-        </Section>
-
-        {/* 筆記與佳句吃掉剩下的高度，欄位多寡不同時都不會擠出捲軸 */}
-        <div className="flex min-h-0 shrink-0 flex-col gap-3 sm:flex-row">
-          <div className="flex min-h-0 flex-1 flex-col gap-1">
-            <label className="shrink-0 text-sm font-medium">筆記</label>
-            <textarea
-              value={form.note}
-              onChange={(e) => set("note", e.target.value)}
-              className={`${TEXTAREA_CLASS} ${TEXTAREA_MIN}`}
+            <CategorySelect
+              label="語言"
+              Icon={Languages}
+              categoryKey="language"
+              value={form.language}
+              onChange={(v) => set("language", v)}
             />
+            <CategorySelect
+              label="平台"
+              Icon={Store}
+              categoryKey="platform"
+              value={form.platform}
+              onChange={(v) => set("platform", v)}
+            />
+
+            {/* 用現有的書名／網址重查，補上空欄位 */}
+            <div className="col-span-2 flex items-center justify-end gap-2">
+              {refetchNote && <span className="text-xs text-gray-500">{refetchNote}</span>}
+              <button
+                type="button"
+                onClick={handleRefetch}
+                disabled={refetching}
+                className="rounded border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+              >
+                {refetching ? "抓取中…" : "重新抓取資料"}
+              </button>
+            </div>
+          </div>
+        </TabPanel>
+
+        <TabPanel active={tab === "meta"}>
+          <Section>
+            {/* 日期在手機各佔一行：iOS 的原生日期控制項有最小寬度，兩兩並排會互相擠壓 */}
+            <div className="grid min-w-0 grid-cols-1 gap-3 sm:contents">
+              <Field
+                label="開始日期"
+                Icon={CalendarPlus}
+                type="date"
+                value={form.startDate}
+                onChange={(v) => set("startDate", v)}
+              />
+              <Field
+                label="完成日期"
+                Icon={CalendarCheck}
+                type="date"
+                value={form.endDate}
+                onChange={(v) => set("endDate", v)}
+              />
+            </div>
+          </Section>
+
+          <Section>
+            {/* 領域改成單選：它問的是「為什麼讀這本書」，一本書只會有一個答案 */}
+            <CategorySelect
+              label="領域"
+              categoryKey="domain"
+              value={form.domain}
+              onChange={(v) => set("domain", v)}
+            />
+            <CategorySelect
+              label="次領域"
+              categoryKey="subDomain"
+              value={form.subDomain}
+              onChange={(v) => set("subDomain", v)}
+            />
+            <CategorySelect
+              label="屬性"
+              categoryKey="type"
+              value={form.type}
+              onChange={(v) => set("type", v)}
+              multiple
+            />
+          </Section>
+        </TabPanel>
+
+        <TabPanel active={tab === "notes"}>
+          {/* 筆記與佳句吃掉剩下的高度，欄位多寡不同時都不會擠出捲軸 */}
+          <div className="flex min-h-0 flex-col gap-3 sm:flex-row md:flex-1">
+            <div className="flex min-h-0 flex-1 flex-col gap-1">
+              <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
+                <NotebookPen size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
+                筆記
+              </label>
+              <textarea
+                value={form.note}
+                onChange={(e) => set("note", e.target.value)}
+                className={`${TEXTAREA_CLASS} ${TEXTAREA_MIN}`}
+              />
+            </div>
+
+            <div className="flex min-h-0 flex-1 flex-col gap-1">
+              <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
+                <Quote size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
+                佳句
+                <span className="text-xs font-normal text-gray-400">一句一組，章節可留空</span>
+              </label>
+              <QuoteListInput rows={quoteRows} onChange={setQuoteRows} />
+            </div>
+          </div>
+        </TabPanel>
+
+        <TabPanel active={tab === "marks"}>
+          {/*
+          關鍵字與相關文章。跟筆記同樣是一行一筆的自由文字——記的當下不分類，
+          要畫成地圖還是清單是之後看的時候的事。
+        */}
+          <div className="flex min-h-0 shrink-0 flex-col gap-3 sm:flex-row">
+            <div className="flex min-h-0 flex-1 flex-col gap-1">
+              <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
+                <Tag size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
+                關鍵字
+                <span className="text-xs font-normal text-gray-400">
+                  一個一組：地名、人名、事件、專有名詞
+                </span>
+              </label>
+              <LineListInput
+                value={form.keywords}
+                onChange={(v) => set("keywords", v)}
+                placeholder="京都"
+                suggestions={keywordSuggestions}
+              />
+            </div>
+
+            <div className="flex min-h-0 flex-1 flex-col gap-1">
+              <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
+                <Newspaper size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
+                相關文章
+                <span className="text-xs font-normal text-gray-400">一行一個 Instapaper 網址</span>
+              </label>
+              <ArticleSelect
+                value={form.relatedArticles}
+                onChange={(v) => set("relatedArticles", v)}
+              />
+              <textarea
+                value={form.relatedArticles}
+                onChange={(e) => set("relatedArticles", e.target.value)}
+                placeholder={"https://www.instapaper.com/read/1234567890"}
+                className={`${TEXTAREA_CLASS} ${TEXTAREA_MIN}`}
+              />
+            </div>
           </div>
 
-          <div className="flex min-h-0 flex-1 flex-col gap-1">
+          <div className="flex min-h-0 shrink-0 flex-col gap-1">
             <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
-              佳句
-              <span className="text-xs font-normal text-gray-400">一句一組，章節可留空</span>
-            </label>
-            <QuoteListInput rows={quoteRows} onChange={setQuoteRows} />
-          </div>
-        </div>
-
-        {/*
-        關鍵字與相關文章。跟筆記同樣是一行一筆的自由文字——記的當下不分類，
-        要畫成地圖還是清單是之後看的時候的事。
-      */}
-        <div className="flex min-h-0 shrink-0 flex-col gap-3 sm:flex-row">
-          <div className="flex min-h-0 flex-1 flex-col gap-1">
-            <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
-              關鍵字
+              單字
               <span className="text-xs font-normal text-gray-400">
-                一個一組：地名、人名、事件、專有名詞
+                一個一組，例句與章節可留空；刻意不跨書共用
               </span>
             </label>
-            <LineListInput
-              value={form.keywords}
-              onChange={(v) => set("keywords", v)}
-              placeholder="京都"
-              suggestions={keywordSuggestions}
+            <VocabularyListInput
+              rows={vocabularyRows}
+              onChange={setVocabularyRows}
+              bookLanguage={form.language}
             />
           </div>
-
-          <div className="flex min-h-0 flex-1 flex-col gap-1">
-            <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
-              相關文章
-              <span className="text-xs font-normal text-gray-400">一行一個 Instapaper 網址</span>
-            </label>
-            <ArticleSelect
-              value={form.relatedArticles}
-              onChange={(v) => set("relatedArticles", v)}
-            />
-            <textarea
-              value={form.relatedArticles}
-              onChange={(e) => set("relatedArticles", e.target.value)}
-              placeholder={"https://www.instapaper.com/read/1234567890"}
-              className={`${TEXTAREA_CLASS} ${TEXTAREA_MIN}`}
-            />
-          </div>
-        </div>
-
-        <div className="flex min-h-0 shrink-0 flex-col gap-1">
-          <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
-            單字
-            <span className="text-xs font-normal text-gray-400">
-              一個一組，例句與章節可留空；刻意不跨書共用
-            </span>
-          </label>
-          <VocabularyListInput
-            rows={vocabularyRows}
-            onChange={setVocabularyRows}
-            bookLanguage={form.language}
-          />
-        </div>
+        </TabPanel>
       </div>
 
       {submitError && <p className="shrink-0 text-xs text-red-600">{submitError}</p>}
@@ -511,24 +602,29 @@ export function BookForm({
 
 function Field({
   label,
+  Icon,
   value,
   onChange,
   type = "text",
-  required = false,
 }: {
   label: string;
+  /** 跟詳細卡片同一個圖示；沒有對應圖示的欄位就不放 */
+  Icon?: LucideIcon;
   value: string;
   onChange: (v: string) => void;
   type?: string;
-  required?: boolean;
 }) {
   return (
     <div className="min-w-0">
-      <label className="mb-1 block text-sm font-medium">{label}</label>
+      <label className="mb-1 flex items-center gap-1.5 text-sm font-medium">
+        {Icon && (
+          <Icon size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
+        )}
+        {label}
+      </label>
       <input
         type={type}
         value={value}
-        required={required}
         onChange={(e) => onChange(e.target.value)}
         className={`box-border block w-full max-w-full min-w-0 rounded border px-3 py-2 text-sm ${
           type === "date" ? DATE_INPUT_CLASS : ""

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { type LucideIcon } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useCategories } from "@/lib/useCategories";
 import { BookCategories, joinTags, splitTags } from "@/types/book";
@@ -14,12 +15,15 @@ import { BookCategories, joinTags, splitTags } from "@/types/book";
  */
 export function CategorySelect({
   label,
+  Icon,
   categoryKey,
   value,
   onChange,
   multiple = false,
 }: {
   label: string;
+  /** 跟詳細卡片同一個圖示，兩邊看起來才像同一個欄位 */
+  Icon?: LucideIcon;
   categoryKey: keyof BookCategories;
   value: string;
   onChange: (value: string) => void;
@@ -121,7 +125,12 @@ export function CategorySelect({
 
   return (
     <div ref={rootRef} className="relative">
-      <label className="mb-1 block text-sm font-medium">{label}</label>
+      <label className="mb-1 flex items-center gap-1.5 text-sm font-medium">
+        {Icon && (
+          <Icon size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
+        )}
+        {label}
+      </label>
 
       <button
         type="button"
