@@ -7,6 +7,7 @@ import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { NoteBlock, QuoteBlock, VocabularyItem } from "@/components/notes/RecordItems";
+import { ActionButton } from "@/components/ui/Controls";
 import { TagList as OptionList, StatusBadge } from "@/components/ui/TagBadge";
 import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
 import { useArticles } from "@/lib/useArticles";
@@ -173,12 +174,11 @@ export function BookDetailView() {
         title="書籍資訊"
         backHref={backHref}
         action={
-          <Link
+          <ActionButton
             href={`/books/${book.id}/edit${back ? `?back=${encodeURIComponent(back)}` : ""}`}
-            className="flex h-8 items-center rounded bg-gray-900 px-3 text-sm font-medium text-white hover:bg-gray-700 md:h-9 md:px-4"
           >
             編輯
-          </Link>
+          </ActionButton>
         }
       />
 

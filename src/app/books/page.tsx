@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { Suspense } from "react";
 import { BookTable } from "@/components/books/BookTable";
 import { BookViewToggle } from "@/components/books/BookViewToggle";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { ActionButton } from "@/components/ui/Controls";
 
 export default function BooksPage() {
   return (
@@ -16,12 +16,7 @@ export default function BooksPage() {
             <Suspense fallback={null}>
               <BookViewToggle />
             </Suspense>
-            <Link
-              href="/books/new"
-              className="flex h-8 items-center rounded bg-gray-900 px-3 text-sm font-medium text-white hover:bg-gray-700 md:h-9 md:px-4"
-            >
-              新增書籍
-            </Link>
+            <ActionButton href="/books/new">新增書籍</ActionButton>
           </div>
         }
       />

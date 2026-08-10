@@ -1,15 +1,9 @@
-import {
-  BookOpenText,
-  CalendarDays,
-  ChartPie,
-  Library,
-  Newspaper,
-  NotebookPen,
-  Settings,
-  Tag,
-} from "lucide-react";
+import { ChartPie, Library, Newspaper, NotebookPen, Settings } from "lucide-react";
 
-/** 側欄與底部導覽列共用的導覽項目 */
+/**
+ * 側欄與底部導覽列共用的導覽項目。兩邊一模一樣——
+ * 關鍵字與單字在「筆記」底下，月曆在「統計」底下，桌機也照這個分法。
+ */
 
 type IconProps = { active?: boolean };
 
@@ -17,8 +11,6 @@ export type NavItem = {
   href: string;
   label: string;
   exact?: boolean;
-  /** 只放側欄：手機底部導覽列已經滿了，還在試的功能先不佔位置 */
-  sidebarOnly?: boolean;
   Icon: (props: IconProps) => React.ReactElement;
 };
 
@@ -36,29 +28,10 @@ export const NAV_ITEMS: NavItem[] = [
     Icon: () => <Newspaper size={20} strokeWidth={1.5} />,
   },
   {
-    href: "/keywords",
-    label: "關鍵字",
-    sidebarOnly: true,
-    Icon: () => <Tag size={20} strokeWidth={1.5} />,
-  },
-  {
-    href: "/vocabulary",
-    label: "單字",
-    sidebarOnly: true,
-    Icon: () => <BookOpenText size={20} strokeWidth={1.5} />,
-  },
-  {
     href: "/notes",
     label: "筆記",
     Icon: () => <NotebookPen size={20} strokeWidth={1.5} />,
   },
   { href: "/stats", label: "統計", Icon: () => <ChartPie size={20} strokeWidth={1.5} /> },
-  // 月曆在手機是統計頁的一個分頁，底部那格讓給筆記
-  {
-    href: "/calendar",
-    label: "月曆",
-    sidebarOnly: true,
-    Icon: () => <CalendarDays size={20} strokeWidth={1.5} />,
-  },
   { href: "/settings", label: "設定", Icon: () => <Settings size={20} strokeWidth={1.5} /> },
 ];

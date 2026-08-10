@@ -14,6 +14,7 @@ import { MonthlyTrendChart } from "@/components/stats/MonthlyTrendChart";
 import { RankingBar } from "@/components/stats/RankingBar";
 import { Section, SectionList } from "@/components/stats/SectionList";
 import { YearlyTrendChart } from "@/components/stats/YearlyTrendChart";
+import { TabBar } from "@/components/ui/Controls";
 import {
   getArticleKpis,
   getArticleMonthlyTrend,
@@ -44,33 +45,12 @@ import { useSheetStore } from "@/store/useSheetStore";
 
 type Tab = "books" | "articles" | "calendar";
 
-const TABS: { key: Tab; label: string; mobileOnly?: boolean }[] = [
+const TABS: { key: Tab; label: string }[] = [
   { key: "books", label: "書籍" },
   { key: "articles", label: "文章" },
-  // 手機底部只有五格，月曆挪進來當分頁，空出來的那格給「筆記」；桌機側欄仍是獨立一頁
-  { key: "calendar", label: "月曆", mobileOnly: true },
+  // 月曆是統計的一種看法，桌機與手機都放在這裡當分頁
+  { key: "calendar", label: "月曆" },
 ];
-
-function TabButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`rounded px-3 py-1.5 text-sm font-medium ${
-        active ? "bg-gray-900 text-white" : "text-gray-500 hover:bg-gray-100"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
 
 /** 圖表卡片：撐滿一頁的高度，圖本身用 100% 跟著縮放 */
 function Panel({ title, children }: { title?: string; children: React.ReactNode }) {
@@ -459,27 +439,13 @@ function ArticlesStats() {
 function StatsTabs() {
   // 檢視哪一邊寫在網址上，重新整理或分享連結都回得到同一個畫面；預設書籍
   const { searchParams, setParams } = useUrlParams();
-  const isMobile = useIsMobile();
   const param = searchParams.get("tab");
-  // 桌機沒有月曆這一頁，網址帶著也退回書籍
-  const tab: Tab =
-    param === "articles" ? "articles" : param === "calendar" && isMobile ? "calendar" : "books";
+  const tab: Tab = param === "articles" ? "articles" : param === "calendar" ? "calendar" : "books";
   const setTab = (next: Tab) => setParams({ tab: next === "books" ? null : next });
 
   return (
     <>
-      <PageHeader
-        title="統計"
-        action={
-          <div className="flex items-center gap-1 rounded-lg border p-1">
-            {TABS.filter((t) => !t.mobileOnly || isMobile).map((t) => (
-              <TabButton key={t.key} active={tab === t.key} onClick={() => setTab(t.key)}>
-                {t.label}
-              </TabButton>
-            ))}
-          </div>
-        }
-      />
+      <PageHeader title="統計" action={<TabBar items={TABS} value={tab} onChange={setTab} />} />
       <PageBody>
         {tab === "calendar" ? (
           <CalendarBody />

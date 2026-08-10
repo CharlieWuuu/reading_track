@@ -115,13 +115,13 @@ function StatusDot({ status }: { status: ReadingStatus }) {
  */
 function accentColor(status: ReadingStatus): string | null {
   if (status === "想讀") return "#EAE3D8";
-  if (status === "閱讀中") return "#DCE6F1";
+  if (status === "閱讀中") return "#B07D2B";
   return null;
 }
 
 function statusAccent(status: ReadingStatus): string {
   if (status === "想讀") return "border-l-[3px] border-l-[#EAE3D8]";
-  if (status === "閱讀中") return "border-l-[3px] border-l-[#DCE6F1]";
+  if (status === "閱讀中") return "border-l-[3px] border-l-[#B07D2B]";
   return "border-l-[3px] border-l-transparent";
 }
 
@@ -275,7 +275,7 @@ export function BookTable() {
       <div className="hidden w-full min-h-0 flex-1 overflow-y-auto rounded-lg border bg-white md:block">
         <table className="w-full table-fixed text-sm">
           {/* sticky 的儲存格自己畫底色與下緣線，邊框不會跟著黏住 */}
-          <thead className="sticky top-0 z-10 bg-gray-100 text-left [&_th]:shadow-[inset_0_-1px_0_#d1d5db]">
+          <thead className="sticky top-0 z-10 bg-gray-100 text-left [&_th]:shadow-[inset_0_-1px_0_#111827]">
             {/* 欄寬用百分比，次要欄位隨螢幕變窄逐一收起，才不會撐出橫向捲軸 */}
             <tr>
               <th className="w-[6%] px-3 py-2 whitespace-nowrap">封面</th>

@@ -1,7 +1,12 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { KeywordCards } from "@/components/keywords/KeywordCards";
+import {
+  KEYWORD_VIEWS,
+  KeywordsSection,
+  useKeywordView,
+  type KeywordView,
+} from "@/components/keywords/KeywordsSection";
 import { BooksGate } from "@/components/layout/BooksGate";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -11,18 +16,14 @@ import { QuoteEditDialog } from "@/components/notes/QuoteEditDialog";
 import { RecordCard } from "@/components/notes/RecordCard";
 import { NoteBlock, QuoteBlock } from "@/components/notes/RecordItems";
 import { VocabularySection } from "@/components/notes/VocabularySection";
+import { TabBar } from "@/components/ui/Controls";
 import { useBookPatch } from "@/lib/useBookPatch";
-import { useIsMobile } from "@/lib/useIsMobile";
 import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { getNoteRecords, getQuoteRecords, NoteRecord, QuoteRecord } from "@/lib/vocabularyStats";
 import { Book } from "@/types/book";
 
 const styles = {
-  tabs: "flex items-center gap-1 rounded-lg border p-1",
-  tab: "rounded px-3 py-1.5 text-sm font-medium",
-  tabActive: "bg-gray-900 text-white",
-  tabIdle: "text-gray-500 hover:bg-gray-100",
   // 內文長度差很多，排成多欄只會高高低低；一則一列往下排反而好讀
   list: "flex flex-col divide-y",
 };
@@ -30,32 +31,15 @@ const styles = {
 type Tab = "notes" | "quotes" | "vocabulary" | "keywords";
 
 /**
- * 手機底部導覽只有五格，單字與關鍵字塞不進去，改成掛在筆記底下——
- * 它們本來就都是「從書裡摘出來的東西」。桌機側欄有各自的頁，就不重複。
+ * 單字與關鍵字掛在筆記底下——它們本來就都是「從書裡摘出來的東西」。
+ * 桌機與手機同一套分法，側欄不再另外開兩頁。
  */
-const TABS: { key: Tab; label: string; mobileOnly?: boolean }[] = [
+const TABS: { key: Tab; label: string }[] = [
   { key: "notes", label: "心得" },
   { key: "quotes", label: "佳句" },
-  { key: "vocabulary", label: "單字", mobileOnly: true },
-  { key: "keywords", label: "關鍵字", mobileOnly: true },
+  { key: "vocabulary", label: "單字" },
+  { key: "keywords", label: "關鍵字" },
 ];
-
-type TabButtonProps = {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-};
-
-function TabButton({ active, onClick, children }: TabButtonProps) {
-  return (
-    <button
-      onClick={onClick}
-      className={`${styles.tab} ${active ? styles.tabActive : styles.tabIdle}`}
-    >
-      {children}
-    </button>
-  );
-}
 
 function Quotes({ books }: { books: Book[] }) {
   const { quotes, saveBookRows } = useRecords();
@@ -134,11 +118,9 @@ function Notes({ books }: { books: Book[] }) {
 function NotesTabs() {
   // 看哪一邊寫在網址上，重新整理或分享連結都回得到同一個畫面；預設心得
   const { searchParams, setParams } = useUrlParams();
-  const isMobile = useIsMobile();
   const param = searchParams.get("tab");
-  const available = TABS.filter((t) => !t.mobileOnly || isMobile);
-  // 桌機沒有單字／關鍵字這兩頁，網址帶著也退回心得
-  const tab: Tab = available.some((t) => t.key === param) ? (param as Tab) : "notes";
+  const tab: Tab = TABS.some((t) => t.key === param) ? (param as Tab) : "notes";
+  const { view, setView } = useKeywordView();
   const setTab = (next: Tab) => setParams({ tab: next === "notes" ? null : next });
 
   return (
@@ -146,20 +128,25 @@ function NotesTabs() {
       <PageHeader
         title="筆記"
         action={
-          <div className={styles.tabs}>
-            {available.map((t) => (
-              <TabButton key={t.key} active={tab === t.key} onClick={() => setTab(t.key)}>
-                {t.label}
-              </TabButton>
-            ))}
-          </div>
+          <TabBar
+            items={TABS}
+            value={tab}
+            onChange={setTab}
+            // 關鍵字有四種看法，點分頁就把選單放下來，不另外佔一列
+            menu={{
+              for: "keywords",
+              items: KEYWORD_VIEWS,
+              value: view,
+              onChange: (next) => setView(next as KeywordView),
+            }}
+          />
         }
       />
       <PageBody>
         <BooksGate>
           {(books) =>
             tab === "keywords" ? (
-              <KeywordCards books={books} />
+              <KeywordsSection books={books} showSwitch={false} />
             ) : tab === "vocabulary" ? (
               <VocabularySection books={books} />
             ) : tab === "quotes" ? (

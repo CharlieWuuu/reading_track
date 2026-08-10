@@ -4,11 +4,13 @@ import { Suspense } from "react";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
+import { TabBar } from "@/components/ui/Controls";
 import { TagList } from "@/components/ui/TagBadge";
 import { InstapaperBookmark } from "@/lib/instapaper/client";
 import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
 import { useArticles } from "@/lib/useArticles";
 import { useMounted } from "@/lib/useMounted";
+import { useUrlParams } from "@/lib/useUrlParam";
 import { useInstapaperStore } from "@/store/useInstapaperStore";
 
 function formatDate(unixSeconds: number) {
@@ -27,10 +29,33 @@ function hostname(url: string): string {
   }
 }
 
+/** 讀到 90% 以上就當作讀完：Instapaper 的進度很少剛好停在 100% */
+const DONE_AT = 0.9;
+
+const FILTERS = [
+  { key: "all", label: "全部" },
+  { key: "done", label: "完讀" },
+  { key: "reading", label: "未完讀" },
+] as const;
+
+type Filter = (typeof FILTERS)[number]["key"];
+
 function ArticlesList() {
   const { token } = useInstapaperStore();
   const mounted = useMounted();
-  const { articles, isLoading, error } = useArticles();
+  const { articles: allArticles, isLoading, error } = useArticles();
+  const { searchParams, setParams } = useUrlParams();
+  const param = searchParams.get("filter");
+  const filter: Filter = FILTERS.some((f) => f.key === param) ? (param as Filter) : "all";
+  const setFilter = (next: Filter) => setParams({ filter: next === "all" ? null : next });
+  const articles = allArticles.filter((a) =>
+    filter === "done"
+      ? (a.progress ?? 0) >= DONE_AT
+      : filter === "reading"
+        ? (a.progress ?? 0) < DONE_AT
+        : true,
+  );
+  const tabs = <TabBar items={FILTERS} value={filter} onChange={setFilter} />;
   if (!mounted) return null;
 
   if (!token) {
@@ -63,15 +88,15 @@ function ArticlesList() {
   if (articles.length === 0) {
     return (
       <>
-        <PageHeader title="文章紀錄" />
-        <PageMessage>尚無文章</PageMessage>
+        <PageHeader title="文章紀錄" action={tabs} />
+        <PageMessage>符合條件的文章是空的</PageMessage>
       </>
     );
   }
 
   return (
     <>
-      <PageHeader title="文章紀錄" />
+      <PageHeader title="文章紀錄" action={tabs} />
       <PageBody>
         {/* overflow-hidden：hover 底色才會被圓角裁掉，不會在頭尾兩列破圖 */}
         {/* shrink-0：overflow 一旦不是 visible，flex 子項就會被壓扁，清單長了也捲不到 */}

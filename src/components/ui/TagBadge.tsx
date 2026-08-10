@@ -4,11 +4,15 @@ import { TAG_TONES, tagColorClass, tagOrder, TagTone } from "@/lib/tagColors";
 import { useCategories } from "@/lib/useCategories";
 import { ReadingStatus, splitTags } from "@/types/book";
 
+/**
+ * 閱讀狀態是有順序的進度，不是平行的分類，所以用同一個色相的三個階，
+ * 而不是三種顏色。實心底只有狀態在用，才不會跟同色系的分類標籤看混。
+ */
 export const STATUS_STYLES: Record<ReadingStatus, string> = {
   想讀: "bg-[#EAE3D8] text-[#5C4A3D]",
-  閱讀中: "bg-[#DCE6F1] text-[#2B5A8E]",
-  // 已讀完是多數狀態，給顏色只會讓整張表變花；灰色＝「這件事結束了」
-  已讀完: "bg-gray-100 text-gray-500",
+  閱讀中: "bg-[#B07D2B] text-white",
+  // 已讀完是多數狀態，給最淡的一階；同色系但幾乎不出聲＝「這件事結束了」
+  已讀完: "bg-[#F5F1EA] text-[#A2957F]",
 };
 
 export function StatusBadge({ status }: { status: ReadingStatus }) {

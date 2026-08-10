@@ -7,8 +7,7 @@ const styles = {
   card: "flex cursor-pointer flex-col gap-2 rounded-lg border bg-white p-4 hover:border-gray-400",
   head: "flex items-baseline justify-between gap-2",
   headWord: "min-w-0 truncate text-sm font-medium",
-  meta: "flex min-w-0 shrink items-baseline justify-end gap-1.5",
-  translation: "min-w-0 truncate text-xs text-gray-500",
+  translation: "-mt-1 text-xs text-gray-500",
   count: "shrink-0 text-xs text-gray-400 tabular-nums",
   list: "flex flex-col gap-2",
   entry: "flex flex-col gap-0.5",
@@ -46,16 +45,16 @@ export function VocabularyPanel({ entries, onEdit }: VocabularyPanelProps) {
           <div key={entry.word} className={styles.card} onClick={() => onEdit(entry)}>
             <div className={styles.head}>
               <span className={styles.headWord}>{entry.word}</span>
-              <div className={styles.meta}>
-                {translations.length > 0 && (
-                  <span className={styles.translation}>{translations.join("、")}</span>
-                )}
-                {/* 只遇過一次的不標次數，那是常態，標了只是雜訊 */}
-                {entry.encounters.length > 1 && (
-                  <span className={styles.count}>{entry.encounters.length} 次</span>
-                )}
-              </div>
+              {/* 只遇過一次的不標次數，那是常態，標了只是雜訊 */}
+              {entry.encounters.length > 1 && (
+                <span className={styles.count}>{entry.encounters.length} 次</span>
+              )}
             </div>
+
+            {/* 翻譯自己一行：跟單字擠同一行的話，長一點的就把單字壓掉了 */}
+            {translations.length > 0 && (
+              <p className={styles.translation}>{translations.join("、")}</p>
+            )}
 
             <div className={styles.list}>
               {entry.encounters.map((encounter, i) => (

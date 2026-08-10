@@ -1,5 +1,6 @@
 "use client";
 
+import { TabBar } from "@/components/ui/Controls";
 import { useUrlParams } from "@/lib/useUrlParam";
 
 export type BookFormTab = "book" | "tags" | "excerpt" | "notes";
@@ -14,14 +15,6 @@ const TABS: { key: BookFormTab; label: string }[] = [
   { key: "excerpt", label: "摘錄" },
   { key: "notes", label: "筆記" },
 ];
-
-const styles = {
-  // 只佔自己的寬度，窄螢幕放不下時才在自己裡面橫捲
-  bar: "flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-lg border p-1",
-  tab: "shrink-0 rounded px-2.5 py-1 text-sm font-medium whitespace-nowrap md:px-3 md:py-1.5",
-  active: "bg-gray-900 text-white",
-  idle: "text-gray-500 hover:bg-gray-100",
-};
 
 /**
  * 看哪一頁寫在網址上，重新整理或分享連結都回得到同一個分頁；預設書籍。
@@ -38,19 +31,5 @@ export function useBookFormTab() {
 /** 表單的分頁列，放在頁首的操作區 */
 export function BookFormTabs() {
   const { tab, setTab } = useBookFormTab();
-
-  return (
-    <div className={styles.bar}>
-      {TABS.map((t) => (
-        <button
-          key={t.key}
-          type="button"
-          onClick={() => setTab(t.key)}
-          className={`${styles.tab} ${tab === t.key ? styles.active : styles.idle}`}
-        >
-          {t.label}
-        </button>
-      ))}
-    </div>
-  );
+  return <TabBar items={TABS} value={tab} onChange={setTab} />;
 }

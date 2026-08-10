@@ -11,6 +11,7 @@ import { CategoryManager } from "@/components/settings/CategoryManager";
 import { DataIssuesPanel } from "@/components/settings/DataIssuesPanel";
 import { InstapaperConnect } from "@/components/settings/InstapaperConnect";
 import { SheetPicker } from "@/components/settings/SheetPicker";
+import { TabBar } from "@/components/ui/Controls";
 import { useSheetStore } from "@/store/useSheetStore";
 
 type SettingsTab = "connect" | "categories" | "display" | "maintenance";
@@ -121,20 +122,11 @@ export default function SettingsPage() {
       <PageHeader
         title="設定"
         action={
-          // 手機放不下四個標籤，改成單行橫向捲動，不折成兩行把頁首撐高
-          <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-lg border p-1">
-            {tabs.map((t) => (
-              <button
-                key={t.key}
-                onClick={() => setTab(t.key)}
-                className={`shrink-0 rounded px-2.5 py-1.5 text-xs font-medium whitespace-nowrap sm:text-sm ${
-                  tab === t.key ? "bg-gray-900 text-white" : "text-gray-500 hover:bg-gray-100"
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
+          <TabBar
+            items={tabs.map((t) => ({ key: t.key, label: t.label }))}
+            value={tab}
+            onChange={setTab}
+          />
         }
       />
       <PageBody>

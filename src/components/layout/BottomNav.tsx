@@ -17,7 +17,7 @@ export function BottomNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <ul className="flex items-stretch">
-        {NAV_ITEMS.filter((item) => !item.sidebarOnly).map((item) => {
+        {NAV_ITEMS.map((item) => {
           const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
           return (
             <li key={item.href} className="flex-1">

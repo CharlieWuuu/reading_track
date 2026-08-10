@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useBooks } from "@/lib/useBooks";
 import { useCategories } from "@/lib/useCategories";
-import { BookCategories } from "@/types/book";
+import { BookCategories, splitTags } from "@/types/book";
 
 const LABELS: Record<keyof BookCategories, string> = {
   platform: "平台",
@@ -14,8 +15,24 @@ const LABELS: Record<keyof BookCategories, string> = {
 
 function CategoryGroup({ categoryKey }: { categoryKey: keyof BookCategories }) {
   const { stored, save } = useCategories();
+  // 有幾本書真的用到這個值。預設清單塞了不少沒人用的，看得見才知道能不能刪
+  const { books } = useBooks();
+  // 用小寫當鍵：書籍讀進來時平台會被收斂成正式寫法（HyRead → Hyread），
+  // 選項清單裡卻是使用者當初打的那個寫法，完全相等去比就會數成 0
+  const counts = new Map<string, number>();
+  for (const book of books) {
+    for (const value of splitTags(book[categoryKey])) {
+      const key = value.toLowerCase();
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+  }
+  const countOf = (option: string) => counts.get(option.trim().toLowerCase()) ?? 0;
+
   // 舊版本的快取可能沒有這一組（例如剛加上的「平台」），兜底成空陣列
-  const options = stored[categoryKey] ?? [];
+  // 用得多的排前面，沒人用的沉到最下面，一眼就看得出哪些可以刪
+  const options = [...(stored[categoryKey] ?? [])].sort(
+    (a, b) => countOf(b) - countOf(a) || a.localeCompare(b, "zh-Hant"),
+  );
   const [newValue, setNewValue] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -60,6 +77,13 @@ function CategoryGroup({ categoryKey }: { categoryKey: keyof BookCategories }) {
             ) : (
               <>
                 <span className="flex-1 text-sm">{option}</span>
+                <span
+                  className={`shrink-0 text-xs tabular-nums ${
+                    countOf(option) ? "text-gray-400" : "text-gray-300"
+                  }`}
+                >
+                  {countOf(option)}
+                </span>
                 <button
                   type="button"
                   onClick={() => {
@@ -82,6 +106,15 @@ function CategoryGroup({ categoryKey }: { categoryKey: keyof BookCategories }) {
           </li>
         ))}
       </ul>
+      {options.some((o) => !countOf(o)) && (
+        <button
+          type="button"
+          onClick={() => replaceOptions(options.filter((o) => countOf(o)))}
+          className="mb-2 text-xs text-gray-500 hover:underline"
+        >
+          清掉沒用到的（{options.filter((o) => !countOf(o)).length}）
+        </button>
+      )}
       <div className="flex gap-2">
         <input
           value={newValue}
