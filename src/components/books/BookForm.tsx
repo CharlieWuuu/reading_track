@@ -462,8 +462,9 @@ export function BookForm({
 
         <TabPanel active={tab === "notes"}>
           {/* 筆記與佳句吃掉剩下的高度，欄位多寡不同時都不會擠出捲軸 */}
+          {/* 兩邊都是 w-1/2：內容長短不一樣，不加 min-w-0 的話長的那邊會把短的擠掉 */}
           <div className="flex min-h-0 flex-col gap-3 sm:flex-row md:flex-1">
-            <div className="flex min-h-0 flex-1 flex-col gap-1">
+            <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
               <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
                 <NotebookPen size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
                 筆記
@@ -475,11 +476,11 @@ export function BookForm({
               />
             </div>
 
-            <div className="flex min-h-0 flex-1 flex-col gap-1">
+            <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
               <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
                 <Quote size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
                 佳句
-                <span className="text-xs font-normal text-gray-400">一句一組，章節可留空</span>
+                <span className="text-xs font-normal text-gray-400">點一句可以編輯</span>
               </label>
               <QuoteListInput rows={quoteRows} onChange={setQuoteRows} />
             </div>
