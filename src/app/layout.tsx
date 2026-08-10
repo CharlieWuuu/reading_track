@@ -27,10 +27,13 @@ export const metadata: Metadata = {
     title: "ReadingTrack",
     statusBarStyle: "default",
   },
-  // 圖示交給 app/icon.svg 與 app/apple-icon.png 這兩個檔案慣例，Next 會自己產出標籤；
-  // 這裡只補 PNG 後備，給不吃 SVG 圖示的舊瀏覽器
+  // 圖示都放 public/，這裡宣告；PNG 是給不吃 SVG 的舊瀏覽器的後備
   icons: {
-    icon: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
 };
 
