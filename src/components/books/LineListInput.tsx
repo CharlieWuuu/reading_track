@@ -12,7 +12,6 @@ const styles = {
   // 每列只有一個值，開彈窗編一個字太麻煩，就地打字但拿掉自己的框
   input: "min-w-0 flex-1 bg-transparent px-3 py-2 text-sm outline-none",
   remove: "shrink-0 rounded p-1.5 text-gray-400 hover:bg-gray-200 hover:text-red-600",
-  empty: "rounded border border-dashed px-3 py-4 text-center text-xs text-gray-400",
   add: "flex shrink-0 self-start items-center justify-center gap-1 rounded border border-dashed px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50",
 };
 
@@ -54,9 +53,7 @@ export function LineListInput({
 
   return (
     <div className={styles.wrap}>
-      {lines.length === 0 ? (
-        <p className={styles.empty}>還沒有任何一列</p>
-      ) : (
+      {lines.length > 0 && (
         <div className={styles.list}>
           {lines.map((line, i) => (
             <div key={i} className={styles.row}>

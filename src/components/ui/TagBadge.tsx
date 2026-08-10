@@ -46,7 +46,8 @@ export function TagList({
   if (items.length === 0) return null;
 
   return (
-    <div className={`flex gap-1.5 ${wrap ? "flex-wrap" : "flex-nowrap"}`}>
+    // shrink-0：這一盒不能被壓縮，否則裡面不縮的標籤會溢出去疊到隔壁那組
+    <div className={`flex shrink-0 gap-1.5 ${wrap ? "flex-wrap" : "flex-nowrap"}`}>
       {items.map((item, index) => (
         <span
           key={`${item}-${index}`}

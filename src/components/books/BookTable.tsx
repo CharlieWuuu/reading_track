@@ -244,13 +244,22 @@ export function BookTable() {
                   <div className="flex items-center gap-1.5 text-xs text-gray-400">
                     {/* 作者與標籤共用剩下的寬度，塞不下就讓外層裁掉，日期永遠留在最右邊 */}
                     <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
-                      <span className="max-w-[45%] shrink-0 truncate text-gray-500">
+                      {/* 作者至少留五個字寬，太窄就認不出是誰 */}
+                      <span className="max-w-[45%] min-w-[5em] shrink-0 truncate text-gray-500">
                         {b.author}
                       </span>
-                      <OptionList values={[b.platform]} tone="platform" size="sm" wrap={false} />
-                      <OptionList values={[b.domain]} tone="domain" size="sm" wrap={false} />
-                      <OptionList values={[b.subDomain]} tone="subDomain" size="sm" wrap={false} />
-                      <OptionList values={[b.type]} tone="type" size="sm" wrap={false} />
+                      {/* 標籤裝在同一個盒子裡，放不下就從右邊切掉，不會頂到日期 */}
+                      <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
+                        <OptionList values={[b.platform]} tone="platform" size="sm" wrap={false} />
+                        <OptionList values={[b.domain]} tone="domain" size="sm" wrap={false} />
+                        <OptionList
+                          values={[b.subDomain]}
+                          tone="subDomain"
+                          size="sm"
+                          wrap={false}
+                        />
+                        <OptionList values={[b.type]} tone="type" size="sm" wrap={false} />
+                      </div>
                     </div>
                     {/* 只放完成日期：閱讀中的書還沒有結束時間，顯示「—」正好說明它還沒讀完 */}
                     <span className="shrink-0 tabular-nums">{b.endDate || "—"}</span>
@@ -324,8 +333,9 @@ export function BookTable() {
                 <td className="px-3 py-2 whitespace-nowrap">
                   <StatusBadge status={b.status} />
                 </td>
-                <td className="hidden px-3 py-2 lg:table-cell">
-                  <OptionList values={[b.platform]} tone="platform" />
+                {/* max-w-0 + overflow-hidden：table-fixed 下標籤太寬會擠進隔壁欄，寧可切掉 */}
+                <td className="hidden max-w-0 overflow-hidden px-3 py-2 lg:table-cell">
+                  <OptionList values={[b.platform]} tone="platform" wrap={false} />
                 </td>
                 <td className="hidden max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap xl:table-cell">
                   <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
@@ -337,11 +347,11 @@ export function BookTable() {
                     {b.endDate ?? "—"}
                   </span>
                 </td>
-                <td className="hidden px-3 py-2 lg:table-cell">
-                  <OptionList values={[b.domain]} tone="domain" />
+                <td className="hidden max-w-0 overflow-hidden px-3 py-2 lg:table-cell">
+                  <OptionList values={[b.domain]} tone="domain" wrap={false} />
                 </td>
-                <td className="hidden px-3 py-2 xl:table-cell">
-                  <OptionList values={[b.type]} tone="type" />
+                <td className="hidden max-w-0 overflow-hidden px-3 py-2 xl:table-cell">
+                  <OptionList values={[b.type]} tone="type" wrap={false} />
                 </td>
                 <td className="hidden max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap 2xl:table-cell">
                   <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
