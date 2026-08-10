@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Pencil, Plus, X } from "lucide-react";
 import { splitLines } from "@/types/book";
 
 const styles = {
@@ -10,7 +10,9 @@ const styles = {
   list: "flex shrink-0 flex-col divide-y overflow-hidden rounded border",
   row: "flex items-center gap-1 pr-1 focus-within:bg-gray-50",
   // 每列只有一個值，開彈窗編一個字太麻煩，就地打字但拿掉自己的框
-  input: "min-w-0 flex-1 bg-transparent px-3 py-2 text-sm outline-none",
+  // 藏掉 Chrome 因為 list 屬性畫的下拉箭頭，建議清單照樣會在打字時出現
+  input:
+    "min-w-0 flex-1 bg-transparent px-3 py-2 text-sm outline-none [&::-webkit-calendar-picker-indicator]:hidden",
   remove: "shrink-0 rounded p-1.5 text-gray-400 hover:bg-gray-200 hover:text-red-600",
   add: "flex shrink-0 self-start items-center justify-center gap-1 rounded border border-dashed px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50",
 };
@@ -22,6 +24,8 @@ type LineListInputProps = {
   placeholder?: string;
   /** 已經用過的值。打字時跳出來讓人挑，免得「京都」被打成「京都府」變成兩個 */
   suggestions?: string[];
+  /** 給了就在每一列右邊多一顆筆，點了把這一列的值交出去（例如去編關鍵字主檔） */
+  onEditRow?: (value: string) => void;
 };
 
 /** 一行一筆的欄位改成一列一個輸入框，比在 textarea 裡數行好編輯 */
@@ -30,6 +34,7 @@ export function LineListInput({
   onChange,
   placeholder,
   suggestions = [],
+  onEditRow,
 }: LineListInputProps) {
   const listId = useId();
   /**
@@ -64,6 +69,16 @@ export function LineListInput({
                 list={options.length > 0 ? listId : undefined}
                 className={styles.input}
               />
+              {onEditRow && line.trim() && (
+                <button
+                  type="button"
+                  aria-label="編輯這一筆的資料"
+                  onClick={() => onEditRow(line.trim())}
+                  className={styles.remove}
+                >
+                  <Pencil size={13} strokeWidth={1.5} />
+                </button>
+              )}
               <button
                 type="button"
                 aria-label="刪除這一列"

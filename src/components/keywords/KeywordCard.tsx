@@ -17,9 +17,9 @@ const styles = {
   wiki: "shrink-0 text-gray-300 hover:text-blue-700",
   // 封面靠右下角，淡淡一排就好：它是註腳，不是這張卡的主角
   covers: "mt-auto flex items-end justify-end gap-1 pt-1 opacity-60",
-  cover: "aspect-2/3 w-5 rounded-[2px] object-cover shadow-sm ring-1 ring-black/10",
+  cover: "aspect-2/3 w-4 rounded-[2px] object-cover shadow-sm ring-1 ring-black/10",
   blank:
-    "flex aspect-2/3 w-5 items-center justify-center rounded-[2px] bg-gray-100 text-[8px] leading-none text-gray-400",
+    "flex aspect-2/3 w-4 items-center justify-center rounded-[2px] bg-gray-100 text-[7px] leading-none text-gray-400",
   more: "self-center text-[10px] text-gray-400 tabular-nums",
 };
 

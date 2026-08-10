@@ -213,8 +213,9 @@ export function MonthGrid({
                 )}
               </span>
 
+              {/* mt-auto：圓點固定貼在格子底部，沒書封的那天才不會整個往上跳 */}
               <span
-                className={`flex h-1.5 shrink-0 items-center ${
+                className={`mt-auto flex h-1.5 shrink-0 items-center ${
                   day.inCurrentMonth ? "" : "opacity-50"
                 }`}
               >
@@ -231,8 +232,12 @@ export function MonthGrid({
       <div className="hidden min-h-0 flex-1 auto-rows-fr grid-cols-7 sm:grid">
         {days.map((day, i) => {
           const isToday = day.date.toDateString() === today.toDateString();
+          const isFirstCol = i % 7 === 0;
+          const isFirstRow = i < 7;
           const isLastCol = i % 7 === 6;
           const isLastRow = i >= days.length - 7;
+          // 最外圈的框由整個月曆的外框負責，格子自己不要再畫一條
+          const edge = `${isFirstCol ? "border-l-0" : ""} ${isFirstRow ? "border-t-0" : ""}`;
           return (
             // 點整格開這天的彈窗；格內的書封／文章連結照常可點
             <div
@@ -250,56 +255,60 @@ export function MonthGrid({
                 day.inCurrentMonth
                   ? // 當月四邊都框起來；負邊界讓相鄰的框疊在一起，不會變兩倍粗，
                     // z-10 則讓黑框壓過隔壁非當月的淡格線
-                    "relative z-10 -mr-px -mb-px min-h-28 cursor-pointer overflow-hidden border border-gray-900 bg-white p-1.5 text-left hover:bg-gray-50"
+                    `relative z-10 -mr-px -mb-px flex min-h-0 cursor-pointer flex-col overflow-hidden border border-gray-900 bg-white p-1.5 text-left hover:bg-gray-50 ${edge}`
                   : // 非當月只有格線淡一階；整格降透明度會連書封一起變灰，反而髒
-                    `min-h-28 cursor-pointer overflow-hidden border-gray-100 bg-gray-50 p-1.5 text-left hover:bg-gray-100 ${
+                    `relative flex min-h-0 cursor-pointer flex-col overflow-hidden border-gray-100 bg-gray-50 p-1.5 text-left hover:bg-gray-100 ${
                       isLastCol ? "" : "border-r"
-                    } ${isLastRow ? "" : "border-b"}`
+                    } ${isLastRow ? "" : "border-b"} ${edge}`
               }
             >
-              {/* 日期與書封並排，省下日期獨占的那一行高度 */}
-              <div className="flex items-start gap-1">
-                <span
-                  className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs ${
-                    isToday
-                      ? "bg-gray-900 text-white"
-                      : day.inCurrentMonth
-                        ? "text-gray-700"
-                        : "text-gray-300"
-                  }`}
-                >
-                  {day.date.getDate()}
-                </span>
+              {/* 日期壓在左上角，書封才能對整個格子置中，不會被日期推偏 */}
+              <span
+                className={`absolute top-1.5 left-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full text-xs ${
+                  isToday
+                    ? "bg-gray-900 text-white"
+                    : day.inCurrentMonth
+                      ? "text-gray-700"
+                      : "text-gray-300"
+                }`}
+              >
+                {day.date.getDate()}
+              </span>
 
-                {/* 書封在日期右邊的剩餘空間裡置中，一格只有一本時才不會孤零零貼著日期 */}
-                <div
-                  className={`flex min-w-0 flex-1 flex-wrap justify-center gap-1 ${
-                    day.inCurrentMonth ? "" : "opacity-50"
-                  }`}
-                >
-                  {day.books.map((b) => (
+              {/* 一格只放第一本書封，其餘用 +N 表示，完整清單在彈窗裡 */}
+              <div
+                className={`flex min-h-0 flex-1 items-center justify-center ${
+                  day.inCurrentMonth ? "" : "opacity-50"
+                }`}
+              >
+                {day.books.length > 0 && (
+                  <span className="relative flex shrink-0">
                     <Link
-                      key={b.id}
-                      href={`/books/${b.id}/edit`}
-                      title={b.title}
+                      href={`/books/${day.books[0].id}`}
+                      title={day.books[0].title}
                       onClick={(e) => e.stopPropagation()}
                       className="block"
                     >
-                      {b.coverUrl ? (
+                      {day.books[0].coverUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
-                          src={b.coverUrl}
-                          alt={b.title}
+                          src={day.books[0].coverUrl}
+                          alt={day.books[0].title}
                           className="h-12 w-8 rounded-sm object-cover shadow-sm lg:h-14 lg:w-10"
                         />
                       ) : (
-                        <div className="flex h-12 w-8 items-center justify-center rounded-sm bg-gray-200 text-[10px] leading-tight text-gray-500 lg:h-14 lg:w-10">
-                          {b.title.slice(0, 2)}
-                        </div>
+                        <span className="flex h-12 w-8 items-center justify-center rounded-sm bg-gray-200 text-[10px] leading-tight text-gray-500 lg:h-14 lg:w-10">
+                          {day.books[0].title.slice(0, 2)}
+                        </span>
                       )}
                     </Link>
-                  ))}
-                </div>
+                    {day.books.length > 1 && (
+                      <span className="absolute -top-1 -right-1 rounded-full bg-gray-900 px-1 text-[9px] leading-[1.3] text-white">
+                        +{day.books.length - 1}
+                      </span>
+                    )}
+                  </span>
+                )}
               </div>
 
               {/* 非當月只淡化內容，格子底色與日期維持原樣 */}

@@ -15,7 +15,7 @@ const styles = {
 
 /** 關鍵字卡片牆與它的編輯視窗：關鍵字頁與手機的筆記頁共用 */
 export function KeywordCards({ books }: { books: Book[] }) {
-  const { byName, save } = useKeywordInfos();
+  const { byName, save, remove } = useKeywordInfos();
   const [editing, setEditing] = useState<string | null>(null);
   const entries = getKeywordEntries(books);
 
@@ -40,6 +40,7 @@ export function KeywordCards({ books }: { books: Book[] }) {
         <KeywordEditDialog
           info={byName.get(editing) ?? { name: editing, ...EMPTY_KEYWORD_INFO }}
           onSave={save}
+          onDelete={remove}
           onClose={() => setEditing(null)}
         />
       )}

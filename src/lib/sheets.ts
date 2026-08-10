@@ -452,6 +452,29 @@ export async function renameKeyword(
   return patches.size;
 }
 
+/** 刪掉主檔那一列，並把所有書的關鍵字欄裡的這個名字一起拿掉。回傳動到幾本書 */
+export async function deleteKeyword(
+  sheetId: string,
+  accessToken: string,
+  name: string,
+): Promise<number> {
+  const sheet = await getKeywordsSheet(sheetId, accessToken);
+  const rows = await sheet.getRows();
+  const row = rows.find((r) => (r.get("名稱") ?? "").toString().trim() === name);
+  if (row) await row.delete();
+
+  const books = await listBooks(sheetId, accessToken);
+  const patches = new Map<string, Partial<Book>>();
+  for (const book of books) {
+    const lines = splitLines(book.keywords);
+    if (!lines.includes(name)) continue;
+    patches.set(book.id, { keywords: lines.filter((line) => line !== name).join("\n") });
+  }
+
+  await bulkUpdateBooks(sheetId, accessToken, patches);
+  return patches.size;
+}
+
 /** 使用者親手改的那一列，整列照寫——這裡不是自動補齊，不必保護既有值 */
 export async function replaceKeywordInfo(
   sheetId: string,

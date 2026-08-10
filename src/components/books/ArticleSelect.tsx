@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { X } from "lucide-react";
 import { createPortal } from "react-dom";
 import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
 import { useArticles } from "@/lib/useArticles";
@@ -13,6 +14,10 @@ const SEARCH_CLASS = "w-full border-b px-3 py-2 text-sm outline-none";
 const ITEM_CLASS =
   "flex w-full items-baseline gap-1.5 px-3 py-1.5 text-left text-sm hover:bg-gray-50";
 const EMPTY_CLASS = "px-3 py-2 text-xs text-gray-400";
+const LIST_CLASS = "flex flex-col divide-y overflow-hidden rounded border";
+const ROW_CLASS = "flex items-center gap-1 py-2 pr-1 pl-3";
+const ROW_TEXT_CLASS = "min-w-0 flex-1 truncate text-sm";
+const REMOVE_CLASS = "shrink-0 rounded p-1.5 text-gray-400 hover:bg-gray-200 hover:text-red-600";
 
 type ArticleSelectProps = {
   value: string;
@@ -77,8 +82,36 @@ export function ArticleSelect({ value, onChange }: ArticleSelectProps) {
     setQuery("");
   }
 
+  // 存的是網址，標題要從抓下來的清單對回去；對不到（自己貼的）就顯示網址本身
+  const titleOf = (url: string) => {
+    const found = articles.find(
+      (a) => a.url === url || instapaperReadUrl(a.bookmark_id, a.url) === url,
+    );
+    return found?.title || url;
+  };
+
   return (
-    <div ref={rootRef} className="relative shrink-0">
+    <div ref={rootRef} className="relative flex shrink-0 flex-col gap-2">
+      {lines.length > 0 && (
+        <div className={LIST_CLASS}>
+          {lines.map((url) => (
+            <div key={url} className={ROW_CLASS}>
+              <span title={url} className={ROW_TEXT_CLASS}>
+                {titleOf(url)}
+              </span>
+              <button
+                type="button"
+                aria-label="移除這篇"
+                onClick={() => onChange(lines.filter((line) => line !== url).join("\n"))}
+                className={REMOVE_CLASS}
+              >
+                <X size={14} strokeWidth={1.5} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       <button type="button" onClick={() => setOpen((v) => !v)} className={TRIGGER_CLASS}>
         ＋ 從 Instapaper 選文章
       </button>

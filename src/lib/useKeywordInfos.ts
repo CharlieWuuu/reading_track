@@ -1,6 +1,6 @@
 "use client";
 
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import { useSheetStore } from "@/store/useSheetStore";
 import { KeywordInfo } from "@/types/keyword";
 
@@ -16,6 +16,7 @@ export type EnrichResult = { added: number; found: number; remaining: number };
 /** 關鍵字主檔存在試算表的「關鍵字」工作表，跨書共用、只查一次 */
 export function useKeywordInfos() {
   const { sheetId } = useSheetStore();
+  const { mutate: mutateGlobal } = useSWRConfig();
   const key = sheetId ? `/api/keywords?sheetId=${encodeURIComponent(sheetId)}` : null;
 
   const { data, error, isLoading, mutate } = useSWR(key, fetcher);
@@ -52,6 +53,21 @@ export function useKeywordInfos() {
     await mutate();
   }
 
+  /** 整個關鍵字刪掉，引用它的書也一起拿掉這個字，所以書單要重讀 */
+  async function remove(name: string) {
+    if (!sheetId) throw new Error("請先連接 Google Sheet");
+    const res = await fetch("/api/keywords", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sheetId, name }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error ?? "刪除關鍵字失敗");
+    await mutate();
+    await mutateGlobal(`/api/books?sheetId=${encodeURIComponent(sheetId)}`);
+    return data.removed as number;
+  }
+
   return {
     infos,
     byName,
@@ -59,5 +75,6 @@ export function useKeywordInfos() {
     error: error instanceof Error ? error.message : undefined,
     enrich,
     save,
+    remove,
   };
 }

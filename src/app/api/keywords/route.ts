@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { lookupKeyword } from "@/lib/keywords/wikipedia";
 import {
+  deleteKeyword,
   listKeywordInfos,
   renameKeyword,
   replaceKeywordInfo,
@@ -109,5 +110,23 @@ export async function PUT(req: NextRequest) {
   } catch (err) {
     console.error("replaceKeywordInfo failed:", err);
     return NextResponse.json({ error: "儲存關鍵字失敗" }, { status: 502 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  if (!session?.accessToken) return NextResponse.json({ error: "請先登入" }, { status: 401 });
+
+  const { sheetId, name } = (await req.json()) as { sheetId: string; name: string };
+  if (!sheetId || !name?.trim()) {
+    return NextResponse.json({ error: "缺少必要欄位" }, { status: 400 });
+  }
+
+  try {
+    const removed = await deleteKeyword(sheetId, session.accessToken, name.trim());
+    return NextResponse.json({ ok: true, removed });
+  } catch (err) {
+    console.error("deleteKeyword failed:", err);
+    return NextResponse.json({ error: "刪除關鍵字失敗" }, { status: 502 });
   }
 }

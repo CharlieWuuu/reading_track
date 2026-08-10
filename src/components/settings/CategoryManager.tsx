@@ -112,12 +112,13 @@ export function CategoryManager() {
     <div>
       <h3 className="mb-2 text-sm font-medium">書籍分類選項</h3>
       <p className="mb-4 text-xs text-gray-500">
-        管理「平台」「領域」「屬性」「語言」的可選項目。選項存在試算表的「選項」工作表，
+        管理「平台」「領域」「次領域」「屬性」「語言」的可選項目。選項存在試算表的「選項」工作表，
         換裝置也還在；編輯書籍時在下拉選單裡也能直接增修。
       </p>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
         <CategoryGroup categoryKey="platform" />
         <CategoryGroup categoryKey="domain" />
+        <CategoryGroup categoryKey="subDomain" />
         <CategoryGroup categoryKey="type" />
         <CategoryGroup categoryKey="language" />
       </div>

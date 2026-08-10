@@ -19,11 +19,14 @@ import {
 } from "lucide-react";
 import { fullerTitle } from "@/lib/metadata";
 import { useBooks } from "@/lib/useBooks";
+import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Book, inferStatus, splitLines } from "@/types/book";
+import { EMPTY_KEYWORD_INFO } from "@/types/keyword";
 import { QuoteRow, VocabularyRow } from "@/types/record";
+import { KeywordEditDialog } from "../keywords/KeywordEditDialog";
 import { ArticleSelect } from "./ArticleSelect";
 import { useBookFormTab } from "./BookFormTabs";
 import { CategorySelect } from "./CategorySelect";
@@ -151,6 +154,9 @@ export function BookForm({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [refetching, setRefetching] = useState(false);
   const [refetchNote, setRefetchNote] = useState("");
+  // 關鍵字的學科、座標、摘要存在主檔裡，就地開視窗改，不用跑去關鍵字頁
+  const [editingKeyword, setEditingKeyword] = useState<string | null>(null);
+  const { byName: keywordInfos, save: saveKeyword } = useKeywordInfos();
   const isEdit = Boolean(book);
 
   /**
@@ -446,6 +452,7 @@ export function BookForm({
               onChange={(v) => set("keywords", v)}
               placeholder="京都"
               suggestions={keywordSuggestions}
+              onEditRow={setEditingKeyword}
             />
           </div>
         </TabPanel>
@@ -478,13 +485,13 @@ export function BookForm({
           </div>
         </TabPanel>
 
-        {/* 相關文章跟筆記放一起：那是讀這本書時一起讀的東西，算筆記的延伸 */}
+        {/* 相關文章跟心得放一起：那是讀這本書時一起讀的東西，算心得的延伸 */}
         <TabPanel active={tab === "notes"}>
           <div className="flex min-h-0 flex-col gap-3 sm:flex-row md:flex-1">
             <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
               <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
                 <NotebookPen size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-                筆記
+                心得
               </label>
               <textarea
                 value={form.note}
@@ -502,11 +509,6 @@ export function BookForm({
               <ArticleSelect
                 value={form.relatedArticles}
                 onChange={(v) => set("relatedArticles", v)}
-              />
-              <LineListInput
-                value={form.relatedArticles}
-                onChange={(v) => set("relatedArticles", v)}
-                placeholder="https://www.instapaper.com/read/1234567890"
               />
             </div>
           </div>
@@ -558,6 +560,14 @@ export function BookForm({
             </button>
           ))}
       </div>
+
+      {editingKeyword && (
+        <KeywordEditDialog
+          info={keywordInfos.get(editingKeyword) ?? { name: editingKeyword, ...EMPTY_KEYWORD_INFO }}
+          onSave={saveKeyword}
+          onClose={() => setEditingKeyword(null)}
+        />
+      )}
     </form>
   );
 }

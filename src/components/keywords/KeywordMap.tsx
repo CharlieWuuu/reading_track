@@ -11,9 +11,12 @@ import { KeywordInfo, parseCoordinates } from "@/types/keyword";
 const styles = {
   wrap: "flex h-full min-h-0 flex-col gap-2",
   map: "min-h-0 flex-1 rounded",
-  legend: "flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1",
-  legendItem: "flex items-center gap-1 text-[11px] text-gray-500",
-  swatch: "h-2.5 w-2.5 shrink-0 rounded-full",
+  legend: "flex shrink-0 flex-wrap items-center gap-1.5",
+  legendItem: "overflow-hidden rounded-[2px]",
+  // 書用封面認，線的顏色畫成封面的外框，兩件事合成一個圖例
+  legendCover: "aspect-2/3 w-5 object-cover",
+  legendBlank:
+    "flex aspect-2/3 w-5 items-center justify-center bg-gray-100 text-[8px] leading-none text-gray-400",
   empty: "flex h-full items-center justify-center text-xs text-gray-400",
 };
 
@@ -33,7 +36,7 @@ const OVERFLOW_LABEL = "其他";
 
 type MapPoint = { name: string; lat: number; lon: number };
 
-type Route = { title: string; color: string; points: MapPoint[] };
+type Route = { title: string; cover: string; color: string; points: MapPoint[] };
 
 type KeywordMapProps = {
   books: Book[];
@@ -108,9 +111,18 @@ export function KeywordMap({ books, infos }: KeywordMapProps) {
       {/* 一本書一個顏色，沒有圖例就看不出線是誰的 */}
       <ul className={styles.legend}>
         {legendOf(routes).map((item) => (
-          <li key={item.title} className={styles.legendItem}>
-            <span className={styles.swatch} style={{ background: item.color }} />
-            {item.title}
+          <li
+            key={item.title}
+            title={item.title}
+            className={styles.legendItem}
+            style={{ outline: `2px solid ${item.color}`, outlineOffset: "-2px" }}
+          >
+            {item.cover ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={item.cover} alt="" loading="lazy" className={styles.legendCover} />
+            ) : (
+              <span className={styles.legendBlank}>{item.title.slice(0, 1)}</span>
+            )}
           </li>
         ))}
       </ul>
@@ -119,10 +131,10 @@ export function KeywordMap({ books, infos }: KeywordMapProps) {
 }
 
 /** 超出色票的書全共用灰色，圖例只出現一列「其他」 */
-function legendOf(routes: Route[]): Array<{ title: string; color: string }> {
+function legendOf(routes: Route[]): Array<{ title: string; cover: string; color: string }> {
   const seen = new Set<string>();
   return routes
-    .map((r) => ({ title: r.title, color: r.color }))
+    .map((r) => ({ title: r.title, cover: r.cover, color: r.color }))
     .filter((item) => !seen.has(item.title) && seen.add(item.title));
 }
 
@@ -141,13 +153,13 @@ function toRoutesKey(books: Book[], infos: Map<string, KeywordInfo>): string {
         .map((name) => ({ name, at: parseCoordinates(infos.get(name)?.coordinates ?? "") }))
         .filter((p) => p.at)
         .map((p) => [p.name, p.at!.lat, p.at!.lon].join(FIELD));
-      return { title: book.title, points };
+      return { title: book.title, cover: book.coverUrl, points };
     })
     .filter((route) => route.points.length > 0)
     .sort((a, b) => b.points.length - a.points.length);
 
   return routes
-    .map((route, i) => [colorFor(i), route.title, ...route.points].join(POINT))
+    .map((route, i) => [colorFor(i), route.title, route.cover, ...route.points].join(POINT))
     .join(ROUTE);
 }
 
@@ -158,11 +170,12 @@ function colorFor(index: number): string {
 function fromRoutesKey(key: string): Route[] {
   if (!key) return [];
   return key.split(ROUTE).map((row) => {
-    const [color, title, ...points] = row.split(POINT);
+    const [color, title, cover, ...points] = row.split(POINT);
     return {
       color,
       // 超出色票的共用灰色，圖例就不該一本一列
       title: color === OVERFLOW_COLOR ? OVERFLOW_LABEL : title,
+      cover: color === OVERFLOW_COLOR ? "" : cover,
       points: points.map((p) => {
         const [name, lat, lon] = p.split(FIELD);
         return { name, lat: Number(lat), lon: Number(lon) };
