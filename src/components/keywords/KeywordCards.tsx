@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { KeywordCard } from "@/components/keywords/KeywordCard";
 import { KeywordEditDialog } from "@/components/keywords/KeywordEditDialog";
+import { CardMasonry } from "@/components/ui/CardMasonry";
 import { getKeywordEntries } from "@/lib/keywordStats";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { Book } from "@/types/book";
 import { EMPTY_KEYWORD_INFO } from "@/types/keyword";
 
 const styles = {
-  cards: "grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3",
   empty: "py-6 text-center text-xs text-gray-400",
 };
 
@@ -25,7 +25,7 @@ export function KeywordCards({ books }: { books: Book[] }) {
 
   return (
     <>
-      <div className={styles.cards}>
+      <CardMasonry>
         {entries.map((entry) => (
           <KeywordCard
             key={entry.name}
@@ -34,7 +34,7 @@ export function KeywordCards({ books }: { books: Book[] }) {
             onEdit={() => setEditing(entry.name)}
           />
         ))}
-      </div>
+      </CardMasonry>
 
       {editing && (
         <KeywordEditDialog

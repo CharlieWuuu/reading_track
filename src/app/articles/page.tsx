@@ -74,7 +74,9 @@ function ArticlesList() {
       <PageHeader title="文章紀錄" />
       <PageBody>
         {/* overflow-hidden：hover 底色才會被圓角裁掉，不會在頭尾兩列破圖 */}
-        <div className="divide-y overflow-hidden rounded-lg border bg-white">
+        {/* shrink-0：overflow 一旦不是 visible，flex 子項就會被壓扁，清單長了也捲不到 */}
+        {/* 桌機只捲清單本身，外框與圓角留在原地；手機仍是整頁捲 */}
+        <div className="shrink-0 divide-y overflow-hidden rounded-lg border bg-white md:min-h-0 md:flex-1 md:overflow-y-auto">
           {articles.map((a) => {
             const percent = Math.round((a.progress ?? 0) * 100);
             return (

@@ -1,9 +1,9 @@
 "use client";
 
+import { CardMasonry } from "@/components/ui/CardMasonry";
 import { VocabularyEntry } from "@/lib/vocabularyStats";
 
 const styles = {
-  cards: "grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3",
   card: "relative flex cursor-pointer flex-col gap-2 rounded-lg border bg-white p-4 hover:border-gray-400",
   head: "flex items-baseline justify-between gap-2 pr-12",
   headWord: "min-w-0 truncate text-sm font-medium",
@@ -31,7 +31,7 @@ export function VocabularyPanel({ entries, onEdit }: VocabularyPanelProps) {
   }
 
   return (
-    <div className={styles.cards}>
+    <CardMasonry>
       {entries.map((entry) => (
         <div key={entry.word} className={styles.card} onClick={() => onEdit(entry)}>
           {/* 書名不寫出來，右上角一張小封面就夠認出是哪一本 */}
@@ -78,6 +78,6 @@ export function VocabularyPanel({ entries, onEdit }: VocabularyPanelProps) {
           </div>
         </div>
       ))}
-    </div>
+    </CardMasonry>
   );
 }
