@@ -329,10 +329,7 @@ export function BookForm({
   // 桌機撐滿可用高度，靠三欄排版讓欄位在一頁內看完；
   // 手機排不成三欄，改成表單自己長高、交給外層的主捲動區捲
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-3 rounded-lg border bg-white p-4 sm:p-5 md:h-full md:min-h-0"
-    >
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 md:h-full md:min-h-0">
       {notice && (
         <p className="shrink-0 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
           {notice}
