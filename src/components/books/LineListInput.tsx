@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import { Plus, X } from "lucide-react";
 import { splitLines } from "@/types/book";
 
@@ -33,10 +33,20 @@ export function LineListInput({
   suggestions = [],
 }: LineListInputProps) {
   const listId = useId();
-  // 編輯中會出現空白列（剛按新增），所以不能用 splitLines 過濾後的結果當畫面來源
-  const lines = value === "" ? [] : value.split(/\r?\n/);
+  /**
+   * 列數自己記著：一行一筆的字串分不出「沒有任何列」與「一列空白」，
+   * 只看 value 的話，空清單按新增會 join 回空字串，畫面就完全沒反應。
+   */
+  const [lines, setLines] = useState<string[]>(() => (value === "" ? [] : value.split(/\r?\n/)));
+  // 換一本書或外面改了值才以 value 為準；剛新增的那列 join 起來還是等於 value，不會被沖掉
+  if (lines.join("\n") !== value) {
+    setLines(value === "" ? [] : value.split(/\r?\n/));
+  }
 
-  const commit = (next: string[]) => onChange(next.join("\n"));
+  const commit = (next: string[]) => {
+    setLines(next);
+    onChange(next.join("\n"));
+  };
 
   // 這本書已經有的就不用再建議
   const used = new Set(lines.map((line) => line.trim()));

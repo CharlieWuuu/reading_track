@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from "react";
 import { BookForm } from "@/components/books/BookForm";
+import { BookFormTabs } from "@/components/books/BookFormTabs";
 import { BookLookupStep, LookupResult } from "@/components/books/BookLookupStep";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -16,7 +17,12 @@ function NewBook() {
 
   return (
     <>
-      <PageHeader title="新增書籍" backHref={backHref} />
+      {/* 還在查詢資料時沒有表單可切，分頁列等填表那一步才出現 */}
+      <PageHeader
+        title="新增書籍"
+        backHref={backHref}
+        action={result ? <BookFormTabs /> : undefined}
+      />
       <PageBody>
         {result ? (
           <div className="shrink-0 md:min-h-0 md:flex-1">

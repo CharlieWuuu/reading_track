@@ -25,6 +25,7 @@ import { useSheetStore } from "@/store/useSheetStore";
 import { Book, inferStatus, splitLines } from "@/types/book";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { ArticleSelect } from "./ArticleSelect";
+import { useBookFormTab } from "./BookFormTabs";
 import { CategorySelect } from "./CategorySelect";
 import { compactLines, LineListInput } from "./LineListInput";
 import { QuoteListInput } from "./QuoteListInput";
@@ -60,27 +61,6 @@ const emptyForm = {
 
 type FormState = typeof emptyForm;
 
-type Tab = "book" | "tags" | "excerpt" | "notes";
-
-/**
- * 欄位多到一頁看不完，照「這東西是什麼」分頁：
- * 書籍是出版社定的事實、標記是自己貼上去的、摘錄是從書裡抄出來的、筆記是自己寫的。
- */
-const TABS: { key: Tab; label: string }[] = [
-  { key: "book", label: "書籍" },
-  { key: "tags", label: "標記" },
-  { key: "excerpt", label: "摘錄" },
-  { key: "notes", label: "筆記" },
-];
-
-const tabStyles = {
-  // ml-auto：只佔自己的寬度並靠右，窄螢幕放不下時才在自己裡面橫捲
-  bar: "ml-auto flex w-fit max-w-full shrink-0 items-center gap-1 overflow-x-auto rounded-lg border p-1",
-  tab: "shrink-0 rounded px-3 py-1.5 text-sm font-medium whitespace-nowrap",
-  active: "bg-gray-900 text-white",
-  idle: "text-gray-500 hover:bg-gray-100",
-};
-
 /** 沒選到的分頁留在畫面上但藏起來，切回來時打到一半的內容還在 */
 function TabPanel({ active, children }: { active: boolean; children: React.ReactNode }) {
   return (
@@ -90,13 +70,10 @@ function TabPanel({ active, children }: { active: boolean; children: React.React
   );
 }
 
-/** 一組相關欄位排成同一片格線 */
-function Section({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="grid min-h-0 shrink-0 grid-cols-1 content-start gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {children}
-    </div>
-  );
+/** 一組相關欄位排成同一片格線；pairs 是固定兩欄，手機也不折成一欄 */
+function Section({ children, pairs }: { children: React.ReactNode; pairs?: boolean }) {
+  const cols = pairs ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+  return <div className={`grid min-h-0 shrink-0 content-start gap-3 ${cols}`}>{children}</div>;
 }
 
 async function scrapeByUrl(url: string): Promise<Partial<Book> | null> {
@@ -140,7 +117,7 @@ export function BookForm({
 }) {
   const router = useRouter();
   // 從書單進來時會帶著檢視方式與頁碼，存完要回到同一頁
-  const { searchParams, setParams } = useUrlParams();
+  const { searchParams } = useUrlParams();
   const back = searchParams.get("back");
   const listHref = back ? `/books?${back}` : "/books";
   // 編輯是從書籍資訊進來的，離開就回那一頁；新增沒有資訊頁可回，直接回書單
@@ -148,10 +125,7 @@ export function BookForm({
     ? `/books/${book.id}${back ? `?back=${encodeURIComponent(back)}` : ""}`
     : listHref;
 
-  // 看哪一頁寫在網址上，重新整理或分享連結都回得到同一個分頁；預設書籍資訊
-  const tabParam = searchParams.get("tab");
-  const tab: Tab = TABS.some((t) => t.key === tabParam) ? (tabParam as Tab) : "book";
-  const setTab = (next: Tab) => setParams({ tab: next === "book" ? null : next });
+  const { tab, setTab } = useBookFormTab();
   const { sheetId } = useSheetStore();
   const { books: allBooks, mutate } = useBooks();
   // 已經用過的關鍵字拿來當建議，免得同一個東西被打成兩種寫法
@@ -350,19 +324,6 @@ export function BookForm({
         </p>
       )}
 
-      <div className={tabStyles.bar}>
-        {TABS.map((t) => (
-          <button
-            key={t.key}
-            type="button"
-            onClick={() => setTab(t.key)}
-            className={`${tabStyles.tab} ${tab === t.key ? tabStyles.active : tabStyles.idle}`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
       {/* 欄位一路往下排；桌機在這層捲，手機不自己捲，跟著整頁捲 */}
       <div className="flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
         <TabPanel active={tab === "book"}>
@@ -422,27 +383,24 @@ export function BookForm({
         </TabPanel>
 
         <TabPanel active={tab === "tags"}>
-          <Section>
-            {/* 日期在手機各佔一行：iOS 的原生日期控制項有最小寬度，兩兩並排會互相擠壓 */}
-            <div className="grid min-w-0 grid-cols-1 gap-3 sm:contents">
-              <Field
-                label="開始日期"
-                Icon={CalendarPlus}
-                type="date"
-                value={form.startDate}
-                onChange={(v) => set("startDate", v)}
-              />
-              <Field
-                label="完成日期"
-                Icon={CalendarCheck}
-                type="date"
-                value={form.endDate}
-                onChange={(v) => set("endDate", v)}
-              />
-            </div>
+          <Section pairs>
+            <Field
+              label="開始日期"
+              Icon={CalendarPlus}
+              type="date"
+              value={form.startDate}
+              onChange={(v) => set("startDate", v)}
+            />
+            <Field
+              label="完成日期"
+              Icon={CalendarCheck}
+              type="date"
+              value={form.endDate}
+              onChange={(v) => set("endDate", v)}
+            />
           </Section>
 
-          <Section>
+          <Section pairs>
             {/* 平台是「我在哪讀的」，跟書本身無關，所以跟其他自訂分類放一起 */}
             <CategorySelect
               label="平台"
@@ -545,11 +503,10 @@ export function BookForm({
                 value={form.relatedArticles}
                 onChange={(v) => set("relatedArticles", v)}
               />
-              <textarea
+              <LineListInput
                 value={form.relatedArticles}
-                onChange={(e) => set("relatedArticles", e.target.value)}
-                placeholder={"https://www.instapaper.com/read/1234567890"}
-                className={`${TEXTAREA_CLASS} ${TEXTAREA_MIN}`}
+                onChange={(v) => set("relatedArticles", v)}
+                placeholder="https://www.instapaper.com/read/1234567890"
               />
             </div>
           </div>

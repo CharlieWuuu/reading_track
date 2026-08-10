@@ -41,7 +41,7 @@ function Cover({ url, title }: { url: string; title: string }) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="flex flex-col gap-3">
-      <h3 className="border-b border-gray-200 pb-1.5 text-xs text-gray-400">{title}</h3>
+      <h3 className="border-b border-gray-200 pb-1.5 text-base text-gray-400">{title}</h3>
       {children}
     </section>
   );

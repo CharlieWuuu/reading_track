@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { BookForm } from "@/components/books/BookForm";
+import { BookFormTabs } from "@/components/books/BookFormTabs";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
@@ -36,7 +37,7 @@ export default function EditBookPage() {
 
   return (
     <>
-      <PageHeader title="編輯書籍" backHref={backHref} />
+      <PageHeader title="編輯書籍" backHref={backHref} action={<BookFormTabs />} />
       <PageBody>
         <div className="shrink-0 md:min-h-0 md:flex-1">
           <BookForm key={book.id} book={book} />
