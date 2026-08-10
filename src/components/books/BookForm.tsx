@@ -528,9 +528,7 @@ export function BookForm({
           <div className="flex min-h-0 shrink-0 flex-col gap-1">
             <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
               單字
-              <span className="text-xs font-normal text-gray-400">
-                一個一組，例句與章節可留空；刻意不跨書共用
-              </span>
+              <span className="text-xs font-normal text-gray-400">點一個可以編輯</span>
             </label>
             <VocabularyListInput
               rows={vocabularyRows}
