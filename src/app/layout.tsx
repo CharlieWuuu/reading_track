@@ -4,7 +4,6 @@ import "./globals.css";
 import { COMMIT_HOOK_INSTALLER } from "react-component-overlay";
 import { SessionProvider } from "@/components/auth/SessionProvider";
 import { AppShell } from "@/components/layout/AppShell";
-import { LockZoomInStandalone } from "@/components/layout/LockZoomInStandalone";
 import { ServiceWorkerRegistrar } from "@/components/layout/ServiceWorkerRegistrar";
 import { SWRProvider } from "@/components/layout/SWRProvider";
 import { DebugSetup } from "./DebugSetup";
@@ -40,6 +39,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
   viewportFit: "cover",
   themeColor: "#ffffff",
 };
@@ -67,7 +68,6 @@ export default function RootLayout({
               <AppShell>{children}</AppShell>
             </DebugSetup>
             <ServiceWorkerRegistrar />
-            <LockZoomInStandalone />
           </SWRProvider>
         </SessionProvider>
       </body>

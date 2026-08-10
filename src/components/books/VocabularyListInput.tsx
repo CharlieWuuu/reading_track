@@ -113,7 +113,7 @@ export function VocabularyListInput({ rows, onChange, bookLanguage }: Vocabulary
 
             <div className={styles.pair}>
               <div className={styles.field}>
-                <label className={styles.label}>例句（可留空）</label>
+                <label className={styles.label}>例句</label>
                 <textarea
                   value={draft.sentence}
                   onChange={(e) => setDraft({ ...draft, sentence: e.target.value })}
@@ -123,7 +123,7 @@ export function VocabularyListInput({ rows, onChange, bookLanguage }: Vocabulary
               </div>
 
               <div className={styles.field}>
-                <label className={styles.label}>例句的翻譯（可留空）</label>
+                <label className={styles.label}>例句的翻譯</label>
                 <textarea
                   value={draft.sentenceTranslation}
                   onChange={(e) => setDraft({ ...draft, sentenceTranslation: e.target.value })}
@@ -134,7 +134,7 @@ export function VocabularyListInput({ rows, onChange, bookLanguage }: Vocabulary
 
             <div className={styles.pair}>
               <div className={styles.field}>
-                <label className={styles.label}>章節（可留空）</label>
+                <label className={styles.label}>章節</label>
                 <input
                   value={draft.chapter}
                   onChange={(e) => setDraft({ ...draft, chapter: e.target.value })}

@@ -22,7 +22,6 @@ const styles = {
   wrap: "flex min-h-0 flex-1 flex-col gap-3",
   tabs: "flex shrink-0 justify-end",
   panel: "flex min-h-0 flex-1 flex-col gap-3 rounded-lg border bg-white p-4 md:p-5",
-  panelTitle: "shrink-0 text-sm font-medium",
   chart: "min-h-0 flex-1",
   cards: "min-h-0 flex-1 overflow-y-auto",
   loading: "flex h-full items-center justify-center text-xs text-gray-400",
@@ -83,14 +82,12 @@ export function KeywordsSection({
 
       {view === "chart" ? (
         <div className={styles.panel}>
-          <p className={styles.panelTitle}>依學科分群（格子大小＝被幾本書提到）</p>
           <div className={styles.chart}>
             <KeywordTreemap entries={entries} infos={byName} />
           </div>
         </div>
       ) : view === "timeline" ? (
         <div className={styles.panel}>
-          <p className={styles.panelTitle}>有生卒／起訖的關鍵字</p>
           <div className={styles.chart}>
             <KeywordTimeline entries={entries} infos={byName} />
           </div>

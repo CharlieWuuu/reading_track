@@ -1,8 +1,10 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
+import { KeywordEditDialog } from "@/components/keywords/KeywordEditDialog";
 import { KeywordEntry } from "@/lib/keywordStats";
-import { KeywordInfo, parseSpan } from "@/types/keyword";
+import { useKeywordInfos } from "@/lib/useKeywordInfos";
+import { EMPTY_KEYWORD_INFO, KeywordInfo, parseSpan } from "@/types/keyword";
 
 const styles = {
   wrap: "h-full min-h-0 overflow-auto",
@@ -10,7 +12,7 @@ const styles = {
   tick: "shrink-0 border-l px-1 py-1 text-xs text-gray-400 tabular-nums first:border-l-0",
   lanes: "flex flex-col gap-0.5 px-0.5 py-1",
   lane: "relative h-4 shrink-0",
-  bar: "absolute flex h-4 flex-col justify-end overflow-hidden",
+  bar: "absolute flex h-4 flex-col justify-end overflow-hidden text-left",
   label: "translate-y-0.5 truncate text-[9px] leading-2.5 text-[#2B5A8E]",
   line: "relative h-1.5 shrink-0",
   stroke: "absolute inset-x-0 top-1/2 h-0.5 -translate-y-1/2 bg-[#2B5A8E]",
@@ -39,6 +41,8 @@ type KeywordTimelineProps = {
 
 /** 有生卒／起訖的關鍵字排成一條數線，橫向捲 */
 export function KeywordTimeline({ entries, infos }: KeywordTimelineProps) {
+  const { save, remove } = useKeywordInfos();
+  const [editing, setEditing] = useState<string | null>(null);
   const spans = toSpans(entries, infos);
 
   if (spans.length === 0) {
@@ -72,24 +76,38 @@ export function KeywordTimeline({ entries, infos }: KeywordTimelineProps) {
           {packLanes(segments).map((lane, i) => (
             <div key={i} className={styles.lane}>
               {lane.map((segment) => (
-                <Bar key={segment.name} segment={segment} />
+                <Bar
+                  key={segment.name}
+                  segment={segment}
+                  onOpen={() => setEditing(segment.name)}
+                />
               ))}
             </div>
           ))}
         </div>
       </div>
+
+      {editing && (
+        <KeywordEditDialog
+          info={infos.get(editing) ?? { name: editing, ...EMPTY_KEYWORD_INFO }}
+          onSave={save}
+          onDelete={remove}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </div>
   );
 }
 
-function Bar({ segment }: { segment: Segment }) {
+function Bar({ segment, onOpen }: { segment: Segment; onOpen: () => void }) {
   const range = segment.point
     ? label(segment.from)
     : `${label(segment.from)}－${label(segment.to)}`;
 
   return (
-    <Link
-      href={`/books?keyword=${encodeURIComponent(segment.name)}`}
+    <button
+      type="button"
+      onClick={onOpen}
       title={`${segment.name}｜${range}`}
       style={{ left: segment.start, width: segment.width }}
       className={styles.bar}
@@ -101,7 +119,7 @@ function Bar({ segment }: { segment: Segment }) {
         <span className={`${styles.dot} left-0`} />
         <span className={`${styles.dot} right-0`} />
       </span>
-    </Link>
+    </button>
   );
 }
 
@@ -148,7 +166,7 @@ function toSpans(entries: KeywordEntry[], infos: Map<string, KeywordInfo>): Span
 
   for (const entry of entries) {
     const info = infos.get(entry.name);
-    // 有座標的是地點，畫在地圖上就好——主檔裡舊的列可能還留著建城年
+    // 有座標的畫在地圖上就好，年代仍然記在主檔裡，只是不上數線
     if (info?.coordinates) continue;
     const span = parseSpan(info?.span ?? "");
     if (!span) continue;

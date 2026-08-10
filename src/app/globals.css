@@ -29,3 +29,12 @@ button:not(:disabled),
 a {
   cursor: pointer;
 }
+
+/* 觸控裝置上輸入框小於 16px，iOS 聚焦時會自動放大整頁 */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}

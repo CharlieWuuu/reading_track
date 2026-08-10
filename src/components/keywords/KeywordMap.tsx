@@ -1,16 +1,18 @@
 "use client";
 
 import "leaflet/dist/leaflet.css";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
+import { KeywordEditDialog } from "@/components/keywords/KeywordEditDialog";
 import { CATEGORICAL } from "@/lib/chartPalette";
+import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { Book, splitLines } from "@/types/book";
-import { KeywordInfo, parseCoordinates } from "@/types/keyword";
+import { EMPTY_KEYWORD_INFO, KeywordInfo, parseCoordinates } from "@/types/keyword";
 
 const styles = {
   wrap: "flex h-full min-h-0 flex-col gap-2",
-  map: "min-h-0 flex-1 rounded",
+  // isolate 把 leaflet 內部的高 z-index 關在自己的堆疊環境裡，才不會蓋掉外面的選單
+  map: "min-h-0 flex-1 isolate rounded",
   legend: "flex shrink-0 flex-wrap items-center gap-1.5",
   legendItem: "overflow-hidden rounded-[2px]",
   // 書用封面認，線的顏色畫成封面的外框，兩件事合成一個圖例
@@ -46,7 +48,8 @@ type KeywordMapProps = {
 /** 有座標的關鍵字畫成地圖：一本書一個顏色，同一本書的地點依記錄順序連成線 */
 export function KeywordMap({ books, infos }: KeywordMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
+  const { save, remove } = useKeywordInfos();
+  const [editing, setEditing] = useState<string | null>(null);
 
   // 父層每次 render 都給新的陣列，直接放進相依會讓地圖無限重建；改用內容當鍵，
   // 效果裡再從鍵還原回路線，重建只發生在資料真的變了的時候
@@ -82,7 +85,7 @@ export function KeywordMap({ books, infos }: KeywordMapProps) {
         })
           .addTo(map)
           .bindTooltip(`${point.name}｜${route.title}`)
-          .on("click", () => router.push(`/books?keyword=${encodeURIComponent(point.name)}`));
+          .on("click", () => setEditing(point.name));
       }
     }
 
@@ -99,7 +102,7 @@ export function KeywordMap({ books, infos }: KeywordMapProps) {
       observer.disconnect();
       map.remove();
     };
-  }, [routesKey, router]);
+  }, [routesKey]);
 
   if (routes.length === 0) {
     return <div className={styles.empty}>還沒有帶座標的關鍵字，先按「補齊資料」查維基</div>;
@@ -126,6 +129,15 @@ export function KeywordMap({ books, infos }: KeywordMapProps) {
           </li>
         ))}
       </ul>
+
+      {editing && (
+        <KeywordEditDialog
+          info={infos.get(editing) ?? { name: editing, ...EMPTY_KEYWORD_INFO }}
+          onSave={save}
+          onDelete={remove}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </div>
   );
 }

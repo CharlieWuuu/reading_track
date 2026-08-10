@@ -2,14 +2,13 @@
 
 import { useState } from "react";
 import { Dialog } from "@/components/ui/Dialog";
-import { KeywordInfo } from "@/types/keyword";
+import { formatSpan, KeywordInfo, parseSpan } from "@/types/keyword";
 
 const styles = {
   form: "flex flex-col gap-3",
   row: "grid grid-cols-2 gap-3",
   field: "flex min-w-0 flex-col gap-1",
-  label: "flex items-baseline gap-2 text-sm font-medium",
-  hint: "text-xs font-normal text-gray-400",
+  label: "text-sm font-medium",
   input: "w-full rounded border px-3 py-1.5 text-sm",
   summary: "min-h-24 w-full resize-none rounded border px-3 py-1.5 text-sm",
   actions: "flex flex-wrap items-center gap-2 pt-1",
@@ -27,15 +26,14 @@ const styles = {
   cancelSmall: "rounded border px-3 py-1.5 text-gray-600 hover:bg-gray-50",
 };
 
-/** 兩兩並排的欄位；連結自己一列，放在最後 */
+/** 兩兩並排的欄位；起訖是兩個年份欄，自己一列 */
 const ROWS = [
   [
-    { key: "name", label: "名稱", hint: "改名會連帶改寫所有提到它的書" },
-    { key: "topics", label: "學科", hint: "多個以頓號分隔" },
+    { key: "name", label: "名稱" },
+    { key: "topics", label: "學科" },
   ],
   [
-    { key: "coordinates", label: "座標", hint: "緯度,經度" },
-    { key: "span", label: "起訖", hint: "例如 1809－1882" },
+    { key: "coordinates", label: "座標" },
   ],
 ] as const;
 
@@ -58,6 +56,12 @@ export function KeywordEditDialog({ info, onSave, onDelete, onClose }: KeywordEd
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const set = (key: keyof KeywordInfo, value: string) => setForm((f) => ({ ...f, [key]: value }));
+
+  // 起訖在 Sheet 上是「1809－1882」一格，這裡拆成兩欄填，存回去再併起來
+  const span = parseSpan(form.span);
+  const spanFrom = span?.from == null ? "" : String(span.from);
+  const spanTo = span?.to == null ? "" : String(span.to);
+  const setSpan = (from: string, to: string) => set("span", formatSpan(from, to));
 
   /** 去維基查這個字，查到的填進欄位讓人過目；要不要留下還是按儲存才算 */
   async function handleLookup() {
@@ -124,10 +128,7 @@ export function KeywordEditDialog({ info, onSave, onDelete, onClose }: KeywordEd
           <div key={i} className={styles.row}>
             {row.map((field) => (
               <div key={field.key} className={styles.field}>
-                <label className={styles.label}>
-                  {field.label}
-                  {field.hint && <span className={styles.hint}>{field.hint}</span>}
-                </label>
+                <label className={styles.label}>{field.label}</label>
                 <input
                   value={form[field.key]}
                   onChange={(e) => set(field.key, e.target.value)}
@@ -137,6 +138,29 @@ export function KeywordEditDialog({ info, onSave, onDelete, onClose }: KeywordEd
             ))}
           </div>
         ))}
+
+        <div className={styles.row}>
+          <div className={styles.field}>
+            <label className={styles.label}>起（西元年）</label>
+            <input
+              type="number"
+              inputMode="numeric"
+              value={spanFrom}
+              onChange={(e) => setSpan(e.target.value, spanTo)}
+              className={styles.input}
+            />
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label}>訖（西元年）</label>
+            <input
+              type="number"
+              inputMode="numeric"
+              value={spanTo}
+              onChange={(e) => setSpan(spanFrom, e.target.value)}
+              className={styles.input}
+            />
+          </div>
+        </div>
 
         <div className={styles.field}>
           <label className={styles.label}>摘要</label>

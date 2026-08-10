@@ -21,8 +21,7 @@ const styles = {
   undo: "ml-auto rounded px-2 py-0.5 text-[11px] text-gray-500 no-underline hover:bg-gray-100",
   pair: "grid grid-cols-2 gap-2",
   field: "flex flex-col gap-1",
-  label: "flex items-baseline gap-2 text-sm font-medium",
-  hint: "text-xs font-normal text-gray-400",
+  label: "text-sm font-medium",
   input: "w-full rounded border px-3 py-1.5 text-sm",
   sentence: "min-h-16 w-full resize-none rounded border px-3 py-1.5 text-sm",
   actions: "flex items-center gap-2 pt-1",
@@ -152,10 +151,7 @@ export function VocabularyEditDialog({ entry, onSave, onClose }: VocabularyEditD
               </div>
 
               <div className={styles.field}>
-                <label className={styles.label}>
-                  例句
-                  <span className={styles.hint}>讀到它的那一句</span>
-                </label>
+                <label className={styles.label}>例句</label>
                 <textarea
                   value={edit.sentence}
                   onChange={(e) => update(i, { sentence: e.target.value })}

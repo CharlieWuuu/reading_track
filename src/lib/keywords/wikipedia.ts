@@ -43,9 +43,8 @@ export async function lookupKeyword(name: string): Promise<KeywordInfo> {
   if (!page) return empty;
 
   const coordinate = page.coordinates?.[0];
-  // 有座標的就當地點畫在地圖上，不再取起訖——不然城市會被建城年帶進數線
   const [span, topics] = await Promise.all([
-    coordinate ? Promise.resolve("") : fetchSpan(page.pageprops?.wikibase_item),
+    fetchSpan(page.pageprops?.wikibase_item, Boolean(coordinate)),
     fetchTopics(page.title),
   ]);
 
@@ -112,8 +111,13 @@ function summarize(extract: string): string {
   return text.length > SUMMARY_MAX ? `${text.slice(0, SUMMARY_MAX)}…` : text;
 }
 
-/** 人物取生卒（P569／P570），其他取起訖（P571／P576） */
-async function fetchSpan(entityId: string | undefined): Promise<string> {
+/**
+ * 人物取生卒（P569／P570），事件取發生時間（P585）或起訖（P580／P582），
+ * 其他取存續（P571／P576）。
+ *
+ * 有座標的只認事件時間：城市也有 P571，收下去數線就會多出一堆建城年。
+ */
+async function fetchSpan(entityId: string | undefined, hasCoordinate: boolean): Promise<string> {
   if (!entityId) return "";
 
   const params = new URLSearchParams({
@@ -126,8 +130,11 @@ async function fetchSpan(entityId: string | undefined): Promise<string> {
   const claims = data?.entities?.[entityId]?.claims;
   if (!claims) return "";
 
-  const from = year(claims.P569) || year(claims.P571);
-  const to = year(claims.P570) || year(claims.P576);
+  const point = year(claims.P585);
+  if (point) return `${point}－${point}`;
+
+  const from = year(claims.P580) || (hasCoordinate ? "" : year(claims.P569) || year(claims.P571));
+  const to = year(claims.P582) || (hasCoordinate ? "" : year(claims.P570) || year(claims.P576));
   return from || to ? `${from}－${to}` : "";
 }
 
