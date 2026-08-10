@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
+  BookOpen,
   CalendarCheck,
   CalendarPlus,
   FileText,
@@ -20,6 +21,7 @@ import {
 import { fullerTitle } from "@/lib/metadata";
 import { useBooks } from "@/lib/useBooks";
 import { useRecords } from "@/lib/useRecords";
+import { useUrlParams } from "@/lib/useUrlParam";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Book, inferStatus, splitLines } from "@/types/book";
 import { QuoteRow, VocabularyRow } from "@/types/record";
@@ -59,17 +61,17 @@ const emptyForm = {
 
 type FormState = typeof emptyForm;
 
-type Tab = "book" | "mine" | "notes" | "marks";
+type Tab = "book" | "tags" | "excerpt" | "notes";
 
 /**
- * 欄位多到一頁看不完，照「這件事誰說了算」分頁：
- * 書籍資訊是出版社定的、抓得到的；個人標記是自己定的，換個人填就不一樣。
+ * 欄位多到一頁看不完，照「這東西是什麼」分頁：
+ * 書籍是出版社定的事實、標記是自己貼上去的、摘錄是從書裡抄出來的、筆記是自己寫的。
  */
 const TABS: { key: Tab; label: string }[] = [
-  { key: "book", label: "書籍資訊" },
-  { key: "mine", label: "個人標記" },
-  { key: "notes", label: "筆記佳句" },
-  { key: "marks", label: "關鍵字單字" },
+  { key: "book", label: "書籍" },
+  { key: "tags", label: "標記" },
+  { key: "excerpt", label: "摘錄" },
+  { key: "notes", label: "筆記" },
 ];
 
 const tabStyles = {
@@ -138,8 +140,14 @@ export function BookForm({
 }) {
   const router = useRouter();
   // 從書單進來時會帶著檢視方式與頁碼，存完要回到同一頁
-  const back = useSearchParams().get("back");
+  const { searchParams, setParams } = useUrlParams();
+  const back = searchParams.get("back");
   const backHref = back ? `/books?${back}` : "/books";
+
+  // 看哪一頁寫在網址上，重新整理或分享連結都回得到同一個分頁；預設書籍資訊
+  const tabParam = searchParams.get("tab");
+  const tab: Tab = TABS.some((t) => t.key === tabParam) ? (tabParam as Tab) : "book";
+  const setTab = (next: Tab) => setParams({ tab: next === "book" ? null : next });
   const { sheetId } = useSheetStore();
   const { books: allBooks, mutate } = useBooks();
   // 已經用過的關鍵字拿來當建議，免得同一個東西被打成兩種寫法
@@ -165,7 +173,6 @@ export function BookForm({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [refetching, setRefetching] = useState(false);
   const [refetchNote, setRefetchNote] = useState("");
-  const [tab, setTab] = useState<Tab>("book");
   const isEdit = Boolean(book);
 
   /**
@@ -410,7 +417,7 @@ export function BookForm({
           </div>
         </TabPanel>
 
-        <TabPanel active={tab === "mine"}>
+        <TabPanel active={tab === "tags"}>
           <Section>
             {/* 日期在手機各佔一行：iOS 的原生日期控制項有最小寬度，兩兩並排會互相擠壓 */}
             <div className="grid min-w-0 grid-cols-1 gap-3 sm:contents">
@@ -462,11 +469,55 @@ export function BookForm({
               multiple
             />
           </Section>
+
+          {/* 關鍵字也是自己貼上去的標籤，跟領域、屬性同一件事，只是值不固定 */}
+          <div className="flex min-h-0 shrink-0 flex-col gap-1">
+            <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
+              <Tag size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
+              關鍵字
+              <span className="text-xs font-normal text-gray-400">
+                一個一組：地名、人名、事件、專有名詞
+              </span>
+            </label>
+            <LineListInput
+              value={form.keywords}
+              onChange={(v) => set("keywords", v)}
+              placeholder="京都"
+              suggestions={keywordSuggestions}
+            />
+          </div>
         </TabPanel>
 
+        {/* 佳句與單字都是從書裡抄出來的片段，連操作都一樣：清單點一列開彈窗 */}
+        {/* 兩邊都是 w-1/2：內容長短不一樣，不加 min-w-0 的話長的那邊會把短的擠掉 */}
+        <TabPanel active={tab === "excerpt"}>
+          <div className="flex min-h-0 flex-col gap-3 sm:flex-row md:flex-1">
+            <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
+              <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
+                <Quote size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
+                佳句
+                <span className="text-xs font-normal text-gray-400">點一句可以編輯</span>
+              </label>
+              <QuoteListInput rows={quoteRows} onChange={setQuoteRows} />
+            </div>
+
+            <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
+              <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
+                <BookOpen size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
+                單字
+                <span className="text-xs font-normal text-gray-400">點一個可以編輯</span>
+              </label>
+              <VocabularyListInput
+                rows={vocabularyRows}
+                onChange={setVocabularyRows}
+                bookLanguage={form.language}
+              />
+            </div>
+          </div>
+        </TabPanel>
+
+        {/* 相關文章跟筆記放一起：那是讀這本書時一起讀的東西，算筆記的延伸 */}
         <TabPanel active={tab === "notes"}>
-          {/* 筆記與佳句吃掉剩下的高度，欄位多寡不同時都不會擠出捲軸 */}
-          {/* 兩邊都是 w-1/2：內容長短不一樣，不加 min-w-0 的話長的那邊會把短的擠掉 */}
           <div className="flex min-h-0 flex-col gap-3 sm:flex-row md:flex-1">
             <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
               <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
@@ -481,39 +532,6 @@ export function BookForm({
             </div>
 
             <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
-              <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
-                <Quote size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-                佳句
-                <span className="text-xs font-normal text-gray-400">點一句可以編輯</span>
-              </label>
-              <QuoteListInput rows={quoteRows} onChange={setQuoteRows} />
-            </div>
-          </div>
-        </TabPanel>
-
-        <TabPanel active={tab === "marks"}>
-          {/*
-          關鍵字與相關文章。跟筆記同樣是一行一筆的自由文字——記的當下不分類，
-          要畫成地圖還是清單是之後看的時候的事。
-        */}
-          <div className="flex min-h-0 shrink-0 flex-col gap-3 sm:flex-row">
-            <div className="flex min-h-0 flex-1 flex-col gap-1">
-              <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
-                <Tag size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-                關鍵字
-                <span className="text-xs font-normal text-gray-400">
-                  一個一組：地名、人名、事件、專有名詞
-                </span>
-              </label>
-              <LineListInput
-                value={form.keywords}
-                onChange={(v) => set("keywords", v)}
-                placeholder="京都"
-                suggestions={keywordSuggestions}
-              />
-            </div>
-
-            <div className="flex min-h-0 flex-1 flex-col gap-1">
               <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
                 <Newspaper size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
                 相關文章
@@ -530,18 +548,6 @@ export function BookForm({
                 className={`${TEXTAREA_CLASS} ${TEXTAREA_MIN}`}
               />
             </div>
-          </div>
-
-          <div className="flex min-h-0 shrink-0 flex-col gap-1">
-            <label className="flex shrink-0 items-baseline gap-2 text-sm font-medium">
-              單字
-              <span className="text-xs font-normal text-gray-400">點一個可以編輯</span>
-            </label>
-            <VocabularyListInput
-              rows={vocabularyRows}
-              onChange={setVocabularyRows}
-              bookLanguage={form.language}
-            />
           </div>
         </TabPanel>
       </div>
