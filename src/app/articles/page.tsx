@@ -129,7 +129,7 @@ function ArticlesList() {
                     </span>
                     {a.tags && a.tags.length > 0 && (
                       <div className="min-w-0 overflow-hidden">
-                        <TagList values={a.tags.map((tag) => tag.name)} wrap={false} />
+                        <TagList values={a.tags.map((tag) => tag.name)} tone="article" wrap={false} />
                       </div>
                     )}
                   </div>

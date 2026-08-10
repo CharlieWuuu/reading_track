@@ -13,6 +13,15 @@ const LABELS: Record<keyof BookCategories, string> = {
   language: "語言",
 };
 
+/** 清單預設是空的，靠 placeholder 舉例說明這一欄想收什麼樣的值 */
+const PLACEHOLDERS: Record<keyof BookCategories, string> = {
+  platform: "例如 讀墨",
+  domain: "例如 心理",
+  subDomain: "例如 認知偏誤",
+  type: "例如 小說",
+  language: "例如 中文",
+};
+
 function CategoryGroup({ categoryKey }: { categoryKey: keyof BookCategories }) {
   const { stored, save } = useCategories();
   // 有幾本書真的用到這個值。預設清單塞了不少沒人用的，看得見才知道能不能刪
@@ -106,15 +115,6 @@ function CategoryGroup({ categoryKey }: { categoryKey: keyof BookCategories }) {
           </li>
         ))}
       </ul>
-      {options.some((o) => !countOf(o)) && (
-        <button
-          type="button"
-          onClick={() => replaceOptions(options.filter((o) => countOf(o)))}
-          className="mb-2 text-xs text-gray-500 hover:underline"
-        >
-          清掉沒用到的（{options.filter((o) => !countOf(o)).length}）
-        </button>
-      )}
       <div className="flex gap-2">
         <input
           value={newValue}
@@ -125,7 +125,7 @@ function CategoryGroup({ categoryKey }: { categoryKey: keyof BookCategories }) {
               handleAdd();
             }
           }}
-          placeholder={`新增${LABELS[categoryKey]}選項`}
+          placeholder={PLACEHOLDERS[categoryKey]}
           className="w-full rounded border px-2 py-1 text-sm"
         />
         <button
