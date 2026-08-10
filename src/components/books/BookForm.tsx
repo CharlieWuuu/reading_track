@@ -75,7 +75,8 @@ const TABS: { key: Tab; label: string }[] = [
 ];
 
 const tabStyles = {
-  bar: "flex shrink-0 items-center gap-1 overflow-x-auto rounded-lg border p-1",
+  // ml-auto：只佔自己的寬度並靠右，窄螢幕放不下時才在自己裡面橫捲
+  bar: "ml-auto flex w-fit max-w-full shrink-0 items-center gap-1 overflow-x-auto rounded-lg border p-1",
   tab: "shrink-0 rounded px-3 py-1.5 text-sm font-medium whitespace-nowrap",
   active: "bg-gray-900 text-white",
   idle: "text-gray-500 hover:bg-gray-100",

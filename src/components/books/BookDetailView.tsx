@@ -57,18 +57,17 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-/** 佳句照書裡的樣子排：引文用襯線字並縮排，章節與心得退到旁邊當註腳 */
+/** 佳句照書裡的樣子排：引文用襯線字並縮排，出處靠右當署名，心得再下一行 */
 function QuoteItem({ quote }: { quote: QuoteRow }) {
   return (
     <li className="flex flex-col gap-1.5">
       <blockquote className="border-l-2 border-gray-300 pl-4 font-serif text-[15px] leading-relaxed whitespace-pre-wrap text-gray-800 md:text-base">
         {quote.text}
       </blockquote>
-      {(quote.chapter || quote.note) && (
-        <p className="pl-4 text-xs leading-relaxed text-gray-400">
-          {quote.chapter}
-          {quote.chapter && quote.note && "　"}
-          {quote.note && <span className="whitespace-pre-wrap">{quote.note}</span>}
+      {quote.chapter && <p className="pl-4 text-right text-xs text-gray-400">— {quote.chapter}</p>}
+      {quote.note && (
+        <p className="pl-4 text-xs leading-relaxed whitespace-pre-wrap text-gray-400">
+          {quote.note}
         </p>
       )}
     </li>
