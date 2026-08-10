@@ -59,12 +59,15 @@ const emptyForm = {
 
 type FormState = typeof emptyForm;
 
-type Tab = "basic" | "meta" | "notes" | "marks";
+type Tab = "book" | "mine" | "notes" | "marks";
 
-/** 欄位多到一頁看不完，照「填寫時想的是同一件事」分頁 */
+/**
+ * 欄位多到一頁看不完，照「這件事誰說了算」分頁：
+ * 書籍資訊是出版社定的、抓得到的；個人標記是自己定的，換個人填就不一樣。
+ */
 const TABS: { key: Tab; label: string }[] = [
-  { key: "basic", label: "基本資料" },
-  { key: "meta", label: "分類與進度" },
+  { key: "book", label: "書籍資訊" },
+  { key: "mine", label: "個人標記" },
   { key: "notes", label: "筆記佳句" },
   { key: "marks", label: "關鍵字單字" },
 ];
@@ -162,7 +165,7 @@ export function BookForm({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [refetching, setRefetching] = useState(false);
   const [refetchNote, setRefetchNote] = useState("");
-  const [tab, setTab] = useState<Tab>("basic");
+  const [tab, setTab] = useState<Tab>("book");
   const isEdit = Boolean(book);
 
   /**
@@ -220,7 +223,7 @@ export function BookForm({
     e.preventDefault();
     // 書名可能藏在別的分頁裡，瀏覽器沒辦法聚焦提示，改自己切回去講
     if (!form.title.trim()) {
-      setTab("basic");
+      setTab("book");
       setSubmitError("請填書名");
       return;
     }
@@ -351,7 +354,7 @@ export function BookForm({
 
       {/* 欄位一路往下排；桌機在這層捲，手機不自己捲，跟著整頁捲 */}
       <div className="flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
-        <TabPanel active={tab === "basic"}>
+        <TabPanel active={tab === "book"}>
           {/* 這一頁的欄位兩兩成對（作者｜出版社、頁數｜字數…），書名自己獨佔一行 */}
           <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3">
             <div className="col-span-2">
@@ -369,33 +372,28 @@ export function BookForm({
               onChange={(v) => set("sourceUrl", v)}
             />
 
-            <Field
-              label="頁數"
-              Icon={FileText}
-              value={form.pageCount}
-              onChange={(v) => set("pageCount", v)}
-            />
-            <Field
-              label="字數"
-              Icon={Type}
-              value={form.wordCount}
-              onChange={(v) => set("wordCount", v)}
-            />
-
-            <CategorySelect
-              label="語言"
-              Icon={Languages}
-              categoryKey="language"
-              value={form.language}
-              onChange={(v) => set("language", v)}
-            />
-            <CategorySelect
-              label="平台"
-              Icon={Store}
-              categoryKey="platform"
-              value={form.platform}
-              onChange={(v) => set("platform", v)}
-            />
+            {/* 這三個都很短，擠成一行剛好，不用各佔半排 */}
+            <div className="col-span-2 grid grid-cols-3 gap-3">
+              <Field
+                label="頁數"
+                Icon={FileText}
+                value={form.pageCount}
+                onChange={(v) => set("pageCount", v)}
+              />
+              <Field
+                label="字數"
+                Icon={Type}
+                value={form.wordCount}
+                onChange={(v) => set("wordCount", v)}
+              />
+              <CategorySelect
+                label="語言"
+                Icon={Languages}
+                categoryKey="language"
+                value={form.language}
+                onChange={(v) => set("language", v)}
+              />
+            </div>
 
             {/* 用現有的書名／網址重查，補上空欄位 */}
             <div className="col-span-2 flex items-center justify-end gap-2">
@@ -412,7 +410,7 @@ export function BookForm({
           </div>
         </TabPanel>
 
-        <TabPanel active={tab === "meta"}>
+        <TabPanel active={tab === "mine"}>
           <Section>
             {/* 日期在手機各佔一行：iOS 的原生日期控制項有最小寬度，兩兩並排會互相擠壓 */}
             <div className="grid min-w-0 grid-cols-1 gap-3 sm:contents">
@@ -434,6 +432,15 @@ export function BookForm({
           </Section>
 
           <Section>
+            {/* 平台是「我在哪讀的」，跟書本身無關，所以跟其他自訂分類放一起 */}
+            <CategorySelect
+              label="平台"
+              Icon={Store}
+              categoryKey="platform"
+              value={form.platform}
+              onChange={(v) => set("platform", v)}
+            />
+
             {/* 領域改成單選：它問的是「為什麼讀這本書」，一本書只會有一個答案 */}
             <CategorySelect
               label="領域"
