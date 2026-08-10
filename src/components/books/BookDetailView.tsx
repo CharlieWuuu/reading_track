@@ -141,7 +141,7 @@ export function BookDetailView() {
   if (!sheetId || isLoading || error || !book) {
     return (
       <>
-        <PageHeader title="書籍資訊" />
+        <PageHeader title="書籍資訊" backHref={backHref} />
         <PageMessage tone={error ? "error" : "muted"}>
           {!sheetId
             ? "請先到「設定」頁面連接 Google Sheet"

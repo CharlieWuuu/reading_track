@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
@@ -568,14 +567,6 @@ export function BookForm({
           >
             {submitting ? "儲存中…" : isEdit ? "儲存變更" : "新增書籍"}
           </button>
-
-          {/* 誤點進編輯頁時的退路：不存檔就回書單，省下一次寫入 */}
-          <Link
-            href={backHref}
-            className="rounded border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
-          >
-            返回
-          </Link>
         </div>
 
         {/* 刪除只出現在編輯頁，按一次先要求確認，避免誤刪 */}
