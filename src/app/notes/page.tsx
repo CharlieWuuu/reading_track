@@ -120,8 +120,11 @@ function NotesTabs() {
   const { searchParams, setParams } = useUrlParams();
   const param = searchParams.get("tab");
   const tab: Tab = TABS.some((t) => t.key === param) ? (param as Tab) : "notes";
-  const { view, setView } = useKeywordView();
+  const { view } = useKeywordView();
   const setTab = (next: Tab) => setParams({ tab: next === "notes" ? null : next });
+  // 換頁與換看法要同一次寫進網址，分兩次呼叫後面那次會蓋掉前面那次
+  const openKeywordView = (next: KeywordView) =>
+    setParams({ tab: "keywords", view: next === "card" ? null : next });
 
   return (
     <>
@@ -137,7 +140,7 @@ function NotesTabs() {
               for: "keywords",
               items: KEYWORD_VIEWS,
               value: view,
-              onChange: (next) => setView(next as KeywordView),
+              onChange: (next) => openKeywordView(next as KeywordView),
             }}
           />
         }

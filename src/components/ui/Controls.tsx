@@ -92,9 +92,13 @@ export function TabBar<T extends string>({ items, value, onChange, menu }: TabBa
             key={item.key}
             type="button"
             onClick={() => {
+              // 有選單的那個分頁：點它只放下選單，選了哪一種看法才真的換頁
+              if (menu?.for === item.key) {
+                setOpen(!open);
+                return;
+              }
               onChange(item.key);
-              // 有選單的那個分頁：點它就開／關選單，其餘照常切換
-              setOpen(menu?.for === item.key ? !open : false);
+              setOpen(false);
             }}
             className={`${styles.tab} ${item.key === value ? styles.tabActive : styles.tabIdle}`}
           >
@@ -103,7 +107,7 @@ export function TabBar<T extends string>({ items, value, onChange, menu }: TabBa
         ))}
       </div>
 
-      {menu && open && value === menu.for && (
+      {menu && open && (
         <ul className={styles.menu}>
           {menu.items.map((item) => (
             <li key={item.key}>
