@@ -11,7 +11,7 @@ export default function NewBookPage() {
 
   return (
     <>
-      <PageHeader title={result ? "新增書籍" : "新增書籍 · 查詢資料"} />
+      <PageHeader title="新增書籍" />
       <PageBody>
         {result ? (
           <div className="shrink-0 md:min-h-0 md:flex-1">

@@ -6,6 +6,7 @@ import { ExternalLink } from "lucide-react";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
+import { NoteBlock, QuoteBlock, VocabularyItem } from "@/components/notes/RecordItems";
 import { TagList as OptionList, StatusBadge } from "@/components/ui/TagBadge";
 import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
 import { useArticles } from "@/lib/useArticles";
@@ -14,7 +15,6 @@ import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Book, formatCount, splitLines } from "@/types/book";
-import { QuoteRow, VocabularyRow } from "@/types/record";
 
 /** 詳細頁的封面：固定寬度，資訊區才不會隨封面比例左右跳 */
 function Cover({ url, title }: { url: string; title: string }) {
@@ -54,48 +54,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="text-xs text-gray-400">{label}</span>
       <div className="min-w-0 text-sm text-gray-800">{children || "—"}</div>
     </div>
-  );
-}
-
-/** 佳句照書裡的樣子排：引文用襯線字並縮排，出處靠右當署名，心得再下一行 */
-function QuoteItem({ quote }: { quote: QuoteRow }) {
-  return (
-    <li className="flex flex-col gap-1.5">
-      <blockquote className="border-l-2 border-gray-300 pl-4 font-serif text-[15px] leading-relaxed whitespace-pre-wrap text-gray-800 md:text-base">
-        {quote.text}
-      </blockquote>
-      {quote.chapter && <p className="pl-4 text-right text-xs text-gray-400">— {quote.chapter}</p>}
-      {quote.note && (
-        <p className="pl-4 text-xs leading-relaxed whitespace-pre-wrap text-gray-400">
-          {quote.note}
-        </p>
-      )}
-    </li>
-  );
-}
-
-/** 單字排成詞條：單字與翻譯同一行，例句與翻譯縮排在下面 */
-function VocabularyItem({ row }: { row: VocabularyRow }) {
-  return (
-    <li className="flex flex-col gap-0.5">
-      <p className="flex flex-wrap items-baseline gap-2">
-        <span className="text-sm font-medium text-gray-900">{row.word}</span>
-        {row.wordTranslation && (
-          <span className="text-sm text-gray-500">{row.wordTranslation}</span>
-        )}
-        {row.chapter && <span className="text-xs text-gray-400">{row.chapter}</span>}
-      </p>
-      {row.sentence && (
-        <p className="pl-4 text-xs leading-relaxed whitespace-pre-wrap text-gray-600">
-          {row.sentence}
-        </p>
-      )}
-      {row.sentenceTranslation && (
-        <p className="pl-4 text-xs leading-relaxed whitespace-pre-wrap text-gray-400">
-          {row.sentenceTranslation}
-        </p>
-      )}
-    </li>
   );
 }
 
@@ -226,7 +184,7 @@ export function BookDetailView() {
 
       {/* 一份文件：單欄、靠章節標題分段，不切成一張張卡片 */}
       <PageBody>
-        <article className="flex w-full flex-col gap-8 pb-4">
+        <article className="flex w-full flex-col gap-8">
           {/* 書名頁：封面在左，右邊一條垂直線隔開書名與所有欄位 */}
           {/* 不設 items-start，右欄才會被拉到跟封面一樣高，那條垂直線就不會半途斷掉 */}
           <header className="flex gap-4 md:gap-6">
@@ -264,7 +222,9 @@ export function BookDetailView() {
             <Section title="佳句">
               <ul className="flex flex-col gap-5">
                 {bookQuotes.map((row) => (
-                  <QuoteItem key={row.id} quote={row} />
+                  <li key={row.id}>
+                    <QuoteBlock quote={row} />
+                  </li>
                 ))}
               </ul>
             </Section>
@@ -282,11 +242,8 @@ export function BookDetailView() {
 
           {note && (
             <Section title="心得">
-              {/* 心得是這一頁唯一的長文，用襯線字與寬行距，看起來就是一段文章 */}
-              {/* 只有這一段限行長：一行拉到整個寬螢幕會讀不下去，短欄位則沒這問題 */}
-              <p className="max-w-3xl font-serif text-[15px] leading-[1.9] whitespace-pre-wrap text-gray-800 md:text-base">
-                {note}
-              </p>
+              {/* 心得是這一頁唯一的長文，只有這一段限行長：一行拉到整個寬螢幕會讀不下去 */}
+              <NoteBlock note={note} />
             </Section>
           )}
 

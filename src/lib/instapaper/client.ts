@@ -115,7 +115,8 @@ async function listBookmarksInFolder(
 ): Promise<InstapaperBookmark[]> {
   const { consumerKey, consumerSecret } = requireEnv();
   const url = `${BASE_URL}/bookmarks/list`;
-  const params = { folder_id: folder, limit: "50" };
+  // 500 是 Instapaper 的上限，再多只能靠 have 參數分批，先取到上限就好
+  const params = { folder_id: folder, limit: "500" };
 
   const authHeader = buildOAuthHeader({
     method: "POST",
