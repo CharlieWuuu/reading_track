@@ -4,7 +4,6 @@ import { Suspense, useState } from "react";
 import {
   KEYWORD_VIEWS,
   KeywordsSection,
-  useKeywordView,
   type KeywordView,
 } from "@/components/keywords/KeywordsSection";
 import { BooksGate } from "@/components/layout/BooksGate";
@@ -120,11 +119,12 @@ function NotesTabs() {
   const { searchParams, setParams } = useUrlParams();
   const param = searchParams.get("tab");
   const tab: Tab = TABS.some((t) => t.key === param) ? (param as Tab) : "notes";
-  const { view } = useKeywordView();
-  const setTab = (next: Tab) => setParams({ tab: next === "notes" ? null : next });
+  // 選單裡標粗體的是「正在看的那一種」，所以直接讀網址：沒選過就四個都一樣
+  const view = searchParams.get("view") ?? "";
+  // 換到別的分頁就把看法清掉，下次點關鍵字一律從卡片開始
+  const setTab = (next: Tab) => setParams({ tab: next === "notes" ? null : next, view: null });
   // 換頁與換看法要同一次寫進網址，分兩次呼叫後面那次會蓋掉前面那次
-  const openKeywordView = (next: KeywordView) =>
-    setParams({ tab: "keywords", view: next === "card" ? null : next });
+  const openKeywordView = (next: KeywordView) => setParams({ tab: "keywords", view: next });
 
   return (
     <>
