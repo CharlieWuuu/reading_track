@@ -37,9 +37,10 @@ export function getKpis(books: Book[], quotes: QuoteRow[]) {
   const avgPerMonth = thisYearCount / (now.getMonth() + 1);
 
   // 有寫筆記的書、記下來的佳句數：鼓勵留下心得，不只看讀了幾本
-  const withNote = books.filter((b) => b.note.trim()).length;
+  const withNote = done.filter((b) => b.note.trim()).length;
   // 以「本」為單位：同一本記了很多句也算一本，跟「寫了心得」同一個口徑
-  const withQuotes = new Set(quotes.map((q) => q.bookId)).size;
+  const doneIds = new Set(done.map((b) => b.id));
+  const withQuotes = new Set(quotes.map((q) => q.bookId).filter((id) => doneIds.has(id))).size;
 
   return {
     total: done.length,
@@ -134,7 +135,7 @@ export function getMonthlyTrend(books: Book[], monthsBack = 24): MonthCount[] {
  */
 function distributionBy(books: Book[], key: keyof Book): DistributionSlice[] {
   const counts = new Map<string, number>();
-  for (const b of books) {
+  for (const b of completedBooks(books)) {
     const raw = b[key];
     const tags = typeof raw === "string" ? splitTags(raw) : [];
     for (const value of tags.length > 0 ? tags : ["未分類"]) {
@@ -162,8 +163,8 @@ export interface DistributionGroup {
 export function getDomainGroups(books: Book[]): DistributionGroup[] {
   const groups = new Map<string, Map<string, number>>();
 
-  // 跟其他分佈圖同一個口徑：算所有書，不只讀完的
-  for (const book of books) {
+  // 跟其他分佈圖同一個口徑：只算讀完的
+  for (const book of completedBooks(books)) {
     const domains = splitTags(book.domain);
     for (const domain of domains.length > 0 ? domains : ["未分類"]) {
       const children = groups.get(domain) ?? new Map<string, number>();
@@ -222,14 +223,17 @@ export interface RankingItem extends DistributionSlice {
  */
 export function getPublisherRanking(books: Book[], limit = 5): RankingItem[] {
   return rank(
-    books.map((b) => ({ names: b.publisher.trim() ? [b.publisher.trim()] : [], book: b })),
+    completedBooks(books).map((b) => ({
+      names: b.publisher.trim() ? [b.publisher.trim()] : [],
+      book: b,
+    })),
     limit,
   );
 }
 
 export function getAuthorRanking(books: Book[], limit = 5): RankingItem[] {
   return rank(
-    books.map((b) => ({ names: splitPeople(b.author), book: b })),
+    completedBooks(books).map((b) => ({ names: splitPeople(b.author), book: b })),
     limit,
   );
 }

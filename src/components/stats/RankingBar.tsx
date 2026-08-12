@@ -17,8 +17,7 @@ export function RankingBar({
   emptyHint,
 }: {
   title: string;
-  /** 帶 doneValue 的項目會畫成兩段：深色是已完成、淺色是其餘 */
-  data: Array<RankingItem & { doneValue?: number }>;
+  data: RankingItem[];
   unit?: string;
   /** 顯示代表書封（重讀排行看的就是書本身，放封面最好認） */
   showCover?: boolean;
@@ -48,30 +47,17 @@ export function RankingBar({
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="min-w-0 truncate text-xs text-gray-700">{item.name}</span>
                   <span className="shrink-0 text-xs text-gray-400 tabular-nums">
-                    {item.doneValue !== undefined
-                      ? `${item.doneValue} / ${item.value} ${unit}`
-                      : `${item.value} ${unit}`}
+                    {item.value} {unit}
                   </span>
                 </div>
                 <div className="mt-1 flex h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
                   <div
                     className="h-full"
                     style={{
-                      width: `${((item.doneValue ?? item.value) / max) * 100}%`,
-                      // 排行的長條全部同色（名次的深淺會被讀成假的差距），
-                      // 深淺在這裡只代表一件事：完成與未完成
+                      width: `${(item.value / max) * 100}%`,
                       background: SEQUENTIAL[i % SEQUENTIAL.length],
                     }}
                   />
-                  {item.doneValue !== undefined && (
-                    <div
-                      className="h-full"
-                      style={{
-                        width: `${((item.value - item.doneValue) / max) * 100}%`,
-                        background: "#DCE6F1",
-                      }}
-                    />
-                  )}
                 </div>
               </div>
             </li>

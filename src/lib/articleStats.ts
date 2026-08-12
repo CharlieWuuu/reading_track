@@ -20,19 +20,14 @@ export function getArticleKpis(articles: InstapaperBookmark[]) {
     (a) => new Date(activityTime(a) * 1000).getFullYear() === thisYear,
   ).length;
 
+  // 今年到目前為止的節奏：今年完成篇數 ÷ 已經過完的月份數，跟書籍同一個算法
+  const avgPerMonth = thisYearCount / (now.getMonth() + 1);
+
   return {
-    total: articles.length,
     completed: completed.length,
     thisYear: thisYearCount,
+    avgPerMonth: Math.round(avgPerMonth * 10) / 10,
   };
-}
-
-export function getCompletionDistribution(articles: InstapaperBookmark[]): DistributionSlice[] {
-  const completed = articles.filter(isCompleted).length;
-  return [
-    { name: "已讀完", value: completed },
-    { name: "未讀完", value: articles.length - completed },
-  ];
 }
 
 export function getArticleMonthlyTrend(
@@ -61,29 +56,22 @@ export function getArticleMonthlyTrend(
 }
 
 /**
- * 來源網站排行：全部文章都算，並且分成已完成與未完成兩段。
+ * 來源網站排行：只算讀完的篇數，存了很多卻沒讀的站不會上榜。
  *
  * 網域只取第一段（去掉 www 之後的第一個標籤），像 medium.com 就顯示 medium——
  * 完整網域太長，在長條旁邊會被截斷，反而看不出是哪個站。
  */
-export function getSourceRanking(
-  articles: InstapaperBookmark[],
-  limit = 8,
-): Array<DistributionSlice & { doneValue: number }> {
-  const totals = new Map<string, { value: number; doneValue: number }>();
+export function getSourceRanking(articles: InstapaperBookmark[], limit = 8): DistributionSlice[] {
+  const totals = new Map<string, number>();
 
-  for (const a of articles) {
+  for (const a of articles.filter(isCompleted)) {
     const name = sourceName(a.url);
-    const entry = totals.get(name) ?? { value: 0, doneValue: 0 };
-    entry.value++;
-    if (isCompleted(a)) entry.doneValue++;
-    totals.set(name, entry);
+    totals.set(name, (totals.get(name) ?? 0) + 1);
   }
 
-  // 依「讀完幾篇」排序：存了很多卻沒讀的站排在後面，榜單才反映實際閱讀
   return Array.from(totals.entries())
-    .map(([name, entry]) => ({ name, ...entry }))
-    .sort((a, b) => b.doneValue - a.doneValue || b.value - a.value || a.name.localeCompare(b.name))
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name))
     .slice(0, limit);
 }
 
@@ -97,12 +85,12 @@ function sourceName(url: string): string {
 }
 
 /**
- * 文章的「屬性」＝使用者在 Instapaper 上自己加的標籤。
+ * 文章的「屬性」＝使用者在 Instapaper 上自己加的標籤，只算讀完的。
  * 一篇可以有多個標籤，每個各算一次，所以加總會大於文章數。
  */
 export function getTagDistribution(articles: InstapaperBookmark[]): DistributionSlice[] {
   const counts = new Map<string, number>();
-  for (const a of articles) {
+  for (const a of articles.filter(isCompleted)) {
     const names = (a.tags ?? []).map((t) => t.name?.trim()).filter(Boolean) as string[];
     for (const name of names.length > 0 ? names : ["未分類"]) {
       counts.set(name, (counts.get(name) ?? 0) + 1);

@@ -1,16 +1,17 @@
 export function ArticleKpiCards({
-  total,
   completed,
   thisYear,
+  avgPerMonth,
 }: {
-  total: number;
   completed: number;
   thisYear: number;
+  avgPerMonth: number;
 }) {
   const items = [
-    { label: "累計文章", value: total, unit: "篇" },
-    { label: "累計完成", value: completed, unit: "篇" },
-    { label: "今年完成", value: thisYear, unit: "篇" },
+    { label: "累計完成", value: String(completed), unit: "篇" },
+    { label: "今年完成", value: String(thisYear), unit: "篇" },
+    // 固定一位小數，跟書籍的平均每月同一個寫法
+    { label: "平均每月", value: avgPerMonth.toFixed(1), unit: "篇" },
   ];
 
   return (

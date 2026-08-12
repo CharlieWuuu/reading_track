@@ -18,7 +18,6 @@ import { TabBar } from "@/components/ui/Controls";
 import {
   getArticleKpis,
   getArticleMonthlyTrend,
-  getCompletionDistribution,
   getSourceRanking,
   getTagDistribution,
 } from "@/lib/articleStats";
@@ -339,10 +338,7 @@ function ArticlesStats() {
   const monthly = getArticleMonthlyTrend(articles);
   const sources = getSourceRanking(articles);
 
-  const pies = [
-    { key: "completion", label: "已完成／未完成", data: getCompletionDistribution(articles) },
-    { key: "tag", label: "屬性分布", data: getTagDistribution(articles) },
-  ];
+  const pies = [{ key: "tag", label: "屬性分布", data: getTagDistribution(articles) }];
 
   const sections: Section[] = [
     // 手機把數字與趨勢圖拆成兩頁，理由同書籍：擠在一起圖表會被壓扁
@@ -391,10 +387,10 @@ function ArticlesStats() {
       node: (
         <div className="rounded-lg border bg-white p-5">
           <RankingBar
-            title="來源網站（深色＝已完成）"
+            title="來源網站"
             data={sources}
             unit="篇"
-            emptyHint="尚無文章"
+            emptyHint="尚無讀完的文章"
           />
         </div>
       ),
@@ -416,18 +412,9 @@ function ArticlesStats() {
             key: "distribution",
             label: "分布",
             node: (
-              <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
-                {pies.map((pie) => (
-                  <div
-                    key={pie.key}
-                    className="flex min-h-0 flex-col rounded-lg border bg-white p-5"
-                  >
-                    <div className="min-h-0 flex-1">
-                      <DistributionPie title={pie.label} data={pie.data} unit="篇" height="100%" />
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <Panel>
+                <DistributionPie title="屬性分布" data={pies[0].data} unit="篇" height="100%" />
+              </Panel>
             ),
           },
         ]),
