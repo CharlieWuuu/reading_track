@@ -1,14 +1,11 @@
-import { Article } from "@/types/article";
-import { Book, splitLines } from "@/types/book";
+import { splitLines } from "@/types/book";
 import { Entry } from "@/types/entry";
 
 export type ReflectionSource = "書籍" | "文章" | "紀事";
 
 /**
- * 一則寫下來的想法，不管它原本掛在書、文章還是紀事上。
- *
- * 這是整個 app 最想回答的問題的材料：「我讀的東西有沒有變成我做出來的東西」、
- * 「我是不是一直在繞同一個問題」——那兩件事只有把三邊攤在同一條時間軸上才看得出來。
+ * 數線上的一則。目前只有紀事會進來，型別留著來源欄位是為了之後
+ * 想把書或文章也畫進同一條線時不用改形狀。
  */
 export type Reflection = {
   id: string;
@@ -30,38 +27,7 @@ export function isUrl(value: string): boolean {
   return /^https?:\/\//i.test(value.trim());
 }
 
-function fromBooks(books: Book[]): Reflection[] {
-  return books
-    .filter((b) => b.note.trim())
-    .map((b) => ({
-      id: b.id,
-      source: "書籍" as const,
-      title: b.title,
-      date: b.endDate ?? b.startDate,
-      note: b.note,
-      keywords: splitLines(b.keywords),
-      href: `/books/${b.id}`,
-    }));
-}
-
-function fromArticles(articles: Article[]): Reflection[] {
-  return articles
-    .filter((a) => a.note.trim())
-    .map((a) => ({
-      id: a.id,
-      source: "文章" as const,
-      title: a.title,
-      date: a.endDate,
-      note: a.note,
-      keywords: splitLines(a.keywords),
-      href: `/articles/${a.id}/edit`,
-    }));
-}
-
-/**
- * 紀事頁的時間軸要看到全部，回顧頁只收有寫心得的——
- * 回顧問的是「我怎麼想」，沒有心得的那筆在那裡沒有東西可讀。
- */
+/** requireNote 為真時只收有寫心得的；紀事頁要看到全部，所以傳 false */
 export function entriesToReflections(entries: Entry[], requireNote = true): Reflection[] {
   return entries
     .filter((e) => !requireNote || e.note.trim())
@@ -76,16 +42,6 @@ export function entriesToReflections(entries: Entry[], requireNote = true): Refl
       kind: e.kind,
       origin: e.link,
     }));
-}
-
-/** 由新到舊；沒填日期的排最後 */
-export function getReflections(books: Book[], articles: Article[], entries: Entry[]): Reflection[] {
-  return [...fromBooks(books), ...fromArticles(articles), ...entriesToReflections(entries)].sort((a, b) => {
-    const aDate = a.date ?? "";
-    const bDate = b.date ?? "";
-    if (aDate !== bDate) return bDate.localeCompare(aDate);
-    return a.title.localeCompare(b.title, "zh-Hant");
-  });
 }
 
 export type ReflectionWeek = {
@@ -161,17 +117,4 @@ export function groupByWeek(reflections: Reflection[]): ReflectionWeek[] {
     if (!b.key) return -1;
     return b.key.localeCompare(a.key);
   });
-}
-
-/** 出現在心得上的關鍵字，依用到的次數排；回顧時先看常繞的那幾個 */
-export function getReflectionKeywords(
-  reflections: Reflection[],
-): { name: string; count: number }[] {
-  const counts = new Map<string, number>();
-  for (const item of reflections) {
-    for (const name of item.keywords) counts.set(name, (counts.get(name) ?? 0) + 1);
-  }
-  return [...counts.entries()]
-    .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "zh-Hant"));
 }
