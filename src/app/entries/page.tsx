@@ -6,46 +6,46 @@ import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { ReflectionTimeline } from "@/components/notes/ReflectionTimeline";
-import { ActionButton, TabBar } from "@/components/ui/Controls";
+import { ActionButton } from "@/components/ui/Controls";
 import { entriesToReflections } from "@/lib/reflections";
-import { useCategories } from "@/lib/useCategories";
 import { useEntries } from "@/lib/useEntries";
 import { useMounted } from "@/lib/useMounted";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { splitTags } from "@/types/book";
+import { Entry } from "@/types/entry";
+
+/** 選項只列真的有紀事在用的值，選了才不會篩出一片空白 */
+function usedValues(entries: Entry[], field: "kind" | "domain"): string[] {
+  return [...new Set(entries.flatMap((e) => splitTags(e[field])))].sort((a, b) =>
+    a.localeCompare(b, "zh-Hant"),
+  );
+}
 
 function EntriesList() {
   const mounted = useMounted();
   const { entries: allEntries, isLoading, error } = useEntries();
-  const { categories } = useCategories();
   const { searchParams, setParams } = useUrlParams();
 
-  // 分頁列直接由「類型」的選項長出來，加一種類型不用改程式
-  const kinds = categories.kind;
-  const param = searchParams.get("kind");
-  const kind = param && kinds.includes(param) ? param : "all";
-  const filters = [{ key: "all", label: "全部" }, ...kinds.map((k) => ({ key: k, label: k }))];
-  const byKind = kind === "all" ? allEntries : allEntries.filter((e) => e.kind === kind);
-
-  // 選項只列真的有紀事在用的領域，選了才不會篩出一片空白
-  const domains = [...new Set(byKind.flatMap((e) => splitTags(e.domain)))].sort((a, b) =>
-    a.localeCompare(b, "zh-Hant"),
-  );
+  const kind = searchParams.get("kind") ?? "";
   const domain = searchParams.get("domain") ?? "";
+
+  // 領域的選項跟著類型收斂：選了「工作日誌」就只列工作日誌用過的領域
+  const byKind = kind ? allEntries.filter((e) => e.kind === kind) : allEntries;
   const entries = domain ? byKind.filter((e) => splitTags(e.domain).includes(domain)) : byKind;
 
   const action = (
     <div className="flex min-w-0 items-center gap-2">
-      <TabBar
-        items={filters}
-        value={kind}
-        onChange={(next) => setParams({ kind: next === "all" ? null : next, domain: null })}
-      />
       <EntryFilter
-        label="領域"
-        options={domains}
-        value={domain}
-        onChange={(next) => setParams({ domain: next || null })}
+        groups={[
+          { key: "kind", label: "類型", options: usedValues(allEntries, "kind"), value: kind },
+          { key: "domain", label: "領域", options: usedValues(byKind, "domain"), value: domain },
+        ]}
+        // 換類型時把領域清掉：那個領域在新的類型底下可能一筆都沒有
+        onChange={(key, next) =>
+          setParams(
+            key === "kind" ? { kind: next || null, domain: null } : { domain: next || null },
+          )
+        }
       />
       <ActionButton href="/entries/new">新增紀事</ActionButton>
     </div>

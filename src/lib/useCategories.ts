@@ -5,7 +5,14 @@ import { useArticles } from "@/lib/useArticles";
 import { useBooks } from "@/lib/useBooks";
 import { useEntries } from "@/lib/useEntries";
 import { useSheetStore } from "@/store/useSheetStore";
-import { BookCategories, categoryValue, DEFAULT_CATEGORIES, splitTags } from "@/types/book";
+import {
+  BookCategories,
+  CATEGORY_FIELDS,
+  DEFAULT_CATEGORIES,
+  fieldValue,
+  splitTags,
+  type CategorySource,
+} from "@/types/book";
 
 async function fetcher(url: string): Promise<{ categories: BookCategories }> {
   const res = await fetch(url);
@@ -36,12 +43,19 @@ export function useCategories() {
    * 直接在 Sheet 上把某本書改成一個沒登錄過的領域，那個值馬上就選得到——
    * 選項表退回它真正的角色：一份你想維護才維護的清單，不是一個要記得同步的東西。
    */
+  const records: Record<CategorySource, object[]> = {
+    book: books,
+    article: articles,
+    entry: entries,
+  };
+
   const categories: BookCategories = { ...stored };
   for (const key of Object.keys(stored) as (keyof BookCategories)[]) {
     const known = new Set(stored[key]);
+    const { field, sources } = CATEGORY_FIELDS[key];
     // 屬性一格可以放多個，領域雖然是單選，舊資料仍可能是頓號串起來的
-    const used = [...books, ...articles, ...entries].flatMap((item) =>
-      splitTags(categoryValue(item, key)),
+    const used = sources.flatMap((source) =>
+      records[source].flatMap((item) => splitTags(fieldValue(item, field))),
     );
     const extra = [...new Set(used)].filter((value) => !known.has(value));
     if (extra.length > 0) categories[key] = [...stored[key], ...extra];

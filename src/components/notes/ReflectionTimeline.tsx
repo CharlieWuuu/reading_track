@@ -12,10 +12,11 @@ const styles = {
   weekLabel: "shrink-0 text-xs font-medium text-gray-500 tabular-nums",
   weekYear: "shrink-0 text-[11px] text-gray-300 tabular-nums",
   weekLine: "h-px flex-1 bg-gray-200",
-  // 直線畫在左邊，點掛在線上：ml 要跟點的半徑對齊，不然線會歪掉
-  items: "ml-[3px] flex w-full min-w-0 flex-col border-l border-gray-200 pl-4",
+  // 線往內縮一點、文字也靠近一點，圓點才不會孤零零掉在最左邊
+  items: "ml-2 flex w-full min-w-0 flex-col border-l border-gray-200 pl-3",
   item: "relative flex w-full min-w-0 flex-col gap-1 py-2 text-left",
-  dot: "absolute -left-[21px] top-3.5 size-[7px] rounded-full ring-2 ring-white",
+  // 圓點要壓在線上：pl-3（12px）＋ 邊框 0.5px ＋ 自己的半徑 3.5px
+  dot: "absolute -left-[16px] top-3.5 size-[7px] rounded-full ring-2 ring-white",
   head: "flex w-full min-w-0 items-baseline gap-2",
   kind: "shrink-0 rounded px-1.5 py-0.5 text-[11px]",
   title: "min-w-0 flex-1 truncate text-sm font-medium",

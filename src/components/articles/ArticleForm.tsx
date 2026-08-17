@@ -271,13 +271,13 @@ export function ArticleForm({ article }: { article?: Article }) {
           {/* 領域／次領域／屬性跟書共用「選項」分頁，兩邊的分類才對得起來 */}
           <CategorySelect
             label="領域"
-            categoryKey="domain"
+            categoryKey="articleDomain"
             value={form.domain}
             onChange={(v) => set("domain", v)}
           />
           <CategorySelect
             label="次領域"
-            categoryKey="subDomain"
+            categoryKey="articleSubDomain"
             value={form.subDomain}
             onChange={(v) => set("subDomain", v)}
           />

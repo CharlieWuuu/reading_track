@@ -172,13 +172,13 @@ export function EntryForm({ entry }: { entry?: Entry }) {
 
           <CategorySelect
             label="領域"
-            categoryKey="domain"
+            categoryKey="entryDomain"
             value={form.domain}
             onChange={(v) => set("domain", v)}
           />
           <CategorySelect
             label="次領域"
-            categoryKey="subDomain"
+            categoryKey="entrySubDomain"
             value={form.subDomain}
             onChange={(v) => set("subDomain", v)}
           />

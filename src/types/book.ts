@@ -198,11 +198,36 @@ function parseLegacyVocabulary(line: string): VocabularyItem {
   };
 }
 
-/** 分類欄位不是每種紀錄都有（書沒有類型、紀事沒有平台），取不到就當空的 */
-export function categoryValue(item: object, key: keyof BookCategories): string {
-  const value = (item as Record<string, unknown>)[key];
+/** 讀某一筆紀錄上的某個欄位；那種紀錄沒有這一欄就當空的 */
+export function fieldValue(item: object, field: string): string {
+  const value = (item as Record<string, unknown>)[field];
   return typeof value === "string" ? value : "";
 }
+
+export type CategorySource = "book" | "article" | "entry";
+
+/**
+ * 每一組選項對應到哪種紀錄的哪個欄位。
+ *
+ * 領域與次領域刻意三邊分開：書的領域是「為什麼讀這本書」，紀事的領域是
+ * 「這件事屬於我生活的哪一塊」，硬共用一份清單只會讓兩邊的選單都變得很吵。
+ * 平台、屬性、語言仍然共用——那些在書與文章上問的是同一件事。
+ */
+export const CATEGORY_FIELDS: Record<
+  keyof BookCategories,
+  { field: string; sources: CategorySource[] }
+> = {
+  platform: { field: "platform", sources: ["book", "article"] },
+  domain: { field: "domain", sources: ["book"] },
+  subDomain: { field: "subDomain", sources: ["book"] },
+  type: { field: "type", sources: ["book", "article"] },
+  language: { field: "language", sources: ["book", "article"] },
+  articleDomain: { field: "domain", sources: ["article"] },
+  articleSubDomain: { field: "subDomain", sources: ["article"] },
+  kind: { field: "kind", sources: ["entry"] },
+  entryDomain: { field: "domain", sources: ["entry"] },
+  entrySubDomain: { field: "subDomain", sources: ["entry"] },
+};
 
 export interface BookCategories {
   platform: string[];
@@ -210,8 +235,13 @@ export interface BookCategories {
   subDomain: string[];
   type: string[];
   language: string[];
+  /** 文章的領域與次領域，跟書籍各自一份清單 */
+  articleDomain: string[];
+  articleSubDomain: string[];
   /** 紀事的類型；書籍沒有這一欄，但選項統一存在同一張「選項」分頁 */
   kind: string[];
+  entryDomain: string[];
+  entrySubDomain: string[];
 }
 
 export const DEFAULT_CATEGORIES: BookCategories = {
@@ -223,6 +253,10 @@ export const DEFAULT_CATEGORIES: BookCategories = {
   subDomain: [],
   type: [],
   language: [],
+  articleDomain: [],
+  articleSubDomain: [],
   // 類型是唯一有預設值的自訂分類：空白的話新增紀事會不知道從哪裡開始
   kind: ["工作日誌", "輸出", "反思", "日記", "程式"],
+  entryDomain: [],
+  entrySubDomain: [],
 };

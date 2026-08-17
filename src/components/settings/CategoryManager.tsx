@@ -5,7 +5,13 @@ import { useArticles } from "@/lib/useArticles";
 import { useBooks } from "@/lib/useBooks";
 import { useCategories } from "@/lib/useCategories";
 import { useEntries } from "@/lib/useEntries";
-import { BookCategories, categoryValue, splitTags } from "@/types/book";
+import {
+  BookCategories,
+  CATEGORY_FIELDS,
+  fieldValue,
+  splitTags,
+  type CategorySource,
+} from "@/types/book";
 
 const LABELS: Record<keyof BookCategories, string> = {
   platform: "平台",
@@ -13,7 +19,11 @@ const LABELS: Record<keyof BookCategories, string> = {
   subDomain: "次領域",
   type: "屬性",
   language: "語言",
+  articleDomain: "文章領域",
+  articleSubDomain: "文章次領域",
   kind: "類型",
+  entryDomain: "紀事領域",
+  entrySubDomain: "紀事次領域",
 };
 
 /** 清單預設是空的，靠 placeholder 舉例說明這一欄想收什麼樣的值 */
@@ -23,7 +33,11 @@ const PLACEHOLDERS: Record<keyof BookCategories, string> = {
   subDomain: "例如 認知偏誤",
   type: "例如 小說",
   language: "例如 中文",
+  articleDomain: "例如 社會",
+  articleSubDomain: "例如 居住正義",
   kind: "例如 反思",
+  entryDomain: "例如 求職",
+  entrySubDomain: "例如 履歷",
 };
 
 function CategoryGroup({ categoryKey }: { categoryKey: keyof BookCategories }) {
@@ -35,8 +49,14 @@ function CategoryGroup({ categoryKey }: { categoryKey: keyof BookCategories }) {
   // 用小寫當鍵：書籍讀進來時平台會被收斂成正式寫法（HyRead → Hyread），
   // 選項清單裡卻是使用者當初打的那個寫法，完全相等去比就會數成 0
   const counts = new Map<string, number>();
-  for (const item of [...books, ...articles, ...entries]) {
-    for (const value of splitTags(categoryValue(item, categoryKey))) {
+  const records: Record<CategorySource, object[]> = {
+    book: books,
+    article: articles,
+    entry: entries,
+  };
+  const { field, sources } = CATEGORY_FIELDS[categoryKey];
+  for (const item of sources.flatMap((source) => records[source])) {
+    for (const value of splitTags(fieldValue(item, field))) {
       const key = value.toLowerCase();
       counts.set(key, (counts.get(key) ?? 0) + 1);
     }
