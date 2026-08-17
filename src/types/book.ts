@@ -224,5 +224,5 @@ export const DEFAULT_CATEGORIES: BookCategories = {
   type: [],
   language: [],
   // 類型是唯一有預設值的自訂分類：空白的話新增紀事會不知道從哪裡開始
-  kind: ["工作", "輸出", "反思", "日記", "程式"],
+  kind: ["工作日誌", "輸出", "反思", "日記", "程式"],
 };
