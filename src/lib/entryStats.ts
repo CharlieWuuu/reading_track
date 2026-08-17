@@ -13,7 +13,3 @@ export function getEntryMonthlyTrend(entries: Entry[], monthsBack = 24): MonthCo
 export function getKindDistribution(entries: Entry[]): DistributionSlice[] {
   return getFieldDistribution(entries, "kind");
 }
-
-export function getEntryDomainDistribution(entries: Entry[]): DistributionSlice[] {
-  return getFieldDistribution(entries, "domain");
-}

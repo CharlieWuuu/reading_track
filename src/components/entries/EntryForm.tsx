@@ -29,8 +29,6 @@ const emptyForm = {
   date: "",
   title: "",
   kind: "",
-  domain: "",
-  subDomain: "",
   keywords: "",
   note: "",
   link: "",
@@ -150,11 +148,12 @@ export function EntryForm({ entry }: { entry?: Entry }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 md:h-full md:min-h-0">
       <div className="flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
-        <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3">
-          <div className="col-span-2">
+        <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3 sm:grid-cols-3">
+          <div className="col-span-2 sm:col-span-3">
             <Field label="標題" value={form.title} onChange={(v) => set("title", v)} />
           </div>
 
+          {/* 日期、類型、關鍵字同一列；手機排不成三欄，關鍵字自己換到下一行 */}
           <Field
             label="日期"
             Icon={CalendarCheck}
@@ -169,47 +168,7 @@ export function EntryForm({ entry }: { entry?: Entry }) {
             value={form.kind}
             onChange={(v) => set("kind", v)}
           />
-
-          <CategorySelect
-            label="領域"
-            categoryKey="entryDomain"
-            value={form.domain}
-            onChange={(v) => set("domain", v)}
-          />
-          <CategorySelect
-            label="次領域"
-            categoryKey="entrySubDomain"
-            value={form.subDomain}
-            onChange={(v) => set("subDomain", v)}
-          />
-
-          {/* 事件本身留在原本的系統裡，這裡只指過去；不是每件事都在線上，純文字也算 */}
-          <div className="col-span-2">
-            <Field
-              label="來源"
-              Icon={LinkIcon}
-              hint="網址或純文字都可以，例如「紙本日記 8/17」"
-              value={form.link}
-              onChange={(v) => set("link", v)}
-            />
-          </div>
-        </div>
-
-        {/* 心得放最大：它是這張表唯一的主體，其他欄位都是為了讓它找得到 */}
-        <div className="flex min-h-0 flex-col gap-3 sm:flex-row md:flex-1">
-          <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-2/3">
-            <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
-              <NotebookPen size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-              心得
-            </label>
-            <textarea
-              value={form.note}
-              onChange={(e) => set("note", e.target.value)}
-              className={TEXTAREA_CLASS}
-            />
-          </div>
-
-          <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/3">
+          <div className="col-span-2 flex min-w-0 flex-col gap-1 sm:col-span-1">
             <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
               <Tag size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
               關鍵字
@@ -222,6 +181,30 @@ export function EntryForm({ entry }: { entry?: Entry }) {
               onEditRow={setEditingKeyword}
             />
           </div>
+
+          {/* 事件本身留在原本的系統裡，這裡只指過去；不是每件事都在線上，純文字也算 */}
+          <div className="col-span-2 sm:col-span-3">
+            <Field
+              label="來源"
+              Icon={LinkIcon}
+              hint="網址或純文字都可以，例如「紙本日記 8/17」"
+              value={form.link}
+              onChange={(v) => set("link", v)}
+            />
+          </div>
+        </div>
+
+        {/* 心得放最大：它是這張表唯一的主體，其他欄位都是為了讓它找得到 */}
+        <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 md:flex-1">
+          <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
+            <NotebookPen size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
+            心得
+          </label>
+          <textarea
+            value={form.note}
+            onChange={(e) => set("note", e.target.value)}
+            className={TEXTAREA_CLASS}
+          />
         </div>
       </div>
 

@@ -14,8 +14,7 @@ export interface Entry {
   title: string;
   /** 工作／輸出／反思／日記／程式，可自訂 */
   kind: string;
-  domain: string;
-  subDomain: string;
+  /** 紀事只用關鍵字分類，不再另外分領域——一件事想到什麼就記什麼，先分類反而卡住 */
   keywords: string;
   /** 主體。其他欄位都是為了讓這一欄好找 */
   note: string;

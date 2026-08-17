@@ -34,12 +34,7 @@ import {
   getRereadRanking,
   getTypeDistribution,
 } from "@/lib/bookStats";
-import {
-  getEntryDomainDistribution,
-  getEntryKpis,
-  getEntryMonthlyTrend,
-  getKindDistribution,
-} from "@/lib/entryStats";
+import { getEntryKpis, getEntryMonthlyTrend, getKindDistribution } from "@/lib/entryStats";
 import { useArticles } from "@/lib/useArticles";
 import { useBooks } from "@/lib/useBooks";
 import { useEntries } from "@/lib/useEntries";
@@ -448,10 +443,8 @@ function EntriesStats() {
 
   const kpis = getEntryKpis(entries);
   const monthly = getEntryMonthlyTrend(entries);
-  const pies = [
-    { key: "kind", label: "類型分布", data: getKindDistribution(entries) },
-    { key: "domain", label: "領域分布", data: getEntryDomainDistribution(entries) },
-  ];
+  // 紀事只有類型一種分類，所以只有一張圖
+  const pies = [{ key: "kind", label: "類型分布", data: getKindDistribution(entries) }];
 
   const trend = (
     <Panel title="每月筆數">

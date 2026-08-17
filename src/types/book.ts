@@ -225,8 +225,6 @@ export const CATEGORY_FIELDS: Record<
   articleDomain: { field: "domain", sources: ["article"] },
   articleSubDomain: { field: "subDomain", sources: ["article"] },
   kind: { field: "kind", sources: ["entry"] },
-  entryDomain: { field: "domain", sources: ["entry"] },
-  entrySubDomain: { field: "subDomain", sources: ["entry"] },
 };
 
 export interface BookCategories {
@@ -240,8 +238,6 @@ export interface BookCategories {
   articleSubDomain: string[];
   /** 紀事的類型；書籍沒有這一欄，但選項統一存在同一張「選項」分頁 */
   kind: string[];
-  entryDomain: string[];
-  entrySubDomain: string[];
 }
 
 export const DEFAULT_CATEGORIES: BookCategories = {
@@ -257,6 +253,4 @@ export const DEFAULT_CATEGORIES: BookCategories = {
   articleSubDomain: [],
   // 類型是唯一有預設值的自訂分類：空白的話新增紀事會不知道從哪裡開始
   kind: ["工作日誌", "輸出", "反思", "日記", "程式"],
-  entryDomain: [],
-  entrySubDomain: [],
 };

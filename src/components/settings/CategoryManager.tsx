@@ -22,8 +22,6 @@ const LABELS: Record<keyof BookCategories, string> = {
   articleDomain: "文章領域",
   articleSubDomain: "文章次領域",
   kind: "類型",
-  entryDomain: "紀事領域",
-  entrySubDomain: "紀事次領域",
 };
 
 /** 清單預設是空的，靠 placeholder 舉例說明這一欄想收什麼樣的值 */
@@ -36,8 +34,6 @@ const PLACEHOLDERS: Record<keyof BookCategories, string> = {
   articleDomain: "例如 社會",
   articleSubDomain: "例如 居住正義",
   kind: "例如 反思",
-  entryDomain: "例如 求職",
-  entrySubDomain: "例如 履歷",
 };
 
 function CategoryGroup({ categoryKey }: { categoryKey: keyof BookCategories }) {

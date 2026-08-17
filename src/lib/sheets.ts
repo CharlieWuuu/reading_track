@@ -387,8 +387,6 @@ const CATEGORY_LABELS: Record<keyof BookCategories, string> = {
   articleDomain: "文章領域",
   articleSubDomain: "文章次領域",
   kind: "類型",
-  entryDomain: "紀事領域",
-  entrySubDomain: "紀事次領域",
 };
 
 function categoryKeyOf(label: string): keyof BookCategories | null {
@@ -456,8 +454,6 @@ export async function listCategories(
     articleDomain: [],
     articleSubDomain: [],
     kind: [],
-    entryDomain: [],
-    entrySubDomain: [],
   };
   for (const row of rows) {
     const key = categoryKeyOf((row.get("類別") ?? "").toString());
