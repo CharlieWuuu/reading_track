@@ -1,102 +1,36 @@
 import { DistributionSlice, MonthCount } from "@/lib/bookStats";
-import { InstapaperBookmark } from "@/lib/instapaper/client";
+import {
+  getFieldDistribution,
+  getRecordKpis,
+  getRecordMonthlyTrend,
+  type DatedRecord,
+} from "@/lib/recordStats";
+import { Article } from "@/types/article";
 
-export const COMPLETION_THRESHOLD = 0.9;
+/** 文章的日期欄叫「閱讀日期」，統計那邊一律看 date */
+type ArticleRecord = Omit<Article, "endDate"> & DatedRecord;
 
-export function isCompleted(a: InstapaperBookmark): boolean {
-  return (a.progress ?? 0) >= COMPLETION_THRESHOLD;
+function toRecords(articles: Article[]): ArticleRecord[] {
+  return articles.map(({ endDate, ...rest }) => ({ ...rest, date: endDate }));
 }
 
-function activityTime(a: InstapaperBookmark): number {
-  return a.progress_timestamp || a.time;
+export function getArticleKpis(articles: Article[]) {
+  return getRecordKpis(toRecords(articles));
 }
 
-export function getArticleKpis(articles: InstapaperBookmark[]) {
-  const completed = articles.filter(isCompleted);
-  const now = new Date();
-  const thisYear = now.getFullYear();
-
-  const thisYearCount = completed.filter(
-    (a) => new Date(activityTime(a) * 1000).getFullYear() === thisYear,
-  ).length;
-
-  // 今年到目前為止的節奏：今年完成篇數 ÷ 已經過完的月份數，跟書籍同一個算法
-  const avgPerMonth = thisYearCount / (now.getMonth() + 1);
-
-  return {
-    completed: completed.length,
-    thisYear: thisYearCount,
-    avgPerMonth: Math.round(avgPerMonth * 10) / 10,
-  };
+export function getArticleMonthlyTrend(articles: Article[], monthsBack = 24): MonthCount[] {
+  return getRecordMonthlyTrend(toRecords(articles), monthsBack);
 }
 
-export function getArticleMonthlyTrend(
-  articles: InstapaperBookmark[],
-  monthsBack = 24,
-): MonthCount[] {
-  const completed = articles.filter(isCompleted);
-  const counts = new Map<string, number>();
-
-  const now = new Date();
-  for (let i = monthsBack - 1; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    counts.set(key, 0);
-  }
-
-  for (const a of completed) {
-    const d = new Date(activityTime(a) * 1000);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    if (counts.has(key)) {
-      counts.set(key, (counts.get(key) ?? 0) + 1);
-    }
-  }
-
-  return Array.from(counts.entries()).map(([month, count]) => ({ month, count }));
+/** 站台排行：只算讀完的，還沒讀完的站不會上榜 */
+export function getSourceRanking(articles: Article[], limit = 8): DistributionSlice[] {
+  return getFieldDistribution(toRecords(articles), "platform", { limit, includeBlank: false });
 }
 
-/**
- * 來源網站排行：只算讀完的篇數，存了很多卻沒讀的站不會上榜。
- *
- * 網域只取第一段（去掉 www 之後的第一個標籤），像 medium.com 就顯示 medium——
- * 完整網域太長，在長條旁邊會被截斷，反而看不出是哪個站。
- */
-export function getSourceRanking(articles: InstapaperBookmark[], limit = 8): DistributionSlice[] {
-  const totals = new Map<string, number>();
-
-  for (const a of articles.filter(isCompleted)) {
-    const name = sourceName(a.url);
-    totals.set(name, (totals.get(name) ?? 0) + 1);
-  }
-
-  return Array.from(totals.entries())
-    .map(([name, value]) => ({ name, value }))
-    .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name))
-    .slice(0, limit);
+export function getArticleDomainDistribution(articles: Article[]): DistributionSlice[] {
+  return getFieldDistribution(toRecords(articles), "domain");
 }
 
-function sourceName(url: string): string {
-  try {
-    const host = new URL(url).hostname.replace(/^www\./, "");
-    return host.split(".")[0] || host;
-  } catch {
-    return "未知";
-  }
-}
-
-/**
- * 文章的「屬性」＝使用者在 Instapaper 上自己加的標籤，只算讀完的。
- * 一篇可以有多個標籤，每個各算一次，所以加總會大於文章數。
- */
-export function getTagDistribution(articles: InstapaperBookmark[]): DistributionSlice[] {
-  const counts = new Map<string, number>();
-  for (const a of articles.filter(isCompleted)) {
-    const names = (a.tags ?? []).map((t) => t.name?.trim()).filter(Boolean) as string[];
-    for (const name of names.length > 0 ? names : ["未分類"]) {
-      counts.set(name, (counts.get(name) ?? 0) + 1);
-    }
-  }
-  return Array.from(counts.entries())
-    .map(([name, value]) => ({ name, value }))
-    .sort((a, b) => b.value - a.value);
+export function getArticleTypeDistribution(articles: Article[]): DistributionSlice[] {
+  return getFieldDistribution(toRecords(articles), "type");
 }

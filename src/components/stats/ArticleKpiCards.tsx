@@ -1,17 +1,20 @@
+/** 文章與紀事共用，差別只有單位是「篇」還是「筆」 */
 export function ArticleKpiCards({
   completed,
   thisYear,
   avgPerMonth,
+  unit = "篇",
 }: {
   completed: number;
   thisYear: number;
   avgPerMonth: number;
+  unit?: string;
 }) {
   const items = [
-    { label: "累計完成", value: String(completed), unit: "篇" },
-    { label: "今年完成", value: String(thisYear), unit: "篇" },
+    { label: "累計完成", value: String(completed), unit },
+    { label: "今年完成", value: String(thisYear), unit },
     // 固定一位小數，跟書籍的平均每月同一個寫法
-    { label: "平均每月", value: avgPerMonth.toFixed(1), unit: "篇" },
+    { label: "平均每月", value: avgPerMonth.toFixed(1), unit },
   ];
 
   return (

@@ -4,14 +4,13 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { PagerButton } from "@/components/ui/PagerButton";
 import { buildMonthGrid, CalendarDay } from "@/lib/calendarUtils";
-import { InstapaperBookmark } from "@/lib/instapaper/client";
-import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
+import { Article } from "@/types/article";
 import { Book } from "@/types/book";
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
 /** 格子裡只列第一篇文章，其餘用右邊的「+N」表示，完整清單看下方明細 */
-function DayArticles({ articles }: { articles: InstapaperBookmark[] }) {
+function DayArticles({ articles }: { articles: Article[] }) {
   if (articles.length === 0) return null;
 
   const first = articles[0];
@@ -19,16 +18,14 @@ function DayArticles({ articles }: { articles: InstapaperBookmark[] }) {
 
   return (
     <div className="mt-1 flex items-center gap-1">
-      <a
-        href={instapaperReadUrl(first.bookmark_id, first.url)}
-        target="_blank"
-        rel="noopener noreferrer"
+      <Link
+        href={`/articles/${first.id}/edit`}
         onClick={(e) => e.stopPropagation()}
-        title={first.title || first.url}
+        title={first.title}
         className="min-w-0 flex-1 truncate rounded-sm bg-blue-50 px-1 py-0.5 text-[10px] text-blue-900 hover:bg-blue-100"
       >
-        {first.title || first.url}
-      </a>
+        {first.title}
+      </Link>
       {hidden > 0 && (
         <span className="shrink-0 text-[10px] font-medium text-gray-500">+{hidden}</span>
       )}
@@ -60,16 +57,14 @@ function DayDetail({ day }: { day?: CalendarDay }) {
         </Link>
       ))}
       {day.articles.map((a) => (
-        <a
-          key={a.bookmark_id}
-          href={instapaperReadUrl(a.bookmark_id, a.url)}
-          target="_blank"
-          rel="noopener noreferrer"
-          title={a.title || a.url}
+        <Link
+          key={a.id}
+          href={`/articles/${a.id}/edit`}
+          title={a.title}
           className="block truncate rounded bg-blue-50 px-2 py-1.5 text-xs text-blue-900 hover:bg-blue-100"
         >
-          {a.title || a.url}
-        </a>
+          {a.title}
+        </Link>
       ))}
     </div>
   );
@@ -81,7 +76,7 @@ export function MonthGrid({
   action,
 }: {
   books: Book[];
-  articles: InstapaperBookmark[];
+  articles: Article[];
   /** 檢視切換：放在換月那一列的右邊，不另外佔一條 */
   action?: React.ReactNode;
 }) {

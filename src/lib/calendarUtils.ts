@@ -1,12 +1,11 @@
-import { isCompleted } from "@/lib/articleStats";
-import { InstapaperBookmark } from "@/lib/instapaper/client";
+import { Article } from "@/types/article";
 import { Book } from "@/types/book";
 
 export interface CalendarDay {
   date: Date;
   inCurrentMonth: boolean;
   books: Book[];
-  articles: InstapaperBookmark[];
+  articles: Article[];
 }
 
 function dateKey(d: Date): string {
@@ -19,7 +18,7 @@ export function buildMonthGrid(
   year: number,
   month: number,
   books: Book[],
-  articles: InstapaperBookmark[] = [],
+  articles: Article[] = [],
 ): CalendarDay[] {
   const booksByDay = new Map<string, Book[]>();
   for (const b of books) {
@@ -32,12 +31,10 @@ export function buildMonthGrid(
     booksByDay.set(key, list);
   }
 
-  const articlesByDay = new Map<string, InstapaperBookmark[]>();
+  const articlesByDay = new Map<string, Article[]>();
   for (const a of articles) {
-    if (!isCompleted(a)) continue;
-    const timestamp = a.progress_timestamp || a.time;
-    if (!timestamp) continue;
-    const d = new Date(timestamp * 1000);
+    if (!a.endDate) continue;
+    const d = new Date(a.endDate);
     if (Number.isNaN(d.getTime())) continue;
     const key = dateKey(d);
     const list = articlesByDay.get(key) ?? [];

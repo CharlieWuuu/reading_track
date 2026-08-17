@@ -16,10 +16,11 @@ import { Section, SectionList } from "@/components/stats/SectionList";
 import { YearlyTrendChart } from "@/components/stats/YearlyTrendChart";
 import { TabBar } from "@/components/ui/Controls";
 import {
+  getArticleDomainDistribution,
   getArticleKpis,
   getArticleMonthlyTrend,
+  getArticleTypeDistribution,
   getSourceRanking,
-  getTagDistribution,
 } from "@/lib/articleStats";
 import {
   getAuthorRanking,
@@ -33,20 +34,27 @@ import {
   getRereadRanking,
   getTypeDistribution,
 } from "@/lib/bookStats";
+import {
+  getEntryDomainDistribution,
+  getEntryKpis,
+  getEntryMonthlyTrend,
+  getKindDistribution,
+} from "@/lib/entryStats";
+import { useArticles } from "@/lib/useArticles";
 import { useBooks } from "@/lib/useBooks";
-import { useInstapaperArticles } from "@/lib/useInstapaperArticles";
+import { useEntries } from "@/lib/useEntries";
 import { useIsMobile } from "@/lib/useIsMobile";
 import { useMounted } from "@/lib/useMounted";
 import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
-import { useInstapaperStore } from "@/store/useInstapaperStore";
 import { useSheetStore } from "@/store/useSheetStore";
 
-type Tab = "books" | "articles" | "calendar";
+type Tab = "books" | "articles" | "entries" | "calendar";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "books", label: "書籍" },
   { key: "articles", label: "文章" },
+  { key: "entries", label: "紀事" },
   // 月曆是統計的一種看法，桌機與手機都放在這裡當分頁
   { key: "calendar", label: "月曆" },
 ];
@@ -311,15 +319,15 @@ function BooksStats() {
 }
 
 function ArticlesStats() {
-  const { token } = useInstapaperStore();
+  const { sheetId } = useSheetStore();
   const mounted = useMounted();
-  const { articles, isLoading, error } = useInstapaperArticles();
+  const { articles, isLoading, error } = useArticles();
   const isMobile = useIsMobile();
 
   if (!mounted) return null;
 
-  if (!token) {
-    return <PageMessage>請先到「設定」頁面連接 Instapaper</PageMessage>;
+  if (!sheetId) {
+    return <PageMessage>請先到「設定」頁面連接 Google Sheet</PageMessage>;
   }
 
   if (isLoading) {
@@ -338,7 +346,10 @@ function ArticlesStats() {
   const monthly = getArticleMonthlyTrend(articles);
   const sources = getSourceRanking(articles);
 
-  const pies = [{ key: "tag", label: "屬性分布", data: getTagDistribution(articles) }];
+  const pies = [
+    { key: "domain", label: "領域分布", data: getArticleDomainDistribution(articles) },
+    { key: "type", label: "屬性分布", data: getArticleTypeDistribution(articles) },
+  ];
 
   const sections: Section[] = [
     // 手機把數字與趨勢圖拆成兩頁，理由同書籍：擠在一起圖表會被壓扁
@@ -382,7 +393,7 @@ function ArticlesStats() {
         ]),
     {
       key: "source",
-      label: "來源網站",
+      label: "來源站台",
       needsHeight: false,
       node: (
         <div className="rounded-lg border bg-white p-5">
@@ -407,9 +418,94 @@ function ArticlesStats() {
             key: "distribution",
             label: "分布",
             node: (
-              <Panel>
-                <DistributionPie title="屬性分布" data={pies[0].data} unit="篇" height="100%" />
-              </Panel>
+              <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
+                {pies.map((pie) => (
+                  <Panel key={pie.key}>
+                    <DistributionPie title={pie.label} data={pie.data} unit="篇" height="100%" />
+                  </Panel>
+                ))}
+              </div>
+            ),
+          },
+        ]),
+  ];
+
+  return <SectionList sections={sections} />;
+}
+
+/** 紀事的形狀跟文章一樣，只是單位是「筆」，分布看的是類型與領域 */
+function EntriesStats() {
+  const { sheetId } = useSheetStore();
+  const mounted = useMounted();
+  const { entries, isLoading, error } = useEntries();
+  const isMobile = useIsMobile();
+
+  if (!mounted) return null;
+  if (!sheetId) return <PageMessage>請先到「設定」頁面連接 Google Sheet</PageMessage>;
+  if (isLoading) return <PageMessage>載入中…</PageMessage>;
+  if (error) return <PageMessage tone="error">{error}</PageMessage>;
+  if (entries.length === 0) return <PageMessage>還沒有任何紀事</PageMessage>;
+
+  const kpis = getEntryKpis(entries);
+  const monthly = getEntryMonthlyTrend(entries);
+  const pies = [
+    { key: "kind", label: "類型分布", data: getKindDistribution(entries) },
+    { key: "domain", label: "領域分布", data: getEntryDomainDistribution(entries) },
+  ];
+
+  const trend = (
+    <Panel title="每月筆數">
+      <MonthlyTrendChart data={monthly} unit="筆" seriesLabel="筆數" height="100%" />
+    </Panel>
+  );
+
+  const sections: Section[] = [
+    // 手機把數字與趨勢圖拆成兩頁，理由同書籍：擠在一起圖表會被壓扁
+    ...(isMobile
+      ? [
+          {
+            key: "overview",
+            label: "概覽",
+            needsHeight: false,
+            node: <ArticleKpiCards {...kpis} unit="筆" />,
+          },
+          { key: "monthly", label: "每月筆數", scrollHeight: "h-70 sm:h-[32rem]", node: trend },
+        ]
+      : [
+          {
+            key: "overview",
+            label: "概覽",
+            node: (
+              <div className="flex min-h-0 flex-1 flex-col gap-3">
+                <ArticleKpiCards {...kpis} unit="筆" />
+                {trend}
+              </div>
+            ),
+          },
+        ]),
+    ...(isMobile
+      ? pies.map((pie) => ({
+          key: pie.key,
+          label: pie.label,
+          scrollHeight: "aspect-square",
+          node: (
+            <Panel>
+              <DistributionPie title={pie.label} data={pie.data} unit="筆" height="100%" />
+            </Panel>
+          ),
+        }))
+      : [
+          {
+            key: "distribution",
+            label: "分布",
+            node: (
+              <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
+                {pies.map((pie) => (
+                  <Panel key={pie.key}>
+                    <DistributionPie title={pie.label} data={pie.data} unit="筆" height="100%" />
+                  </Panel>
+                ))}
+              </div>
             ),
           },
         ]),
@@ -422,7 +518,7 @@ function StatsTabs() {
   // 檢視哪一邊寫在網址上，重新整理或分享連結都回得到同一個畫面；預設書籍
   const { searchParams, setParams } = useUrlParams();
   const param = searchParams.get("tab");
-  const tab: Tab = param === "articles" ? "articles" : param === "calendar" ? "calendar" : "books";
+  const tab: Tab = TABS.some((t) => t.key === param) ? (param as Tab) : "books";
   const setTab = (next: Tab) => setParams({ tab: next === "books" ? null : next });
 
   return (
@@ -433,6 +529,8 @@ function StatsTabs() {
           <CalendarBody />
         ) : tab === "books" ? (
           <BooksStats />
+        ) : tab === "entries" ? (
+          <EntriesStats />
         ) : (
           <ArticlesStats />
         )}
