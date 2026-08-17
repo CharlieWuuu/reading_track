@@ -3,31 +3,31 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ExternalLink } from "lucide-react";
-import { groupByWeek, isUrl, Reflection } from "@/lib/reflections";
+import { dayLabel, groupByWeek, isUrl, Reflection } from "@/lib/reflections";
 
 const styles = {
-  wrap: "flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto pb-2",
-  week: "flex flex-col gap-2",
-  weekHead: "flex items-center gap-3",
+  wrap: "flex min-h-0 w-full min-w-0 flex-1 flex-col gap-6 overflow-y-auto pb-2",
+  week: "flex w-full min-w-0 flex-col gap-2",
+  weekHead: "flex w-full min-w-0 items-center gap-3",
   weekLabel: "shrink-0 text-xs font-medium text-gray-500 tabular-nums",
   weekYear: "shrink-0 text-[11px] text-gray-300 tabular-nums",
   weekLine: "h-px flex-1 bg-gray-200",
   // 直線畫在左邊，點掛在線上：ml 要跟點的半徑對齊，不然線會歪掉
-  items: "flex flex-col border-l border-gray-200 pl-4 ml-[3px]",
-  item: "relative flex flex-col gap-1 py-2 text-left",
+  items: "ml-[3px] flex w-full min-w-0 flex-col border-l border-gray-200 pl-4",
+  item: "relative flex w-full min-w-0 flex-col gap-1 py-2 text-left",
   dot: "absolute -left-[21px] top-3.5 size-[7px] rounded-full ring-2 ring-white",
-  head: "flex items-baseline gap-2",
+  head: "flex w-full min-w-0 items-baseline gap-2",
   kind: "shrink-0 rounded px-1.5 py-0.5 text-[11px]",
   title: "min-w-0 flex-1 truncate text-sm font-medium",
   date: "shrink-0 text-[11px] text-gray-400 tabular-nums",
   // 摺起來只給一行，展開才是完整內文加換行
-  peek: "truncate text-xs text-gray-500",
-  note: "text-sm leading-relaxed whitespace-pre-wrap text-gray-700",
-  tags: "flex flex-wrap items-center gap-1 pt-1",
+  peek: "w-full min-w-0 truncate text-xs text-gray-500",
+  note: "w-full min-w-0 text-sm leading-relaxed break-words whitespace-pre-wrap text-gray-700",
+  tags: "flex w-full min-w-0 flex-wrap items-center gap-1 pt-1",
   tag: "rounded bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-500",
   source: "ml-auto flex shrink-0 items-center gap-1 text-[11px] text-gray-400 hover:text-gray-900",
-  origin: "text-[11px] text-gray-400",
-  originLink: "text-[11px] text-gray-400 underline hover:text-gray-900",
+  origin: "max-w-full truncate text-[11px] text-gray-400",
+  originLink: "max-w-full truncate text-[11px] text-gray-400 underline hover:text-gray-900",
 };
 
 /** 列表那邊的標籤也用這個，兩種看法的顏色要對得起來 */
@@ -92,7 +92,7 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
                         {r.kind || r.source}
                       </span>
                       <span className={styles.title}>{r.title}</span>
-                      <span className={styles.date}>{r.date ?? ""}</span>
+                      <span className={styles.date}>{dayLabel(r.date)}</span>
                     </span>
 
                     {open ? (

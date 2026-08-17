@@ -53,6 +53,29 @@ export type ReflectionWeek = {
   items: Reflection[];
 };
 
+/**
+ * 「2026-08-17」當成當地時區的那一天。
+ *
+ * 不能直接 new Date(字串)：那會被當成 UTC 午夜，在西半球會倒退一天，
+ * 分到上一週去。
+ */
+export function parseDate(value: string | null): Date | null {
+  if (!value) return null;
+  const [y, m, d] = value.split("-").map(Number);
+  if (!y || !m || !d) return null;
+  const date = new Date(y, m - 1, d);
+  return isNaN(+date) ? null : date;
+}
+
+const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
+
+/** 週分組底下顯示完整日期只是重複，標「8/17 一」比較有用 */
+export function dayLabel(value: string | null): string {
+  const date = parseDate(value);
+  if (!date) return "";
+  return `${date.getMonth() + 1}/${date.getDate()} ${WEEKDAYS[date.getDay()]}`;
+}
+
 /** ISO 8601 的週：週一開頭，跨年那幾天跟著「哪一年佔比較多天」走 */
 function weekStart(date: Date): Date {
   const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -85,10 +108,9 @@ export function groupByWeek(reflections: Reflection[]): ReflectionWeek[] {
   const groups = new Map<string, ReflectionWeek>();
 
   for (const item of reflections) {
-    const date = item.date ? new Date(item.date) : null;
-    const valid = date && !isNaN(+date);
+    const date = parseDate(item.date);
 
-    if (!valid) {
+    if (!date) {
       const group = groups.get("") ?? { key: "", label: "未填日期", year: 0, items: [] };
       group.items.push(item);
       groups.set("", group);
