@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
+import { EntryFilter } from "@/components/entries/EntryFilter";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
@@ -11,6 +12,7 @@ import { useCategories } from "@/lib/useCategories";
 import { useEntries } from "@/lib/useEntries";
 import { useMounted } from "@/lib/useMounted";
 import { useUrlParams } from "@/lib/useUrlParam";
+import { splitTags } from "@/types/book";
 
 function EntriesList() {
   const mounted = useMounted();
@@ -23,14 +25,27 @@ function EntriesList() {
   const param = searchParams.get("kind");
   const kind = param && kinds.includes(param) ? param : "all";
   const filters = [{ key: "all", label: "全部" }, ...kinds.map((k) => ({ key: k, label: k }))];
-  const entries = kind === "all" ? allEntries : allEntries.filter((e) => e.kind === kind);
+  const byKind = kind === "all" ? allEntries : allEntries.filter((e) => e.kind === kind);
+
+  // 選項只列真的有紀事在用的領域，選了才不會篩出一片空白
+  const domains = [...new Set(byKind.flatMap((e) => splitTags(e.domain)))].sort((a, b) =>
+    a.localeCompare(b, "zh-Hant"),
+  );
+  const domain = searchParams.get("domain") ?? "";
+  const entries = domain ? byKind.filter((e) => splitTags(e.domain).includes(domain)) : byKind;
 
   const action = (
     <div className="flex min-w-0 items-center gap-2">
       <TabBar
         items={filters}
         value={kind}
-        onChange={(next) => setParams({ kind: next === "all" ? null : next })}
+        onChange={(next) => setParams({ kind: next === "all" ? null : next, domain: null })}
+      />
+      <EntryFilter
+        label="領域"
+        options={domains}
+        value={domain}
+        onChange={(next) => setParams({ domain: next || null })}
       />
       <ActionButton href="/entries/new">新增紀事</ActionButton>
     </div>
