@@ -198,12 +198,20 @@ function parseLegacyVocabulary(line: string): VocabularyItem {
   };
 }
 
+/** 分類欄位不是每種紀錄都有（書沒有類型、紀事沒有平台），取不到就當空的 */
+export function categoryValue(item: object, key: keyof BookCategories): string {
+  const value = (item as Record<string, unknown>)[key];
+  return typeof value === "string" ? value : "";
+}
+
 export interface BookCategories {
   platform: string[];
   domain: string[];
   subDomain: string[];
   type: string[];
   language: string[];
+  /** 紀事的類型；書籍沒有這一欄，但選項統一存在同一張「選項」分頁 */
+  kind: string[];
 }
 
 export const DEFAULT_CATEGORIES: BookCategories = {
@@ -215,4 +223,6 @@ export const DEFAULT_CATEGORIES: BookCategories = {
   subDomain: [],
   type: [],
   language: [],
+  // 類型是唯一有預設值的自訂分類：空白的話新增紀事會不知道從哪裡開始
+  kind: ["工作", "輸出", "反思", "日記", "程式"],
 };

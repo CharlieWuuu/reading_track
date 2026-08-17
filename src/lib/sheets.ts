@@ -4,6 +4,7 @@ import {
   GoogleSpreadsheetRow,
   GoogleSpreadsheetWorksheet,
 } from "google-spreadsheet";
+import { Article } from "@/types/article";
 import {
   Book,
   BookCategories,
@@ -13,13 +14,20 @@ import {
   normalizeStatus,
   splitLines,
 } from "@/types/book";
+import { Entry } from "@/types/entry";
 import { KeywordInfo } from "@/types/keyword";
 import { QuoteRow, VocabularyRow } from "@/types/record";
-import { BOOK_FIELDS, BookField, COLUMN_LABELS, ColumnMap, mapHeaders } from "./sheetSchema";
-
-const BOOKS_SHEET_TITLE = "書籍";
-
-const DEFAULT_HEADERS = BOOK_FIELDS.map((f) => COLUMN_LABELS[f]);
+import {
+  ARTICLE_TABLE,
+  BOOK_TABLE,
+  BookField,
+  ColumnMap,
+  defaultHeaders,
+  ENTRY_TABLE,
+  managedFields,
+  mapHeaders,
+  TableSpec,
+} from "./sheetSchema";
 
 function getAuthClient(accessToken: string) {
   const auth = new OAuth2Client();
@@ -35,24 +43,28 @@ function getAuthClient(accessToken: string) {
  * - 缺少的欄位補到最右邊（不能插在中間，理由見下）
  * - 認不出來的欄位當成使用者自訂，原樣保留
  */
-async function resolveColumns(sheet: GoogleSpreadsheetWorksheet) {
+async function resolveColumns<F extends string, L extends F>(
+  sheet: GoogleSpreadsheetWorksheet,
+  spec: TableSpec<F, L>,
+) {
   await sheet.loadHeaderRow().catch(() => null);
   const headers = trimTrailingBlanks(sheet.headerValues ?? []);
-  const map = mapHeaders(headers);
+  const map = mapHeaders(spec, headers);
+  const managed = managedFields(spec);
 
   // 實際表頭 -> 欄位，用來判斷某一欄該不該改名
-  const fieldByHeader = new Map<string, BookField>();
-  for (const field of BOOK_FIELDS) {
+  const fieldByHeader = new Map<string, F>();
+  for (const field of managed) {
     const header = map[field];
     if (header) fieldByHeader.set(header, field);
   }
 
   const renamed = headers.map((header) => {
     const field = fieldByHeader.get(header);
-    return field ? COLUMN_LABELS[field] : header;
+    return field ? spec.labels[field] : header;
   });
 
-  const missing = BOOK_FIELDS.filter((f) => !map[f]);
+  const missing = managed.filter((f) => !map[f]);
   // 萬一表裡同時有「coverUrl」和「封面網址」，改名會撞成兩個同名欄，
   // 那就別改名了，只補缺的欄，交給使用者自己決定要留哪一個
   const safeToRename = new Set(renamed).size === renamed.length;
@@ -62,27 +74,30 @@ async function resolveColumns(sheet: GoogleSpreadsheetWorksheet) {
   // 那一列，底下的資料不會跟著右移，在中間插一欄會讓右邊每一欄都對錯資料。
   // 想調欄位順序請直接在 Sheet 上整欄搬移，app 是靠表頭名字對應的，位置不影響。
   //
-  const nextHeaders = [...base, ...missing.map((f) => COLUMN_LABELS[f])];
+  const nextHeaders = [...base, ...missing.map((f) => spec.labels[f])];
 
   const changed =
     nextHeaders.length !== headers.length || nextHeaders.some((h, i) => h !== headers[i]);
 
-  if (!changed) return assertComplete(map);
+  if (!changed) return assertComplete(spec, map);
 
   await sheet.setHeaderRow(nextHeaders);
-  return assertComplete(mapHeaders(nextHeaders));
+  return assertComplete(spec, mapHeaders(spec, nextHeaders));
 }
 
 /**
  * 每個欄位都必須對應得到表頭。少一個就代表 COLUMN_LABELS 與 COLUMN_ALIASES 沒對上，
  * 這時候硬跑下去會拿 undefined 去定位儲存格，寫壞使用者的資料——寧可直接失敗。
  */
-function assertComplete(map: Partial<Record<BookField, string>>): ColumnMap {
-  const missing = BOOK_FIELDS.filter((f) => !map[f]);
+function assertComplete<F extends string, L extends F>(
+  spec: TableSpec<F, L>,
+  map: Partial<Record<F, string>>,
+): ColumnMap<F, L> {
+  const missing = managedFields(spec).filter((f) => !map[f]);
   if (missing.length > 0) {
-    throw new Error(`表頭對應不完整，缺少：${missing.join(", ")}`);
+    throw new Error(`「${spec.title}」表頭對應不完整，缺少：${missing.join(", ")}`);
   }
-  return map as ColumnMap;
+  return map as ColumnMap<F, L>;
 }
 
 /** 只砍掉尾端的空欄，中間的空欄要留著，不然整排資料會左移對不上 */
@@ -90,6 +105,14 @@ function trimTrailingBlanks(headers: string[]): string[] {
   let end = headers.length;
   while (end > 0 && !headers[end - 1]?.trim()) end--;
   return headers.slice(0, end);
+}
+
+/** ColumnMap 是交集型別，用泛型欄位去索引 TS 認不出來，統一從這裡取 */
+function headerOf<F extends string, L extends F>(
+  columns: ColumnMap<F, L>,
+  field: F,
+): string | undefined {
+  return (columns as Partial<Record<F, string>>)[field];
 }
 
 /** 表頭字串 -> 欄索引（0 起算），批次寫入時用來定位儲存格 */
@@ -101,19 +124,65 @@ function headerIndex(sheet: GoogleSpreadsheetWorksheet): Record<string, number> 
   return index;
 }
 
-async function getBooksSheet(sheetId: string, accessToken: string) {
+/** 分頁不存在就現開一張。任何一張以 spec 描述的表都走這裡 */
+async function getTableSheet<F extends string, L extends F>(
+  sheetId: string,
+  accessToken: string,
+  spec: TableSpec<F, L>,
+) {
   const doc = new GoogleSpreadsheet(sheetId, getAuthClient(accessToken));
   await doc.loadInfo();
 
-  let sheet = doc.sheetsByTitle[BOOKS_SHEET_TITLE];
+  let sheet = doc.sheetsByTitle[spec.title];
   if (!sheet) {
-    sheet = await doc.addSheet({
-      title: BOOKS_SHEET_TITLE,
-      headerValues: DEFAULT_HEADERS,
-    });
+    sheet = await doc.addSheet({ title: spec.title, headerValues: defaultHeaders(spec) });
   }
-  const columns = await resolveColumns(sheet);
+  const columns = await resolveColumns(sheet, spec);
   return { sheet, columns };
+}
+
+const getBooksSheet = (sheetId: string, accessToken: string) =>
+  getTableSheet(sheetId, accessToken, BOOK_TABLE);
+
+/**
+ * 讀出一張表的原始字串值，順便補上沒有編號的列。
+ *
+ * 只負責「表 -> 字串」，欄位的語意（狀態怎麼推、平台怎麼收斂）留給呼叫端，
+ * 那些是各媒介自己的事。
+ */
+async function listTableValues<F extends string, L extends F>(
+  sheetId: string,
+  accessToken: string,
+  spec: TableSpec<F, L>,
+): Promise<{ values: Record<F, string>[]; idsBackfilled: number }> {
+  const { sheet, columns } = await getTableSheet(sheetId, accessToken, spec);
+  let rows = await sheet.getRows();
+
+  const idHeader = headerOf(columns, spec.idField) ?? spec.labels[spec.idField];
+  const rowsMissingId = rows.filter((row) => !row.get(idHeader));
+  if (rowsMissingId.length > 0) {
+    // 一列一次 row.save() 會打爆 Google Sheets 的每分鐘寫入配額，改成一次批次寫入
+    await sheet.loadCells();
+    const idColumn = headerIndex(sheet)[idHeader];
+    for (const row of rowsMissingId) {
+      sheet.getCell(row.rowNumber - 1, idColumn).value = crypto.randomUUID();
+    }
+    await sheet.saveUpdatedCells();
+
+    // re-read so we return the ids that were actually persisted, avoiding a
+    // mismatch if a concurrent call backfilled the same rows with different ids
+    rows = await sheet.getRows();
+  }
+
+  const values = rows.map((row) => {
+    const value = {} as Record<F, string>;
+    for (const field of spec.fields) {
+      value[field] = (row.get(headerOf(columns, field) ?? "") ?? "").toString().trim();
+    }
+    return value;
+  });
+
+  return { values, idsBackfilled: rowsMissingId.length };
 }
 
 export async function verifySheetAccess(sheetId: string, accessToken: string) {
@@ -132,66 +201,122 @@ export async function listBooksWithMeta(
   sheetId: string,
   accessToken: string,
 ): Promise<{ books: Book[]; idsBackfilled: number }> {
-  const { sheet, columns } = await getBooksSheet(sheetId, accessToken);
-  let rows = await sheet.getRows();
+  const { values, idsBackfilled } = await listTableValues(sheetId, accessToken, BOOK_TABLE);
 
-  const rowsMissingId = rows.filter((row) => !row.get(columns.id));
-  if (rowsMissingId.length > 0) {
-    // 一列一次 row.save() 會打爆 Google Sheets 的每分鐘寫入配額，改成一次批次寫入
-    await sheet.loadCells();
-    const idColumn = headerIndex(sheet)[columns.id];
-    for (const row of rowsMissingId) {
-      sheet.getCell(row.rowNumber - 1, idColumn).value = crypto.randomUUID();
-    }
-    await sheet.saveUpdatedCells();
+  const books = values.map((v) => ({
+    ...v,
+    // 大小寫不同一律收斂成正式名稱（HyRead／hyread）；
+    // 認不得的就照原樣留著——平台已經是使用者可自訂的選項了
+    platform: normalizePlatform(v.platform) ?? v.platform ?? "",
+    // 舊資料沒有這欄，用日期推一個合理的預設值
+    status: normalizeStatus(v.status) ?? inferStatus(v.startDate || null, v.endDate || null),
+    startDate: v.startDate || null,
+    endDate: v.endDate || null,
+  }));
 
-    // re-read so we return the ids that were actually persisted, avoiding a
-    // mismatch if a concurrent call backfilled the same rows with different ids
-    rows = await sheet.getRows();
+  return { books, idsBackfilled };
+}
+
+export async function listArticles(sheetId: string, accessToken: string): Promise<Article[]> {
+  const { values } = await listTableValues(sheetId, accessToken, ARTICLE_TABLE);
+  return values.map((v) => ({ ...v, endDate: v.endDate || null }));
+}
+
+export async function addArticleRow(sheetId: string, accessToken: string, article: Article) {
+  await addTableRow(sheetId, accessToken, ARTICLE_TABLE, article);
+}
+
+export async function updateArticleRow(
+  sheetId: string,
+  accessToken: string,
+  id: string,
+  patch: Partial<Article>,
+) {
+  await updateTableRow(sheetId, accessToken, ARTICLE_TABLE, id, patch);
+}
+
+export async function deleteArticleRow(sheetId: string, accessToken: string, id: string) {
+  await deleteTableRow(sheetId, accessToken, ARTICLE_TABLE, id);
+}
+
+export async function listEntries(sheetId: string, accessToken: string): Promise<Entry[]> {
+  const { values } = await listTableValues(sheetId, accessToken, ENTRY_TABLE);
+  return values.map((v) => ({ ...v, date: v.date || null }));
+}
+
+export async function addEntryRow(sheetId: string, accessToken: string, entry: Entry) {
+  await addTableRow(sheetId, accessToken, ENTRY_TABLE, entry);
+}
+
+export async function updateEntryRow(
+  sheetId: string,
+  accessToken: string,
+  id: string,
+  patch: Partial<Entry>,
+) {
+  await updateTableRow(sheetId, accessToken, ENTRY_TABLE, id, patch);
+}
+
+export async function deleteEntryRow(sheetId: string, accessToken: string, id: string) {
+  await deleteTableRow(sheetId, accessToken, ENTRY_TABLE, id);
+}
+
+async function addTableRow<F extends string, L extends F>(
+  sheetId: string,
+  accessToken: string,
+  spec: TableSpec<F, L>,
+  item: Partial<Record<F, string | null>>,
+) {
+  const { sheet, columns } = await getTableSheet(sheetId, accessToken, spec);
+  const raw: Record<string, string> = {};
+  for (const field of managedFields(spec)) {
+    raw[headerOf(columns, field) ?? spec.labels[field]] = item[field] ?? "";
   }
+  await sheet.addRow(raw);
+}
 
-  const books = rows.map((row) => {
-    const get = (field: BookField) => (row.get(columns[field] ?? "") ?? "").toString().trim();
-    return {
-      id: get("id"),
-      title: get("title"),
-      author: get("author"),
-      coverUrl: get("coverUrl"),
-      publisher: get("publisher"),
-      // 大小寫不同一律收斂成正式名稱（HyRead／hyread）；
-      // 認不得的就照原樣留著——平台已經是使用者可自訂的選項了
-      platform: normalizePlatform(get("platform")) ?? get("platform") ?? "",
-      // 舊資料沒有這欄，用日期推一個合理的預設值
-      status:
-        normalizeStatus(get("status")) ??
-        inferStatus(get("startDate") || null, get("endDate") || null),
-      sourceUrl: get("sourceUrl"),
-      startDate: get("startDate") || null,
-      endDate: get("endDate") || null,
-      domain: get("domain"),
-      subDomain: get("subDomain"),
-      type: get("type"),
-      language: get("language"),
-      pageCount: get("pageCount"),
-      wordCount: get("wordCount"),
-      note: get("note"),
-      quotes: get("quotes"),
-      keywords: get("keywords"),
-      relatedArticles: get("relatedArticles"),
-      vocabulary: get("vocabulary"),
-    };
-  });
+async function findRow<F extends string, L extends F>(
+  sheet: GoogleSpreadsheetWorksheet,
+  columns: ColumnMap<F, L>,
+  spec: TableSpec<F, L>,
+  id: string,
+) {
+  const rows = await sheet.getRows();
+  const idHeader = headerOf(columns, spec.idField) ?? spec.labels[spec.idField];
+  return rows.find((r) => r.get(idHeader) === id);
+}
 
-  return { books, idsBackfilled: rowsMissingId.length };
+async function updateTableRow<F extends string, L extends F>(
+  sheetId: string,
+  accessToken: string,
+  spec: TableSpec<F, L>,
+  id: string,
+  patch: Partial<Record<F, string | null>>,
+) {
+  const { sheet, columns } = await getTableSheet(sheetId, accessToken, spec);
+  const row = await findRow(sheet, columns, spec, id);
+  if (!row) throw new Error(`在「${spec.title}」找不到這筆紀錄`);
+
+  for (const [key, value] of Object.entries(patch)) {
+    const header = headerOf(columns, key as F);
+    if (header) row.set(header, value ?? "");
+  }
+  await row.save();
+}
+
+async function deleteTableRow<F extends string, L extends F>(
+  sheetId: string,
+  accessToken: string,
+  spec: TableSpec<F, L>,
+  id: string,
+) {
+  const { sheet, columns } = await getTableSheet(sheetId, accessToken, spec);
+  const row = await findRow(sheet, columns, spec, id);
+  if (row) await row.delete();
 }
 
 export async function addBookRow(sheetId: string, accessToken: string, book: Book) {
-  const { sheet, columns } = await getBooksSheet(sheetId, accessToken);
-  const raw: Record<string, string> = {};
-  for (const field of BOOK_FIELDS) {
-    raw[columns[field]] = book[field] ?? "";
-  }
-  await sheet.addRow(raw);
+  await addTableRow(sheetId, accessToken, BOOK_TABLE, book);
 }
 
 export async function updateBookRow(
@@ -200,16 +325,7 @@ export async function updateBookRow(
   id: string,
   patch: Partial<Book>,
 ) {
-  const { sheet, columns } = await getBooksSheet(sheetId, accessToken);
-  const rows = await sheet.getRows();
-  const row = rows.find((r) => r.get(columns.id) === id);
-  if (!row) throw new Error("找不到這筆書籍紀錄");
-
-  for (const [key, value] of Object.entries(patch)) {
-    const header = columns[key as BookField];
-    if (header) row.set(header, value ?? "");
-  }
-  await row.save();
+  await updateTableRow(sheetId, accessToken, BOOK_TABLE, id, patch);
 }
 
 /**
@@ -268,6 +384,7 @@ const CATEGORY_LABELS: Record<keyof BookCategories, string> = {
   subDomain: "次領域",
   type: "屬性",
   language: "語言",
+  kind: "類型",
 };
 
 function categoryKeyOf(label: string): keyof BookCategories | null {
@@ -311,6 +428,7 @@ export async function listCategories(
     subDomain: [],
     type: [],
     language: [],
+    kind: [],
   };
   for (const row of rows) {
     const key = categoryKeyOf((row.get("類別") ?? "").toString());
@@ -346,11 +464,7 @@ export async function saveCategories(
 }
 
 export async function deleteBookRow(sheetId: string, accessToken: string, id: string) {
-  const { sheet, columns } = await getBooksSheet(sheetId, accessToken);
-  const rows = await sheet.getRows();
-  const row = rows.find((r) => r.get(columns.id) === id);
-  if (!row) return;
-  await row.delete();
+  await deleteTableRow(sheetId, accessToken, BOOK_TABLE, id);
 }
 
 const KEYWORDS_SHEET_TITLE = "關鍵字";
