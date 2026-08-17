@@ -58,9 +58,13 @@ function fromArticles(articles: Article[]): Reflection[] {
     }));
 }
 
-function fromEntries(entries: Entry[]): Reflection[] {
+/**
+ * 紀事頁的時間軸要看到全部，回顧頁只收有寫心得的——
+ * 回顧問的是「我怎麼想」，沒有心得的那筆在那裡沒有東西可讀。
+ */
+export function entriesToReflections(entries: Entry[], requireNote = true): Reflection[] {
   return entries
-    .filter((e) => e.note.trim())
+    .filter((e) => !requireNote || e.note.trim())
     .map((e) => ({
       id: e.id,
       source: "紀事" as const,
@@ -76,7 +80,7 @@ function fromEntries(entries: Entry[]): Reflection[] {
 
 /** 由新到舊；沒填日期的排最後 */
 export function getReflections(books: Book[], articles: Article[], entries: Entry[]): Reflection[] {
-  return [...fromBooks(books), ...fromArticles(articles), ...fromEntries(entries)].sort((a, b) => {
+  return [...fromBooks(books), ...fromArticles(articles), ...entriesToReflections(entries)].sort((a, b) => {
     const aDate = a.date ?? "";
     const bDate = b.date ?? "";
     if (aDate !== bDate) return bDate.localeCompare(aDate);

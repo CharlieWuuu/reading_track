@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { groupByWeek, isUrl, Reflection } from "@/lib/reflections";
-import { SOURCE_TONES } from "./ReflectionSection";
 
 const styles = {
   wrap: "flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto pb-2",
@@ -29,6 +28,13 @@ const styles = {
   source: "ml-auto flex shrink-0 items-center gap-1 text-[11px] text-gray-400 hover:text-gray-900",
   origin: "text-[11px] text-gray-400",
   originLink: "text-[11px] text-gray-400 underline hover:text-gray-900",
+};
+
+/** 列表那邊的標籤也用這個，兩種看法的顏色要對得起來 */
+export const SOURCE_TONES: Record<Reflection["source"], string> = {
+  書籍: "bg-amber-100 text-amber-800",
+  文章: "bg-blue-100 text-blue-800",
+  紀事: "bg-emerald-100 text-emerald-800",
 };
 
 const DOT_TONES: Record<Reflection["source"], string> = {
