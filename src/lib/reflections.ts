@@ -76,6 +76,81 @@ export function getReflections(books: Book[], articles: Article[], entries: Entr
   });
 }
 
+export type ReflectionWeek = {
+  /** 排序與 React key 用，例如 2026-W34；沒日期的那組是空字串 */
+  key: string;
+  /** 給人看的那一行，例如 8/17–8/23 */
+  label: string;
+  year: number;
+  items: Reflection[];
+};
+
+/** ISO 8601 的週：週一開頭，跨年那幾天跟著「哪一年佔比較多天」走 */
+function weekStart(date: Date): Date {
+  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  // getDay() 週日是 0，換算成「離這週的週一過了幾天」
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return d;
+}
+
+function isoWeek(monday: Date): { year: number; week: number } {
+  // 該週的星期四決定它屬於哪一年，這是 ISO 8601 的定義
+  const thursday = new Date(monday);
+  thursday.setDate(monday.getDate() + 3);
+
+  const firstThursday = new Date(thursday.getFullYear(), 0, 4);
+  firstThursday.setDate(firstThursday.getDate() - ((firstThursday.getDay() + 6) % 7) + 3);
+
+  const week = Math.round((+thursday - +firstThursday) / (7 * 86400000)) + 1;
+  return { year: thursday.getFullYear(), week };
+}
+
+function md(date: Date): string {
+  return `${date.getMonth() + 1}/${date.getDate()}`;
+}
+
+/**
+ * 依週分組。週是回顧最好用的單位——一天太細（會變成打卡），
+ * 一個月太粗（看不出「這陣子」在繞什麼）。
+ */
+export function groupByWeek(reflections: Reflection[]): ReflectionWeek[] {
+  const groups = new Map<string, ReflectionWeek>();
+
+  for (const item of reflections) {
+    const date = item.date ? new Date(item.date) : null;
+    const valid = date && !isNaN(+date);
+
+    if (!valid) {
+      const group = groups.get("") ?? { key: "", label: "未填日期", year: 0, items: [] };
+      group.items.push(item);
+      groups.set("", group);
+      continue;
+    }
+
+    const monday = weekStart(date);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    const { year, week } = isoWeek(monday);
+    const key = `${year}-W${String(week).padStart(2, "0")}`;
+
+    const group = groups.get(key) ?? {
+      key,
+      label: `${md(monday)}–${md(sunday)}`,
+      year,
+      items: [],
+    };
+    group.items.push(item);
+    groups.set(key, group);
+  }
+
+  // 由新到舊；沒日期的那組永遠排最後
+  return [...groups.values()].sort((a, b) => {
+    if (!a.key) return 1;
+    if (!b.key) return -1;
+    return b.key.localeCompare(a.key);
+  });
+}
+
 /** 出現在心得上的關鍵字，依用到的次數排；回顧時先看常繞的那幾個 */
 export function getReflectionKeywords(
   reflections: Reflection[],
