@@ -8,6 +8,7 @@ export function Field({
   Icon,
   value,
   onChange,
+  onPaste,
   type = "text",
 }: {
   label: string;
@@ -15,6 +16,8 @@ export function Field({
   Icon?: LucideIcon;
   value: string;
   onChange: (v: string) => void;
+  /** 收到貼上的文字。onChange 也照樣會發，這裡只是多給一個「使用者剛貼了東西」的訊號 */
+  onPaste?: (text: string) => void;
   type?: string;
 }) {
   return (
@@ -29,6 +32,7 @@ export function Field({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onPaste={onPaste && ((e) => onPaste(e.clipboardData.getData("text")))}
         className={`box-border block w-full max-w-full min-w-0 rounded border px-3 py-2 text-sm ${
           type === "date" ? DATE_INPUT_CLASS : ""
         }`}

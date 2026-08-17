@@ -82,9 +82,12 @@ export function ArticleForm({ article }: { article?: Article }) {
   /**
    * 用網址抓標題、站台、作者。刻意只補空欄位——
    * 手動改過的內容比抓回來的可信，不能被一鍵蓋掉（理由同書籍的「重新抓取」）。
+   *
+   * 貼上網址會直接觸發，所以要收 override：onPaste 比 state 更新早一步發生，
+   * 這時候讀 form.sourceUrl 拿到的還是上一個值。
    */
-  async function handleFetch() {
-    const url = form.sourceUrl.trim();
+  async function handleFetch(override?: string) {
+    const url = (override ?? form.sourceUrl).trim();
     if (!url) {
       setFetchNote("請先填來源網址");
       return;
@@ -211,11 +214,18 @@ export function ArticleForm({ article }: { article?: Article }) {
                 Icon={LinkIcon}
                 value={form.sourceUrl}
                 onChange={(v) => set("sourceUrl", v)}
+                // 貼上就直接抓，不用再按一次按鈕；按鈕留著給手打或想重抓的時候
+                onPaste={(text) => {
+                  const url = text.trim();
+                  if (!url) return;
+                  set("sourceUrl", url);
+                  void handleFetch(url);
+                }}
               />
             </div>
             <button
               type="button"
-              onClick={handleFetch}
+              onClick={() => handleFetch()}
               disabled={fetching}
               className="shrink-0 rounded border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
             >
