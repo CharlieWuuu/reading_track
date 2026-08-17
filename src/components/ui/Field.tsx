@@ -9,6 +9,7 @@ export function Field({
   value,
   onChange,
   onPaste,
+  hint,
   type = "text",
 }: {
   label: string;
@@ -18,6 +19,8 @@ export function Field({
   onChange: (v: string) => void;
   /** 收到貼上的文字。onChange 也照樣會發，這裡只是多給一個「使用者剛貼了東西」的訊號 */
   onPaste?: (text: string) => void;
+  /** 標籤旁邊的淡字說明，通常用來講「這一欄可以填什麼」 */
+  hint?: string;
   type?: string;
 }) {
   return (
@@ -27,6 +30,7 @@ export function Field({
           <Icon size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
         )}
         {label}
+        {hint && <span className="text-xs font-normal text-gray-400">{hint}</span>}
       </label>
       <input
         type={type}

@@ -19,6 +19,9 @@ export interface Entry {
   keywords: string;
   /** 主體。其他欄位都是為了讓這一欄好找 */
   note: string;
-  /** 連出去：PR、部落格、運動 app…… */
+  /**
+   * 這件事的原始出處。網址（PR、部落格、Strava）或純文字都可以——
+   * 「紙本日記 8/17」「Obsidian／求職筆記」也是有效的來源，不是每件事都在線上。
+   */
   link: string;
 }

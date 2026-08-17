@@ -21,7 +21,14 @@ export type Reflection = {
   href: string;
   /** 紀事的類型，其他來源沒有 */
   kind?: string;
+  /** 紀事的「來源」欄：網址或純文字（「紙本日記 8/17」），沒有就是空的 */
+  origin?: string;
 };
+
+/** 純文字的來源不能拿去當連結，這裡只認 http(s) */
+export function isUrl(value: string): boolean {
+  return /^https?:\/\//i.test(value.trim());
+}
 
 function fromBooks(books: Book[]): Reflection[] {
   return books
@@ -63,6 +70,7 @@ function fromEntries(entries: Entry[]): Reflection[] {
       keywords: splitLines(e.keywords),
       href: `/entries/${e.id}/edit`,
       kind: e.kind,
+      origin: e.link,
     }));
 }
 

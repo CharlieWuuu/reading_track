@@ -211,13 +211,13 @@ export const ENTRY_TABLE: TableSpec<EntryField> = {
     date: "日期",
     kind: "類型",
     note: "心得",
-    link: "連結",
+    link: "來源",
   },
   aliases: {
     ...COMMON_ALIASES,
     date: ["date", "日期", "完成日期", "紀錄日期"],
     kind: ["kind", "類型", "種類"],
-    link: ["link", "url", "連結", "網址", "來源網址"],
+    link: ["link", "url", "來源", "連結", "網址", "來源網址"],
   },
 };
 

@@ -183,11 +183,12 @@ export function EntryForm({ entry }: { entry?: Entry }) {
             onChange={(v) => set("subDomain", v)}
           />
 
-          {/* 事件本身留在原本的系統裡（PR、部落格、運動 app），這裡只連出去 */}
+          {/* 事件本身留在原本的系統裡，這裡只指過去；不是每件事都在線上，純文字也算 */}
           <div className="col-span-2">
             <Field
-              label="連結"
+              label="來源"
               Icon={LinkIcon}
+              hint="網址或純文字都可以，例如「紙本日記 8/17」"
               value={form.link}
               onChange={(v) => set("link", v)}
             />

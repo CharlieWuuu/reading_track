@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ExternalLink } from "lucide-react";
-import { groupByWeek, Reflection } from "@/lib/reflections";
+import { groupByWeek, isUrl, Reflection } from "@/lib/reflections";
 import { SOURCE_TONES } from "./ReflectionSection";
 
 const styles = {
@@ -27,6 +27,8 @@ const styles = {
   tags: "flex flex-wrap items-center gap-1 pt-1",
   tag: "rounded bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-500",
   source: "ml-auto flex shrink-0 items-center gap-1 text-[11px] text-gray-400 hover:text-gray-900",
+  origin: "text-[11px] text-gray-400",
+  originLink: "text-[11px] text-gray-400 underline hover:text-gray-900",
 };
 
 const DOT_TONES: Record<Reflection["source"], string> = {
@@ -95,6 +97,20 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
 
                     {open && (
                       <span className={styles.tags}>
+                        {r.origin?.trim() &&
+                          (isUrl(r.origin) ? (
+                            <a
+                              href={r.origin}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className={styles.originLink}
+                            >
+                              來源
+                            </a>
+                          ) : (
+                            <span className={styles.origin}>來源：{r.origin}</span>
+                          ))}
                         {r.keywords.map((name) => (
                           <span key={name} className={styles.tag}>
                             {name}
