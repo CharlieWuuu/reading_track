@@ -402,17 +402,38 @@ async function getOptionsSheet(sheetId: string, accessToken: string) {
       title: OPTIONS_SHEET_TITLE,
       headerValues: OPTIONS_HEADERS,
     });
-    // 第一次建立時放入預設選項，不然使用者會看到空白下拉選單
-    await sheet.addRows(
-      (Object.keys(CATEGORY_LABELS) as (keyof BookCategories)[]).flatMap((key) =>
-        DEFAULT_CATEGORIES[key].map((option) => ({
-          類別: CATEGORY_LABELS[key],
-          選項: option,
-        })),
-      ),
-    );
   }
+  await backfillDefaultOptions(sheet);
   return sheet;
+}
+
+/**
+ * 表上完全沒有的組別，就把它的預設選項補上去。
+ *
+ * 只補「一列都沒有」的組別：有任何一列就代表你維護過它，刪掉的選項不該被種回來。
+ * 不這樣做的話，後來才加的組別（「類型」是第六組）永遠不會出現在既有的表上——
+ * 下拉選單靠程式端兜底看起來正常，打開 Sheet 卻看不到完整清單，
+ * 而這張表的重點就是人打開來要看得懂。
+ */
+async function backfillDefaultOptions(sheet: GoogleSpreadsheetWorksheet) {
+  const rows = await sheet.getRows();
+  const present = new Set(
+    rows.map((row) => (row.get("類別") ?? "").toString().trim()).filter(Boolean),
+  );
+
+  const missing = (Object.keys(CATEGORY_LABELS) as (keyof BookCategories)[]).filter(
+    (key) => DEFAULT_CATEGORIES[key].length > 0 && !present.has(CATEGORY_LABELS[key]),
+  );
+  if (missing.length === 0) return;
+
+  await sheet.addRows(
+    missing.flatMap((key) =>
+      DEFAULT_CATEGORIES[key].map((option) => ({
+        類別: CATEGORY_LABELS[key],
+        選項: option,
+      })),
+    ),
+  );
 }
 
 export async function listCategories(
