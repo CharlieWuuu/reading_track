@@ -29,10 +29,15 @@ export function useCategories() {
   const { data, error, isLoading, mutate } = useSWR(key, fetcher);
 
   /**
-   * 一定補齊每一組。舊的快取不會有後來才加的組別（「平台」當初、「類型」現在），
-   * 少一組的話讀到的是 undefined，用的人一 map 就整頁掛掉。
+   * 一律以「程式現在有哪些組別」為準：少的補預設值，多的丟掉。
+   *
+   * 快取與 Sheet 都可能跟程式對不上——加了新組別時它們少一組，刪掉舊組別時
+   * 它們多一組。兩種都會讓底下的迴圈讀到 undefined，整頁就掛了。
    */
-  const stored: BookCategories = { ...DEFAULT_CATEGORIES, ...data?.categories };
+  const stored = {} as BookCategories;
+  for (const key of Object.keys(DEFAULT_CATEGORIES) as (keyof BookCategories)[]) {
+    stored[key] = data?.categories?.[key] ?? DEFAULT_CATEGORIES[key];
+  }
   const { books } = useBooks();
   const { articles } = useArticles();
   const { entries } = useEntries();
