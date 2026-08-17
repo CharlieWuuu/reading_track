@@ -32,9 +32,7 @@ const ROWS = [
     { key: "name", label: "名稱" },
     { key: "topics", label: "學科" },
   ],
-  [
-    { key: "coordinates", label: "座標" },
-  ],
+  [{ key: "coordinates", label: "座標" }],
 ] as const;
 
 type KeywordEditDialogProps = {

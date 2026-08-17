@@ -1,4 +1,4 @@
-import { ChartPie, Library, Newspaper, NotebookPen, Settings } from "lucide-react";
+import { ChartPie, Library, Newspaper, NotebookPen, PenLine, Settings } from "lucide-react";
 
 /**
  * 側欄與底部導覽列共用的導覽項目。兩邊一模一樣——
@@ -26,6 +26,12 @@ export const NAV_ITEMS: NavItem[] = [
     label: "文章",
     exact: true,
     Icon: () => <Newspaper size={20} strokeWidth={1.5} />,
+  },
+  {
+    href: "/entries",
+    label: "紀事",
+    exact: true,
+    Icon: () => <PenLine size={20} strokeWidth={1.5} />,
   },
   {
     href: "/notes",

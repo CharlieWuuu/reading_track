@@ -272,7 +272,7 @@ export function BookTable() {
       </div>
 
       {/* 外框負責圓角與邊框，捲動只發生在裡面：表頭 sticky 住，只有列在動 */}
-      <div className="hidden w-full min-h-0 flex-1 overflow-y-auto rounded-lg border bg-white md:block">
+      <div className="hidden min-h-0 w-full flex-1 overflow-y-auto rounded-lg border bg-white md:block">
         <table className="w-full table-fixed text-sm">
           {/* sticky 的儲存格自己畫底色與下緣線，邊框不會跟著黏住 */}
           <thead className="sticky top-0 z-10 bg-gray-100 text-left [&_th]:shadow-[inset_0_-1px_0_#111827]">

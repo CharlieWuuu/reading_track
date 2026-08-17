@@ -15,7 +15,6 @@ import {
   Store,
   Tag,
   Type,
-  type LucideIcon,
 } from "lucide-react";
 import { fullerTitle } from "@/lib/metadata";
 import { useBooks } from "@/lib/useBooks";
@@ -27,6 +26,7 @@ import { Book, inferStatus, splitLines } from "@/types/book";
 import { EMPTY_KEYWORD_INFO } from "@/types/keyword";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { KeywordEditDialog } from "../keywords/KeywordEditDialog";
+import { Field } from "../ui/Field";
 import { ArticleSelect } from "./ArticleSelect";
 import { useBookFormTab } from "./BookFormTabs";
 import { CategorySelect } from "./CategorySelect";
@@ -35,9 +35,6 @@ import { QuoteListInput } from "./QuoteListInput";
 import { VocabularyListInput } from "./VocabularyListInput";
 
 const TEXTAREA_CLASS = "min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm";
-
-/** iOS 的原生日期控制項有自己的最小寬度，不關掉外觀就會撐破手機寬度 */
-const DATE_INPUT_CLASS = "appearance-none";
 
 /** 捲動模式下四塊平分高度會被壓扁，給個下限；分頁模式一次只顯示一塊，撐滿就夠 */
 const TEXTAREA_MIN = "min-h-36";
@@ -569,39 +566,5 @@ export function BookForm({
         />
       )}
     </form>
-  );
-}
-
-function Field({
-  label,
-  Icon,
-  value,
-  onChange,
-  type = "text",
-}: {
-  label: string;
-  /** 跟詳細卡片同一個圖示；沒有對應圖示的欄位就不放 */
-  Icon?: LucideIcon;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-}) {
-  return (
-    <div className="min-w-0">
-      <label className="mb-1 flex items-center gap-1.5 text-sm font-medium">
-        {Icon && (
-          <Icon size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
-        )}
-        {label}
-      </label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={`box-border block w-full max-w-full min-w-0 rounded border px-3 py-2 text-sm ${
-          type === "date" ? DATE_INPUT_CLASS : ""
-        }`}
-      />
-    </div>
   );
 }

@@ -10,8 +10,8 @@ import { NoteBlock, QuoteBlock, VocabularyItem } from "@/components/notes/Record
 import { ActionButton } from "@/components/ui/Controls";
 import { TagList as OptionList, StatusBadge } from "@/components/ui/TagBadge";
 import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
-import { useArticles } from "@/lib/useArticles";
 import { useBooks } from "@/lib/useBooks";
+import { useInstapaperArticles } from "@/lib/useInstapaperArticles";
 import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { useSheetStore } from "@/store/useSheetStore";
@@ -131,7 +131,7 @@ export function BookDetailView() {
   const { id } = useParams<{ id: string }>();
   const { sheetId } = useSheetStore();
   const { books, isLoading, error } = useBooks();
-  const { articles } = useArticles();
+  const { articles } = useInstapaperArticles();
   const { quotes, vocabulary } = useRecords();
   // 從書單帶進來的檢視方式與頁碼，一路傳給編輯頁，存完才回得到同一個畫面
   const { searchParams } = useUrlParams();

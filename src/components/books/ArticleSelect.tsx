@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { createPortal } from "react-dom";
 import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
-import { useArticles } from "@/lib/useArticles";
+import { useInstapaperArticles } from "@/lib/useInstapaperArticles";
 import { splitLines } from "@/types/book";
 
 const TRIGGER_CLASS =
@@ -26,7 +26,7 @@ type ArticleSelectProps = {
 
 /** 從已抓下來的 Instapaper 書籤挑文章寫回「相關文章」，存的仍是一行一個網址 */
 export function ArticleSelect({ value, onChange }: ArticleSelectProps) {
-  const { articles, isLoading } = useArticles();
+  const { articles, isLoading } = useInstapaperArticles();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const rootRef = useRef<HTMLDivElement>(null);

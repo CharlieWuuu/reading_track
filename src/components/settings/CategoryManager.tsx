@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useArticles } from "@/lib/useArticles";
 import { useBooks } from "@/lib/useBooks";
 import { useCategories } from "@/lib/useCategories";
-import { BookCategories, splitTags } from "@/types/book";
+import { useEntries } from "@/lib/useEntries";
+import { BookCategories, categoryValue, splitTags } from "@/types/book";
 
 const LABELS: Record<keyof BookCategories, string> = {
   platform: "平台",
@@ -11,6 +13,7 @@ const LABELS: Record<keyof BookCategories, string> = {
   subDomain: "次領域",
   type: "屬性",
   language: "語言",
+  kind: "類型",
 };
 
 /** 清單預設是空的，靠 placeholder 舉例說明這一欄想收什麼樣的值 */
@@ -20,17 +23,20 @@ const PLACEHOLDERS: Record<keyof BookCategories, string> = {
   subDomain: "例如 認知偏誤",
   type: "例如 小說",
   language: "例如 中文",
+  kind: "例如 反思",
 };
 
 function CategoryGroup({ categoryKey }: { categoryKey: keyof BookCategories }) {
   const { stored, save } = useCategories();
   // 有幾本書真的用到這個值。預設清單塞了不少沒人用的，看得見才知道能不能刪
   const { books } = useBooks();
+  const { articles } = useArticles();
+  const { entries } = useEntries();
   // 用小寫當鍵：書籍讀進來時平台會被收斂成正式寫法（HyRead → Hyread），
   // 選項清單裡卻是使用者當初打的那個寫法，完全相等去比就會數成 0
   const counts = new Map<string, number>();
-  for (const book of books) {
-    for (const value of splitTags(book[categoryKey])) {
+  for (const item of [...books, ...articles, ...entries]) {
+    for (const value of splitTags(categoryValue(item, categoryKey))) {
       const key = value.toLowerCase();
       counts.set(key, (counts.get(key) ?? 0) + 1);
     }

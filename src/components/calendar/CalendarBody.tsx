@@ -4,8 +4,8 @@ import { CalendarDays, GanttChartSquare } from "lucide-react";
 import { MonthGrid } from "@/components/calendar/MonthGrid";
 import { ReadingTimeline } from "@/components/calendar/ReadingTimeline";
 import { PageMessage } from "@/components/layout/PageMessage";
-import { useArticles } from "@/lib/useArticles";
 import { useBooks } from "@/lib/useBooks";
+import { useInstapaperArticles } from "@/lib/useInstapaperArticles";
 import { useMounted } from "@/lib/useMounted";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { useSheetStore } from "@/store/useSheetStore";
@@ -21,7 +21,7 @@ export function CalendarBody() {
   const { sheetId } = useSheetStore();
   const mounted = useMounted();
   const { books, isLoading, error } = useBooks();
-  const { articles } = useArticles();
+  const { articles } = useInstapaperArticles();
   const { searchParams, setParams } = useUrlParams();
   const view = searchParams.get("view") === "timeline" ? "timeline" : "month";
 

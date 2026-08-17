@@ -33,8 +33,8 @@ import {
   getRereadRanking,
   getTypeDistribution,
 } from "@/lib/bookStats";
-import { useArticles } from "@/lib/useArticles";
 import { useBooks } from "@/lib/useBooks";
+import { useInstapaperArticles } from "@/lib/useInstapaperArticles";
 import { useIsMobile } from "@/lib/useIsMobile";
 import { useMounted } from "@/lib/useMounted";
 import { useRecords } from "@/lib/useRecords";
@@ -313,7 +313,7 @@ function BooksStats() {
 function ArticlesStats() {
   const { token } = useInstapaperStore();
   const mounted = useMounted();
-  const { articles, isLoading, error } = useArticles();
+  const { articles, isLoading, error } = useInstapaperArticles();
   const isMobile = useIsMobile();
 
   if (!mounted) return null;
@@ -386,12 +386,7 @@ function ArticlesStats() {
       needsHeight: false,
       node: (
         <div className="rounded-lg border bg-white p-5">
-          <RankingBar
-            title="來源網站"
-            data={sources}
-            unit="篇"
-            emptyHint="尚無讀完的文章"
-          />
+          <RankingBar title="來源網站" data={sources} unit="篇" emptyHint="尚無讀完的文章" />
         </div>
       ),
     },
