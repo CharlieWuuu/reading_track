@@ -33,7 +33,7 @@ type Tab = "notes" | "quotes" | "vocabulary" | "keywords";
  * 桌機與手機同一套分法，側欄不再另外開兩頁。
  */
 const TABS: { key: Tab; label: string }[] = [
-  { key: "notes", label: "回顧" },
+  { key: "notes", label: "心得" },
   { key: "quotes", label: "佳句" },
   { key: "vocabulary", label: "單字" },
   { key: "keywords", label: "關鍵字" },
@@ -79,7 +79,7 @@ function Quotes({ books }: { books: Book[] }) {
 }
 
 function NotesTabs() {
-  // 看哪一邊寫在網址上，重新整理或分享連結都回得到同一個畫面；預設回顧
+  // 看哪一邊寫在網址上，重新整理或分享連結都回得到同一個畫面；預設心得
   const { searchParams, setParams } = useUrlParams();
   const param = searchParams.get("tab");
   const tab: Tab = TABS.some((t) => t.key === param) ? (param as Tab) : "notes";
