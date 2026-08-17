@@ -21,7 +21,11 @@ export function useCategories() {
 
   const { data, error, isLoading, mutate } = useSWR(key, fetcher);
 
-  const stored = data?.categories ?? DEFAULT_CATEGORIES;
+  /**
+   * 一定補齊每一組。舊的快取不會有後來才加的組別（「平台」當初、「類型」現在），
+   * 少一組的話讀到的是 undefined，用的人一 map 就整頁掛掉。
+   */
+  const stored: BookCategories = { ...DEFAULT_CATEGORIES, ...data?.categories };
   const { books } = useBooks();
   const { articles } = useArticles();
   const { entries } = useEntries();
