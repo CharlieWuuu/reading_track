@@ -6,8 +6,6 @@ import { CalendarCheck, Link as LinkIcon, NotebookPen, Shapes, Tag } from "lucid
 import { CategorySelect } from "@/components/books/CategorySelect";
 import { compactLines, LineListInput } from "@/components/books/LineListInput";
 import { Field } from "@/components/ui/Field";
-import { useArticles } from "@/lib/useArticles";
-import { useBooks } from "@/lib/useBooks";
 import { useEntries } from "@/lib/useEntries";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { useSheetStore } from "@/store/useSheetStore";
@@ -52,14 +50,12 @@ export function EntryForm({ entry }: { entry?: Entry }) {
   const router = useRouter();
   const { sheetId } = useSheetStore();
   const { entries, mutate } = useEntries();
-  const { books } = useBooks();
-  const { articles } = useArticles();
   const isEdit = Boolean(entry);
 
-  // 關鍵字的建議跨書、文章、紀事一起收，同一個詞才不會出現三種寫法
-  const keywordSuggestions = [
-    ...new Set([...books, ...articles, ...entries].flatMap((item) => splitLines(item.keywords))),
-  ].sort((a, b) => a.localeCompare(b, "zh-Hant"));
+  // 建議只收紀事自己用過的：書、文章、紀事各記各的，混在一起選單會很吵
+  const keywordSuggestions = [...new Set(entries.flatMap((e) => splitLines(e.keywords)))].sort(
+    (a, b) => a.localeCompare(b, "zh-Hant"),
+  );
 
   const [form, setForm] = useState<FormState>(toForm(entry));
   const [submitting, setSubmitting] = useState(false);

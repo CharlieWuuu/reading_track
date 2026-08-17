@@ -15,7 +15,6 @@ import { CategorySelect } from "@/components/books/CategorySelect";
 import { compactLines, LineListInput } from "@/components/books/LineListInput";
 import { Field } from "@/components/ui/Field";
 import { useArticles } from "@/lib/useArticles";
-import { useBooks } from "@/lib/useBooks";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Article } from "@/types/article";
@@ -58,13 +57,12 @@ export function ArticleForm({ article }: { article?: Article }) {
   const router = useRouter();
   const { sheetId } = useSheetStore();
   const { articles, mutate } = useArticles();
-  const { books } = useBooks();
   const isEdit = Boolean(article);
 
-  // 關鍵字的建議跨書與文章一起收，同一個詞才不會出現兩種寫法
-  const keywordSuggestions = [
-    ...new Set([...books, ...articles].flatMap((item) => splitLines(item.keywords))),
-  ].sort((a, b) => a.localeCompare(b, "zh-Hant"));
+  // 建議只收文章自己用過的：書、文章、紀事各記各的，混在一起選單會很吵
+  const keywordSuggestions = [...new Set(articles.flatMap((a) => splitLines(a.keywords)))].sort(
+    (a, b) => a.localeCompare(b, "zh-Hant"),
+  );
 
   const [form, setForm] = useState<FormState>(toForm(article ?? {}));
   const [submitting, setSubmitting] = useState(false);
