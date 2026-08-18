@@ -54,6 +54,8 @@ export type ReflectionWeek = {
   key: string;
   /** 給人看的那一行，例如 8/17–8/23 */
   label: string;
+  /** 今年的第幾週（ISO 8601）；沒日期的那組是 0 */
+  week: number;
   year: number;
   items: Reflection[];
 };
@@ -142,7 +144,7 @@ export function groupByWeek(reflections: Reflection[]): ReflectionWeek[] {
     const date = parseDate(item.date);
 
     if (!date) {
-      const group = groups.get("") ?? { key: "", label: "未填日期", year: 0, items: [] };
+      const group = groups.get("") ?? { key: "", label: "未填日期", week: 0, year: 0, items: [] };
       group.items.push(item);
       groups.set("", group);
       continue;
@@ -157,6 +159,7 @@ export function groupByWeek(reflections: Reflection[]): ReflectionWeek[] {
     const group = groups.get(key) ?? {
       key,
       label: `${md(monday)}–${md(sunday)}`,
+      week,
       year,
       items: [],
     };
