@@ -9,6 +9,7 @@ import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CategoryManager } from "@/components/settings/CategoryManager";
 import { DataIssuesPanel } from "@/components/settings/DataIssuesPanel";
+import { ImportNotesButton } from "@/components/settings/ImportNotesButton";
 import { InstapaperConnect } from "@/components/settings/InstapaperConnect";
 import { SheetPicker } from "@/components/settings/SheetPicker";
 import { TabBar } from "@/components/ui/Controls";
@@ -108,6 +109,10 @@ export default function SettingsPage() {
             從網路查書名、作者、書封等資料，補進 Sheet 裡沒填的欄位。 新增一批書之後跑一次就好。
           </p>
           <EnrichButton />
+
+          <div className="mt-6 border-t pt-4">
+            <ImportNotesButton />
+          </div>
 
           <div className="mt-6 border-t pt-4">
             <DataIssuesPanel />

@@ -263,6 +263,22 @@ export async function deleteEntryRow(sheetId: string, accessToken: string, id: s
   await deleteTableRow(sheetId, accessToken, ENTRY_TABLE, id);
 }
 
+/** 一次寫入多筆紀事。搬移舊心得時一次幾十列，逐列寫會撞到寫入配額 */
+export async function addEntryRows(sheetId: string, accessToken: string, entries: Entry[]) {
+  if (entries.length === 0) return;
+  const { sheet, columns } = await getTableSheet(sheetId, accessToken, ENTRY_TABLE);
+
+  await sheet.addRows(
+    entries.map((entry) => {
+      const raw: Record<string, string> = {};
+      for (const field of managedFields(ENTRY_TABLE)) {
+        raw[columns[field] ?? ENTRY_TABLE.labels[field]] = entry[field] ?? "";
+      }
+      return raw;
+    }),
+  );
+}
+
 export async function listMetrics(sheetId: string, accessToken: string): Promise<Metric[]> {
   const { values } = await listTableValues(sheetId, accessToken, METRIC_TABLE);
   return values;
