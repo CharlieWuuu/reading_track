@@ -9,7 +9,8 @@ import { useEffect, useRef, useState } from "react";
  * 高度、字級、圓角只定在這裡：同一列常同時出現按鈕與分頁列，各寫各的就會參差。
  * 這不是「頁首專用」的樣式，頁首與內文用的是同一套。
  */
-const HEIGHT = "h-8 md:h-9";
+export const CONTROL_HEIGHT = "h-8 md:h-9";
+const HEIGHT = CONTROL_HEIGHT;
 const TEXT = "text-xs font-medium md:text-sm";
 
 const styles = {
