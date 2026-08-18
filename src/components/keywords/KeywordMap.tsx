@@ -1,14 +1,14 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { KeywordEditDialog } from "@/components/keywords/KeywordEditDialog";
 import { CATEGORICAL } from "@/lib/chartPalette";
-import { useKeywordInfos } from "@/lib/useKeywordInfos";
+import { keywordEditHref } from "@/lib/keywords/href";
 import { Book, splitLines } from "@/types/book";
-import { EMPTY_KEYWORD_INFO, KeywordInfo, parseCoordinates } from "@/types/keyword";
+import { KeywordInfo, parseCoordinates } from "@/types/keyword";
 
 const styles = {
   wrap: "relative flex h-full min-h-0 flex-col",
@@ -52,9 +52,8 @@ type KeywordMapProps = {
 
 /** 有座標的關鍵字畫成地圖：一本書一個顏色，每個地點各自是一個點，不連線 */
 export function KeywordMap({ books, infos }: KeywordMapProps) {
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
-  const { save, remove } = useKeywordInfos();
-  const [editing, setEditing] = useState<string | null>(null);
   // 預設收起來：地圖是主角，要對顏色才展開
   const [legendOpen, setLegendOpen] = useState(false);
 
@@ -93,7 +92,7 @@ export function KeywordMap({ books, infos }: KeywordMapProps) {
             offset: [0, 6],
             className: "keyword-map-label",
           })
-          .on("click", () => setEditing(point.name));
+          .on("click", () => router.push(keywordEditHref(point.name)));
       }
     }
 
@@ -110,7 +109,7 @@ export function KeywordMap({ books, infos }: KeywordMapProps) {
       observer.disconnect();
       map.remove();
     };
-  }, [routesKey]);
+  }, [routesKey, router]);
 
   if (routes.length === 0) {
     return <div className={styles.empty}>還沒有帶座標的關鍵字，先按「補齊資料」查維基</div>;
@@ -155,15 +154,6 @@ export function KeywordMap({ books, infos }: KeywordMapProps) {
           </ul>
         )}
       </div>
-
-      {editing && (
-        <KeywordEditDialog
-          info={infos.get(editing) ?? { name: editing, ...EMPTY_KEYWORD_INFO }}
-          onSave={save}
-          onDelete={remove}
-          onClose={() => setEditing(null)}
-        />
-      )}
     </div>
   );
 }

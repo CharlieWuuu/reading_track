@@ -13,7 +13,8 @@ const styles = {
   week: "flex w-full min-w-0 flex-col",
   // 週只剩一條分隔，不再是可收合的按鈕：整條流是拿來一路往下讀的
   weekHead: "flex w-full min-w-0 items-center gap-3 pb-1",
-  weekLabel: "shrink-0 text-xs font-medium text-gray-500 tabular-nums",
+  weekNumber: "shrink-0 text-xs font-medium text-gray-700 tabular-nums",
+  weekLabel: "shrink-0 text-xs text-gray-400 tabular-nums",
   weekYear: "shrink-0 text-[11px] text-gray-300 tabular-nums",
   weekLine: "h-px flex-1 bg-gray-200",
   items: "flex min-w-0 flex-col divide-y divide-gray-100",
@@ -68,6 +69,8 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
       {weeks.map((week) => (
         <section key={week.key || "undated"} className={styles.week}>
           <div className={styles.weekHead}>
+            {/* 第幾週擺最前面：回顧的時候先想到的是「這是第幾週」，日期是為了對上它 */}
+            {week.week > 0 && <span className={styles.weekNumber}>第 {week.week} 週</span>}
             <span className={styles.weekLabel}>{week.label}</span>
             {week.year > 0 && <span className={styles.weekYear}>{week.year}</span>}
             <span className={styles.weekLine} />

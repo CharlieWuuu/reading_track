@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { KeywordEditDialog } from "@/components/keywords/KeywordEditDialog";
+import { useRouter } from "next/navigation";
 import { CATEGORICAL } from "@/lib/chartPalette";
+import { keywordEditHref } from "@/lib/keywords/href";
 import { KeywordEntry } from "@/lib/keywordStats";
-import { useKeywordInfos } from "@/lib/useKeywordInfos";
-import { EMPTY_KEYWORD_INFO, KeywordInfo, parseSpan } from "@/types/keyword";
+import { KeywordInfo, parseSpan } from "@/types/keyword";
 
 const styles = {
   wrap: "flex h-full min-h-0 flex-col gap-2",
@@ -66,8 +65,7 @@ type KeywordTimelineProps = {
 
 /** 有生卒／起訖的關鍵字排成一條數線，橫向捲 */
 export function KeywordTimeline({ entries, infos }: KeywordTimelineProps) {
-  const { save, remove } = useKeywordInfos();
-  const [editing, setEditing] = useState<string | null>(null);
+  const router = useRouter();
   const spans = toSpans(entries, infos);
 
   if (spans.length === 0) {
@@ -105,7 +103,7 @@ export function KeywordTimeline({ entries, infos }: KeywordTimelineProps) {
                   <Bar
                     key={segment.name}
                     segment={segment}
-                    onOpen={() => setEditing(segment.name)}
+                    onOpen={() => router.push(keywordEditHref(segment.name))}
                   />
                 ))}
               </div>
@@ -132,15 +130,6 @@ export function KeywordTimeline({ entries, infos }: KeywordTimelineProps) {
           </li>
         ))}
       </ul>
-
-      {editing && (
-        <KeywordEditDialog
-          info={infos.get(editing) ?? { name: editing, ...EMPTY_KEYWORD_INFO }}
-          onSave={save}
-          onDelete={remove}
-          onClose={() => setEditing(null)}
-        />
-      )}
     </div>
   );
 }

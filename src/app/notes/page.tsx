@@ -1,6 +1,7 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Suspense } from "react";
 import {
   KEYWORD_VIEWS,
   KeywordsSection,
@@ -10,14 +11,13 @@ import { BooksGate } from "@/components/layout/BooksGate";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
-import { QuoteEditDialog } from "@/components/notes/QuoteEditDialog";
 import { RecordCard } from "@/components/notes/RecordCard";
 import { QuoteBlock } from "@/components/notes/RecordItems";
 import { VocabularySection } from "@/components/notes/VocabularySection";
 import { TabBar } from "@/components/ui/Controls";
 import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
-import { getQuoteRecords, QuoteRecord } from "@/lib/vocabularyStats";
+import { getQuoteRecords } from "@/lib/vocabularyStats";
 import { Book } from "@/types/book";
 
 const styles = {
@@ -39,42 +39,28 @@ const TABS: { key: Tab; label: string }[] = [
 ];
 
 function Quotes({ books }: { books: Book[] }) {
-  const { quotes, saveBookRows } = useRecords();
-  const [editing, setEditing] = useState<QuoteRecord | null>(null);
+  const router = useRouter();
+  const { quotes } = useRecords();
   const records = getQuoteRecords(quotes, books);
-
-  /** 寫回去是「整本書的紀錄換一批」，所以把那本書的其他列原樣帶上 */
-  async function save(record: QuoteRecord, remove: boolean) {
-    const others = quotes.filter((row) => row.bookId === record.bookId && row.id !== record.id);
-    const next = remove ? others : [...others, record];
-    const book = books.find((b) => b.id === record.bookId);
-    await saveBookRows("quotes", record.bookId, book?.title ?? "", next);
-  }
 
   if (records.length === 0) {
     return <PageMessage>還沒有記下任何佳句</PageMessage>;
   }
 
   return (
-    <>
-      <div className={styles.list}>
-        {records.map((record) => (
-          <RecordCard
-            key={record.id}
-            title={record.bookTitle}
-            showTitle={false}
-            coverUrl={record.bookCover}
-            onClick={() => setEditing(record)}
-          >
-            <QuoteBlock quote={record} />
-          </RecordCard>
-        ))}
-      </div>
-
-      {editing && (
-        <QuoteEditDialog record={editing} onSave={save} onClose={() => setEditing(null)} />
-      )}
-    </>
+    <div className={styles.list}>
+      {records.map((record) => (
+        <RecordCard
+          key={record.id}
+          title={record.bookTitle}
+          showTitle={false}
+          coverUrl={record.bookCover}
+          onClick={() => router.push(`/quotes/${record.id}/edit`)}
+        >
+          <QuoteBlock quote={record} />
+        </RecordCard>
+      ))}
+    </div>
   );
 }
 
