@@ -8,6 +8,8 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { ReadingList } from "@/components/library/ReadingList";
 import { ActionButton, TabBar } from "@/components/ui/Controls";
+import { SearchButton } from "@/components/ui/SearchButton";
+import { matchesSearch, searchTerms } from "@/lib/search";
 import { useArticles } from "@/lib/useArticles";
 import { useMounted } from "@/lib/useMounted";
 import { useUrlParams } from "@/lib/useUrlParam";
@@ -37,8 +39,16 @@ function Library() {
   const urlView = searchParams.get("view");
   const view = isBookViewMode(urlView) ? urlView : savedView;
 
+  // 書籍那邊的搜尋在 BookTable 裡做，它本來就自己讀網址；這裡只管文章
+  const query = searchParams.get("q") ?? "";
+  const terms = searchTerms(query);
+  const found = articles.filter((a) =>
+    matchesSearch(terms, a.title, a.author, a.platform, a.keywords, a.note),
+  );
+
   const action = (
     <div className="flex min-w-0 items-center gap-2">
+      <SearchButton value={query} onChange={(next) => setParams({ q: next || null })} />
       <TabBar
         items={TABS}
         value={tab}
@@ -64,8 +74,10 @@ function Library() {
           <PageMessage>載入中…</PageMessage>
         ) : error ? (
           <PageMessage tone="error">{error}</PageMessage>
+        ) : found.length === 0 && terms.length > 0 ? (
+          <PageMessage>沒有符合的文章</PageMessage>
         ) : (
-          <ReadingList articles={articles} view={view} />
+          <ReadingList articles={found} view={view} />
         )}
       </PageBody>
     </>

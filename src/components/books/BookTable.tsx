@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { Tag } from "lucide-react";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { TagList as OptionList, STATUS_STYLES, StatusBadge } from "@/components/ui/TagBadge";
+import { matchesSearch, searchTerms } from "@/lib/search";
 import { useBooks } from "@/lib/useBooks";
 import { useMounted } from "@/lib/useMounted";
 import { useUrlParams } from "@/lib/useUrlParam";
@@ -150,9 +151,13 @@ export function BookTable() {
   const view = isBookViewMode(urlView) ? urlView : savedView;
   // 反查：帶著 ?keyword= 就只看提到這個關鍵字的書
   const keyword = searchParams.get("keyword") ?? "";
-  const books = keyword
-    ? allBooks.filter((b) => splitLines(b.keywords).includes(keyword))
-    : allBooks;
+  // 搜尋框在頁首，這裡跟著網址走：關鍵字反查與搜尋兩個條件同時成立
+  const terms = searchTerms(searchParams.get("q") ?? "");
+  const books = allBooks.filter(
+    (b) =>
+      (!keyword || splitLines(b.keywords).includes(keyword)) &&
+      matchesSearch(terms, b.title, b.author, b.publisher, b.keywords, b.note),
+  );
   const clearKeyword = () => setParams({ keyword: null });
   // 帶著目前的檢視進詳細頁，一路傳到編輯頁，存檔後才回得到同一個畫面
   const query = searchParams.toString();
@@ -178,7 +183,13 @@ export function BookTable() {
     return (
       <div className="flex w-full flex-col gap-3">
         {keyword && <KeywordFilter keyword={keyword} count={0} onClear={clearKeyword} />}
-        <PageMessage>{keyword ? "沒有書提到這個關鍵字" : "尚未新增任何書籍"}</PageMessage>
+        <PageMessage>
+          {terms.length > 0
+            ? "沒有符合的書"
+            : keyword
+              ? "沒有書提到這個關鍵字"
+              : "尚未新增任何書籍"}
+        </PageMessage>
       </div>
     );
   }

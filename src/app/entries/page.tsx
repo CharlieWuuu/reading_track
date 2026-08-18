@@ -7,7 +7,9 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { ReflectionTimeline } from "@/components/notes/ReflectionTimeline";
 import { ActionButton } from "@/components/ui/Controls";
+import { SearchButton } from "@/components/ui/SearchButton";
 import { entriesToReflections } from "@/lib/reflections";
+import { matchesSearch, searchTerms } from "@/lib/search";
 import { useEntries } from "@/lib/useEntries";
 import { useMounted } from "@/lib/useMounted";
 import { useUrlParams } from "@/lib/useUrlParam";
@@ -27,10 +29,18 @@ function EntriesList() {
   const { searchParams, setParams } = useUrlParams();
 
   const kind = searchParams.get("kind") ?? "";
-  const entries = kind ? allEntries.filter((e) => e.kind === kind) : allEntries;
+  const query = searchParams.get("q") ?? "";
+  const terms = searchTerms(query);
+  // 標題、內文、關鍵字都算：想得起來的可能是任何一個，內文更是常常只記得半句
+  const entries = allEntries.filter(
+    (e) =>
+      (!kind || e.kind === kind) &&
+      matchesSearch(terms, e.title, e.note, e.keywords, e.kind, e.sourceTitle),
+  );
 
   const action = (
     <div className="flex min-w-0 items-center gap-2">
+      <SearchButton value={query} onChange={(next) => setParams({ q: next || null })} />
       <EntryFilter
         groups={[{ key: "kind", label: "類型", options: usedKinds(allEntries), value: kind }]}
         onChange={(key, next) => setParams({ [key]: next || null })}
