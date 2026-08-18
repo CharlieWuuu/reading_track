@@ -10,7 +10,8 @@ import { useBooks } from "@/lib/useBooks";
 import { useMetrics } from "@/lib/useMetrics";
 
 const styles = {
-  wrap: "flex min-h-0 w-full min-w-0 flex-1 flex-col gap-5 overflow-y-auto pb-2",
+  // 左右各留一點：overflow-y 一旦不是 visible 橫向也會裁，頭像的外框線會被切掉一條
+  wrap: "flex min-h-0 w-full min-w-0 flex-1 flex-col gap-5 overflow-y-auto px-0.5 pb-2",
   week: "flex w-full min-w-0 flex-col",
   // 週只剩一條分隔，不再是可收合的按鈕：整條流是拿來一路往下讀的
   weekHead: "flex w-full min-w-0 items-center gap-3 pb-1",
