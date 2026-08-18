@@ -10,7 +10,7 @@ const styles = {
   label: "flex items-baseline gap-2 text-sm font-medium",
   source: "text-[11px] text-gray-400",
   input: "w-full rounded border px-3 py-1.5 text-sm",
-  text: "min-h-28 w-full resize-none rounded border px-3 py-1.5 text-sm",
+  text: "min-h-40 w-full resize-none rounded border px-3 py-1.5 text-sm",
   actions: "flex items-center gap-2 pt-1",
   save: "rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50",
   cancel: "rounded border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50",

@@ -16,7 +16,7 @@ const styles = {
   title: "truncate text-sm",
   meta: "truncate text-xs text-gray-400",
   empty: "px-3 py-2 text-xs text-gray-400",
-  draft: "min-h-20 w-full shrink-0 resize-none rounded border px-3 py-2 text-sm",
+  draft: "min-h-32 w-full shrink-0 resize-none rounded border px-3 py-2 text-sm",
   actions: "flex shrink-0 items-center gap-2",
   save: "rounded bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50",
   more: "rounded border px-3 py-1.5 text-sm font-medium hover:bg-gray-50",
