@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CalendarCheck, Link as LinkIcon, NotebookPen, Shapes, Tag } from "lucide-react";
 import { CategorySelect } from "@/components/books/CategorySelect";
 import { compactLines, LineListInput } from "@/components/books/LineListInput";
@@ -19,22 +19,39 @@ import { KeywordEditDialog } from "../keywords/KeywordEditDialog";
 import { useEntryFormTab } from "./EntryFormTabs";
 import { SourcePicker } from "./SourcePicker";
 
-const TEXTAREA_CLASS = "min-h-48 w-full flex-1 resize-none rounded border px-3 py-2 text-sm";
+// 內文吃掉整個表單剩下的高度：這一欄是主體，寫長了不該只給它一個小框
+const TEXTAREA_CLASS =
+  "min-h-32 w-full min-w-0 flex-1 resize-none rounded border px-3 py-2 text-sm";
 
 /** 沒選到的分頁留在畫面上但藏起來，切回來時打到一半的內容還在 */
 function TabPanel({ active, children }: { active: boolean; children: React.ReactNode }) {
   return (
-    <div className={`flex-col gap-3 md:min-h-0 md:flex-1 ${active ? "flex" : "hidden"}`}>
-      {children}
-    </div>
+    <div className={`min-h-0 flex-1 flex-col gap-3 ${active ? "flex" : "hidden"}`}>{children}</div>
   );
 }
 
-/** 新增時預設今天：想記的多半是剛發生的事，每次都要點日曆很煩 */
+/** 新增時預設此刻：想記的多半是剛發生的事，每次都要點日曆很煩 */
 function today(): string {
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  const day = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  return `${day} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
+
+/**
+ * Sheet 上存「2026-08-18 14:32」，datetime-local 要的是中間一個 T。
+ *
+ * 存的那一份用空白隔開是因為那一格也是給人讀的，T 只是機器的分隔符號。
+ * 舊資料只有日期，補上 00:00 才填得進控制項。
+ */
+function toInput(value: string): string {
+  if (!value.trim()) return "";
+  const [day, clock = "00:00"] = value.trim().split(/[ T]/);
+  return `${day}T${clock.slice(0, 5)}`;
+}
+
+function fromInput(value: string): string {
+  return value.replace("T", " ").slice(0, 16);
 }
 
 const emptyForm = {
@@ -50,6 +67,11 @@ const emptyForm = {
 };
 
 type FormState = typeof emptyForm;
+
+/** 送出去的那一份：空日期是 null，關鍵字去掉空行 */
+function toPayload(form: FormState) {
+  return { ...form, date: form.date || null, keywords: compactLines(form.keywords) };
+}
 
 /** 從書籍頁按「寫一則心得」進來時，延伸自與類型已經知道了，不用再選一次 */
 function toForm(entry: Entry | undefined, prefill: Partial<FormState>): FormState {
@@ -86,6 +108,12 @@ export function EntryForm({ entry }: { entry?: Entry }) {
       note: searchParams.get("note") ?? "",
     }),
   );
+  // 自動存檔用：存過什麼、存成哪一筆、以及這一筆是不是已經被刪了
+  const [initialSnapshot] = useState(() => JSON.stringify(toPayload(form)));
+  const savedRef = useRef(initialSnapshot);
+  const savedIdRef = useRef(entry?.id ?? "");
+  const deletedRef = useRef(false);
+  const [newId] = useState(() => crypto.randomUUID());
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -99,6 +127,58 @@ export function EntryForm({ entry }: { entry?: Entry }) {
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
   }
+
+  /**
+   * 離開頁面時自動存檔。
+   *
+   * 寫字的時候按不按儲存不該是使用者要記得的事——想到一半切去別頁、關掉分頁，
+   * 回來東西還在才是對的。這裡只在「真的改過」而且有標題時才送，
+   * 沒動過的頁面不會多寫一次，空白的新增頁也不會憑空生出一筆。
+   *
+   * keepalive 讓請求在頁面關掉之後仍然送得出去；也因為這樣，它不等回應、
+   * 不改畫面上的任何狀態——那時候已經沒有畫面了。
+   */
+  function quietSave() {
+    if (deletedRef.current || !sheetId || !form.title.trim()) return;
+    const payload = toPayload(form);
+    const snapshot = JSON.stringify(payload);
+    if (snapshot === savedRef.current) return;
+    savedRef.current = snapshot;
+
+    // 已經存過就是改同一筆：自動存了兩次不該變成兩則
+    const id = savedIdRef.current;
+    const request = id
+      ? fetch(`/api/entries/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sheetId, patch: payload }),
+          keepalive: true,
+        })
+      : fetch("/api/entries", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sheetId, entry: { id: newId, ...payload } }),
+          keepalive: true,
+        });
+    savedIdRef.current = id || newId;
+    request.then(() => mutate()).catch(() => {});
+  }
+
+  // 每次重畫都把最新的那一份放進 ref：卸載時跑的是當下的內容，不是掛載那一刻的
+  const quietSaveRef = useRef(quietSave);
+  useEffect(() => {
+    quietSaveRef.current = quietSave;
+  });
+
+  useEffect(() => {
+    // 手機切到別的 app、關掉分頁都只會發 visibilitychange，不會走 unmount
+    const onHide = () => document.visibilityState === "hidden" && quietSaveRef.current();
+    document.addEventListener("visibilitychange", onHide);
+    return () => {
+      document.removeEventListener("visibilitychange", onHide);
+      quietSaveRef.current();
+    };
+  }, []);
 
   /**
    * 量一次現在有多少人看，append 成新的一列——不覆蓋舊的，累積起來就是成長曲線。
@@ -162,17 +242,15 @@ export function EntryForm({ entry }: { entry?: Entry }) {
       return;
     }
 
-    const payload = {
-      ...form,
-      date: form.date || null,
-      keywords: compactLines(form.keywords),
-    };
+    const payload = toPayload(form);
 
     setSubmitting(true);
     setSubmitError("");
     try {
-      if (isEdit && entry) {
-        const res = await fetch(`/api/entries/${entry.id}`, {
+      // 自動存檔可能已經先建好這一筆了，那按下儲存就是改它，不是再開一筆
+      const existingId = entry?.id || savedIdRef.current;
+      if (existingId) {
+        const res = await fetch(`/api/entries/${existingId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sheetId, patch: payload }),
@@ -180,7 +258,7 @@ export function EntryForm({ entry }: { entry?: Entry }) {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "更新失敗");
       } else {
-        const newEntry: Entry = { id: crypto.randomUUID(), ...payload };
+        const newEntry: Entry = { id: newId, ...payload };
         const res = await fetch("/api/entries", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -190,6 +268,8 @@ export function EntryForm({ entry }: { entry?: Entry }) {
         if (!res.ok) throw new Error(data.error ?? "新增失敗");
       }
 
+      savedRef.current = JSON.stringify(payload);
+      savedIdRef.current = savedIdRef.current || newId;
       await mutate();
       router.push("/entries");
     } catch (err) {
@@ -201,6 +281,8 @@ export function EntryForm({ entry }: { entry?: Entry }) {
 
   async function handleDelete() {
     if (!entry || !sheetId) return;
+    // 刪完會離開這一頁，卸載時的自動存檔不能把它救回來
+    deletedRef.current = true;
 
     setSubmitting(true);
     setSubmitError("");
@@ -225,15 +307,15 @@ export function EntryForm({ entry }: { entry?: Entry }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 md:h-full md:min-h-0">
-      <div className="flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
+    <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col gap-3">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
         <TabPanel active={tab === "text"}>
           <div className="shrink-0">
             <Field label="標題" value={form.title} onChange={(v) => set("title", v)} />
           </div>
 
           {/* 內文放最大：它是這張表唯一的主體，其他欄位都是為了讓它找得到 */}
-          <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 md:flex-1">
+          <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-1">
             <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
               <NotebookPen size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
               內文
@@ -252,9 +334,9 @@ export function EntryForm({ entry }: { entry?: Entry }) {
             <Field
               label="日期"
               Icon={CalendarCheck}
-              type="date"
-              value={form.date}
-              onChange={(v) => set("date", v)}
+              type="datetime-local"
+              value={toInput(form.date)}
+              onChange={(v) => set("date", fromInput(v))}
             />
             <CategorySelect
               label="類型"

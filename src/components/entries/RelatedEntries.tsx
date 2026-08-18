@@ -23,10 +23,13 @@ const styles = {
   error: "shrink-0 text-xs text-red-600",
 };
 
-/** 本地時區的今天；用 toISOString 會在台灣的早上八點前拿到昨天 */
+/** 本地時區的此刻；用 toISOString 會在台灣的早上八點前拿到昨天 */
 function today() {
   const now = new Date();
-  return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16)
+    .replace("T", " ");
 }
 
 /**

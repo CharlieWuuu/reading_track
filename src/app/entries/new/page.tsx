@@ -11,7 +11,7 @@ function NewEntry() {
     <>
       <PageHeader title="新增書寫" backHref="/entries" action={<EntryFormTabs />} />
       <PageBody>
-        <div className="shrink-0 md:min-h-0 md:flex-1">
+        <div className="flex min-h-0 flex-1 flex-col">
           <EntryForm />
         </div>
       </PageBody>

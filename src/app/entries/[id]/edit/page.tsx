@@ -35,7 +35,7 @@ function EditEntry() {
     <>
       <PageHeader title="編輯書寫" backHref="/entries" action={<EntryFormTabs />} />
       <PageBody>
-        <div className="shrink-0 md:min-h-0 md:flex-1">
+        <div className="flex min-h-0 flex-1 flex-col">
           <EntryForm key={entry.id} entry={entry} />
         </div>
       </PageBody>

@@ -2,6 +2,7 @@ import { type LucideIcon } from "lucide-react";
 
 /** iOS 的原生日期控制項有自己的最小寬度，不關掉外觀就會撐破手機寬度 */
 const DATE_INPUT_CLASS = "appearance-none";
+const DATE_TYPES = ["date", "datetime-local", "time"];
 
 export function Field({
   label,
@@ -38,7 +39,7 @@ export function Field({
         onChange={(e) => onChange(e.target.value)}
         onPaste={onPaste && ((e) => onPaste(e.clipboardData.getData("text")))}
         className={`box-border block w-full max-w-full min-w-0 rounded border px-3 py-2 text-sm ${
-          type === "date" ? DATE_INPUT_CLASS : ""
+          DATE_TYPES.includes(type) ? DATE_INPUT_CLASS : ""
         }`}
       />
     </div>
