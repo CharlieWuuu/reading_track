@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ExternalLink } from "lucide-react";
+import { ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
 import { dayLabel, groupByWeek, isUrl, Reflection } from "@/lib/reflections";
 import { useBooks } from "@/lib/useBooks";
 import { useMetrics } from "@/lib/useMetrics";
@@ -10,7 +10,9 @@ import { useMetrics } from "@/lib/useMetrics";
 const styles = {
   wrap: "flex min-h-0 w-full min-w-0 flex-1 flex-col gap-6 overflow-y-auto pb-2",
   week: "flex w-full min-w-0 flex-col gap-2",
-  weekHead: "flex w-full min-w-0 items-center gap-3",
+  weekHead: "flex w-full min-w-0 items-center gap-3 text-left",
+  weekCaret: "shrink-0 text-gray-300",
+  weekCount: "shrink-0 text-[11px] text-gray-400 tabular-nums",
   weekLabel: "shrink-0 text-xs font-medium text-gray-500 tabular-nums",
   weekYear: "shrink-0 text-[11px] text-gray-300 tabular-nums",
   weekLine: "h-px flex-1 bg-gray-200",
@@ -63,6 +65,8 @@ function firstLine(note: string): string {
  */
 export function ReflectionTimeline({ reflections }: { reflections: Reflection[] }) {
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
+  // 記「收起來的是哪幾週」而不是展開的：預設全開，收起來才是特例
+  const [closedWeeks, setClosedWeeks] = useState<Set<string>>(new Set());
   // 數字只在展開時出現：摺著的數線是拿來讀的，不該有數字在旁邊閃
   const { latestByEntry } = useMetrics();
   // 延伸自某本書時秀出封面；文章沒有封面，只顯示書名
@@ -77,19 +81,33 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
     });
   }
 
+  function toggleWeek(key: string) {
+    setClosedWeeks((current) => {
+      const next = new Set(current);
+      if (!next.delete(key)) next.add(key);
+      return next;
+    });
+  }
+
   const weeks = groupByWeek(reflections);
 
   return (
     <div className={styles.wrap}>
       {weeks.map((week) => (
         <section key={week.key || "undated"} className={styles.week}>
-          <div className={styles.weekHead}>
+          <button type="button" onClick={() => toggleWeek(week.key)} className={styles.weekHead}>
+            {closedWeeks.has(week.key) ? (
+              <ChevronRight size={14} strokeWidth={1.5} className={styles.weekCaret} />
+            ) : (
+              <ChevronDown size={14} strokeWidth={1.5} className={styles.weekCaret} />
+            )}
             <span className={styles.weekLabel}>{week.label}</span>
             {week.year > 0 && <span className={styles.weekYear}>{week.year}</span>}
             <span className={styles.weekLine} />
-          </div>
+            <span className={styles.weekCount}>{week.items.length}</span>
+          </button>
 
-          <div className={styles.items}>
+          <div className={closedWeeks.has(week.key) ? "hidden" : styles.items}>
             {week.items.map((r) => {
               const id = `${r.source}-${r.id}`;
               const open = openIds.has(id);
