@@ -29,14 +29,12 @@ export function CategorySelect({
   onChange: (value: string) => void;
   multiple?: boolean;
 }) {
-  const { categories, save } = useCategories();
+  const { categories, counts } = useCategories();
   // 舊版本的快取可能沒有這一組（例如剛加上的「平台」），兜底成空陣列
   const options = categories[categoryKey] ?? [];
 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [editing, setEditing] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState("");
   const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const [rect, setRect] = useState<{ top: number; left: number; width: number } | null>(null);
@@ -82,10 +80,6 @@ export function CategorySelect({
     : options;
   const canCreate = keyword.length > 0 && !options.includes(keyword);
 
-  function replaceOptions(next: string[]) {
-    save({ ...categories, [categoryKey]: next });
-  }
-
   const selected = multiple ? splitTags(value) : value ? [value] : [];
   const isSelected = (option: string) => selected.includes(option);
 
@@ -103,24 +97,10 @@ export function CategorySelect({
     setQuery("");
   }
 
+  /** 選項是從資料 group 出來的，所以「新增」就只是選一個還沒人用過的值 */
   function create() {
     if (!canCreate) return;
-    replaceOptions([...options, keyword]);
     pick(keyword);
-  }
-
-  function rename(from: string) {
-    const to = editValue.trim();
-    setEditing(null);
-    if (!to || to === from || options.includes(to)) return;
-    replaceOptions(options.map((o) => (o === from ? to : o)));
-    // 目前選的就是被改名的那個，跟著改
-    if (isSelected(from)) onChange(joinTags(selected.map((o) => (o === from ? to : o))));
-  }
-
-  function remove(option: string) {
-    replaceOptions(options.filter((o) => o !== option));
-    if (isSelected(option)) onChange(joinTags(selected.filter((o) => o !== option)));
   }
 
   return (
@@ -192,59 +172,25 @@ export function CategorySelect({
               )}
 
               {filtered.map((option) => (
-                <li key={option} className="group flex items-center gap-1 px-1">
-                  {editing === option ? (
-                    <input
-                      autoFocus
-                      value={editValue}
-                      onChange={(e) => setEditValue(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          rename(option);
-                        }
-                        if (e.key === "Escape") setEditing(null);
-                      }}
-                      onBlur={() => rename(option)}
-                      className="my-0.5 w-full rounded border px-2 py-1 text-sm"
-                    />
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => pick(option)}
-                        className={`flex-1 rounded px-2 py-1.5 text-left text-sm hover:bg-gray-50 ${
-                          isSelected(option) ? "font-medium" : ""
-                        }`}
-                      >
-                        {multiple && (
-                          <span className="mr-1.5 text-xs text-gray-400">
-                            {isSelected(option) ? "✓" : "＋"}
-                          </span>
-                        )}
-                        {option}
-                      </button>
-                      <button
-                        type="button"
-                        aria-label={`重新命名 ${option}`}
-                        onClick={() => {
-                          setEditing(option);
-                          setEditValue(option);
-                        }}
-                        className="rounded px-1.5 py-1 text-xs text-gray-400 opacity-0 group-hover:opacity-100 hover:bg-gray-100 hover:text-gray-700"
-                      >
-                        改名
-                      </button>
-                      <button
-                        type="button"
-                        aria-label={`刪除 ${option}`}
-                        onClick={() => remove(option)}
-                        className="rounded px-1.5 py-1 text-xs text-gray-400 opacity-0 group-hover:opacity-100 hover:bg-gray-100 hover:text-red-600"
-                      >
-                        刪除
-                      </button>
-                    </>
-                  )}
+                <li key={option} className="flex items-center gap-1 px-1">
+                  <button
+                    type="button"
+                    onClick={() => pick(option)}
+                    className={`flex-1 rounded px-2 py-1.5 text-left text-sm hover:bg-gray-50 ${
+                      isSelected(option) ? "font-medium" : ""
+                    }`}
+                  >
+                    {multiple && (
+                      <span className="mr-1.5 text-xs text-gray-400">
+                        {isSelected(option) ? "✓" : "＋"}
+                      </span>
+                    )}
+                    {option}
+                  </button>
+                  {/* 用了幾次；選單照次數排，這個數字說明為什麼是這個順序 */}
+                  <span className="shrink-0 px-1.5 text-[11px] text-gray-300 tabular-nums">
+                    {counts[categoryKey].get(option) ?? 0}
+                  </span>
                 </li>
               ))}
 
@@ -261,7 +207,7 @@ export function CategorySelect({
               )}
 
               {filtered.length === 0 && !canCreate && (
-                <li className="px-3 py-2 text-xs text-gray-400">還沒有任何選項</li>
+                <li className="px-3 py-2 text-xs text-gray-400">打字就可以新增</li>
               )}
             </ul>
           </div>,

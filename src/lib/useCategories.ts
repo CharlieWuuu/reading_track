@@ -1,10 +1,9 @@
 "use client";
 
-import useSWR from "swr";
+import { useMemo } from "react";
 import { useArticles } from "@/lib/useArticles";
 import { useBooks } from "@/lib/useBooks";
 import { useEntries } from "@/lib/useEntries";
-import { useSheetStore } from "@/store/useSheetStore";
 import {
   BookCategories,
   CATEGORY_FIELDS,
@@ -14,84 +13,52 @@ import {
   type CategorySource,
 } from "@/types/book";
 
-async function fetcher(url: string): Promise<{ categories: BookCategories }> {
-  const res = await fetch(url);
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error ?? "讀取選項失敗");
-  return data;
-}
-
-/** 自訂選項存在試算表的「選項」工作表，換裝置也還在 */
+/**
+ * 分類選項一律從資料 group 出來，不再另外維護一張「選項」表。
+ *
+ * 那張表是整份試算表裡唯一「不是紀錄」的東西，得記得維護，還會留著早就不用的值。
+ * 而它真正的作用（先登記一個還沒用過的選項）在表單裡直接打字就能做到——
+ * 打錯字會出現在選單裡，直到那筆紀錄被改掉，這個代價比維護一份清單小。
+ */
 export function useCategories() {
-  const { sheetId } = useSheetStore();
-  const key = sheetId ? `/api/options?sheetId=${encodeURIComponent(sheetId)}` : null;
-
-  const { data, error, isLoading, mutate } = useSWR(key, fetcher);
-
-  /**
-   * 一律以「程式現在有哪些組別」為準：少的補預設值，多的丟掉。
-   *
-   * 快取與 Sheet 都可能跟程式對不上——加了新組別時它們少一組，刪掉舊組別時
-   * 它們多一組。兩種都會讓底下的迴圈讀到 undefined，整頁就掛了。
-   */
-  const stored = {} as BookCategories;
-  for (const key of Object.keys(DEFAULT_CATEGORIES) as (keyof BookCategories)[]) {
-    stored[key] = data?.categories?.[key] ?? DEFAULT_CATEGORIES[key];
-  }
   const { books } = useBooks();
   const { articles } = useArticles();
   const { entries } = useEntries();
 
-  /**
-   * 選單顯示的是「清單 ∪ 各種紀錄上實際用到的值」。
-   *
-   * 直接在 Sheet 上把某本書改成一個沒登錄過的領域，那個值馬上就選得到——
-   * 選項表退回它真正的角色：一份你想維護才維護的清單，不是一個要記得同步的東西。
-   */
-  const records: Record<CategorySource, object[]> = {
-    book: books,
-    article: articles,
-    entry: entries,
-  };
+  const counts = useMemo(() => {
+    const records: Record<CategorySource, object[]> = {
+      book: books,
+      article: articles,
+      entry: entries,
+    };
 
-  const categories: BookCategories = { ...stored };
-  for (const key of Object.keys(stored) as (keyof BookCategories)[]) {
-    const known = new Set(stored[key]);
-    const { field, sources } = CATEGORY_FIELDS[key];
-    // 屬性一格可以放多個，領域雖然是單選，舊資料仍可能是頓號串起來的
-    const used = sources.flatMap((source) =>
-      records[source].flatMap((item) => splitTags(fieldValue(item, field))),
-    );
-    const extra = [...new Set(used)].filter((value) => !known.has(value));
-    if (extra.length > 0) categories[key] = [...stored[key], ...extra];
-  }
-
-  /** 就地更新畫面，同時寫回試算表 */
-  async function save(next: BookCategories) {
-    if (!sheetId) return;
-    await mutate(
-      async () => {
-        const res = await fetch("/api/options", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sheetId, categories: next }),
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error ?? "儲存選項失敗");
+    const result = {} as Record<keyof BookCategories, Map<string, number>>;
+    for (const key of Object.keys(CATEGORY_FIELDS) as (keyof BookCategories)[]) {
+      const { field, sources } = CATEGORY_FIELDS[key];
+      const map = new Map<string, number>();
+      for (const source of sources) {
+        for (const item of records[source]) {
+          // 屬性一格可以放多個，領域雖然是單選，舊資料仍可能是頓號串起來的
+          for (const value of splitTags(fieldValue(item, field))) {
+            map.set(value, (map.get(value) ?? 0) + 1);
+          }
         }
-        return { categories: next };
-      },
-      { optimisticData: { categories: next }, rollbackOnError: true, revalidate: false },
-    );
-  }
+      }
+      result[key] = map;
+    }
+    return result;
+  }, [books, articles, entries]);
 
-  return {
-    categories,
-    /** 只有清單本身，不含從資料補進來的值——編輯清單時要改的是這一份 */
-    stored,
-    isLoading,
-    error: error instanceof Error ? error.message : undefined,
-    save,
-  };
+  /** 用得多的排前面，同樣多才照筆畫——選單最上面就是你最常用的那幾個 */
+  const categories = useMemo(() => {
+    const result = { ...DEFAULT_CATEGORIES };
+    for (const key of Object.keys(counts) as (keyof BookCategories)[]) {
+      result[key] = [...counts[key].entries()]
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "zh-Hant"))
+        .map(([value]) => value);
+    }
+    return result;
+  }, [counts]);
+
+  return { categories, counts };
 }
