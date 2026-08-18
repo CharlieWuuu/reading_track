@@ -1,14 +1,14 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { ChartPie, GanttChartSquare, LayoutGrid, Map } from "lucide-react";
 import { KeywordCards } from "@/components/keywords/KeywordCards";
+import { KeywordPopup } from "@/components/keywords/KeywordPopup";
 import { KeywordTimeline } from "@/components/keywords/KeywordTimeline";
 import { KeywordTreemap } from "@/components/keywords/KeywordTreemap";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { ViewToggle } from "@/components/ui/Controls";
-import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { getKeywordEntries } from "@/lib/keywordStats";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { useUrlParams } from "@/lib/useUrlParam";
@@ -68,9 +68,8 @@ export function KeywordsSection({
   showSwitch?: boolean;
 }) {
   const { view, setView } = useKeywordView();
-  const router = useRouter();
-  const from = useCurrentHref();
   const { byName } = useKeywordInfos();
+  const [viewing, setViewing] = useState<string | null>(null);
 
   const entries = getKeywordEntries(books);
   if (entries.length === 0) {
@@ -89,11 +88,7 @@ export function KeywordsSection({
       {view === "chart" ? (
         <div className={styles.panel}>
           <div className={styles.chart}>
-            <KeywordTreemap
-              entries={entries}
-              infos={byName}
-              onSelect={(name) => router.push(keywordEditHref(name, from))}
-            />
+            <KeywordTreemap entries={entries} infos={byName} onSelect={setViewing} />
           </div>
         </div>
       ) : view === "timeline" ? (
@@ -111,6 +106,8 @@ export function KeywordsSection({
           <KeywordCards books={books} />
         </div>
       )}
+
+      {viewing && <KeywordPopup name={viewing} onClose={() => setViewing(null)} />}
     </div>
   );
 }

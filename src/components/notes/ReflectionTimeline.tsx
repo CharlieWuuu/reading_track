@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { KeywordTag } from "@/components/keywords/KeywordTag";
 import { Favicon } from "@/components/ui/Favicon";
 import { dayLabel, groupByWeek, isUrl, Reflection, timeLabel } from "@/lib/reflections";
 import { tagColorClass } from "@/lib/tagColors";
@@ -33,7 +34,7 @@ const styles = {
   noteLink: "flex w-full min-w-0 flex-col gap-1",
   note: "w-full min-w-0 text-sm leading-relaxed break-words whitespace-pre-wrap text-gray-700",
   foot: "flex w-full min-w-0 flex-wrap items-center gap-1",
-  tag: "rounded bg-gray-100 px-1 py-px text-[10px] text-gray-500",
+  tag: "rounded bg-gray-100 px-1 py-px text-[10px] text-gray-500 hover:bg-gray-200",
   origin: "max-w-full truncate text-[11px] text-gray-400",
   originLink: "max-w-full truncate text-[11px] text-gray-400 underline hover:text-gray-900",
 };
@@ -145,9 +146,7 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
                             <span className={styles.origin}>來源：{r.origin}</span>
                           ))}
                         {r.keywords.map((name) => (
-                          <span key={name} className={styles.tag}>
-                            {name}
-                          </span>
+                          <KeywordTag key={name} name={name} className={styles.tag} />
                         ))}
                       </div>
                     )}

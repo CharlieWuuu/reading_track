@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ExternalLink } from "lucide-react";
+import { KeywordTag } from "@/components/keywords/KeywordTag";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
@@ -200,13 +200,11 @@ export function BookDetailView() {
             <Section title="關鍵字">
               <div className="flex flex-wrap items-center gap-1.5">
                 {keywords.map((keyword) => (
-                  <Link
+                  <KeywordTag
                     key={keyword}
-                    href={`/books?keyword=${encodeURIComponent(keyword)}`}
+                    name={keyword}
                     className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200"
-                  >
-                    {keyword}
-                  </Link>
+                  />
                 ))}
               </div>
             </Section>

@@ -1,12 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { KeywordPopup } from "@/components/keywords/KeywordPopup";
 import { CATEGORICAL } from "@/lib/chartPalette";
-import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { Book, splitLines } from "@/types/book";
 import { KeywordInfo, parseCoordinates } from "@/types/keyword";
 
@@ -52,8 +51,7 @@ type KeywordMapProps = {
 
 /** 有座標的關鍵字畫成地圖：一本書一個顏色，每個地點各自是一個點，不連線 */
 export function KeywordMap({ books, infos }: KeywordMapProps) {
-  const router = useRouter();
-  const from = useCurrentHref();
+  const [viewing, setViewing] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   // 預設收起來：地圖是主角，要對顏色才展開
   const [legendOpen, setLegendOpen] = useState(false);
@@ -93,7 +91,7 @@ export function KeywordMap({ books, infos }: KeywordMapProps) {
             offset: [0, 6],
             className: "keyword-map-label",
           })
-          .on("click", () => router.push(keywordEditHref(point.name, from)));
+          .on("click", () => setViewing(point.name));
       }
     }
 
@@ -110,7 +108,7 @@ export function KeywordMap({ books, infos }: KeywordMapProps) {
       observer.disconnect();
       map.remove();
     };
-  }, [routesKey, router, from]);
+  }, [routesKey]);
 
   if (routes.length === 0) {
     return <div className={styles.empty}>還沒有帶座標的關鍵字，先按「補齊資料」查維基</div>;
@@ -155,6 +153,7 @@ export function KeywordMap({ books, infos }: KeywordMapProps) {
           </ul>
         )}
       </div>
+      {viewing && <KeywordPopup name={viewing} onClose={() => setViewing(null)} />}
     </div>
   );
 }

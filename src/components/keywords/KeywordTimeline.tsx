@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { KeywordPopup } from "@/components/keywords/KeywordPopup";
 import { CATEGORICAL } from "@/lib/chartPalette";
-import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { KeywordEntry } from "@/lib/keywordStats";
 import { KeywordInfo, parseSpan } from "@/types/keyword";
 
@@ -65,8 +65,7 @@ type KeywordTimelineProps = {
 
 /** 有生卒／起訖的關鍵字排成一條數線，橫向捲 */
 export function KeywordTimeline({ entries, infos }: KeywordTimelineProps) {
-  const router = useRouter();
-  const from = useCurrentHref();
+  const [viewing, setViewing] = useState<string | null>(null);
   const spans = toSpans(entries, infos);
 
   if (spans.length === 0) {
@@ -104,7 +103,7 @@ export function KeywordTimeline({ entries, infos }: KeywordTimelineProps) {
                   <Bar
                     key={segment.name}
                     segment={segment}
-                    onOpen={() => router.push(keywordEditHref(segment.name, from))}
+                    onOpen={() => setViewing(segment.name)}
                   />
                 ))}
               </div>
@@ -131,6 +130,8 @@ export function KeywordTimeline({ entries, infos }: KeywordTimelineProps) {
           </li>
         ))}
       </ul>
+
+      {viewing && <KeywordPopup name={viewing} onClose={() => setViewing(null)} />}
     </div>
   );
 }
