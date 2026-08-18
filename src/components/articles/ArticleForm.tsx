@@ -162,7 +162,7 @@ export function ArticleForm({ article }: { article?: Article }) {
       }
 
       await mutate();
-      router.push("/articles");
+      router.push("/books?type=article");
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "儲存失敗");
     } finally {
@@ -188,7 +188,7 @@ export function ArticleForm({ article }: { article?: Article }) {
         (current) => ({ articles: (current?.articles ?? []).filter((a) => a.id !== article.id) }),
         { revalidate: false },
       );
-      router.push("/articles");
+      router.push("/books?type=article");
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "刪除失敗");
       setSubmitting(false);

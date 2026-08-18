@@ -17,7 +17,7 @@ export default function EditArticlePage() {
   if (!sheetId || isLoading || error || !article) {
     return (
       <>
-        <PageHeader title="編輯文章" backHref="/articles" />
+        <PageHeader title="編輯文章" backHref="/books?type=article" />
         <PageMessage tone={error ? "error" : "muted"}>
           {!sheetId
             ? "請先到「設定」頁面連接 Google Sheet"
@@ -31,7 +31,7 @@ export default function EditArticlePage() {
 
   return (
     <>
-      <PageHeader title="編輯文章" backHref="/articles" />
+      <PageHeader title="編輯文章" backHref="/books?type=article" />
       <PageBody>
         <div className="shrink-0 md:min-h-0 md:flex-1">
           <ArticleForm key={article.id} article={article} />
