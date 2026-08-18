@@ -16,8 +16,10 @@ const styles = {
   weekLabel: "shrink-0 text-xs font-medium text-gray-500 tabular-nums",
   weekYear: "shrink-0 text-[11px] text-gray-300 tabular-nums",
   weekLine: "h-px flex-1 bg-gray-200",
-  // 線往內縮一點、文字也靠近一點，圓點才不會孤零零掉在最左邊
-  items: "ml-2 flex w-full min-w-0 flex-col border-l border-gray-200 pl-3",
+  // 線往內縮一點、文字也靠近一點，圓點才不會孤零零掉在最左邊。
+  // 這裡不能加 w-full：w-full 是 100% 寬，再加上 ml-2 就整整超出父層 8px，
+  // 右邊的日期與「紀事」連結會被切掉。flex 子項本來就會撐滿，不用自己宣告。
+  items: "ml-2 flex min-w-0 flex-col border-l border-gray-200 pl-3",
   // 封面靠左、內容靠右；沒有封面的就只有右邊那欄
   item: "relative flex w-full min-w-0 items-start gap-3 py-2 text-left",
   body: "flex min-w-0 flex-1 flex-col gap-1",
@@ -34,7 +36,8 @@ const styles = {
   note: "w-full min-w-0 text-sm leading-relaxed break-words whitespace-pre-wrap text-gray-700",
   tags: "flex w-full min-w-0 flex-wrap items-center gap-1 pt-1",
   tag: "rounded bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-500",
-  origin2: "ml-auto flex shrink-0 items-center gap-1 text-[11px] text-gray-400 hover:text-gray-900",
+  origin2:
+    "ml-auto flex shrink-0 items-center gap-1 whitespace-nowrap text-[11px] text-gray-400 hover:text-gray-900",
   origin: "max-w-full truncate text-[11px] text-gray-400",
   originLink: "max-w-full truncate text-[11px] text-gray-400 underline hover:text-gray-900",
 };
@@ -181,7 +184,7 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
                             className={styles.origin2}
                           >
                             {r.source}
-                            <ExternalLink size={12} strokeWidth={1.5} />
+                            <ExternalLink size={12} strokeWidth={1.5} className="shrink-0" />
                           </Link>
                         </span>
                       )}

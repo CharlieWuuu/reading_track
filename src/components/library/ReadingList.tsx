@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PageMessage } from "@/components/layout/PageMessage";
+import { Favicon } from "@/components/ui/Favicon";
 import { TagList as OptionList, TagList } from "@/components/ui/TagBadge";
 import { BookViewMode } from "@/store/useBookViewStore";
 import { Article } from "@/types/article";
@@ -32,6 +33,8 @@ function CompactRow({ article }: { article: Article }) {
   const tags = articleTags(article);
   return (
     <Link href={`/articles/${article.id}/edit`} className={styles.row}>
+      {/* 文章沒有封面，站台圖示至少讓「這是哪裡的文章」一眼認得出來 */}
+      <Favicon url={article.sourceUrl} fallback={article.platform || article.title} />
       <div className={styles.body}>
         <p className={styles.title}>{article.title}</p>
         <div className={styles.meta}>
@@ -54,14 +57,24 @@ function CompactRow({ article }: { article: Article }) {
 /** 卡片牆：一次看很多篇，標題吃兩行，其餘壓成一行小字 */
 function ArticleCards({ articles }: { articles: Article[] }) {
   return (
-    <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    // 手機就兩欄起跳，寬螢幕一路加到四欄；卡片本來就只有標題與一行小字，不需要很寬
+    <ul className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-3 xl:grid-cols-4">
       {articles.map((a) => (
         <li key={a.id}>
           <Link
             href={`/articles/${a.id}/edit`}
             className="flex h-full flex-col gap-2 rounded-lg border bg-white p-3 transition hover:shadow"
           >
-            <p className="line-clamp-2 text-sm leading-snug font-medium">{a.title}</p>
+            <div className="flex min-w-0 items-start gap-2">
+              <Favicon
+                url={a.sourceUrl}
+                fallback={a.platform || a.title}
+                className="mt-0.5 size-5"
+              />
+              <p className="line-clamp-2 min-w-0 flex-1 text-sm leading-snug font-medium">
+                {a.title}
+              </p>
+            </div>
             <p className="truncate text-xs text-gray-500">
               {[a.endDate || "未完讀", a.platform, a.author].filter(Boolean).join(" · ")}
             </p>
@@ -85,7 +98,8 @@ function ArticleTable({ articles }: { articles: Article[] }) {
       <table className="w-full table-fixed text-sm">
         <thead className="sticky top-0 z-10 bg-gray-100 text-left [&_th]:shadow-[inset_0_-1px_0_#111827]">
           <tr>
-            <th className="w-[34%] px-3 py-2 whitespace-nowrap">標題</th>
+            <th className="w-[4%] px-3 py-2 whitespace-nowrap">站台</th>
+            <th className="w-[30%] px-3 py-2 whitespace-nowrap">標題</th>
             <th className="w-[14%] px-3 py-2 whitespace-nowrap">作者</th>
             <th className="w-[12%] px-3 py-2 whitespace-nowrap">來源</th>
             <th className="w-[12%] px-3 py-2 whitespace-nowrap">完成日期</th>
@@ -101,6 +115,9 @@ function ArticleTable({ articles }: { articles: Article[] }) {
               onClick={() => router.push(`/articles/${a.id}/edit`)}
               className="cursor-pointer border-t hover:bg-gray-50"
             >
+              <td className="px-3 py-2">
+                <Favicon url={a.sourceUrl} fallback={a.platform || a.title} className="size-5" />
+              </td>
               <td className="max-w-0 overflow-hidden px-3 py-2">
                 <span className="block overflow-hidden font-medium text-ellipsis whitespace-nowrap">
                   {a.title}

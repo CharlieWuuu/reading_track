@@ -41,9 +41,12 @@ function today() {
 export function RelatedEntries({
   sourceId,
   sourceTitle,
+  kind,
 }: {
   sourceId: string;
   sourceTitle: string;
+  /** 這裡寫出來的那則算哪一種：書籍心得、文章心得 */
+  kind: string;
 }) {
   const { entries, mutate } = useEntries();
   const { sheetId } = useSheetStore();
@@ -52,7 +55,7 @@ export function RelatedEntries({
   const [error, setError] = useState("");
   const mine = entries.filter((e) => e.sourceId && e.sourceId === sourceId);
 
-  const query = new URLSearchParams({ sourceId, sourceTitle, kind: "心得" });
+  const query = new URLSearchParams({ sourceId, sourceTitle, kind });
 
   async function handleSave() {
     const note = draft.trim();
@@ -67,7 +70,7 @@ export function RelatedEntries({
       id: crypto.randomUUID(),
       date: today(),
       title: sourceTitle,
-      kind: "心得",
+      kind,
       keywords: "",
       note,
       link: "",

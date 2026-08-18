@@ -16,7 +16,8 @@ const styles = {
   primary: `flex ${HEIGHT} shrink-0 items-center rounded bg-gray-900 px-3 ${TEXT} text-white hover:bg-gray-700 md:px-4`,
   secondary: `flex ${HEIGHT} shrink-0 items-center gap-1 rounded border px-3 ${TEXT} text-gray-600 hover:bg-gray-100`,
   // 只佔自己的寬度，窄螢幕放不下時才在自己裡面橫捲
-  tabs: `flex ${HEIGHT} w-fit max-w-full items-center gap-1 overflow-x-auto rounded-lg border p-1`,
+  // 邊框跟同一排的檢視切換用同一個灰階，兩顆控制項擺在一起才不會一深一淺
+  tabs: `flex ${HEIGHT} w-fit max-w-full items-center gap-1 overflow-x-auto rounded-lg border border-gray-300 p-1`,
   tab: `flex h-full shrink-0 items-center rounded px-2.5 ${TEXT} whitespace-nowrap md:px-3`,
   tabActive: "bg-gray-900 text-white",
   tabIdle: "text-gray-500 hover:bg-gray-100",

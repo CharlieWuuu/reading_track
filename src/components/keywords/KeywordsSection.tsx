@@ -22,6 +22,8 @@ const styles = {
   wrap: "flex min-h-0 flex-1 flex-col gap-3",
   tabs: "flex shrink-0 justify-end",
   panel: "flex min-h-0 flex-1 flex-col gap-3 rounded-lg border bg-white p-4 md:p-5",
+  // 地圖自己就是一整面內容，留白只會讓它變小；底圖直接貼到框線
+  mapPanel: "flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border bg-white",
   chart: "min-h-0 flex-1",
   cards: "min-h-0 flex-1 overflow-y-auto",
   loading: "flex h-full items-center justify-center text-xs text-gray-400",
@@ -93,10 +95,8 @@ export function KeywordsSection({
           </div>
         </div>
       ) : view === "map" ? (
-        <div className={styles.panel}>
-          <div className={styles.chart}>
-            <KeywordMap books={books} infos={byName} />
-          </div>
+        <div className={styles.mapPanel}>
+          <KeywordMap books={books} infos={byName} />
         </div>
       ) : (
         <div className={styles.cards}>

@@ -3,12 +3,13 @@
 import { TabBar } from "@/components/ui/Controls";
 import { useUrlParams } from "@/lib/useUrlParam";
 
-export type ArticleFormTab = "article" | "tags";
+export type ArticleFormTab = "article" | "tags" | "notes";
 
 /** 跟書籍同一套分法：文章是這篇本身的事實，標記是自己貼上去的 */
 const TABS: { key: ArticleFormTab; label: string }[] = [
   { key: "article", label: "文章" },
   { key: "tags", label: "標記" },
+  { key: "notes", label: "筆記" },
 ];
 
 /** 看哪一頁寫在網址上，重新整理或分享連結都回得到同一個分頁；預設文章 */

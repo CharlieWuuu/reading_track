@@ -17,6 +17,15 @@ import { splitLines } from "@/types/book";
 import { EMPTY_KEYWORD_INFO } from "@/types/keyword";
 import { KeywordEditDialog } from "../keywords/KeywordEditDialog";
 
+/** 沒選到的分頁留在畫面上但藏起來，切回來時打到一半的內容還在 */
+function TabPanel({ active, children }: { active: boolean; children: React.ReactNode }) {
+  return (
+    <div className={`flex-col gap-3 md:min-h-0 md:flex-1 ${active ? "flex" : "hidden"}`}>
+      {children}
+    </div>
+  );
+}
+
 const emptyForm = {
   title: "",
   author: "",
@@ -203,115 +212,99 @@ export function ArticleForm({ article }: { article?: Article }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 md:h-full md:min-h-0">
       <div className="flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
-        <div
-          className={`grid min-h-0 shrink-0 grid-cols-2 content-start gap-3 ${tab === "article" ? "" : "hidden"}`}
-        >
-          <div className="col-span-2">
-            <Field label="標題" value={form.title} onChange={(v) => set("title", v)} />
-          </div>
-
-          {/* 網址與抓取按鈕同一列：填完網址最順手的下一步就是按它 */}
-          <div className="col-span-2 flex items-end gap-2">
-            <div className="min-w-0 flex-1">
-              <Field
-                label="來源網址"
-                Icon={LinkIcon}
-                value={form.sourceUrl}
-                onChange={(v) => set("sourceUrl", v)}
-                // 貼上就直接抓，不用再按一次按鈕；按鈕留著給手打或想重抓的時候
-                onPaste={(text) => {
-                  const url = text.trim();
-                  if (!url) return;
-                  set("sourceUrl", url);
-                  void handleFetch(url);
-                }}
-              />
+        <TabPanel active={tab === "article"}>
+          <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3">
+            <div className="col-span-2">
+              <Field label="標題" value={form.title} onChange={(v) => set("title", v)} />
             </div>
-            <button
-              type="button"
-              onClick={() => handleFetch()}
-              disabled={fetching}
-              className="shrink-0 rounded border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
-            >
-              {fetching ? "抓取中…" : "抓取資料"}
-            </button>
-          </div>
-          {fetchNote && <p className="col-span-2 -mt-1 text-xs text-gray-500">{fetchNote}</p>}
 
-          {/* 平台是站台名（報導者），期刊論文就填期刊名；作者常常抓不到，允許空白 */}
-          <CategorySelect
-            label="平台"
-            Icon={Store}
-            categoryKey="platform"
-            value={form.platform}
-            onChange={(v) => set("platform", v)}
-          />
-          <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
+            {/* 網址與抓取按鈕同一列：填完網址最順手的下一步就是按它 */}
+            <div className="col-span-2 flex items-end gap-2">
+              <div className="min-w-0 flex-1">
+                <Field
+                  label="來源網址"
+                  Icon={LinkIcon}
+                  value={form.sourceUrl}
+                  onChange={(v) => set("sourceUrl", v)}
+                  // 貼上就直接抓，不用再按一次按鈕；按鈕留著給手打或想重抓的時候
+                  onPaste={(text) => {
+                    const url = text.trim();
+                    if (!url) return;
+                    set("sourceUrl", url);
+                    void handleFetch(url);
+                  }}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => handleFetch()}
+                disabled={fetching}
+                className="shrink-0 rounded border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+              >
+                {fetching ? "抓取中…" : "抓取資料"}
+              </button>
+            </div>
+            {fetchNote && <p className="col-span-2 -mt-1 text-xs text-gray-500">{fetchNote}</p>}
 
-          {/* 文章多半一次讀完，只記「哪天讀的」，沒有開始日期 */}
-          <Field
-            label="閱讀日期"
-            Icon={CalendarCheck}
-            type="date"
-            value={form.endDate}
-            onChange={(v) => set("endDate", v)}
-          />
-          <CategorySelect
-            label="語言"
-            Icon={Languages}
-            categoryKey="language"
-            value={form.language}
-            onChange={(v) => set("language", v)}
-          />
-        </div>
-
-        {/* 標記頁：領域／次領域／屬性跟書共用「選項」分頁，兩邊的分類才對得起來 */}
-        <div
-          className={`grid min-h-0 shrink-0 grid-cols-2 content-start gap-3 ${tab === "tags" ? "" : "hidden"}`}
-        >
-          <CategorySelect
-            label="領域"
-            categoryKey="articleDomain"
-            value={form.domain}
-            onChange={(v) => set("domain", v)}
-          />
-          <CategorySelect
-            label="次領域"
-            categoryKey="articleSubDomain"
-            value={form.subDomain}
-            onChange={(v) => set("subDomain", v)}
-          />
-          <div className="col-span-2">
-            <PrivateToggle value={form.private} onChange={(v) => set("private", v)} />
-          </div>
-          <div className="col-span-2">
+            {/* 平台是站台名（報導者），期刊論文就填期刊名；作者常常抓不到，允許空白 */}
             <CategorySelect
-              label="屬性"
-              categoryKey="type"
-              value={form.type}
-              onChange={(v) => set("type", v)}
-              multiple
+              label="平台"
+              Icon={Store}
+              categoryKey="platform"
+              value={form.platform}
+              onChange={(v) => set("platform", v)}
+            />
+            <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
+
+            {/* 文章多半一次讀完，只記「哪天讀的」，沒有開始日期 */}
+            <Field
+              label="閱讀日期"
+              Icon={CalendarCheck}
+              type="date"
+              value={form.endDate}
+              onChange={(v) => set("endDate", v)}
+            />
+            <CategorySelect
+              label="語言"
+              Icon={Languages}
+              categoryKey="language"
+              value={form.language}
+              onChange={(v) => set("language", v)}
             />
           </div>
-        </div>
+        </TabPanel>
 
-        <div className="flex min-h-0 flex-col gap-3 md:flex-1">
-          {/* 心得寫成書寫，跟書籍同一套：一篇文章可以有很多則，這一欄不再由 app 寫入 */}
-          <div
-            className={`flex min-h-0 w-full min-w-0 flex-col gap-1 md:flex-1 ${tab === "article" ? "" : "hidden"}`}
-          >
-            {isEdit && article ? (
-              <RelatedEntries sourceId={article.id} sourceTitle={form.title} />
-            ) : (
-              <p className="rounded border border-dashed px-3 py-2 text-xs text-gray-400">
-                存好這篇文章之後就可以寫心得了
-              </p>
-            )}
+        {/* 標記頁：領域／次領域／屬性跟書共用同一組分類，兩邊才對得起來 */}
+        <TabPanel active={tab === "tags"}>
+          <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3">
+            <CategorySelect
+              label="領域"
+              categoryKey="articleDomain"
+              value={form.domain}
+              onChange={(v) => set("domain", v)}
+            />
+            <CategorySelect
+              label="次領域"
+              categoryKey="articleSubDomain"
+              value={form.subDomain}
+              onChange={(v) => set("subDomain", v)}
+            />
+            <div className="col-span-2">
+              <PrivateToggle value={form.private} onChange={(v) => set("private", v)} />
+            </div>
+            <div className="col-span-2">
+              <CategorySelect
+                label="屬性"
+                categoryKey="type"
+                value={form.type}
+                onChange={(v) => set("type", v)}
+                multiple
+              />
+            </div>
           </div>
 
-          <div
-            className={`flex min-h-0 w-full min-w-0 flex-col gap-1 md:flex-1 ${tab === "tags" ? "" : "hidden"}`}
-          >
+          {/* 關鍵字也是自己貼上去的標籤，跟領域、屬性同一件事，只是值不固定 */}
+          <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 md:flex-1">
             <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
               <Tag size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
               關鍵字
@@ -327,7 +320,18 @@ export function ArticleForm({ article }: { article?: Article }) {
               onEditRow={setEditingKeyword}
             />
           </div>
-        </div>
+        </TabPanel>
+
+        {/* 心得寫成書寫，跟書籍同一套：一篇文章可以有很多則，所以自己一頁 */}
+        <TabPanel active={tab === "notes"}>
+          {isEdit && article ? (
+            <RelatedEntries sourceId={article.id} sourceTitle={form.title} kind="文章心得" />
+          ) : (
+            <p className="rounded border border-dashed px-3 py-2 text-xs text-gray-400">
+              存好這篇文章之後就可以寫心得了
+            </p>
+          )}
+        </TabPanel>
       </div>
 
       {submitError && <p className="shrink-0 text-xs text-red-600">{submitError}</p>}

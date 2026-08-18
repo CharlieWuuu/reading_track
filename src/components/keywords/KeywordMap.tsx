@@ -3,6 +3,7 @@
 import "leaflet/dist/leaflet.css";
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { KeywordEditDialog } from "@/components/keywords/KeywordEditDialog";
 import { CATEGORICAL } from "@/lib/chartPalette";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
@@ -10,10 +11,14 @@ import { Book, splitLines } from "@/types/book";
 import { EMPTY_KEYWORD_INFO, KeywordInfo, parseCoordinates } from "@/types/keyword";
 
 const styles = {
-  wrap: "flex h-full min-h-0 flex-col gap-2",
+  wrap: "relative flex h-full min-h-0 flex-col",
   // isolate 把 leaflet 內部的高 z-index 關在自己的堆疊環境裡，才不會蓋掉外面的選單
-  map: "min-h-0 flex-1 isolate rounded",
-  legend: "flex shrink-0 flex-wrap items-center gap-1.5",
+  map: "min-h-0 flex-1 isolate",
+  // 圖例浮在地圖上：地圖已經佔滿整個面板，再切一條給圖例會把地圖壓扁
+  legendBox:
+    "pointer-events-auto absolute bottom-2 left-2 z-20 flex max-w-[calc(100%-1rem)] flex-col gap-1.5 rounded-lg border border-gray-300 bg-white/95 p-1.5 shadow-sm",
+  legendToggle: "flex items-center gap-1 text-xs font-medium text-gray-600",
+  legend: "flex max-h-40 shrink-0 flex-wrap items-center gap-1.5 overflow-y-auto",
   legendItem: "overflow-hidden rounded-[2px]",
   // 書用封面認，線的顏色畫成封面的外框，兩件事合成一個圖例
   legendCover: "aspect-2/3 w-5 object-cover",
@@ -45,11 +50,13 @@ type KeywordMapProps = {
   infos: Map<string, KeywordInfo>;
 };
 
-/** 有座標的關鍵字畫成地圖：一本書一個顏色，同一本書的地點依記錄順序連成線 */
+/** 有座標的關鍵字畫成地圖：一本書一個顏色，每個地點各自是一個點，不連線 */
 export function KeywordMap({ books, infos }: KeywordMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { save, remove } = useKeywordInfos();
   const [editing, setEditing] = useState<string | null>(null);
+  // 預設收起來：地圖是主角，要對顏色才展開
+  const [legendOpen, setLegendOpen] = useState(false);
 
   // 父層每次 render 都給新的陣列，直接放進相依會讓地圖無限重建；改用內容當鍵，
   // 效果裡再從鍵還原回路線，重建只發生在資料真的變了的時候
@@ -69,12 +76,6 @@ export function KeywordMap({ books, infos }: KeywordMapProps) {
     L.tileLayer(TILE_URL, { attribution: TILE_ATTRIBUTION, maxZoom: MAX_ZOOM }).addTo(map);
 
     for (const route of routes) {
-      const latlngs = route.points.map((p) => [p.lat, p.lon] as [number, number]);
-      // 兩個點以上才連得成線；順序就是關鍵字欄裡記下來的順序
-      if (latlngs.length > 1) {
-        L.polyline(latlngs, { color: route.color, weight: 2, opacity: 0.6 }).addTo(map);
-      }
-
       for (const point of route.points) {
         L.circleMarker([point.lat, point.lon], {
           radius: 6,
@@ -84,7 +85,14 @@ export function KeywordMap({ books, infos }: KeywordMapProps) {
           fillOpacity: 0.9,
         })
           .addTo(map)
-          .bindTooltip(`${point.name}｜${route.title}`)
+          // 地名常駐顯示：不點開就看不出這個點是哪裡，等於少了一半資訊。
+          // 放在點的正下方，左右相鄰的兩個點才不會你的標籤壓到我的點
+          .bindTooltip(point.name, {
+            permanent: true,
+            direction: "bottom",
+            offset: [0, 6],
+            className: "keyword-map-label",
+          })
           .on("click", () => setEditing(point.name));
       }
     }
@@ -111,24 +119,42 @@ export function KeywordMap({ books, infos }: KeywordMapProps) {
   return (
     <div className={styles.wrap}>
       <div ref={containerRef} className={styles.map} />
-      {/* 一本書一個顏色，沒有圖例就看不出線是誰的 */}
-      <ul className={styles.legend}>
-        {legendOf(routes).map((item) => (
-          <li
-            key={item.title}
-            title={item.title}
-            className={styles.legendItem}
-            style={{ outline: `2px solid ${item.color}`, outlineOffset: "-2px" }}
-          >
-            {item.cover ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.cover} alt="" loading="lazy" className={styles.legendCover} />
-            ) : (
-              <span className={styles.legendBlank}>{item.title.slice(0, 1)}</span>
-            )}
-          </li>
-        ))}
-      </ul>
+
+      {/* 一本書一個顏色，沒有圖例就看不出點是誰的；書多的時候會擋住地圖，所以收得起來 */}
+      <div className={styles.legendBox}>
+        <button
+          type="button"
+          onClick={() => setLegendOpen((v) => !v)}
+          className={styles.legendToggle}
+        >
+          {legendOpen ? (
+            <ChevronDown size={14} strokeWidth={1.5} />
+          ) : (
+            <ChevronRight size={14} strokeWidth={1.5} />
+          )}
+          書 {legendOf(routes).length}
+        </button>
+
+        {legendOpen && (
+          <ul className={styles.legend}>
+            {legendOf(routes).map((item) => (
+              <li
+                key={item.title}
+                title={item.title}
+                className={styles.legendItem}
+                style={{ outline: `2px solid ${item.color}`, outlineOffset: "-2px" }}
+              >
+                {item.cover ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={item.cover} alt="" loading="lazy" className={styles.legendCover} />
+                ) : (
+                  <span className={styles.legendBlank}>{item.title.slice(0, 1)}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       {editing && (
         <KeywordEditDialog
