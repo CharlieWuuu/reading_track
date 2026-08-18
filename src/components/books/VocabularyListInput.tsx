@@ -102,6 +102,17 @@ export function VocabularyListInput({ rows, onChange, bookLanguage }: Vocabulary
               </div>
 
               <div className={styles.field}>
+                <label className={styles.label}>讀音</label>
+                <input
+                  value={draft.pronunciation}
+                  onChange={(e) => setDraft({ ...draft, pronunciation: e.target.value })}
+                  className={styles.input}
+                />
+              </div>
+            </div>
+
+            <div className={styles.pair}>
+              <div className={styles.field}>
                 <label className={styles.label}>詞的翻譯</label>
                 <input
                   value={draft.wordTranslation}

@@ -566,6 +566,8 @@ const VOCABULARY_HEADERS = [
   "例句翻譯",
   "章節",
   "語言",
+  // 後來才加的欄位接在最後：既有的表是就地補欄，插在中間會讓整排值錯位
+  "讀音",
 ];
 
 const QUOTES_SHEET_TITLE = "佳句";
@@ -581,8 +583,15 @@ async function getRecordSheet(
   await doc.loadInfo();
 
   const sheet = doc.sheetsByTitle[title];
-  if (sheet) return sheet;
-  return doc.addSheet({ title, headerValues });
+  if (!sheet) return doc.addSheet({ title, headerValues });
+
+  // 後來新增的欄位要補到既有的表上，否則寫進去的值會被當成不存在的欄丟掉
+  await sheet.loadHeaderRow().catch(() => {});
+  const current = sheet.headerValues ?? [];
+  const missing = headerValues.filter((header) => !current.includes(header));
+  if (missing.length > 0) await sheet.setHeaderRow([...current, ...missing]);
+
+  return sheet;
 }
 
 function text(row: GoogleSpreadsheetRow, header: string): string {
@@ -632,6 +641,7 @@ export async function listVocabularyRows(
       bookId: text(row, "書籍編號"),
       bookTitle: text(row, "書名"),
       word: text(row, "詞"),
+      pronunciation: text(row, "讀音"),
       wordTranslation: text(row, "詞翻譯"),
       sentence: text(row, "例句"),
       sentenceTranslation: text(row, "例句翻譯"),
@@ -698,6 +708,7 @@ export async function replaceBookVocabulary(
         書籍編號: bookId,
         書名: bookTitle,
         詞: item.word,
+        讀音: item.pronunciation,
         詞翻譯: item.wordTranslation,
         例句: item.sentence,
         例句翻譯: item.sentenceTranslation,

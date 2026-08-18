@@ -22,7 +22,8 @@ import { Book } from "@/types/book";
 
 const styles = {
   // 內文長度差很多，排成多欄只會高高低低；一則一列往下排反而好讀
-  list: "flex flex-col divide-y",
+  // 分隔線跟書寫那條同一級：淡到只是把兩則隔開，不搶內容
+  list: "flex flex-col divide-y divide-gray-100",
 };
 
 type Tab = "quotes" | "vocabulary" | "keywords";

@@ -5,18 +5,17 @@ import { QuoteRow, VocabularyRow } from "@/types/record";
  * 兩邊看到的同一則東西才會長得一樣，只差筆記頁左邊多一張封面。
  */
 
-/** 佳句照書裡的樣子排：引文用襯線字並縮排，出處靠右當署名，心得再下一行 */
+/** 佳句照書裡的樣子排：引文用襯線字，出處靠右當署名，心得再下一行 */
 export function QuoteBlock({ quote }: { quote: Pick<QuoteRow, "text" | "chapter" | "note"> }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <blockquote className="border-l-2 border-gray-300 pl-4 font-serif text-[15px] leading-relaxed whitespace-pre-wrap text-gray-800 md:text-base">
+      {/* 不畫左側那條線：旁邊就是封面，兩個直的元素並排會像被切成兩欄 */}
+      <blockquote className="font-serif text-[15px] leading-relaxed whitespace-pre-wrap text-gray-800 md:text-base">
         {quote.text}
       </blockquote>
-      {quote.chapter && <p className="pl-4 text-right text-xs text-gray-400">— {quote.chapter}</p>}
+      {quote.chapter && <p className="text-right text-xs text-gray-400">— {quote.chapter}</p>}
       {quote.note && (
-        <p className="pl-4 text-xs leading-relaxed whitespace-pre-wrap text-gray-400">
-          {quote.note}
-        </p>
+        <p className="text-xs leading-relaxed whitespace-pre-wrap text-gray-400">{quote.note}</p>
       )}
     </div>
   );
@@ -36,7 +35,9 @@ export function VocabularyItem({ row }: { row: VocabularyRow }) {
   return (
     <li className="flex flex-col gap-0.5">
       <p className="flex flex-wrap items-baseline gap-2">
-        <span className="text-sm font-medium text-gray-900">{row.word}</span>
+        {/* 單字是這一則的主角，比翻譯與例句大一級 */}
+        <span className="text-base font-semibold text-gray-900 md:text-lg">{row.word}</span>
+        {row.pronunciation && <span className="text-xs text-gray-400">{row.pronunciation}</span>}
         {row.wordTranslation && (
           <span className="text-sm text-gray-500">{row.wordTranslation}</span>
         )}

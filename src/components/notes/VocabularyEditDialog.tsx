@@ -141,6 +141,17 @@ export function VocabularyEditDialog({ entry, onSave, onClose }: VocabularyEditD
                   />
                 </div>
                 <div className={styles.field}>
+                  <label className={styles.label}>讀音</label>
+                  <input
+                    value={edit.pronunciation}
+                    onChange={(e) => update(i, { pronunciation: e.target.value })}
+                    className={styles.input}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.pair}>
+                <div className={styles.field}>
                   <label className={styles.label}>詞（翻譯）</label>
                   <input
                     value={edit.wordTranslation}

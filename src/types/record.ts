@@ -10,6 +10,8 @@ export interface VocabularyRow {
   bookId: string;
   bookTitle: string;
   word: string;
+  /** 怎麼唸：拼音、假名、KK 音標都可以，這一格不規定寫法 */
+  pronunciation: string;
   wordTranslation: string;
   sentence: string;
   sentenceTranslation: string;
@@ -30,6 +32,7 @@ export interface QuoteRow {
 
 export const EMPTY_VOCABULARY: Omit<VocabularyRow, "id" | "bookId" | "bookTitle"> = {
   word: "",
+  pronunciation: "",
   wordTranslation: "",
   sentence: "",
   sentenceTranslation: "",

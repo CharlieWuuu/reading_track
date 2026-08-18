@@ -6,7 +6,9 @@ import { VocabularyEntry } from "@/lib/vocabularyStats";
 const styles = {
   card: "flex cursor-pointer flex-col gap-2 rounded-lg border bg-white p-4 hover:border-gray-400",
   head: "flex items-baseline justify-between gap-2",
-  headWord: "min-w-0 truncate text-sm font-medium",
+  // 單字是這張卡的主角，大一級才看得出主從
+  headWord: "min-w-0 truncate text-base font-semibold md:text-lg",
+  pronunciation: "-mt-1 text-xs text-gray-400",
   translation: "-mt-1 text-xs text-gray-500",
   count: "shrink-0 text-xs text-gray-400 tabular-nums",
   list: "flex flex-col gap-2",
@@ -41,6 +43,8 @@ export function VocabularyPanel({ entries, onEdit }: VocabularyPanelProps) {
         const translations = [
           ...new Set(entry.encounters.map((e) => e.wordTranslation).filter(Boolean)),
         ];
+        // 同一個詞的讀音在各本書應該一樣，取第一個有填的就好
+        const pronunciation = entry.encounters.find((e) => e.pronunciation)?.pronunciation ?? "";
         return (
           <div key={entry.word} className={styles.card} onClick={() => onEdit(entry)}>
             <div className={styles.head}>
@@ -50,6 +54,8 @@ export function VocabularyPanel({ entries, onEdit }: VocabularyPanelProps) {
                 <span className={styles.count}>{entry.encounters.length} 次</span>
               )}
             </div>
+
+            {pronunciation && <p className={styles.pronunciation}>{pronunciation}</p>}
 
             {/* 翻譯自己一行：跟單字擠同一行的話，長一點的就把單字壓掉了 */}
             {translations.length > 0 && (
