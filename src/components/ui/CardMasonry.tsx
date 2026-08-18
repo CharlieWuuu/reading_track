@@ -2,8 +2,8 @@
 
 import Masonry from "react-masonry-css";
 
-/** 網頁版一列三張，往下逐級收成兩張、一張 */
-const BREAKPOINTS = { default: 3, 1024: 2, 640: 1 };
+/** 網頁版一列三張，窄一點兩張——手機也維持兩張：卡片本來就矮，一列一張要滑很久 */
+const BREAKPOINTS = { default: 3, 1024: 2 };
 
 /**
  * 卡片牆。卡片高度本來就參差，格線排會留下一堆空白，改成瀑布式往上補。
@@ -13,8 +13,8 @@ export function CardMasonry({ children }: { children: React.ReactNode }) {
   return (
     <Masonry
       breakpointCols={BREAKPOINTS}
-      className="flex gap-3"
-      columnClassName="flex w-0 flex-1 flex-col gap-3"
+      className="flex gap-2 md:gap-3"
+      columnClassName="flex w-0 flex-1 flex-col gap-2 md:gap-3"
     >
       {children}
     </Masonry>

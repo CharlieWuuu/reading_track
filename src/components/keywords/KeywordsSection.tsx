@@ -1,8 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useState } from "react";
 import { ChartPie, GanttChartSquare, LayoutGrid, Map } from "lucide-react";
 import { KeywordCards } from "@/components/keywords/KeywordCards";
+import { KeywordEditDialog } from "@/components/keywords/KeywordEditDialog";
 import { KeywordTimeline } from "@/components/keywords/KeywordTimeline";
 import { KeywordTreemap } from "@/components/keywords/KeywordTreemap";
 import { PageMessage } from "@/components/layout/PageMessage";
@@ -11,6 +13,7 @@ import { getKeywordEntries } from "@/lib/keywordStats";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { Book } from "@/types/book";
+import { EMPTY_KEYWORD_INFO } from "@/types/keyword";
 
 /** leaflet 直接碰 window，不能在伺服器端預先產生 */
 const KeywordMap = dynamic(
@@ -66,7 +69,9 @@ export function KeywordsSection({
   showSwitch?: boolean;
 }) {
   const { view, setView } = useKeywordView();
-  const { byName } = useKeywordInfos();
+  const { byName, save, remove } = useKeywordInfos();
+  // 圖表上點一格就開編輯：卡片牆那邊本來就是這個行為，兩種看法要一致
+  const [editing, setEditing] = useState<string | null>(null);
 
   const entries = getKeywordEntries(books);
   if (entries.length === 0) {
@@ -85,7 +90,7 @@ export function KeywordsSection({
       {view === "chart" ? (
         <div className={styles.panel}>
           <div className={styles.chart}>
-            <KeywordTreemap entries={entries} infos={byName} />
+            <KeywordTreemap entries={entries} infos={byName} onSelect={setEditing} />
           </div>
         </div>
       ) : view === "timeline" ? (
@@ -102,6 +107,15 @@ export function KeywordsSection({
         <div className={styles.cards}>
           <KeywordCards books={books} />
         </div>
+      )}
+
+      {editing && (
+        <KeywordEditDialog
+          info={byName.get(editing) ?? { name: editing, ...EMPTY_KEYWORD_INFO }}
+          onSave={save}
+          onDelete={remove}
+          onClose={() => setEditing(null)}
+        />
       )}
     </div>
   );

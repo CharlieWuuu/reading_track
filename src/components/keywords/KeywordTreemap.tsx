@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { ResponsiveContainer, Treemap } from "recharts";
 import { CATEGORICAL } from "@/lib/chartPalette";
 import { topicLabel } from "@/lib/keywords/topicLabels";
@@ -28,11 +27,17 @@ type TreeNode = { name: string; children: TreeLeaf[] };
 type KeywordTreemapProps = {
   entries: KeywordEntry[];
   infos: Map<string, KeywordInfo>;
+  /** 點某一格要做什麼；外層接去開那個關鍵字的編輯視窗 */
+  onSelect: (name: string) => void;
 };
 
-/** 依學科分群的樹狀圖：格子大小＝被幾本書提到，點下去到書單反查 */
-export function KeywordTreemap({ entries, infos }: KeywordTreemapProps) {
-  const router = useRouter();
+/**
+ * 依學科分群的樹狀圖：格子大小＝被幾本書提到。
+ *
+ * 點下去是編輯那個關鍵字，不是跳去書單——會在這張圖上點一格，
+ * 多半是因為看到它分錯類或還沒分類，那當下就該能改。
+ */
+export function KeywordTreemap({ entries, infos, onSelect }: KeywordTreemapProps) {
   const data = groupByTopic(entries, infos);
 
   if (data.length === 0) {
@@ -53,7 +58,7 @@ export function KeywordTreemap({ entries, infos }: KeywordTreemapProps) {
             onClick={(node: unknown) => {
               const name = (node as { name?: string })?.name;
               const isLeaf = entries.some((e) => e.name === name);
-              if (isLeaf && name) router.push(`/books?keyword=${encodeURIComponent(name)}`);
+              if (isLeaf && name) onSelect(name);
             }}
             isAnimationActive={false}
           />
