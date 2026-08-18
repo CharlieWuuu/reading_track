@@ -46,9 +46,8 @@ function Library() {
         onChange={(next) => setParams({ type: next === "book" ? null : next, view: null })}
       />
       <BookViewToggle cardLabel={tab === "book" ? "書封" : "卡片"} />
-      <ActionButton href={tab === "book" ? "/books/new" : "/articles/new"}>
-        {tab === "book" ? "新增書籍" : "新增文章"}
-      </ActionButton>
+      {/* 按鈕就寫「新增」：旁邊的分頁已經說了現在在看書籍還是文章 */}
+      <ActionButton href={tab === "book" ? "/books/new" : "/articles/new"}>新增</ActionButton>
     </div>
   );
 

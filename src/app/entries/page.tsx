@@ -35,7 +35,7 @@ function EntriesList() {
         groups={[{ key: "kind", label: "類型", options: usedKinds(allEntries), value: kind }]}
         onChange={(key, next) => setParams({ [key]: next || null })}
       />
-      <ActionButton href="/entries/new">新增書寫</ActionButton>
+      <ActionButton href="/entries/new">新增</ActionButton>
     </div>
   );
   if (!mounted) return null;
