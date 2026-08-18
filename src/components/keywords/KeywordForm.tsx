@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FormActions } from "@/components/ui/FormActions";
 import { OptionSelect } from "@/components/ui/OptionSelect";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { formatSpan, KeywordInfo, parseSpan } from "@/types/keyword";
@@ -74,7 +75,6 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
   const [looking, setLooking] = useState(false);
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
-  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const set = (key: keyof KeywordInfo, value: string) => setForm((f) => ({ ...f, [key]: value }));
 
@@ -123,7 +123,6 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
     } catch (err) {
       setError(err instanceof Error ? err.message : "刪除失敗");
       setSaving(false);
-      setConfirmDelete(false);
     }
   }
 
@@ -223,58 +222,26 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
       </div>
 
       {note && <p className={styles.note}>{note}</p>}
-      {error && <p className={styles.error}>{error}</p>}
 
-      <div className={styles.actions}>
-        <button type="button" onClick={handleSave} disabled={saving} className={styles.save}>
-          {saving ? "儲存中…" : "儲存"}
-        </button>
-        <button type="button" onClick={onDone} className={styles.cancel}>
-          取消
-        </button>
-        <button
-          type="button"
-          onClick={handleLookup}
-          disabled={looking || !form.name.trim()}
-          className={styles.lookup}
-        >
-          {looking ? "查詢中…" : "查維基"}
-        </button>
-
-        {/* 刪除按一次先要求確認：這一刀會動到所有提到它的書 */}
-        {onDelete &&
-          (confirmDelete ? (
-            <div className={styles.danger}>
-              <span className="text-gray-500">確定刪除？提到它的書也會拿掉這個關鍵字</span>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={saving}
-                className={styles.confirm}
-              >
-                刪除
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirmDelete(false)}
-                className={styles.cancelSmall}
-              >
-                取消
-              </button>
-            </div>
-          ) : (
-            <div className={styles.danger}>
-              <button
-                type="button"
-                onClick={() => setConfirmDelete(true)}
-                disabled={saving}
-                className={styles.remove}
-              >
-                刪除這個關鍵字
-              </button>
-            </div>
-          ))}
-      </div>
+      <FormActions
+        onSave={handleSave}
+        saving={saving}
+        onCancel={onDone}
+        onDelete={onDelete ? handleDelete : undefined}
+        deleteLabel="刪除這個關鍵字"
+        confirmLabel="確定刪除？提到它的書也會拿掉這個關鍵字"
+        error={error}
+        extra={
+          <button
+            type="button"
+            onClick={handleLookup}
+            disabled={looking || !form.name.trim()}
+            className={styles.lookup}
+          >
+            {looking ? "查詢中…" : "查維基"}
+          </button>
+        }
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FormActions } from "@/components/ui/FormActions";
 import { QuoteRecord } from "@/lib/vocabularyStats";
 
 const styles = {
@@ -73,29 +74,15 @@ export function QuoteForm({ record, onSave, onDone }: QuoteFormProps) {
         />
       </div>
 
-      {error && <p className={styles.error}>{error}</p>}
-
-      <div className={styles.actions}>
-        <button
-          type="button"
-          onClick={() => submit(false)}
-          disabled={saving}
-          className={styles.save}
-        >
-          {saving ? "儲存中…" : "儲存"}
-        </button>
-        <button type="button" onClick={onDone} className={styles.cancel}>
-          取消
-        </button>
-        <button
-          type="button"
-          onClick={() => submit(true)}
-          disabled={saving}
-          className={styles.remove}
-        >
-          刪除
-        </button>
-      </div>
+      <FormActions
+        onSave={() => submit(false)}
+        saving={saving}
+        onCancel={onDone}
+        onDelete={() => submit(true)}
+        deleteLabel="刪除這一則"
+        confirmLabel="確定刪除這一則？"
+        error={error}
+      />
     </div>
   );
 }

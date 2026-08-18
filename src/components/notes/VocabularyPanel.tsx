@@ -5,7 +5,7 @@ import { VocabularyEntry } from "@/lib/vocabularyStats";
 
 const styles = {
   card: "flex cursor-pointer flex-col gap-2 rounded-lg border bg-white p-4 hover:border-gray-400",
-  head: "flex items-baseline justify-between gap-2",
+  head: "flex items-center justify-between gap-2",
   // 單字是這張卡的主角，大一級才看得出主從
   headWord: "min-w-0 truncate text-base font-semibold md:text-lg",
   pronunciation: "-mt-1 text-xs text-gray-400",
@@ -17,11 +17,10 @@ const styles = {
   sentence: "text-xs leading-relaxed text-gray-700",
   sentenceTranslation: "text-xs leading-relaxed text-gray-400",
   // 封面靠右下角，淡淡一排就好：它是註腳，不是這張卡的主角
-  covers: "mt-auto flex items-end justify-end gap-1 pt-1 opacity-60",
+  covers: "flex shrink-0 items-center gap-1 opacity-60",
   cover: "aspect-2/3 w-4 rounded-[2px] object-cover shadow-sm ring-1 ring-black/10",
   blank:
     "flex aspect-2/3 w-4 items-center justify-center rounded-[2px] bg-gray-100 text-[7px] leading-none text-gray-400",
-  more: "self-center text-[10px] text-gray-400 tabular-nums",
   empty: "py-6 text-center text-xs text-gray-400",
 };
 
@@ -49,10 +48,31 @@ export function VocabularyPanel({ entries, onEdit }: VocabularyPanelProps) {
           <div key={entry.word} className={styles.card} onClick={() => onEdit(entry)}>
             <div className={styles.head}>
               <span className={styles.headWord}>{entry.word}</span>
-              {/* 只遇過一次的不標次數，那是常態，標了只是雜訊 */}
-              {entry.encounters.length > 1 && (
-                <span className={styles.count}>{entry.encounters.length} 次</span>
-              )}
+
+              {/* 讀到它的書跟著標題同一列靠右：它是註腳，不該自己佔一行 */}
+              <div className={styles.covers}>
+                {entry.encounters.slice(0, 5).map((encounter, i) =>
+                  encounter.bookCover ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      key={i}
+                      src={encounter.bookCover}
+                      alt=""
+                      loading="lazy"
+                      title={encounter.bookTitle}
+                      className={styles.cover}
+                    />
+                  ) : (
+                    <div key={i} className={styles.blank} title={encounter.bookTitle}>
+                      {encounter.bookTitle.slice(0, 1)}
+                    </div>
+                  ),
+                )}
+                {/* 只遇過一次的不標次數，那是常態，標了只是雜訊 */}
+                {entry.encounters.length > 1 && (
+                  <span className={styles.count}>{entry.encounters.length} 次</span>
+                )}
+              </div>
             </div>
 
             {pronunciation && <p className={styles.pronunciation}>{pronunciation}</p>}
@@ -71,30 +91,6 @@ export function VocabularyPanel({ entries, onEdit }: VocabularyPanelProps) {
                   )}
                 </div>
               ))}
-            </div>
-
-            {/* 讀到它的書只用封面表示，超過五本就用 +n 收掉 */}
-            <div className={styles.covers}>
-              {entry.encounters.slice(0, 5).map((encounter, i) =>
-                encounter.bookCover ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    key={i}
-                    src={encounter.bookCover}
-                    alt=""
-                    loading="lazy"
-                    title={encounter.bookTitle}
-                    className={styles.cover}
-                  />
-                ) : (
-                  <div key={i} className={styles.blank} title={encounter.bookTitle}>
-                    {encounter.bookTitle.slice(0, 1)}
-                  </div>
-                ),
-              )}
-              {entry.encounters.length > 5 && (
-                <span className={styles.more}>+{entry.encounters.length - 5}</span>
-              )}
             </div>
           </div>
         );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FormActions } from "@/components/ui/FormActions";
 import { useCategories } from "@/lib/useCategories";
 import { VocabularyEncounter, VocabularyEntry } from "@/lib/vocabularyStats";
 import { VocabularyRow } from "@/types/record";
@@ -190,16 +191,7 @@ export function VocabularyForm({ entry, onSave, onDone }: VocabularyFormProps) {
         );
       })}
 
-      {error && <p className={styles.error}>{error}</p>}
-
-      <div className={styles.actions}>
-        <button type="button" onClick={handleSave} disabled={saving} className={styles.save}>
-          {saving ? "儲存中…" : "儲存"}
-        </button>
-        <button type="button" onClick={onDone} className={styles.cancel}>
-          取消
-        </button>
-      </div>
+      <FormActions onSave={handleSave} saving={saving} onCancel={onDone} error={error} />
     </div>
   );
 }

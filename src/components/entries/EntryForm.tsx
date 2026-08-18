@@ -6,6 +6,7 @@ import { CalendarCheck, Link as LinkIcon, NotebookPen, Shapes, Tag } from "lucid
 import { CategorySelect } from "@/components/books/CategorySelect";
 import { compactLines } from "@/components/books/LineListInput";
 import { Field } from "@/components/ui/Field";
+import { FormActions } from "@/components/ui/FormActions";
 import { OptionSelect } from "@/components/ui/OptionSelect";
 import { PrivateToggle } from "@/components/ui/PrivateToggle";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
@@ -116,7 +117,6 @@ export function EntryForm({ entry }: { entry?: Entry }) {
   const [newId] = useState(() => crypto.randomUUID());
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const [confirmDelete, setConfirmDelete] = useState(false);
   const [fetchingStats, setFetchingStats] = useState(false);
   const [statsNote, setStatsNote] = useState("");
   const { latestByEntry, mutate: mutateMetrics } = useMetrics();
@@ -315,7 +315,6 @@ export function EntryForm({ entry }: { entry?: Entry }) {
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "刪除失敗");
       setSubmitting(false);
-      setConfirmDelete(false);
     }
   }
 
@@ -423,49 +422,14 @@ export function EntryForm({ entry }: { entry?: Entry }) {
         </TabPanel>
       </div>
 
-      {submitError && <p className="shrink-0 text-xs text-red-600">{submitError}</p>}
-
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
-        >
-          {submitting ? "儲存中…" : isEdit ? "儲存變更" : "新增書寫"}
-        </button>
-
-        {/* 刪除只出現在編輯頁，按一次先要求確認，避免誤刪 */}
-        {isEdit &&
-          (confirmDelete ? (
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-gray-500">確定刪除這一筆？</span>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={submitting}
-                className="rounded bg-red-600 px-3 py-1.5 font-medium text-white hover:bg-red-700 disabled:opacity-50"
-              >
-                刪除
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirmDelete(false)}
-                className="rounded border px-3 py-1.5 text-gray-600 hover:bg-gray-50"
-              >
-                取消
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setConfirmDelete(true)}
-              disabled={submitting}
-              className="text-xs text-red-600 hover:underline disabled:opacity-50"
-            >
-              刪除這一筆
-            </button>
-          ))}
-      </div>
+      <FormActions
+        saving={submitting}
+        saveLabel={isEdit ? "儲存變更" : "新增書寫"}
+        onDelete={isEdit ? handleDelete : undefined}
+        deleteLabel="刪除這一筆"
+        confirmLabel="確定刪除這一筆？"
+        error={submitError}
+      />
     </form>
   );
 }

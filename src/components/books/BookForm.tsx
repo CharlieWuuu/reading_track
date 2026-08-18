@@ -15,6 +15,7 @@ import {
   Tag,
   Type,
 } from "lucide-react";
+import { FormActions } from "@/components/ui/FormActions";
 import { OptionSelect } from "@/components/ui/OptionSelect";
 import { fullerTitle } from "@/lib/metadata";
 import { useBooks } from "@/lib/useBooks";
@@ -145,7 +146,6 @@ export function BookForm({
   const [form, setForm] = useState<FormState>(toForm(book ?? initial ?? {}));
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const [confirmDelete, setConfirmDelete] = useState(false);
   const [refetching, setRefetching] = useState(false);
   const [refetchNote, setRefetchNote] = useState("");
   // 關鍵字的學科、座標、摘要存在主檔裡，就地開視窗改，不用跑去關鍵字頁
@@ -312,7 +312,6 @@ export function BookForm({
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "刪除失敗");
       setSubmitting(false);
-      setConfirmDelete(false);
     }
   }
 
@@ -510,51 +509,14 @@ export function BookForm({
         </TabPanel>
       </div>
 
-      {submitError && <p className="shrink-0 text-xs text-red-600">{submitError}</p>}
-
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <button
-            type="submit"
-            disabled={submitting}
-            className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
-          >
-            {submitting ? "儲存中…" : isEdit ? "儲存變更" : "新增書籍"}
-          </button>
-        </div>
-
-        {/* 刪除只出現在編輯頁，按一次先要求確認，避免誤刪 */}
-        {isEdit &&
-          (confirmDelete ? (
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-gray-500">確定刪除這本書？</span>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={submitting}
-                className="rounded bg-red-600 px-3 py-1.5 font-medium text-white hover:bg-red-700 disabled:opacity-50"
-              >
-                刪除
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirmDelete(false)}
-                className="rounded border px-3 py-1.5 text-gray-600 hover:bg-gray-50"
-              >
-                取消
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setConfirmDelete(true)}
-              disabled={submitting}
-              className="text-xs text-red-600 hover:underline disabled:opacity-50"
-            >
-              刪除這本書
-            </button>
-          ))}
-      </div>
+      <FormActions
+        saving={submitting}
+        saveLabel={isEdit ? "儲存變更" : "新增書籍"}
+        onDelete={isEdit ? handleDelete : undefined}
+        deleteLabel="刪除這本書"
+        confirmLabel="確定刪除這本書？"
+        error={submitError}
+      />
 
       {editingKeyword && (
         <KeywordEditDialog
