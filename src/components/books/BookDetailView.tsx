@@ -58,10 +58,15 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-/** 短欄位排成兩欄的資訊表，每列之間一條淺色分隔線，讀起來像一份目錄 */
+/**
+ * 短欄位排成兩欄的資訊表，每列之間一條淺色分隔線，讀起來像一份目錄。
+ *
+ * 手機摺成一欄時兩組會上下接起來，接縫那一條要自己補——分隔線畫在各組內部，
+ * 組跟組之間本來就沒有。桌機是並排的兩欄，補了反而多一條橫線。
+ */
 function Fields({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-1 gap-x-10 sm:grid-cols-2 [&>div]:divide-y [&>div]:divide-gray-100">
+    <div className="grid grid-cols-1 gap-x-10 divide-y divide-gray-100 sm:grid-cols-2 sm:divide-y-0 [&>div]:divide-y [&>div]:divide-gray-100">
       {children}
     </div>
   );
