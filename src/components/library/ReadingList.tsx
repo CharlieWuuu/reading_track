@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PageMessage } from "@/components/layout/PageMessage";
-import { TagList } from "@/components/ui/TagBadge";
+import { TagList as OptionList, TagList } from "@/components/ui/TagBadge";
+import { BookViewMode } from "@/store/useBookViewStore";
 import { Article } from "@/types/article";
 import { splitLines, splitTags } from "@/types/book";
 
@@ -20,35 +22,138 @@ const styles = {
   tags: "min-w-0 overflow-hidden",
 };
 
-/** 文章清單。書籍有自己的表格與書封兩種檢視，不共用這個 */
-export function ReadingList({ articles }: { articles: Article[] }) {
+function articleTags(a: Article) {
+  // 屬性是多值、關鍵字是一行一筆，兩種都當標籤秀
+  return [...splitTags(a.type), ...splitLines(a.keywords)];
+}
+
+/** 手機版與卡片檢視共用的一列：文章沒有封面，一列就是標題加一行資訊 */
+function CompactRow({ article }: { article: Article }) {
+  const tags = articleTags(article);
+  return (
+    <Link href={`/articles/${article.id}/edit`} className={styles.row}>
+      <div className={styles.body}>
+        <p className={styles.title}>{article.title}</p>
+        <div className={styles.meta}>
+          <span className={styles.text}>
+            {[article.endDate || "未完讀", article.platform, article.author]
+              .filter(Boolean)
+              .join(" · ")}
+          </span>
+          {tags.length > 0 && (
+            <div className={styles.tags}>
+              <TagList values={tags} tone="article" wrap={false} />
+            </div>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+/** 卡片牆：一次看很多篇，標題吃兩行，其餘壓成一行小字 */
+function ArticleCards({ articles }: { articles: Article[] }) {
+  return (
+    <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      {articles.map((a) => (
+        <li key={a.id}>
+          <Link
+            href={`/articles/${a.id}/edit`}
+            className="flex h-full flex-col gap-2 rounded-lg border bg-white p-3 transition hover:shadow"
+          >
+            <p className="line-clamp-2 text-sm leading-snug font-medium">{a.title}</p>
+            <p className="truncate text-xs text-gray-500">
+              {[a.endDate || "未完讀", a.platform, a.author].filter(Boolean).join(" · ")}
+            </p>
+            {articleTags(a).length > 0 && (
+              <div className="mt-auto min-w-0 overflow-hidden">
+                <TagList values={articleTags(a)} tone="article" wrap={false} />
+              </div>
+            )}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** 桌機表格：欄位對齊才看得出「這陣子都讀哪類的東西」 */
+function ArticleTable({ articles }: { articles: Article[] }) {
+  const router = useRouter();
+  return (
+    <div className="hidden min-h-0 w-full flex-1 overflow-y-auto rounded-lg border bg-white md:block">
+      <table className="w-full table-fixed text-sm">
+        <thead className="sticky top-0 z-10 bg-gray-100 text-left [&_th]:shadow-[inset_0_-1px_0_#111827]">
+          <tr>
+            <th className="w-[34%] px-3 py-2 whitespace-nowrap">標題</th>
+            <th className="w-[14%] px-3 py-2 whitespace-nowrap">作者</th>
+            <th className="w-[12%] px-3 py-2 whitespace-nowrap">來源</th>
+            <th className="w-[12%] px-3 py-2 whitespace-nowrap">完成日期</th>
+            <th className="hidden w-[12%] px-3 py-2 whitespace-nowrap lg:table-cell">領域</th>
+            <th className="hidden w-[10%] px-3 py-2 whitespace-nowrap xl:table-cell">屬性</th>
+            <th className="hidden w-[6%] px-3 py-2 whitespace-nowrap 2xl:table-cell">語言</th>
+          </tr>
+        </thead>
+        <tbody>
+          {articles.map((a) => (
+            <tr
+              key={a.id}
+              onClick={() => router.push(`/articles/${a.id}/edit`)}
+              className="cursor-pointer border-t hover:bg-gray-50"
+            >
+              <td className="max-w-0 overflow-hidden px-3 py-2">
+                <span className="block overflow-hidden font-medium text-ellipsis whitespace-nowrap">
+                  {a.title}
+                </span>
+              </td>
+              <td className="max-w-0 overflow-hidden px-3 py-2">
+                <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
+                  {a.author}
+                </span>
+              </td>
+              <td className="max-w-0 overflow-hidden px-3 py-2">
+                <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
+                  {a.platform}
+                </span>
+              </td>
+              <td className="px-3 py-2 whitespace-nowrap tabular-nums">{a.endDate || "—"}</td>
+              {/* max-w-0 + overflow-hidden：table-fixed 下標籤太寬會擠進隔壁欄，寧可切掉 */}
+              <td className="hidden max-w-0 overflow-hidden px-3 py-2 lg:table-cell">
+                <OptionList values={[a.domain]} tone="domain" wrap={false} />
+              </td>
+              <td className="hidden max-w-0 overflow-hidden px-3 py-2 xl:table-cell">
+                <OptionList values={[a.type]} tone="type" wrap={false} />
+              </td>
+              <td className="hidden max-w-0 overflow-hidden px-3 py-2 2xl:table-cell">
+                <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
+                  {a.language}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** 文章清單。跟書籍一樣有表格與卡片兩種檢視，只是沒有封面可以看 */
+export function ReadingList({ articles, view }: { articles: Article[]; view: BookViewMode }) {
   if (articles.length === 0) {
     return <PageMessage>還沒有記下任何文章</PageMessage>;
   }
 
+  if (view === "card") return <ArticleCards articles={articles} />;
+
   return (
-    <div className={styles.list}>
-      {articles.map((a) => {
-        // 屬性是多值、關鍵字是一行一筆，兩種都當標籤秀
-        const tags = [...splitTags(a.type), ...splitLines(a.keywords)];
-        return (
-          <Link key={a.id} href={`/articles/${a.id}/edit`} className={styles.row}>
-            <div className={styles.body}>
-              <p className={styles.title}>{a.title}</p>
-              <div className={styles.meta}>
-                <span className={styles.text}>
-                  {[a.endDate || "未完讀", a.platform, a.author].filter(Boolean).join(" · ")}
-                </span>
-                {tags.length > 0 && (
-                  <div className={styles.tags}>
-                    <TagList values={tags} tone="article" wrap={false} />
-                  </div>
-                )}
-              </div>
-            </div>
-          </Link>
-        );
-      })}
+    <div className="flex min-h-0 flex-1 flex-col">
+      {/* 手機版：欄位太多的表格在小螢幕上不好讀，改回一列一篇 */}
+      <div className={`${styles.list} md:hidden`}>
+        {articles.map((a) => (
+          <CompactRow key={a.id} article={a} />
+        ))}
+      </div>
+      <ArticleTable articles={articles} />
     </div>
   );
 }

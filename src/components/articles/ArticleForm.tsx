@@ -2,15 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import {
-  CalendarCheck,
-  Languages,
-  Link as LinkIcon,
-  NotebookPen,
-  Store,
-  Tag,
-  Type,
-} from "lucide-react";
+import { CalendarCheck, Languages, Link as LinkIcon, NotebookPen, Store, Tag } from "lucide-react";
+import { useArticleFormTab } from "@/components/articles/ArticleFormTabs";
 import { CategorySelect } from "@/components/books/CategorySelect";
 import { compactLines, LineListInput } from "@/components/books/LineListInput";
 import { Field } from "@/components/ui/Field";
@@ -34,23 +27,31 @@ const emptyForm = {
   subDomain: "",
   type: "",
   language: "",
-  wordCount: "",
   note: "",
   keywords: "",
 };
 
 type FormState = typeof emptyForm;
 
-function toForm(article: Partial<Article>): FormState {
+/** 本地時區的今天；用 toISOString 會在台灣的早上八點前拿到昨天 */
+function today() {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  return new Date(now.getTime() - offset).toISOString().slice(0, 10);
+}
+
+function toForm(article: Partial<Article>, isEdit: boolean): FormState {
   return {
     ...emptyForm,
+    // 新增時預設今天：文章多半是剛讀完才記下來的
+    endDate: isEdit ? "" : today(),
     ...Object.fromEntries(Object.entries(article).filter(([, v]) => v !== undefined && v !== null)),
-    endDate: article.endDate ?? "",
+    ...(article.endDate ? { endDate: article.endDate } : {}),
   } as FormState;
 }
 
 /**
- * 文章比書單純很多，所以不切分頁：一頁就看得完。
+ * 跟書籍一樣分「文章」與「標記」兩頁：欄位性質不同，混在一頁要一直上下找。
  * 佳句與單字目前只掛在書上，等文章真的記到需要它們再說。
  */
 export function ArticleForm({ article }: { article?: Article }) {
@@ -64,7 +65,8 @@ export function ArticleForm({ article }: { article?: Article }) {
     (a, b) => a.localeCompare(b, "zh-Hant"),
   );
 
-  const [form, setForm] = useState<FormState>(toForm(article ?? {}));
+  const { tab } = useArticleFormTab();
+  const [form, setForm] = useState<FormState>(toForm(article ?? {}, isEdit));
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -199,7 +201,9 @@ export function ArticleForm({ article }: { article?: Article }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 md:h-full md:min-h-0">
       <div className="flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
-        <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3">
+        <div
+          className={`grid min-h-0 shrink-0 grid-cols-2 content-start gap-3 ${tab === "article" ? "" : "hidden"}`}
+        >
           <div className="col-span-2">
             <Field label="標題" value={form.title} onChange={(v) => set("title", v)} />
           </div>
@@ -250,23 +254,19 @@ export function ArticleForm({ article }: { article?: Article }) {
             value={form.endDate}
             onChange={(v) => set("endDate", v)}
           />
-          <div className="grid grid-cols-2 gap-3">
-            <Field
-              label="字數"
-              Icon={Type}
-              value={form.wordCount}
-              onChange={(v) => set("wordCount", v)}
-            />
-            <CategorySelect
-              label="語言"
-              Icon={Languages}
-              categoryKey="language"
-              value={form.language}
-              onChange={(v) => set("language", v)}
-            />
-          </div>
+          <CategorySelect
+            label="語言"
+            Icon={Languages}
+            categoryKey="language"
+            value={form.language}
+            onChange={(v) => set("language", v)}
+          />
+        </div>
 
-          {/* 領域／次領域／屬性跟書共用「選項」分頁，兩邊的分類才對得起來 */}
+        {/* 標記頁：領域／次領域／屬性跟書共用「選項」分頁，兩邊的分類才對得起來 */}
+        <div
+          className={`grid min-h-0 shrink-0 grid-cols-2 content-start gap-3 ${tab === "tags" ? "" : "hidden"}`}
+        >
           <CategorySelect
             label="領域"
             categoryKey="articleDomain"
@@ -290,8 +290,10 @@ export function ArticleForm({ article }: { article?: Article }) {
           </div>
         </div>
 
-        <div className="flex min-h-0 flex-col gap-3 sm:flex-row md:flex-1">
-          <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
+        <div className="flex min-h-0 flex-col gap-3 md:flex-1">
+          <div
+            className={`flex min-h-0 w-full min-w-0 flex-col gap-1 md:flex-1 ${tab === "article" ? "" : "hidden"}`}
+          >
             <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
               <NotebookPen size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
               心得
@@ -303,7 +305,9 @@ export function ArticleForm({ article }: { article?: Article }) {
             />
           </div>
 
-          <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
+          <div
+            className={`flex min-h-0 w-full min-w-0 flex-col gap-1 md:flex-1 ${tab === "tags" ? "" : "hidden"}`}
+          >
             <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
               <Tag size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
               關鍵字

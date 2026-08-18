@@ -11,6 +11,7 @@ import { ActionButton, TabBar } from "@/components/ui/Controls";
 import { useArticles } from "@/lib/useArticles";
 import { useMounted } from "@/lib/useMounted";
 import { useUrlParams } from "@/lib/useUrlParam";
+import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
 
 /**
  * 書與文章同一個 tab。
@@ -31,6 +32,10 @@ function Library() {
   // 預設書籍：書仍然是這一頁的主角，文章是切過去才看的
   const tab: Tab = searchParams.get("type") === "article" ? "article" : "book";
   const { articles, isLoading, error } = useArticles();
+  // 檢視方式跟書籍共用一組狀態：切分頁時看到的排列方式不會突然變
+  const { view: savedView } = useBookViewStore();
+  const urlView = searchParams.get("view");
+  const view = isBookViewMode(urlView) ? urlView : savedView;
 
   const action = (
     <div className="flex min-w-0 items-center gap-2">
@@ -40,7 +45,7 @@ function Library() {
         // 換分頁時把書籍檢視的參數清掉，免得帶到文章那邊變成殘留
         onChange={(next) => setParams({ type: next === "book" ? null : next, view: null })}
       />
-      {tab === "book" && <BookViewToggle />}
+      <BookViewToggle cardLabel={tab === "book" ? "書封" : "卡片"} />
       <ActionButton href={tab === "book" ? "/books/new" : "/articles/new"}>
         {tab === "book" ? "新增書籍" : "新增文章"}
       </ActionButton>
@@ -61,7 +66,7 @@ function Library() {
         ) : error ? (
           <PageMessage tone="error">{error}</PageMessage>
         ) : (
-          <ReadingList articles={articles} />
+          <ReadingList articles={articles} view={view} />
         )}
       </PageBody>
     </>

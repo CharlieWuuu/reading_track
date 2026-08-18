@@ -189,16 +189,14 @@ export const ARTICLE_TABLE: TableSpec<ArticleField> = {
     "subDomain",
     "type",
     "language",
-    "wordCount",
     "note",
     "keywords",
   ],
   idField: "id",
   legacy: [],
-  labels: { ...COMMON_LABELS, wordCount: BOOK_ONLY_LABELS.wordCount, endDate: "閱讀日期" },
+  labels: { ...COMMON_LABELS, endDate: "閱讀日期" },
   aliases: {
     ...COMMON_ALIASES,
-    wordCount: BOOK_ONLY_ALIASES.wordCount,
     endDate: [...COMMON_ALIASES.endDate, "閱讀日期", "日期"],
   },
 };

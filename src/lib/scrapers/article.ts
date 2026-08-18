@@ -9,7 +9,7 @@ import { Article } from "@/types/article";
  * 或 JSON-LD，那是標準化的 meta 標籤，一支通用解析器就吃得下大部分站台，
  * 也不必替每個站台各寫一份、跟著它們改版壞掉。
  */
-export type ScrapedArticle = Partial<Pick<Article, "title" | "author" | "platform" | "wordCount">>;
+export type ScrapedArticle = Partial<Pick<Article, "title" | "author" | "platform">>;
 
 function meta($: CheerioAPI, names: string[]): string {
   for (const name of names) {
@@ -105,17 +105,9 @@ export async function scrapeArticleUrl(url: string): Promise<ScrapedArticle> {
   const publisher = nameOf(pick("publisher"));
   const platform = meta($, ["og:site_name"]) || publisher || hostname(url);
 
-  // 只有站台自己報字數才填；自己數頁面文字會把導覽列和留言一起數進去
-  const rawWordCount = pick("wordCount");
-  const wordCount =
-    typeof rawWordCount === "number" || typeof rawWordCount === "string"
-      ? String(rawWordCount).replace(/[^\d]/g, "")
-      : "";
-
   return {
     title: stripSiteSuffix(title, platform),
     author: isName(author) ? author : "",
     platform,
-    wordCount,
   };
 }

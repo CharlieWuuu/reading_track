@@ -13,7 +13,7 @@ const styles = {
   item: "flex w-full min-w-0 cursor-pointer items-baseline gap-2 px-3 py-2 text-left hover:bg-gray-50",
   word: "min-w-0 shrink-0 truncate text-sm text-gray-700",
   translation: "min-w-0 flex-1 truncate text-xs text-gray-400",
-  add: "flex shrink-0 items-center justify-center gap-1 self-start rounded border border-dashed px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50",
+  add: "flex w-full shrink-0 items-center justify-center gap-1 rounded border border-dashed px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50",
   form: "flex flex-col gap-3",
   pair: "grid grid-cols-1 gap-3 sm:grid-cols-2",
   field: "flex flex-col gap-1",

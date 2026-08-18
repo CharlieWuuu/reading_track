@@ -44,7 +44,7 @@ function LargeCover({ url, title }: { url: string; title: string }) {
         src={url}
         alt=""
         loading="lazy"
-        className="aspect-2/3 w-full rounded object-cover shadow ring-1 ring-black/10 transition group-hover:shadow-md"
+        className="aspect-2/3 w-full rounded object-cover shadow transition group-hover:shadow-md"
       />
     );
   }
@@ -186,8 +186,8 @@ export function BookTable() {
   if (view === "card") {
     return (
       <div>
-        {/* 書封牆：一次看到很多本、也看得清楚封面，只留書名與完讀日期 */}
-        <div className="rounded-lg border bg-white p-3">
+        {/* 書封牆：一次看到很多本、也看得清楚封面，不加外框讓封面自己說話 */}
+        <div>
           <ul className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] md:grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))]">
             {books.map((b, i) => (
               <li

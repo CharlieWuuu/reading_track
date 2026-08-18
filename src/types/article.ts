@@ -19,7 +19,6 @@ export interface Article {
   subDomain: string;
   type: string;
   language: string;
-  wordCount: string;
   note: string;
   keywords: string;
 }

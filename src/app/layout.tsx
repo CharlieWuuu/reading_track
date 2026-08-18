@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Noto_Serif_TC } from "next/font/google";
 import "./globals.css";
 import { COMMIT_HOOK_INSTALLER } from "react-component-overlay";
 import { SessionProvider } from "@/components/auth/SessionProvider";
@@ -8,9 +8,11 @@ import { ServiceWorkerRegistrar } from "@/components/layout/ServiceWorkerRegistr
 import { SWRProvider } from "@/components/layout/SWRProvider";
 import { DebugSetup } from "./DebugSetup";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// 全站用明體：Noto Serif TC 帶正體中文字面，latin 由同一家族的西文補上
+const notoSerif = Noto_Serif_TC({
+  variable: "--font-noto-serif",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -53,7 +55,7 @@ export default function RootLayout({
   return (
     <html
       lang="zh-Hant"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${notoSerif.variable} ${geistMono.variable} h-full antialiased`}
     >
       {/* render 計數的掛鉤要早於所有 bundle，所以直接寫在 head */}
       <head>

@@ -14,7 +14,7 @@ const styles = {
   mark: "mt-0.5 shrink-0 rotate-180 text-gray-300",
   // 一列一行：清單只負責讓人找到那一句，內容進彈窗才看得完整
   itemText: "min-w-0 flex-1 truncate text-sm text-gray-700",
-  add: "flex shrink-0 items-center justify-center gap-1 self-start rounded border border-dashed px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50",
+  add: "flex w-full shrink-0 items-center justify-center gap-1 rounded border border-dashed px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50",
   form: "flex flex-col gap-3",
   field: "flex flex-col gap-1",
   label: "text-xs font-medium text-gray-500",
