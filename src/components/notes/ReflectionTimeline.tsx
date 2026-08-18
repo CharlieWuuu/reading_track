@@ -16,12 +16,14 @@ const styles = {
   weekLine: "h-px flex-1 bg-gray-200",
   // 線往內縮一點、文字也靠近一點，圓點才不會孤零零掉在最左邊
   items: "ml-2 flex w-full min-w-0 flex-col border-l border-gray-200 pl-3",
-  item: "relative flex w-full min-w-0 flex-col gap-1 py-2 text-left",
+  // 封面靠左、內容靠右；沒有封面的就只有右邊那欄
+  item: "relative flex w-full min-w-0 items-start gap-3 py-2 text-left",
+  body: "flex min-w-0 flex-1 flex-col gap-1",
   // 圓點要壓在線上：pl-3（12px）＋ 邊框 0.5px ＋ 自己的半徑 3.5px
   dot: "absolute -left-[16px] top-3.5 size-[7px] rounded-full ring-2 ring-white",
   head: "flex w-full min-w-0 items-baseline gap-2",
-  source: "mt-0.5 flex items-center gap-1.5 text-[11px] text-gray-400",
-  cover: "h-6 w-4 shrink-0 rounded-[2px] object-cover ring-1 ring-black/10",
+  source: "mt-0.5 text-[11px] text-gray-400",
+  cover: "h-11 w-[30px] shrink-0 rounded-sm object-cover shadow-sm ring-1 ring-black/10",
   kind: "shrink-0 rounded px-1.5 py-0.5 text-[11px]",
   title: "min-w-0 flex-1 truncate text-sm font-medium",
   date: "shrink-0 text-[11px] text-gray-400 tabular-nums",
@@ -91,78 +93,81 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
             {week.items.map((r) => {
               const id = `${r.source}-${r.id}`;
               const open = openIds.has(id);
+              const cover = r.sourceId ? coverById.get(r.sourceId) : undefined;
               return (
                 <div key={id}>
                   {/* 整列可點＝展開；要去原本的地方是右下角那個連結，兩件事分開 */}
                   <button type="button" onClick={() => toggle(id)} className={styles.item}>
                     <span className={`${styles.dot} ${DOT_TONES[r.source]}`} />
 
-                    <span className={styles.head}>
-                      <span className={`${styles.kind} ${SOURCE_TONES[r.source]}`}>
-                        {r.kind || r.source}
-                      </span>
-                      <span className={styles.title}>{r.title}</span>
-                      <span className={styles.date}>{dayLabel(r.date)}</span>
-                    </span>
-
-                    {/* 延伸自：摺著也看得到，那是「這則在講哪本書」的關鍵資訊 */}
-                    {r.sourceTitle && (
-                      <span className={styles.source}>
-                        {r.sourceId && coverById.get(r.sourceId) ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={coverById.get(r.sourceId)} alt="" className={styles.cover} />
-                        ) : null}
-                        {r.sourceTitle}
-                      </span>
+                    {/* 讀書心得左邊放封面，一眼看得出是哪一本 */}
+                    {cover && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={cover} alt="" className={styles.cover} />
                     )}
 
-                    {open ? (
-                      <span className={styles.note}>{r.note}</span>
-                    ) : (
-                      <span className={styles.peek}>{firstLine(r.note)}</span>
-                    )}
+                    <span className={styles.body}>
+                      <span className={styles.head}>
+                        <span className={`${styles.kind} ${SOURCE_TONES[r.source]}`}>
+                          {r.kind || r.source}
+                        </span>
+                        <span className={styles.title}>{r.title}</span>
+                        <span className={styles.date}>{dayLabel(r.date)}</span>
+                      </span>
 
-                    {open && (
-                      <span className={styles.tags}>
-                        {(() => {
-                          const metric = latestByEntry.get(r.id);
-                          if (!metric) return null;
-                          return (
-                            <span className={styles.origin}>
-                              {metric.views} 次瀏覽
-                              {metric.reads && `・${metric.reads} 次閱讀`}（{metric.date}）
+                      {open ? (
+                        <span className={styles.note}>{r.note}</span>
+                      ) : (
+                        <span className={styles.peek}>{firstLine(r.note)}</span>
+                      )}
+
+                      {/* 標題已經是書名時就不重複講一次；封面本身也說明了是哪一本 */}
+                      {r.sourceTitle && r.sourceTitle !== r.title && !cover && (
+                        <span className={styles.source}>延伸自 {r.sourceTitle}</span>
+                      )}
+
+                      {open && (
+                        <span className={styles.tags}>
+                          {(() => {
+                            const metric = latestByEntry.get(r.id);
+                            if (!metric) return null;
+                            return (
+                              <span className={styles.origin}>
+                                {metric.views} 次瀏覽
+                                {metric.reads && `・${metric.reads} 次閱讀`}（{metric.date}）
+                              </span>
+                            );
+                          })()}
+                          {r.origin?.trim() &&
+                            (isUrl(r.origin) ? (
+                              <a
+                                href={r.origin}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className={styles.originLink}
+                              >
+                                來源
+                              </a>
+                            ) : (
+                              <span className={styles.origin}>來源：{r.origin}</span>
+                            ))}
+                          {r.keywords.map((name) => (
+                            <span key={name} className={styles.tag}>
+                              {name}
                             </span>
-                          );
-                        })()}
-                        {r.origin?.trim() &&
-                          (isUrl(r.origin) ? (
-                            <a
-                              href={r.origin}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className={styles.originLink}
-                            >
-                              來源
-                            </a>
-                          ) : (
-                            <span className={styles.origin}>來源：{r.origin}</span>
                           ))}
-                        {r.keywords.map((name) => (
-                          <span key={name} className={styles.tag}>
-                            {name}
-                          </span>
-                        ))}
-                        <Link
-                          href={r.href}
-                          onClick={(e) => e.stopPropagation()}
-                          className={styles.origin2}
-                        >
-                          {r.source}
-                          <ExternalLink size={12} strokeWidth={1.5} />
-                        </Link>
-                      </span>
-                    )}
+                          <Link
+                            href={r.href}
+                            onClick={(e) => e.stopPropagation()}
+                            className={styles.origin2}
+                          >
+                            {r.source}
+                            <ExternalLink size={12} strokeWidth={1.5} />
+                          </Link>
+                        </span>
+                      )}
+                    </span>
                   </button>
                 </div>
               );
