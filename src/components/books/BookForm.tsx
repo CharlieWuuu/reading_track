@@ -25,6 +25,7 @@ import { useSheetStore } from "@/store/useSheetStore";
 import { Book, inferStatus, splitLines } from "@/types/book";
 import { EMPTY_KEYWORD_INFO } from "@/types/keyword";
 import { QuoteRow, VocabularyRow } from "@/types/record";
+import { RelatedEntries } from "../entries/RelatedEntries";
 import { KeywordEditDialog } from "../keywords/KeywordEditDialog";
 import { Field } from "../ui/Field";
 import { ArticleSelect } from "./ArticleSelect";
@@ -497,16 +498,27 @@ export function BookForm({
               />
             </div>
 
-            <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
-              <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
-                <Newspaper size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-                相關文章
-                <span className="text-xs font-normal text-gray-400">一行一個 Instapaper 網址</span>
-              </label>
-              <ArticleSelect
-                value={form.relatedArticles}
-                onChange={(v) => set("relatedArticles", v)}
-              />
+            {/* 新的心得寫成紀事，一本書可以有很多則；下面那欄是舊的，之後會清掉 */}
+            <div className="flex min-h-0 w-full min-w-0 flex-col gap-3 sm:w-1/2">
+              {isEdit && book && (
+                <div className="flex min-h-0 flex-1 flex-col">
+                  <RelatedEntries sourceId={book.id} sourceTitle={form.title} />
+                </div>
+              )}
+
+              <div className="flex min-h-0 shrink-0 flex-col gap-1">
+                <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
+                  <Newspaper size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
+                  相關文章
+                  <span className="text-xs font-normal text-gray-400">
+                    一行一個 Instapaper 網址
+                  </span>
+                </label>
+                <ArticleSelect
+                  value={form.relatedArticles}
+                  onChange={(v) => set("relatedArticles", v)}
+                />
+              </div>
             </div>
           </div>
         </TabPanel>

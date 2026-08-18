@@ -9,6 +9,7 @@ import { Field } from "@/components/ui/Field";
 import { useEntries } from "@/lib/useEntries";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { useMetrics } from "@/lib/useMetrics";
+import { useUrlParams } from "@/lib/useUrlParam";
 import { useSheetStore } from "@/store/useSheetStore";
 import { splitLines } from "@/types/book";
 import { Entry } from "@/types/entry";
@@ -38,8 +39,9 @@ const emptyForm = {
 
 type FormState = typeof emptyForm;
 
-function toForm(entry?: Entry): FormState {
-  if (!entry) return { ...emptyForm, date: today() };
+/** 從書籍頁按「寫一則心得」進來時，延伸自與類型已經知道了，不用再選一次 */
+function toForm(entry: Entry | undefined, prefill: Partial<FormState>): FormState {
+  if (!entry) return { ...emptyForm, date: today(), ...prefill };
   return {
     ...emptyForm,
     ...Object.fromEntries(Object.entries(entry).filter(([, v]) => v !== undefined && v !== null)),
@@ -61,7 +63,14 @@ export function EntryForm({ entry }: { entry?: Entry }) {
     (a, b) => a.localeCompare(b, "zh-Hant"),
   );
 
-  const [form, setForm] = useState<FormState>(toForm(entry));
+  const { searchParams } = useUrlParams();
+  const [form, setForm] = useState<FormState>(() =>
+    toForm(entry, {
+      sourceId: searchParams.get("sourceId") ?? "",
+      sourceTitle: searchParams.get("sourceTitle") ?? "",
+      kind: searchParams.get("kind") ?? "",
+    }),
+  );
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);

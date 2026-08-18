@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { Suspense } from "react";
 import { EntryForm } from "@/components/entries/EntryForm";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -34,7 +35,9 @@ export default function EditEntryPage() {
       <PageHeader title="編輯紀事" backHref="/entries" />
       <PageBody>
         <div className="shrink-0 md:min-h-0 md:flex-1">
-          <EntryForm key={entry.id} entry={entry} />
+          <Suspense fallback={null}>
+            <EntryForm key={entry.id} entry={entry} />
+          </Suspense>
         </div>
       </PageBody>
     </>
