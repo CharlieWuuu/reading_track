@@ -23,6 +23,7 @@ const styles = {
   // 三種左圖佔一樣寬，右邊那欄的起點才會對齊成一直線
   avatar: "flex size-7 shrink-0 items-center justify-center",
   cover: "size-7 rounded-full object-cover shadow-sm ring-1 ring-black/10",
+  favicon: "flex size-7 items-center justify-center rounded-full bg-white ring-1 ring-black/10",
   // 沒有封面也沒有站台圖示時，用類型的第一個字當頭像
   initial: "flex size-7 items-center justify-center rounded-full text-xs font-medium",
   body: "flex min-w-0 flex-1 flex-col gap-1",
@@ -99,11 +100,14 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={cover} alt="" className={styles.cover} />
                     ) : articleUrl !== undefined ? (
-                      <Favicon
-                        url={articleUrl}
-                        fallback={r.sourceTitle || r.title}
-                        className="size-7 rounded-full"
-                      />
+                      // 站台圖示本身是方的，套一個圓底才跟書封那顆對得起來
+                      <span className={styles.favicon}>
+                        <Favicon
+                          url={articleUrl}
+                          fallback={r.sourceTitle || r.title}
+                          className="size-4"
+                        />
+                      </span>
                     ) : (
                       <span className={`${styles.initial} ${kindTone(kind)}`}>{kind[0]}</span>
                     )}
