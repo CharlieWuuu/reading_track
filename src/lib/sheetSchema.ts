@@ -212,7 +212,6 @@ export const ARTICLE_TABLE: TableSpec<ArticleField> = {
 
 export const ENTRY_TABLE: TableSpec<EntryField> = {
   title: "書寫",
-  titleAliases: ["紀事"],
   fields: ["id", "date", "title", "kind", "keywords", "note", "link", "sourceTitle", "sourceId"],
   idField: "id",
   legacy: [],
