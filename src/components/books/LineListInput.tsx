@@ -14,7 +14,8 @@ const styles = {
   input:
     "min-w-0 flex-1 bg-transparent px-3 py-2 text-sm outline-none [&::-webkit-calendar-picker-indicator]:hidden",
   remove: "shrink-0 rounded p-1.5 text-gray-400 hover:bg-gray-200 hover:text-red-600",
-  add: "flex shrink-0 self-start items-center justify-center gap-1 rounded border border-dashed px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50",
+  // 撐滿寬度：它是清單的一部分，縮在左邊反而像個孤立的按鈕
+  add: "flex w-full shrink-0 items-center justify-center gap-1 rounded border border-dashed px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50",
 };
 
 type LineListInputProps = {
@@ -94,7 +95,7 @@ export function LineListInput({
 
       <button type="button" onClick={() => commit([...lines, ""])} className={styles.add}>
         <Plus size={14} strokeWidth={1.5} />
-        新增一列
+        新增一項
       </button>
 
       {/* 用原生的 datalist：手機鍵盤上方也會出現建議，不用自己做一套浮動選單 */}
