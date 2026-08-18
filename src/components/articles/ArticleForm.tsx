@@ -2,11 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { CalendarCheck, Languages, Link as LinkIcon, NotebookPen, Store, Tag } from "lucide-react";
+import { CalendarCheck, Languages, Link as LinkIcon, Store, Tag } from "lucide-react";
 import { useArticleFormTab } from "@/components/articles/ArticleFormTabs";
 import { CategorySelect } from "@/components/books/CategorySelect";
 import { compactLines, LineListInput } from "@/components/books/LineListInput";
+import { RelatedEntries } from "@/components/entries/RelatedEntries";
 import { Field } from "@/components/ui/Field";
+import { PrivateToggle } from "@/components/ui/PrivateToggle";
 import { useArticles } from "@/lib/useArticles";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { useSheetStore } from "@/store/useSheetStore";
@@ -14,8 +16,6 @@ import { Article } from "@/types/article";
 import { splitLines } from "@/types/book";
 import { EMPTY_KEYWORD_INFO } from "@/types/keyword";
 import { KeywordEditDialog } from "../keywords/KeywordEditDialog";
-
-const TEXTAREA_CLASS = "min-h-36 w-full flex-1 resize-none rounded border px-3 py-2 text-sm";
 
 const emptyForm = {
   title: "",
@@ -27,6 +27,7 @@ const emptyForm = {
   subDomain: "",
   type: "",
   language: "",
+  private: "",
   note: "",
   keywords: "",
 };
@@ -137,6 +138,7 @@ export function ArticleForm({ article }: { article?: Article }) {
 
     const payload = {
       ...form,
+      note: article?.note ?? "",
       endDate: form.endDate || null,
       keywords: compactLines(form.keywords),
     };
@@ -280,6 +282,9 @@ export function ArticleForm({ article }: { article?: Article }) {
             onChange={(v) => set("subDomain", v)}
           />
           <div className="col-span-2">
+            <PrivateToggle value={form.private} onChange={(v) => set("private", v)} />
+          </div>
+          <div className="col-span-2">
             <CategorySelect
               label="屬性"
               categoryKey="type"
@@ -291,18 +296,17 @@ export function ArticleForm({ article }: { article?: Article }) {
         </div>
 
         <div className="flex min-h-0 flex-col gap-3 md:flex-1">
+          {/* 心得寫成書寫，跟書籍同一套：一篇文章可以有很多則，這一欄不再由 app 寫入 */}
           <div
             className={`flex min-h-0 w-full min-w-0 flex-col gap-1 md:flex-1 ${tab === "article" ? "" : "hidden"}`}
           >
-            <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
-              <NotebookPen size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-              心得
-            </label>
-            <textarea
-              value={form.note}
-              onChange={(e) => set("note", e.target.value)}
-              className={TEXTAREA_CLASS}
-            />
+            {isEdit && article ? (
+              <RelatedEntries sourceId={article.id} sourceTitle={form.title} />
+            ) : (
+              <p className="rounded border border-dashed px-3 py-2 text-xs text-gray-400">
+                存好這篇文章之後就可以寫心得了
+              </p>
+            )}
           </div>
 
           <div

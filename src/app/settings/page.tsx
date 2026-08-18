@@ -7,10 +7,10 @@ import { SignInPrompt } from "@/components/auth/SignInPrompt";
 import { EnrichButton } from "@/components/books/EnrichButton";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PrivacyButton } from "@/components/layout/PrivacyButton";
 import { CategoryManager } from "@/components/settings/CategoryManager";
 import { DataIssuesPanel } from "@/components/settings/DataIssuesPanel";
 import { ImportNotesButton } from "@/components/settings/ImportNotesButton";
-import { InstapaperConnect } from "@/components/settings/InstapaperConnect";
 import { SheetPicker } from "@/components/settings/SheetPicker";
 import { TabBar } from "@/components/ui/Controls";
 import { useSheetStore } from "@/store/useSheetStore";
@@ -86,8 +86,13 @@ export default function SettingsPage() {
             )}
           </div>
 
-          <div className="border-t pt-4">
-            <InstapaperConnect />
+          {/* 手機沒有側欄，私人項目的開關也要在設定裡找得到 */}
+          <div className="flex flex-col items-start gap-2 border-t pt-4">
+            <h3 className="text-sm font-medium">私人項目</h3>
+            <p className="text-xs text-gray-500">
+              標成私人的書籍、文章與書寫，沒解鎖時伺服器不會送到這台裝置上。關掉分頁會自動鎖回去。
+            </p>
+            <PrivacyButton />
           </div>
 
           {/* 帳號從手機頂欄搬過來：頻率低，不值得一直佔著頂欄的位子 */}

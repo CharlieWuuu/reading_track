@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { requestUnlocked, withPrivacy } from "@/lib/privacy";
 import { addEntryRow, listEntries } from "@/lib/sheets";
 import { Entry } from "@/types/entry";
 
@@ -18,7 +19,9 @@ export async function GET(req: NextRequest) {
 
   try {
     const entries = await listEntries(sheetId, session.accessToken!);
-    return NextResponse.json({ entries });
+    // 鎖著的時候私人的那幾則根本不會離開伺服器
+    const unlocked = await requestUnlocked(req, sheetId, session.accessToken!);
+    return NextResponse.json({ entries: withPrivacy(entries, unlocked) });
   } catch (err) {
     console.error("listEntries failed:", err);
     return NextResponse.json({ error: "讀取 Sheet 失敗" }, { status: 502 });

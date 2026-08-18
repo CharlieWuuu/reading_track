@@ -33,11 +33,7 @@ function EditArticle() {
 
   return (
     <>
-      <PageHeader
-        title="編輯文章"
-        backHref="/books?type=article"
-        action={<ArticleFormTabs />}
-      />
+      <PageHeader title="編輯文章" backHref="/books?type=article" action={<ArticleFormTabs />} />
       <PageBody>
         <div className="shrink-0 md:min-h-0 md:flex-1">
           <ArticleForm key={article.id} article={article} />

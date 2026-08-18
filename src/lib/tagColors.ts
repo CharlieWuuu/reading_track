@@ -63,7 +63,7 @@ export const TAG_TONES = {
   platform: "bg-[#E2ECF5] text-[#3D6E92]",
   type: "text-[#A85B41] ring-1 ring-inset ring-[#E6C3B4]",
   language: "bg-[#F7EDCF] text-[#8A6D1B]",
-  // 文章的標籤是 Instapaper 上自由打的，沒有固定選項可配色，整組同一個中性色
+  // 文章的標籤是自由打的，沒有固定選項可配色，整組同一個中性色
   article: "bg-gray-100 text-gray-500",
 } as const;
 

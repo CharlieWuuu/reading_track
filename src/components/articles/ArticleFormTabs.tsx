@@ -18,8 +18,7 @@ export function useArticleFormTab() {
   const tab: ArticleFormTab = TABS.some((t) => t.key === param)
     ? (param as ArticleFormTab)
     : "article";
-  const setTab = (next: ArticleFormTab) =>
-    setParams({ tab: next === "article" ? null : next });
+  const setTab = (next: ArticleFormTab) => setParams({ tab: next === "article" ? null : next });
   return { tab, setTab };
 }
 

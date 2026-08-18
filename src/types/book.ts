@@ -68,7 +68,9 @@ export interface Book {
   quotes: string;
   /** 書裡想記下來的東西，一行一個；刻意不分地點／人物，記的當下不該先分類 */
   keywords: string;
-  /** 相關文章，一行一個 Instapaper 網址；存網址而不是 id 才看得出是什麼 */
+  /** 「是」代表私人：鎖上的時候伺服器不會把這一列送到瀏覽器 */
+  private: string;
+  /** 相關文章，一行一個網址 */
   relatedArticles: string;
   /** @deprecated 單字搬到「單字」分頁了，這欄只留給遷移讀取，app 不再寫入 */
   vocabulary: string;

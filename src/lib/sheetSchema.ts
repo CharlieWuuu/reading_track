@@ -71,6 +71,7 @@ const COMMON_LABELS = {
   language: "語言",
   note: "筆記",
   keywords: "關鍵字",
+  private: "私人",
 } satisfies Partial<Record<BookField, string>>;
 
 type CommonField = keyof typeof COMMON_LABELS;
@@ -89,6 +90,7 @@ const COMMON_ALIASES: Record<CommonField, string[]> = {
   language: ["language", "語言", "語系"],
   note: ["note", "notes", "筆記", "備註", "心得"],
   keywords: ["keywords", "keyword", "關鍵字", "關鍵詞", "詞條"],
+  private: ["private", "私人", "隱私", "不公開"],
 };
 
 // ---------------------------------------------------------------------------
@@ -128,6 +130,7 @@ const BOOK_FIELD_ORDER: BookField[] = [
   "keywords",
   "relatedArticles",
   "vocabulary",
+  "private",
 ];
 
 type BookOnlyField = Exclude<BookField, CommonField>;
@@ -191,6 +194,7 @@ export const ARTICLE_TABLE: TableSpec<ArticleField> = {
     "language",
     "note",
     "keywords",
+    "private",
   ],
   idField: "id",
   legacy: [],
@@ -210,7 +214,18 @@ export const ARTICLE_TABLE: TableSpec<ArticleField> = {
 
 export const ENTRY_TABLE: TableSpec<EntryField> = {
   title: "書寫",
-  fields: ["id", "date", "title", "kind", "keywords", "note", "link", "sourceTitle", "sourceId"],
+  fields: [
+    "id",
+    "date",
+    "title",
+    "kind",
+    "keywords",
+    "note",
+    "link",
+    "sourceTitle",
+    "sourceId",
+    "private",
+  ],
   idField: "id",
   legacy: [],
   labels: {

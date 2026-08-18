@@ -730,3 +730,58 @@ export async function replaceBookQuotes(
       })),
   );
 }
+
+// ---------------------------------------------------------------------------
+// 設定
+//
+// 一張「鍵、值」的小表，放 app 層的設定。目前只有私人項目的密碼雜湊——
+// 存在 Sheet 上換裝置才通用，這是使用者選的（見 /api/privacy）。
+// ---------------------------------------------------------------------------
+
+const SETTINGS_SHEET_TITLE = "設定";
+const SETTINGS_HEADERS = ["設定", "值"];
+
+async function getSettingsSheet(sheetId: string, accessToken: string) {
+  const doc = new GoogleSpreadsheet(sheetId, getAuthClient(accessToken));
+  await doc.loadInfo();
+
+  let sheet = doc.sheetsByTitle[SETTINGS_SHEET_TITLE];
+  if (!sheet) {
+    sheet = await doc.addSheet({ title: SETTINGS_SHEET_TITLE, headerValues: SETTINGS_HEADERS });
+  }
+  return sheet;
+}
+
+export async function readSetting(
+  sheetId: string,
+  accessToken: string,
+  key: string,
+): Promise<string> {
+  const sheet = await getSettingsSheet(sheetId, accessToken);
+  const rows = await sheet.getRows();
+  const row = rows.find((r) => (r.get("設定") ?? "").toString().trim() === key);
+  return (row?.get("值") ?? "").toString().trim();
+}
+
+/** 值是空字串就把那一列刪掉，Sheet 上不留一列空設定 */
+export async function writeSetting(
+  sheetId: string,
+  accessToken: string,
+  key: string,
+  value: string,
+) {
+  const sheet = await getSettingsSheet(sheetId, accessToken);
+  const rows = await sheet.getRows();
+  const row = rows.find((r) => (r.get("設定") ?? "").toString().trim() === key);
+
+  if (!value) {
+    if (row) await row.delete();
+    return;
+  }
+  if (row) {
+    row.set("值", value);
+    await row.save();
+    return;
+  }
+  await sheet.addRow({ 設定: key, 值: value });
+}

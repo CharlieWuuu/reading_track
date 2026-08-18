@@ -35,6 +35,7 @@ async function collect(sheetId: string, accessToken: string) {
       link: "",
       sourceTitle: s.title,
       sourceId: s.id,
+      private: "",
     }));
 }
 

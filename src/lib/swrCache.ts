@@ -51,6 +51,8 @@ export function localStorageProvider(): Cache {
       // 只留成功抓到的資料，錯誤與載入狀態不必留到下次
       const entries: Persisted["entries"] = [];
       for (const [key, value] of map) {
+        // 解鎖狀態下抓到的資料含私人項目，不落地——不然鎖上之後翻 localStorage 還是看得到
+        if (key.includes("unlock=")) continue;
         const data = (value as { data?: unknown } | undefined)?.data;
         if (data !== undefined) entries.push([key, { data }]);
       }

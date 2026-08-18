@@ -6,6 +6,7 @@ import { CalendarCheck, Link as LinkIcon, NotebookPen, Shapes, Tag } from "lucid
 import { CategorySelect } from "@/components/books/CategorySelect";
 import { compactLines, LineListInput } from "@/components/books/LineListInput";
 import { Field } from "@/components/ui/Field";
+import { PrivateToggle } from "@/components/ui/PrivateToggle";
 import { useEntries } from "@/lib/useEntries";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { useMetrics } from "@/lib/useMetrics";
@@ -45,6 +46,7 @@ const emptyForm = {
   link: "",
   sourceTitle: "",
   sourceId: "",
+  private: "",
 };
 
 type FormState = typeof emptyForm;
@@ -80,6 +82,8 @@ export function EntryForm({ entry }: { entry?: Entry }) {
       sourceId: searchParams.get("sourceId") ?? "",
       sourceTitle: searchParams.get("sourceTitle") ?? "",
       kind: searchParams.get("kind") ?? "",
+      // 從書籍／文章那個框帶過來的草稿，不用再打一次
+      note: searchParams.get("note") ?? "",
     }),
   );
   const [submitting, setSubmitting] = useState(false);
@@ -271,6 +275,11 @@ export function EntryForm({ entry }: { entry?: Entry }) {
                 suggestions={keywordSuggestions}
                 onEditRow={setEditingKeyword}
               />
+            </div>
+
+            {/* 私人也是一種標記，跟類型、關鍵字放同一頁 */}
+            <div className="col-span-2 sm:col-span-3">
+              <PrivateToggle value={form.private} onChange={(v) => set("private", v)} />
             </div>
 
             {/* 讀了什麼之後寫的。心得就是靠這一欄指回那本書 */}

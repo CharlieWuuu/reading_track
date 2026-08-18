@@ -2,6 +2,7 @@
 
 import useSWR from "swr";
 import { readCached } from "@/lib/swrCache";
+import { usePrivacyStore } from "@/store/usePrivacyStore";
 import { useSheetStore } from "@/store/useSheetStore";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 
@@ -17,7 +18,11 @@ async function fetcher(url: string): Promise<Records> {
 /** 單字與佳句各自一張表，一起讀：它們總是一起顯示，分兩次抓只是多一趟往返 */
 export function useRecords() {
   const { sheetId } = useSheetStore();
-  const key = sheetId ? `/api/records?sheetId=${encodeURIComponent(sheetId)}` : null;
+  // 佳句、單字跟著它那本書的私人設定，所以也要帶解鎖權杖
+  const unlock = usePrivacyStore((s) => s.token);
+  const key = sheetId
+    ? `/api/records?sheetId=${encodeURIComponent(sheetId)}${unlock ? `&unlock=${unlock}` : ""}`
+    : null;
 
   const { data, error, isLoading, mutate } = useSWR(key, fetcher, {
     fallbackData: readCached<Records>(key),

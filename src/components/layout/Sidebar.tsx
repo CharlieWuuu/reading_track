@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { useSidebarStore } from "@/store/useSidebarStore";
 import { NAV_ITEMS, NavItem } from "./navItems";
+import { PrivacyButton } from "./PrivacyButton";
 import { RefreshButton } from "./RefreshButton";
 
 const styles = {
@@ -113,6 +114,7 @@ export function Sidebar() {
         >
           <CollapseButton collapsed={collapsed} onClick={toggle} />
           {showRefresh && <RefreshButton compact={collapsed} />}
+          {showRefresh && <PrivacyButton compact={collapsed} />}
         </div>
         <AuthButton compact={collapsed} />
       </div>

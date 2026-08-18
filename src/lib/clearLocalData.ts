@@ -1,7 +1,7 @@
 import { clearSWRCache } from "@/lib/swrCache";
 
 /** 登出要清的都是跟帳號綁的；reading-track-sidebar 只是收合狀態，留著 */
-const KEYS = ["reading-track-sheet", "reading-track-instapaper", "reading-track-book-view"];
+const KEYS = ["reading-track-sheet", "reading-track-book-view"];
 
 export function clearLocalData() {
   if (typeof window === "undefined") return;

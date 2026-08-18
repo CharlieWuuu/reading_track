@@ -21,4 +21,6 @@ export interface Article {
   language: string;
   note: string;
   keywords: string;
+  /** 「是」代表私人：鎖上的時候伺服器不會把這一列送到瀏覽器 */
+  private: string;
 }

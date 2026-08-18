@@ -27,4 +27,6 @@ export interface Entry {
   sourceTitle: string;
   /** 同一件事給程式看的那一份；空白代表不是從系統裡的紀錄延伸來的 */
   sourceId: string;
+  /** 「是」代表私人：鎖上的時候伺服器不會把這一列送到瀏覽器 */
+  private: string;
 }

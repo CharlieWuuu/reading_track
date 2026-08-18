@@ -27,7 +27,7 @@ import { QuoteRow, VocabularyRow } from "@/types/record";
 import { RelatedEntries } from "../entries/RelatedEntries";
 import { KeywordEditDialog } from "../keywords/KeywordEditDialog";
 import { Field } from "../ui/Field";
-import { ArticleSelect } from "./ArticleSelect";
+import { PrivateToggle } from "../ui/PrivateToggle";
 import { useBookFormTab } from "./BookFormTabs";
 import { CategorySelect } from "./CategorySelect";
 import { compactLines, LineListInput } from "./LineListInput";
@@ -35,6 +35,7 @@ import { QuoteListInput } from "./QuoteListInput";
 import { VocabularyListInput } from "./VocabularyListInput";
 
 const emptyForm = {
+  private: "",
   sourceUrl: "",
   title: "",
   author: "",
@@ -232,6 +233,7 @@ export function BookForm({
       language: form.language,
       pageCount: form.pageCount,
       wordCount: form.wordCount,
+      private: form.private,
       // 心得搬到紀事了，這一欄不再由 app 寫入，但也不主動清掉——遷移完再自己刪
       note: book?.note ?? "",
       // 舊欄位不再由 app 寫入，但也不主動清掉——遷移完再自己刪
@@ -431,6 +433,9 @@ export function BookForm({
             />
           </Section>
 
+          {/* 私人跟領域、屬性一樣是自己貼上去的標記，所以也放這一頁 */}
+          <PrivateToggle value={form.private} onChange={(v) => set("private", v)} />
+
           {/* 關鍵字也是自己貼上去的標籤，跟領域、屬性同一件事，只是值不固定 */}
           <div className="flex min-h-0 shrink-0 flex-col gap-1">
             <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
@@ -495,11 +500,12 @@ export function BookForm({
               <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
                 <Newspaper size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
                 相關文章
-                <span className="text-xs font-normal text-gray-400">一行一個 Instapaper 網址</span>
+                <span className="text-xs font-normal text-gray-400">一行一個網址</span>
               </label>
-              <ArticleSelect
+              <LineListInput
                 value={form.relatedArticles}
                 onChange={(v) => set("relatedArticles", v)}
+                placeholder="https://…"
               />
             </div>
           </div>

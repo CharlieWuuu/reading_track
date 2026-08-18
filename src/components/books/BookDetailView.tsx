@@ -9,9 +9,7 @@ import { PageMessage } from "@/components/layout/PageMessage";
 import { NoteBlock, QuoteBlock, VocabularyItem } from "@/components/notes/RecordItems";
 import { ActionButton } from "@/components/ui/Controls";
 import { TagList as OptionList, StatusBadge } from "@/components/ui/TagBadge";
-import { instapaperReadUrl } from "@/lib/instapaper/readUrl";
 import { useBooks } from "@/lib/useBooks";
-import { useInstapaperArticles } from "@/lib/useInstapaperArticles";
 import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { useSheetStore } from "@/store/useSheetStore";
@@ -136,7 +134,6 @@ export function BookDetailView() {
   const { id } = useParams<{ id: string }>();
   const { sheetId } = useSheetStore();
   const { books, isLoading, error } = useBooks();
-  const { articles } = useInstapaperArticles();
   const { quotes, vocabulary } = useRecords();
   // 從書單帶進來的檢視方式與頁碼，一路傳給編輯頁，存完才回得到同一個畫面
   const { searchParams } = useUrlParams();
@@ -157,14 +154,6 @@ export function BookDetailView() {
         </PageMessage>
       </>
     );
-  }
-
-  // 相關文章存的是網址，標題從已抓下來的 Instapaper 清單對回去；對不到就顯示網址本身
-  const articleTitles = new Map<string, string>();
-  for (const a of articles) {
-    const title = a.title || a.url;
-    if (a.url) articleTitles.set(a.url, title);
-    articleTitles.set(instapaperReadUrl(a.bookmark_id, a.url), title);
   }
 
   const keywords = splitLines(book.keywords);
@@ -264,7 +253,7 @@ export function BookDetailView() {
                       title={url}
                       className="inline-flex max-w-full items-center gap-1 text-sm text-blue-700 underline underline-offset-2 hover:text-blue-900"
                     >
-                      <span className="truncate">{articleTitles.get(url) ?? url}</span>
+                      <span className="truncate">{url}</span>
                       <ExternalLink size={12} strokeWidth={1.5} className="shrink-0" aria-hidden />
                     </a>
                   </li>

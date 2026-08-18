@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import useSWR from "swr";
 import { readCached } from "@/lib/swrCache";
+import { usePrivacyStore } from "@/store/usePrivacyStore";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Book, ReadingStatus } from "@/types/book";
 
@@ -33,7 +34,11 @@ function sortBooks(books: Book[]): Book[] {
 
 export function useBooks() {
   const { sheetId } = useSheetStore();
-  const key = sheetId ? `/api/books?sheetId=${encodeURIComponent(sheetId)}` : null;
+  // 解鎖權杖進 key：鎖上／解鎖是兩份不同的快取，鎖上時不會看到剛才的私人資料
+  const unlock = usePrivacyStore((s) => s.token);
+  const key = sheetId
+    ? `/api/books?sheetId=${encodeURIComponent(sheetId)}${unlock ? `&unlock=${unlock}` : ""}`
+    : null;
 
   // 先用上次存下來的資料把畫面畫出來，再於背景重新抓
   const { data, error, isLoading, isValidating, mutate } = useSWR(key, fetcher, {
