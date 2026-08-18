@@ -135,7 +135,10 @@ async function getTableSheet<F extends string, L extends F>(
   const doc = new GoogleSpreadsheet(sheetId, getAuthClient(accessToken));
   await doc.loadInfo();
 
-  let sheet = doc.sheetsByTitle[spec.title];
+  // 舊名字也要找一遍，不然分頁改過名就會多開一張空表
+  let sheet = [spec.title, ...(spec.titleAliases ?? [])]
+    .map((title) => doc.sheetsByTitle[title])
+    .find(Boolean);
   if (!sheet) {
     sheet = await doc.addSheet({ title: spec.title, headerValues: defaultHeaders(spec) });
   }

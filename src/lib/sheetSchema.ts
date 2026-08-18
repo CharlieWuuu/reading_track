@@ -16,8 +16,15 @@ export type MetricField = keyof Metric;
  * 「兩種紀錄合成一條時間軸」是程式的事，在讀完之後 merge，不是表的事。
  */
 export interface TableSpec<F extends string, L extends F = never> {
-  /** 分頁名稱 */
+  /** 分頁名稱。找不到時才建新的，所以改名要走 titleAliases，不能直接換掉 */
   title: string;
+  /**
+   * 也認得的舊分頁名。
+   *
+   * 分頁改名之後如果程式只認新名字，它會以為表不存在、另外開一張空的，
+   * 資料就孤在舊分頁上了——所以改名一定要把舊名留在這裡。
+   */
+  titleAliases?: string[];
   /** 全部欄位，順序就是新建分頁時的表頭順序 */
   fields: F[];
   /** 哪個欄位是主鍵。通用的讀寫要靠它認列，各表都是 UUID */
@@ -204,7 +211,8 @@ export const ARTICLE_TABLE: TableSpec<ArticleField> = {
 // ---------------------------------------------------------------------------
 
 export const ENTRY_TABLE: TableSpec<EntryField> = {
-  title: "紀事",
+  title: "書寫",
+  titleAliases: ["紀事"],
   fields: ["id", "date", "title", "kind", "keywords", "note", "link", "sourceTitle", "sourceId"],
   idField: "id",
   legacy: [],
