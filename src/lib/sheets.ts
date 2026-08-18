@@ -8,7 +8,6 @@ import { Article } from "@/types/article";
 import {
   Book,
   BookCategories,
-  DEFAULT_CATEGORIES,
   inferStatus,
   normalizePlatform,
   normalizeStatus,
@@ -436,37 +435,7 @@ async function getOptionsSheet(sheetId: string, accessToken: string) {
       headerValues: OPTIONS_HEADERS,
     });
   }
-  await backfillDefaultOptions(sheet);
   return sheet;
-}
-
-/**
- * 表上完全沒有的組別，就把它的預設選項補上去。
- *
- * 只補「一列都沒有」的組別：有任何一列就代表你維護過它，刪掉的選項不該被種回來。
- * 不這樣做的話，後來才加的組別（「類型」是第六組）永遠不會出現在既有的表上——
- * 下拉選單靠程式端兜底看起來正常，打開 Sheet 卻看不到完整清單，
- * 而這張表的重點就是人打開來要看得懂。
- */
-async function backfillDefaultOptions(sheet: GoogleSpreadsheetWorksheet) {
-  const rows = await sheet.getRows();
-  const present = new Set(
-    rows.map((row) => (row.get("類別") ?? "").toString().trim()).filter(Boolean),
-  );
-
-  const missing = (Object.keys(CATEGORY_LABELS) as (keyof BookCategories)[]).filter(
-    (key) => DEFAULT_CATEGORIES[key].length > 0 && !present.has(CATEGORY_LABELS[key]),
-  );
-  if (missing.length === 0) return;
-
-  await sheet.addRows(
-    missing.flatMap((key) =>
-      DEFAULT_CATEGORIES[key].map((option) => ({
-        類別: CATEGORY_LABELS[key],
-        選項: option,
-      })),
-    ),
-  );
 }
 
 export async function listCategories(
@@ -493,11 +462,7 @@ export async function listCategories(
     categories[key].push(option);
   }
 
-  // 舊的試算表沒有「平台」那組，整組空白時退回預設值，
-  // 否則使用者會看到一個空的下拉選單，不知道該填什麼
-  for (const key of Object.keys(categories) as (keyof BookCategories)[]) {
-    if (categories[key].length === 0) categories[key] = [...DEFAULT_CATEGORIES[key]];
-  }
+  // 沒有任何兜底：選項就是使用者自己維護的那些，加上資料上實際用過的值
   return categories;
 }
 

@@ -240,17 +240,22 @@ export interface BookCategories {
   kind: string[];
 }
 
+/**
+ * 全部刻意留空。
+ *
+ * 預設一套分類只會塞進一堆沒人用的選項，而且選單上分不出哪些是你真的在用的。
+ * 清單一律由「資料上實際出現過的值」長出來（見 useCategories），
+ * 想固定下來就自己在設定頁或 Sheet 上維護。
+ *
+ * BOOK_PLATFORMS 仍然留著，但只給 normalizePlatform 收斂大小寫用，不當預設選項。
+ */
 export const DEFAULT_CATEGORIES: BookCategories = {
-  // 平台是唯一有固定清單的：normalizePlatform 要靠它收斂大小寫
-  platform: [...BOOK_PLATFORMS],
-  // 其餘刻意全空。預設一套分類只會塞進一堆沒人用的選項，
-  // 真正的清單由「書上實際用到的值」長出來（見 useCategories）
+  platform: [],
   domain: [],
   subDomain: [],
   type: [],
   language: [],
   articleDomain: [],
   articleSubDomain: [],
-  // 類型是唯一有預設值的自訂分類：空白的話新增紀事會不知道從哪裡開始
-  kind: ["工作日誌", "輸出", "反思", "日記", "程式"],
+  kind: [],
 };

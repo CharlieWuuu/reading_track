@@ -15,9 +15,19 @@ import { splitLines } from "@/types/book";
 import { Entry } from "@/types/entry";
 import { EMPTY_KEYWORD_INFO } from "@/types/keyword";
 import { KeywordEditDialog } from "../keywords/KeywordEditDialog";
+import { useEntryFormTab } from "./EntryFormTabs";
 import { SourcePicker } from "./SourcePicker";
 
 const TEXTAREA_CLASS = "min-h-48 w-full flex-1 resize-none rounded border px-3 py-2 text-sm";
+
+/** 沒選到的分頁留在畫面上但藏起來，切回來時打到一半的內容還在 */
+function TabPanel({ active, children }: { active: boolean; children: React.ReactNode }) {
+  return (
+    <div className={`flex-col gap-3 md:min-h-0 md:flex-1 ${active ? "flex" : "hidden"}`}>
+      {children}
+    </div>
+  );
+}
 
 /** 新增時預設今天：想記的多半是剛發生的事，每次都要點日曆很煩 */
 function today(): string {
@@ -56,6 +66,7 @@ export function EntryForm({ entry }: { entry?: Entry }) {
   const router = useRouter();
   const { sheetId } = useSheetStore();
   const { entries, mutate } = useEntries();
+  const { tab, setTab } = useEntryFormTab();
   const isEdit = Boolean(entry);
 
   // 建議只收紀事自己用過的：書、文章、紀事各記各的，混在一起選單會很吵
@@ -138,6 +149,7 @@ export function EntryForm({ entry }: { entry?: Entry }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.title.trim()) {
+      setTab("text");
       setSubmitError("請填標題");
       return;
     }
@@ -211,94 +223,100 @@ export function EntryForm({ entry }: { entry?: Entry }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 md:h-full md:min-h-0">
       <div className="flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
-        <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3 sm:grid-cols-3">
-          <div className="col-span-2 sm:col-span-3">
+        <TabPanel active={tab === "text"}>
+          <div className="shrink-0">
             <Field label="標題" value={form.title} onChange={(v) => set("title", v)} />
           </div>
 
-          {/* 日期、類型、關鍵字同一列；手機排不成三欄，關鍵字自己換到下一行 */}
-          <Field
-            label="日期"
-            Icon={CalendarCheck}
-            type="date"
-            value={form.date}
-            onChange={(v) => set("date", v)}
-          />
-          <CategorySelect
-            label="類型"
-            Icon={Shapes}
-            categoryKey="kind"
-            value={form.kind}
-            onChange={(v) => set("kind", v)}
-          />
-          <div className="col-span-2 flex min-w-0 flex-col gap-1 sm:col-span-1">
+          {/* 內文放最大：它是這張表唯一的主體，其他欄位都是為了讓它找得到 */}
+          <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 md:flex-1">
             <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
-              <Tag size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-              關鍵字
+              <NotebookPen size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
+              內文
             </label>
-            <LineListInput
-              value={form.keywords}
-              onChange={(v) => set("keywords", v)}
-              placeholder="注意力"
-              suggestions={keywordSuggestions}
-              onEditRow={setEditingKeyword}
+            <textarea
+              value={form.note}
+              onChange={(e) => set("note", e.target.value)}
+              className={TEXTAREA_CLASS}
             />
           </div>
+        </TabPanel>
 
-          {/* 讀了什麼之後寫的。心得就是靠這一欄指回那本書 */}
-          <div className="col-span-2 sm:col-span-3">
-            <SourcePicker
-              title={form.sourceTitle}
-              onChange={(title, id) => setForm((f) => ({ ...f, sourceTitle: title, sourceId: id }))}
+        <TabPanel active={tab === "tags"}>
+          <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3 sm:grid-cols-3">
+            {/* 日期、類型、關鍵字同一列；手機排不成三欄，關鍵字自己換到下一行 */}
+            <Field
+              label="日期"
+              Icon={CalendarCheck}
+              type="date"
+              value={form.date}
+              onChange={(v) => set("date", v)}
             />
-          </div>
-
-          {/* 這則放在哪裡：發表的網址，或「紙本日記 8/17」這種純文字 */}
-          <div className="col-span-2 flex items-end gap-2 sm:col-span-3">
-            <div className="min-w-0 flex-1">
-              <Field
-                label="來源"
-                Icon={LinkIcon}
-                hint="網址或純文字都可以，例如「紙本日記 8/17」"
-                value={form.link}
-                onChange={(v) => set("link", v)}
+            <CategorySelect
+              label="類型"
+              Icon={Shapes}
+              categoryKey="kind"
+              value={form.kind}
+              onChange={(v) => set("kind", v)}
+            />
+            <div className="col-span-2 flex min-w-0 flex-col gap-1 sm:col-span-1">
+              <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
+                <Tag size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
+                關鍵字
+              </label>
+              <LineListInput
+                value={form.keywords}
+                onChange={(v) => set("keywords", v)}
+                placeholder="注意力"
+                suggestions={keywordSuggestions}
+                onEditRow={setEditingKeyword}
               />
             </div>
-            {/* 量測要掛在紀事編號上，所以存過的那則才抓得動 */}
-            {isEdit && (
-              <button
-                type="button"
-                onClick={handleFetchStats}
-                disabled={fetchingStats}
-                className="shrink-0 rounded border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
-              >
-                {fetchingStats ? "抓取中…" : "抓取數據"}
-              </button>
+
+            {/* 讀了什麼之後寫的。心得就是靠這一欄指回那本書 */}
+            <div className="col-span-2 sm:col-span-3">
+              <SourcePicker
+                title={form.sourceTitle}
+                onChange={(title, id) =>
+                  setForm((f) => ({ ...f, sourceTitle: title, sourceId: id }))
+                }
+              />
+            </div>
+
+            {/* 這則放在哪裡：發表的網址，或「紙本日記 8/17」這種純文字 */}
+            <div className="col-span-2 flex items-end gap-2 sm:col-span-3">
+              <div className="min-w-0 flex-1">
+                <Field
+                  label="來源"
+                  Icon={LinkIcon}
+                  hint="網址或純文字都可以，例如「紙本日記 8/17」"
+                  value={form.link}
+                  onChange={(v) => set("link", v)}
+                />
+              </div>
+              {/* 量測要掛在編號上，所以存過的那則才抓得動 */}
+              {isEdit && (
+                <button
+                  type="button"
+                  onClick={handleFetchStats}
+                  disabled={fetchingStats}
+                  className="shrink-0 rounded border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+                >
+                  {fetchingStats ? "抓取中…" : "抓取數據"}
+                </button>
+              )}
+            </div>
+            {(statsNote || latest) && (
+              <p className="col-span-2 -mt-1 text-xs text-gray-500 sm:col-span-3">
+                {statsNote ||
+                  (latest &&
+                    `${latest.platform}：${latest.views} 次瀏覽${
+                      latest.reads ? `、${latest.reads} 次閱讀` : ""
+                    }（${latest.date}）`)}
+              </p>
             )}
           </div>
-          {(statsNote || latest) && (
-            <p className="col-span-2 -mt-1 text-xs text-gray-500 sm:col-span-3">
-              {statsNote ||
-                (latest &&
-                  `${latest.platform}：${latest.views} 次瀏覽${
-                    latest.reads ? `、${latest.reads} 次閱讀` : ""
-                  }（${latest.date}）`)}
-            </p>
-          )}
-        </div>
-
-        {/* 心得放最大：它是這張表唯一的主體，其他欄位都是為了讓它找得到 */}
-        <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 md:flex-1">
-          <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
-            <NotebookPen size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-            心得
-          </label>
-          <textarea
-            value={form.note}
-            onChange={(e) => set("note", e.target.value)}
-            className={TEXTAREA_CLASS}
-          />
-        </div>
+        </TabPanel>
       </div>
 
       {submitError && <p className="shrink-0 text-xs text-red-600">{submitError}</p>}
