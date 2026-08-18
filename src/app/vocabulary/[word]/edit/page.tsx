@@ -28,7 +28,7 @@ export default function EditVocabularyPage() {
 
   return (
     <>
-      <PageHeader title={name} backHref="/vocabulary" />
+      <PageHeader title={name} backHref="/notes?tab=vocabulary" />
       <PageBody>
         {isLoading || loadingBooks ? (
           <PageMessage>載入中…</PageMessage>

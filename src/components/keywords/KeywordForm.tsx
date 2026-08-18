@@ -6,13 +6,15 @@ import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { formatSpan, KeywordInfo, parseSpan } from "@/types/keyword";
 
 const styles = {
-  form: "flex flex-col gap-3",
+  form: "flex min-h-0 flex-1 flex-col gap-3",
   row: "grid grid-cols-2 gap-3",
   field: "flex min-w-0 flex-col gap-1",
   label: "flex items-center gap-1.5 text-sm font-medium",
   hint: "text-xs font-normal text-gray-400",
-  input: "w-full rounded border px-3 py-1.5 text-sm",
-  summary: "min-h-24 w-full resize-none rounded border px-3 py-1.5 text-sm",
+  // py-2 跟 OptionSelect 的觸發鈕一樣高，名稱與學科並排才不會一高一矮
+  input: "w-full rounded border px-3 py-2 text-sm",
+  // 摘要是整頁最長的一欄，給它一個真的打得下去的高度
+  summary: "min-h-64 w-full flex-1 resize-none rounded border px-3 py-2 text-sm",
   actions: "flex flex-wrap items-center gap-2 pt-1",
   lookup:
     "rounded border px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50",

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { CATEGORICAL } from "@/lib/chartPalette";
-import { keywordEditHref } from "@/lib/keywords/href";
+import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { KeywordEntry } from "@/lib/keywordStats";
 import { KeywordInfo, parseSpan } from "@/types/keyword";
 
@@ -66,6 +66,7 @@ type KeywordTimelineProps = {
 /** 有生卒／起訖的關鍵字排成一條數線，橫向捲 */
 export function KeywordTimeline({ entries, infos }: KeywordTimelineProps) {
   const router = useRouter();
+  const from = useCurrentHref();
   const spans = toSpans(entries, infos);
 
   if (spans.length === 0) {
@@ -103,7 +104,7 @@ export function KeywordTimeline({ entries, infos }: KeywordTimelineProps) {
                   <Bar
                     key={segment.name}
                     segment={segment}
-                    onOpen={() => router.push(keywordEditHref(segment.name))}
+                    onOpen={() => router.push(keywordEditHref(segment.name, from))}
                   />
                 ))}
               </div>

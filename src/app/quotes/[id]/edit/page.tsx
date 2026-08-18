@@ -22,7 +22,7 @@ export default function EditQuotePage() {
 
   return (
     <>
-      <PageHeader title="編輯佳句" backHref="/notes" />
+      <PageHeader title="編輯佳句" backHref="/notes?tab=quotes" />
       <PageBody>
         {isLoading || loadingBooks ? (
           <PageMessage>載入中…</PageMessage>

@@ -8,7 +8,7 @@ import { KeywordTimeline } from "@/components/keywords/KeywordTimeline";
 import { KeywordTreemap } from "@/components/keywords/KeywordTreemap";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { ViewToggle } from "@/components/ui/Controls";
-import { keywordEditHref } from "@/lib/keywords/href";
+import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { getKeywordEntries } from "@/lib/keywordStats";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { useUrlParams } from "@/lib/useUrlParam";
@@ -69,6 +69,7 @@ export function KeywordsSection({
 }) {
   const { view, setView } = useKeywordView();
   const router = useRouter();
+  const from = useCurrentHref();
   const { byName } = useKeywordInfos();
 
   const entries = getKeywordEntries(books);
@@ -91,7 +92,7 @@ export function KeywordsSection({
             <KeywordTreemap
               entries={entries}
               infos={byName}
-              onSelect={(name) => router.push(keywordEditHref(name))}
+              onSelect={(name) => router.push(keywordEditHref(name, from))}
             />
           </div>
         </div>

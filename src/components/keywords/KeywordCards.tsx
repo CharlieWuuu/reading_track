@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { KeywordCard } from "@/components/keywords/KeywordCard";
 import { CardMasonry } from "@/components/ui/CardMasonry";
-import { keywordEditHref } from "@/lib/keywords/href";
+import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { getKeywordEntries } from "@/lib/keywordStats";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { Book } from "@/types/book";
@@ -15,6 +15,7 @@ const styles = {
 /** 關鍵字卡片牆：關鍵字頁與手機的筆記頁共用，點一張就進那個字的編輯頁 */
 export function KeywordCards({ books }: { books: Book[] }) {
   const router = useRouter();
+  const from = useCurrentHref();
   const { byName } = useKeywordInfos();
   const entries = getKeywordEntries(books);
 
@@ -29,7 +30,7 @@ export function KeywordCards({ books }: { books: Book[] }) {
           key={entry.name}
           entry={entry}
           info={byName.get(entry.name)}
-          onEdit={() => router.push(keywordEditHref(entry.name))}
+          onEdit={() => router.push(keywordEditHref(entry.name, from))}
         />
       ))}
     </CardMasonry>

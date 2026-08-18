@@ -15,6 +15,7 @@ import {
   Tag,
   Type,
 } from "lucide-react";
+import { OptionSelect } from "@/components/ui/OptionSelect";
 import { fullerTitle } from "@/lib/metadata";
 import { useBooks } from "@/lib/useBooks";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
@@ -437,20 +438,17 @@ export function BookForm({
           <PrivateToggle value={form.private} onChange={(v) => set("private", v)} />
 
           {/* 關鍵字也是自己貼上去的標籤，跟領域、屬性同一件事，只是值不固定 */}
-          <div className="flex min-h-0 shrink-0 flex-col gap-1">
-            <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
-              <Tag size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-              關鍵字
-              <span className="text-xs font-normal text-gray-400">
-                一個一組：地名、人名、事件、專有名詞
-              </span>
-            </label>
-            <LineListInput
+          <div className="min-w-0 shrink-0">
+            <OptionSelect
+              label="關鍵字"
+              Icon={Tag}
+              options={keywordSuggestions}
               value={form.keywords}
               onChange={(v) => set("keywords", v)}
-              placeholder="京都"
-              suggestions={keywordSuggestions}
-              onEditRow={setEditingKeyword}
+              onEditOption={setEditingKeyword}
+              placeholder="一個一組：地名、人名、事件、專有名詞"
+              separator="\n"
+              multiple
             />
           </div>
         </TabPanel>

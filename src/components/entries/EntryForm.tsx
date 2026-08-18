@@ -4,10 +4,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CalendarCheck, Link as LinkIcon, NotebookPen, Shapes, Tag } from "lucide-react";
 import { CategorySelect } from "@/components/books/CategorySelect";
-import { compactLines, LineListInput } from "@/components/books/LineListInput";
+import { compactLines } from "@/components/books/LineListInput";
 import { Field } from "@/components/ui/Field";
+import { OptionSelect } from "@/components/ui/OptionSelect";
 import { PrivateToggle } from "@/components/ui/PrivateToggle";
-import { keywordEditHref } from "@/lib/keywords/href";
+import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { useEntries } from "@/lib/useEntries";
 import { useMetrics } from "@/lib/useMetrics";
 import { useUrlParams } from "@/lib/useUrlParam";
@@ -86,6 +87,7 @@ function toForm(entry: Entry | undefined, prefill: Partial<FormState>): FormStat
  */
 export function EntryForm({ entry }: { entry?: Entry }) {
   const router = useRouter();
+  const from = useCurrentHref();
   const { sheetId } = useSheetStore();
   const { entries, mutate } = useEntries();
   const { tab, setTab } = useEntryFormTab();
@@ -170,7 +172,9 @@ export function EntryForm({ entry }: { entry?: Entry }) {
     const isNew = !entry && !savedIdRef.current;
     await quietSave();
     if (isNew && savedIdRef.current) router.replace(`/entries/${savedIdRef.current}/edit`);
-    router.push(keywordEditHref(name));
+    // 新增頁剛剛才落地成一筆，回來要回到那一筆的編輯頁而不是空的新增頁
+    const back = isNew && savedIdRef.current ? `/entries/${savedIdRef.current}/edit` : from;
+    router.push(keywordEditHref(name, back));
   }
 
   // 每次重畫都把最新的那一份放進 ref：卸載時跑的是當下的內容，不是掛載那一刻的
@@ -354,17 +358,17 @@ export function EntryForm({ entry }: { entry?: Entry }) {
               value={form.kind}
               onChange={(v) => set("kind", v)}
             />
-            <div className="col-span-2 flex min-w-0 flex-col gap-1 sm:col-span-1">
-              <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
-                <Tag size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-                關鍵字
-              </label>
-              <LineListInput
+            <div className="col-span-2 min-w-0 sm:col-span-1">
+              {/* 關鍵字跟類型同一顆選單，只是它一行一筆存回 Sheet */}
+              <OptionSelect
+                label="關鍵字"
+                Icon={Tag}
+                options={keywordSuggestions}
                 value={form.keywords}
                 onChange={(v) => set("keywords", v)}
-                placeholder="注意力"
-                suggestions={keywordSuggestions}
-                onEditRow={openKeyword}
+                onEditOption={openKeyword}
+                separator="\n"
+                multiple
               />
             </div>
 

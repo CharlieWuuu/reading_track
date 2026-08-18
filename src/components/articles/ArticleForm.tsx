@@ -5,11 +5,12 @@ import { useEffect, useRef, useState } from "react";
 import { CalendarCheck, Languages, Link as LinkIcon, Store, Tag } from "lucide-react";
 import { useArticleFormTab } from "@/components/articles/ArticleFormTabs";
 import { CategorySelect } from "@/components/books/CategorySelect";
-import { compactLines, LineListInput } from "@/components/books/LineListInput";
+import { compactLines } from "@/components/books/LineListInput";
 import { RelatedEntries } from "@/components/entries/RelatedEntries";
 import { Field } from "@/components/ui/Field";
+import { OptionSelect } from "@/components/ui/OptionSelect";
 import { PrivateToggle } from "@/components/ui/PrivateToggle";
-import { keywordEditHref } from "@/lib/keywords/href";
+import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { useArticles } from "@/lib/useArticles";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Article } from "@/types/article";
@@ -74,6 +75,7 @@ function toPayload(form: FormState, article?: Article) {
 
 export function ArticleForm({ article }: { article?: Article }) {
   const router = useRouter();
+  const from = useCurrentHref();
   const { sheetId } = useSheetStore();
   const { articles, mutate } = useArticles();
   const isEdit = Boolean(article);
@@ -187,7 +189,9 @@ export function ArticleForm({ article }: { article?: Article }) {
     const isNew = !article && !savedIdRef.current;
     await quietSave();
     if (isNew && savedIdRef.current) router.replace(`/articles/${savedIdRef.current}/edit`);
-    router.push(keywordEditHref(name));
+    // 新增頁剛剛才落地成一筆，回來要回到那一筆的編輯頁而不是空的新增頁
+    const back = isNew && savedIdRef.current ? `/articles/${savedIdRef.current}/edit` : from;
+    router.push(keywordEditHref(name, back));
   }
 
   // 每次重畫都把最新的那一份放進 ref：卸載時跑的是當下的內容
@@ -376,20 +380,17 @@ export function ArticleForm({ article }: { article?: Article }) {
           </div>
 
           {/* 關鍵字也是自己貼上去的標籤，跟領域、屬性同一件事，只是值不固定 */}
-          <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 md:flex-1">
-            <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
-              <Tag size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-              關鍵字
-              <span className="text-xs font-normal text-gray-400">
-                一個一組：地名、人名、事件、專有名詞
-              </span>
-            </label>
-            <LineListInput
+          <div className="min-w-0">
+            <OptionSelect
+              label="關鍵字"
+              Icon={Tag}
+              options={keywordSuggestions}
               value={form.keywords}
               onChange={(v) => set("keywords", v)}
-              placeholder="京都"
-              suggestions={keywordSuggestions}
-              onEditRow={openKeyword}
+              onEditOption={openKeyword}
+              placeholder="一個一組：地名、人名、事件、專有名詞"
+              separator="\n"
+              multiple
             />
           </div>
         </TabPanel>

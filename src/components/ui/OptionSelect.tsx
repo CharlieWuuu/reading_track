@@ -1,16 +1,15 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { type LucideIcon } from "lucide-react";
+import { Pencil, type LucideIcon } from "lucide-react";
 import { createPortal } from "react-dom";
-import { joinTags, splitTags } from "@/types/book";
 
 /**
  * 仿 Notion 的選擇器：搜尋、選，打字就能登一個還沒用過的值。
  *
  * 選項一律由呼叫端給——它們全都是從資料 group 出來的，沒有一張「選項」表
- * 要維護。`multiple` 的欄位可以複選，多個值以頓號存在同一格裡，
- * 這樣 Sheet 那邊還是一欄，不用為了複選改表結構。
+ * 要維護。`multiple` 的欄位可以複選，多個值存在同一格裡，Sheet 那邊還是一欄；
+ * 分隔符可換，關鍵字那種一行一筆的欄位就傳換行。
  */
 export function OptionSelect({
   label,
@@ -20,6 +19,9 @@ export function OptionSelect({
   value,
   onChange,
   multiple = false,
+  separator = "、",
+  onEditOption,
+  placeholder,
 }: {
   label: string;
   /** 跟詳細卡片同一個圖示，兩邊看起來才像同一個欄位 */
@@ -30,6 +32,12 @@ export function OptionSelect({
   value: string;
   onChange: (value: string) => void;
   multiple?: boolean;
+  /** 多個值怎麼串在同一格裡：預設頓號，一行一筆的欄位傳 "\n" */
+  separator?: string;
+  /** 給了就在每個已選的值上多一顆筆，點了把那個值交出去（例如去編關鍵字主檔） */
+  onEditOption?: (value: string) => void;
+  /** 沒選任何值時觸發鈕上的字，預設是「選擇或新增○○」 */
+  placeholder?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -78,7 +86,12 @@ export function OptionSelect({
     : options;
   const canCreate = keyword.length > 0 && !options.includes(keyword);
 
-  const selected = multiple ? splitTags(value) : value ? [value] : [];
+  const split = (raw: string) =>
+    raw
+      .split(separator)
+      .map((part) => part.trim())
+      .filter(Boolean);
+  const selected = multiple ? split(value) : value ? [value] : [];
   const isSelected = (option: string) => selected.includes(option);
 
   /** 單選＝取代並關閉；複選＝切換，選單留著讓使用者連續選 */
@@ -90,7 +103,9 @@ export function OptionSelect({
       return;
     }
     onChange(
-      joinTags(isSelected(option) ? selected.filter((o) => o !== option) : [...selected, option]),
+      (isSelected(option) ? selected.filter((o) => o !== option) : [...selected, option]).join(
+        separator,
+      ),
     );
     setQuery("");
   }
@@ -110,23 +125,41 @@ export function OptionSelect({
         {label}
       </label>
 
-      <button
-        type="button"
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => setOpen((v) => !v)}
-        className="w-full rounded border px-3 py-2 text-left text-sm"
+        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setOpen((v) => !v)}
+        className="w-full cursor-pointer rounded border px-3 py-2 text-left text-sm"
       >
         {selected.length > 0 ? (
           <span className="flex flex-wrap gap-1">
             {selected.map((option) => (
-              <span key={option} className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">
+              <span
+                key={option}
+                className="flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5 text-xs"
+              >
                 {option}
+                {onEditOption && (
+                  <button
+                    type="button"
+                    aria-label={`編輯 ${option}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditOption(option);
+                    }}
+                    className="text-gray-400 hover:text-gray-900"
+                  >
+                    <Pencil size={11} strokeWidth={1.5} />
+                  </button>
+                )}
               </span>
             ))}
           </span>
         ) : (
-          <span className="text-gray-400">選擇或新增{label}</span>
+          <span className="text-gray-400">{placeholder ?? `選擇或新增${label}`}</span>
         )}
-      </button>
+      </div>
 
       {open &&
         rect &&
