@@ -10,16 +10,14 @@ import { BooksGate } from "@/components/layout/BooksGate";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
-import { NoteEditDialog } from "@/components/notes/NoteEditDialog";
 import { QuoteEditDialog } from "@/components/notes/QuoteEditDialog";
 import { RecordCard } from "@/components/notes/RecordCard";
-import { NoteBlock, QuoteBlock } from "@/components/notes/RecordItems";
+import { QuoteBlock } from "@/components/notes/RecordItems";
 import { VocabularySection } from "@/components/notes/VocabularySection";
 import { TabBar } from "@/components/ui/Controls";
-import { useBookPatch } from "@/lib/useBookPatch";
 import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
-import { getNoteRecords, getQuoteRecords, NoteRecord, QuoteRecord } from "@/lib/vocabularyStats";
+import { getQuoteRecords, QuoteRecord } from "@/lib/vocabularyStats";
 import { Book } from "@/types/book";
 
 const styles = {
@@ -27,14 +25,13 @@ const styles = {
   list: "flex flex-col divide-y",
 };
 
-type Tab = "notes" | "quotes" | "vocabulary" | "keywords";
+type Tab = "quotes" | "vocabulary" | "keywords";
 
 /**
  * 單字與關鍵字掛在筆記底下——它們本來就都是「從書裡摘出來的東西」。
  * 桌機與手機同一套分法，側欄不再另外開兩頁。
  */
 const TABS: { key: Tab; label: string }[] = [
-  { key: "notes", label: "心得" },
   { key: "quotes", label: "佳句" },
   { key: "vocabulary", label: "單字" },
   { key: "keywords", label: "關鍵字" },
@@ -79,50 +76,15 @@ function Quotes({ books }: { books: Book[] }) {
   );
 }
 
-function Notes({ books }: { books: Book[] }) {
-  const patchBook = useBookPatch();
-  const [editing, setEditing] = useState<NoteRecord | null>(null);
-  const records = getNoteRecords(books);
-
-  if (records.length === 0) {
-    return <PageMessage>還沒有寫下任何心得</PageMessage>;
-  }
-
-  return (
-    <>
-      <div className={styles.list}>
-        {records.map((record) => (
-          <RecordCard
-            key={record.bookId}
-            title={record.bookTitle}
-            coverUrl={record.bookCover}
-            onClick={() => setEditing(record)}
-          >
-            <NoteBlock note={record.note} />
-          </RecordCard>
-        ))}
-      </div>
-
-      {editing && (
-        <NoteEditDialog
-          record={editing}
-          onSave={(next) => patchBook(next.bookId, { note: next.note })}
-          onClose={() => setEditing(null)}
-        />
-      )}
-    </>
-  );
-}
-
 function NotesTabs() {
-  // 看哪一邊寫在網址上，重新整理或分享連結都回得到同一個畫面；預設心得
+  // 看哪一邊寫在網址上，重新整理或分享連結都回得到同一個畫面；預設佳句
   const { searchParams, setParams } = useUrlParams();
   const param = searchParams.get("tab");
-  const tab: Tab = TABS.some((t) => t.key === param) ? (param as Tab) : "notes";
+  const tab: Tab = TABS.some((t) => t.key === param) ? (param as Tab) : "quotes";
   // 選單裡標粗體的是「正在看的那一種」，所以直接讀網址：沒選過就四個都一樣
   const view = searchParams.get("view") ?? "";
   // 換到別的分頁就把看法清掉，下次點關鍵字一律從卡片開始
-  const setTab = (next: Tab) => setParams({ tab: next === "notes" ? null : next, view: null });
+  const setTab = (next: Tab) => setParams({ tab: next === "quotes" ? null : next, view: null });
   // 換頁與換看法要同一次寫進網址，分兩次呼叫後面那次會蓋掉前面那次
   const openKeywordView = (next: KeywordView) => setParams({ tab: "keywords", view: next });
 
@@ -152,10 +114,8 @@ function NotesTabs() {
               <KeywordsSection books={books} showSwitch={false} />
             ) : tab === "vocabulary" ? (
               <VocabularySection books={books} />
-            ) : tab === "quotes" ? (
-              <Quotes books={books} />
             ) : (
-              <Notes books={books} />
+              <Quotes books={books} />
             )
           }
         </BooksGate>

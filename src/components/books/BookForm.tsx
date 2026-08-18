@@ -10,7 +10,6 @@ import {
   Languages,
   Link as LinkIcon,
   Newspaper,
-  NotebookPen,
   Quote,
   Store,
   Tag,
@@ -34,11 +33,6 @@ import { CategorySelect } from "./CategorySelect";
 import { compactLines, LineListInput } from "./LineListInput";
 import { QuoteListInput } from "./QuoteListInput";
 import { VocabularyListInput } from "./VocabularyListInput";
-
-const TEXTAREA_CLASS = "min-h-0 w-full flex-1 resize-none rounded border px-3 py-2 text-sm";
-
-/** 捲動模式下四塊平分高度會被壓扁，給個下限；分頁模式一次只顯示一塊，撐滿就夠 */
-const TEXTAREA_MIN = "min-h-36";
 
 const emptyForm = {
   sourceUrl: "",
@@ -238,7 +232,8 @@ export function BookForm({
       language: form.language,
       pageCount: form.pageCount,
       wordCount: form.wordCount,
-      note: form.note,
+      // 心得搬到紀事了，這一欄不再由 app 寫入，但也不主動清掉——遷移完再自己刪
+      note: book?.note ?? "",
       // 舊欄位不再由 app 寫入，但也不主動清掉——遷移完再自己刪
       quotes: book?.quotes ?? "",
       vocabulary: book?.vocabulary ?? "",
@@ -483,42 +478,29 @@ export function BookForm({
           </div>
         </TabPanel>
 
-        {/* 相關文章跟心得放一起：那是讀這本書時一起讀的東西，算心得的延伸 */}
+        {/* 心得寫成紀事，這裡只列出這本書底下有哪些 */}
         <TabPanel active={tab === "notes"}>
           <div className="flex min-h-0 flex-col gap-3 sm:flex-row md:flex-1">
             <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
-              <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
-                <NotebookPen size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-                心得
-              </label>
-              <textarea
-                value={form.note}
-                onChange={(e) => set("note", e.target.value)}
-                className={`${TEXTAREA_CLASS} ${TEXTAREA_MIN}`}
-              />
+              {isEdit && book ? (
+                <RelatedEntries sourceId={book.id} sourceTitle={form.title} />
+              ) : (
+                <p className="rounded border border-dashed px-3 py-2 text-xs text-gray-400">
+                  存好這本書之後就可以寫心得了
+                </p>
+              )}
             </div>
 
-            {/* 新的心得寫成紀事，一本書可以有很多則；下面那欄是舊的，之後會清掉 */}
-            <div className="flex min-h-0 w-full min-w-0 flex-col gap-3 sm:w-1/2">
-              {isEdit && book && (
-                <div className="flex min-h-0 flex-1 flex-col">
-                  <RelatedEntries sourceId={book.id} sourceTitle={form.title} />
-                </div>
-              )}
-
-              <div className="flex min-h-0 shrink-0 flex-col gap-1">
-                <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
-                  <Newspaper size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-                  相關文章
-                  <span className="text-xs font-normal text-gray-400">
-                    一行一個 Instapaper 網址
-                  </span>
-                </label>
-                <ArticleSelect
-                  value={form.relatedArticles}
-                  onChange={(v) => set("relatedArticles", v)}
-                />
-              </div>
+            <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
+              <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
+                <Newspaper size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
+                相關文章
+                <span className="text-xs font-normal text-gray-400">一行一個 Instapaper 網址</span>
+              </label>
+              <ArticleSelect
+                value={form.relatedArticles}
+                onChange={(v) => set("relatedArticles", v)}
+              />
             </div>
           </div>
         </TabPanel>
