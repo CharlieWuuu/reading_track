@@ -6,9 +6,9 @@ const styles = {
   // 封面貼著邊的話光暈與外框線會被切掉一條
   card: "flex cursor-pointer items-start gap-3 px-1 py-3 hover:bg-gray-50 md:py-4",
   // 手機封面縮一號，長句才不會被擠成又細又長的一條
-  cover: "aspect-2/3 w-10 shrink-0 rounded-sm object-cover shadow ring-1 ring-black/10 md:w-14",
+  cover: "aspect-2/3 w-8 shrink-0 rounded-sm object-cover shadow ring-1 ring-black/10 md:w-11",
   blank:
-    "flex aspect-2/3 w-10 shrink-0 items-center justify-center rounded-sm bg-gray-100 text-[10px] leading-tight text-gray-400 md:w-14",
+    "flex aspect-2/3 w-8 shrink-0 items-center justify-center rounded-sm bg-gray-100 text-[10px] leading-tight text-gray-400 md:w-11",
   body: "flex min-w-0 flex-1 flex-col gap-2",
   head: "flex min-w-0 items-baseline gap-2",
   // 書名是這一則的標題，不是附註，所以比內文大一級也粗一點
