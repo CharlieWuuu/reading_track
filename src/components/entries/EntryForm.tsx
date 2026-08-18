@@ -7,15 +7,13 @@ import { CategorySelect } from "@/components/books/CategorySelect";
 import { compactLines, LineListInput } from "@/components/books/LineListInput";
 import { Field } from "@/components/ui/Field";
 import { PrivateToggle } from "@/components/ui/PrivateToggle";
+import { keywordEditHref } from "@/lib/keywords/href";
 import { useEntries } from "@/lib/useEntries";
-import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { useMetrics } from "@/lib/useMetrics";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { useSheetStore } from "@/store/useSheetStore";
 import { splitLines } from "@/types/book";
 import { Entry } from "@/types/entry";
-import { EMPTY_KEYWORD_INFO } from "@/types/keyword";
-import { KeywordEditDialog } from "../keywords/KeywordEditDialog";
 import { useEntryFormTab } from "./EntryFormTabs";
 import { SourcePicker } from "./SourcePicker";
 
@@ -117,12 +115,10 @@ export function EntryForm({ entry }: { entry?: Entry }) {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [editingKeyword, setEditingKeyword] = useState<string | null>(null);
   const [fetchingStats, setFetchingStats] = useState(false);
   const [statsNote, setStatsNote] = useState("");
   const { latestByEntry, mutate: mutateMetrics } = useMetrics();
   const latest = entry ? latestByEntry.get(entry.id) : undefined;
-  const { byName: keywordInfos, save: saveKeyword } = useKeywordInfos();
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -138,7 +134,7 @@ export function EntryForm({ entry }: { entry?: Entry }) {
    * keepalive 讓請求在頁面關掉之後仍然送得出去；也因為這樣，它不等回應、
    * 不改畫面上的任何狀態——那時候已經沒有畫面了。
    */
-  function quietSave() {
+  function quietSave(): Promise<unknown> | undefined {
     if (deletedRef.current || !sheetId || !form.title.trim()) return;
     const payload = toPayload(form);
     const snapshot = JSON.stringify(payload);
@@ -161,7 +157,20 @@ export function EntryForm({ entry }: { entry?: Entry }) {
           keepalive: true,
         });
     savedIdRef.current = id || newId;
-    request.then(() => mutate()).catch(() => {});
+    return request.then(() => mutate()).catch(() => {});
+  }
+
+  /**
+   * 點關鍵字跳到那個字的編輯頁。
+   *
+   * 從「新增書寫」跳走時先讓這一則落地成一筆，並把網址換成它的編輯頁——
+   * 不然按上一頁會回到空的新增頁，再存一次就變成兩則。
+   */
+  async function openKeyword(name: string) {
+    const isNew = !entry && !savedIdRef.current;
+    await quietSave();
+    if (isNew && savedIdRef.current) router.replace(`/entries/${savedIdRef.current}/edit`);
+    router.push(keywordEditHref(name));
   }
 
   // 每次重畫都把最新的那一份放進 ref：卸載時跑的是當下的內容，不是掛載那一刻的
@@ -355,7 +364,7 @@ export function EntryForm({ entry }: { entry?: Entry }) {
                 onChange={(v) => set("keywords", v)}
                 placeholder="注意力"
                 suggestions={keywordSuggestions}
-                onEditRow={setEditingKeyword}
+                onEditRow={openKeyword}
               />
             </div>
 
@@ -453,14 +462,6 @@ export function EntryForm({ entry }: { entry?: Entry }) {
             </button>
           ))}
       </div>
-
-      {editingKeyword && (
-        <KeywordEditDialog
-          info={keywordInfos.get(editingKeyword) ?? { name: editingKeyword, ...EMPTY_KEYWORD_INFO }}
-          onSave={saveKeyword}
-          onClose={() => setEditingKeyword(null)}
-        />
-      )}
     </form>
   );
 }
