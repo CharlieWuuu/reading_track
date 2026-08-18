@@ -1,10 +1,12 @@
 import { Article } from "@/types/article";
 import { Book } from "@/types/book";
 import { Entry } from "@/types/entry";
+import { Metric } from "@/types/metric";
 
 export type BookField = keyof Book;
 export type ArticleField = keyof Article;
 export type EntryField = keyof Entry;
+export type MetricField = keyof Metric;
 
 /**
  * 一個分頁的欄位定義。書籍、文章各有一份，共同欄位從 COMMON_* 繼承。
@@ -218,6 +220,35 @@ export const ENTRY_TABLE: TableSpec<EntryField> = {
     date: ["date", "日期", "完成日期", "紀錄日期"],
     kind: ["kind", "類型", "種類"],
     link: ["link", "url", "來源", "連結", "網址", "來源網址"],
+  },
+};
+
+// ---------------------------------------------------------------------------
+// 數據
+// ---------------------------------------------------------------------------
+
+export const METRIC_TABLE: TableSpec<MetricField> = {
+  title: "數據",
+  fields: ["id", "date", "entryId", "title", "platform", "views", "reads"],
+  idField: "id",
+  legacy: [],
+  labels: {
+    id: "編號",
+    date: "日期",
+    entryId: "紀事編號",
+    title: "標題",
+    platform: "平台",
+    views: "瀏覽數",
+    reads: "閱讀數",
+  },
+  aliases: {
+    id: ["id", "編號", "識別碼"],
+    date: ["date", "日期", "量測日期"],
+    entryId: ["entryid", "紀事編號"],
+    title: ["title", "標題"],
+    platform: ["platform", "平台"],
+    views: ["views", "viewcount", "pageview", "瀏覽數"],
+    reads: ["reads", "readcount", "閱讀數"],
   },
 };
 

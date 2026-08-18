@@ -16,6 +16,7 @@ import {
 } from "@/types/book";
 import { Entry } from "@/types/entry";
 import { KeywordInfo } from "@/types/keyword";
+import { Metric } from "@/types/metric";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import {
   ARTICLE_TABLE,
@@ -26,6 +27,7 @@ import {
   ENTRY_TABLE,
   managedFields,
   mapHeaders,
+  METRIC_TABLE,
   TableSpec,
 } from "./sheetSchema";
 
@@ -259,6 +261,16 @@ export async function updateEntryRow(
 
 export async function deleteEntryRow(sheetId: string, accessToken: string, id: string) {
   await deleteTableRow(sheetId, accessToken, ENTRY_TABLE, id);
+}
+
+export async function listMetrics(sheetId: string, accessToken: string): Promise<Metric[]> {
+  const { values } = await listTableValues(sheetId, accessToken, METRIC_TABLE);
+  return values;
+}
+
+/** 每次量測都是新的一列，不覆蓋舊的——累積起來就是成長曲線 */
+export async function addMetricRow(sheetId: string, accessToken: string, metric: Metric) {
+  await addTableRow(sheetId, accessToken, METRIC_TABLE, metric);
 }
 
 async function addTableRow<F extends string, L extends F>(

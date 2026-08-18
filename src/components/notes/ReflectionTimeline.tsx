@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { dayLabel, groupByWeek, isUrl, Reflection } from "@/lib/reflections";
+import { useMetrics } from "@/lib/useMetrics";
 
 const styles = {
   wrap: "flex min-h-0 w-full min-w-0 flex-1 flex-col gap-6 overflow-y-auto pb-2",
@@ -57,6 +58,8 @@ function firstLine(note: string): string {
  */
 export function ReflectionTimeline({ reflections }: { reflections: Reflection[] }) {
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
+  // 數字只在展開時出現：摺著的數線是拿來讀的，不該有數字在旁邊閃
+  const { latestByEntry } = useMetrics();
 
   function toggle(id: string) {
     setOpenIds((current) => {
@@ -104,6 +107,16 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
 
                     {open && (
                       <span className={styles.tags}>
+                        {(() => {
+                          const metric = latestByEntry.get(r.id);
+                          if (!metric) return null;
+                          return (
+                            <span className={styles.origin}>
+                              {metric.views} 次瀏覽
+                              {metric.reads && `・${metric.reads} 次閱讀`}（{metric.date}）
+                            </span>
+                          );
+                        })()}
                         {r.origin?.trim() &&
                           (isUrl(r.origin) ? (
                             <a

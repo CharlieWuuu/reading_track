@@ -8,6 +8,7 @@ import { compactLines, LineListInput } from "@/components/books/LineListInput";
 import { Field } from "@/components/ui/Field";
 import { useEntries } from "@/lib/useEntries";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
+import { useMetrics } from "@/lib/useMetrics";
 import { useSheetStore } from "@/store/useSheetStore";
 import { splitLines } from "@/types/book";
 import { Entry } from "@/types/entry";
@@ -62,10 +63,64 @@ export function EntryForm({ entry }: { entry?: Entry }) {
   const [submitError, setSubmitError] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [editingKeyword, setEditingKeyword] = useState<string | null>(null);
+  const [fetchingStats, setFetchingStats] = useState(false);
+  const [statsNote, setStatsNote] = useState("");
+  const { latestByEntry, mutate: mutateMetrics } = useMetrics();
+  const latest = entry ? latestByEntry.get(entry.id) : undefined;
   const { byName: keywordInfos, save: saveKeyword } = useKeywordInfos();
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  /**
+   * 量一次現在有多少人看，append 成新的一列——不覆蓋舊的，累積起來就是成長曲線。
+   * 要有紀事編號才掛得上去，所以只有存過的那則才抓得動。
+   */
+  async function handleFetchStats() {
+    if (!entry || !sheetId) return;
+    const url = form.link.trim();
+    if (!url) {
+      setStatsNote("請先填來源網址");
+      return;
+    }
+
+    setFetchingStats(true);
+    setStatsNote("");
+    try {
+      const res = await fetch("/api/scrape-stats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      const stats = await res.json();
+      if (!res.ok) throw new Error(stats.error ?? "抓取失敗");
+
+      const metric = {
+        id: crypto.randomUUID(),
+        date: today(),
+        entryId: entry.id,
+        title: form.title || stats.title || "",
+        platform: stats.platform,
+        views: stats.views,
+        reads: stats.reads,
+      };
+      const saved = await fetch("/api/metrics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sheetId, metric }),
+      });
+      if (!saved.ok) throw new Error("寫入失敗");
+
+      await mutateMetrics();
+      setStatsNote(
+        `${stats.platform}：${stats.views} 次瀏覽${stats.reads ? `、${stats.reads} 次閱讀` : ""}`,
+      );
+    } catch (err) {
+      setStatsNote(err instanceof Error ? err.message : "抓取失敗");
+    } finally {
+      setFetchingStats(false);
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -178,16 +233,38 @@ export function EntryForm({ entry }: { entry?: Entry }) {
             />
           </div>
 
-          {/* 事件本身留在原本的系統裡，這裡只指過去；不是每件事都在線上，純文字也算 */}
-          <div className="col-span-2 sm:col-span-3">
-            <Field
-              label="來源"
-              Icon={LinkIcon}
-              hint="網址或純文字都可以，例如「紙本日記 8/17」"
-              value={form.link}
-              onChange={(v) => set("link", v)}
-            />
+          {/* 這則放在哪裡：發表的網址，或「紙本日記 8/17」這種純文字 */}
+          <div className="col-span-2 flex items-end gap-2 sm:col-span-3">
+            <div className="min-w-0 flex-1">
+              <Field
+                label="來源"
+                Icon={LinkIcon}
+                hint="網址或純文字都可以，例如「紙本日記 8/17」"
+                value={form.link}
+                onChange={(v) => set("link", v)}
+              />
+            </div>
+            {/* 量測要掛在紀事編號上，所以存過的那則才抓得動 */}
+            {isEdit && (
+              <button
+                type="button"
+                onClick={handleFetchStats}
+                disabled={fetchingStats}
+                className="shrink-0 rounded border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+              >
+                {fetchingStats ? "抓取中…" : "抓取數據"}
+              </button>
+            )}
           </div>
+          {(statsNote || latest) && (
+            <p className="col-span-2 -mt-1 text-xs text-gray-500 sm:col-span-3">
+              {statsNote ||
+                (latest &&
+                  `${latest.platform}：${latest.views} 次瀏覽${
+                    latest.reads ? `、${latest.reads} 次閱讀` : ""
+                  }（${latest.date}）`)}
+            </p>
+          )}
         </div>
 
         {/* 心得放最大：它是這張表唯一的主體，其他欄位都是為了讓它找得到 */}
