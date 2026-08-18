@@ -1,15 +1,8 @@
 import { fetchJson } from "@/lib/metadata/http";
 import { EMPTY_KEYWORD_INFO, KeywordInfo } from "@/types/keyword";
-import { topicLabel } from "./topicLabels";
 
 const WIKI_API = "https://zh.wikipedia.org/w/api.php";
 const WIKIDATA_API = "https://www.wikidata.org/w/api.php";
-const TOPIC_API =
-  "https://api.wikimedia.org/service/lw/inference/v1/models/outlink-topic-model:predict";
-
-/** 主題信心值的門檻，太低的分類只是雜訊 */
-const TOPIC_THRESHOLD = 0.5;
-const MAX_TOPICS = 3;
 const SUMMARY_MAX = 200;
 
 type WikiPage = {
@@ -30,8 +23,6 @@ type WikidataResponse = {
   entities?: Record<string, { claims?: Record<string, WikidataClaim[]> }>;
 };
 
-type TopicPrediction = { prediction?: string[] };
-
 /**
  * 用條目名反查（redirects=1 會跟著轉址），刻意不做模糊搜尋——
  * 猜錯條目的代價是把不相干的摘要寫進主檔，寧可查不到讓使用者自己補。
@@ -43,14 +34,12 @@ export async function lookupKeyword(name: string): Promise<KeywordInfo> {
   if (!page) return empty;
 
   const coordinate = page.coordinates?.[0];
-  const [span, topics] = await Promise.all([
-    fetchSpan(page.pageprops?.wikibase_item, Boolean(coordinate)),
-    fetchTopics(page.title),
-  ]);
+  const span = await fetchSpan(page.pageprops?.wikibase_item, Boolean(coordinate));
 
   return {
     name,
-    topics,
+    // 學科一律留空，自己分：模型那套分類跟「你怎麼看這些字」是兩回事
+    topics: "",
     coordinates: coordinate ? `${coordinate.lat},${coordinate.lon}` : "",
     span,
     wikiUrl: `https://zh.wikipedia.org/wiki/${encodeURIComponent(page.title)}`,
@@ -145,49 +134,4 @@ function year(claim: WikidataClaim[] | undefined): string {
   if (!match) return "";
   const value = Number(match[2]);
   return match[1] === "-" ? `-${value}` : String(value);
-}
-
-/**
- * 學科用 Wikimedia 的主題模型判定。
- *
- * 整支忽略 Geography：台灣相關的條目幾乎都會被地理訊號蓋過主題訊號，
- * 留著的話所有關鍵字都會歸到同一類，分類就沒有意義了。
- */
-async function fetchTopics(title: string): Promise<string> {
-  const res = await fetch(TOPIC_API, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ lang: "zh", page_title: title }),
-  }).catch(() => null);
-  if (!res?.ok) return "";
-
-  const data = (await res.json().catch(() => null)) as {
-    prediction?: TopicPrediction & { results?: unknown };
-  } | null;
-  const raw = readTopics(data);
-
-  return raw
-    .filter((t) => !t.topic.startsWith("Geography"))
-    .filter((t) => t.score >= TOPIC_THRESHOLD)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, MAX_TOPICS)
-    .map((t) => topicLabel(t.topic))
-    .join("、");
-}
-
-type ScoredTopic = { topic: string; score: number };
-
-/** 模型回傳的形狀在不同版本之間換過，兩種都認 */
-function readTopics(data: unknown): ScoredTopic[] {
-  const prediction = (data as { prediction?: unknown })?.prediction;
-  const results = (prediction as { results?: unknown })?.results;
-  if (Array.isArray(results)) {
-    return (results as Array<{ topic?: string; score?: number }>)
-      .filter((r) => typeof r.topic === "string")
-      .map((r) => ({ topic: r.topic as string, score: r.score ?? 0 }));
-  }
-  if (Array.isArray(prediction)) {
-    return (prediction as string[]).map((topic) => ({ topic, score: 1 }));
-  }
-  return [];
 }

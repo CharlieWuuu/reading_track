@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 import { Dialog } from "@/components/ui/Dialog";
+import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { formatSpan, KeywordInfo, parseSpan } from "@/types/keyword";
 
 const styles = {
   form: "flex flex-col gap-3",
   row: "grid grid-cols-2 gap-3",
   field: "flex min-w-0 flex-col gap-1",
-  label: "text-sm font-medium",
+  label: "flex items-center gap-1.5 text-sm font-medium",
+  hint: "text-xs font-normal text-gray-400",
   input: "w-full rounded border px-3 py-1.5 text-sm",
   summary: "min-h-24 w-full resize-none rounded border px-3 py-1.5 text-sm",
   actions: "flex flex-wrap items-center gap-2 pt-1",
@@ -26,14 +28,26 @@ const styles = {
   cancelSmall: "rounded border px-3 py-1.5 text-gray-600 hover:bg-gray-50",
 };
 
-/** 兩兩並排的欄位；起訖是兩個年份欄，自己一列 */
-const ROWS = [
-  [
-    { key: "name", label: "名稱" },
-    { key: "topics", label: "學科" },
-  ],
-  [{ key: "coordinates", label: "座標" }],
-] as const;
+/** 名稱與學科同一列，座標自己一列；學科要配建議清單，不走這個迴圈 */
+const ROWS = [[{ key: "name", label: "名稱" }], [{ key: "coordinates", label: "座標" }]] as const;
+
+/**
+ * 學科的選項就是「已經用過的學科」，不另外維護一份清單。
+ *
+ * 跟類型、領域同一個做法：打字就能登一個新的，用得多的排前面。
+ * 多個學科用頓號串在同一格，Sheet 那邊仍然是一欄。
+ */
+function usedTopics(infos: KeywordInfo[]): string[] {
+  const counts = new Map<string, number>();
+  for (const info of infos) {
+    for (const topic of info.topics.split("、").map((t) => t.trim())) {
+      if (topic) counts.set(topic, (counts.get(topic) ?? 0) + 1);
+    }
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "zh-Hant"))
+    .map(([topic]) => topic);
+}
 
 type KeywordEditDialogProps = {
   info: KeywordInfo;
@@ -46,6 +60,8 @@ type KeywordEditDialogProps = {
 
 /** 維基查回來的欄位都能手改；改完整列覆寫，不會被下次補齊蓋掉 */
 export function KeywordEditDialog({ info, onSave, onDelete, onClose }: KeywordEditDialogProps) {
+  const { infos } = useKeywordInfos();
+  const topicOptions = usedTopics(infos);
   const [form, setForm] = useState<KeywordInfo>(info);
   const [saving, setSaving] = useState(false);
   const [looking, setLooking] = useState(false);
@@ -80,7 +96,8 @@ export function KeywordEditDialog({ info, onSave, onDelete, onClose }: KeywordEd
         setNote("維基沒有這個條目");
         return;
       }
-      setForm((f) => ({ ...found, name: f.name }));
+      // 學科是自己分的，維基查回來不該動它
+      setForm((f) => ({ ...found, name: f.name, topics: f.topics }));
       setNote("已填入維基的資料，確認後按儲存");
     } catch (err) {
       setError(err instanceof Error ? err.message : "查詢失敗");
@@ -122,7 +139,35 @@ export function KeywordEditDialog({ info, onSave, onDelete, onClose }: KeywordEd
   return (
     <Dialog title={info.name} onClose={onClose}>
       <div className={styles.form}>
-        {ROWS.map((row, i) => (
+        <div className={styles.row}>
+          <div className={styles.field}>
+            <label className={styles.label}>名稱</label>
+            <input
+              value={form.name}
+              onChange={(e) => set("name", e.target.value)}
+              className={styles.input}
+            />
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label}>
+              學科
+              <span className={styles.hint}>多個用「、」隔開</span>
+            </label>
+            <input
+              value={form.topics}
+              onChange={(e) => set("topics", e.target.value)}
+              list="keyword-topics"
+              className={styles.input}
+            />
+            <datalist id="keyword-topics">
+              {topicOptions.map((topic) => (
+                <option key={topic} value={topic} />
+              ))}
+            </datalist>
+          </div>
+        </div>
+
+        {ROWS.slice(1).map((row, i) => (
           <div key={i} className={styles.row}>
             {row.map((field) => (
               <div key={field.key} className={styles.field}>
