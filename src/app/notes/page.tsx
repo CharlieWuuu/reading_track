@@ -61,6 +61,7 @@ function Quotes({ books }: { books: Book[] }) {
           <RecordCard
             key={record.id}
             title={record.bookTitle}
+            showTitle={false}
             coverUrl={record.bookCover}
             onClick={() => setEditing(record)}
           >

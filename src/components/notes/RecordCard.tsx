@@ -2,7 +2,9 @@
 
 const styles = {
   // 不畫框，改用分隔線隔開：一頁很多則的時候，滿版的框線比內容還搶眼
-  card: "flex cursor-pointer items-start gap-3 py-3 hover:bg-gray-50 md:py-4",
+  // 左右各留一點：外層是捲動容器（overflow-y 一旦不是 visible，橫向也會裁），
+  // 封面貼著邊的話光暈與外框線會被切掉一條
+  card: "flex cursor-pointer items-start gap-3 px-1 py-3 hover:bg-gray-50 md:py-4",
   // 手機封面縮一號，長句才不會被擠成又細又長的一條
   cover: "aspect-2/3 w-10 shrink-0 rounded-sm object-cover shadow ring-1 ring-black/10 md:w-14",
   blank:
@@ -16,7 +18,10 @@ const styles = {
 };
 
 type RecordCardProps = {
+  /** 封面對不到書時，用它的前兩個字當替代圖 */
   title: string;
+  /** 佳句已經看得出是哪一本（封面就在旁邊），書名反而搶走視線 */
+  showTitle?: boolean;
   coverUrl: string;
   /** 出處：接在書名後面，例如章節或 Kindle 的引用資訊 */
   meta?: string;
@@ -25,7 +30,14 @@ type RecordCardProps = {
 };
 
 /** 佳句與心得共用的版式：左邊封面，右邊書名與內文 */
-export function RecordCard({ title, coverUrl, meta, onClick, children }: RecordCardProps) {
+export function RecordCard({
+  title,
+  showTitle = true,
+  coverUrl,
+  meta,
+  onClick,
+  children,
+}: RecordCardProps) {
   return (
     <div onClick={onClick} className={styles.card}>
       {coverUrl ? (
@@ -36,16 +48,20 @@ export function RecordCard({ title, coverUrl, meta, onClick, children }: RecordC
       )}
 
       <div className={styles.body}>
-        <div className={styles.head}>
-          <p title={title} className={styles.title}>
-            {title}
-          </p>
-          {meta && (
-            <span title={meta} className={styles.meta}>
-              — {meta}
-            </span>
-          )}
-        </div>
+        {(showTitle || meta) && (
+          <div className={styles.head}>
+            {showTitle && (
+              <p title={title} className={styles.title}>
+                {title}
+              </p>
+            )}
+            {meta && (
+              <span title={meta} className={styles.meta}>
+                {showTitle ? `— ${meta}` : meta}
+              </span>
+            )}
+          </div>
+        )}
         {children}
       </div>
     </div>
