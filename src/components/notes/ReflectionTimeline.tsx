@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { dayLabel, groupByWeek, isUrl, Reflection } from "@/lib/reflections";
+import { useBooks } from "@/lib/useBooks";
 import { useMetrics } from "@/lib/useMetrics";
 
 const styles = {
@@ -19,6 +20,8 @@ const styles = {
   // 圓點要壓在線上：pl-3（12px）＋ 邊框 0.5px ＋ 自己的半徑 3.5px
   dot: "absolute -left-[16px] top-3.5 size-[7px] rounded-full ring-2 ring-white",
   head: "flex w-full min-w-0 items-baseline gap-2",
+  source: "mt-0.5 flex items-center gap-1.5 text-[11px] text-gray-400",
+  cover: "h-6 w-4 shrink-0 rounded-[2px] object-cover ring-1 ring-black/10",
   kind: "shrink-0 rounded px-1.5 py-0.5 text-[11px]",
   title: "min-w-0 flex-1 truncate text-sm font-medium",
   date: "shrink-0 text-[11px] text-gray-400 tabular-nums",
@@ -27,7 +30,7 @@ const styles = {
   note: "w-full min-w-0 text-sm leading-relaxed break-words whitespace-pre-wrap text-gray-700",
   tags: "flex w-full min-w-0 flex-wrap items-center gap-1 pt-1",
   tag: "rounded bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-500",
-  source: "ml-auto flex shrink-0 items-center gap-1 text-[11px] text-gray-400 hover:text-gray-900",
+  origin2: "ml-auto flex shrink-0 items-center gap-1 text-[11px] text-gray-400 hover:text-gray-900",
   origin: "max-w-full truncate text-[11px] text-gray-400",
   originLink: "max-w-full truncate text-[11px] text-gray-400 underline hover:text-gray-900",
 };
@@ -60,6 +63,9 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
   // 數字只在展開時出現：摺著的數線是拿來讀的，不該有數字在旁邊閃
   const { latestByEntry } = useMetrics();
+  // 延伸自某本書時秀出封面；文章沒有封面，只顯示書名
+  const { books } = useBooks();
+  const coverById = new Map(books.filter((b) => b.coverUrl).map((b) => [b.id, b.coverUrl]));
 
   function toggle(id: string) {
     setOpenIds((current) => {
@@ -98,6 +104,17 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
                       <span className={styles.title}>{r.title}</span>
                       <span className={styles.date}>{dayLabel(r.date)}</span>
                     </span>
+
+                    {/* 延伸自：摺著也看得到，那是「這則在講哪本書」的關鍵資訊 */}
+                    {r.sourceTitle && (
+                      <span className={styles.source}>
+                        {r.sourceId && coverById.get(r.sourceId) ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={coverById.get(r.sourceId)} alt="" className={styles.cover} />
+                        ) : null}
+                        {r.sourceTitle}
+                      </span>
+                    )}
 
                     {open ? (
                       <span className={styles.note}>{r.note}</span>
@@ -139,7 +156,7 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
                         <Link
                           href={r.href}
                           onClick={(e) => e.stopPropagation()}
-                          className={styles.source}
+                          className={styles.origin2}
                         >
                           {r.source}
                           <ExternalLink size={12} strokeWidth={1.5} />

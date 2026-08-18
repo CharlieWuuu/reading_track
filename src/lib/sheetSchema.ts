@@ -205,7 +205,7 @@ export const ARTICLE_TABLE: TableSpec<ArticleField> = {
 
 export const ENTRY_TABLE: TableSpec<EntryField> = {
   title: "紀事",
-  fields: ["id", "date", "title", "kind", "keywords", "note", "link"],
+  fields: ["id", "date", "title", "kind", "keywords", "note", "link", "sourceTitle", "sourceId"],
   idField: "id",
   legacy: [],
   labels: {
@@ -214,12 +214,16 @@ export const ENTRY_TABLE: TableSpec<EntryField> = {
     kind: "類型",
     note: "心得",
     link: "來源",
+    sourceTitle: "延伸自",
+    sourceId: "延伸自編號",
   },
   aliases: {
     ...COMMON_ALIASES,
     date: ["date", "日期", "完成日期", "紀錄日期"],
     kind: ["kind", "類型", "種類"],
     link: ["link", "url", "來源", "連結", "網址", "來源網址"],
+    sourceTitle: ["sourcetitle", "延伸自", "出自", "來源書名"],
+    sourceId: ["sourceid", "延伸自編號", "來源編號"],
   },
 };
 

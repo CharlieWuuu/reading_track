@@ -14,6 +14,7 @@ import { splitLines } from "@/types/book";
 import { Entry } from "@/types/entry";
 import { EMPTY_KEYWORD_INFO } from "@/types/keyword";
 import { KeywordEditDialog } from "../keywords/KeywordEditDialog";
+import { SourcePicker } from "./SourcePicker";
 
 const TEXTAREA_CLASS = "min-h-48 w-full flex-1 resize-none rounded border px-3 py-2 text-sm";
 
@@ -31,6 +32,8 @@ const emptyForm = {
   keywords: "",
   note: "",
   link: "",
+  sourceTitle: "",
+  sourceId: "",
 };
 
 type FormState = typeof emptyForm;
@@ -230,6 +233,14 @@ export function EntryForm({ entry }: { entry?: Entry }) {
               placeholder="注意力"
               suggestions={keywordSuggestions}
               onEditRow={setEditingKeyword}
+            />
+          </div>
+
+          {/* 讀了什麼之後寫的。心得就是靠這一欄指回那本書 */}
+          <div className="col-span-2 sm:col-span-3">
+            <SourcePicker
+              title={form.sourceTitle}
+              onChange={(title, id) => setForm((f) => ({ ...f, sourceTitle: title, sourceId: id }))}
             />
           </div>
 

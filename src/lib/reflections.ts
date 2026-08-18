@@ -20,6 +20,9 @@ export type Reflection = {
   kind?: string;
   /** 紀事的「來源」欄：網址或純文字（「紙本日記 8/17」），沒有就是空的 */
   origin?: string;
+  /** 延伸自哪一本書／哪篇文章 */
+  sourceTitle?: string;
+  sourceId?: string;
 };
 
 /** 純文字的來源不能拿去當連結，這裡只認 http(s) */
@@ -41,6 +44,8 @@ export function entriesToReflections(entries: Entry[], requireNote = true): Refl
       href: `/entries/${e.id}/edit`,
       kind: e.kind,
       origin: e.link,
+      sourceTitle: e.sourceTitle,
+      sourceId: e.sourceId,
     }));
 }
 
