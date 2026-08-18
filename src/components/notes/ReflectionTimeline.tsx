@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
+import { Favicon } from "@/components/ui/Favicon";
 import { dayLabel, groupByWeek, isUrl, Reflection } from "@/lib/reflections";
+import { useArticles } from "@/lib/useArticles";
 import { useBooks } from "@/lib/useBooks";
 import { useMetrics } from "@/lib/useMetrics";
 
@@ -12,6 +14,8 @@ const styles = {
   week: "flex w-full min-w-0 flex-col gap-2",
   weekHead: "flex w-full min-w-0 items-center gap-3 text-left",
   weekCaret: "shrink-0 text-gray-300",
+  // 跟週的箭頭同一個角色，只是小一階：收起來是 ›，展開是 ⌄
+  caret: "shrink-0 self-center text-gray-300",
   weekCount: "shrink-0 text-[11px] text-gray-400 tabular-nums",
   weekLabel: "shrink-0 text-xs font-medium text-gray-500 tabular-nums",
   weekYear: "shrink-0 text-[11px] text-gray-300 tabular-nums",
@@ -25,14 +29,16 @@ const styles = {
   body: "flex min-w-0 flex-1 flex-col gap-1",
   // 圓點要壓在線上：pl-3（12px）＋ 邊框 0.5px ＋ 自己的半徑 3.5px
   dot: "absolute -left-[16px] top-3.5 size-[7px] rounded-full ring-2 ring-white",
-  head: "flex w-full min-w-0 items-baseline gap-2",
-  source: "mt-0.5 text-[11px] text-gray-400",
-  cover: "h-11 w-[30px] shrink-0 rounded-sm object-cover shadow-sm ring-1 ring-black/10",
+  head: "flex w-full min-w-0 items-baseline gap-2 text-left",
+  // 內文整塊是連結：點字就進編輯頁，hover 才變色，平常不要看起來像連結
+  noteLink: "block w-full min-w-0 rounded hover:bg-gray-50",
+  // 收起來時整列只有一行，封面跟著縮成一行高，展開才長回來
+  cover: "shrink-0 rounded-sm object-cover shadow-sm ring-1 ring-black/10 transition-all",
+  coverOpen: "h-11 w-[30px]",
+  coverClosed: "h-5 w-[14px]",
   kind: "shrink-0 rounded px-1.5 py-0.5 text-[11px]",
   title: "min-w-0 flex-1 truncate text-sm font-medium",
   date: "shrink-0 text-[11px] text-gray-400 tabular-nums",
-  // 摺起來只給一行，展開才是完整內文加換行
-  peek: "w-full min-w-0 truncate text-xs text-gray-500",
   note: "w-full min-w-0 text-sm leading-relaxed break-words whitespace-pre-wrap text-gray-700",
   tags: "flex w-full min-w-0 flex-wrap items-center gap-1 pt-1",
   tag: "rounded bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-500",
@@ -55,11 +61,6 @@ const DOT_TONES: Record<Reflection["source"], string> = {
   紀事: "bg-emerald-400",
 };
 
-/** 摺疊時的第一行；心得常常是多行的，取到第一個換行為止 */
-function firstLine(note: string): string {
-  return note.split(/\r?\n/).find((line) => line.trim()) ?? "";
-}
-
 /**
  * 以週為單位的垂直時間軸。
  *
@@ -72,9 +73,11 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
   const [closedWeeks, setClosedWeeks] = useState<Set<string>>(new Set());
   // 數字只在展開時出現：摺著的數線是拿來讀的，不該有數字在旁邊閃
   const { latestByEntry } = useMetrics();
-  // 延伸自某本書時秀出封面；文章沒有封面，只顯示書名
+  // 延伸自某本書時秀出封面；延伸自文章就用站台圖示，兩種都在最左邊認得出來源
   const { books } = useBooks();
+  const { articles } = useArticles();
   const coverById = new Map(books.filter((b) => b.coverUrl).map((b) => [b.id, b.coverUrl]));
+  const articleUrlById = new Map(articles.map((a) => [a.id, a.sourceUrl]));
 
   function toggle(id: string) {
     setOpenIds((current) => {
@@ -115,40 +118,64 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
               const id = `${r.source}-${r.id}`;
               const open = openIds.has(id);
               const cover = r.sourceId ? coverById.get(r.sourceId) : undefined;
+              // 沒封面才輪到 favicon：延伸自書就該看到書封
+              const articleUrl =
+                !cover && r.sourceId && articleUrlById.has(r.sourceId)
+                  ? articleUrlById.get(r.sourceId)!
+                  : undefined;
               return (
                 <div key={id}>
-                  {/* 整列可點＝展開；要去原本的地方是右下角那個連結，兩件事分開 */}
-                  <button type="button" onClick={() => toggle(id)} className={styles.item}>
+                  {/* 標題那一行負責開合，內文本身是連結——想改字就直接點字，
+                      不用先展開再去找一個小小的「紀事↗」 */}
+                  <div className={styles.item}>
                     <span className={`${styles.dot} ${DOT_TONES[r.source]}`} />
 
                     {/* 讀書心得左邊放封面，一眼看得出是哪一本 */}
                     {cover && (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={cover} alt="" className={styles.cover} />
+                      <img
+                        src={cover}
+                        alt=""
+                        className={`${styles.cover} ${open ? styles.coverOpen : styles.coverClosed}`}
+                      />
                     )}
 
-                    <span className={styles.body}>
-                      <span className={styles.head}>
+                    {articleUrl !== undefined && (
+                      <Favicon
+                        url={articleUrl}
+                        fallback={r.sourceTitle || r.title}
+                        className="mt-0.5 size-5"
+                      />
+                    )}
+
+                    <div className={styles.body}>
+                      <button
+                        type="button"
+                        onClick={() => toggle(id)}
+                        aria-expanded={open}
+                        className={styles.head}
+                      >
+                        {open ? (
+                          <ChevronDown size={14} strokeWidth={1.5} className={styles.caret} />
+                        ) : (
+                          <ChevronRight size={14} strokeWidth={1.5} className={styles.caret} />
+                        )}
                         <span className={`${styles.kind} ${SOURCE_TONES[r.source]}`}>
                           {r.kind || r.source}
                         </span>
                         <span className={styles.title}>{r.title}</span>
                         <span className={styles.date}>{dayLabel(r.date)}</span>
-                      </span>
+                      </button>
 
-                      {open ? (
-                        <span className={styles.note}>{r.note}</span>
-                      ) : (
-                        <span className={styles.peek}>{firstLine(r.note)}</span>
-                      )}
-
-                      {/* 標題已經是書名時就不重複講一次；封面本身也說明了是哪一本 */}
-                      {r.sourceTitle && r.sourceTitle !== r.title && !cover && (
-                        <span className={styles.source}>延伸自 {r.sourceTitle}</span>
+                      {/* 收起來就只剩標題那一行；內文要展開才出現，點它進編輯頁 */}
+                      {open && r.note.trim() && (
+                        <Link href={r.href} className={styles.noteLink}>
+                          <span className={styles.note}>{r.note}</span>
+                        </Link>
                       )}
 
                       {open && (
-                        <span className={styles.tags}>
+                        <div className={styles.tags}>
                           {(() => {
                             const metric = latestByEntry.get(r.id);
                             if (!metric) return null;
@@ -165,7 +192,6 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
                                 href={r.origin}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
                                 className={styles.originLink}
                               >
                                 來源
@@ -178,18 +204,14 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
                               {name}
                             </span>
                           ))}
-                          <Link
-                            href={r.href}
-                            onClick={(e) => e.stopPropagation()}
-                            className={styles.origin2}
-                          >
+                          <Link href={r.href} className={styles.origin2}>
                             {r.source}
                             <ExternalLink size={12} strokeWidth={1.5} className="shrink-0" />
                           </Link>
-                        </span>
+                        </div>
                       )}
-                    </span>
-                  </button>
+                    </div>
+                  </div>
                 </div>
               );
             })}
