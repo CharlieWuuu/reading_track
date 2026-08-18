@@ -24,13 +24,13 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     href: "/entries",
-    label: "紀事",
+    label: "書寫",
     exact: true,
     Icon: () => <PenLine size={20} strokeWidth={1.5} />,
   },
   {
     href: "/notes",
-    label: "筆記",
+    label: "片段",
     Icon: () => <NotebookPen size={20} strokeWidth={1.5} />,
   },
   { href: "/stats", label: "統計", Icon: () => <ChartPie size={20} strokeWidth={1.5} /> },

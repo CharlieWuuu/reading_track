@@ -70,9 +70,9 @@ export function ImportNotesButton() {
 
   return (
     <div className={styles.wrap}>
-      <h3 className="text-sm font-medium">把心得搬成紀事</h3>
+      <h3 className="text-sm font-medium">把心得搬成書寫</h3>
       <p className={styles.hint}>
-        書籍與文章的「心得」欄各變成一則紀事，類型「心得」、延伸自指回原本那一筆。
+        書籍與文章的「心得」欄各變成一則書寫，類型「心得」、延伸自指回原本那一筆。
         原本的欄位不會被清掉，確認搬得沒問題之後你再自己刪。
       </p>
 

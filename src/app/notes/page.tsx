@@ -91,7 +91,7 @@ function NotesTabs() {
   return (
     <>
       <PageHeader
-        title="筆記"
+        title="片段"
         action={
           <TabBar
             items={TABS}

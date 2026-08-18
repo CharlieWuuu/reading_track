@@ -35,7 +35,7 @@ function EntriesList() {
         groups={[{ key: "kind", label: "類型", options: usedKinds(allEntries), value: kind }]}
         onChange={(key, next) => setParams({ [key]: next || null })}
       />
-      <ActionButton href="/entries/new">新增紀事</ActionButton>
+      <ActionButton href="/entries/new">新增書寫</ActionButton>
     </div>
   );
   if (!mounted) return null;
@@ -43,9 +43,9 @@ function EntriesList() {
   if (isLoading || error || entries.length === 0) {
     return (
       <>
-        <PageHeader title="紀事" action={action} />
+        <PageHeader title="書寫" action={action} />
         <PageMessage tone={error ? "error" : "muted"}>
-          {isLoading ? "載入中…" : error || "符合條件的紀事是空的"}
+          {isLoading ? "載入中…" : error || "符合條件的書寫是空的"}
         </PageMessage>
       </>
     );
@@ -53,7 +53,7 @@ function EntriesList() {
 
   return (
     <>
-      <PageHeader title="紀事" action={action} />
+      <PageHeader title="書寫" action={action} />
       <PageBody>
         {/* 沒寫心得的也要看得到：這裡是紀事本身的清單 */}
         <ReflectionTimeline reflections={entriesToReflections(entries, false)} />

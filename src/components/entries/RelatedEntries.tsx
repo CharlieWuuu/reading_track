@@ -38,7 +38,7 @@ export function RelatedEntries({
     <div className={styles.wrap}>
       <label className={styles.label}>
         <PenLine size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-        紀事
+        書寫
         <span className={styles.hint}>心得寫在這裡，一本書可以有很多則</span>
       </label>
 

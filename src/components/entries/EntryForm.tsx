@@ -309,7 +309,7 @@ export function EntryForm({ entry }: { entry?: Entry }) {
           disabled={submitting}
           className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
         >
-          {submitting ? "儲存中…" : isEdit ? "儲存變更" : "新增紀事"}
+          {submitting ? "儲存中…" : isEdit ? "儲存變更" : "新增書寫"}
         </button>
 
         {/* 刪除只出現在編輯頁，按一次先要求確認，避免誤刪 */}

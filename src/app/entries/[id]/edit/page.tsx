@@ -18,7 +18,7 @@ export default function EditEntryPage() {
   if (!sheetId || isLoading || error || !entry) {
     return (
       <>
-        <PageHeader title="編輯紀事" backHref="/entries" />
+        <PageHeader title="編輯書寫" backHref="/entries" />
         <PageMessage tone={error ? "error" : "muted"}>
           {!sheetId
             ? "請先到「設定」頁面連接 Google Sheet"
@@ -32,7 +32,7 @@ export default function EditEntryPage() {
 
   return (
     <>
-      <PageHeader title="編輯紀事" backHref="/entries" />
+      <PageHeader title="編輯書寫" backHref="/entries" />
       <PageBody>
         <div className="shrink-0 md:min-h-0 md:flex-1">
           <Suspense fallback={null}>
