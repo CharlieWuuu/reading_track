@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { useBooks } from "@/lib/useBooks";
+import { useBooks } from "@/hooks/useBooks";
 import { validateBooks } from "@/lib/validateBook";
 
 /**

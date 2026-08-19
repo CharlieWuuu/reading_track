@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { RecordGate } from "@/components/layout/RecordGate";
 import { EntryForm } from "@/features/entries/components/entry-form";
 import { EntryFormTabs } from "@/features/entries/components/entry-form-tabs";
-import { useEntries } from "@/lib/useEntries";
+import { useEntries } from "@/hooks/useEntries";
 
 function EditEntry() {
   const { id } = useParams<{ id: string }>();

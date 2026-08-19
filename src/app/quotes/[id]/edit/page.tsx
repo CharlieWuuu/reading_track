@@ -5,9 +5,9 @@ import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { RecordGate } from "@/components/layout/RecordGate";
 import { QuoteForm } from "@/features/notes/components/quote-form";
+import { useBooks } from "@/hooks/useBooks";
+import { useRecords } from "@/hooks/useRecords";
 import { useRecordEdits } from "@/lib/recordEdits";
-import { useBooks } from "@/lib/useBooks";
-import { useRecords } from "@/lib/useRecords";
 import { getQuoteRecords } from "@/lib/vocabularyStats";
 
 /** 一則佳句自己的編輯頁；佳句有編號，網址上就用它 */

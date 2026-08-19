@@ -11,10 +11,10 @@ import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
 import { useArticleFormTab } from "@/features/articles/components/article-form-tabs";
 import { RelatedEntries } from "@/features/entries/components/related-entries";
+import { useArticles } from "@/hooks/useArticles";
+import { useRecordForm } from "@/hooks/useRecordForm";
 import { today } from "@/lib/date";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
-import { useArticles } from "@/lib/useArticles";
-import { useRecordForm } from "@/lib/useRecordForm";
 import { Article } from "@/types/article";
 import { splitLines } from "@/types/book";
 

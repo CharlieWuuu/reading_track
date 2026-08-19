@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useEntries } from "@/lib/useEntries";
+import { useEntries } from "@/hooks/useEntries";
 import { useSheetStore } from "@/store/useSheetStore";
 
 const styles = {

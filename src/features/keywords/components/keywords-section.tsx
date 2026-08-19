@@ -11,7 +11,7 @@ import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
 import { KeywordTimeline } from "@/features/keywords/components/keyword-timeline";
 import { KeywordTreemap } from "@/features/keywords/components/keyword-treemap";
 import { getKeywordEntries } from "@/features/keywords/utils/keyword-stats";
-import { useUrlParams } from "@/lib/useUrlParam";
+import { useUrlParams } from "@/hooks/useUrlParam";
 import { Book } from "@/types/book";
 
 /** leaflet 直接碰 window，不能在伺服器端預先產生 */

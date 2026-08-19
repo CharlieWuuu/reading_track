@@ -1,8 +1,8 @@
 "use client";
 
 import { PageMessage } from "@/components/layout/PageMessage";
-import { useBooks } from "@/lib/useBooks";
-import { useMounted } from "@/lib/useMounted";
+import { useBooks } from "@/hooks/useBooks";
+import { useMounted } from "@/hooks/useMounted";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Book } from "@/types/book";
 

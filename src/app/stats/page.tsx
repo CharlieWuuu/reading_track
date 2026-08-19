@@ -15,6 +15,13 @@ import { MonthlyTrendChart } from "@/features/stats/components/monthly-trend-cha
 import { RankingBar } from "@/features/stats/components/ranking-bar";
 import { Section, SectionList } from "@/features/stats/components/section-list";
 import { YearlyTrendChart } from "@/features/stats/components/yearly-trend-chart";
+import { useArticles } from "@/hooks/useArticles";
+import { useBooks } from "@/hooks/useBooks";
+import { useEntries } from "@/hooks/useEntries";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { useMounted } from "@/hooks/useMounted";
+import { useRecords } from "@/hooks/useRecords";
+import { useUrlParams } from "@/hooks/useUrlParam";
 import {
   getArticleDomainDistribution,
   getArticleKpis,
@@ -35,13 +42,6 @@ import {
   getTypeDistribution,
 } from "@/lib/bookStats";
 import { getEntryKpis, getEntryMonthlyTrend, getKindDistribution } from "@/lib/entryStats";
-import { useArticles } from "@/lib/useArticles";
-import { useBooks } from "@/lib/useBooks";
-import { useEntries } from "@/lib/useEntries";
-import { useIsMobile } from "@/lib/useIsMobile";
-import { useMounted } from "@/lib/useMounted";
-import { useRecords } from "@/lib/useRecords";
-import { useUrlParams } from "@/lib/useUrlParam";
 import { useSheetStore } from "@/store/useSheetStore";
 
 type Tab = "books" | "articles" | "entries" | "calendar";

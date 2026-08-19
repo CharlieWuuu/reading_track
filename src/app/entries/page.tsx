@@ -8,11 +8,11 @@ import { ActionButton } from "@/components/ui/controls";
 import { SearchButton } from "@/components/ui/search-button";
 import { EntryFilter } from "@/features/entries/components/entry-filter";
 import { ReflectionTimeline } from "@/features/notes/components/reflection-timeline";
+import { useEntries } from "@/hooks/useEntries";
+import { useMounted } from "@/hooks/useMounted";
+import { useUrlParams } from "@/hooks/useUrlParam";
 import { entriesToReflections } from "@/lib/reflections";
 import { matchesSearch, searchTerms } from "@/lib/search";
-import { useEntries } from "@/lib/useEntries";
-import { useMounted } from "@/lib/useMounted";
-import { useUrlParams } from "@/lib/useUrlParam";
 import { splitTags } from "@/types/book";
 import { Entry } from "@/types/entry";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { PageMessage } from "@/components/layout/PageMessage";
-import { useMounted } from "@/lib/useMounted";
+import { useMounted } from "@/hooks/useMounted";
 import { useSheetStore } from "@/store/useSheetStore";
 
 type RecordGateProps = {

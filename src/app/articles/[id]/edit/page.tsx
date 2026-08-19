@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { RecordGate } from "@/components/layout/RecordGate";
 import { ArticleForm } from "@/features/articles/components/article-form";
 import { ArticleFormTabs } from "@/features/articles/components/article-form-tabs";
-import { useArticles } from "@/lib/useArticles";
+import { useArticles } from "@/hooks/useArticles";
 
 function EditArticle() {
   const { id } = useParams<{ id: string }>();

@@ -9,10 +9,10 @@ import { SearchButton } from "@/components/ui/search-button";
 import { BookTable } from "@/features/books/components/book-table";
 import { BookViewToggle } from "@/features/books/components/book-view-toggle";
 import { ReadingList } from "@/features/library/components/reading-list";
+import { useArticles } from "@/hooks/useArticles";
+import { useMounted } from "@/hooks/useMounted";
+import { useUrlParams } from "@/hooks/useUrlParam";
 import { matchesSearch, searchTerms } from "@/lib/search";
-import { useArticles } from "@/lib/useArticles";
-import { useMounted } from "@/lib/useMounted";
-import { useUrlParams } from "@/lib/useUrlParam";
 import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
 
 /**
