@@ -2,11 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { Suspense } from "react";
-import { BooksGate } from "@/components/layout/books-gate";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageMessage } from "@/components/layout/page-message";
 import { TabBar } from "@/components/ui/controls";
+import { BooksGate } from "@/features/books/components/books-gate";
 import {
   KEYWORD_VIEWS,
   KeywordsSection,
