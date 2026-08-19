@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { badRequest, requireSession, sheetFailure, unauthorized } from "@/app/api/_lib/respond";
+import {
+  badRequest,
+  guarded,
+  readJsonBody,
+  requireSession,
+  sheetFailure,
+  unauthorized,
+} from "@/app/api/_lib/respond";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -22,7 +29,10 @@ export function createItemRoute<P>(config: ItemConfig<P>): ItemRoute {
     if (!session) return unauthorized();
 
     const { id } = await params;
-    const { sheetId, patch } = (await req.json()) as { sheetId: string; patch: P };
+    const body = await readJsonBody<{ sheetId: string; patch: P }>(req, `update ${key}`);
+    if (!body) return badRequest("請求內容不是有效的 JSON");
+
+    const { sheetId, patch } = body;
     if (!sheetId) return badRequest("缺少 Sheet ID");
 
     try {
@@ -50,5 +60,5 @@ export function createItemRoute<P>(config: ItemConfig<P>): ItemRoute {
     }
   }
 
-  return { PATCH, DELETE };
+  return { PATCH: guarded(`PATCH ${key}`, PATCH), DELETE: guarded(`DELETE ${key}`, DELETE) };
 }

@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { badRequest, requireSession, sheetFailure, unauthorized } from "@/app/api/_lib/respond";
+import {
+  badRequest,
+  guarded,
+  readJsonBody,
+  requireSession,
+  sheetFailure,
+  unauthorized,
+} from "@/app/api/_lib/respond";
 import { requestUnlocked, withPrivacy } from "@/lib/privacy";
 
 /** 有 private 欄位才過得了 withPrivacy，三種紀錄都符合 */
@@ -42,7 +49,12 @@ export function createCollectionRoute<T extends Row>(config: CollectionConfig<T>
     const session = await requireSession();
     if (!session) return unauthorized();
 
-    const body = (await req.json()) as { sheetId?: string } & Record<string, unknown>;
+    const body = await readJsonBody<{ sheetId?: string } & Record<string, unknown>>(
+      req,
+      `add ${key}`,
+    );
+    if (!body) return badRequest("請求內容不是有效的 JSON");
+
     const sheetId = body.sheetId;
     const item = body[itemKey] as T | undefined;
     if (!sheetId || !item) return badRequest("缺少必要欄位");
@@ -55,5 +67,5 @@ export function createCollectionRoute<T extends Row>(config: CollectionConfig<T>
     }
   }
 
-  return { GET, POST };
+  return { GET: guarded(`GET ${key}`, GET), POST: guarded(`POST ${key}`, POST) };
 }
