@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { PageMessage } from "@/components/layout/PageMessage";
+import { RecordGate } from "@/components/layout/RecordGate";
 import { QuoteForm } from "@/components/notes/QuoteForm";
 import { useRecordEdits } from "@/lib/recordEdits";
 import { useBooks } from "@/lib/useBooks";
@@ -24,13 +24,13 @@ export default function EditQuotePage() {
     <>
       <PageHeader title="編輯佳句" backHref="/notes?tab=quotes" />
       <PageBody>
-        {isLoading || loadingBooks ? (
-          <PageMessage>載入中…</PageMessage>
-        ) : error || !record ? (
-          <PageMessage tone={error ? "error" : "muted"}>{error || "找不到這一則"}</PageMessage>
-        ) : (
-          <QuoteForm record={record} onSave={saveQuote} onDone={() => router.back()} />
-        )}
+        <RecordGate
+          loading={isLoading || loadingBooks}
+          error={error}
+          missing={!record && "找不到這一則"}
+        >
+          {record && <QuoteForm record={record} onSave={saveQuote} onDone={() => router.back()} />}
+        </RecordGate>
       </PageBody>
     </>
   );

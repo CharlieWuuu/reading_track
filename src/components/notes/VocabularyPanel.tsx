@@ -1,5 +1,6 @@
 "use client";
 
+import { BookCover } from "@/components/ui/BookCover";
 import { CardMasonry } from "@/components/ui/CardMasonry";
 import { VocabularyEntry } from "@/lib/vocabularyStats";
 
@@ -18,9 +19,6 @@ const styles = {
   sentenceTranslation: "text-xs leading-relaxed text-gray-400",
   // 封面靠右下角，淡淡一排就好：它是註腳，不是這張卡的主角
   covers: "flex shrink-0 items-center gap-1 opacity-60",
-  cover: "aspect-2/3 w-4 rounded-[2px] object-cover shadow-sm ring-1 ring-black/10",
-  blank:
-    "flex aspect-2/3 w-4 items-center justify-center rounded-[2px] bg-gray-100 text-[7px] leading-none text-gray-400",
   empty: "py-6 text-center text-xs text-gray-400",
 };
 
@@ -51,23 +49,14 @@ export function VocabularyPanel({ entries, onEdit }: VocabularyPanelProps) {
 
               {/* 讀到它的書跟著標題同一列靠右：它是註腳，不該自己佔一行 */}
               <div className={styles.covers}>
-                {entry.encounters.slice(0, 5).map((encounter, i) =>
-                  encounter.bookCover ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      key={i}
-                      src={encounter.bookCover}
-                      alt=""
-                      loading="lazy"
-                      title={encounter.bookTitle}
-                      className={styles.cover}
-                    />
-                  ) : (
-                    <div key={i} className={styles.blank} title={encounter.bookTitle}>
-                      {encounter.bookTitle.slice(0, 1)}
-                    </div>
-                  ),
-                )}
+                {entry.encounters.slice(0, 5).map((encounter, i) => (
+                  <BookCover
+                    key={i}
+                    url={encounter.bookCover}
+                    title={encounter.bookTitle}
+                    size="xs"
+                  />
+                ))}
                 {/* 只遇過一次的不標次數，那是常態，標了只是雜訊 */}
                 {entry.encounters.length > 1 && (
                   <span className={styles.count}>{entry.encounters.length} 次</span>

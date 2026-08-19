@@ -6,38 +6,23 @@ import { EntryForm } from "@/components/entries/EntryForm";
 import { EntryFormTabs } from "@/components/entries/EntryFormTabs";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { PageMessage } from "@/components/layout/PageMessage";
+import { RecordGate } from "@/components/layout/RecordGate";
 import { useEntries } from "@/lib/useEntries";
-import { useSheetStore } from "@/store/useSheetStore";
 
 function EditEntry() {
   const { id } = useParams<{ id: string }>();
-  const { sheetId } = useSheetStore();
   const { entries, isLoading, error } = useEntries();
   const entry = entries.find((e) => e.id === id);
 
-  if (!sheetId || isLoading || error || !entry) {
-    return (
-      <>
-        <PageHeader title="編輯書寫" backHref="/entries" />
-        <PageMessage tone={error ? "error" : "muted"}>
-          {!sheetId
-            ? "請先到「設定」頁面連接 Google Sheet"
-            : isLoading
-              ? "載入中…"
-              : error || "找不到這一筆"}
-        </PageMessage>
-      </>
-    );
-  }
-
   return (
     <>
-      <PageHeader title="編輯書寫" backHref="/entries" action={<EntryFormTabs />} />
+      <PageHeader title="編輯書寫" backHref="/entries" action={entry && <EntryFormTabs />} />
       <PageBody>
-        <div className="flex min-h-0 flex-1 flex-col">
-          <EntryForm key={entry.id} entry={entry} />
-        </div>
+        <RecordGate loading={isLoading} error={error} missing={!entry && "找不到這一筆"}>
+          <div className="flex min-h-0 flex-1 flex-col">
+            <EntryForm key={entry?.id} entry={entry} />
+          </div>
+        </RecordGate>
       </PageBody>
     </>
   );

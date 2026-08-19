@@ -9,6 +9,7 @@ import { Field } from "@/components/ui/Field";
 import { FormActions } from "@/components/ui/FormActions";
 import { OptionSelect } from "@/components/ui/OptionSelect";
 import { PrivateToggle } from "@/components/ui/PrivateToggle";
+import { fromDateTimeInput, now, toDateTimeInput } from "@/lib/date";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { useAutoSave } from "@/lib/useAutoSave";
 import { useEntries } from "@/lib/useEntries";
@@ -29,30 +30,6 @@ function TabPanel({ active, children }: { active: boolean; children: React.React
   return (
     <div className={`min-h-0 flex-1 flex-col gap-3 ${active ? "flex" : "hidden"}`}>{children}</div>
   );
-}
-
-/** 新增時預設此刻：想記的多半是剛發生的事，每次都要點日曆很煩 */
-function today(): string {
-  const now = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
-  const day = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-  return `${day} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-}
-
-/**
- * Sheet 上存「2026-08-18 14:32」，datetime-local 要的是中間一個 T。
- *
- * 存的那一份用空白隔開是因為那一格也是給人讀的，T 只是機器的分隔符號。
- * 舊資料只有日期，補上 00:00 才填得進控制項。
- */
-function toInput(value: string): string {
-  if (!value.trim()) return "";
-  const [day, clock = "00:00"] = value.trim().split(/[ T]/);
-  return `${day}T${clock.slice(0, 5)}`;
-}
-
-function fromInput(value: string): string {
-  return value.replace("T", " ").slice(0, 16);
 }
 
 const emptyForm = {
@@ -76,7 +53,7 @@ function toPayload(form: FormState) {
 
 /** 從書籍頁按「寫一則心得」進來時，延伸自與類型已經知道了，不用再選一次 */
 function toForm(entry: Entry | undefined, prefill: Partial<FormState>): FormState {
-  if (!entry) return { ...emptyForm, date: today(), ...prefill };
+  if (!entry) return { ...emptyForm, date: now(), ...prefill };
   return {
     ...emptyForm,
     ...Object.fromEntries(Object.entries(entry).filter(([, v]) => v !== undefined && v !== null)),
@@ -181,7 +158,7 @@ export function EntryForm({ entry }: { entry?: Entry }) {
 
       const metric = {
         id: crypto.randomUUID(),
-        date: today(),
+        date: now(),
         entryId: entry.id,
         title: form.title || stats.title || "",
         platform: stats.platform,
@@ -306,8 +283,8 @@ export function EntryForm({ entry }: { entry?: Entry }) {
               label="日期"
               Icon={CalendarCheck}
               type="datetime-local"
-              value={toInput(form.date)}
-              onChange={(v) => set("date", fromInput(v))}
+              value={toDateTimeInput(form.date)}
+              onChange={(v) => set("date", fromDateTimeInput(v))}
             />
             <CategorySelect
               label="類型"

@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { KeywordTag } from "@/components/keywords/KeywordTag";
 import { Favicon } from "@/components/ui/Favicon";
-import { dayLabel, groupByWeek, isUrl, Reflection, timeLabel } from "@/lib/reflections";
+import { dayLabel, timeLabel } from "@/lib/date";
+import { groupByWeek, isUrl, Reflection } from "@/lib/reflections";
 import { tagColorClass } from "@/lib/tagColors";
 import { useArticles } from "@/lib/useArticles";
 import { useBooks } from "@/lib/useBooks";

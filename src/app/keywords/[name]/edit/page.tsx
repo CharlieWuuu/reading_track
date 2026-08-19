@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { KeywordForm } from "@/components/keywords/KeywordForm";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { PageMessage } from "@/components/layout/PageMessage";
+import { RecordGate } from "@/components/layout/RecordGate";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { EMPTY_KEYWORD_INFO } from "@/types/keyword";
 
@@ -30,18 +30,14 @@ function EditKeyword() {
     <>
       <PageHeader title="編輯關鍵字" backHref={from} />
       <PageBody>
-        {isLoading ? (
-          <PageMessage>載入中…</PageMessage>
-        ) : error ? (
-          <PageMessage tone="error">{error}</PageMessage>
-        ) : (
+        <RecordGate loading={isLoading} error={error}>
           <KeywordForm
             info={info}
             onSave={save}
             onDelete={remove}
             onDone={() => router.push(from)}
           />
-        )}
+        </RecordGate>
       </PageBody>
     </>
   );

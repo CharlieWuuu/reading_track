@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BookCover } from "@/components/ui/BookCover";
 import { FormActions } from "@/components/ui/FormActions";
 import { useCategories } from "@/lib/useCategories";
 import { VocabularyEncounter, VocabularyEntry } from "@/lib/vocabularyStats";
@@ -10,9 +11,6 @@ const styles = {
   form: "flex flex-col gap-3",
   group: "flex flex-col gap-2",
   head: "flex items-center gap-2",
-  cover: "aspect-2/3 w-8 shrink-0 rounded-sm object-cover shadow ring-1 ring-black/10",
-  blank:
-    "flex aspect-2/3 w-8 shrink-0 items-center justify-center rounded-sm bg-gray-100 text-[9px] leading-tight text-gray-400",
   title: "min-w-0 flex-1 truncate text-xs text-gray-500",
   select: "shrink-0 rounded border px-2 py-1 text-xs",
   remove:
@@ -103,12 +101,7 @@ export function VocabularyForm({ entry, onSave, onDone }: VocabularyFormProps) {
         return (
           <div key={edit.id} className={styles.group}>
             <div className={styles.head}>
-              {encounter.bookCover ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={encounter.bookCover} alt="" loading="lazy" className={styles.cover} />
-              ) : (
-                <div className={styles.blank}>{encounter.bookTitle.slice(0, 2)}</div>
-              )}
+              <BookCover url={encounter.bookCover} title={encounter.bookTitle} size="md" />
               <span className={styles.title}>{encounter.bookTitle}</span>
               <select
                 value={edit.language}

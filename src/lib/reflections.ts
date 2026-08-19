@@ -1,3 +1,4 @@
+import { parseDate } from "@/lib/date";
 import { splitLines } from "@/types/book";
 import { Entry } from "@/types/entry";
 
@@ -59,55 +60,6 @@ export type ReflectionWeek = {
   year: number;
   items: Reflection[];
 };
-
-/**
- * 「2026-08-17」或「2026-08-17 14:32」當成當地時區的那一刻。
- *
- * 不能直接 new Date(字串)：只有日期的那種會被當成 UTC 午夜，在西半球會倒退一天，
- * 分到上一週去。時間是後來才加的，舊資料只有日期，所以時分一律可省略。
- */
-export function parseDate(value: string | null): Date | null {
-  if (!value) return null;
-  const [day, clock = ""] = value.trim().split(/[ T]/);
-  const [y, m, d] = day.split("-").map(Number);
-  if (!y || !m || !d) return null;
-  const [hh, mm] = clock.split(":").map(Number);
-  const date = new Date(y, m - 1, d, hh || 0, mm || 0);
-  return isNaN(+date) ? null : date;
-}
-
-/** 只有日期的舊資料不該憑空長出一個 00:00 */
-export function timeLabel(value: string | null): string {
-  const clock = value?.trim().split(/[ T]/)[1] ?? "";
-  const [hh, mm] = clock.split(":");
-  return hh && mm ? `${hh}:${mm}` : "";
-}
-
-const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
-
-function startOfDay(date: Date): number {
-  return +new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
-/**
- * 近的講關係、遠的講日期。
- *
- * 「今天」「昨天」比「8/18」好讀，是因為讀的人不用先想今天幾號；
- * 但這個優勢過了一週就沒了——「11 天前」還是得換算，不如直接給日期。
- */
-export function dayLabel(value: string | null): string {
-  const date = parseDate(value);
-  if (!date) return "";
-
-  const now = new Date();
-  const days = Math.round((startOfDay(now) - startOfDay(date)) / 86400000);
-  if (days === 0) return "今天";
-  if (days === 1) return "昨天";
-  if (days > 1 && days < 7) return `週${WEEKDAYS[date.getDay()]}`;
-
-  const md = `${date.getMonth() + 1}/${date.getDate()}`;
-  return date.getFullYear() === now.getFullYear() ? md : `${date.getFullYear()}/${md}`;
-}
 
 /** ISO 8601 的週：週一開頭，跨年那幾天跟著「哪一年佔比較多天」走 */
 function weekStart(date: Date): Date {

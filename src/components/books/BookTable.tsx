@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { Tag } from "lucide-react";
 import { PageMessage } from "@/components/layout/PageMessage";
+import { BookCover } from "@/components/ui/BookCover";
 import { TagList as OptionList, STATUS_STYLES, StatusBadge } from "@/components/ui/TagBadge";
 import { matchesSearch, searchTerms } from "@/lib/search";
 import { useBooks } from "@/lib/useBooks";
@@ -13,48 +14,6 @@ import { useUrlParams } from "@/lib/useUrlParam";
 import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Book, ReadingStatus, splitLines } from "@/types/book";
-
-/** width：表格列不需要看清楚封面，小一點可以讓書名多拿一些寬度 */
-function Cover({ url, title, width = "w-10" }: { url: string; title: string; width?: string }) {
-  if (url) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={url}
-        alt=""
-        loading="lazy"
-        className={`aspect-2/3 rounded-sm object-cover shadow ring-1 ring-black/10 ${width}`}
-      />
-    );
-  }
-  return (
-    <div
-      className={`flex aspect-2/3 items-center justify-center rounded-sm bg-gray-100 text-[10px] leading-tight text-gray-400 ${width}`}
-    >
-      {title.slice(0, 2) || "—"}
-    </div>
-  );
-}
-
-/** 書封牆用的大書封，沒有書封時退回書名色塊，避免整面出現空洞 */
-function LargeCover({ url, title }: { url: string; title: string }) {
-  if (url) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={url}
-        alt=""
-        loading="lazy"
-        className="aspect-2/3 w-full rounded object-cover shadow transition group-hover:shadow-md"
-      />
-    );
-  }
-  return (
-    <div className="flex aspect-2/3 w-full items-center justify-center rounded bg-gray-100 p-2 text-center text-xs leading-snug text-gray-400">
-      {title.slice(0, 12) || "—"}
-    </div>
-  );
-}
 
 /** 目前篩選中的關鍵字。放在清單上方，因為它會改變下面看到的是什麼 */
 function KeywordFilter({
@@ -210,7 +169,12 @@ export function BookTable() {
                 <Link href={detailHref(b.id)} className="group flex flex-col gap-1">
                   {/* 書封牆是一整面圖，左側色條會把版面切得很碎，改成封面角落的小圓點 */}
                   <div className="relative">
-                    <LargeCover url={b.coverUrl} title={b.title} />
+                    <BookCover
+                      url={b.coverUrl}
+                      title={b.title}
+                      size="full"
+                      className="transition group-hover:shadow-md"
+                    />
                     <StatusDot status={b.status} />
                   </div>
                   <p className="truncate text-xs leading-snug font-medium">{b.title}</p>
@@ -239,7 +203,7 @@ export function BookTable() {
                 href={detailHref(b.id)}
                 className={`flex items-center gap-3 p-3 ${rowTone(b.endDate, thisYear)} ${statusAccent(b.status)}`}
               >
-                <Cover url={b.coverUrl} title={b.title} width="w-8" />
+                <BookCover url={b.coverUrl} title={b.title} size="xl" />
                 {/* 手機一列固定兩行：第一行是書名與狀態，第二行擠進作者、標籤與日期 */}
                 <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
                   <p className="flex min-w-0 items-center gap-2 text-sm font-medium">
@@ -322,7 +286,7 @@ export function BookTable() {
                       style={{ background: accentColor(b.status) ?? undefined }}
                     />
                   )}
-                  <Cover url={b.coverUrl} title={b.title} width="w-7" />
+                  <BookCover url={b.coverUrl} title={b.title} size="md" />
                 </td>
                 <td className="max-w-0 overflow-hidden px-3 py-2 align-middle">
                   {/* 編號與書名是同一塊，一起垂直置中；沒有編號時那一行就不存在 */}

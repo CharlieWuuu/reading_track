@@ -1,5 +1,7 @@
 "use client";
 
+import { BookCover } from "@/components/ui/BookCover";
+
 import { RankingItem } from "@/lib/bookStats";
 import { SEQUENTIAL } from "@/lib/chartPalette";
 
@@ -41,7 +43,7 @@ export function RankingBar({
         <ul className="flex flex-col gap-2.5">
           {data.map((item, i) => (
             <li key={item.name} className="flex items-center gap-2">
-              {showCover && <Cover url={item.coverUrl} title={item.name} />}
+              {showCover && <BookCover url={item.coverUrl ?? ""} title={item.name} size="md" />}
 
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
@@ -64,25 +66,6 @@ export function RankingBar({
           ))}
         </ul>
       )}
-    </div>
-  );
-}
-
-function Cover({ url, title }: { url?: string; title: string }) {
-  if (url) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={url}
-        alt=""
-        loading="lazy"
-        className="aspect-2/3 w-7 shrink-0 rounded-sm object-cover shadow-sm"
-      />
-    );
-  }
-  return (
-    <div className="flex aspect-2/3 w-7 shrink-0 items-center justify-center rounded-sm bg-gray-100 text-[9px] leading-tight text-gray-400">
-      {title.slice(0, 2)}
     </div>
   );
 }

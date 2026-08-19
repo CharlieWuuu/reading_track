@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ExternalLink, Pencil } from "lucide-react";
+import { BookCover } from "@/components/ui/BookCover";
 import { Dialog } from "@/components/ui/Dialog";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { topicLabel } from "@/lib/keywords/topicLabels";
@@ -24,9 +25,6 @@ const styles = {
   groupLabel: "text-[11px] text-gray-400",
   list: "flex flex-col",
   row: "flex items-center gap-2 rounded py-1 text-sm hover:bg-gray-50",
-  cover: "aspect-2/3 w-5 shrink-0 rounded-[2px] object-cover shadow-sm ring-1 ring-black/10",
-  blank:
-    "flex aspect-2/3 w-5 shrink-0 items-center justify-center rounded-[2px] bg-gray-100 text-[7px] text-gray-400",
   title: "min-w-0 truncate",
   actions: "flex items-center gap-2 pt-1",
   edit: "flex items-center gap-1 rounded border px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50",
@@ -89,12 +87,7 @@ export function KeywordPopup({ name, onClose }: { name: string; onClose: () => v
             <div className={styles.list}>
               {mentions.books.map((book) => (
                 <Link key={book.id} href={`/books/${book.id}`} className={styles.row}>
-                  {book.coverUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={book.coverUrl} alt="" loading="lazy" className={styles.cover} />
-                  ) : (
-                    <span className={styles.blank}>{book.title.slice(0, 1)}</span>
-                  )}
+                  <BookCover url={book.coverUrl} title={book.title} size="sm" />
                   <span className={styles.title}>{book.title}</span>
                 </Link>
               ))}

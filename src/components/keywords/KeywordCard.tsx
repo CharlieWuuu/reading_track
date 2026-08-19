@@ -1,6 +1,7 @@
 "use client";
 
 import { ExternalLink } from "lucide-react";
+import { BookCover } from "@/components/ui/BookCover";
 import { topicLabel } from "@/lib/keywords/topicLabels";
 import { KeywordEntry } from "@/lib/keywordStats";
 import { KeywordInfo } from "@/types/keyword";
@@ -17,9 +18,6 @@ const styles = {
   wiki: "shrink-0 text-gray-300 hover:text-blue-700",
   // 封面靠右下角，淡淡一排就好：它是註腳，不是這張卡的主角
   covers: "mt-auto flex items-end justify-end gap-1 pt-1 opacity-60",
-  cover: "aspect-2/3 w-4 rounded-[2px] object-cover shadow-sm ring-1 ring-black/10",
-  blank:
-    "flex aspect-2/3 w-4 items-center justify-center rounded-[2px] bg-gray-100 text-[7px] leading-none text-gray-400",
   more: "self-center text-[10px] text-gray-400 tabular-nums",
 };
 
@@ -70,23 +68,9 @@ export function KeywordCard({ entry, info, onEdit }: KeywordCardProps) {
 
       {/* 提到它的書只用封面表示，超過五本就用 +n 收掉 */}
       <div className={styles.covers}>
-        {entry.books.slice(0, 5).map((book) =>
-          book.coverUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              key={book.id}
-              src={book.coverUrl}
-              alt=""
-              loading="lazy"
-              title={book.title}
-              className={styles.cover}
-            />
-          ) : (
-            <div key={book.id} className={styles.blank} title={book.title}>
-              {book.title.slice(0, 1)}
-            </div>
-          ),
-        )}
+        {entry.books.slice(0, 5).map((book) => (
+          <BookCover key={book.id} url={book.coverUrl} title={book.title} size="xs" />
+        ))}
         {entry.books.length > 5 && <span className={styles.more}>+{entry.books.length - 5}</span>}
       </div>
     </div>

@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { PageMessage } from "@/components/layout/PageMessage";
+import { RecordGate } from "@/components/layout/RecordGate";
 import { VocabularyForm } from "@/components/notes/VocabularyForm";
 import { useRecordEdits } from "@/lib/recordEdits";
 import { useBooks } from "@/lib/useBooks";
@@ -30,13 +30,15 @@ export default function EditVocabularyPage() {
     <>
       <PageHeader title={name} backHref="/notes?tab=vocabulary" />
       <PageBody>
-        {isLoading || loadingBooks ? (
-          <PageMessage>載入中…</PageMessage>
-        ) : error || !entry ? (
-          <PageMessage tone={error ? "error" : "muted"}>{error || "找不到這個詞"}</PageMessage>
-        ) : (
-          <VocabularyForm entry={entry} onSave={saveVocabulary} onDone={() => router.back()} />
-        )}
+        <RecordGate
+          loading={isLoading || loadingBooks}
+          error={error}
+          missing={!entry && "找不到這個詞"}
+        >
+          {entry && (
+            <VocabularyForm entry={entry} onSave={saveVocabulary} onDone={() => router.back()} />
+          )}
+        </RecordGate>
       </PageBody>
     </>
   );

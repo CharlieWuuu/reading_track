@@ -7,6 +7,7 @@ import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { NoteBlock, QuoteBlock, VocabularyItem } from "@/components/notes/RecordItems";
+import { BookCover } from "@/components/ui/BookCover";
 import { ActionButton } from "@/components/ui/Controls";
 import { TagList as OptionList, StatusBadge } from "@/components/ui/TagBadge";
 import { useBooks } from "@/lib/useBooks";
@@ -14,24 +15,6 @@ import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Book, formatCount, splitLines } from "@/types/book";
-
-/** 詳細頁的封面：固定寬度，資訊區才不會隨封面比例左右跳 */
-function Cover({ url, title }: { url: string; title: string }) {
-  // self-start：右欄被拉高時封面要維持自己的比例，不能跟著一起拉長
-  const shape =
-    "aspect-2/3 w-24 shrink-0 self-start rounded object-cover shadow ring-1 ring-black/10 md:w-32";
-  if (url) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={url} alt="" className={shape} />;
-  }
-  return (
-    <div
-      className={`${shape} flex items-center justify-center bg-gray-100 p-2 text-center text-xs leading-snug text-gray-400`}
-    >
-      {title.slice(0, 12) || "—"}
-    </div>
-  );
-}
 
 /**
  * 章節標題：一行小字加一條細線，就是文件裡的分節。
@@ -182,7 +165,12 @@ export function BookDetailView() {
           {/* 書名頁：封面在左，右邊一條垂直線隔開書名與所有欄位 */}
           {/* 不設 items-start，右欄才會被拉到跟封面一樣高，那條垂直線就不會半途斷掉 */}
           <header className="flex gap-4 md:gap-6">
-            <Cover url={book.coverUrl} title={book.title} />
+            <BookCover
+              url={book.coverUrl}
+              title={book.title}
+              size="detail"
+              className="self-start"
+            />
             <div className="flex min-w-0 flex-1 flex-col gap-4 border-l border-gray-200 pl-4 md:pl-6">
               <h2 className="text-xl leading-snug font-semibold break-words text-gray-900 md:text-2xl">
                 {book.title}

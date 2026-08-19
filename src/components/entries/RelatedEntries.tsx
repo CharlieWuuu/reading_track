@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { PenLine } from "lucide-react";
+import { now } from "@/lib/date";
 import { useEntries } from "@/lib/useEntries";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Entry } from "@/types/entry";
@@ -22,15 +23,6 @@ const styles = {
   more: "rounded border px-3 py-1.5 text-sm font-medium hover:bg-gray-50",
   error: "shrink-0 text-xs text-red-600",
 };
-
-/** 本地時區的此刻；用 toISOString 會在台灣的早上八點前拿到昨天 */
-function today() {
-  const now = new Date();
-  return new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-    .toISOString()
-    .slice(0, 16)
-    .replace("T", " ");
-}
 
 /**
  * 這本書／這篇文章底下的書寫。
@@ -71,7 +63,7 @@ export function RelatedEntries({
     // 標題預設就是書名／文章標題，想取別的名字再進書寫頁改
     const entry: Entry = {
       id: crypto.randomUUID(),
-      date: today(),
+      date: now(),
       title: sourceTitle,
       kind,
       keywords: "",

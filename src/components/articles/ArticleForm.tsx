@@ -11,6 +11,7 @@ import { Field } from "@/components/ui/Field";
 import { FormActions } from "@/components/ui/FormActions";
 import { OptionSelect } from "@/components/ui/OptionSelect";
 import { PrivateToggle } from "@/components/ui/PrivateToggle";
+import { today } from "@/lib/date";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { useArticles } from "@/lib/useArticles";
 import { useAutoSave } from "@/lib/useAutoSave";
@@ -43,13 +44,6 @@ const emptyForm = {
 };
 
 type FormState = typeof emptyForm;
-
-/** 本地時區的今天；用 toISOString 會在台灣的早上八點前拿到昨天 */
-function today() {
-  const now = new Date();
-  const offset = now.getTimezoneOffset() * 60000;
-  return new Date(now.getTime() - offset).toISOString().slice(0, 10);
-}
 
 function toForm(article: Partial<Article>, isEdit: boolean): FormState {
   return {
