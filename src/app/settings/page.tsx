@@ -2,17 +2,17 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { AuthButton } from "@/components/auth/AuthButton";
-import { SignInPrompt } from "@/components/auth/SignInPrompt";
-import { EnrichButton } from "@/components/books/EnrichButton";
+import { AuthButton } from "@/features/auth/components/auth-button";
+import { SignInPrompt } from "@/components/ui/sign-in-prompt";
+import { EnrichButton } from "@/features/books/components/enrich-button";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PrivacyButton } from "@/components/layout/PrivacyButton";
-import { CategoryManager } from "@/components/settings/CategoryManager";
-import { DataIssuesPanel } from "@/components/settings/DataIssuesPanel";
-import { ImportNotesButton } from "@/components/settings/ImportNotesButton";
-import { SheetPicker } from "@/components/settings/SheetPicker";
-import { TabBar } from "@/components/ui/Controls";
+import { CategoryManager } from "@/features/settings/components/category-manager";
+import { DataIssuesPanel } from "@/features/settings/components/data-issues-panel";
+import { ImportNotesButton } from "@/features/settings/components/import-notes-button";
+import { SheetPicker } from "@/features/settings/components/sheet-picker";
+import { TabBar } from "@/components/ui/controls";
 import { useSheetStore } from "@/store/useSheetStore";
 
 type SettingsTab = "connect" | "categories" | "display" | "maintenance";

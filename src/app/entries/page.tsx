@@ -1,13 +1,13 @@
 "use client";
 
 import { Suspense } from "react";
-import { EntryFilter } from "@/components/entries/EntryFilter";
+import { EntryFilter } from "@/features/entries/components/entry-filter";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
-import { ReflectionTimeline } from "@/components/notes/ReflectionTimeline";
-import { ActionButton } from "@/components/ui/Controls";
-import { SearchButton } from "@/components/ui/SearchButton";
+import { ReflectionTimeline } from "@/features/notes/components/reflection-timeline";
+import { ActionButton } from "@/components/ui/controls";
+import { SearchButton } from "@/components/ui/search-button";
 import { entriesToReflections } from "@/lib/reflections";
 import { matchesSearch, searchTerms } from "@/lib/search";
 import { useEntries } from "@/lib/useEntries";

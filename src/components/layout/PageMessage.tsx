@@ -1,6 +1,6 @@
 "use client";
 
-import { SignInPrompt } from "@/components/auth/SignInPrompt";
+import { SignInPrompt } from "@/components/ui/sign-in-prompt";
 
 type PageMessageProps = {
   children: React.ReactNode;

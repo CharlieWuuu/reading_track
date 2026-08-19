@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Lock, LockOpen } from "lucide-react";
 import { useSWRConfig } from "swr";
-import { Dialog } from "@/components/ui/Dialog";
+import { Dialog } from "@/components/ui/dialog";
 import { clearSWRCache } from "@/lib/swrCache";
 import { usePrivacyStore } from "@/store/usePrivacyStore";
 import { useSheetStore } from "@/store/useSheetStore";

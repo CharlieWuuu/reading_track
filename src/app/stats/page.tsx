@@ -1,20 +1,20 @@
 "use client";
 
 import { Suspense } from "react";
-import { CalendarBody } from "@/components/calendar/CalendarBody";
+import { CalendarBody } from "@/features/calendar/components/calendar-body";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
-import { ArticleKpiCards } from "@/components/stats/ArticleKpiCards";
-import { CumulativeChart } from "@/components/stats/CumulativeChart";
-import { DistributionPie } from "@/components/stats/DistributionPie";
-import { DistributionTreemap } from "@/components/stats/DistributionTreemap";
-import { KpiCards } from "@/components/stats/KpiCards";
-import { MonthlyTrendChart } from "@/components/stats/MonthlyTrendChart";
-import { RankingBar } from "@/components/stats/RankingBar";
-import { Section, SectionList } from "@/components/stats/SectionList";
-import { YearlyTrendChart } from "@/components/stats/YearlyTrendChart";
-import { TabBar } from "@/components/ui/Controls";
+import { ArticleKpiCards } from "@/features/stats/components/article-kpi-cards";
+import { CumulativeChart } from "@/features/stats/components/cumulative-chart";
+import { DistributionPie } from "@/features/stats/components/distribution-pie";
+import { DistributionTreemap } from "@/features/stats/components/distribution-treemap";
+import { KpiCards } from "@/features/stats/components/kpi-cards";
+import { MonthlyTrendChart } from "@/features/stats/components/monthly-trend-chart";
+import { RankingBar } from "@/features/stats/components/ranking-bar";
+import { Section, SectionList } from "@/features/stats/components/section-list";
+import { YearlyTrendChart } from "@/features/stats/components/yearly-trend-chart";
+import { TabBar } from "@/components/ui/controls";
 import {
   getArticleDomainDistribution,
   getArticleKpis,

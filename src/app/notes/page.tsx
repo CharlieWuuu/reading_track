@@ -6,15 +6,15 @@ import {
   KEYWORD_VIEWS,
   KeywordsSection,
   type KeywordView,
-} from "@/components/keywords/KeywordsSection";
+} from "@/features/keywords/components/keywords-section";
 import { BooksGate } from "@/components/layout/BooksGate";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
-import { RecordCard } from "@/components/notes/RecordCard";
-import { QuoteBlock } from "@/components/notes/RecordItems";
-import { VocabularySection } from "@/components/notes/VocabularySection";
-import { TabBar } from "@/components/ui/Controls";
+import { RecordCard } from "@/features/notes/components/record-card";
+import { QuoteBlock } from "@/features/notes/components/record-items";
+import { VocabularySection } from "@/features/notes/components/vocabulary-section";
+import { TabBar } from "@/components/ui/controls";
 import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { getQuoteRecords } from "@/lib/vocabularyStats";

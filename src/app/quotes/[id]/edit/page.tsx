@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { RecordGate } from "@/components/layout/RecordGate";
-import { QuoteForm } from "@/components/notes/QuoteForm";
+import { QuoteForm } from "@/features/notes/components/quote-form";
 import { useRecordEdits } from "@/lib/recordEdits";
 import { useBooks } from "@/lib/useBooks";
 import { useRecords } from "@/lib/useRecords";

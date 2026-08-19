@@ -2,10 +2,11 @@ import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Noto_Serif_TC } from "next/font/google";
 import "./globals.css";
 import { COMMIT_HOOK_INSTALLER } from "react-component-overlay";
-import { SessionProvider } from "@/components/auth/SessionProvider";
 import { AppShell } from "@/components/layout/AppShell";
 import { ServiceWorkerRegistrar } from "@/components/layout/ServiceWorkerRegistrar";
 import { SWRProvider } from "@/components/layout/SWRProvider";
+import { AuthButton } from "@/features/auth/components/auth-button";
+import { SessionProvider } from "@/features/auth/components/session-provider";
 import { DebugSetup } from "./DebugSetup";
 
 // 全站用明體：Noto Serif TC 帶正體中文字面，latin 由同一家族的西文補上
@@ -67,7 +68,7 @@ export default function RootLayout({
         <SessionProvider>
           <SWRProvider>
             <DebugSetup>
-              <AppShell>{children}</AppShell>
+              <AppShell authSlot={<AuthButton />}>{children}</AppShell>
             </DebugSetup>
             <ServiceWorkerRegistrar />
           </SWRProvider>

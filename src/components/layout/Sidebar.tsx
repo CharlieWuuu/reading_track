@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { AuthButton } from "@/components/auth/AuthButton";
 import { useSidebarStore } from "@/store/useSidebarStore";
 import { NAV_ITEMS, NavItem } from "./navItems";
 import { PrivacyButton } from "./PrivacyButton";
@@ -78,7 +77,12 @@ function NavLink({ item, collapsed, active }: NavLinkProps) {
   );
 }
 
-export function Sidebar() {
+type SidebarProps = {
+  /** 帳號按鈕由 app 那層注入：側欄屬於共用層，不該認得 auth 這個 feature */
+  authSlot: React.ReactNode;
+};
+
+export function Sidebar({ authSlot }: SidebarProps) {
   const pathname = usePathname();
   const { collapsed, toggle } = useSidebarStore();
   const { data: session } = useSession();
@@ -116,7 +120,7 @@ export function Sidebar() {
           {showRefresh && <RefreshButton compact={collapsed} />}
           {showRefresh && <PrivacyButton compact={collapsed} />}
         </div>
-        <AuthButton compact={collapsed} />
+        {authSlot}
       </div>
     </nav>
   );

@@ -3,11 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 4173",
+    "dev": "concurrently -n next,sb -c cyan,magenta \"npm:dev:next\" \"npm:storybook\"",
+    "dev:next": "next dev -p 4173",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "storybook": "storybook dev -p 6006 --no-open",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@sparticuz/chromium": "^149.0.0",
@@ -28,25 +31,38 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@chromatic-com/storybook": "latest",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+    "@storybook/addon-a11y": "^10.5.9",
+    "@storybook/addon-docs": "^10.5.9",
+    "@storybook/addon-mcp": "latest",
+    "@storybook/addon-vitest": "^10.5.9",
+    "@storybook/nextjs-vite": "^10.5.9",
     "@tailwindcss/postcss": "^4",
     "@types/leaflet": "^1.9.22",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/browser-playwright": "4.1.11",
+    "@vitest/coverage-v8": "4.1.11",
+    "concurrently": "^10.0.5",
     "eslint": "^9",
     "eslint-config-next": "16.2.11",
+    "eslint-plugin-storybook": "^10.5.9",
     "playwright": "^1.61.1",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
+    "storybook": "^10.5.9",
     "tailwindcss": "^4",
     "typescript": "^5",
+    "vite": "latest",
     "vitest": "^4.1.11"
   },
   "overrides": {
     "postcss": "^8.5.26",
     "js-yaml": "^4.3.1",
     "undici": "^7.28.1",
-    "brace-expansion": "^1.1.18"
+    "brace-expansion": "^1.1.18",
+    "aria-query": "^5.3.2"
   }
 }
