@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { AuthButton } from "@/features/auth/components/auth-button";
-import { SignInPrompt } from "@/features/auth/components/sign-in-prompt";
+import { SignInPrompt } from "@/components/ui/sign-in-prompt";
 import { EnrichButton } from "@/features/books/components/enrich-button";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";

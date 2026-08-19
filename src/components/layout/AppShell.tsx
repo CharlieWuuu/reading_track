@@ -5,14 +5,20 @@ import { BottomNav } from "./BottomNav";
 import { PullToRefresh } from "./PullToRefresh";
 import { Sidebar } from "./Sidebar";
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  authSlot,
+}: {
+  children: React.ReactNode;
+  authSlot: React.ReactNode;
+}) {
   const mainRef = useRef<HTMLElement>(null);
 
   return (
     <div className="flex h-full w-full flex-col md:flex-row">
       {/* 桌面版側欄 */}
       <div className="hidden h-full md:block">
-        <Sidebar />
+        <Sidebar authSlot={authSlot} />
       </div>
 
       <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">

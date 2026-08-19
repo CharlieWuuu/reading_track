@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
+import { useSidebarStore } from "@/store/useSidebarStore";
 
-/** compact：手機頂欄用，只顯示頭像 */
-export function AuthButton({ compact = false }: { compact?: boolean } = {}) {
+/** 側欄收合時只顯示頭像；收合狀態直接讀 store，免得要跨 server/client 邊界傳 */
+export function AuthButton() {
   const { data: session, status } = useSession();
+  const compact = useSidebarStore((s) => s.collapsed);
 
   useEffect(() => {
     if (session?.error === "RefreshAccessTokenError") {

@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CalendarCheck, Link as LinkIcon, NotebookPen, Shapes, Tag } from "lucide-react";
-import { CategorySelect } from "@/features/books/components/category-select";
-import { compactLines } from "@/features/books/components/line-list-input";
+import { CategorySelect } from "@/components/ui/category-select";
+import { compactLines } from "@/components/ui/line-list-input";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
 import { OptionSelect } from "@/components/ui/option-select";

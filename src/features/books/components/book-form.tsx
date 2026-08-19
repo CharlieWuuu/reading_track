@@ -29,8 +29,8 @@ import { RelatedEntries } from "@/features/entries/components/related-entries";
 import { Field } from "@/components/ui/field";
 import { PrivateToggle } from "@/components/ui/private-toggle";
 import { useBookFormTab } from "@/features/books/components/book-form-tabs";
-import { CategorySelect } from "@/features/books/components/category-select";
-import { compactLines, LineListInput } from "@/features/books/components/line-list-input";
+import { CategorySelect } from "@/components/ui/category-select";
+import { compactLines, LineListInput } from "@/components/ui/line-list-input";
 import { QuoteListInput } from "@/features/books/components/quote-list-input";
 import { VocabularyListInput } from "@/features/books/components/vocabulary-list-input";
 
