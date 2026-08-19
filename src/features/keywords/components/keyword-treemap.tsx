@@ -1,9 +1,9 @@
 "use client";
 
 import { ResponsiveContainer, Treemap } from "recharts";
-import { CATEGORICAL } from "@/lib/chartPalette";
-import { topicLabel } from "@/features/keywords/utils/topic-labels";
 import { KeywordEntry } from "@/features/keywords/utils/keyword-stats";
+import { topicLabel } from "@/features/keywords/utils/topic-labels";
+import { CATEGORICAL } from "@/lib/chartPalette";
 import { KeywordInfo } from "@/types/keyword";
 
 const styles = {

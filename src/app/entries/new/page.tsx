@@ -1,10 +1,10 @@
 "use client";
 
 import { Suspense } from "react";
-import { EntryForm } from "@/features/entries/components/entry-form";
-import { EntryFormTabs } from "@/features/entries/components/entry-form-tabs";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { EntryForm } from "@/features/entries/components/entry-form";
+import { EntryFormTabs } from "@/features/entries/components/entry-form-tabs";
 
 function NewEntry() {
   return (

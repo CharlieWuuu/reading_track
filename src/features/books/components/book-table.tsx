@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import { Tag } from "lucide-react";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { BookCover } from "@/components/ui/book-cover";
-import { TagList, STATUS_STYLES, StatusBadge } from "@/components/ui/tag-badge";
+import { STATUS_STYLES, StatusBadge, TagList } from "@/components/ui/tag-badge";
 import { matchesSearch, searchTerms } from "@/lib/search";
 import { useBooks } from "@/lib/useBooks";
 import { useMounted } from "@/lib/useMounted";
@@ -227,12 +227,7 @@ export function BookTable() {
                       <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
                         <TagList values={[b.platform]} tone="platform" size="sm" wrap={false} />
                         <TagList values={[b.domain]} tone="domain" size="sm" wrap={false} />
-                        <TagList
-                          values={[b.subDomain]}
-                          tone="subDomain"
-                          size="sm"
-                          wrap={false}
-                        />
+                        <TagList values={[b.subDomain]} tone="subDomain" size="sm" wrap={false} />
                         <TagList values={[b.type]} tone="type" size="sm" wrap={false} />
                       </div>
                     </div>

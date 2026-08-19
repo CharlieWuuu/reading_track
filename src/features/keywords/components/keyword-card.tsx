@@ -2,8 +2,8 @@
 
 import { ExternalLink } from "lucide-react";
 import { BookCover } from "@/components/ui/book-cover";
-import { topicLabel } from "@/features/keywords/utils/topic-labels";
 import { KeywordEntry } from "@/features/keywords/utils/keyword-stats";
+import { topicLabel } from "@/features/keywords/utils/topic-labels";
 import { KeywordInfo } from "@/types/keyword";
 
 const styles = {

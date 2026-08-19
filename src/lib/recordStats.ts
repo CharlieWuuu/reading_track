@@ -16,10 +16,12 @@ function monthKey(date: Date): string {
 
 /** 沒填日期的就是還沒完成，一律不計入統計 */
 function dated<T extends DatedRecord>(records: T[]): { record: T; date: Date }[] {
-  return records
-    // 不用 new Date()：日期欄可能帶時間（「2026-08-18 14:32」），那種字串各家瀏覽器解讀不一
-    .map((record) => ({ record, date: parseDate(record.date) }))
-    .filter((item): item is { record: T; date: Date } => Boolean(item.date && !isNaN(+item.date)));
+  return (
+    records
+      // 不用 new Date()：日期欄可能帶時間（「2026-08-18 14:32」），那種字串各家瀏覽器解讀不一
+      .map((record) => ({ record, date: parseDate(record.date) }))
+      .filter((item): item is { record: T; date: Date } => Boolean(item.date && !isNaN(+item.date)))
+  );
 }
 
 export function getRecordKpis<T extends DatedRecord>(records: T[]) {

@@ -4,11 +4,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CalendarCheck, Link as LinkIcon, NotebookPen, Shapes, Tag } from "lucide-react";
 import { CategorySelect } from "@/components/ui/category-select";
-import { compactLines } from "@/components/ui/line-list-input";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
+import { compactLines } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
+import { useEntryFormTab } from "@/features/entries/components/entry-form-tabs";
+import { SourcePicker } from "@/features/entries/components/source-picker";
 import { fromDateTimeInput, now, toDateTimeInput } from "@/lib/date";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { useEntries } from "@/lib/useEntries";
@@ -18,8 +20,6 @@ import { useUrlParams } from "@/lib/useUrlParam";
 import { useSheetStore } from "@/store/useSheetStore";
 import { splitLines } from "@/types/book";
 import { Entry } from "@/types/entry";
-import { useEntryFormTab } from "@/features/entries/components/entry-form-tabs";
-import { SourcePicker } from "@/features/entries/components/source-picker";
 
 // 內文吃掉整個表單剩下的高度：這一欄是主體，寫長了不該只給它一個小框
 const TEXTAREA_CLASS =
