@@ -1,21 +1,39 @@
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import StyleDictionary from "style-dictionary";
 import { describe, expect, it } from "vitest";
-import { PRIMITIVES } from "@/styles/tokens";
+import config from "../../style-dictionary.config.mjs";
 
-/** globals.css 第一個 @theme 區塊就是 primitive 層，semantic 那兩塊只有 var() 不是色票 */
-function cssPrimitives(): Record<string, string> {
-  const css = readFileSync("src/app/globals.css", "utf8");
-  const block = css.match(/@theme\s*\{([^}]*)\}/g) ?? [];
-  const entries = [...block.join("\n").matchAll(/--color-([a-z]+-\d+):\s*(#[0-9a-f]{6})/g)];
-  return Object.fromEntries(entries.map(([, name, hex]) => [name, hex]));
+/**
+ * 產出物有進版控，所以要擋「改了 JSON 忘記跑 npm run tokens」。
+ * 重跑一次到暫存目錄，跟 repo 裡的逐字比對。
+ */
+async function rebuild(): Promise<Record<string, string>> {
+  const out = mkdtempSync(join(tmpdir(), "tokens-"));
+  const platforms = Object.fromEntries(
+    Object.entries(config.platforms).map(([key, p]) => [key, { ...p, buildPath: `${out}/` }]),
+  );
+  await new StyleDictionary({
+    ...config,
+    platforms,
+    log: { verbosity: "silent" },
+  }).buildAllPlatforms();
+  return Object.fromEntries(
+    Object.values(config.platforms).flatMap((p) =>
+      p.files.map((f) => [f.destination, readFileSync(join(out, f.destination), "utf8")]),
+    ),
+  );
 }
 
-describe("design token 兩份來源同步", () => {
-  it("tokens.ts 與 globals.css 的 primitive 完全一致", () => {
-    expect(PRIMITIVES).toEqual(cssPrimitives());
-  });
-
-  it("色票寫成小寫六碼，比對才不會因為大小寫假性通過", () => {
-    for (const hex of Object.values(PRIMITIVES)) expect(hex).toMatch(/^#[0-9a-f]{6}$/);
+describe("design token 產出物是最新的", () => {
+  it("重跑 style-dictionary 的結果與版控裡的一致", async () => {
+    const fresh = await rebuild();
+    for (const [name, content] of Object.entries(fresh)) {
+      expect(
+        readFileSync(`src/styles/generated/${name}`, "utf8"),
+        `${name} 過期，跑 npm run tokens`,
+      ).toBe(content);
+    }
   });
 });

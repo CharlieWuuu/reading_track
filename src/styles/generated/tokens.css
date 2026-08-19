@@ -1,0 +1,95 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@theme {
+  --color-blue-100: #dce6f1;
+  --color-blue-200: #cfe0ef;
+  --color-blue-300: #b9cde2;
+  --color-blue-400: #a9c2da;
+  --color-blue-600: #2b5a8e;
+  --color-blue-700: #24486f;
+  --color-azure-100: #e2ecf5;
+  --color-azure-300: #c2d6e6;
+  --color-azure-500: #4a8ab5;
+  --color-azure-700: #3d6e92;
+  --color-coral-100: #f6e0d6;
+  --color-coral-200: #f0d3c6;
+  --color-coral-300: #e6c3b4;
+  --color-coral-400: #dfb4a3;
+  --color-coral-500: #d97d60;
+  --color-coral-600: #b85c42;
+  --color-coral-700: #a85b41;
+  --color-coral-800: #8f4a33;
+  --color-mint-100: #dfede7;
+  --color-mint-200: #d2e5dc;
+  --color-mint-300: #bbd8cd;
+  --color-mint-350: #b5d4c8; /** 手調的中間階，硬塞進整十階會改到畫面 */
+  --color-mint-400: #afcec1;
+  --color-mint-500: #8fbfae;
+  --color-mint-700: #3f7a67;
+  --color-mint-800: #33604f;
+  --color-gold-100: #f7edcf;
+  --color-gold-200: #f2e3bc;
+  --color-gold-300: #e3d2a0;
+  --color-gold-400: #dcc793;
+  --color-gold-500: #e8c862;
+  --color-gold-600: #b07d2b;
+  --color-gold-700: #8a6d1b;
+  --color-gold-800: #75591a;
+  --color-sand-50: #fcfcfb;
+  --color-sand-100: #f5f1ea;
+  --color-sand-200: #eae3d8;
+  --color-sand-250: #e8e0d0; /** 手調的中間階，硬塞進整十階會改到畫面 */
+  --color-sand-300: #d5cabb;
+  --color-sand-500: #a2957f;
+  --color-sand-600: #8b7767;
+  --color-sand-700: #6f5b4c;
+  --color-sand-800: #5c4a3d;
+  --color-white: #ffffff;
+  --color-surface-sunken: var(--color-gray-50);
+  --color-ink: var(--color-gray-900);
+  --color-ink-muted: var(--color-gray-500);
+  --color-ink-faint: var(--color-gray-400);
+  --color-rule: var(--color-gray-300);
+  --color-rule-strong: var(--color-gray-900);
+  --color-series-overflow: var(--color-gray-400); /** 第 9 個以後合併成「其他」的那一格，不是第 9 個色 */
+  --color-tag-article-bg: var(--color-gray-100);
+  --color-tag-article-ink: var(--color-gray-500); /** 文章標籤是自由打的，沒有固定選項可配色，整組同一個中性色 */
+  --color-control-bg: var(--color-gray-900);
+  --color-control-bg-hover: var(--color-gray-700);
+  --color-control-ghost-hover: var(--color-gray-100);
+  --color-table-header-bg: var(--color-gray-100);
+  --color-map-label-bg: rgba(255, 255, 255, 0.9); /** 地名常駐在密集的點上，要半透明白底才讀得到 */
+  --color-map-label-ink: var(--color-gray-700);
+  --color-map-chrome-border: var(--color-gray-300);
+  --color-map-chrome-disabled: var(--color-gray-50);
+  --color-map-attribution-ink: var(--color-gray-400);
+  --color-map-attribution-link: var(--color-gray-500);
+  --color-surface: var(--color-white); /** 頁面底色 */
+  --color-surface-viz: var(--color-sand-50); /** 圖表畫布，比頁面底色暖一點才分得出圖與頁 */
+  --color-ink-viz: var(--color-sand-800); /** 深棕彩度太低會被讀成資料色，所以只當圖上的文字 */
+  --color-ink-viz-muted: var(--color-sand-700);
+  --color-ink-viz-faint: var(--color-sand-600);
+  --color-grid: var(--color-sand-250); /** 圖表格線；米白太淺當不了資料色，當格線剛好 */
+  --color-series-1: var(--color-blue-600);
+  --color-status-want-bg: var(--color-sand-200);
+  --color-status-want-ink: var(--color-sand-800);
+  --color-status-reading-bg: var(--color-gold-600);
+  --color-status-reading-ink: var(--color-white);
+  --color-status-done-bg: var(--color-sand-100); /** 多數狀態給最淡的一階，同色系但幾乎不出聲 */
+  --color-status-done-ink: var(--color-sand-500);
+  --color-tag-domain-bg: var(--color-mint-100);
+  --color-tag-domain-ink: var(--color-mint-700);
+  --color-tag-domain-ring: var(--color-mint-300); /** 次領域用外框版：同色系＝同一件事的粗細兩層 */
+  --color-tag-platform-bg: var(--color-azure-100);
+  --color-tag-platform-ink: var(--color-azure-700);
+  --color-tag-type-ink: var(--color-coral-700);
+  --color-tag-type-ring: var(--color-coral-300);
+  --color-tag-language-bg: var(--color-gold-100);
+  --color-tag-language-ink: var(--color-gold-700);
+  --color-control-ink: var(--color-white);
+  --color-control-ink-idle: var(--color-ink-muted);
+  --color-control-border: var(--color-rule);
+  --color-table-header-rule: var(--color-rule-strong); /** 表頭下緣用 inset shadow 畫，sticky 時 border 會被捲掉 */
+}

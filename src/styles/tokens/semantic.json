@@ -1,0 +1,94 @@
+{
+  "color": {
+    "surface": {
+      "$value": "{color.white}",
+      "$type": "color",
+      "$description": "頁面底色"
+    },
+    "surface-sunken": { "$value": "var(--color-gray-50)", "$type": "color" },
+    "surface-viz": {
+      "$value": "{color.sand.50}",
+      "$type": "color",
+      "$description": "圖表畫布，比頁面底色暖一點才分得出圖與頁"
+    },
+
+    "ink": { "$value": "var(--color-gray-900)", "$type": "color" },
+    "ink-muted": { "$value": "var(--color-gray-500)", "$type": "color" },
+    "ink-faint": { "$value": "var(--color-gray-400)", "$type": "color" },
+    "ink-viz": {
+      "$value": "{color.sand.800}",
+      "$type": "color",
+      "$description": "深棕彩度太低會被讀成資料色，所以只當圖上的文字"
+    },
+    "ink-viz-muted": { "$value": "{color.sand.700}", "$type": "color" },
+    "ink-viz-faint": { "$value": "{color.sand.600}", "$type": "color" },
+
+    "rule": { "$value": "var(--color-gray-300)", "$type": "color" },
+    "rule-strong": { "$value": "var(--color-gray-900)", "$type": "color" },
+    "grid": {
+      "$value": "{color.sand.250}",
+      "$type": "color",
+      "$description": "圖表格線；米白太淺當不了資料色，當格線剛好"
+    },
+
+    "series": {
+      "1": { "$value": "{color.blue.600}", "$type": "color" },
+      "overflow": {
+        "$value": "var(--color-gray-400)",
+        "$type": "color",
+        "$description": "第 9 個以後合併成「其他」的那一格，不是第 9 個色"
+      }
+    },
+
+    "status": {
+      "want": {
+        "bg": { "$value": "{color.sand.200}", "$type": "color" },
+        "ink": { "$value": "{color.sand.800}", "$type": "color" }
+      },
+      "reading": {
+        "bg": { "$value": "{color.gold.600}", "$type": "color" },
+        "ink": { "$value": "{color.white}", "$type": "color" }
+      },
+      "done": {
+        "bg": {
+          "$value": "{color.sand.100}",
+          "$type": "color",
+          "$description": "多數狀態給最淡的一階，同色系但幾乎不出聲"
+        },
+        "ink": { "$value": "{color.sand.500}", "$type": "color" }
+      }
+    },
+
+    "tag": {
+      "domain": {
+        "bg": { "$value": "{color.mint.100}", "$type": "color" },
+        "ink": { "$value": "{color.mint.700}", "$type": "color" },
+        "ring": {
+          "$value": "{color.mint.300}",
+          "$type": "color",
+          "$description": "次領域用外框版：同色系＝同一件事的粗細兩層"
+        }
+      },
+      "platform": {
+        "bg": { "$value": "{color.azure.100}", "$type": "color" },
+        "ink": { "$value": "{color.azure.700}", "$type": "color" }
+      },
+      "type": {
+        "ink": { "$value": "{color.coral.700}", "$type": "color" },
+        "ring": { "$value": "{color.coral.300}", "$type": "color" }
+      },
+      "language": {
+        "bg": { "$value": "{color.gold.100}", "$type": "color" },
+        "ink": { "$value": "{color.gold.700}", "$type": "color" }
+      },
+      "article": {
+        "bg": { "$value": "var(--color-gray-100)", "$type": "color" },
+        "ink": {
+          "$value": "var(--color-gray-500)",
+          "$type": "color",
+          "$description": "文章標籤是自由打的，沒有固定選項可配色，整組同一個中性色"
+        }
+      }
+    }
+  }
+}

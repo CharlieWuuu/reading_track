@@ -1,0 +1,40 @@
+{
+  "color": {
+    "control": {
+      "bg": { "$value": "var(--color-gray-900)", "$type": "color" },
+      "bg-hover": { "$value": "var(--color-gray-700)", "$type": "color" },
+      "ink": { "$value": "{color.white}", "$type": "color" },
+      "ink-idle": { "$value": "{color.ink-muted}", "$type": "color" },
+      "border": { "$value": "{color.rule}", "$type": "color" },
+      "ghost-hover": { "$value": "var(--color-gray-100)", "$type": "color" }
+    },
+    "table": {
+      "header": {
+        "bg": { "$value": "var(--color-gray-100)", "$type": "color" },
+        "rule": {
+          "$value": "{color.rule-strong}",
+          "$type": "color",
+          "$description": "表頭下緣用 inset shadow 畫，sticky 時 border 會被捲掉"
+        }
+      }
+    },
+    "map": {
+      "label": {
+        "bg": {
+          "$value": "rgba(255, 255, 255, 0.9)",
+          "$type": "color",
+          "$description": "地名常駐在密集的點上，要半透明白底才讀得到"
+        },
+        "ink": { "$value": "var(--color-gray-700)", "$type": "color" }
+      },
+      "chrome": {
+        "border": { "$value": "var(--color-gray-300)", "$type": "color" },
+        "disabled": { "$value": "var(--color-gray-50)", "$type": "color" }
+      },
+      "attribution": {
+        "ink": { "$value": "var(--color-gray-400)", "$type": "color" },
+        "link": { "$value": "var(--color-gray-500)", "$type": "color" }
+      }
+    }
+  }
+}

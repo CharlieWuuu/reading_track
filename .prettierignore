@@ -18,3 +18,6 @@ next-env.d.ts
 
 # Google 網站驗證檔，內容不能動
 public/google*.html
+
+# style-dictionary 產出物，格式由產生器決定
+src/styles/generated/
