@@ -14,8 +14,7 @@ import { PrivateToggle } from "@/components/ui/PrivateToggle";
 import { today } from "@/lib/date";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { useArticles } from "@/lib/useArticles";
-import { useAutoSave } from "@/lib/useAutoSave";
-import { useSheetStore } from "@/store/useSheetStore";
+import { useRecordForm } from "@/lib/useRecordForm";
 import { Article } from "@/types/article";
 import { splitLines } from "@/types/book";
 
@@ -72,7 +71,6 @@ function toPayload(form: FormState, article?: Article) {
 export function ArticleForm({ article }: { article?: Article }) {
   const router = useRouter();
   const from = useCurrentHref();
-  const { sheetId } = useSheetStore();
   const { articles, mutate } = useArticles();
   const isEdit = Boolean(article);
 
@@ -83,8 +81,6 @@ export function ArticleForm({ article }: { article?: Article }) {
 
   const { tab } = useArticleFormTab();
   const [form, setForm] = useState<FormState>(toForm(article ?? {}, isEdit));
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState("");
   const [fetching, setFetching] = useState(false);
   const [fetchNote, setFetchNote] = useState("");
 
@@ -137,110 +133,30 @@ export function ArticleForm({ article }: { article?: Article }) {
     }
   }
 
-  const payload = toPayload(form, article);
-  const autoSave = useAutoSave({
-    ready: Boolean(sheetId && form.title.trim()),
+  const {
+    submitting,
+    error: submitError,
+    setError: setSubmitError,
+    handleSubmit,
+    handleDelete,
+    openRecordThen,
+  } = useRecordForm({
+    resource: "articles",
+    bodyKey: "article",
     existingId: article?.id ?? "",
-    payload,
-    create: (id, body) =>
-      fetch("/api/articles", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sheetId, article: { id, ...body } }),
-        keepalive: true,
-      }).then(() => mutate()),
-    update: (id, body) =>
-      fetch(`/api/articles/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sheetId, patch: body }),
-        keepalive: true,
-      }).then(() => mutate()),
+    payload: toPayload(form, article),
+    redirectTo: "/books?type=article",
+    mutate,
+    validate: () => (form.title.trim() ? undefined : "請填標題"),
   });
 
-  /**
-   * 點關鍵字跳到那個字的編輯頁。
-   *
-   * 從「新增文章」跳走時先讓這一篇落地成一筆，並把網址換成它的編輯頁——
-   * 不然按上一頁會回到空的新增頁，再存一次就變成兩篇。
-   */
-  async function openKeyword(name: string) {
-    const isNew = !article && !autoSave.savedIdRef.current;
-    await autoSave.save();
-    const id = autoSave.savedIdRef.current;
-    if (isNew && id) router.replace(`/articles/${id}/edit`);
-    router.push(keywordEditHref(name, isNew && id ? `/articles/${id}/edit` : from));
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  /** 點關鍵字跳到那個字的編輯頁；沒填標題就先擋下來，不然新增頁沒東西可落地 */
+  function openKeyword(name: string) {
     if (!form.title.trim()) {
-      setSubmitError("請填標題");
+      setSubmitError("請先填標題");
       return;
     }
-    if (!sheetId) {
-      setSubmitError("請先到「設定」頁面連接 Google Sheet");
-      return;
-    }
-
-    setSubmitting(true);
-    setSubmitError("");
-    try {
-      // 自動存檔可能已經先建好這一筆了，那按下儲存就是改它，不是再開一篇
-      const existingId = article?.id || autoSave.savedIdRef.current;
-      if (existingId) {
-        const res = await fetch(`/api/articles/${existingId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sheetId, patch: payload }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? "更新失敗");
-      } else {
-        const newArticle: Article = { id: autoSave.newId, ...payload };
-        const res = await fetch("/api/articles", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sheetId, article: newArticle }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? "新增失敗");
-      }
-
-      autoSave.markSaved(payload);
-      await mutate();
-      router.push("/books?type=article");
-    } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "儲存失敗");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function handleDelete() {
-    if (!article || !sheetId) return;
-    autoSave.markDeleted();
-
-    setSubmitting(true);
-    setSubmitError("");
-    try {
-      const res = await fetch(
-        `/api/articles/${article.id}?sheetId=${encodeURIComponent(sheetId)}`,
-        { method: "DELETE" },
-      );
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? "刪除失敗");
-      }
-      await mutate(
-        (current) => ({ articles: (current?.articles ?? []).filter((a) => a.id !== article.id) }),
-        { revalidate: false },
-      );
-      router.push("/books?type=article");
-    } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "刪除失敗");
-      setSubmitting(false);
-    }
+    openRecordThen((back) => router.push(keywordEditHref(name, back)), from);
   }
 
   return (

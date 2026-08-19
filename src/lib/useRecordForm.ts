@@ -14,8 +14,10 @@ type RecordFormOptions<P> = {
   existingId: string;
   /** 現在這一刻要送出去的內容 */
   payload: P;
-  /** 存完（含刪除）之後要去哪 */
+  /** 存完之後要去哪 */
   redirectTo: string;
+  /** 刪完之後要去哪；書籍存完是回它的詳細頁，但那一頁已經沒了，所以要回清單 */
+  deleteRedirectTo?: string;
   /** 重新抓清單；刪除時可以傳自己的更新函式，見 mutateOnDelete */
   mutate: () => Promise<unknown>;
   /** 沒填必填欄位時回一句話，回了就不送出 */
@@ -40,6 +42,7 @@ export function useRecordForm<P>({
   existingId,
   payload,
   redirectTo,
+  deleteRedirectTo,
   mutate,
   validate,
   onSaved,
@@ -129,7 +132,7 @@ export function useRecordForm<P>({
         throw new Error(data.error ?? "刪除失敗");
       }
       await mutate();
-      router.push(redirectTo);
+      router.push(deleteRedirectTo ?? redirectTo);
     } catch (err) {
       setError(err instanceof Error ? err.message : "刪除失敗");
       setSubmitting(false);

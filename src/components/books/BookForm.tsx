@@ -19,11 +19,10 @@ import { FormActions } from "@/components/ui/FormActions";
 import { OptionSelect } from "@/components/ui/OptionSelect";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { fullerTitle } from "@/lib/metadata";
-import { useAutoSave } from "@/lib/useAutoSave";
 import { useBooks } from "@/lib/useBooks";
+import { useRecordForm } from "@/lib/useRecordForm";
 import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
-import { useSheetStore } from "@/store/useSheetStore";
 import { Book, inferStatus, splitLines } from "@/types/book";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { RelatedEntries } from "../entries/RelatedEntries";
@@ -154,7 +153,6 @@ export function BookForm({
 
   const { tab, setTab } = useBookFormTab();
   const from = useCurrentHref();
-  const { sheetId } = useSheetStore();
   const { books: allBooks, mutate } = useBooks();
   // 已經用過的關鍵字拿來當建議，免得同一個東西被打成兩種寫法
   const keywordSuggestions = [...new Set(allBooks.flatMap((b) => splitLines(b.keywords)))].sort(
@@ -174,40 +172,43 @@ export function BookForm({
     setQuoteRows(quotes.filter((row) => row.bookId === bookId));
   }
   const [form, setForm] = useState<FormState>(toForm(book ?? initial ?? {}));
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState("");
   const [refetching, setRefetching] = useState(false);
   const [refetchNote, setRefetchNote] = useState("");
   const isEdit = Boolean(book);
 
-  const payload = toPayload(form, book);
-  const autoSave = useAutoSave({
-    ready: Boolean(sheetId && form.title.trim()),
+  const {
+    submitting,
+    error: submitError,
+    setError: setSubmitError,
+    handleSubmit,
+    handleDelete,
+    openRecordThen,
+  } = useRecordForm({
+    resource: "books",
+    bodyKey: "book",
     existingId: book?.id ?? "",
-    payload,
-    create: (id, body) =>
-      fetch("/api/books", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sheetId, book: { id, ...body } }),
-        keepalive: true,
-      }).then(() => mutate()),
-    update: (id, body) =>
-      fetch(`/api/books/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sheetId, patch: body }),
-        keepalive: true,
-      }).then(() => mutate()),
+    payload: toPayload(form, book),
+    redirectTo: backHref,
+    deleteRedirectTo: listHref,
+    mutate,
+    validate: () => (form.title.trim() ? undefined : "請填書名"),
+    // 佳句與單字靠書籍編號認人，新增時那個編號要等書存完才生得出來
+    onSaved: async (id) => {
+      const withBook = <T extends { bookId: string; bookTitle: string }>(rows: T[]) =>
+        rows.map((row) => ({ ...row, bookId: id, bookTitle: form.title }));
+      await saveBookRows("vocabulary", id, form.title, withBook(vocabularyRows));
+      await saveBookRows("quotes", id, form.title, withBook(quoteRows));
+    },
   });
 
-  /** 點關鍵字跳到那個字的編輯頁；新增頁要先落地成一筆，回來才不會又開一本 */
-  async function openKeyword(name: string) {
-    const isNew = !book && !autoSave.savedIdRef.current;
-    await autoSave.save();
-    const id = autoSave.savedIdRef.current;
-    if (isNew && id) router.replace(`/books/${id}/edit`);
-    router.push(keywordEditHref(name, isNew && id ? `/books/${id}/edit` : from));
+  /** 點關鍵字跳到那個字的編輯頁；沒填書名就先擋下來，不然新增頁沒東西可落地 */
+  function openKeyword(name: string) {
+    if (!form.title.trim()) {
+      setTab("book");
+      setSubmitError("請先填書名");
+      return;
+    }
+    openRecordThen((back) => router.push(keywordEditHref(name, back)), from);
   }
 
   /**
@@ -261,99 +262,15 @@ export function BookForm({
     setForm((f) => ({ ...f, [key]: value }));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    // 書名可能藏在別的分頁裡，瀏覽器沒辦法聚焦提示，改自己切回去講
-    if (!form.title.trim()) {
-      setTab("book");
-      setSubmitError("請填書名");
-      return;
-    }
-    if (!sheetId) {
-      setSubmitError("請先到「設定」頁面連接 Google Sheet");
-      return;
-    }
-
-    const payload = toPayload(form, book);
-
-    setSubmitting(true);
-    setSubmitError("");
-    try {
-      // 自動存檔可能已經先建好這一本了，那按下儲存就是改它，不是再開一本
-      let savedId = book?.id || autoSave.savedIdRef.current;
-      if (savedId) {
-        const res = await fetch(`/api/books/${savedId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sheetId, patch: payload }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? "更新失敗");
-      } else {
-        const newBook: Book = { id: autoSave.newId, ...payload };
-        const res = await fetch("/api/books", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sheetId, book: newBook }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? "新增失敗");
-        savedId = newBook.id;
-      }
-
-      // 紀錄要等書存好才寫得進去：它們靠書籍編號認人，新增時那個編號才剛生出來
-      await saveBookRows(
-        "vocabulary",
-        savedId,
-        form.title,
-        vocabularyRows.map((row) => ({ ...row, bookId: savedId, bookTitle: form.title })),
-      );
-      await saveBookRows(
-        "quotes",
-        savedId,
-        form.title,
-        quoteRows.map((row) => ({ ...row, bookId: savedId, bookTitle: form.title })),
-      );
-
-      autoSave.markSaved(payload, savedId);
-      await mutate();
-      router.push(backHref);
-    } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "儲存失敗");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function handleDelete() {
-    if (!book || !sheetId) return;
-    autoSave.markDeleted();
-
-    setSubmitting(true);
-    setSubmitError("");
-    try {
-      const res = await fetch(`/api/books/${book.id}?sheetId=${encodeURIComponent(sheetId)}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? "刪除失敗");
-      }
-      await mutate(
-        (current) => ({ books: (current?.books ?? []).filter((b) => b.id !== book.id) }),
-        { revalidate: false },
-      );
-      router.push(listHref);
-    } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "刪除失敗");
-      setSubmitting(false);
-    }
-  }
-
-  // 桌機撐滿可用高度，靠三欄排版讓欄位在一頁內看完；
-  // 手機排不成三欄，改成表單自己長高、交給外層的主捲動區捲
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 md:h-full md:min-h-0">
+    // 書名在「書籍」那一頁，沒填時要先切過去，不然錯誤訊息旁邊是空的
+    <form
+      onSubmit={(e) => {
+        if (!form.title.trim()) setTab("book");
+        handleSubmit(e);
+      }}
+      className="flex flex-col gap-3 md:h-full md:min-h-0"
+    >
       {notice && (
         <p className="shrink-0 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
           {notice}
