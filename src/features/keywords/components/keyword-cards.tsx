@@ -4,8 +4,8 @@ import { useState } from "react";
 import { KeywordCard } from "@/features/keywords/components/keyword-card";
 import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
 import { CardMasonry } from "@/components/ui/card-masonry";
-import { getKeywordEntries } from "@/lib/keywordStats";
-import { useKeywordInfos } from "@/lib/useKeywordInfos";
+import { getKeywordEntries } from "@/features/keywords/utils/keyword-stats";
+import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { Book } from "@/types/book";
 
 const styles = {

@@ -9,8 +9,8 @@ import { KeywordTimeline } from "@/features/keywords/components/keyword-timeline
 import { KeywordTreemap } from "@/features/keywords/components/keyword-treemap";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { ViewToggle } from "@/components/ui/controls";
-import { getKeywordEntries } from "@/lib/keywordStats";
-import { useKeywordInfos } from "@/lib/useKeywordInfos";
+import { getKeywordEntries } from "@/features/keywords/utils/keyword-stats";
+import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { Book } from "@/types/book";
 

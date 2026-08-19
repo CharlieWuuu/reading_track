@@ -4,7 +4,7 @@ import { useState } from "react";
 import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
 import { BookCover } from "@/components/ui/book-cover";
 import { CATEGORICAL } from "@/lib/chartPalette";
-import { KeywordEntry } from "@/lib/keywordStats";
+import { KeywordEntry } from "@/features/keywords/utils/keyword-stats";
 import { KeywordInfo, parseSpan } from "@/types/keyword";
 
 const styles = {

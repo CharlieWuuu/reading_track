@@ -6,7 +6,7 @@ import { KeywordForm } from "@/features/keywords/components/keyword-form";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { RecordGate } from "@/components/layout/RecordGate";
-import { useKeywordInfos } from "@/lib/useKeywordInfos";
+import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { EMPTY_KEYWORD_INFO } from "@/types/keyword";
 
 /**

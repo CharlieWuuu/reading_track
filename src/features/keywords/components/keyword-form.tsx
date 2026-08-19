@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { FormActions } from "@/components/ui/form-actions";
 import { OptionSelect } from "@/components/ui/option-select";
-import { useKeywordInfos } from "@/lib/useKeywordInfos";
+import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { formatSpan, KeywordInfo, parseSpan } from "@/types/keyword";
 
 const styles = {
