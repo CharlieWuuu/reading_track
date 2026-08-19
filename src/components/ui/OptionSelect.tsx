@@ -176,11 +176,10 @@ export function OptionSelect({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  if (canCreate) create();
-                  else if (filtered.length > 0) pick(filtered[0]);
-                }
+                // Enter 一律不新增，只擋住表單送出。
+                // 中文輸入法選字就是按 Enter，讓它同時代表「加這個標籤」的話，
+                // 打到一半（「清」還沒變成「清邁」）就會先被加進去。
+                if (e.key === "Enter") e.preventDefault();
                 if (e.key === "Escape") setOpen(false);
               }}
               placeholder={`搜尋或新增${label}`}
