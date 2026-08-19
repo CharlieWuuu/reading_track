@@ -6,8 +6,8 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { RecordGate } from "@/components/layout/RecordGate";
 import { VocabularyForm } from "@/features/notes/components/vocabulary-form";
 import { useBooks } from "@/hooks/useBooks";
+import { useRecordEdits } from "@/hooks/useRecordEdits";
 import { useRecords } from "@/hooks/useRecords";
-import { useRecordEdits } from "@/lib/recordEdits";
 import { getVocabularyEntries } from "@/lib/vocabularyStats";
 
 /**
