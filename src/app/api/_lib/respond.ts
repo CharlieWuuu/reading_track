@@ -12,8 +12,23 @@ export const unauthorized = () => NextResponse.json({ error: "請先登入" }, {
 export const badRequest = (message: string) =>
   NextResponse.json({ error: message }, { status: 400 });
 
+/** google-spreadsheet 底層是 ky，丟的 HTTPError 會保留原始狀態碼 */
+function statusOf(err: unknown): number | undefined {
+  if (typeof err !== "object" || err === null || !("response" in err)) return undefined;
+  return (err as { response?: { status?: number } }).response?.status;
+}
+
 /** 六支 route 共用的失敗回應：502 一定留 log */
 export function sheetFailure(what: string, label: string, err: unknown): NextResponse {
+  // 配額每分鐘重置，等一下就會好，不該跟「Sheet 真的壞了」混在一起
+  if (statusOf(err) === 429) {
+    console.warn(`${label} rate limited:`, err);
+    return NextResponse.json(
+      { error: "Sheet 存取太頻繁，請稍候再試" },
+      { status: 429, headers: { "Retry-After": "60" } },
+    );
+  }
+
   console.error(`${label} failed:`, err);
   return NextResponse.json({ error: `${what} Sheet 失敗` }, { status: 502 });
 }
