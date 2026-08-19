@@ -9,7 +9,7 @@ type WikiPage = {
   missing?: boolean;
   title: string;
   extract?: string;
-  coordinates?: Array<{ lat: number; lon: number }>;
+  coordinates?: Array<{ lat: number; lon: number; primary?: boolean }>;
   pageprops?: { wikibase_item?: string; disambiguation?: string };
 };
 
@@ -33,7 +33,7 @@ export async function lookupKeyword(name: string): Promise<KeywordInfo> {
   const page = (await fetchPage(name)) ?? (await fetchPage(await nearMatch(name)));
   if (!page) return empty;
 
-  const coordinate = page.coordinates?.[0];
+  const coordinate = pickCoordinate(page);
   const span = await fetchSpan(page.pageprops?.wikibase_item, Boolean(coordinate));
 
   return {
@@ -60,6 +60,9 @@ async function fetchPage(title: string): Promise<WikiPage | null> {
     redirects: "1",
     converttitles: "zh",
     prop: "extracts|coordinates|pageprops",
+    // 條目的 {{coord}} 沒標 display=title 就會被記成非主座標，預設查不出來（臺北市就是）
+    coprimary: "all",
+    colimit: "10",
     exintro: "1",
     explaintext: "1",
     titles: title,
@@ -91,6 +94,11 @@ async function nearMatch(name: string): Promise<string> {
     `${WIKI_API}?${params}`,
   );
   return data?.query?.search?.[0]?.title ?? "";
+}
+
+/** 有主座標就用主座標，沒有才退而用第一個 */
+function pickCoordinate(page: WikiPage) {
+  return page.coordinates?.find((c) => c.primary) ?? page.coordinates?.[0];
 }
 
 /** 摘要只留第一段、砍到看得完的長度；完整內容點維基連結去看 */

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { KeywordPopup } from "@/components/keywords/KeywordPopup";
+import { BookCover } from "@/components/ui/BookCover";
 import { CATEGORICAL } from "@/lib/chartPalette";
 import { Book, splitLines } from "@/types/book";
 import { KeywordInfo, parseCoordinates } from "@/types/keyword";
@@ -19,10 +20,6 @@ const styles = {
   legendToggle: "flex items-center gap-1 text-xs font-medium text-gray-600",
   legend: "flex max-h-40 shrink-0 flex-wrap items-center gap-1.5 overflow-y-auto",
   legendItem: "overflow-hidden rounded-[2px]",
-  // 書用封面認，線的顏色畫成封面的外框，兩件事合成一個圖例
-  legendCover: "aspect-2/3 w-5 object-cover",
-  legendBlank:
-    "flex aspect-2/3 w-5 items-center justify-center bg-gray-100 text-[8px] leading-none text-gray-400",
   empty: "flex h-full items-center justify-center text-xs text-gray-400",
 };
 
@@ -142,12 +139,7 @@ export function KeywordMap({ books, infos }: KeywordMapProps) {
                 className={styles.legendItem}
                 style={{ outline: `2px solid ${item.color}`, outlineOffset: "-2px" }}
               >
-                {item.cover ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.cover} alt="" loading="lazy" className={styles.legendCover} />
-                ) : (
-                  <span className={styles.legendBlank}>{item.title.slice(0, 1)}</span>
-                )}
+                <BookCover url={item.cover} title={item.title} size="sm" flat />
               </li>
             ))}
           </ul>

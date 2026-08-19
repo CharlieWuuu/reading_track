@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BookCover } from "@/components/ui/BookCover";
 import { Book, formatCount } from "@/types/book";
 
 export interface LookupResult {
@@ -158,13 +159,7 @@ function FoundCard({ prefill }: { prefill: Partial<Book> }) {
   return (
     <div className="flex gap-3 rounded border border-green-200 bg-green-50 p-3">
       {prefill.coverUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={prefill.coverUrl}
-          alt=""
-          loading="lazy"
-          className="aspect-2/3 w-12 shrink-0 rounded-sm object-cover shadow-sm"
-        />
+        <BookCover url={prefill.coverUrl} title={prefill.title ?? ""} size="search" />
       )}
       <div className="min-w-0 space-y-0.5 text-xs">
         <p className="text-sm font-medium wrap-break-word">{prefill.title}</p>

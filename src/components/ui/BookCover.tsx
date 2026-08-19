@@ -19,6 +19,8 @@ const SIZES = {
   lg: "w-8 rounded-sm md:w-11",
   /** 表格的一列 */
   xl: "w-10 rounded-sm",
+  /** 搜尋結果那一列 */
+  search: "w-12 rounded-sm",
   /** 詳細頁那張大的 */
   detail: "w-24 rounded md:w-32",
   /** 書封牆：寬度交給格線 */
@@ -31,6 +33,7 @@ const TEXT = {
   md: "text-[9px] leading-tight",
   lg: "text-[10px] leading-tight",
   xl: "text-[10px] leading-tight",
+  search: "text-[10px] leading-tight",
   detail: "text-xs leading-snug",
   full: "text-xs leading-snug",
 } as const;
@@ -44,6 +47,7 @@ const INITIALS: Record<BookCoverSize, number> = {
   md: 2,
   lg: 2,
   xl: 2,
+  search: 2,
   detail: 12,
   full: 12,
 };
@@ -52,11 +56,14 @@ export function BookCover({
   url,
   title,
   size = "lg",
+  flat = false,
   className = "",
 }: {
   url: string;
   title: string;
   size?: BookCoverSize;
+  /** 不畫外框與陰影：圖例外面已經有一圈顏色，再加一圈只會變髒 */
+  flat?: boolean;
   /** 額外的定位或效果，例如書封牆的 hover 陰影 */
   className?: string;
 }) {
@@ -70,7 +77,7 @@ export function BookCover({
         alt=""
         loading="lazy"
         title={title}
-        className={`${shape} object-cover shadow-sm ring-1 ring-black/10`}
+        className={`${shape} object-cover ${flat ? "" : "shadow-sm ring-1 ring-black/10"}`}
       />
     );
   }

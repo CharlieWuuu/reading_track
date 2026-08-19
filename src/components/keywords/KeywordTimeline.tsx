@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { KeywordPopup } from "@/components/keywords/KeywordPopup";
+import { BookCover } from "@/components/ui/BookCover";
 import { CATEGORICAL } from "@/lib/chartPalette";
 import { KeywordEntry } from "@/lib/keywordStats";
 import { KeywordInfo, parseSpan } from "@/types/keyword";
@@ -25,9 +26,6 @@ const styles = {
   legend: "flex shrink-0 flex-wrap items-center gap-1.5",
   legendItem: "overflow-hidden rounded-[2px]",
   // 書用封面認，線的顏色畫成封面的外框，兩件事合成一個圖例（同地圖）
-  legendCover: "aspect-2/3 w-5 object-cover",
-  legendBlank:
-    "flex aspect-2/3 w-5 items-center justify-center bg-gray-100 text-[8px] leading-none text-gray-400",
 };
 
 /** 色票只有八階，第九本之後一律用灰色，不自己生新顏色（同地圖） */
@@ -121,12 +119,7 @@ export function KeywordTimeline({ entries, infos }: KeywordTimelineProps) {
             className={styles.legendItem}
             style={{ outline: `2px solid ${item.color}`, outlineOffset: "-2px" }}
           >
-            {item.cover ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.cover} alt="" loading="lazy" className={styles.legendCover} />
-            ) : (
-              <span className={styles.legendBlank}>{item.title.slice(0, 1)}</span>
-            )}
+            <BookCover url={item.cover} title={item.title} size="sm" flat />
           </li>
         ))}
       </ul>
