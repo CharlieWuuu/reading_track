@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CalendarCheck, Link as LinkIcon, NotebookPen, Shapes, Tag } from "lucide-react";
-import { CategorySelect } from "@/components/books/CategorySelect";
-import { compactLines } from "@/components/books/LineListInput";
+import { CategorySelect } from "@/features/books/components/category-select";
+import { compactLines } from "@/features/books/components/line-list-input";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
 import { OptionSelect } from "@/components/ui/option-select";
@@ -18,8 +18,8 @@ import { useUrlParams } from "@/lib/useUrlParam";
 import { useSheetStore } from "@/store/useSheetStore";
 import { splitLines } from "@/types/book";
 import { Entry } from "@/types/entry";
-import { useEntryFormTab } from "./EntryFormTabs";
-import { SourcePicker } from "./SourcePicker";
+import { useEntryFormTab } from "@/features/entries/components/entry-form-tabs";
+import { SourcePicker } from "@/features/entries/components/source-picker";
 
 // 內文吃掉整個表單剩下的高度：這一欄是主體，寫長了不該只給它一個小框
 const TEXTAREA_CLASS =

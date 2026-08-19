@@ -25,14 +25,14 @@ import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { Book, inferStatus, splitLines } from "@/types/book";
 import { QuoteRow, VocabularyRow } from "@/types/record";
-import { RelatedEntries } from "../entries/RelatedEntries";
+import { RelatedEntries } from "@/features/entries/components/related-entries";
 import { Field } from "@/components/ui/field";
 import { PrivateToggle } from "@/components/ui/private-toggle";
-import { useBookFormTab } from "./BookFormTabs";
-import { CategorySelect } from "./CategorySelect";
-import { compactLines, LineListInput } from "./LineListInput";
-import { QuoteListInput } from "./QuoteListInput";
-import { VocabularyListInput } from "./VocabularyListInput";
+import { useBookFormTab } from "@/features/books/components/book-form-tabs";
+import { CategorySelect } from "@/features/books/components/category-select";
+import { compactLines, LineListInput } from "@/features/books/components/line-list-input";
+import { QuoteListInput } from "@/features/books/components/quote-list-input";
+import { VocabularyListInput } from "@/features/books/components/vocabulary-list-input";
 
 const emptyForm = {
   private: "",

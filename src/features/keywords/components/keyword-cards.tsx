@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { KeywordCard } from "@/components/keywords/KeywordCard";
-import { KeywordPopup } from "@/components/keywords/KeywordPopup";
+import { KeywordCard } from "@/features/keywords/components/keyword-card";
+import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
 import { CardMasonry } from "@/components/ui/card-masonry";
 import { getKeywordEntries } from "@/lib/keywordStats";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";

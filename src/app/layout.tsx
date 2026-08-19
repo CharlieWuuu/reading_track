@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Noto_Serif_TC } from "next/font/google";
 import "./globals.css";
 import { COMMIT_HOOK_INSTALLER } from "react-component-overlay";
-import { SessionProvider } from "@/components/auth/SessionProvider";
+import { SessionProvider } from "@/features/auth/components/session-provider";
 import { AppShell } from "@/components/layout/AppShell";
 import { ServiceWorkerRegistrar } from "@/components/layout/ServiceWorkerRegistrar";
 import { SWRProvider } from "@/components/layout/SWRProvider";

@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { BookDetailView } from "@/components/books/BookDetailView";
+import { BookDetailView } from "@/features/books/components/book-detail-view";
 
 export default function BookDetailPage() {
   // 內容會讀網址參數（back），靜態預先產生時要有 Suspense 邊界

@@ -2,11 +2,11 @@
 
 import { useParams } from "next/navigation";
 import { ExternalLink } from "lucide-react";
-import { KeywordTag } from "@/components/keywords/KeywordTag";
+import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
-import { NoteBlock, QuoteBlock, VocabularyItem } from "@/components/notes/RecordItems";
+import { NoteBlock, QuoteBlock, VocabularyItem } from "@/features/notes/components/record-items";
 import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
 import { TagList as OptionList, StatusBadge } from "@/components/ui/tag-badge";

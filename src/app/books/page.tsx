@@ -1,12 +1,12 @@
 "use client";
 
 import { Suspense } from "react";
-import { BookTable } from "@/components/books/BookTable";
-import { BookViewToggle } from "@/components/books/BookViewToggle";
+import { BookTable } from "@/features/books/components/book-table";
+import { BookViewToggle } from "@/features/books/components/book-view-toggle";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageMessage } from "@/components/layout/PageMessage";
-import { ReadingList } from "@/components/library/ReadingList";
+import { ReadingList } from "@/features/library/components/reading-list";
 import { ActionButton, TabBar } from "@/components/ui/controls";
 import { SearchButton } from "@/components/ui/search-button";
 import { matchesSearch, searchTerms } from "@/lib/search";

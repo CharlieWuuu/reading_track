@@ -3,10 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CalendarCheck, Languages, Link as LinkIcon, Store, Tag } from "lucide-react";
-import { useArticleFormTab } from "@/components/articles/ArticleFormTabs";
-import { CategorySelect } from "@/components/books/CategorySelect";
-import { compactLines } from "@/components/books/LineListInput";
-import { RelatedEntries } from "@/components/entries/RelatedEntries";
+import { useArticleFormTab } from "@/features/articles/components/article-form-tabs";
+import { CategorySelect } from "@/features/books/components/category-select";
+import { compactLines } from "@/features/books/components/line-list-input";
+import { RelatedEntries } from "@/features/entries/components/related-entries";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
 import { OptionSelect } from "@/components/ui/option-select";

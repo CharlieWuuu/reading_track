@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { KeywordPopup } from "@/components/keywords/KeywordPopup";
+import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
 import { BookCover } from "@/components/ui/book-cover";
 import { CATEGORICAL } from "@/lib/chartPalette";
 import { KeywordEntry } from "@/lib/keywordStats";

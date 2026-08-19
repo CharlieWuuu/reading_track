@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { KeywordPopup } from "@/components/keywords/KeywordPopup";
+import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
 
 /**
  * 畫面上每一個關鍵字標籤。

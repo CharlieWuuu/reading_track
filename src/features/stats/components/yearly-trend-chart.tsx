@@ -1,6 +1,6 @@
 "use client";
 
-import { RangedBarChart, RangeOption } from "@/components/stats/RangedBarChart";
+import { RangedBarChart, RangeOption } from "@/features/stats/components/ranged-bar-chart";
 import { MonthCount, QuarterCount } from "@/lib/bookStats";
 
 /** 季數多的時候只在第一季標年份，不然 X 軸會擠成一團；範圍小就每根都標得下 */

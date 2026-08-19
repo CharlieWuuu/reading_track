@@ -2,8 +2,8 @@
 
 import { useParams } from "next/navigation";
 import { Suspense } from "react";
-import { EntryForm } from "@/components/entries/EntryForm";
-import { EntryFormTabs } from "@/components/entries/EntryFormTabs";
+import { EntryForm } from "@/features/entries/components/entry-form";
+import { EntryFormTabs } from "@/features/entries/components/entry-form-tabs";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { RecordGate } from "@/components/layout/RecordGate";

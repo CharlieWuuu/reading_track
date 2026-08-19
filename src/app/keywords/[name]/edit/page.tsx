@@ -2,7 +2,7 @@
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { KeywordForm } from "@/components/keywords/KeywordForm";
+import { KeywordForm } from "@/features/keywords/components/keyword-form";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { RecordGate } from "@/components/layout/RecordGate";

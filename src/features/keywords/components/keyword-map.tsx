@@ -4,7 +4,7 @@ import "leaflet/dist/leaflet.css";
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { KeywordPopup } from "@/components/keywords/KeywordPopup";
+import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
 import { BookCover } from "@/components/ui/book-cover";
 import { CATEGORICAL } from "@/lib/chartPalette";
 import { Book, splitLines } from "@/types/book";

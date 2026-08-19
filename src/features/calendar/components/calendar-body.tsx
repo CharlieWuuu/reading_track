@@ -1,8 +1,8 @@
 "use client";
 
 import { CalendarDays, GanttChartSquare } from "lucide-react";
-import { MonthGrid } from "@/components/calendar/MonthGrid";
-import { ReadingTimeline } from "@/components/calendar/ReadingTimeline";
+import { MonthGrid } from "@/features/calendar/components/month-grid";
+import { ReadingTimeline } from "@/features/calendar/components/reading-timeline";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { useArticles } from "@/lib/useArticles";
 import { useBooks } from "@/lib/useBooks";
