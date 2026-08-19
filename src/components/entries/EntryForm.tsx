@@ -325,7 +325,7 @@ export function EntryForm({ entry }: { entry?: Entry }) {
                 value={form.keywords}
                 onChange={(v) => set("keywords", v)}
                 onEditOption={openKeyword}
-                separator="\n"
+                separator={"\n"}
                 multiple
               />
             </div>

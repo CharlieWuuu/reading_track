@@ -86,9 +86,11 @@ export function OptionSelect({
     : options;
   const canCreate = keyword.length > 0 && !options.includes(keyword);
 
+  // 換行的那些欄位也認兩個字的「\n」：舊資料裡有一批是那樣存下來的
+  const pattern = separator === "\n" ? /\r?\n|\\n/ : separator;
   const split = (raw: string) =>
     raw
-      .split(separator)
+      .split(pattern)
       .map((part) => part.trim())
       .filter(Boolean);
   const selected = multiple ? split(value) : value ? [value] : [];

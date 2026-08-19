@@ -84,11 +84,16 @@ export function formatCount(value: string | undefined | null): string {
   return Number(digits).toLocaleString("zh-Hant");
 }
 
-/** 一行一筆的欄位（關鍵字、相關文章）共用的解析：去空白、去空行 */
+/**
+ * 一行一筆的欄位（關鍵字、相關文章）共用的解析：去空白、去空行。
+ *
+ * 也認兩個字的「\n」：JSX 的 attribute 不處理跳脫字元，有一段時間關鍵字被存成
+ * 「清邁\n象島」這種一整格的字串。讀的時候一起認，那些格子下次存檔就會自己修好。
+ */
 export function splitLines(raw: string | undefined | null): string[] {
   if (!raw) return [];
   return raw
-    .split(/\r?\n/)
+    .split(/\r?\n|\\n/)
     .map((line) => line.trim())
     .filter(Boolean);
 }

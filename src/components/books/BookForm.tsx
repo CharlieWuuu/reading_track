@@ -481,7 +481,7 @@ export function BookForm({
               onChange={(v) => set("keywords", v)}
               onEditOption={openKeyword}
               placeholder="一個一組：地名、人名、事件、專有名詞"
-              separator="\n"
+              separator={"\n"}
               multiple
             />
           </div>
