@@ -1,9 +1,9 @@
 "use client";
 
 import { Suspense } from "react";
-import { PageBody } from "@/components/layout/PageBody";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { PageMessage } from "@/components/layout/PageMessage";
+import { PageBody } from "@/components/layout/page-body";
+import { PageHeader } from "@/components/layout/page-header";
+import { PageMessage } from "@/components/layout/page-message";
 import { ActionButton } from "@/components/ui/controls";
 import { SearchButton } from "@/components/ui/search-button";
 import { EntryFilter } from "@/features/entries/components/entry-filter";

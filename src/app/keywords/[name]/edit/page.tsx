@@ -2,9 +2,9 @@
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { PageBody } from "@/components/layout/PageBody";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { RecordGate } from "@/components/layout/RecordGate";
+import { PageBody } from "@/components/layout/page-body";
+import { PageHeader } from "@/components/layout/page-header";
+import { RecordGate } from "@/components/layout/record-gate";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { KeywordForm } from "@/features/keywords/components/keyword-form";
 import { EMPTY_KEYWORD_INFO } from "@/types/keyword";

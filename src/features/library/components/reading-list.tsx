@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PageMessage } from "@/components/layout/PageMessage";
+import { PageMessage } from "@/components/layout/page-message";
 import { Favicon } from "@/components/ui/favicon";
 import { TagList } from "@/components/ui/tag-badge";
 import { BookViewMode } from "@/store/useBookViewStore";

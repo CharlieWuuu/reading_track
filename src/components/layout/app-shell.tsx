@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef } from "react";
-import { BottomNav } from "./BottomNav";
-import { PullToRefresh } from "./PullToRefresh";
-import { Sidebar } from "./Sidebar";
+import { BottomNav } from "./bottom-nav";
+import { PullToRefresh } from "./pull-to-refresh";
+import { Sidebar } from "./sidebar";
 
 export function AppShell({
   children,

@@ -1,9 +1,9 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { PageBody } from "@/components/layout/PageBody";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { RecordGate } from "@/components/layout/RecordGate";
+import { PageBody } from "@/components/layout/page-body";
+import { PageHeader } from "@/components/layout/page-header";
+import { RecordGate } from "@/components/layout/record-gate";
 import { BookForm } from "@/features/books/components/book-form";
 import { BookFormTabs } from "@/features/books/components/book-form-tabs";
 import { useBooks } from "@/hooks/useBooks";

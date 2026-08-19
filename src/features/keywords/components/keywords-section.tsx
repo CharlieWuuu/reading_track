@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { ChartPie, GanttChartSquare, LayoutGrid, Map } from "lucide-react";
-import { PageMessage } from "@/components/layout/PageMessage";
+import { PageMessage } from "@/components/layout/page-message";
 import { ViewToggle } from "@/components/ui/controls";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { KeywordCards } from "@/features/keywords/components/keyword-cards";

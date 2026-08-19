@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { PageMessage } from "@/components/layout/PageMessage";
+import { PageMessage } from "@/components/layout/page-message";
 import { VocabularyPanel } from "@/features/notes/components/vocabulary-panel";
 import { useRecords } from "@/hooks/useRecords";
 import { Book } from "@/types/book";

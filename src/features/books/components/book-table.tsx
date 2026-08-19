@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { Tag } from "lucide-react";
-import { PageMessage } from "@/components/layout/PageMessage";
+import { PageMessage } from "@/components/layout/page-message";
 import { BookCover } from "@/components/ui/book-cover";
 import { STATUS_STYLES, StatusBadge, TagList } from "@/components/ui/tag-badge";
 import { useBooks } from "@/hooks/useBooks";

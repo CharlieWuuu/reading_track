@@ -1,9 +1,9 @@
 "use client";
 
 import { Suspense } from "react";
-import { PageBody } from "@/components/layout/PageBody";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { PageMessage } from "@/components/layout/PageMessage";
+import { PageBody } from "@/components/layout/page-body";
+import { PageHeader } from "@/components/layout/page-header";
+import { PageMessage } from "@/components/layout/page-message";
 import { TabBar } from "@/components/ui/controls";
 import { CalendarBody } from "@/features/calendar/components/calendar-body";
 import { ArticleKpiCards } from "@/features/stats/components/article-kpi-cards";

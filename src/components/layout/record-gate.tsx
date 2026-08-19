@@ -1,6 +1,6 @@
 "use client";
 
-import { PageMessage } from "@/components/layout/PageMessage";
+import { PageMessage } from "@/components/layout/page-message";
 import { useMounted } from "@/hooks/useMounted";
 import { useSheetStore } from "@/store/useSheetStore";
 

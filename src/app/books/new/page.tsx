@@ -1,8 +1,8 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { PageBody } from "@/components/layout/PageBody";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { PageBody } from "@/components/layout/page-body";
+import { PageHeader } from "@/components/layout/page-header";
 import { BookForm } from "@/features/books/components/book-form";
 import { BookFormTabs } from "@/features/books/components/book-form-tabs";
 import { BookLookupStep, LookupResult } from "@/features/books/components/book-lookup-step";
