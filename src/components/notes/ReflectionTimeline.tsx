@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { KeywordTag } from "@/components/keywords/KeywordTag";
-import { Favicon } from "@/components/ui/Favicon";
+import { Favicon } from "@/components/ui/favicon";
 import { dayLabel, timeLabel } from "@/lib/date";
 import { groupByWeek, isUrl, Reflection } from "@/lib/reflections";
 import { tagColorClass } from "@/lib/tagColors";

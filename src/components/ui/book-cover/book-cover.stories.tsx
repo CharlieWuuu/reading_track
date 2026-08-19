@@ -1,10 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { BookCover, type BookCoverSize } from "@/components/ui/BookCover";
+import { BookCover, type BookCoverSize } from "./book-cover";
 
 const SIZES: BookCoverSize[] = ["xs", "sm", "md", "lg", "xl", "search", "detail", "full"];
 
 const meta = {
-  title: "ui/BookCover",
   component: BookCover,
   args: { url: "", title: "資本論" },
 } satisfies Meta<typeof BookCover>;

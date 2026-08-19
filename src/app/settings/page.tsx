@@ -12,7 +12,7 @@ import { CategoryManager } from "@/components/settings/CategoryManager";
 import { DataIssuesPanel } from "@/components/settings/DataIssuesPanel";
 import { ImportNotesButton } from "@/components/settings/ImportNotesButton";
 import { SheetPicker } from "@/components/settings/SheetPicker";
-import { TabBar } from "@/components/ui/Controls";
+import { TabBar } from "@/components/ui/controls";
 import { useSheetStore } from "@/store/useSheetStore";
 
 type SettingsTab = "connect" | "categories" | "display" | "maintenance";

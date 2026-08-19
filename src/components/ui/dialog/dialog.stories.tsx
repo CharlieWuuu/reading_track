@@ -1,9 +1,8 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Dialog } from "@/components/ui/Dialog";
+import { Dialog } from "./dialog";
 
 const meta = {
-  title: "ui/Dialog",
   component: Dialog,
   args: { title: "資本論", onClose: () => {}, children: null },
   parameters: { layout: "fullscreen" },

@@ -1,6 +1,6 @@
 "use client";
 
-import { TabBar } from "@/components/ui/Controls";
+import { TabBar } from "@/components/ui/controls";
 import { useUrlParams } from "@/lib/useUrlParam";
 
 export type BookFormTab = "book" | "tags" | "excerpt" | "notes";

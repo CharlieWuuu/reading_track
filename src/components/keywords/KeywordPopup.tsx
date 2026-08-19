@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { ExternalLink, Pencil } from "lucide-react";
-import { BookCover } from "@/components/ui/BookCover";
-import { Dialog } from "@/components/ui/Dialog";
+import { BookCover } from "@/components/ui/book-cover";
+import { Dialog } from "@/components/ui/dialog";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { topicLabel } from "@/lib/keywords/topicLabels";
 import { getKeywordMentions } from "@/lib/keywordStats";

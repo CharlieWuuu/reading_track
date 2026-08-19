@@ -1,6 +1,6 @@
 "use client";
 
-import { BookCover } from "@/components/ui/BookCover";
+import { BookCover } from "@/components/ui/book-cover";
 
 const styles = {
   // 不畫框，改用分隔線隔開：一頁很多則的時候，滿版的框線比內容還搶眼

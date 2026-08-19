@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BookCover } from "@/components/ui/BookCover";
+import { BookCover } from "@/components/ui/book-cover";
 import { Book, formatCount } from "@/types/book";
 
 export interface LookupResult {

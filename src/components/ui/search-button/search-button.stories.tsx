@@ -1,9 +1,8 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { SearchButton } from "@/components/ui/SearchButton";
+import { SearchButton } from "./search-button";
 
 const meta = {
-  title: "ui/SearchButton",
   component: SearchButton,
   args: { value: "", onChange: () => {} },
   render: function Render(args) {

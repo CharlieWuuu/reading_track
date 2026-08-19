@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog } from "@/components/ui/Dialog";
+import { Dialog } from "@/components/ui/dialog";
 import { NoteRecord } from "@/lib/vocabularyStats";
 
 const styles = {

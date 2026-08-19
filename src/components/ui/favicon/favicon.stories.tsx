@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Favicon } from "@/components/ui/Favicon";
+import { Favicon } from "./favicon";
 
 const meta = {
-  title: "ui/Favicon",
   component: Favicon,
   args: { url: "https://www.gutenberg.org/ebooks/46423", fallback: "Gutenberg" },
 } satisfies Meta<typeof Favicon>;

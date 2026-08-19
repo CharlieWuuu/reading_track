@@ -14,7 +14,7 @@ import { MonthlyTrendChart } from "@/components/stats/MonthlyTrendChart";
 import { RankingBar } from "@/components/stats/RankingBar";
 import { Section, SectionList } from "@/components/stats/SectionList";
 import { YearlyTrendChart } from "@/components/stats/YearlyTrendChart";
-import { TabBar } from "@/components/ui/Controls";
+import { TabBar } from "@/components/ui/controls";
 import {
   getArticleDomainDistribution,
   getArticleKpis,

@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { PagerButton } from "@/components/ui/PagerButton";
+import { PagerButton } from "./pager-button";
 
 const meta = {
-  title: "ui/PagerButton",
   component: PagerButton,
   args: { direction: "prev", label: "上一頁", onClick: () => {} },
 } satisfies Meta<typeof PagerButton>;

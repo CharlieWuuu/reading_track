@@ -1,6 +1,6 @@
 "use client";
 
-import { BookCover } from "@/components/ui/BookCover";
+import { BookCover } from "@/components/ui/book-cover";
 
 import { RankingItem } from "@/lib/bookStats";
 import { SEQUENTIAL } from "@/lib/chartPalette";

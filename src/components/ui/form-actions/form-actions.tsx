@@ -78,12 +78,7 @@ export function FormActions({
           (confirming ? (
             <div className={styles.danger}>
               <span className="text-gray-500">{confirmLabel}</span>
-              <button
-                type="button"
-                onClick={onDelete}
-                disabled={saving}
-                className={styles.confirm}
-              >
+              <button type="button" onClick={onDelete} disabled={saving} className={styles.confirm}>
                 刪除
               </button>
               <button

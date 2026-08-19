@@ -1,9 +1,8 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { PrivateToggle } from "@/components/ui/PrivateToggle";
+import { PrivateToggle } from "./private-toggle";
 
 const meta = {
-  title: "ui/PrivateToggle",
   component: PrivateToggle,
   args: { value: "", onChange: () => {} },
   render: function Render(args) {

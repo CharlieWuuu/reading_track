@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { KeywordPopup } from "@/components/keywords/KeywordPopup";
-import { BookCover } from "@/components/ui/BookCover";
+import { BookCover } from "@/components/ui/book-cover";
 import { CATEGORICAL } from "@/lib/chartPalette";
 import { KeywordEntry } from "@/lib/keywordStats";
 import { KeywordInfo, parseSpan } from "@/types/keyword";

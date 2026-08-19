@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Search, X } from "lucide-react";
-import { CONTROL_HEIGHT } from "@/components/ui/Controls";
+import { CONTROL_HEIGHT } from "@/components/ui/controls";
 
 const styles = {
   button: `flex ${CONTROL_HEIGHT} shrink-0 items-center justify-center rounded border border-gray-300 px-2.5 text-gray-600 hover:bg-gray-50`,

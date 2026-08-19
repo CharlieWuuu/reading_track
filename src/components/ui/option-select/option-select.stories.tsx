@@ -1,13 +1,12 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Tag } from "lucide-react";
-import { OptionSelect } from "@/components/ui/OptionSelect";
+import { OptionSelect } from "./option-select";
 
 const OPTIONS = ["哲學", "歷史", "經濟", "小說", "科普"];
 const COUNTS = new Map(OPTIONS.map((o, i) => [o, OPTIONS.length - i]));
 
 const meta = {
-  title: "ui/OptionSelect",
   component: OptionSelect,
   args: { label: "領域", options: OPTIONS, value: "", onChange: () => {} },
   render: function Render(args) {

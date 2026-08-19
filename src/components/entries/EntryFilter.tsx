@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Check, SlidersHorizontal } from "lucide-react";
-import { CONTROL_HEIGHT } from "@/components/ui/Controls";
+import { CONTROL_HEIGHT } from "@/components/ui/controls";
 
 const styles = {
   root: "relative shrink-0",

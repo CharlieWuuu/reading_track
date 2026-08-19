@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import { Dialog } from "@/components/ui/Dialog";
+import { Dialog } from "@/components/ui/dialog";
 import { EMPTY_VOCABULARY, VocabularyRow } from "@/types/record";
 
 const styles = {

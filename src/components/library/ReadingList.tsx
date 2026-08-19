@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PageMessage } from "@/components/layout/PageMessage";
-import { Favicon } from "@/components/ui/Favicon";
-import { TagList as OptionList, TagList } from "@/components/ui/TagBadge";
+import { Favicon } from "@/components/ui/favicon";
+import { TagList as OptionList, TagList } from "@/components/ui/tag-badge";
 import { BookViewMode } from "@/store/useBookViewStore";
 import { Article } from "@/types/article";
 import { splitLines, splitTags } from "@/types/book";

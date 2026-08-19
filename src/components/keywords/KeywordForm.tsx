@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { FormActions } from "@/components/ui/FormActions";
-import { OptionSelect } from "@/components/ui/OptionSelect";
+import { FormActions } from "@/components/ui/form-actions";
+import { OptionSelect } from "@/components/ui/option-select";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { formatSpan, KeywordInfo, parseSpan } from "@/types/keyword";
 

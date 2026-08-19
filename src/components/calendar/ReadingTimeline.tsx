@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { PagerButton } from "@/components/ui/PagerButton";
+import { PagerButton } from "@/components/ui/pager-button";
 import { Book } from "@/types/book";
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];

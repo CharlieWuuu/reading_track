@@ -15,8 +15,8 @@ import {
   Tag,
   Type,
 } from "lucide-react";
-import { FormActions } from "@/components/ui/FormActions";
-import { OptionSelect } from "@/components/ui/OptionSelect";
+import { FormActions } from "@/components/ui/form-actions";
+import { OptionSelect } from "@/components/ui/option-select";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { fullerTitle } from "@/lib/metadata";
 import { useBooks } from "@/lib/useBooks";
@@ -26,8 +26,8 @@ import { useUrlParams } from "@/lib/useUrlParam";
 import { Book, inferStatus, splitLines } from "@/types/book";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { RelatedEntries } from "../entries/RelatedEntries";
-import { Field } from "../ui/Field";
-import { PrivateToggle } from "../ui/PrivateToggle";
+import { Field } from "@/components/ui/field";
+import { PrivateToggle } from "@/components/ui/private-toggle";
 import { useBookFormTab } from "./BookFormTabs";
 import { CategorySelect } from "./CategorySelect";
 import { compactLines, LineListInput } from "./LineListInput";

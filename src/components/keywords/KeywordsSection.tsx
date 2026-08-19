@@ -8,7 +8,7 @@ import { KeywordPopup } from "@/components/keywords/KeywordPopup";
 import { KeywordTimeline } from "@/components/keywords/KeywordTimeline";
 import { KeywordTreemap } from "@/components/keywords/KeywordTreemap";
 import { PageMessage } from "@/components/layout/PageMessage";
-import { ViewToggle } from "@/components/ui/Controls";
+import { ViewToggle } from "@/components/ui/controls";
 import { getKeywordEntries } from "@/lib/keywordStats";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { useUrlParams } from "@/lib/useUrlParam";

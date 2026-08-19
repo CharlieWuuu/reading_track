@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { FormActions } from "@/components/ui/FormActions";
+import { FormActions } from "./form-actions";
 
 const meta = {
-  title: "ui/FormActions",
   component: FormActions,
   args: { onSave: () => {} },
 } satisfies Meta<typeof FormActions>;

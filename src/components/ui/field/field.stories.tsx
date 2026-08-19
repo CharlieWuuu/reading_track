@@ -1,10 +1,9 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Calendar, Link2 } from "lucide-react";
-import { Field } from "@/components/ui/Field";
+import { Field } from "./field";
 
 const meta = {
-  title: "ui/Field",
   component: Field,
   args: { label: "書名", value: "", onChange: () => {} },
   render: function Render(args) {

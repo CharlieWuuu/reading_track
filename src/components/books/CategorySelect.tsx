@@ -1,7 +1,7 @@
 "use client";
 
 import { type LucideIcon } from "lucide-react";
-import { OptionSelect } from "@/components/ui/OptionSelect";
+import { OptionSelect } from "@/components/ui/option-select";
 import { useCategories } from "@/lib/useCategories";
 import { BookCategories } from "@/types/book";
 

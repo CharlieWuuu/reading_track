@@ -14,7 +14,7 @@ import { PageMessage } from "@/components/layout/PageMessage";
 import { RecordCard } from "@/components/notes/RecordCard";
 import { QuoteBlock } from "@/components/notes/RecordItems";
 import { VocabularySection } from "@/components/notes/VocabularySection";
-import { TabBar } from "@/components/ui/Controls";
+import { TabBar } from "@/components/ui/controls";
 import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { getQuoteRecords } from "@/lib/vocabularyStats";

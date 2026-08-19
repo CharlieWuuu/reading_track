@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { CardMasonry } from "@/components/ui/CardMasonry";
+import { CardMasonry } from "./card-masonry";
 
 const HEIGHTS = [80, 140, 60, 200, 110, 90, 160, 70, 130];
 
 const meta = {
-  title: "ui/CardMasonry",
   component: CardMasonry,
+  args: { children: null },
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof CardMasonry>;
 

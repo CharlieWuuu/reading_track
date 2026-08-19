@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FormActions } from "@/components/ui/FormActions";
+import { FormActions } from "@/components/ui/form-actions";
 import { QuoteRecord } from "@/lib/vocabularyStats";
 
 const styles = {

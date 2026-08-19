@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { KeywordCard } from "@/components/keywords/KeywordCard";
 import { KeywordPopup } from "@/components/keywords/KeywordPopup";
-import { CardMasonry } from "@/components/ui/CardMasonry";
+import { CardMasonry } from "@/components/ui/card-masonry";
 import { getKeywordEntries } from "@/lib/keywordStats";
 import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { Book } from "@/types/book";

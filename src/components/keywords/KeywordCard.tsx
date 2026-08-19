@@ -1,7 +1,7 @@
 "use client";
 
 import { ExternalLink } from "lucide-react";
-import { BookCover } from "@/components/ui/BookCover";
+import { BookCover } from "@/components/ui/book-cover";
 import { topicLabel } from "@/lib/keywords/topicLabels";
 import { KeywordEntry } from "@/lib/keywordStats";
 import { KeywordInfo } from "@/types/keyword";

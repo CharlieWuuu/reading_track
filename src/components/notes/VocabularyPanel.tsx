@@ -1,7 +1,7 @@
 "use client";
 
-import { BookCover } from "@/components/ui/BookCover";
-import { CardMasonry } from "@/components/ui/CardMasonry";
+import { BookCover } from "@/components/ui/book-cover";
+import { CardMasonry } from "@/components/ui/card-masonry";
 import { VocabularyEntry } from "@/lib/vocabularyStats";
 
 const styles = {

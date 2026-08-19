@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { BookCover } from "@/components/ui/BookCover";
-import { FormActions } from "@/components/ui/FormActions";
+import { BookCover } from "@/components/ui/book-cover";
+import { FormActions } from "@/components/ui/form-actions";
 import { useCategories } from "@/lib/useCategories";
 import { VocabularyEncounter, VocabularyEntry } from "@/lib/vocabularyStats";
 import { VocabularyRow } from "@/types/record";
