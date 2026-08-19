@@ -17,17 +17,16 @@ import {
 } from "lucide-react";
 import { FormActions } from "@/components/ui/FormActions";
 import { OptionSelect } from "@/components/ui/OptionSelect";
+import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { fullerTitle } from "@/lib/metadata";
+import { useAutoSave } from "@/lib/useAutoSave";
 import { useBooks } from "@/lib/useBooks";
-import { useKeywordInfos } from "@/lib/useKeywordInfos";
 import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Book, inferStatus, splitLines } from "@/types/book";
-import { EMPTY_KEYWORD_INFO } from "@/types/keyword";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { RelatedEntries } from "../entries/RelatedEntries";
-import { KeywordEditDialog } from "../keywords/KeywordEditDialog";
 import { Field } from "../ui/Field";
 import { PrivateToggle } from "../ui/PrivateToggle";
 import { useBookFormTab } from "./BookFormTabs";
@@ -66,6 +65,36 @@ function TabPanel({ active, children }: { active: boolean; children: React.React
       {children}
     </div>
   );
+}
+
+/** 送出去的那一份：舊欄位原樣帶回去，狀態一律由日期推導 */
+function toPayload(form: FormState, book?: Book) {
+  return {
+    title: form.title,
+    author: form.author,
+    coverUrl: form.coverUrl,
+    publisher: form.publisher,
+    platform: form.platform,
+    sourceUrl: form.sourceUrl,
+    // 狀態不給使用者填，一律由日期推導，避免狀態跟日期互相矛盾
+    status: inferStatus(form.startDate || null, form.endDate || null),
+    startDate: form.startDate || null,
+    endDate: form.endDate || null,
+    domain: form.domain,
+    subDomain: form.subDomain,
+    type: form.type,
+    language: form.language,
+    pageCount: form.pageCount,
+    wordCount: form.wordCount,
+    private: form.private,
+    // 心得搬到紀事了，這一欄不再由 app 寫入，但也不主動清掉——遷移完再自己刪
+    note: book?.note ?? "",
+    // 舊欄位不再由 app 寫入，但也不主動清掉——遷移完再自己刪
+    quotes: book?.quotes ?? "",
+    vocabulary: book?.vocabulary ?? "",
+    keywords: compactLines(form.keywords),
+    relatedArticles: form.relatedArticles,
+  };
 }
 
 /** 一組相關欄位排成同一片格線；pairs 是固定兩欄，手機也不折成一欄 */
@@ -124,6 +153,7 @@ export function BookForm({
     : listHref;
 
   const { tab, setTab } = useBookFormTab();
+  const from = useCurrentHref();
   const { sheetId } = useSheetStore();
   const { books: allBooks, mutate } = useBooks();
   // 已經用過的關鍵字拿來當建議，免得同一個東西被打成兩種寫法
@@ -148,10 +178,37 @@ export function BookForm({
   const [submitError, setSubmitError] = useState("");
   const [refetching, setRefetching] = useState(false);
   const [refetchNote, setRefetchNote] = useState("");
-  // 關鍵字的學科、座標、摘要存在主檔裡，就地開視窗改，不用跑去關鍵字頁
-  const [editingKeyword, setEditingKeyword] = useState<string | null>(null);
-  const { byName: keywordInfos, save: saveKeyword } = useKeywordInfos();
   const isEdit = Boolean(book);
+
+  const payload = toPayload(form, book);
+  const autoSave = useAutoSave({
+    ready: Boolean(sheetId && form.title.trim()),
+    existingId: book?.id ?? "",
+    payload,
+    create: (id, body) =>
+      fetch("/api/books", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sheetId, book: { id, ...body } }),
+        keepalive: true,
+      }).then(() => mutate()),
+    update: (id, body) =>
+      fetch(`/api/books/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sheetId, patch: body }),
+        keepalive: true,
+      }).then(() => mutate()),
+  });
+
+  /** 點關鍵字跳到那個字的編輯頁；新增頁要先落地成一筆，回來才不會又開一本 */
+  async function openKeyword(name: string) {
+    const isNew = !book && !autoSave.savedIdRef.current;
+    await autoSave.save();
+    const id = autoSave.savedIdRef.current;
+    if (isNew && id) router.replace(`/books/${id}/edit`);
+    router.push(keywordEditHref(name, isNew && id ? `/books/${id}/edit` : from));
+  }
 
   /**
    * 用現在表單裡的書名／網址重查一次。刻意只補空欄位——
@@ -217,39 +274,15 @@ export function BookForm({
       return;
     }
 
-    const payload = {
-      title: form.title,
-      author: form.author,
-      coverUrl: form.coverUrl,
-      publisher: form.publisher,
-      platform: form.platform,
-      sourceUrl: form.sourceUrl,
-      // 狀態不給使用者填，一律由日期推導，避免狀態跟日期互相矛盾
-      status: inferStatus(form.startDate || null, form.endDate || null),
-      startDate: form.startDate || null,
-      endDate: form.endDate || null,
-      domain: form.domain,
-      subDomain: form.subDomain,
-      type: form.type,
-      language: form.language,
-      pageCount: form.pageCount,
-      wordCount: form.wordCount,
-      private: form.private,
-      // 心得搬到紀事了，這一欄不再由 app 寫入，但也不主動清掉——遷移完再自己刪
-      note: book?.note ?? "",
-      // 舊欄位不再由 app 寫入，但也不主動清掉——遷移完再自己刪
-      quotes: book?.quotes ?? "",
-      vocabulary: book?.vocabulary ?? "",
-      keywords: compactLines(form.keywords),
-      relatedArticles: form.relatedArticles,
-    };
+    const payload = toPayload(form, book);
 
     setSubmitting(true);
     setSubmitError("");
     try {
-      let savedId = book?.id ?? "";
-      if (isEdit && book) {
-        const res = await fetch(`/api/books/${book.id}`, {
+      // 自動存檔可能已經先建好這一本了，那按下儲存就是改它，不是再開一本
+      let savedId = book?.id || autoSave.savedIdRef.current;
+      if (savedId) {
+        const res = await fetch(`/api/books/${savedId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sheetId, patch: payload }),
@@ -257,7 +290,7 @@ export function BookForm({
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "更新失敗");
       } else {
-        const newBook: Book = { id: crypto.randomUUID(), ...payload };
+        const newBook: Book = { id: autoSave.newId, ...payload };
         const res = await fetch("/api/books", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -282,6 +315,7 @@ export function BookForm({
         quoteRows.map((row) => ({ ...row, bookId: savedId, bookTitle: form.title })),
       );
 
+      autoSave.markSaved(payload, savedId);
       await mutate();
       router.push(backHref);
     } catch (err) {
@@ -293,6 +327,7 @@ export function BookForm({
 
   async function handleDelete() {
     if (!book || !sheetId) return;
+    autoSave.markDeleted();
 
     setSubmitting(true);
     setSubmitError("");
@@ -444,7 +479,7 @@ export function BookForm({
               options={keywordSuggestions}
               value={form.keywords}
               onChange={(v) => set("keywords", v)}
-              onEditOption={setEditingKeyword}
+              onEditOption={openKeyword}
               placeholder="一個一組：地名、人名、事件、專有名詞"
               separator="\n"
               multiple
@@ -517,14 +552,6 @@ export function BookForm({
         confirmLabel="確定刪除這本書？"
         error={submitError}
       />
-
-      {editingKeyword && (
-        <KeywordEditDialog
-          info={keywordInfos.get(editingKeyword) ?? { name: editingKeyword, ...EMPTY_KEYWORD_INFO }}
-          onSave={saveKeyword}
-          onClose={() => setEditingKeyword(null)}
-        />
-      )}
     </form>
   );
 }

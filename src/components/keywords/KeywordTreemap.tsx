@@ -15,7 +15,7 @@ const styles = {
   empty: "flex h-full items-center justify-center text-xs text-gray-400",
 };
 
-/** 沒查到學科的都歸這一格，不要假裝分好類了 */
+/** 沒查到領域的都歸這一格，不要假裝分好類了 */
 const UNCLASSIFIED = "未分類";
 const LABEL_MIN_WIDTH = 44;
 const LABEL_MIN_HEIGHT = 22;
@@ -32,7 +32,7 @@ type KeywordTreemapProps = {
 };
 
 /**
- * 依學科分群的樹狀圖：格子大小＝被幾本書提到。
+ * 依領域分群的樹狀圖：格子大小＝被幾本書提到。
  *
  * 點下去是編輯那個關鍵字，不是跳去書單——會在這張圖上點一格，
  * 多半是因為看到它分錯類或還沒分類，那當下就該能改。
@@ -53,7 +53,7 @@ export function KeywordTreemap({ entries, infos, onSelect }: KeywordTreemapProps
           <Treemap
             data={data}
             dataKey="size"
-            // 每個學科一個顏色，同群的關鍵字共用，看得出哪幾個是一夥的
+            // 每個領域一個顏色，同群的關鍵字共用，看得出哪幾個是一夥的
             content={<Cell groups={groups} />}
             onClick={(node: unknown) => {
               const name = (node as { name?: string })?.name;
@@ -65,7 +65,7 @@ export function KeywordTreemap({ entries, infos, onSelect }: KeywordTreemapProps
         </ResponsiveContainer>
       </div>
 
-      {/* 格子小的時候標籤畫不下，顏色對應哪個學科只能靠圖例 */}
+      {/* 格子小的時候標籤畫不下，顏色對應哪個領域只能靠圖例 */}
       <ul className={styles.legend}>
         {groups.map((group, i) => (
           <li key={group} className={styles.legendItem}>
@@ -111,7 +111,7 @@ function Cell({ groups, x = 0, y = 0, width = 0, height = 0, name, group, depth 
   );
 }
 
-/** 一個關鍵字可能有多個學科，只取第一個——同時放進兩群會讓面積重複計算 */
+/** 一個關鍵字可能有多個領域，只取第一個——同時放進兩群會讓面積重複計算 */
 function groupByTopic(entries: KeywordEntry[], infos: Map<string, KeywordInfo>): TreeNode[] {
   const groups = new Map<string, TreeLeaf[]>();
 

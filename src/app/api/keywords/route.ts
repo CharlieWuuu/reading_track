@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
     for (const name of pending.slice(0, MAX_PER_RUN)) {
       if (infos.length > 0) await sleep(GAP_MS);
       const found = await lookupKeyword(name);
-      // 學科是手動填的，維基查回來的那一份不帶它，重查也不能把人填的洗掉
+      // 領域是手動填的，維基查回來的那一份不帶它，重查也不能把人填的洗掉
       const previous = existing.find((info) => info.name === name);
       infos.push({ ...found, topics: previous?.topics ?? "" });
     }

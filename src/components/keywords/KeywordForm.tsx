@@ -12,7 +12,7 @@ const styles = {
   field: "flex min-w-0 flex-col gap-1",
   label: "flex items-center gap-1.5 text-sm font-medium",
   hint: "text-xs font-normal text-gray-400",
-  // py-2 跟 OptionSelect 的觸發鈕一樣高，名稱與學科並排才不會一高一矮
+  // py-2 跟 OptionSelect 的觸發鈕一樣高，名稱與領域並排才不會一高一矮
   input: "w-full rounded border px-3 py-2 text-sm",
   // 摘要是整頁最長的一欄，給它一個真的打得下去的高度
   summary: "min-h-64 w-full flex-1 resize-none rounded border px-3 py-2 text-sm",
@@ -31,14 +31,14 @@ const styles = {
   cancelSmall: "rounded border px-3 py-1.5 text-gray-600 hover:bg-gray-50",
 };
 
-/** 名稱與學科同一列，座標自己一列；學科要配建議清單，不走這個迴圈 */
+/** 名稱與領域同一列，座標自己一列；領域要配建議清單，不走這個迴圈 */
 const ROWS = [[{ key: "name", label: "名稱" }], [{ key: "coordinates", label: "座標" }]] as const;
 
 /**
- * 學科的選項就是「已經用過的學科」，不另外維護一份清單。
+ * 領域的選項就是「已經用過的領域」，不另外維護一份清單。
  *
  * 跟類型、領域同一個做法：打字就能登一個新的，用得多的排前面。
- * 多個學科用頓號串在同一格，Sheet 那邊仍然是一欄。
+ * 多個領域用頓號串在同一格，Sheet 那邊仍然是一欄。
  */
 function usedTopics(infos: KeywordInfo[]): Map<string, number> {
   const counts = new Map<string, number>();
@@ -103,7 +103,7 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
         setNote("維基沒有這個條目");
         return;
       }
-      // 學科是自己分的，維基查回來不該動它
+      // 領域是自己分的，維基查回來不該動它
       setForm((f) => ({ ...found, name: f.name, topics: f.topics }));
       setNote("已填入維基的資料，確認後按儲存");
     } catch (err) {
@@ -155,7 +155,7 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
         </div>
         <div className={styles.field}>
           <OptionSelect
-            label="學科"
+            label="領域"
             options={[...topicCounts.keys()]}
             counts={topicCounts}
             value={form.topics}

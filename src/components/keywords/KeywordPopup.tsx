@@ -41,10 +41,12 @@ const styles = {
  */
 export function KeywordPopup({ name, onClose }: { name: string; onClose: () => void }) {
   const from = useCurrentHref();
-  const { byName } = useKeywordInfos();
-  const { books } = useBooks();
-  const { articles } = useArticles();
-  const { entries } = useEntries();
+  const { byName, isLoading: loadingInfos } = useKeywordInfos();
+  const { books, isLoading: loadingBooks } = useBooks();
+  const { articles, isLoading: loadingArticles } = useArticles();
+  const { entries, isLoading: loadingEntries } = useEntries();
+  // 「沒有摘要」「沒有紀錄提到它」都是載完才下得了的判斷，載入中就只說載入中
+  const loading = loadingInfos || loadingBooks || loadingArticles || loadingEntries;
 
   const info = byName.get(name);
   const topics = info?.topics ? info.topics.split("、").filter(Boolean).map(topicLabel) : [];
@@ -75,6 +77,8 @@ export function KeywordPopup({ name, onClose }: { name: string; onClose: () => v
 
         {info?.summary ? (
           <p className={styles.summary}>{info.summary}</p>
+        ) : loading ? (
+          <p className={styles.empty}>載入中…</p>
         ) : (
           <p className={styles.empty}>還沒有摘要，可以按編輯去查維基</p>
         )}
@@ -124,7 +128,7 @@ export function KeywordPopup({ name, onClose }: { name: string; onClose: () => v
           </div>
         )}
 
-        {nothing && <p className={styles.empty}>還沒有任何紀錄提到它</p>}
+        {!loading && nothing && <p className={styles.empty}>還沒有任何紀錄提到它</p>}
 
         <div className={styles.actions}>
           <Link href={keywordEditHref(name, from)} className={styles.edit}>

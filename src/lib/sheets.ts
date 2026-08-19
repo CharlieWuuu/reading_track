@@ -396,19 +396,26 @@ export async function deleteBookRow(sheetId: string, accessToken: string, id: st
 }
 
 const KEYWORDS_SHEET_TITLE = "關鍵字";
-const KEYWORD_HEADERS = ["名稱", "學科", "座標", "起訖", "維基連結", "摘要"];
+const KEYWORD_HEADERS = ["名稱", "領域", "座標", "起訖", "維基連結", "摘要"];
+
+/** 這一欄本來叫「學科」；就地改標題，值不動，舊表打開就自己換過去 */
+const RENAMED_HEADERS: Record<string, string> = { 學科: "領域" };
 
 async function getKeywordsSheet(sheetId: string, accessToken: string) {
   const doc = new GoogleSpreadsheet(sheetId, getAuthClient(accessToken));
   await doc.loadInfo();
 
-  let sheet = doc.sheetsByTitle[KEYWORDS_SHEET_TITLE];
+  const sheet = doc.sheetsByTitle[KEYWORDS_SHEET_TITLE];
   if (!sheet) {
-    sheet = await doc.addSheet({
-      title: KEYWORDS_SHEET_TITLE,
-      headerValues: KEYWORD_HEADERS,
-    });
+    return doc.addSheet({ title: KEYWORDS_SHEET_TITLE, headerValues: KEYWORD_HEADERS });
   }
+
+  // 只改標題那一列：欄的位置與底下的值都不動，所以不會有任何一格跑掉
+  await sheet.loadHeaderRow().catch(() => {});
+  const headers = sheet.headerValues ?? [];
+  const renamed = headers.map((header) => RENAMED_HEADERS[header] ?? header);
+  if (renamed.some((header, i) => header !== headers[i])) await sheet.setHeaderRow(renamed);
+
   return sheet;
 }
 
@@ -423,7 +430,7 @@ export async function listKeywordInfos(
   return rows
     .map((row) => ({
       name: (row.get("名稱") ?? "").toString().trim(),
-      topics: (row.get("學科") ?? "").toString().trim(),
+      topics: (row.get("領域") ?? row.get("學科") ?? "").toString().trim(),
       coordinates: (row.get("座標") ?? "").toString().trim(),
       span: (row.get("起訖") ?? "").toString().trim(),
       wikiUrl: (row.get("維基連結") ?? "").toString().trim(),
@@ -547,7 +554,7 @@ export async function replaceKeywordInfo(
 function toRowValues(info: KeywordInfo): Record<string, string> {
   return {
     名稱: info.name,
-    學科: info.topics,
+    領域: info.topics,
     座標: info.coordinates,
     起訖: info.span,
     維基連結: info.wikiUrl,

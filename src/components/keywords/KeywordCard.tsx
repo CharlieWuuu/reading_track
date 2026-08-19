@@ -30,7 +30,7 @@ type KeywordCardProps = {
   onEdit: () => void;
 };
 
-/** 一個關鍵字一張卡：維基查回來的摘要與學科，加上哪些書提到它 */
+/** 一個關鍵字一張卡：維基查回來的摘要與領域，加上哪些書提到它 */
 export function KeywordCard({ entry, info, onEdit }: KeywordCardProps) {
   const topics = info?.topics ? info.topics.split("、").filter(Boolean).map(topicLabel) : [];
   return (
@@ -53,7 +53,7 @@ export function KeywordCard({ entry, info, onEdit }: KeywordCardProps) {
             </a>
           )}
         </span>
-        {/* 學科放在書名右邊；只被一本書提到是常態，標「1 本」只是雜訊 */}
+        {/* 領域放在書名右邊；只被一本書提到是常態，標「1 本」只是雜訊 */}
         <div className={styles.meta}>
           {topics.map((topic) => (
             <span key={topic} className={styles.topic}>

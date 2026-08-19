@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { CalendarCheck, Languages, Link as LinkIcon, Store, Tag } from "lucide-react";
 import { useArticleFormTab } from "@/components/articles/ArticleFormTabs";
 import { CategorySelect } from "@/components/books/CategorySelect";
@@ -13,6 +13,7 @@ import { OptionSelect } from "@/components/ui/OptionSelect";
 import { PrivateToggle } from "@/components/ui/PrivateToggle";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { useArticles } from "@/lib/useArticles";
+import { useAutoSave } from "@/lib/useAutoSave";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Article } from "@/types/article";
 import { splitLines } from "@/types/book";
@@ -92,12 +93,6 @@ export function ArticleForm({ article }: { article?: Article }) {
   const [submitError, setSubmitError] = useState("");
   const [fetching, setFetching] = useState(false);
   const [fetchNote, setFetchNote] = useState("");
-  // 自動存檔用：存過什麼、存成哪一筆、以及這一筆是不是已經被刪了
-  const [initialSnapshot] = useState(() => JSON.stringify(toPayload(form, article)));
-  const savedRef = useRef(initialSnapshot);
-  const savedIdRef = useRef(article?.id ?? "");
-  const deletedRef = useRef(false);
-  const [newId] = useState(() => crypto.randomUUID());
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -148,36 +143,26 @@ export function ArticleForm({ article }: { article?: Article }) {
     }
   }
 
-  /**
-   * 離開頁面時自動存檔，做法與書寫的表單相同。
-   *
-   * 這裡特別要緊：點關鍵字會跳到那個字的編輯頁，沒有這一段的話，
-   * 剛打到一半的內容就留在被卸載的表單裡了。
-   */
-  function quietSave(): Promise<unknown> | undefined {
-    if (deletedRef.current || !sheetId || !form.title.trim()) return;
-    const payload = toPayload(form, article);
-    const snapshot = JSON.stringify(payload);
-    if (snapshot === savedRef.current) return;
-    savedRef.current = snapshot;
-
-    const id = savedIdRef.current;
-    const request = id
-      ? fetch(`/api/articles/${id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sheetId, patch: payload }),
-          keepalive: true,
-        })
-      : fetch("/api/articles", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sheetId, article: { id: newId, ...payload } }),
-          keepalive: true,
-        });
-    savedIdRef.current = id || newId;
-    return request.then(() => mutate()).catch(() => {});
-  }
+  const payload = toPayload(form, article);
+  const autoSave = useAutoSave({
+    ready: Boolean(sheetId && form.title.trim()),
+    existingId: article?.id ?? "",
+    payload,
+    create: (id, body) =>
+      fetch("/api/articles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sheetId, article: { id, ...body } }),
+        keepalive: true,
+      }).then(() => mutate()),
+    update: (id, body) =>
+      fetch(`/api/articles/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sheetId, patch: body }),
+        keepalive: true,
+      }).then(() => mutate()),
+  });
 
   /**
    * 點關鍵字跳到那個字的編輯頁。
@@ -186,28 +171,12 @@ export function ArticleForm({ article }: { article?: Article }) {
    * 不然按上一頁會回到空的新增頁，再存一次就變成兩篇。
    */
   async function openKeyword(name: string) {
-    const isNew = !article && !savedIdRef.current;
-    await quietSave();
-    if (isNew && savedIdRef.current) router.replace(`/articles/${savedIdRef.current}/edit`);
-    // 新增頁剛剛才落地成一筆，回來要回到那一筆的編輯頁而不是空的新增頁
-    const back = isNew && savedIdRef.current ? `/articles/${savedIdRef.current}/edit` : from;
-    router.push(keywordEditHref(name, back));
+    const isNew = !article && !autoSave.savedIdRef.current;
+    await autoSave.save();
+    const id = autoSave.savedIdRef.current;
+    if (isNew && id) router.replace(`/articles/${id}/edit`);
+    router.push(keywordEditHref(name, isNew && id ? `/articles/${id}/edit` : from));
   }
-
-  // 每次重畫都把最新的那一份放進 ref：卸載時跑的是當下的內容
-  const quietSaveRef = useRef(quietSave);
-  useEffect(() => {
-    quietSaveRef.current = quietSave;
-  });
-
-  useEffect(() => {
-    const onHide = () => document.visibilityState === "hidden" && quietSaveRef.current();
-    document.addEventListener("visibilitychange", onHide);
-    return () => {
-      document.removeEventListener("visibilitychange", onHide);
-      quietSaveRef.current();
-    };
-  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -220,13 +189,11 @@ export function ArticleForm({ article }: { article?: Article }) {
       return;
     }
 
-    const payload = toPayload(form, article);
-
     setSubmitting(true);
     setSubmitError("");
     try {
       // 自動存檔可能已經先建好這一筆了，那按下儲存就是改它，不是再開一篇
-      const existingId = article?.id || savedIdRef.current;
+      const existingId = article?.id || autoSave.savedIdRef.current;
       if (existingId) {
         const res = await fetch(`/api/articles/${existingId}`, {
           method: "PATCH",
@@ -236,7 +203,7 @@ export function ArticleForm({ article }: { article?: Article }) {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "更新失敗");
       } else {
-        const newArticle: Article = { id: newId, ...payload };
+        const newArticle: Article = { id: autoSave.newId, ...payload };
         const res = await fetch("/api/articles", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -246,8 +213,7 @@ export function ArticleForm({ article }: { article?: Article }) {
         if (!res.ok) throw new Error(data.error ?? "新增失敗");
       }
 
-      savedRef.current = JSON.stringify(payload);
-      savedIdRef.current = savedIdRef.current || newId;
+      autoSave.markSaved(payload);
       await mutate();
       router.push("/books?type=article");
     } catch (err) {
@@ -259,8 +225,7 @@ export function ArticleForm({ article }: { article?: Article }) {
 
   async function handleDelete() {
     if (!article || !sheetId) return;
-    // 刪完會離開這一頁，卸載時的自動存檔不能把它救回來
-    deletedRef.current = true;
+    autoSave.markDeleted();
 
     setSubmitting(true);
     setSubmitError("");

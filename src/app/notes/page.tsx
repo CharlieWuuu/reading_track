@@ -40,8 +40,10 @@ const TABS: { key: Tab; label: string }[] = [
 
 function Quotes({ books }: { books: Book[] }) {
   const router = useRouter();
-  const { quotes } = useRecords();
+  const { quotes, isLoading } = useRecords();
   const records = getQuoteRecords(quotes, books);
+
+  if (isLoading) return <PageMessage>載入中…</PageMessage>;
 
   if (records.length === 0) {
     return <PageMessage>還沒有記下任何佳句</PageMessage>;

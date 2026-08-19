@@ -38,7 +38,7 @@ export async function lookupKeyword(name: string): Promise<KeywordInfo> {
 
   return {
     name,
-    // 學科一律留空，自己分：模型那套分類跟「你怎麼看這些字」是兩回事
+    // 領域一律留空，自己分：模型那套分類跟「你怎麼看這些字」是兩回事
     topics: "",
     coordinates: coordinate ? `${coordinate.lat},${coordinate.lon}` : "",
     span,
