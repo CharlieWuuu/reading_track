@@ -13,7 +13,7 @@ import { NoteBlock, QuoteBlock, VocabularyItem } from "@/features/notes/componen
 import { useBooks } from "@/hooks/useBooks";
 import { useRecords } from "@/hooks/useRecords";
 import { useUrlParams } from "@/hooks/useUrlParam";
-import { useSheetStore } from "@/store/useSheetStore";
+import { useSheetStore } from "@/stores/useSheetStore";
 import { Book, formatCount, splitLines } from "@/types/book";
 
 /**

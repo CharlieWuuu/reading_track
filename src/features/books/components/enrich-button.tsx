@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useBooks } from "@/hooks/useBooks";
-import { useSheetStore } from "@/store/useSheetStore";
+import { useSheetStore } from "@/stores/useSheetStore";
 
 export function EnrichButton() {
   const { sheetId } = useSheetStore();

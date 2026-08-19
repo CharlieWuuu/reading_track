@@ -13,7 +13,7 @@ import { CategoryManager } from "@/features/settings/components/category-manager
 import { DataIssuesPanel } from "@/features/settings/components/data-issues-panel";
 import { ImportNotesButton } from "@/features/settings/components/import-notes-button";
 import { SheetPicker } from "@/features/settings/components/sheet-picker";
-import { useSheetStore } from "@/store/useSheetStore";
+import { useSheetStore } from "@/stores/useSheetStore";
 
 type SettingsTab = "connect" | "categories" | "display" | "maintenance";
 

@@ -2,7 +2,7 @@
 
 import { PageMessage } from "@/components/layout/page-message";
 import { useMounted } from "@/hooks/useMounted";
-import { useSheetStore } from "@/store/useSheetStore";
+import { useSheetStore } from "@/stores/useSheetStore";
 
 type RecordGateProps = {
   loading?: boolean;

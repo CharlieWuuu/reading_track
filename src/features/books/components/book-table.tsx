@@ -10,8 +10,8 @@ import { STATUS_STYLES, StatusBadge, TagList } from "@/components/ui/tag-badge";
 import { useBooks } from "@/hooks/useBooks";
 import { useMounted } from "@/hooks/useMounted";
 import { useUrlParams } from "@/hooks/useUrlParam";
-import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
-import { useSheetStore } from "@/store/useSheetStore";
+import { isBookViewMode, useBookViewStore } from "@/stores/useBookViewStore";
+import { useSheetStore } from "@/stores/useSheetStore";
 import { Book, ReadingStatus, splitLines } from "@/types/book";
 import { matchesSearch, searchTerms } from "@/utils/search";
 

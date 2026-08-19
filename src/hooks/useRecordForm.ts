@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAutoSave } from "@/hooks/useAutoSave";
-import { useSheetStore } from "@/store/useSheetStore";
+import { useSheetStore } from "@/stores/useSheetStore";
 
 type RecordFormOptions<P> = {
   /** API 路徑上的那一段，例如 "books"；也決定 POST 的 body 長什麼樣 */

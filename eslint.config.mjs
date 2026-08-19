@@ -65,6 +65,7 @@ const eslintConfig = defineConfig([
                 "./src/components",
                 "./src/hooks",
                 "./src/lib",
+                "./src/stores",
                 "./src/types",
                 "./src/utils",
               ],

@@ -3,7 +3,7 @@
 import { PageMessage } from "@/components/layout/page-message";
 import { useBooks } from "@/hooks/useBooks";
 import { useMounted } from "@/hooks/useMounted";
-import { useSheetStore } from "@/store/useSheetStore";
+import { useSheetStore } from "@/stores/useSheetStore";
 import { Book } from "@/types/book";
 
 type BooksGateProps = {
