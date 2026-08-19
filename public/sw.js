@@ -9,7 +9,10 @@ const SHELL = ["/icon-192.png", "/icon-512.png", "/apple-touch-icon.png", "/mani
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting())
+    caches
+      .open(CACHE)
+      .then((cache) => cache.addAll(SHELL))
+      .then(() => self.skipWaiting()),
   );
 });
 
@@ -18,7 +21,7 @@ self.addEventListener("activate", (event) => {
     caches
       .keys()
       .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
-      .then(() => self.clients.claim())
+      .then(() => self.clients.claim()),
   );
 });
 
@@ -50,7 +53,7 @@ self.addEventListener("fetch", (event) => {
         // 沒快取又離線時，至少講清楚發生什麼事，不要給一片空白
         if (request.mode === "navigate") return offlinePage();
         return Response.error();
-      })
+      }),
   );
 });
 
@@ -66,6 +69,6 @@ function offlinePage() {
          <p style="font-size:13px;color:#6b7280">閱讀紀錄存在 Google 試算表，恢復連線後即可繼續。</p>
        </div>
      </body></html>`,
-    { headers: { "Content-Type": "text/html; charset=utf-8" }, status: 503 }
+    { headers: { "Content-Type": "text/html; charset=utf-8" }, status: 503 },
   );
 }

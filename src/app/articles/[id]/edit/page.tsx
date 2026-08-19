@@ -2,11 +2,11 @@
 
 import { useParams } from "next/navigation";
 import { Suspense } from "react";
-import { ArticleForm } from "@/features/articles/components/article-form";
-import { ArticleFormTabs } from "@/features/articles/components/article-form-tabs";
 import { PageBody } from "@/components/layout/PageBody";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { RecordGate } from "@/components/layout/RecordGate";
+import { ArticleForm } from "@/features/articles/components/article-form";
+import { ArticleFormTabs } from "@/features/articles/components/article-form-tabs";
 import { useArticles } from "@/lib/useArticles";
 
 function EditArticle() {

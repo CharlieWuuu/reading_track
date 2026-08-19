@@ -1,5 +1,12 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import * as articleItem from "@/app/api/articles/[id]/route";
+import * as articles from "@/app/api/articles/route";
+import * as bookItem from "@/app/api/books/[id]/route";
+import * as books from "@/app/api/books/route";
+import * as entryItem from "@/app/api/entries/[id]/route";
+import * as entries from "@/app/api/entries/route";
+import * as sheets from "@/lib/sheets";
 
 vi.mock("@/auth", () => ({ auth: vi.fn(async () => ({ accessToken: "fake-token" })) }));
 
@@ -17,14 +24,6 @@ vi.mock("@/lib/sheets", () => ({
   deleteArticleRow: vi.fn(async () => undefined),
   deleteEntryRow: vi.fn(async () => undefined),
 }));
-
-import * as articleItem from "@/app/api/articles/[id]/route";
-import * as articles from "@/app/api/articles/route";
-import * as bookItem from "@/app/api/books/[id]/route";
-import * as books from "@/app/api/books/route";
-import * as entryItem from "@/app/api/entries/[id]/route";
-import * as entries from "@/app/api/entries/route";
-import * as sheets from "@/lib/sheets";
 
 const SHEET = "sheet-1";
 

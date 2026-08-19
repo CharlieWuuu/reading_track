@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
 import { BookCover } from "@/components/ui/book-cover";
-import { CATEGORICAL } from "@/lib/chartPalette";
+import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
 import { KeywordEntry } from "@/features/keywords/utils/keyword-stats";
+import { CATEGORICAL } from "@/lib/chartPalette";
 import { KeywordInfo, parseSpan } from "@/types/keyword";
 
 const styles = {

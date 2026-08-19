@@ -1,10 +1,5 @@
 {
   "printWidth": 100,
   "plugins": ["@ianvs/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
-  "importOrder": [
-    "^(react|next)(/.*)?$",
-    "<THIRD_PARTY_MODULES>",
-    "^@/(.*)$",
-    "^[./]"
-  ]
+  "importOrder": ["^(react|next)(/.*)?$", "<THIRD_PARTY_MODULES>", "^@/(.*)$", "^[./]"]
 }

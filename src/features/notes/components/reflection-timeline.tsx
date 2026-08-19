@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { Favicon } from "@/components/ui/favicon";
+import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { dayLabel, timeLabel } from "@/lib/date";
 import { groupByWeek, isUrl, Reflection } from "@/lib/reflections";
 import { tagColorClass } from "@/lib/tagColors";

@@ -4,13 +4,13 @@ import Link from "next/link";
 import { ExternalLink, Pencil } from "lucide-react";
 import { BookCover } from "@/components/ui/book-cover";
 import { Dialog } from "@/components/ui/dialog";
-import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
-import { topicLabel } from "@/features/keywords/utils/topic-labels";
+import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { getKeywordMentions } from "@/features/keywords/utils/keyword-stats";
+import { topicLabel } from "@/features/keywords/utils/topic-labels";
+import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { useArticles } from "@/lib/useArticles";
 import { useBooks } from "@/lib/useBooks";
 import { useEntries } from "@/lib/useEntries";
-import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { formatSpan, parseSpan } from "@/types/keyword";
 
 const styles = {

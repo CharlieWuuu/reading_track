@@ -15,8 +15,16 @@ import {
   Tag,
   Type,
 } from "lucide-react";
+import { CategorySelect } from "@/components/ui/category-select";
+import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
+import { compactLines, LineListInput } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
+import { PrivateToggle } from "@/components/ui/private-toggle";
+import { useBookFormTab } from "@/features/books/components/book-form-tabs";
+import { QuoteListInput } from "@/features/books/components/quote-list-input";
+import { VocabularyListInput } from "@/features/books/components/vocabulary-list-input";
+import { RelatedEntries } from "@/features/entries/components/related-entries";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { fullerTitle } from "@/lib/metadata";
 import { useBooks } from "@/lib/useBooks";
@@ -25,14 +33,6 @@ import { useRecords } from "@/lib/useRecords";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { Book, inferStatus, splitLines } from "@/types/book";
 import { QuoteRow, VocabularyRow } from "@/types/record";
-import { RelatedEntries } from "@/features/entries/components/related-entries";
-import { Field } from "@/components/ui/field";
-import { PrivateToggle } from "@/components/ui/private-toggle";
-import { useBookFormTab } from "@/features/books/components/book-form-tabs";
-import { CategorySelect } from "@/components/ui/category-select";
-import { compactLines, LineListInput } from "@/components/ui/line-list-input";
-import { QuoteListInput } from "@/features/books/components/quote-list-input";
-import { VocabularyListInput } from "@/features/books/components/vocabulary-list-input";
 
 const emptyForm = {
   private: "",
