@@ -1,0 +1,20 @@
+# 相依套件與鎖檔
+node_modules
+package-lock.json
+
+# 建置產出
+.next
+out
+build
+coverage
+storybook-static
+*.tsbuildinfo
+
+# 環境變數
+.env*
+
+# 自動產生
+next-env.d.ts
+
+# Google 網站驗證檔，內容不能動
+public/google*.html
