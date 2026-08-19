@@ -11,9 +11,9 @@ import { OptionSelect } from "@/components/ui/OptionSelect";
 import { PrivateToggle } from "@/components/ui/PrivateToggle";
 import { fromDateTimeInput, now, toDateTimeInput } from "@/lib/date";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
-import { useAutoSave } from "@/lib/useAutoSave";
 import { useEntries } from "@/lib/useEntries";
 import { useMetrics } from "@/lib/useMetrics";
+import { useRecordForm } from "@/lib/useRecordForm";
 import { useUrlParams } from "@/lib/useUrlParam";
 import { useSheetStore } from "@/store/useSheetStore";
 import { splitLines } from "@/types/book";
@@ -87,8 +87,6 @@ export function EntryForm({ entry }: { entry?: Entry }) {
       note: searchParams.get("note") ?? "",
     }),
   );
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState("");
   const [fetchingStats, setFetchingStats] = useState(false);
   const [statsNote, setStatsNote] = useState("");
   const { latestByEntry, mutate: mutateMetrics } = useMetrics();
@@ -98,39 +96,31 @@ export function EntryForm({ entry }: { entry?: Entry }) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
-  const payload = toPayload(form);
-  const autoSave = useAutoSave({
-    ready: Boolean(sheetId && form.title.trim()),
+  const {
+    submitting,
+    error: submitError,
+    setError: setSubmitError,
+    handleSubmit,
+    handleDelete,
+    openRecordThen,
+  } = useRecordForm({
+    resource: "entries",
+    bodyKey: "entry",
     existingId: entry?.id ?? "",
-    payload,
-    create: (id, body) =>
-      fetch("/api/entries", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sheetId, entry: { id, ...body } }),
-        keepalive: true,
-      }).then(() => mutate()),
-    update: (id, body) =>
-      fetch(`/api/entries/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sheetId, patch: body }),
-        keepalive: true,
-      }).then(() => mutate()),
+    payload: toPayload(form),
+    redirectTo: "/entries",
+    mutate,
+    validate: () => (form.title.trim() ? undefined : "請填標題"),
   });
 
-  /**
-   * 點關鍵字跳到那個字的編輯頁。
-   *
-   * 從「新增書寫」跳走時先讓這一則落地成一筆，並把網址換成它的編輯頁——
-   * 不然按上一頁會回到空的新增頁，再存一次就變成兩則。
-   */
-  async function openKeyword(name: string) {
-    const isNew = !entry && !autoSave.savedIdRef.current;
-    await autoSave.save();
-    const id = autoSave.savedIdRef.current;
-    if (isNew && id) router.replace(`/entries/${id}/edit`);
-    router.push(keywordEditHref(name, isNew && id ? `/entries/${id}/edit` : from));
+  /** 點關鍵字跳到那個字的編輯頁；沒填標題就先擋下來，不然新增頁沒東西可落地 */
+  function openKeyword(name: string) {
+    if (!form.title.trim()) {
+      setTab("text");
+      setSubmitError("請先填標題");
+      return;
+    }
+    openRecordThen((back) => router.push(keywordEditHref(name, back)), from);
   }
 
   /**
@@ -183,79 +173,15 @@ export function EntryForm({ entry }: { entry?: Entry }) {
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!form.title.trim()) {
-      setTab("text");
-      setSubmitError("請填標題");
-      return;
-    }
-    if (!sheetId) {
-      setSubmitError("請先到「設定」頁面連接 Google Sheet");
-      return;
-    }
-
-    setSubmitting(true);
-    setSubmitError("");
-    try {
-      // 自動存檔可能已經先建好這一筆了，那按下儲存就是改它，不是再開一筆
-      const existingId = entry?.id || autoSave.savedIdRef.current;
-      if (existingId) {
-        const res = await fetch(`/api/entries/${existingId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sheetId, patch: payload }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? "更新失敗");
-      } else {
-        const newEntry: Entry = { id: autoSave.newId, ...payload };
-        const res = await fetch("/api/entries", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sheetId, entry: newEntry }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? "新增失敗");
-      }
-
-      autoSave.markSaved(payload);
-      await mutate();
-      router.push("/entries");
-    } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "儲存失敗");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function handleDelete() {
-    if (!entry || !sheetId) return;
-    autoSave.markDeleted();
-
-    setSubmitting(true);
-    setSubmitError("");
-    try {
-      const res = await fetch(`/api/entries/${entry.id}?sheetId=${encodeURIComponent(sheetId)}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? "刪除失敗");
-      }
-      await mutate(
-        (current) => ({ entries: (current?.entries ?? []).filter((e) => e.id !== entry.id) }),
-        { revalidate: false },
-      );
-      router.push("/entries");
-    } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "刪除失敗");
-      setSubmitting(false);
-    }
-  }
-
   return (
-    <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col gap-3">
+    // 標題在「文字」那一頁，沒填時要先切過去，不然錯誤訊息旁邊是空的
+    <form
+      onSubmit={(e) => {
+        if (!form.title.trim()) setTab("text");
+        handleSubmit(e);
+      }}
+      className="flex min-h-0 flex-1 flex-col gap-3"
+    >
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
         <TabPanel active={tab === "text"}>
           <div className="shrink-0">

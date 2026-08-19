@@ -25,7 +25,9 @@ const styles = {
   // 三種左圖佔一樣寬，右邊那欄的起點才會對齊成一直線
   avatar: "flex size-7 shrink-0 items-center justify-center",
   // 書封是 2:3 的直式圖，圓形頭像要它撐滿再裁掉上下，不能留邊
-  coverFrame: "size-7 overflow-hidden rounded-full shadow-sm ring-1 ring-black/10",
+  // block 是必要的：span 預設是 inline，裡面的圖沒有可以參照的高度，
+  // h-full 與 object-cover 都會失效，書封就被塞成整張擠在圓框裡
+  coverFrame: "block size-7 shrink-0 overflow-hidden rounded-full shadow-sm ring-1 ring-black/10",
   cover: "h-full w-full object-cover",
   favicon: "flex size-7 items-center justify-center rounded-full bg-white ring-1 ring-black/10",
   // 沒有封面也沒有站台圖示時，用類型的第一個字當頭像
