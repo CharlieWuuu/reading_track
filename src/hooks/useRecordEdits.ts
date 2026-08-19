@@ -1,9 +1,9 @@
 "use client";
 
-import { useRecords } from "@/lib/useRecords";
-import { QuoteRecord } from "@/lib/vocabularyStats";
+import { useRecords } from "@/hooks/useRecords";
 import { Book } from "@/types/book";
 import { VocabularyRow } from "@/types/record";
+import { QuoteRecord } from "@/utils/vocabularyStats";
 
 /** 一次要改的一筆單字，加上「這一列要不要留」 */
 export type VocabularyEdit = VocabularyRow & { deleted?: boolean };

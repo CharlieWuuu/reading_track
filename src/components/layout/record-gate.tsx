@@ -1,8 +1,8 @@
 "use client";
 
-import { PageMessage } from "@/components/layout/PageMessage";
-import { useMounted } from "@/lib/useMounted";
-import { useSheetStore } from "@/store/useSheetStore";
+import { PageMessage } from "@/components/layout/page-message";
+import { useMounted } from "@/hooks/useMounted";
+import { useSheetStore } from "@/stores/useSheetStore";
 
 type RecordGateProps = {
   loading?: boolean;

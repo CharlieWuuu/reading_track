@@ -2,11 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { Suspense } from "react";
-import { BooksGate } from "@/components/layout/BooksGate";
-import { PageBody } from "@/components/layout/PageBody";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { PageMessage } from "@/components/layout/PageMessage";
+import { PageBody } from "@/components/layout/page-body";
+import { PageHeader } from "@/components/layout/page-header";
+import { PageMessage } from "@/components/layout/page-message";
 import { TabBar } from "@/components/ui/controls";
+import { BooksGate } from "@/features/books/components/books-gate";
 import {
   KEYWORD_VIEWS,
   KeywordsSection,
@@ -15,10 +15,10 @@ import {
 import { RecordCard } from "@/features/notes/components/record-card";
 import { QuoteBlock } from "@/features/notes/components/record-items";
 import { VocabularySection } from "@/features/notes/components/vocabulary-section";
-import { useRecords } from "@/lib/useRecords";
-import { useUrlParams } from "@/lib/useUrlParam";
-import { getQuoteRecords } from "@/lib/vocabularyStats";
+import { useRecords } from "@/hooks/useRecords";
+import { useUrlParams } from "@/hooks/useUrlParam";
 import { Book } from "@/types/book";
+import { getQuoteRecords } from "@/utils/vocabularyStats";
 
 const styles = {
   // 內文長度差很多，排成多欄只會高高低低；一則一列往下排反而好讀

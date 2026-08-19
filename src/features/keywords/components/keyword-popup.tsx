@@ -7,10 +7,10 @@ import { Dialog } from "@/components/ui/dialog";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { getKeywordMentions } from "@/features/keywords/utils/keyword-stats";
 import { topicLabel } from "@/features/keywords/utils/topic-labels";
+import { useArticles } from "@/hooks/useArticles";
+import { useBooks } from "@/hooks/useBooks";
+import { useEntries } from "@/hooks/useEntries";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
-import { useArticles } from "@/lib/useArticles";
-import { useBooks } from "@/lib/useBooks";
-import { useEntries } from "@/lib/useEntries";
 import { formatSpan, parseSpan } from "@/types/keyword";
 
 const styles = {

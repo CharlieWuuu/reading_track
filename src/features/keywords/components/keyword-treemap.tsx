@@ -3,8 +3,8 @@
 import { ResponsiveContainer, Treemap } from "recharts";
 import { KeywordEntry } from "@/features/keywords/utils/keyword-stats";
 import { topicLabel } from "@/features/keywords/utils/topic-labels";
-import { CATEGORICAL } from "@/lib/chartPalette";
 import { KeywordInfo } from "@/types/keyword";
+import { CATEGORICAL } from "@/utils/chartPalette";
 
 const styles = {
   wrap: "flex h-full min-h-0 flex-col gap-2",

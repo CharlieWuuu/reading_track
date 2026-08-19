@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { PageBody } from "@/components/layout/PageBody";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { PrivacyButton } from "@/components/layout/PrivacyButton";
+import { PageBody } from "@/components/layout/page-body";
+import { PageHeader } from "@/components/layout/page-header";
+import { PrivacyButton } from "@/components/layout/privacy-button";
 import { TabBar } from "@/components/ui/controls";
 import { SignInPrompt } from "@/components/ui/sign-in-prompt";
 import { AuthButton } from "@/features/auth/components/auth-button";
@@ -13,7 +13,7 @@ import { CategoryManager } from "@/features/settings/components/category-manager
 import { DataIssuesPanel } from "@/features/settings/components/data-issues-panel";
 import { ImportNotesButton } from "@/features/settings/components/import-notes-button";
 import { SheetPicker } from "@/features/settings/components/sheet-picker";
-import { useSheetStore } from "@/store/useSheetStore";
+import { useSheetStore } from "@/stores/useSheetStore";
 
 type SettingsTab = "connect" | "categories" | "display" | "maintenance";
 

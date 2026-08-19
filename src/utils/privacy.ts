@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { PRIVATE_MARK } from "./privacyMark";
+import { PRIVACY_SETTING_KEY, PRIVATE_MARK } from "@/config/sheet-format";
 
 /**
  * 私人項目。
@@ -18,10 +18,6 @@ import { PRIVATE_MARK } from "./privacyMark";
  *
  * 這樣 Sheet 上那一格被看到，也不能直接拿去當權杖用。
  */
-export const PRIVACY_SETTING_KEY = "私人密碼";
-
-export { PRIVATE_MARK } from "./privacyMark";
-
 const TRUTHY = new Set([PRIVATE_MARK, "y", "yes", "true", "1", "是的", "私人", "v"]);
 
 export function isPrivate(row: { private?: string }): boolean {
@@ -63,7 +59,7 @@ export async function requestUnlocked(
 ): Promise<boolean> {
   const token = req.nextUrl.searchParams.get("unlock");
   if (!token) return false;
-  const { readSetting } = await import("./sheets");
+  const { readSetting } = await import("@/lib/sheets");
   const stored = await readSetting(sheetId, accessToken, PRIVACY_SETTING_KEY);
   return isUnlocked(token, stored);
 }

@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import { PenLine } from "lucide-react";
-import { now } from "@/lib/date";
-import { useEntries } from "@/lib/useEntries";
-import { useSheetStore } from "@/store/useSheetStore";
+import { useEntries } from "@/hooks/useEntries";
+import { useSheetStore } from "@/stores/useSheetStore";
 import { Entry } from "@/types/entry";
+import { now } from "@/utils/date";
 
 const styles = {
   wrap: "flex min-h-0 flex-col gap-1",

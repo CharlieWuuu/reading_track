@@ -25,12 +25,12 @@ import { useBookFormTab } from "@/features/books/components/book-form-tabs";
 import { QuoteListInput } from "@/features/books/components/quote-list-input";
 import { VocabularyListInput } from "@/features/books/components/vocabulary-list-input";
 import { RelatedEntries } from "@/features/entries/components/related-entries";
+import { useBooks } from "@/hooks/useBooks";
+import { useRecordForm } from "@/hooks/useRecordForm";
+import { useRecords } from "@/hooks/useRecords";
+import { useUrlParams } from "@/hooks/useUrlParam";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { fullerTitle } from "@/lib/metadata";
-import { useBooks } from "@/lib/useBooks";
-import { useRecordForm } from "@/lib/useRecordForm";
-import { useRecords } from "@/lib/useRecords";
-import { useUrlParams } from "@/lib/useUrlParam";
 import { Book, inferStatus, splitLines } from "@/types/book";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 

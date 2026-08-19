@@ -11,15 +11,15 @@ import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
 import { useEntryFormTab } from "@/features/entries/components/entry-form-tabs";
 import { SourcePicker } from "@/features/entries/components/source-picker";
-import { fromDateTimeInput, now, toDateTimeInput } from "@/lib/date";
+import { useEntries } from "@/hooks/useEntries";
+import { useMetrics } from "@/hooks/useMetrics";
+import { useRecordForm } from "@/hooks/useRecordForm";
+import { useUrlParams } from "@/hooks/useUrlParam";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
-import { useEntries } from "@/lib/useEntries";
-import { useMetrics } from "@/lib/useMetrics";
-import { useRecordForm } from "@/lib/useRecordForm";
-import { useUrlParams } from "@/lib/useUrlParam";
-import { useSheetStore } from "@/store/useSheetStore";
+import { useSheetStore } from "@/stores/useSheetStore";
 import { splitLines } from "@/types/book";
 import { Entry } from "@/types/entry";
+import { fromDateTimeInput, now, toDateTimeInput } from "@/utils/date";
 
 // 內文吃掉整個表單剩下的高度：這一欄是主體，寫長了不該只給它一個小框
 const TEXTAREA_CLASS =

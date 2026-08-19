@@ -11,12 +11,12 @@ import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
 import { useArticleFormTab } from "@/features/articles/components/article-form-tabs";
 import { RelatedEntries } from "@/features/entries/components/related-entries";
-import { today } from "@/lib/date";
+import { useArticles } from "@/hooks/useArticles";
+import { useRecordForm } from "@/hooks/useRecordForm";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
-import { useArticles } from "@/lib/useArticles";
-import { useRecordForm } from "@/lib/useRecordForm";
 import { Article } from "@/types/article";
 import { splitLines } from "@/types/book";
+import { today } from "@/utils/date";
 
 /** 沒選到的分頁留在畫面上但藏起來，切回來時打到一半的內容還在 */
 function TabPanel({ active, children }: { active: boolean; children: React.ReactNode }) {

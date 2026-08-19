@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import useSWR from "swr";
 import { readCached } from "@/lib/swrCache";
-import { useSheetStore } from "@/store/useSheetStore";
+import { useSheetStore } from "@/stores/useSheetStore";
 import { Metric } from "@/types/metric";
 
 async function fetcher(url: string): Promise<{ metrics: Metric[] }> {

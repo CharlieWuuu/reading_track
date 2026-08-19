@@ -1,6 +1,6 @@
-import { DistributionSlice, MonthCount } from "@/lib/bookStats";
-import { parseDate } from "@/lib/date";
 import { splitTags } from "@/types/book";
+import { DistributionSlice, MonthCount } from "@/utils/bookStats";
+import { parseDate } from "@/utils/date";
 
 /**
  * 文章與紀事共用的統計。

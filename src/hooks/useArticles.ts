@@ -1,6 +1,6 @@
 "use client";
 
-import { useSheetRecords } from "@/lib/useSheetRecords";
+import { useSheetRecords } from "@/hooks/useSheetRecords";
 import { Article } from "@/types/article";
 
 /** 只有一個日期，直接由新到舊；沒填日期的排最後，那是還沒讀完的 */

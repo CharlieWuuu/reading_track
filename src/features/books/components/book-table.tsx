@@ -4,16 +4,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { Tag } from "lucide-react";
-import { PageMessage } from "@/components/layout/PageMessage";
+import { PageMessage } from "@/components/layout/page-message";
 import { BookCover } from "@/components/ui/book-cover";
 import { STATUS_STYLES, StatusBadge, TagList } from "@/components/ui/tag-badge";
-import { matchesSearch, searchTerms } from "@/lib/search";
-import { useBooks } from "@/lib/useBooks";
-import { useMounted } from "@/lib/useMounted";
-import { useUrlParams } from "@/lib/useUrlParam";
-import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
-import { useSheetStore } from "@/store/useSheetStore";
+import { useBooks } from "@/hooks/useBooks";
+import { useMounted } from "@/hooks/useMounted";
+import { useUrlParams } from "@/hooks/useUrlParam";
+import { isBookViewMode, useBookViewStore } from "@/stores/useBookViewStore";
+import { useSheetStore } from "@/stores/useSheetStore";
 import { Book, ReadingStatus, splitLines } from "@/types/book";
+import { matchesSearch, searchTerms } from "@/utils/search";
 
 /** 目前篩選中的關鍵字。放在清單上方，因為它會改變下面看到的是什麼 */
 function KeywordFilter({

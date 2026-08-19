@@ -1,19 +1,19 @@
 "use client";
 
 import { Suspense } from "react";
-import { PageBody } from "@/components/layout/PageBody";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { PageMessage } from "@/components/layout/PageMessage";
+import { PageBody } from "@/components/layout/page-body";
+import { PageHeader } from "@/components/layout/page-header";
+import { PageMessage } from "@/components/layout/page-message";
 import { ActionButton, TabBar } from "@/components/ui/controls";
 import { SearchButton } from "@/components/ui/search-button";
 import { BookTable } from "@/features/books/components/book-table";
 import { BookViewToggle } from "@/features/books/components/book-view-toggle";
 import { ReadingList } from "@/features/library/components/reading-list";
-import { matchesSearch, searchTerms } from "@/lib/search";
-import { useArticles } from "@/lib/useArticles";
-import { useMounted } from "@/lib/useMounted";
-import { useUrlParams } from "@/lib/useUrlParam";
-import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
+import { useArticles } from "@/hooks/useArticles";
+import { useMounted } from "@/hooks/useMounted";
+import { useUrlParams } from "@/hooks/useUrlParam";
+import { isBookViewMode, useBookViewStore } from "@/stores/useBookViewStore";
+import { matchesSearch, searchTerms } from "@/utils/search";
 
 /**
  * 書與文章同一個 tab。

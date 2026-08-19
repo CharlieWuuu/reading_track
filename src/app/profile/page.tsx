@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
-import { PageBody } from "@/components/layout/PageBody";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { PageMessage } from "@/components/layout/PageMessage";
+import { PageBody } from "@/components/layout/page-body";
+import { PageHeader } from "@/components/layout/page-header";
+import { PageMessage } from "@/components/layout/page-message";
 import { SignInPrompt } from "@/components/ui/sign-in-prompt";
-import { clearLocalData } from "@/lib/clearLocalData";
+import { clearLocalData } from "@/utils/clearLocalData";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();

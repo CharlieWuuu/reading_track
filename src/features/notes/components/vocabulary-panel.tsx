@@ -2,7 +2,7 @@
 
 import { BookCover } from "@/components/ui/book-cover";
 import { CardMasonry } from "@/components/ui/card-masonry";
-import { VocabularyEntry } from "@/lib/vocabularyStats";
+import { VocabularyEntry } from "@/utils/vocabularyStats";
 
 const styles = {
   card: "flex cursor-pointer flex-col gap-2 rounded-lg border bg-white p-4 hover:border-gray-400",

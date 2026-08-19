@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { BookOpen, X } from "lucide-react";
-import { useArticles } from "@/lib/useArticles";
-import { useBooks } from "@/lib/useBooks";
+import { useArticles } from "@/hooks/useArticles";
+import { useBooks } from "@/hooks/useBooks";
 
 const styles = {
   root: "relative min-w-0",

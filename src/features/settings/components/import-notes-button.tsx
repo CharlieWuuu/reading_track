@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useEntries } from "@/lib/useEntries";
-import { useSheetStore } from "@/store/useSheetStore";
+import { useEntries } from "@/hooks/useEntries";
+import { useSheetStore } from "@/stores/useSheetStore";
 
 const styles = {
   wrap: "flex flex-col gap-2",

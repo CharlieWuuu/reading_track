@@ -1,7 +1,7 @@
 "use client";
 
 import useSWR, { useSWRConfig } from "swr";
-import { useSheetStore } from "@/store/useSheetStore";
+import { useSheetStore } from "@/stores/useSheetStore";
 import { KeywordInfo } from "@/types/keyword";
 
 async function fetcher(url: string): Promise<{ keywords: KeywordInfo[] }> {

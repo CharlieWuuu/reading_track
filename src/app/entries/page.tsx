@@ -1,20 +1,20 @@
 "use client";
 
 import { Suspense } from "react";
-import { PageBody } from "@/components/layout/PageBody";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { PageMessage } from "@/components/layout/PageMessage";
+import { PageBody } from "@/components/layout/page-body";
+import { PageHeader } from "@/components/layout/page-header";
+import { PageMessage } from "@/components/layout/page-message";
 import { ActionButton } from "@/components/ui/controls";
 import { SearchButton } from "@/components/ui/search-button";
 import { EntryFilter } from "@/features/entries/components/entry-filter";
 import { ReflectionTimeline } from "@/features/notes/components/reflection-timeline";
-import { entriesToReflections } from "@/lib/reflections";
-import { matchesSearch, searchTerms } from "@/lib/search";
-import { useEntries } from "@/lib/useEntries";
-import { useMounted } from "@/lib/useMounted";
-import { useUrlParams } from "@/lib/useUrlParam";
+import { useEntries } from "@/hooks/useEntries";
+import { useMounted } from "@/hooks/useMounted";
+import { useUrlParams } from "@/hooks/useUrlParam";
 import { splitTags } from "@/types/book";
 import { Entry } from "@/types/entry";
+import { entriesToReflections } from "@/utils/reflections";
+import { matchesSearch, searchTerms } from "@/utils/search";
 
 /** 選項只列真的有紀事在用的值，選了才不會篩出一片空白 */
 function usedKinds(entries: Entry[]): string[] {

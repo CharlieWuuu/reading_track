@@ -4,8 +4,8 @@ import { useState } from "react";
 import { BookCover } from "@/components/ui/book-cover";
 import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
 import { KeywordEntry } from "@/features/keywords/utils/keyword-stats";
-import { CATEGORICAL } from "@/lib/chartPalette";
 import { KeywordInfo, parseSpan } from "@/types/keyword";
+import { CATEGORICAL } from "@/utils/chartPalette";
 
 const styles = {
   wrap: "flex h-full min-h-0 flex-col gap-2",

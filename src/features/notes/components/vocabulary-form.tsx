@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { BookCover } from "@/components/ui/book-cover";
 import { FormActions } from "@/components/ui/form-actions";
-import { useCategories } from "@/lib/useCategories";
-import { VocabularyEncounter, VocabularyEntry } from "@/lib/vocabularyStats";
+import { useCategories } from "@/hooks/useCategories";
 import { VocabularyRow } from "@/types/record";
+import { VocabularyEncounter, VocabularyEntry } from "@/utils/vocabularyStats";
 
 const styles = {
   form: "flex flex-col gap-3",

@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
-import { useArticles } from "@/lib/useArticles";
-import { useBooks } from "@/lib/useBooks";
-import { useEntries } from "@/lib/useEntries";
+import { useArticles } from "@/hooks/useArticles";
+import { useBooks } from "@/hooks/useBooks";
+import { useEntries } from "@/hooks/useEntries";
 import {
   BookCategories,
   CATEGORY_FIELDS,

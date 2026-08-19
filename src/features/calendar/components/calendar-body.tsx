@@ -1,14 +1,14 @@
 "use client";
 
 import { CalendarDays, GanttChartSquare } from "lucide-react";
-import { PageMessage } from "@/components/layout/PageMessage";
+import { PageMessage } from "@/components/layout/page-message";
 import { MonthGrid } from "@/features/calendar/components/month-grid";
 import { ReadingTimeline } from "@/features/calendar/components/reading-timeline";
-import { useArticles } from "@/lib/useArticles";
-import { useBooks } from "@/lib/useBooks";
-import { useMounted } from "@/lib/useMounted";
-import { useUrlParams } from "@/lib/useUrlParam";
-import { useSheetStore } from "@/store/useSheetStore";
+import { useArticles } from "@/hooks/useArticles";
+import { useBooks } from "@/hooks/useBooks";
+import { useMounted } from "@/hooks/useMounted";
+import { useUrlParams } from "@/hooks/useUrlParam";
+import { useSheetStore } from "@/stores/useSheetStore";
 
 /** 月曆看「哪一天讀完」，時間軸看「一本書讀了多久、同時在讀幾本」 */
 const VIEWS = [

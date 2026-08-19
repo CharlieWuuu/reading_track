@@ -1,7 +1,7 @@
 "use client";
 
 import { TabBar } from "@/components/ui/controls";
-import { useUrlParams } from "@/lib/useUrlParam";
+import { useUrlParams } from "@/hooks/useUrlParam";
 
 export type BookFormTab = "book" | "tags" | "excerpt" | "notes";
 

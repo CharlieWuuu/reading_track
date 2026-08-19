@@ -1,14 +1,14 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { PageBody } from "@/components/layout/PageBody";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { RecordGate } from "@/components/layout/RecordGate";
+import { PageBody } from "@/components/layout/page-body";
+import { PageHeader } from "@/components/layout/page-header";
+import { RecordGate } from "@/components/layout/record-gate";
 import { QuoteForm } from "@/features/notes/components/quote-form";
-import { useRecordEdits } from "@/lib/recordEdits";
-import { useBooks } from "@/lib/useBooks";
-import { useRecords } from "@/lib/useRecords";
-import { getQuoteRecords } from "@/lib/vocabularyStats";
+import { useBooks } from "@/hooks/useBooks";
+import { useRecordEdits } from "@/hooks/useRecordEdits";
+import { useRecords } from "@/hooks/useRecords";
+import { getQuoteRecords } from "@/utils/vocabularyStats";
 
 /** 一則佳句自己的編輯頁；佳句有編號，網址上就用它 */
 export default function EditQuotePage() {

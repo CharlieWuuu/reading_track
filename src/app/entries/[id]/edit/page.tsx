@@ -2,12 +2,12 @@
 
 import { useParams } from "next/navigation";
 import { Suspense } from "react";
-import { PageBody } from "@/components/layout/PageBody";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { RecordGate } from "@/components/layout/RecordGate";
+import { PageBody } from "@/components/layout/page-body";
+import { PageHeader } from "@/components/layout/page-header";
+import { RecordGate } from "@/components/layout/record-gate";
 import { EntryForm } from "@/features/entries/components/entry-form";
 import { EntryFormTabs } from "@/features/entries/components/entry-form-tabs";
-import { useEntries } from "@/lib/useEntries";
+import { useEntries } from "@/hooks/useEntries";
 
 function EditEntry() {
   const { id } = useParams<{ id: string }>();

@@ -1,9 +1,9 @@
 "use client";
 
 import { DebugOverlay, DebugProvider } from "react-component-overlay";
-import { useBookViewStore } from "@/store/useBookViewStore";
-import { useSheetStore } from "@/store/useSheetStore";
-import { useSidebarStore } from "@/store/useSidebarStore";
+import { useBookViewStore } from "@/stores/useBookViewStore";
+import { useSheetStore } from "@/stores/useSheetStore";
+import { useSidebarStore } from "@/stores/useSidebarStore";
 
 const GLOBAL_STATE = {
   sheet: useSheetStore,

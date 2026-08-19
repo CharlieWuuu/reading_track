@@ -1,9 +1,9 @@
 "use client";
 
 import { Suspense } from "react";
-import { PageBody } from "@/components/layout/PageBody";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { PageMessage } from "@/components/layout/PageMessage";
+import { PageBody } from "@/components/layout/page-body";
+import { PageHeader } from "@/components/layout/page-header";
+import { PageMessage } from "@/components/layout/page-message";
 import { TabBar } from "@/components/ui/controls";
 import { CalendarBody } from "@/features/calendar/components/calendar-body";
 import { ArticleKpiCards } from "@/features/stats/components/article-kpi-cards";
@@ -15,13 +15,21 @@ import { MonthlyTrendChart } from "@/features/stats/components/monthly-trend-cha
 import { RankingBar } from "@/features/stats/components/ranking-bar";
 import { Section, SectionList } from "@/features/stats/components/section-list";
 import { YearlyTrendChart } from "@/features/stats/components/yearly-trend-chart";
+import { useArticles } from "@/hooks/useArticles";
+import { useBooks } from "@/hooks/useBooks";
+import { useEntries } from "@/hooks/useEntries";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { useMounted } from "@/hooks/useMounted";
+import { useRecords } from "@/hooks/useRecords";
+import { useUrlParams } from "@/hooks/useUrlParam";
+import { useSheetStore } from "@/stores/useSheetStore";
 import {
   getArticleDomainDistribution,
   getArticleKpis,
   getArticleMonthlyTrend,
   getArticleTypeDistribution,
   getSourceRanking,
-} from "@/lib/articleStats";
+} from "@/utils/articleStats";
 import {
   getAuthorRanking,
   getDomainGroups,
@@ -33,16 +41,8 @@ import {
   getQuarterlyTrend,
   getRereadRanking,
   getTypeDistribution,
-} from "@/lib/bookStats";
-import { getEntryKpis, getEntryMonthlyTrend, getKindDistribution } from "@/lib/entryStats";
-import { useArticles } from "@/lib/useArticles";
-import { useBooks } from "@/lib/useBooks";
-import { useEntries } from "@/lib/useEntries";
-import { useIsMobile } from "@/lib/useIsMobile";
-import { useMounted } from "@/lib/useMounted";
-import { useRecords } from "@/lib/useRecords";
-import { useUrlParams } from "@/lib/useUrlParam";
-import { useSheetStore } from "@/store/useSheetStore";
+} from "@/utils/bookStats";
+import { getEntryKpis, getEntryMonthlyTrend, getKindDistribution } from "@/utils/entryStats";
 
 type Tab = "books" | "articles" | "entries" | "calendar";
 

@@ -1,13 +1,13 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { PageBody } from "@/components/layout/PageBody";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { RecordGate } from "@/components/layout/RecordGate";
+import { PageBody } from "@/components/layout/page-body";
+import { PageHeader } from "@/components/layout/page-header";
+import { RecordGate } from "@/components/layout/record-gate";
 import { BookForm } from "@/features/books/components/book-form";
 import { BookFormTabs } from "@/features/books/components/book-form-tabs";
-import { useBooks } from "@/lib/useBooks";
-import { useUrlParams } from "@/lib/useUrlParam";
+import { useBooks } from "@/hooks/useBooks";
+import { useUrlParams } from "@/hooks/useUrlParam";
 
 export default function EditBookPage() {
   const { id } = useParams<{ id: string }>();

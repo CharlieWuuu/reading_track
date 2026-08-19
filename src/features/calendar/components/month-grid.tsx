@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { PagerButton } from "@/components/ui/pager-button";
-import { buildMonthGrid, CalendarDay } from "@/lib/calendarUtils";
+import { buildMonthGrid, CalendarDay } from "@/features/calendar/utils/calendar-utils";
 import { Article } from "@/types/article";
 import { Book } from "@/types/book";
 
