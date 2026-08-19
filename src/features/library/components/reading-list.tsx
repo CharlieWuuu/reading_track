@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { Favicon } from "@/components/ui/favicon";
-import { TagList as OptionList, TagList } from "@/components/ui/tag-badge";
+import { TagList } from "@/components/ui/tag-badge";
 import { BookViewMode } from "@/store/useBookViewStore";
 import { Article } from "@/types/article";
 import { splitLines, splitTags } from "@/types/book";
@@ -136,10 +136,10 @@ function ArticleTable({ articles }: { articles: Article[] }) {
               <td className="px-3 py-2 whitespace-nowrap tabular-nums">{a.endDate || "—"}</td>
               {/* max-w-0 + overflow-hidden：table-fixed 下標籤太寬會擠進隔壁欄，寧可切掉 */}
               <td className="hidden max-w-0 overflow-hidden px-3 py-2 lg:table-cell">
-                <OptionList values={[a.domain]} tone="domain" wrap={false} />
+                <TagList values={[a.domain]} tone="domain" wrap={false} />
               </td>
               <td className="hidden max-w-0 overflow-hidden px-3 py-2 xl:table-cell">
-                <OptionList values={[a.type]} tone="type" wrap={false} />
+                <TagList values={[a.type]} tone="type" wrap={false} />
               </td>
               <td className="hidden max-w-0 overflow-hidden px-3 py-2 2xl:table-cell">
                 <span className="block overflow-hidden text-ellipsis whitespace-nowrap">

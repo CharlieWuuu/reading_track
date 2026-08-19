@@ -4,17 +4,16 @@ import { TagList } from "./tag-list";
 
 const meta = {
   component: TagList,
-  args: { values: ["哲學", "歷史", "經濟"] },
+  args: { values: ["哲學", "歷史", "經濟"], tone: "domain" },
 } satisfies Meta<typeof TagList>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** 沒給 tone：逐個標籤自己配色（文章的自由標籤） */
-export const AutoColor: Story = {};
+export const Default: Story = {};
 
-/** 給了 tone：整組同色，代表「這一格是哪一個欄位」 */
-export const ByTone: Story = {
+/** 每個欄位一個顏色：讀者先認出「這是哪一種分類」，才輪到「是哪一個值」 */
+export const AllTones: Story = {
   render: () => (
     <div className="flex flex-col gap-2">
       {(Object.keys(TAG_TONES) as TagTone[]).map((tone) => (
