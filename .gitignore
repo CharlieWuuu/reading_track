@@ -40,6 +40,9 @@ yarn-error.log*
 # claude code local settings
 .claude/
 
+# 重構筆記，只留本機
+/docs/api-routes-refactor.md
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
