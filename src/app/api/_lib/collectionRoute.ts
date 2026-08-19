@@ -7,7 +7,7 @@ import {
   sheetFailure,
   unauthorized,
 } from "@/app/api/_lib/respond";
-import { requestUnlocked, withPrivacy } from "@/lib/privacy";
+import { requestUnlocked, withPrivacy } from "@/utils/privacy";
 
 /** 有 private 欄位才過得了 withPrivacy，三種紀錄都符合 */
 type Row = { private?: string };

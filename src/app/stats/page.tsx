@@ -22,13 +22,14 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { useMounted } from "@/hooks/useMounted";
 import { useRecords } from "@/hooks/useRecords";
 import { useUrlParams } from "@/hooks/useUrlParam";
+import { useSheetStore } from "@/store/useSheetStore";
 import {
   getArticleDomainDistribution,
   getArticleKpis,
   getArticleMonthlyTrend,
   getArticleTypeDistribution,
   getSourceRanking,
-} from "@/lib/articleStats";
+} from "@/utils/articleStats";
 import {
   getAuthorRanking,
   getDomainGroups,
@@ -40,9 +41,8 @@ import {
   getQuarterlyTrend,
   getRereadRanking,
   getTypeDistribution,
-} from "@/lib/bookStats";
-import { getEntryKpis, getEntryMonthlyTrend, getKindDistribution } from "@/lib/entryStats";
-import { useSheetStore } from "@/store/useSheetStore";
+} from "@/utils/bookStats";
+import { getEntryKpis, getEntryMonthlyTrend, getKindDistribution } from "@/utils/entryStats";
 
 type Tab = "books" | "articles" | "entries" | "calendar";
 

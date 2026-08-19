@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 import { PageMessage } from "@/components/layout/PageMessage";
 import { VocabularyPanel } from "@/features/notes/components/vocabulary-panel";
 import { useRecords } from "@/hooks/useRecords";
-import { getVocabularyEntries } from "@/lib/vocabularyStats";
 import { Book } from "@/types/book";
+import { getVocabularyEntries } from "@/utils/vocabularyStats";
 
 /** 單字清單：桌機是自己一頁，手機是筆記頁的一個分頁；點一張就進那個詞的編輯頁 */
 export function VocabularySection({ books }: { books: Book[] }) {

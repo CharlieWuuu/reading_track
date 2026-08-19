@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { isPrivate, requestUnlocked } from "@/lib/privacy";
 import {
   listBooks,
   listQuoteRows,
@@ -9,6 +8,7 @@ import {
   replaceBookVocabulary,
 } from "@/lib/sheets";
 import { QuoteRow, VocabularyRow } from "@/types/record";
+import { isPrivate, requestUnlocked } from "@/utils/privacy";
 
 /** 單字與佳句是同一種東西的兩張表，讀寫走同一條路，用 kind 分流 */
 type Kind = "vocabulary" | "quotes";

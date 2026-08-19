@@ -8,7 +8,7 @@ import { QuoteForm } from "@/features/notes/components/quote-form";
 import { useBooks } from "@/hooks/useBooks";
 import { useRecordEdits } from "@/hooks/useRecordEdits";
 import { useRecords } from "@/hooks/useRecords";
-import { getQuoteRecords } from "@/lib/vocabularyStats";
+import { getQuoteRecords } from "@/utils/vocabularyStats";
 
 /** 一則佳句自己的編輯頁；佳句有編號，網址上就用它 */
 export default function EditQuotePage() {

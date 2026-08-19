@@ -11,10 +11,10 @@ import { ReflectionTimeline } from "@/features/notes/components/reflection-timel
 import { useEntries } from "@/hooks/useEntries";
 import { useMounted } from "@/hooks/useMounted";
 import { useUrlParams } from "@/hooks/useUrlParam";
-import { entriesToReflections } from "@/lib/reflections";
-import { matchesSearch, searchTerms } from "@/lib/search";
 import { splitTags } from "@/types/book";
 import { Entry } from "@/types/entry";
+import { entriesToReflections } from "@/utils/reflections";
+import { matchesSearch, searchTerms } from "@/utils/search";
 
 /** 選項只列真的有紀事在用的值，選了才不會篩出一片空白 */
 function usedKinds(entries: Entry[]): string[] {

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { TAG_TONES, type TagTone } from "@/lib/tagColors";
+import { TAG_TONES, type TagTone } from "@/utils/tagColors";
 import { TagList } from "./tag-list";
 
 const meta = {

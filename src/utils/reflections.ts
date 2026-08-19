@@ -1,6 +1,6 @@
-import { parseDate } from "@/lib/date";
 import { splitLines } from "@/types/book";
 import { Entry } from "@/types/entry";
+import { parseDate } from "@/utils/date";
 
 export type ReflectionSource = "書籍" | "文章" | "紀事";
 

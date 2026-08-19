@@ -59,7 +59,13 @@ const eslintConfig = defineConfig([
             { target: "./src/features", from: "./src/app" },
             // 共用的下層不能反過來依賴上層
             {
-              target: ["./src/components", "./src/hooks", "./src/lib", "./src/types"],
+              target: [
+                "./src/components",
+                "./src/hooks",
+                "./src/lib",
+                "./src/types",
+                "./src/utils",
+              ],
               from: ["./src/features", "./src/app"],
             },
           ],

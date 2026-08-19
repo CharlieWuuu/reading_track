@@ -17,8 +17,8 @@ import { QuoteBlock } from "@/features/notes/components/record-items";
 import { VocabularySection } from "@/features/notes/components/vocabulary-section";
 import { useRecords } from "@/hooks/useRecords";
 import { useUrlParams } from "@/hooks/useUrlParam";
-import { getQuoteRecords } from "@/lib/vocabularyStats";
 import { Book } from "@/types/book";
+import { getQuoteRecords } from "@/utils/vocabularyStats";
 
 const styles = {
   // 內文長度差很多，排成多欄只會高高低低；一則一列往下排反而好讀

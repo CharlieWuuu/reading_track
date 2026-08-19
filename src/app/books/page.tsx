@@ -12,8 +12,8 @@ import { ReadingList } from "@/features/library/components/reading-list";
 import { useArticles } from "@/hooks/useArticles";
 import { useMounted } from "@/hooks/useMounted";
 import { useUrlParams } from "@/hooks/useUrlParam";
-import { matchesSearch, searchTerms } from "@/lib/search";
 import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
+import { matchesSearch, searchTerms } from "@/utils/search";
 
 /**
  * 書與文章同一個 tab。

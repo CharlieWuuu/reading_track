@@ -63,7 +63,7 @@ export async function requestUnlocked(
 ): Promise<boolean> {
   const token = req.nextUrl.searchParams.get("unlock");
   if (!token) return false;
-  const { readSetting } = await import("./sheets");
+  const { readSetting } = await import("@/lib/sheets");
   const stored = await readSetting(sheetId, accessToken, PRIVACY_SETTING_KEY);
   return isUnlocked(token, stored);
 }

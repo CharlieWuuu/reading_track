@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { PenLine } from "lucide-react";
 import { useEntries } from "@/hooks/useEntries";
-import { now } from "@/lib/date";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Entry } from "@/types/entry";
+import { now } from "@/utils/date";
 
 const styles = {
   wrap: "flex min-h-0 flex-col gap-1",

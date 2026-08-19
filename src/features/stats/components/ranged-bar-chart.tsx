@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { PagerButton } from "@/components/ui/pager-button";
-import { VIZ_TOKENS } from "@/lib/chartPalette";
+import { VIZ_TOKENS } from "@/utils/chartPalette";
 
 export interface RangeOption {
   key: string;

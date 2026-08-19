@@ -10,10 +10,10 @@ import { STATUS_STYLES, StatusBadge, TagList } from "@/components/ui/tag-badge";
 import { useBooks } from "@/hooks/useBooks";
 import { useMounted } from "@/hooks/useMounted";
 import { useUrlParams } from "@/hooks/useUrlParam";
-import { matchesSearch, searchTerms } from "@/lib/search";
 import { isBookViewMode, useBookViewStore } from "@/store/useBookViewStore";
 import { useSheetStore } from "@/store/useSheetStore";
 import { Book, ReadingStatus, splitLines } from "@/types/book";
+import { matchesSearch, searchTerms } from "@/utils/search";
 
 /** 目前篩選中的關鍵字。放在清單上方，因為它會改變下面看到的是什麼 */
 function KeywordFilter({

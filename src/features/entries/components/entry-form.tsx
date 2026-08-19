@@ -15,11 +15,11 @@ import { useEntries } from "@/hooks/useEntries";
 import { useMetrics } from "@/hooks/useMetrics";
 import { useRecordForm } from "@/hooks/useRecordForm";
 import { useUrlParams } from "@/hooks/useUrlParam";
-import { fromDateTimeInput, now, toDateTimeInput } from "@/lib/date";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { useSheetStore } from "@/store/useSheetStore";
 import { splitLines } from "@/types/book";
 import { Entry } from "@/types/entry";
+import { fromDateTimeInput, now, toDateTimeInput } from "@/utils/date";
 
 // 內文吃掉整個表單剩下的高度：這一欄是主體，寫長了不該只給它一個小框
 const TEXTAREA_CLASS =

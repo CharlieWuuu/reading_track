@@ -8,7 +8,7 @@ import { VocabularyForm } from "@/features/notes/components/vocabulary-form";
 import { useBooks } from "@/hooks/useBooks";
 import { useRecordEdits } from "@/hooks/useRecordEdits";
 import { useRecords } from "@/hooks/useRecords";
-import { getVocabularyEntries } from "@/lib/vocabularyStats";
+import { getVocabularyEntries } from "@/utils/vocabularyStats";
 
 /**
  * 一個詞自己的編輯頁。

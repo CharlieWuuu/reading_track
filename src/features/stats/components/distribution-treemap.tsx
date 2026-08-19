@@ -1,8 +1,8 @@
 "use client";
 
 import { ResponsiveContainer, Tooltip, Treemap } from "recharts";
-import { DistributionGroup, DistributionSlice } from "@/lib/bookStats";
-import { CATEGORICAL, SERIES_PRIMARY, VIZ_TOKENS } from "@/lib/chartPalette";
+import { DistributionGroup, DistributionSlice } from "@/utils/bookStats";
+import { CATEGORICAL, SERIES_PRIMARY, VIZ_TOKENS } from "@/utils/chartPalette";
 
 const styles = {
   root: "viz-root flex h-full min-h-0 flex-col gap-3.5",

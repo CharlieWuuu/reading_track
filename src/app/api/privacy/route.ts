@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { isUnlocked, passcodeToToken, PRIVACY_SETTING_KEY, tokenToStored } from "@/lib/privacy";
 import { readSetting, writeSetting } from "@/lib/sheets";
+import { isUnlocked, passcodeToToken, PRIVACY_SETTING_KEY, tokenToStored } from "@/utils/privacy";
 
 async function requireSession() {
   const session = await auth();

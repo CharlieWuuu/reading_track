@@ -6,9 +6,9 @@ import L from "leaflet";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { BookCover } from "@/components/ui/book-cover";
 import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
-import { CATEGORICAL } from "@/lib/chartPalette";
 import { Book, splitLines } from "@/types/book";
 import { KeywordInfo, parseCoordinates } from "@/types/keyword";
+import { CATEGORICAL } from "@/utils/chartPalette";
 
 const styles = {
   wrap: "relative flex h-full min-h-0 flex-col",

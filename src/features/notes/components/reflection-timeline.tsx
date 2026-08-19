@@ -6,9 +6,9 @@ import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { useArticles } from "@/hooks/useArticles";
 import { useBooks } from "@/hooks/useBooks";
 import { useMetrics } from "@/hooks/useMetrics";
-import { dayLabel, timeLabel } from "@/lib/date";
-import { groupByWeek, isUrl, Reflection } from "@/lib/reflections";
-import { tagColorClass } from "@/lib/tagColors";
+import { dayLabel, timeLabel } from "@/utils/date";
+import { groupByWeek, isUrl, Reflection } from "@/utils/reflections";
+import { tagColorClass } from "@/utils/tagColors";
 
 const styles = {
   // 左右各留一點：overflow-y 一旦不是 visible 橫向也會裁，頭像的外框線會被切掉一條
