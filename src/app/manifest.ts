@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    // Bubblewrap 打包 TWA 時會以 id 認這個 app，之後不要再改
+    // 已安裝的 app 靠 id 認身分，改了會被當成另一個 app
     id: "/books",
     name: "ReadingTrack",
     short_name: "ReadingTrack",
