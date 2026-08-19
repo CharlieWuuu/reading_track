@@ -24,7 +24,9 @@ const styles = {
   item: "flex w-full min-w-0 items-start gap-3 py-3 text-left",
   // 三種左圖佔一樣寬，右邊那欄的起點才會對齊成一直線
   avatar: "flex size-7 shrink-0 items-center justify-center",
-  cover: "size-7 rounded-full object-cover shadow-sm ring-1 ring-black/10",
+  // 書封是 2:3 的直式圖，圓形頭像要它撐滿再裁掉上下，不能留邊
+  coverFrame: "size-7 overflow-hidden rounded-full shadow-sm ring-1 ring-black/10",
+  cover: "h-full w-full object-cover",
   favicon: "flex size-7 items-center justify-center rounded-full bg-white ring-1 ring-black/10",
   // 沒有封面也沒有站台圖示時，用類型的第一個字當頭像
   initial: "flex size-7 items-center justify-center rounded-full text-xs font-medium",
@@ -99,8 +101,10 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
                 <div key={id} className={styles.item}>
                   <div className={styles.avatar}>
                     {cover ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={cover} alt="" className={styles.cover} />
+                      <span className={styles.coverFrame}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={cover} alt="" className={styles.cover} />
+                      </span>
                     ) : articleUrl !== undefined ? (
                       // 站台圖示本身是方的，套一個圓底才跟書封那顆對得起來
                       <span className={styles.favicon}>
