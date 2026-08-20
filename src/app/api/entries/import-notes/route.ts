@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { addEntryRows, listArticles, listBooks, listEntries } from "@/lib/sheets";
 import { Entry } from "@/types/entry";
 

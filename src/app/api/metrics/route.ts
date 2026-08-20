@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { addMetricRow, listMetrics } from "@/lib/sheets";
 import { Metric } from "@/types/metric";
 

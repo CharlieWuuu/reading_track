@@ -8,7 +8,7 @@ import * as entryItem from "@/app/api/entries/[id]/route";
 import * as entries from "@/app/api/entries/route";
 import * as sheets from "@/lib/sheets";
 
-vi.mock("@/auth", () => ({ auth: vi.fn(async () => ({ accessToken: "fake-token" })) }));
+vi.mock("@/lib/auth", () => ({ auth: vi.fn(async () => ({ accessToken: "fake-token" })) }));
 
 vi.mock("@/lib/sheets", () => ({
   listBooks: vi.fn(async () => [{ id: "從 listBooks 來的" }]),

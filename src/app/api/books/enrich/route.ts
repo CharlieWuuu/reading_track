@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { fetchBookMetadata, mergeEnrichment, missingFields } from "@/lib/metadata";
 import { bulkUpdateBooks, listBooksWithMeta } from "@/lib/sheets";
 import { Book } from "@/types/book";

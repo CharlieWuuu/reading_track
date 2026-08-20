@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createCollectionRoute } from "@/app/api/_lib/collection-route";
 
-vi.mock("@/auth", () => ({
+vi.mock("@/lib/auth", () => ({
   auth: vi.fn(async () => ({ accessToken: "fake-token" })),
 }));
 
