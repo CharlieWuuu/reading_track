@@ -1,8 +1,8 @@
 import { Book } from "@/types/book";
-import { googleBooksProvider } from "./googleBooks";
+import { googleBooksProvider } from "./google-books";
 import { SourceUnavailableError, titleSimilarity } from "./http";
 import { ndlProvider } from "./ndl";
-import { openLibraryProvider } from "./openLibrary";
+import { openLibraryProvider } from "./open-library";
 import { pubuProvider } from "./pubu";
 import { readmooProvider } from "./readmoo";
 import { taazeProvider } from "./taaze";

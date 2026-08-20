@@ -1,4 +1,4 @@
-import { clearSWRCache } from "@/lib/swrCache";
+import { clearSWRCache } from "@/lib/swr-cache";
 
 /** 登出要清的都是跟帳號綁的；reading-track-sidebar 只是收合狀態，留著 */
 const KEYS = ["reading-track-sheet", "reading-track-book-view"];

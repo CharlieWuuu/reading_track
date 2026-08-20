@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import useSWR from "swr";
-import { readCached } from "@/lib/swrCache";
+import { readCached } from "@/lib/swr-cache";
 import { usePrivacyStore } from "@/stores/use-privacy-store";
 import { useSheetStore } from "@/stores/use-sheet-store";
 

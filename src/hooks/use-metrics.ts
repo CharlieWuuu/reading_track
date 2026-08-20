@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import useSWR from "swr";
-import { readCached } from "@/lib/swrCache";
+import { readCached } from "@/lib/swr-cache";
 import { useSheetStore } from "@/stores/use-sheet-store";
 import { Metric } from "@/types/metric";
 
