@@ -19,8 +19,20 @@ async function collect(sheetId: string, accessToken: string) {
   const migrated = new Set(entries.map((e) => e.sourceId).filter(Boolean));
 
   const sources = [
-    ...books.map((b) => ({ id: b.id, title: b.title, note: b.note, date: b.endDate })),
-    ...articles.map((a) => ({ id: a.id, title: a.title, note: a.note, date: a.endDate })),
+    ...books.map((b) => ({
+      id: b.id,
+      title: b.title,
+      note: b.note,
+      date: b.endDate,
+      kind: "書籍",
+    })),
+    ...articles.map((a) => ({
+      id: a.id,
+      title: a.title,
+      note: a.note,
+      date: a.endDate,
+      kind: "文章",
+    })),
   ];
 
   return sources
@@ -29,7 +41,7 @@ async function collect(sheetId: string, accessToken: string) {
       id: crypto.randomUUID(),
       date: s.date ?? "",
       title: s.title,
-      kind: "心得",
+      kind: s.kind, // 照來源標，跟書籍／文章頁寫出來的紀事同一組選項
       keywords: "",
       note: s.note,
       link: "",
