@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useEntries } from "@/hooks/use-entries";
-import { useSheetStore } from "@/stores/useSheetStore";
+import { useSheetStore } from "@/stores/use-sheet-store";
 
 const styles = {
   wrap: "flex flex-col gap-2",

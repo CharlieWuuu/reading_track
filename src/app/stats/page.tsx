@@ -22,7 +22,7 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useMounted } from "@/hooks/use-mounted";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
-import { useSheetStore } from "@/stores/useSheetStore";
+import { useSheetStore } from "@/stores/use-sheet-store";
 import {
   getArticleDomainDistribution,
   getArticleKpis,

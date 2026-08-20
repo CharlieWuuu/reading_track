@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { PageMessage } from "@/components/layout/page-message";
 import { Favicon } from "@/components/ui/favicon";
 import { TagList } from "@/components/ui/tag-badge";
-import { BookViewMode } from "@/stores/useBookViewStore";
+import { BookViewMode } from "@/stores/use-book-view-store";
 import { Article } from "@/types/article";
 import { splitLines, splitTags } from "@/types/book";
 

@@ -12,7 +12,7 @@ import { ReadingList } from "@/features/library/components/reading-list";
 import { useArticles } from "@/hooks/use-articles";
 import { useMounted } from "@/hooks/use-mounted";
 import { useUrlParams } from "@/hooks/use-url-param";
-import { isBookViewMode, useBookViewStore } from "@/stores/useBookViewStore";
+import { isBookViewMode, useBookViewStore } from "@/stores/use-book-view-store";
 import { matchesSearch, searchTerms } from "@/utils/search";
 
 /**

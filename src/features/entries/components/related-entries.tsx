@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { PenLine } from "lucide-react";
 import { useEntries } from "@/hooks/use-entries";
-import { useSheetStore } from "@/stores/useSheetStore";
+import { useSheetStore } from "@/stores/use-sheet-store";
 import { Entry } from "@/types/entry";
 import { now } from "@/utils/date";
 

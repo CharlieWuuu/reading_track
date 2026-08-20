@@ -16,7 +16,7 @@ import { useMetrics } from "@/hooks/use-metrics";
 import { useRecordForm } from "@/hooks/use-record-form";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
-import { useSheetStore } from "@/stores/useSheetStore";
+import { useSheetStore } from "@/stores/use-sheet-store";
 import { splitLines } from "@/types/book";
 import { Entry } from "@/types/entry";
 import { fromDateTimeInput, now, toDateTimeInput } from "@/utils/date";

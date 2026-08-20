@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
-import { useSidebarStore } from "@/stores/useSidebarStore";
+import { useSidebarStore } from "@/stores/use-sidebar-store";
 
 /** 側欄收合時只顯示頭像；收合狀態直接讀 store，免得要跨 server/client 邊界傳 */
 export function AuthButton() {

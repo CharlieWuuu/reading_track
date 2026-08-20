@@ -8,7 +8,7 @@ import { useArticles } from "@/hooks/use-articles";
 import { useBooks } from "@/hooks/use-books";
 import { useMounted } from "@/hooks/use-mounted";
 import { useUrlParams } from "@/hooks/use-url-param";
-import { useSheetStore } from "@/stores/useSheetStore";
+import { useSheetStore } from "@/stores/use-sheet-store";
 
 /** 月曆看「哪一天讀完」，時間軸看「一本書讀了多久、同時在讀幾本」 */
 const VIEWS = [

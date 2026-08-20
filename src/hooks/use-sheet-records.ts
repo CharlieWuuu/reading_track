@@ -3,8 +3,8 @@
 import { useMemo } from "react";
 import useSWR from "swr";
 import { readCached } from "@/lib/swrCache";
-import { usePrivacyStore } from "@/stores/usePrivacyStore";
-import { useSheetStore } from "@/stores/useSheetStore";
+import { usePrivacyStore } from "@/stores/use-privacy-store";
+import { useSheetStore } from "@/stores/use-sheet-store";
 
 /** API 路徑上的那一段，也是回應裡包住資料的那個鍵：/api/books 回 { books: [...] } */
 export type SheetResource = "books" | "articles" | "entries";

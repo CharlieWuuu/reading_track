@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useSidebarStore } from "@/stores/useSidebarStore";
+import { useSidebarStore } from "@/stores/use-sidebar-store";
 import { NAV_ITEMS, NavItem } from "./nav-items";
 import { PrivacyButton } from "./privacy-button";
 import { RefreshButton } from "./refresh-button";
