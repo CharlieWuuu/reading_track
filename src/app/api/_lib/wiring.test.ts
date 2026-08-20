@@ -23,6 +23,7 @@ vi.mock("@/lib/sheets", () => ({
   deleteBookRow: vi.fn(async () => undefined),
   deleteArticleRow: vi.fn(async () => undefined),
   deleteEntryRow: vi.fn(async () => undefined),
+  readPrivacySettings: vi.fn(async () => ({ stored: "", privateKinds: [] })),
 }));
 
 const SHEET = "sheet-1";

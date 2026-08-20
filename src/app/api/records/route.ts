@@ -8,7 +8,7 @@ import {
   replaceBookVocabulary,
 } from "@/lib/sheets";
 import { QuoteRow, VocabularyRow } from "@/types/record";
-import { isPrivate, requestUnlocked } from "@/utils/privacy";
+import { isPrivate, requestPrivacy } from "@/utils/privacy";
 
 /** 單字與佳句是同一種東西的兩張表，讀寫走同一條路，用 kind 分流 */
 type Kind = "vocabulary" | "quotes";
@@ -25,16 +25,17 @@ export async function GET(req: NextRequest) {
   if (!sheetId) return NextResponse.json({ error: "缺少 Sheet ID" }, { status: 400 });
 
   try {
-    const [vocabulary, quotes, unlocked] = await Promise.all([
+    const [vocabulary, quotes, { unlocked }] = await Promise.all([
       listVocabularyRows(sheetId, session.accessToken),
       listQuoteRows(sheetId, session.accessToken),
-      requestUnlocked(req, sheetId, session.accessToken),
+      requestPrivacy(req, sheetId, session.accessToken),
     ]);
     if (unlocked) return NextResponse.json({ vocabulary, quotes });
 
     // 佳句與單字自己沒有私人欄，但它們屬於某一本書——那本書私人，它們就跟著藏起來
+    // 私人類型只管書寫的 kind，書籍的類型欄是 type，還沒納進來
     const books = await listBooks(sheetId, session.accessToken);
-    const hidden = new Set(books.filter(isPrivate).map((b) => b.id));
+    const hidden = new Set(books.filter((book) => isPrivate(book)).map((b) => b.id));
     return NextResponse.json({
       vocabulary: vocabulary.filter((row) => !hidden.has(row.bookId)),
       quotes: quotes.filter((row) => !hidden.has(row.bookId)),

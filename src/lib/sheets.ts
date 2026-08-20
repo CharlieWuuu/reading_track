@@ -4,6 +4,7 @@ import {
   GoogleSpreadsheetRow,
   GoogleSpreadsheetWorksheet,
 } from "google-spreadsheet";
+import { PRIVACY_SETTING_KEY, PRIVATE_KINDS_SETTING_KEY } from "@/config/sheet-format";
 import { Article } from "@/types/article";
 import { Book, inferStatus, normalizePlatform, normalizeStatus, splitLines } from "@/types/book";
 import { Entry } from "@/types/entry";
@@ -779,6 +780,30 @@ export async function readSetting(
   const rows = await sheet.getRows();
   const row = rows.find((r) => (r.get("設定") ?? "").toString().trim() === key);
   return (row?.get("值") ?? "").toString().trim();
+}
+
+/**
+ * 密碼與私人類型都在同一張小表，一次讀完；分兩支會跑兩趟 Sheet。
+ *
+ * 私人類型是多值，一個類型一列——不在一格裡塞逗號，Sheet 上才改得動。
+ */
+export async function readPrivacySettings(
+  sheetId: string,
+  accessToken: string,
+): Promise<{ stored: string; privateKinds: string[] }> {
+  const sheet = await getSettingsSheet(sheetId, accessToken);
+  const rows = await sheet.getRows();
+  const cell = (row: (typeof rows)[number], header: string) =>
+    (row.get(header) ?? "").toString().trim();
+
+  const stored = rows.find((r) => cell(r, "設定") === PRIVACY_SETTING_KEY);
+  return {
+    stored: stored ? cell(stored, "值") : "",
+    privateKinds: rows
+      .filter((r) => cell(r, "設定") === PRIVATE_KINDS_SETTING_KEY)
+      .map((r) => cell(r, "值"))
+      .filter(Boolean),
+  };
 }
 
 /** 值是空字串就把那一列刪掉，Sheet 上不留一列空設定 */
