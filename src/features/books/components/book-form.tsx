@@ -437,7 +437,7 @@ export function BookForm({
           <div className="flex min-h-0 flex-col gap-3 sm:flex-row md:flex-1">
             <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
               {isEdit && book ? (
-                <RelatedEntries sourceId={book.id} sourceTitle={form.title} kind="書籍心得" />
+                <RelatedEntries sourceId={book.id} sourceTitle={form.title} kind="書籍" />
               ) : (
                 <p className="rounded border border-dashed px-3 py-2 text-xs text-gray-400">
                   存好這本書之後就可以寫心得了

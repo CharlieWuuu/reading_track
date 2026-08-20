@@ -40,7 +40,7 @@ export function RelatedEntries({
 }: {
   sourceId: string;
   sourceTitle: string;
-  /** 這裡寫出來的那則算哪一種：書籍心得、文章心得 */
+  /** 這裡寫出來的那則算哪一種：書籍、文章 */
   kind: string;
 }) {
   const { entries, mutate } = useEntries();
