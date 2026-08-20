@@ -8,7 +8,7 @@ import { useBooks } from "@/hooks/use-books";
 import { useMetrics } from "@/hooks/use-metrics";
 import { dayLabel, timeLabel } from "@/utils/date";
 import { groupByWeek, isUrl, Reflection } from "@/utils/reflections";
-import { tagColorClass } from "@/utils/tagColors";
+import { tagColorClass } from "@/utils/tag-colors";
 
 const styles = {
   // 左右各留一點：overflow-y 一旦不是 visible 橫向也會裁，頭像的外框線會被切掉一條

@@ -29,7 +29,7 @@ import {
   getArticleMonthlyTrend,
   getArticleTypeDistribution,
   getSourceRanking,
-} from "@/utils/articleStats";
+} from "@/utils/article-stats";
 import {
   getAuthorRanking,
   getDomainGroups,
@@ -41,8 +41,8 @@ import {
   getQuarterlyTrend,
   getRereadRanking,
   getTypeDistribution,
-} from "@/utils/bookStats";
-import { getEntryKpis, getEntryMonthlyTrend, getKindDistribution } from "@/utils/entryStats";
+} from "@/utils/book-stats";
+import { getEntryKpis, getEntryMonthlyTrend, getKindDistribution } from "@/utils/entry-stats";
 
 type Tab = "books" | "articles" | "entries" | "calendar";
 

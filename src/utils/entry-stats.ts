@@ -1,6 +1,6 @@
 import { Entry } from "@/types/entry";
-import { DistributionSlice, MonthCount } from "@/utils/bookStats";
-import { getFieldDistribution, getRecordKpis, getRecordMonthlyTrend } from "@/utils/recordStats";
+import { DistributionSlice, MonthCount } from "@/utils/book-stats";
+import { getFieldDistribution, getRecordKpis, getRecordMonthlyTrend } from "@/utils/record-stats";
 
 export function getEntryKpis(entries: Entry[]) {
   return getRecordKpis(entries);

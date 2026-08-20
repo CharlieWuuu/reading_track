@@ -1,8 +1,8 @@
 "use client";
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { DistributionSlice } from "@/utils/bookStats";
-import { CATEGORICAL } from "@/utils/chartPalette";
+import { DistributionSlice } from "@/utils/book-stats";
+import { CATEGORICAL } from "@/utils/chart-palette";
 
 /**
  * 佔比太小的區塊不拉線標示——線和字會互相疊在一起，反而什麼都看不清楚。

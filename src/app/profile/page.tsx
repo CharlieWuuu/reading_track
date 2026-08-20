@@ -6,7 +6,7 @@ import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageMessage } from "@/components/layout/page-message";
 import { SignInPrompt } from "@/components/ui/sign-in-prompt";
-import { clearLocalData } from "@/utils/clearLocalData";
+import { clearLocalData } from "@/utils/clear-local-data";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();

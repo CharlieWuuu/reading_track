@@ -1,5 +1,5 @@
 import { splitTags } from "@/types/book";
-import { DistributionSlice, MonthCount } from "@/utils/bookStats";
+import { DistributionSlice, MonthCount } from "@/utils/book-stats";
 import { parseDate } from "@/utils/date";
 
 /**
