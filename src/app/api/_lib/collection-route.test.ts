@@ -8,10 +8,14 @@ vi.mock("@/auth", () => ({
 
 // GET 一定會去讀設定分頁（私人類型清單鎖著的時候正是要用它）
 vi.mock("@/lib/sheets", () => ({
-  readPrivacySettings: vi.fn(async () => ({ stored: "", privateKinds: ["日記"] })),
+  readPrivacySettings: vi.fn(async () => ({
+    stored: "",
+    privateKinds: ["日記"],
+    privateTypes: ["工作"],
+  })),
 }));
 
-type Row = { id: string; private?: string; kind?: string };
+type Row = { id: string; private?: string; kind?: string; type?: string };
 
 const SHEET = "sheet-1";
 const url = () => `http://localhost/api/books?sheetId=${SHEET}`;
@@ -76,6 +80,17 @@ describe("GET", () => {
     const res = await route.GET(new NextRequest(url()));
 
     expect(await res.json()).toEqual({ books: [{ id: "b1" }] });
+  });
+
+  it("屬性在私人清單裡的那筆也不會離開伺服器", async () => {
+    const { route } = build([
+      { id: "b1", type: "閒書" },
+      { id: "b2", type: "工作" },
+    ]);
+
+    const res = await route.GET(new NextRequest(url()));
+
+    expect(await res.json()).toEqual({ books: [{ id: "b1", type: "閒書" }] });
   });
 
   it("類型在私人清單裡的那筆也不會離開伺服器", async () => {

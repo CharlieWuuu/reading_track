@@ -25,17 +25,18 @@ export async function GET(req: NextRequest) {
   if (!sheetId) return NextResponse.json({ error: "缺少 Sheet ID" }, { status: 400 });
 
   try {
-    const [vocabulary, quotes, { unlocked }] = await Promise.all([
+    const [vocabulary, quotes, privacy] = await Promise.all([
       listVocabularyRows(sheetId, session.accessToken),
       listQuoteRows(sheetId, session.accessToken),
       requestPrivacy(req, sheetId, session.accessToken),
     ]);
-    if (unlocked) return NextResponse.json({ vocabulary, quotes });
+    if (privacy.unlocked) return NextResponse.json({ vocabulary, quotes });
 
     // 佳句與單字自己沒有私人欄，但它們屬於某一本書——那本書私人，它們就跟著藏起來
-    // 私人類型只管書寫的 kind，書籍的類型欄是 type，還沒納進來
     const books = await listBooks(sheetId, session.accessToken);
-    const hidden = new Set(books.filter((book) => isPrivate(book)).map((b) => b.id));
+    const hidden = new Set(
+      books.filter((book) => isPrivate(book, privacy.options)).map((b) => b.id),
+    );
     return NextResponse.json({
       vocabulary: vocabulary.filter((row) => !hidden.has(row.bookId)),
       quotes: quotes.filter((row) => !hidden.has(row.bookId)),

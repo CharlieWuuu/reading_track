@@ -25,21 +25,34 @@ function markedPrivate(row: PrivateRow): boolean {
   return TRUTHY.has((row.private ?? "").trim().toLowerCase());
 }
 
-export type PrivateRow = { private?: string; kind?: string };
+/** 書寫看「類型」，書籍與文章看「屬性」；欄名不同，兩張清單也各自一份 */
+export type PrivateRow = { private?: string; kind?: string; type?: string };
+
+/** 哪些選項整批算私人。設定的 key 就用 Sheet 上的欄名，對得起來 */
+export type PrivateOptions = {
+  kinds: ReadonlySet<string>; // 設定分頁的「私人類型」→ 書寫的類型欄
+  types: ReadonlySet<string>; // 設定分頁的「私人屬性」→ 書籍與文章的屬性欄
+};
+
+const NO_OPTIONS: PrivateOptions = { kinds: new Set(), types: new Set() };
 
 /**
  * 兩條路都算私人，是「或」不是二選一：
  *
- * - 整個類型設成私人（設定分頁的「私人類型」），底下每一則都跟著藏
+ * - 整個選項設成私人（設定分頁的「私人類型」「私人屬性」），底下每一筆都跟著藏
  * - 這一列自己標了私人，就算它的類型是公開的
  *
- * 類型設私人時不回寫個別列的「私人」欄：那樣會有兩個真實來源，之後把類型移出
- * 清單，那些列還留著「是」。清單是唯一來源，移出即生效。
+ * 設成私人時不回寫個別列的「私人」欄：那樣會有兩個真實來源，之後把它移出清單，
+ * 那些列還留著「是」。清單是唯一來源，移出即生效。
  */
-export function isPrivate(row: PrivateRow, privateKinds?: ReadonlySet<string>): boolean {
+export function isPrivate(row: PrivateRow, options: PrivateOptions = NO_OPTIONS): boolean {
   if (markedPrivate(row)) return true;
-  const kind = (row.kind ?? "").trim();
-  return Boolean(kind && privateKinds?.has(kind));
+  return inList(row.kind, options.kinds) || inList(row.type, options.types);
+}
+
+function inList(value: string | undefined, list: ReadonlySet<string>): boolean {
+  const trimmed = (value ?? "").trim();
+  return Boolean(trimmed && list.has(trimmed));
 }
 
 function sha256(value: string): string {
@@ -65,17 +78,17 @@ export function isUnlocked(token: string | null, stored: string): boolean {
 /** 鎖著就把私人的那幾列整列拿掉；解鎖了就原樣回傳 */
 export function withPrivacy<T extends PrivateRow>(
   rows: T[],
-  { unlocked, privateKinds }: RequestPrivacy,
+  { unlocked, options }: RequestPrivacy,
 ): T[] {
-  return unlocked ? rows : rows.filter((row) => !isPrivate(row, privateKinds));
+  return unlocked ? rows : rows.filter((row) => !isPrivate(row, options));
 }
 
-export type RequestPrivacy = { unlocked: boolean; privateKinds: ReadonlySet<string> };
+export type RequestPrivacy = { unlocked: boolean; options: PrivateOptions };
 
 /**
- * 這個請求解鎖了沒，以及哪些類型整批算私人。
+ * 這個請求解鎖了沒，以及哪些選項整批算私人。
  *
- * 私人類型清單不管有沒有帶權杖都得讀——鎖著的時候正是要靠它過濾。所以這裡一定
+ * 清單不管有沒有帶權杖都得讀——鎖著的時候正是要靠它過濾。所以這裡一定
  * 會多一趟設定分頁；讀密碼與讀清單合成同一趟，至少不是兩趟。
  */
 export async function requestPrivacy(
@@ -84,8 +97,11 @@ export async function requestPrivacy(
   accessToken: string,
 ): Promise<RequestPrivacy> {
   const { readPrivacySettings } = await import("@/lib/sheets");
-  const { stored, privateKinds } = await readPrivacySettings(sheetId, accessToken);
+  const { stored, privateKinds, privateTypes } = await readPrivacySettings(sheetId, accessToken);
   const token = req.nextUrl.searchParams.get("unlock");
 
-  return { unlocked: isUnlocked(token, stored), privateKinds: new Set(privateKinds) };
+  return {
+    unlocked: isUnlocked(token, stored),
+    options: { kinds: new Set(privateKinds), types: new Set(privateTypes) },
+  };
 }

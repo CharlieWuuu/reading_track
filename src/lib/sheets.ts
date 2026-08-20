@@ -4,7 +4,11 @@ import {
   GoogleSpreadsheetRow,
   GoogleSpreadsheetWorksheet,
 } from "google-spreadsheet";
-import { PRIVACY_SETTING_KEY, PRIVATE_KINDS_SETTING_KEY } from "@/config/sheet-format";
+import {
+  PRIVACY_SETTING_KEY,
+  PRIVATE_KINDS_SETTING_KEY,
+  PRIVATE_TYPES_SETTING_KEY,
+} from "@/config/sheet-format";
 import { Article } from "@/types/article";
 import { Book, inferStatus, normalizePlatform, normalizeStatus, splitLines } from "@/types/book";
 import { Entry } from "@/types/entry";
@@ -790,19 +794,23 @@ export async function readSetting(
 export async function readPrivacySettings(
   sheetId: string,
   accessToken: string,
-): Promise<{ stored: string; privateKinds: string[] }> {
+): Promise<{ stored: string; privateKinds: string[]; privateTypes: string[] }> {
   const sheet = await getSettingsSheet(sheetId, accessToken);
   const rows = await sheet.getRows();
   const cell = (row: (typeof rows)[number], header: string) =>
     (row.get(header) ?? "").toString().trim();
 
+  const valuesOf = (key: string) =>
+    rows
+      .filter((r) => cell(r, "設定") === key)
+      .map((r) => cell(r, "值"))
+      .filter(Boolean);
+
   const stored = rows.find((r) => cell(r, "設定") === PRIVACY_SETTING_KEY);
   return {
     stored: stored ? cell(stored, "值") : "",
-    privateKinds: rows
-      .filter((r) => cell(r, "設定") === PRIVATE_KINDS_SETTING_KEY)
-      .map((r) => cell(r, "值"))
-      .filter(Boolean),
+    privateKinds: valuesOf(PRIVATE_KINDS_SETTING_KEY),
+    privateTypes: valuesOf(PRIVATE_TYPES_SETTING_KEY),
   };
 }
 
