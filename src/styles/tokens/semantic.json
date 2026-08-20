@@ -34,9 +34,9 @@
     "series": {
       "1": { "$value": "{color.blue.600}", "$type": "color" },
       "overflow": {
-        "$value": "var(--color-gray-400)",
+        "$value": "#9ca3af",
         "$type": "color",
-        "$description": "第 9 個以後合併成「其他」的那一格，不是第 9 個色"
+        "$description": "第 9 個以後合併成「其他」的那一格，不是第 9 個色；值同 Tailwind gray-400，但 recharts 要字面值"
       }
     },
 

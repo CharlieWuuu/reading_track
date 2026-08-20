@@ -52,6 +52,7 @@ export const TOKENS = {
   "ink-viz-faint": "#8b7767",
   "grid": "#e8e0d0", // 圖表格線；米白太淺當不了資料色，當格線剛好
   "series-1": "#2b5a8e",
+  "series-overflow": "#9ca3af", // 第 9 個以後合併成「其他」的那一格，不是第 9 個色；值同 Tailwind gray-400，但 recharts 要字面值
   "status-want-bg": "#eae3d8",
   "status-want-ink": "#5c4a3d",
   "status-reading-bg": "#b07d2b",

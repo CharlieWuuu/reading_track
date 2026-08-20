@@ -53,7 +53,7 @@
   --color-ink-faint: var(--color-gray-400);
   --color-rule: var(--color-gray-300);
   --color-rule-strong: var(--color-gray-900);
-  --color-series-overflow: var(--color-gray-400); /** 第 9 個以後合併成「其他」的那一格，不是第 9 個色 */
+  --color-series-overflow: #9ca3af; /** 第 9 個以後合併成「其他」的那一格，不是第 9 個色；值同 Tailwind gray-400，但 recharts 要字面值 */
   --color-tag-article-bg: var(--color-gray-100);
   --color-tag-article-ink: var(--color-gray-500); /** 文章標籤是自由打的，沒有固定選項可配色，整組同一個中性色 */
   --color-control-bg: var(--color-gray-900);

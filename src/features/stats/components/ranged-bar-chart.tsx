@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { PagerButton } from "@/components/ui/pager-button";
-import { VIZ_TOKENS } from "@/utils/chartPalette";
 
 export interface RangeOption {
   key: string;
@@ -76,8 +75,6 @@ export function RangedBarChart({
 
   return (
     <div className="viz-root flex h-full min-h-0 flex-col gap-3" data-palette="reading-track">
-      <style>{`.viz-root {${VIZ_TOKENS}}`}</style>
-
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
         {windowed && (
           <div className="flex items-center gap-1">
@@ -115,18 +112,18 @@ export function RangedBarChart({
       <div className="min-h-0 flex-1">
         <ResponsiveContainer width="100%" height={height}>
           <BarChart data={visible} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <CartesianGrid vertical={false} stroke="var(--grid)" strokeDasharray="3 3" />
+            <CartesianGrid vertical={false} stroke="var(--color-grid)" strokeDasharray="3 3" />
             <XAxis
               dataKey="key"
-              tick={{ fill: "var(--muted)", fontSize: 12 }}
-              axisLine={{ stroke: "var(--grid)" }}
-              tickLine={{ stroke: "var(--grid)" }}
+              tick={{ fill: "var(--color-ink-viz-faint)", fontSize: 12 }}
+              axisLine={{ stroke: "var(--color-grid)" }}
+              tickLine={{ stroke: "var(--color-grid)" }}
               interval={0}
               tickFormatter={(value: string) => range.tick(value, visible.length <= 12)}
             />
             <YAxis
               allowDecimals={false}
-              tick={{ fill: "var(--muted)", fontSize: 12 }}
+              tick={{ fill: "var(--color-ink-viz-faint)", fontSize: 12 }}
               axisLine={false}
               tickLine={false}
               width={28}
@@ -134,15 +131,20 @@ export function RangedBarChart({
             <Tooltip
               cursor={{ fill: "rgba(11,11,11,0.04)" }}
               contentStyle={{
-                background: "var(--surface-1)",
-                border: "1px solid var(--grid)",
+                background: "var(--color-surface-viz)",
+                border: "1px solid var(--color-grid)",
                 borderRadius: 6,
                 fontSize: 12,
               }}
               formatter={(value) => [`${value ?? 0} ${unit}`, seriesLabel]}
               labelFormatter={(label) => range.tooltipLabel(String(label))}
             />
-            <Bar dataKey="count" fill="var(--series-1)" radius={[4, 4, 0, 0]} maxBarSize={40} />
+            <Bar
+              dataKey="count"
+              fill="var(--color-series-1)"
+              radius={[4, 4, 0, 0]}
+              maxBarSize={40}
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>

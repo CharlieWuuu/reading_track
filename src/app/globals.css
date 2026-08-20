@@ -16,6 +16,11 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* 圖表外框。顏色直接讀 semantic token，這裡只留變數表達不了的部分 */
+.viz-root {
+  color-scheme: light;
+}
+
 html {
   /* 補上 html 底色，避免手機捲動回彈時露出深色畫布 */
   background: var(--background);

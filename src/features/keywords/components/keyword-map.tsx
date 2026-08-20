@@ -8,7 +8,7 @@ import { BookCover } from "@/components/ui/book-cover";
 import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
 import { Book, splitLines } from "@/types/book";
 import { KeywordInfo, parseCoordinates } from "@/types/keyword";
-import { CATEGORICAL } from "@/utils/chartPalette";
+import { CATEGORICAL, SERIES_OVERFLOW } from "@/utils/chartPalette";
 
 const styles = {
   wrap: "relative flex h-full min-h-0 flex-col",
@@ -33,8 +33,6 @@ const FALLBACK_ZOOM = 6;
 const MAX_ZOOM = 18;
 const FIT_PADDING = 40;
 
-/** 色票只有八階，第九本之後一律用灰色，不自己生新顏色 */
-const OVERFLOW_COLOR = "#9CA3AF";
 const OVERFLOW_LABEL = "其他";
 
 type MapPoint = { name: string; lat: number; lon: number };
@@ -184,7 +182,7 @@ function toRoutesKey(books: Book[], infos: Map<string, KeywordInfo>): string {
 }
 
 function colorFor(index: number): string {
-  return index < CATEGORICAL.length ? CATEGORICAL[index] : OVERFLOW_COLOR;
+  return index < CATEGORICAL.length ? CATEGORICAL[index] : SERIES_OVERFLOW;
 }
 
 function fromRoutesKey(key: string): Route[] {
@@ -194,8 +192,8 @@ function fromRoutesKey(key: string): Route[] {
     return {
       color,
       // 超出色票的共用灰色，圖例就不該一本一列
-      title: color === OVERFLOW_COLOR ? OVERFLOW_LABEL : title,
-      cover: color === OVERFLOW_COLOR ? "" : cover,
+      title: color === SERIES_OVERFLOW ? OVERFLOW_LABEL : title,
+      cover: color === SERIES_OVERFLOW ? "" : cover,
       points: points.map((p) => {
         const [name, lat, lon] = p.split(FIELD);
         return { name, lat: Number(lat), lon: Number(lon) };
