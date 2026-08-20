@@ -1,4 +1,4 @@
-import { createCollectionRoute } from "@/app/api/_lib/collectionRoute";
+import { createCollectionRoute } from "@/app/api/_lib/collection-route";
 import { addArticleRow, listArticles } from "@/lib/sheets";
 
 const route = createCollectionRoute({
