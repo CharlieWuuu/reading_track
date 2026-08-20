@@ -38,6 +38,40 @@ StyleDictionary.registerFormat({
   },
 });
 
+/** Storybook 展示頁用：三層都要列出來，包含只活在 CSS 裡、TS 拿不到值的那些 */
+StyleDictionary.registerFormat({
+  name: "typescript/manifest",
+  format: ({ dictionary }) => {
+    const rows = dictionary.allTokens.map((token) => {
+      const original = String(token.original?.$value ?? "");
+      return {
+        name: token.name,
+        layer: /(\w+)\.json$/.exec(token.filePath)?.[1] ?? "primitive",
+        value: String(token.$value ?? token.value),
+        // 參照就留原樣，展示頁才講得出「這個 token 指到哪一階」
+        alias: original.startsWith("{") ? original.slice(1, -1).replace(/^color\./, "") : null,
+        description: token.$description ?? null,
+      };
+    });
+    return [
+      "// 由 style-dictionary 產生，不要手改。改 src/styles/tokens/*.json 後跑 npm run tokens",
+      "",
+      'export type TokenLayer = "primitive" | "semantic" | "component";',
+      "",
+      "export interface TokenEntry {",
+      "  name: string;",
+      "  layer: TokenLayer;",
+      "  value: string;",
+      "  alias: string | null;",
+      "  description: string | null;",
+      "}",
+      "",
+      `export const TOKEN_MANIFEST: TokenEntry[] = ${JSON.stringify(rows, null, 2)};`,
+      "",
+    ].join("\n");
+  },
+});
+
 const config = {
   usesDtcg: true,
   source: [
@@ -53,7 +87,9 @@ const config = {
         {
           destination: "tokens.css",
           format: "css/variables",
-          options: { selector: "@theme", outputReferences: true },
+          // static：一律輸出全部變數。預設會 tree-shake 掉沒被掃到的，
+          // 但 recharts 的 props 與 token 展示頁都是執行期組 var()，掃不到
+          options: { selector: "@theme static", outputReferences: true },
         },
       ],
     },
@@ -66,6 +102,11 @@ const config = {
           destination: "tokens.ts",
           format: "typescript/flat-const",
           filter: isLiteralColor,
+          options: { showFileHeader: false },
+        },
+        {
+          destination: "tokens.manifest.ts",
+          format: "typescript/manifest",
           options: { showFileHeader: false },
         },
       ],
