@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { lookupKeyword } from "@/lib/keywords/wikipedia";
 
 /** 查一個關鍵字的維基資料但不寫回 Sheet：給編輯視窗填欄位用，存不存由使用者決定 */

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { PRIVACY_SETTING_KEY } from "@/config/sheet-format";
+import { auth } from "@/lib/auth";
 import { readSetting, writeSetting } from "@/lib/sheets";
 import { isUnlocked, passcodeToToken, tokenToStored } from "@/utils/privacy";
 
