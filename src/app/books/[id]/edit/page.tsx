@@ -6,8 +6,8 @@ import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
 import { BookForm } from "@/features/books/components/book-form";
 import { BookFormTabs } from "@/features/books/components/book-form-tabs";
-import { useBooks } from "@/hooks/useBooks";
-import { useUrlParams } from "@/hooks/useUrlParam";
+import { useBooks } from "@/hooks/use-books";
+import { useUrlParams } from "@/hooks/use-url-param";
 
 export default function EditBookPage() {
   const { id } = useParams<{ id: string }>();

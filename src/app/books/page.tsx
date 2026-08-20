@@ -9,9 +9,9 @@ import { SearchButton } from "@/components/ui/search-button";
 import { BookTable } from "@/features/books/components/book-table";
 import { BookViewToggle } from "@/features/books/components/book-view-toggle";
 import { ReadingList } from "@/features/library/components/reading-list";
-import { useArticles } from "@/hooks/useArticles";
-import { useMounted } from "@/hooks/useMounted";
-import { useUrlParams } from "@/hooks/useUrlParam";
+import { useArticles } from "@/hooks/use-articles";
+import { useMounted } from "@/hooks/use-mounted";
+import { useUrlParams } from "@/hooks/use-url-param";
 import { isBookViewMode, useBookViewStore } from "@/stores/useBookViewStore";
 import { matchesSearch, searchTerms } from "@/utils/search";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useBooks } from "@/hooks/useBooks";
+import { useBooks } from "@/hooks/use-books";
 import { useSheetStore } from "@/stores/useSheetStore";
 
 export function EnrichButton() {

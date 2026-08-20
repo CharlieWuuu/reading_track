@@ -7,9 +7,9 @@ import { Dialog } from "@/components/ui/dialog";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { getKeywordMentions } from "@/features/keywords/utils/keyword-stats";
 import { topicLabel } from "@/features/keywords/utils/topic-labels";
-import { useArticles } from "@/hooks/useArticles";
-import { useBooks } from "@/hooks/useBooks";
-import { useEntries } from "@/hooks/useEntries";
+import { useArticles } from "@/hooks/use-articles";
+import { useBooks } from "@/hooks/use-books";
+import { useEntries } from "@/hooks/use-entries";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { formatSpan, parseSpan } from "@/types/keyword";
 

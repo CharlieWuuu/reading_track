@@ -1,6 +1,6 @@
 "use client";
 
-import { useRecords } from "@/hooks/useRecords";
+import { useRecords } from "@/hooks/use-records";
 import { Book } from "@/types/book";
 import { VocabularyRow } from "@/types/record";
 import { QuoteRecord } from "@/utils/vocabularyStats";

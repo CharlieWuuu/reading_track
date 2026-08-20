@@ -10,9 +10,9 @@ import { ActionButton } from "@/components/ui/controls";
 import { StatusBadge, TagList } from "@/components/ui/tag-badge";
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { NoteBlock, QuoteBlock, VocabularyItem } from "@/features/notes/components/record-items";
-import { useBooks } from "@/hooks/useBooks";
-import { useRecords } from "@/hooks/useRecords";
-import { useUrlParams } from "@/hooks/useUrlParam";
+import { useBooks } from "@/hooks/use-books";
+import { useRecords } from "@/hooks/use-records";
+import { useUrlParams } from "@/hooks/use-url-param";
 import { useSheetStore } from "@/stores/useSheetStore";
 import { Book, formatCount, splitLines } from "@/types/book";
 

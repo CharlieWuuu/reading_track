@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { PageMessage } from "@/components/layout/page-message";
 import { VocabularyPanel } from "@/features/notes/components/vocabulary-panel";
-import { useRecords } from "@/hooks/useRecords";
+import { useRecords } from "@/hooks/use-records";
 import { Book } from "@/types/book";
 import { getVocabularyEntries } from "@/utils/vocabularyStats";
 

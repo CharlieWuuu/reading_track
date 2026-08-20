@@ -1,6 +1,6 @@
 "use client";
 
-import { useCategories } from "@/hooks/useCategories";
+import { useCategories } from "@/hooks/use-categories";
 import { BookCategories } from "@/types/book";
 
 const LABELS: Record<keyof BookCategories, string> = {

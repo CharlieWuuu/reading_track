@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { BookForm } from "@/features/books/components/book-form";
 import { BookFormTabs } from "@/features/books/components/book-form-tabs";
 import { BookLookupStep, LookupResult } from "@/features/books/components/book-lookup-step";
-import { useUrlParams } from "@/hooks/useUrlParam";
+import { useUrlParams } from "@/hooks/use-url-param";
 
 function NewBook() {
   const [result, setResult] = useState<LookupResult | null>(null);

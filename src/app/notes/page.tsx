@@ -15,8 +15,8 @@ import {
 import { RecordCard } from "@/features/notes/components/record-card";
 import { QuoteBlock } from "@/features/notes/components/record-items";
 import { VocabularySection } from "@/features/notes/components/vocabulary-section";
-import { useRecords } from "@/hooks/useRecords";
-import { useUrlParams } from "@/hooks/useUrlParam";
+import { useRecords } from "@/hooks/use-records";
+import { useUrlParams } from "@/hooks/use-url-param";
 import { Book } from "@/types/book";
 import { getQuoteRecords } from "@/utils/vocabularyStats";
 

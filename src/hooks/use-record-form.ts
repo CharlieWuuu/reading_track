@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useAutoSave } from "@/hooks/useAutoSave";
+import { useAutoSave } from "@/hooks/use-auto-save";
 import { useSheetStore } from "@/stores/useSheetStore";
 
 type RecordFormOptions<P> = {

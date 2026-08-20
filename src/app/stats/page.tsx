@@ -15,13 +15,13 @@ import { MonthlyTrendChart } from "@/features/stats/components/monthly-trend-cha
 import { RankingBar } from "@/features/stats/components/ranking-bar";
 import { Section, SectionList } from "@/features/stats/components/section-list";
 import { YearlyTrendChart } from "@/features/stats/components/yearly-trend-chart";
-import { useArticles } from "@/hooks/useArticles";
-import { useBooks } from "@/hooks/useBooks";
-import { useEntries } from "@/hooks/useEntries";
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { useMounted } from "@/hooks/useMounted";
-import { useRecords } from "@/hooks/useRecords";
-import { useUrlParams } from "@/hooks/useUrlParam";
+import { useArticles } from "@/hooks/use-articles";
+import { useBooks } from "@/hooks/use-books";
+import { useEntries } from "@/hooks/use-entries";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import { useMounted } from "@/hooks/use-mounted";
+import { useRecords } from "@/hooks/use-records";
+import { useUrlParams } from "@/hooks/use-url-param";
 import { useSheetStore } from "@/stores/useSheetStore";
 import {
   getArticleDomainDistribution,
