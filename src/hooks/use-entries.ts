@@ -1,6 +1,6 @@
 "use client";
 
-import { useSheetRecords } from "@/hooks/useSheetRecords";
+import { useSheetRecords } from "@/hooks/use-sheet-records";
 import { Entry } from "@/types/entry";
 
 /**

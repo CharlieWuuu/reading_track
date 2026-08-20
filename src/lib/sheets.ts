@@ -21,7 +21,7 @@ import {
   mapHeaders,
   METRIC_TABLE,
   TableSpec,
-} from "./sheetSchema";
+} from "./sheet-schema";
 
 function getAuthClient(accessToken: string) {
   const auth = new OAuth2Client();

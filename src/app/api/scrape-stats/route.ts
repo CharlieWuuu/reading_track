@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchPublishStats } from "@/lib/scrapers/publishStats";
+import { fetchPublishStats } from "@/lib/scrapers/publish-stats";
 
 export async function POST(req: NextRequest) {
   const { url } = await req.json();

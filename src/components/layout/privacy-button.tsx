@@ -4,9 +4,9 @@ import { useState } from "react";
 import { Lock, LockOpen } from "lucide-react";
 import { useSWRConfig } from "swr";
 import { Dialog } from "@/components/ui/dialog";
-import { clearSWRCache } from "@/lib/swrCache";
-import { usePrivacyStore } from "@/stores/usePrivacyStore";
-import { useSheetStore } from "@/stores/useSheetStore";
+import { clearSWRCache } from "@/lib/swr-cache";
+import { usePrivacyStore } from "@/stores/use-privacy-store";
+import { useSheetStore } from "@/stores/use-sheet-store";
 
 const styles = {
   button:

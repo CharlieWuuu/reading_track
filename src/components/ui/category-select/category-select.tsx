@@ -2,7 +2,7 @@
 
 import { type LucideIcon } from "lucide-react";
 import { OptionSelect } from "@/components/ui/option-select";
-import { useCategories } from "@/hooks/useCategories";
+import { useCategories } from "@/hooks/use-categories";
 import { BookCategories } from "@/types/book";
 
 /** 書籍與紀事的分類欄：選項從資料 group 出來，選單本身跟別處共用 */

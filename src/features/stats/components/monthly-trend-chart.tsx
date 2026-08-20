@@ -1,7 +1,7 @@
 "use client";
 
 import { RangedBarChart, RangeOption } from "@/features/stats/components/ranged-bar-chart";
-import { MonthCount } from "@/utils/bookStats";
+import { MonthCount } from "@/utils/book-stats";
 
 /** 根數多的時候只標一月（＝年份的起點），範圍小就每根都標月份 */
 function monthTick(value: string, dense: boolean) {

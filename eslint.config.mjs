@@ -78,7 +78,8 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    files: ["src/components/**/*.{ts,tsx}", "src/features/**/*.{ts,tsx}"],
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/app/**"], // 動態路由 [id] 與 _lib 底線資料夾過不了 kebab 檢查
     plugins: { "check-file": checkFile },
     rules: {
       "check-file/filename-naming-convention": [

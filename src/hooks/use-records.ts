@@ -1,9 +1,9 @@
 "use client";
 
 import useSWR from "swr";
-import { readCached } from "@/lib/swrCache";
-import { usePrivacyStore } from "@/stores/usePrivacyStore";
-import { useSheetStore } from "@/stores/useSheetStore";
+import { readCached } from "@/lib/swr-cache";
+import { usePrivacyStore } from "@/stores/use-privacy-store";
+import { useSheetStore } from "@/stores/use-sheet-store";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 
 type Records = { vocabulary: VocabularyRow[]; quotes: QuoteRow[] };

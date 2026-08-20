@@ -15,21 +15,21 @@ import { MonthlyTrendChart } from "@/features/stats/components/monthly-trend-cha
 import { RankingBar } from "@/features/stats/components/ranking-bar";
 import { Section, SectionList } from "@/features/stats/components/section-list";
 import { YearlyTrendChart } from "@/features/stats/components/yearly-trend-chart";
-import { useArticles } from "@/hooks/useArticles";
-import { useBooks } from "@/hooks/useBooks";
-import { useEntries } from "@/hooks/useEntries";
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { useMounted } from "@/hooks/useMounted";
-import { useRecords } from "@/hooks/useRecords";
-import { useUrlParams } from "@/hooks/useUrlParam";
-import { useSheetStore } from "@/stores/useSheetStore";
+import { useArticles } from "@/hooks/use-articles";
+import { useBooks } from "@/hooks/use-books";
+import { useEntries } from "@/hooks/use-entries";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import { useMounted } from "@/hooks/use-mounted";
+import { useRecords } from "@/hooks/use-records";
+import { useUrlParams } from "@/hooks/use-url-param";
+import { useSheetStore } from "@/stores/use-sheet-store";
 import {
   getArticleDomainDistribution,
   getArticleKpis,
   getArticleMonthlyTrend,
   getArticleTypeDistribution,
   getSourceRanking,
-} from "@/utils/articleStats";
+} from "@/utils/article-stats";
 import {
   getAuthorRanking,
   getDomainGroups,
@@ -41,8 +41,8 @@ import {
   getQuarterlyTrend,
   getRereadRanking,
   getTypeDistribution,
-} from "@/utils/bookStats";
-import { getEntryKpis, getEntryMonthlyTrend, getKindDistribution } from "@/utils/entryStats";
+} from "@/utils/book-stats";
+import { getEntryKpis, getEntryMonthlyTrend, getKindDistribution } from "@/utils/entry-stats";
 
 type Tab = "books" | "articles" | "entries" | "calendar";
 

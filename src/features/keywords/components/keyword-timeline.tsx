@@ -5,7 +5,7 @@ import { BookCover } from "@/components/ui/book-cover";
 import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
 import { KeywordEntry } from "@/features/keywords/utils/keyword-stats";
 import { KeywordInfo, parseSpan } from "@/types/keyword";
-import { CATEGORICAL, SERIES_OVERFLOW } from "@/utils/chartPalette";
+import { CATEGORICAL, SERIES_OVERFLOW } from "@/utils/chart-palette";
 
 const styles = {
   wrap: "flex h-full min-h-0 flex-col gap-2",

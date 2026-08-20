@@ -1,7 +1,7 @@
 "use client";
 
 import { SWRConfig } from "swr";
-import { localStorageProvider, persistSWRCache } from "@/lib/swrCache";
+import { localStorageProvider, persistSWRCache } from "@/lib/swr-cache";
 
 /** 背景自動重抓的間隔（5 分鐘） */
 export const REFRESH_INTERVAL_MS = 5 * 60 * 1000;

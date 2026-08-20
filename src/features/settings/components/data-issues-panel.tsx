@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { useBooks } from "@/hooks/useBooks";
-import { validateBooks } from "@/utils/validateBook";
+import { useBooks } from "@/hooks/use-books";
+import { validateBooks } from "@/utils/validate-book";
 
 /**
  * 使用者可能直接在 Google Sheet 裡改資料，難免會有格式對不上的地方。

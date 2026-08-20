@@ -1,8 +1,8 @@
 "use client";
 
 import { BookCover } from "@/components/ui/book-cover";
-import { RankingItem } from "@/utils/bookStats";
-import { SEQUENTIAL } from "@/utils/chartPalette";
+import { RankingItem } from "@/utils/book-stats";
+import { SEQUENTIAL } from "@/utils/chart-palette";
 
 /**
  * 排行用純 CSS 長條，不走 recharts。

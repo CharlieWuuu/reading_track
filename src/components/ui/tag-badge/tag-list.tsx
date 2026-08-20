@@ -1,7 +1,7 @@
 "use client";
 
 import { splitTags } from "@/types/book";
-import { TAG_TONES, TagTone } from "@/utils/tagColors";
+import { TAG_TONES, TagTone } from "@/utils/tag-colors";
 
 /**
  * 標籤徽章，整組同色，代表「這一格是哪一種分類」。

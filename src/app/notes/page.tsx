@@ -15,10 +15,10 @@ import {
 import { RecordCard } from "@/features/notes/components/record-card";
 import { QuoteBlock } from "@/features/notes/components/record-items";
 import { VocabularySection } from "@/features/notes/components/vocabulary-section";
-import { useRecords } from "@/hooks/useRecords";
-import { useUrlParams } from "@/hooks/useUrlParam";
+import { useRecords } from "@/hooks/use-records";
+import { useUrlParams } from "@/hooks/use-url-param";
 import { Book } from "@/types/book";
-import { getQuoteRecords } from "@/utils/vocabularyStats";
+import { getQuoteRecords } from "@/utils/vocabulary-stats";
 
 const styles = {
   // 內文長度差很多，排成多欄只會高高低低；一則一列往下排反而好讀

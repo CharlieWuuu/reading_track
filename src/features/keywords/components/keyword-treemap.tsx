@@ -4,7 +4,7 @@ import { ResponsiveContainer, Treemap } from "recharts";
 import { KeywordEntry } from "@/features/keywords/utils/keyword-stats";
 import { topicLabel } from "@/features/keywords/utils/topic-labels";
 import { KeywordInfo } from "@/types/keyword";
-import { CATEGORICAL } from "@/utils/chartPalette";
+import { CATEGORICAL } from "@/utils/chart-palette";
 
 const styles = {
   wrap: "flex h-full min-h-0 flex-col gap-2",

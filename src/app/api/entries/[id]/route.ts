@@ -1,4 +1,4 @@
-import { createItemRoute } from "@/app/api/_lib/itemRoute";
+import { createItemRoute } from "@/app/api/_lib/item-route";
 import { deleteEntryRow, updateEntryRow } from "@/lib/sheets";
 
 const route = createItemRoute({

@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import { LayoutGrid, Rows3 } from "lucide-react";
-import { useUrlParams } from "@/hooks/useUrlParam";
-import { BookViewMode, isBookViewMode, useBookViewStore } from "@/stores/useBookViewStore";
+import { useUrlParams } from "@/hooks/use-url-param";
+import { BookViewMode, isBookViewMode, useBookViewStore } from "@/stores/use-book-view-store";
 
 /** cardLabel：書籍那邊卡片就是書封牆，文章沒有封面，叫「卡片」比較誠實 */
 export function BookViewToggle({ cardLabel = "書封" }: { cardLabel?: string }) {

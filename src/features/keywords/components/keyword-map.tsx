@@ -8,7 +8,7 @@ import { BookCover } from "@/components/ui/book-cover";
 import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
 import { Book, splitLines } from "@/types/book";
 import { KeywordInfo, parseCoordinates } from "@/types/keyword";
-import { CATEGORICAL, SERIES_OVERFLOW } from "@/utils/chartPalette";
+import { CATEGORICAL, SERIES_OVERFLOW } from "@/utils/chart-palette";
 
 const styles = {
   wrap: "relative flex h-full min-h-0 flex-col",
