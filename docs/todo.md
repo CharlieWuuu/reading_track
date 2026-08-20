@@ -31,14 +31,7 @@
 
 類型已經改名（書籍心得 → 書籍），Sheet 上這份私人類型清單要用新名字。
 
-## 2. 命名統一（30 分鐘）
-
-`hooks/`、`utils/` 是 camelCase，`components/`、`features/` 是 kebab，兩套並存。
-
-統一成 kebab 要改約 30 個檔名，改完把 `check-file` 規則的範圍從
-`components/**` + `features/**` 擴到全 `src/`（`app/` 要排除，有 `[id]` 動態路由）。
-
-## 3. src/testing/（低優先）
+## 2. src/testing/（低優先）
 
 bulletproof 有這層，但目前沒東西可放：真測試只有 2 個檔
 （`app/api/_lib/*.test.ts`），78 個測試絕大多數是 storybook story。
@@ -49,7 +42,7 @@ bulletproof 有這層，但目前沒東西可放：真測試只有 2 個檔
 - test-utils（render 包 provider）+ 假資料產生器：1–2 小時
 - 再加 MSW mock API：2–3 小時
 
-## 4. 零碎
+## 3. 零碎
 
 - `src/auth.ts` 散在根目錄，可進 `lib/` 或 `config/`
 - `features/` 的 `index.ts` barrel：bulletproof 建議，但有 tree-shaking 代價。
@@ -57,6 +50,7 @@ bulletproof 有這層，但目前沒東西可放：真測試只有 2 個檔
 
 # 已完成（2026-08-19 ~ 20）
 
+- 檔名全面 kebab（34 個），`check-file` 規則擴到全 `src/`，只排除 `app/`
 - 紀事類型改名：書籍心得 → 書籍、文章心得 → 文章；import-notes 的「心得」也
   改成照來源標，三個值收斂成兩個
 - design token 三層（style-dictionary）：來源是 `src/styles/tokens/*.json`，
