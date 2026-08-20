@@ -69,6 +69,7 @@ export const TOKENS = {
   "tag-language-bg": "#f7edcf",
   "tag-language-ink": "#8a6d1b",
   "control-ink": "#ffffff",
+  "control-menu-bg": "#ffffff",
   "map-label-bg": "rgba(255, 255, 255, 0.9)", // 地名常駐在密集的點上，要半透明白底才讀得到
 } as const;
 

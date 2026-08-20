@@ -96,7 +96,7 @@ function ArticleTable({ articles }: { articles: Article[] }) {
   return (
     <div className="hidden min-h-0 w-full flex-1 overflow-y-auto rounded-lg border bg-white md:block">
       <table className="w-full table-fixed text-sm">
-        <thead className="sticky top-0 z-10 bg-gray-100 text-left [&_th]:shadow-[inset_0_-1px_0_#111827]">
+        <thead className="bg-table-header-bg sticky top-0 z-10 text-left [&_th]:shadow-[inset_0_-1px_0_var(--color-table-header-rule)]">
           <tr>
             <th className="w-[4%] px-3 py-2 whitespace-nowrap">站台</th>
             <th className="w-[30%] px-3 py-2 whitespace-nowrap">標題</th>

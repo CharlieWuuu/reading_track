@@ -58,6 +58,8 @@
   --color-tag-article-ink: var(--color-gray-500); /** 文章標籤是自由打的，沒有固定選項可配色，整組同一個中性色 */
   --color-control-bg: var(--color-gray-900);
   --color-control-bg-hover: var(--color-gray-700);
+  --color-control-ink-secondary: var(--color-gray-600); /** 次要按鈕的字：比 ink-idle 深一階，它是可按的、不是沒選中的 */
+  --color-control-ink-faint-hover: var(--color-gray-700);
   --color-control-ghost-hover: var(--color-gray-100);
   --color-table-header-bg: var(--color-gray-100);
   --color-map-label-bg: rgba(255, 255, 255, 0.9); /** 地名常駐在密集的點上，要半透明白底才讀得到 */
@@ -89,7 +91,10 @@
   --color-tag-language-bg: var(--color-gold-100);
   --color-tag-language-ink: var(--color-gold-700);
   --color-control-ink: var(--color-white);
-  --color-control-ink-idle: var(--color-ink-muted);
+  --color-control-ink-idle: var(--color-ink-muted); /** 分頁列沒選中的那幾格 */
+  --color-control-ink-faint: var(--color-ink-faint);
   --color-control-border: var(--color-rule);
+  --color-control-menu-hover: var(--color-surface-sunken);
   --color-table-header-rule: var(--color-rule-strong); /** 表頭下緣用 inset shadow 畫，sticky 時 border 會被捲掉 */
+  --color-control-menu-bg: var(--color-surface);
 }

@@ -16,18 +16,21 @@ import { BookCategories } from "@/types/book";
  *
  * 這裡的 class 必須寫成完整字串，Tailwind 是掃原始碼決定要產出哪些樣式的，
  * 用樣板字串拼出來的 class 不會被產生。
+ *
+ * 用的是 primitive 層而不是 semantic：這是一輪固定順序的色相輪替，
+ * 第幾個標籤配第幾階，沒有「這個顏色代表什麼」可講。
  */
 export const TAG_COLORS = [
-  "bg-[#DCE6F1] text-[#2B5A8E]", // 深藍
-  "bg-[#F6E0D6] text-[#A85B41]", // 珊瑚橙
-  "bg-[#DFEDE7] text-[#3F7A67]", // 薄荷綠
-  "bg-[#F7EDCF] text-[#8A6D1B]", // 金黃
-  "bg-[#E2ECF5] text-[#3D6E92]", // 柔和藍
-  "bg-[#EAE3D8] text-[#5C4A3D]", // 米白／深棕
-  "bg-[#CFE0EF] text-[#24486F]", // 深藍（深）
-  "bg-[#F0D3C6] text-[#8F4A33]", // 珊瑚橙（深）
-  "bg-[#D2E5DC] text-[#33604F]", // 薄荷綠（深）
-  "bg-[#F2E3BC] text-[#75591A]", // 金黃（深）
+  "bg-blue-100 text-blue-600", // 深藍
+  "bg-coral-100 text-coral-700", // 珊瑚橙
+  "bg-mint-100 text-mint-700", // 薄荷綠
+  "bg-gold-100 text-gold-700", // 金黃
+  "bg-azure-100 text-azure-700", // 柔和藍
+  "bg-sand-200 text-sand-800", // 米白／深棕
+  "bg-blue-200 text-blue-700", // 深藍（深）
+  "bg-coral-200 text-coral-800", // 珊瑚橙（深）
+  "bg-mint-200 text-mint-800", // 薄荷綠（深）
+  "bg-gold-200 text-gold-800", // 金黃（深）
 ];
 
 /**
@@ -38,16 +41,16 @@ export const TAG_COLORS = [
  * 外框版不給底色：白底疊在交錯的年度底色上會變成一塊塊補丁。
  */
 export const TAG_OUTLINE_COLORS = [
-  "text-[#2B5A8E] ring-1 ring-inset ring-[#B9CDE2]",
-  "text-[#A85B41] ring-1 ring-inset ring-[#E6C3B4]",
-  "text-[#3F7A67] ring-1 ring-inset ring-[#BBD8CD]",
-  "text-[#8A6D1B] ring-1 ring-inset ring-[#E3D2A0]",
-  "text-[#3D6E92] ring-1 ring-inset ring-[#C2D6E6]",
-  "text-[#5C4A3D] ring-1 ring-inset ring-[#D5CABB]",
-  "text-[#24486F] ring-1 ring-inset ring-[#A9C2DA]",
-  "text-[#8F4A33] ring-1 ring-inset ring-[#DFB4A3]",
-  "text-[#33604F] ring-1 ring-inset ring-[#AFCEC1]",
-  "text-[#75591A] ring-1 ring-inset ring-[#DCC793]",
+  "text-blue-600 ring-1 ring-inset ring-blue-300",
+  "text-coral-700 ring-1 ring-inset ring-coral-300",
+  "text-mint-700 ring-1 ring-inset ring-mint-300",
+  "text-gold-700 ring-1 ring-inset ring-gold-300",
+  "text-azure-700 ring-1 ring-inset ring-azure-300",
+  "text-sand-800 ring-1 ring-inset ring-sand-300",
+  "text-blue-700 ring-1 ring-inset ring-blue-400",
+  "text-coral-800 ring-1 ring-inset ring-coral-400",
+  "text-mint-800 ring-1 ring-inset ring-mint-400",
+  "text-gold-800 ring-1 ring-inset ring-gold-400",
 ];
 
 /**
@@ -58,13 +61,12 @@ export const TAG_OUTLINE_COLORS = [
  * 次領域用領域的外框版：同一個色系代表它們是同一件事的粗細兩層。
  */
 export const TAG_TONES = {
-  domain: "bg-[#DFEDE7] text-[#3F7A67]",
-  subDomain: "text-[#3F7A67] ring-1 ring-inset ring-[#BBD8CD]",
-  platform: "bg-[#E2ECF5] text-[#3D6E92]",
-  type: "text-[#A85B41] ring-1 ring-inset ring-[#E6C3B4]",
-  language: "bg-[#F7EDCF] text-[#8A6D1B]",
-  // 文章的標籤是自由打的，沒有固定選項可配色，整組同一個中性色
-  article: "bg-gray-100 text-gray-500",
+  domain: "bg-tag-domain-bg text-tag-domain-ink",
+  subDomain: "text-tag-domain-ink ring-1 ring-inset ring-tag-domain-ring",
+  platform: "bg-tag-platform-bg text-tag-platform-ink",
+  type: "text-tag-type-ink ring-1 ring-inset ring-tag-type-ring",
+  language: "bg-tag-language-bg text-tag-language-ink",
+  article: "bg-tag-article-bg text-tag-article-ink",
 } as const;
 
 export type TagTone = keyof typeof TAG_TONES;

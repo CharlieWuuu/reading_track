@@ -4,9 +4,22 @@
       "bg": { "$value": "var(--color-gray-900)", "$type": "color" },
       "bg-hover": { "$value": "var(--color-gray-700)", "$type": "color" },
       "ink": { "$value": "{color.white}", "$type": "color" },
-      "ink-idle": { "$value": "{color.ink-muted}", "$type": "color" },
+      "ink-idle": {
+        "$value": "{color.ink-muted}",
+        "$type": "color",
+        "$description": "分頁列沒選中的那幾格"
+      },
+      "ink-secondary": {
+        "$value": "var(--color-gray-600)",
+        "$type": "color",
+        "$description": "次要按鈕的字：比 ink-idle 深一階，它是可按的、不是沒選中的"
+      },
+      "ink-faint": { "$value": "{color.ink-faint}", "$type": "color" },
+      "ink-faint-hover": { "$value": "var(--color-gray-700)", "$type": "color" },
       "border": { "$value": "{color.rule}", "$type": "color" },
-      "ghost-hover": { "$value": "var(--color-gray-100)", "$type": "color" }
+      "ghost-hover": { "$value": "var(--color-gray-100)", "$type": "color" },
+      "menu-bg": { "$value": "{color.surface}", "$type": "color" },
+      "menu-hover": { "$value": "{color.surface-sunken}", "$type": "color" }
     },
     "table": {
       "header": {

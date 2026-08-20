@@ -7,10 +7,10 @@ import { ReadingStatus } from "@/types/book";
  * 而不是三種顏色。實心底只有狀態在用，才不會跟同色系的分類標籤看混。
  */
 export const STATUS_STYLES: Record<ReadingStatus, string> = {
-  想讀: "bg-[#EAE3D8] text-[#5C4A3D]",
-  閱讀中: "bg-[#B07D2B] text-white",
+  想讀: "bg-status-want-bg text-status-want-ink",
+  閱讀中: "bg-status-reading-bg text-status-reading-ink",
   // 已讀完是多數狀態，給最淡的一階；同色系但幾乎不出聲＝「這件事結束了」
-  已讀完: "bg-[#F5F1EA] text-[#A2957F]",
+  已讀完: "bg-status-done-bg text-status-done-ink",
 };
 
 export function StatusBadge({ status }: { status: ReadingStatus }) {

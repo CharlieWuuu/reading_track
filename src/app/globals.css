@@ -51,11 +51,11 @@ a {
   border: 0;
   border-radius: 3px;
   padding: 0 3px;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--color-map-label-bg);
   box-shadow: none;
   font-size: 11px;
   font-weight: 500;
-  color: #374151;
+  color: var(--color-map-label-ink);
 }
 
 .leaflet-tooltip.keyword-map-label::before {
@@ -65,7 +65,7 @@ a {
 /* leaflet 的縮放鈕：換成跟站上其他按鈕同一套（白底、gray-300 框、深色 hover） */
 .leaflet-touch .leaflet-bar,
 .leaflet-bar {
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--color-map-chrome-border);
   border-radius: 0.5rem;
   box-shadow: none;
   overflow: hidden;
@@ -76,29 +76,29 @@ a {
   width: 28px;
   height: 28px;
   line-height: 28px;
-  border-bottom-color: #d1d5db;
-  background: #fff;
-  color: #374151;
+  border-bottom-color: var(--color-map-chrome-border);
+  background: var(--color-surface);
+  color: var(--color-map-label-ink);
   font-weight: 500;
 }
 
 .leaflet-bar a:hover {
-  background: #111827;
-  color: #fff;
+  background: var(--color-control-bg);
+  color: var(--color-control-ink);
 }
 
 .leaflet-bar a.leaflet-disabled {
-  background: #f9fafb;
-  color: #d1d5db;
+  background: var(--color-map-chrome-disabled);
+  color: var(--color-map-chrome-border);
 }
 
 /* 出處那一行預設是半透明白底加陰影，跟頁面其他小字對不起來 */
 .leaflet-control-attribution {
-  background: rgba(255, 255, 255, 0.9);
-  color: #9ca3af;
+  background: var(--color-map-label-bg);
+  color: var(--color-map-attribution-ink);
   font-size: 10px;
 }
 
 .leaflet-control-attribution a {
-  color: #6b7280;
+  color: var(--color-map-attribution-link);
 }

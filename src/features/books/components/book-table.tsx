@@ -12,6 +12,7 @@ import { useMounted } from "@/hooks/useMounted";
 import { useUrlParams } from "@/hooks/useUrlParam";
 import { isBookViewMode, useBookViewStore } from "@/stores/useBookViewStore";
 import { useSheetStore } from "@/stores/useSheetStore";
+import { TOKENS } from "@/styles/generated/tokens";
 import { Book, ReadingStatus, splitLines } from "@/types/book";
 import { matchesSearch, searchTerms } from "@/utils/search";
 
@@ -74,14 +75,14 @@ function StatusDot({ status }: { status: ReadingStatus }) {
  * 用該狀態徽章的底色，色條與徽章才是同一件事的兩種畫法。
  */
 function accentColor(status: ReadingStatus): string | null {
-  if (status === "想讀") return "#EAE3D8";
-  if (status === "閱讀中") return "#B07D2B";
+  if (status === "想讀") return TOKENS["status-want-bg"];
+  if (status === "閱讀中") return TOKENS["status-reading-bg"];
   return null;
 }
 
 function statusAccent(status: ReadingStatus): string {
-  if (status === "想讀") return "border-l-[3px] border-l-[#EAE3D8]";
-  if (status === "閱讀中") return "border-l-[3px] border-l-[#B07D2B]";
+  if (status === "想讀") return "border-l-[3px] border-l-status-want-bg";
+  if (status === "閱讀中") return "border-l-[3px] border-l-status-reading-bg";
   return "border-l-[3px] border-l-transparent";
 }
 
@@ -245,7 +246,7 @@ export function BookTable() {
       <div className="hidden min-h-0 w-full flex-1 overflow-y-auto rounded-lg border bg-white md:block">
         <table className="w-full table-fixed text-sm">
           {/* sticky 的儲存格自己畫底色與下緣線，邊框不會跟著黏住 */}
-          <thead className="sticky top-0 z-10 bg-gray-100 text-left [&_th]:shadow-[inset_0_-1px_0_#111827]">
+          <thead className="bg-table-header-bg sticky top-0 z-10 text-left [&_th]:shadow-[inset_0_-1px_0_var(--color-table-header-rule)]">
             {/* 欄寬用百分比，次要欄位隨螢幕變窄逐一收起，才不會撐出橫向捲軸 */}
             <tr>
               <th className="w-[6%] px-3 py-2 whitespace-nowrap">封面</th>
