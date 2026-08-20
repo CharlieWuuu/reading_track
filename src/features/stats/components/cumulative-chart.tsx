@@ -10,7 +10,6 @@ import {
   YAxis,
 } from "recharts";
 import { QuarterCount } from "@/utils/bookStats";
-import { VIZ_TOKENS } from "@/utils/chartPalette";
 
 /** 每一季只在第一季標出年份，其餘留刻度線就好，不然 X 軸會擠成一團 */
 function quarterTick(value: string) {
@@ -53,37 +52,35 @@ export function CumulativeChart({
 
   return (
     <div className="viz-root flex h-full min-h-0 flex-col" data-palette="reading-track">
-      <style>{`.viz-root {${VIZ_TOKENS}}`}</style>
-
       <div className="min-h-0 flex-1">
         <ResponsiveContainer width="100%" height={height}>
           <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="cumulativeFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--series-1)" stopOpacity={0.25} />
-                <stop offset="100%" stopColor="var(--series-1)" stopOpacity={0} />
+                <stop offset="0%" stopColor="var(--color-series-1)" stopOpacity={0.25} />
+                <stop offset="100%" stopColor="var(--color-series-1)" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid vertical={false} stroke="var(--grid)" strokeDasharray="3 3" />
+            <CartesianGrid vertical={false} stroke="var(--color-grid)" strokeDasharray="3 3" />
             <XAxis
               dataKey="quarter"
-              tick={{ fill: "var(--muted)", fontSize: 12 }}
-              axisLine={{ stroke: "var(--grid)" }}
-              tickLine={{ stroke: "var(--grid)" }}
+              tick={{ fill: "var(--color-ink-viz-faint)", fontSize: 12 }}
+              axisLine={{ stroke: "var(--color-grid)" }}
+              tickLine={{ stroke: "var(--color-grid)" }}
               interval={0}
               tickFormatter={quarterTick}
             />
             <YAxis
               allowDecimals={false}
-              tick={{ fill: "var(--muted)", fontSize: 12 }}
+              tick={{ fill: "var(--color-ink-viz-faint)", fontSize: 12 }}
               axisLine={false}
               tickLine={false}
               width={28}
             />
             <Tooltip
               contentStyle={{
-                background: "var(--surface-1)",
-                border: "1px solid var(--grid)",
+                background: "var(--color-surface-viz)",
+                border: "1px solid var(--color-grid)",
                 borderRadius: 6,
                 fontSize: 12,
               }}
@@ -93,10 +90,10 @@ export function CumulativeChart({
             <Area
               type="monotone"
               dataKey="total"
-              stroke="var(--series-1)"
+              stroke="var(--color-series-1)"
               strokeWidth={2}
               fill="url(#cumulativeFill)"
-              dot={{ r: 2, fill: "var(--series-1)" }}
+              dot={{ r: 2, fill: "var(--color-series-1)" }}
               activeDot={{ r: 5 }}
             />
           </AreaChart>

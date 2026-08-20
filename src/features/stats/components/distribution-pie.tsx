@@ -2,7 +2,7 @@
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { DistributionSlice } from "@/utils/bookStats";
-import { CATEGORICAL, VIZ_TOKENS } from "@/utils/chartPalette";
+import { CATEGORICAL } from "@/utils/chartPalette";
 
 /**
  * 佔比太小的區塊不拉線標示——線和字會互相疊在一起，反而什麼都看不清楚。
@@ -102,8 +102,7 @@ export function DistributionPie({
 
   return (
     <div className="viz-root flex h-full min-h-0 flex-col gap-3.5" data-palette="reading-track">
-      <style>{`.viz-root {${VIZ_TOKENS}}`}</style>
-      <p className="shrink-0 text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+      <p className="shrink-0 text-sm font-medium" style={{ color: "var(--color-ink-viz)" }}>
         {title}
       </p>
       <div className="min-h-0 flex-1">
@@ -130,15 +129,15 @@ export function DistributionPie({
                 <Cell
                   key={i}
                   fill={CATEGORICAL[i % CATEGORICAL.length]}
-                  stroke="var(--surface-1)"
+                  stroke="var(--color-surface-viz)"
                   strokeWidth={2}
                 />
               ))}
             </Pie>
             <Tooltip
               contentStyle={{
-                background: "var(--surface-1)",
-                border: "1px solid var(--grid)",
+                background: "var(--color-surface-viz)",
+                border: "1px solid var(--color-grid)",
                 borderRadius: 6,
                 fontSize: 12,
               }}

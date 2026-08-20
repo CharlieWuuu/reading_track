@@ -1,0 +1,68 @@
+{
+  "color": {
+    "blue": {
+      "100": { "$value": "#dce6f1", "$type": "color" },
+      "200": { "$value": "#cfe0ef", "$type": "color" },
+      "300": { "$value": "#b9cde2", "$type": "color" },
+      "400": { "$value": "#a9c2da", "$type": "color" },
+      "600": { "$value": "#2b5a8e", "$type": "color" },
+      "700": { "$value": "#24486f", "$type": "color" }
+    },
+    "azure": {
+      "100": { "$value": "#e2ecf5", "$type": "color" },
+      "300": { "$value": "#c2d6e6", "$type": "color" },
+      "500": { "$value": "#4a8ab5", "$type": "color" },
+      "700": { "$value": "#3d6e92", "$type": "color" }
+    },
+    "coral": {
+      "100": { "$value": "#f6e0d6", "$type": "color" },
+      "200": { "$value": "#f0d3c6", "$type": "color" },
+      "300": { "$value": "#e6c3b4", "$type": "color" },
+      "400": { "$value": "#dfb4a3", "$type": "color" },
+      "500": { "$value": "#d97d60", "$type": "color" },
+      "600": { "$value": "#b85c42", "$type": "color" },
+      "700": { "$value": "#a85b41", "$type": "color" },
+      "800": { "$value": "#8f4a33", "$type": "color" }
+    },
+    "mint": {
+      "100": { "$value": "#dfede7", "$type": "color" },
+      "200": { "$value": "#d2e5dc", "$type": "color" },
+      "300": { "$value": "#bbd8cd", "$type": "color" },
+      "350": {
+        "$value": "#b5d4c8",
+        "$type": "color",
+        "$description": "手調的中間階，硬塞進整十階會改到畫面"
+      },
+      "400": { "$value": "#afcec1", "$type": "color" },
+      "500": { "$value": "#8fbfae", "$type": "color" },
+      "700": { "$value": "#3f7a67", "$type": "color" },
+      "800": { "$value": "#33604f", "$type": "color" }
+    },
+    "gold": {
+      "100": { "$value": "#f7edcf", "$type": "color" },
+      "200": { "$value": "#f2e3bc", "$type": "color" },
+      "300": { "$value": "#e3d2a0", "$type": "color" },
+      "400": { "$value": "#dcc793", "$type": "color" },
+      "500": { "$value": "#e8c862", "$type": "color" },
+      "600": { "$value": "#b07d2b", "$type": "color" },
+      "700": { "$value": "#8a6d1b", "$type": "color" },
+      "800": { "$value": "#75591a", "$type": "color" }
+    },
+    "sand": {
+      "50": { "$value": "#fcfcfb", "$type": "color" },
+      "100": { "$value": "#f5f1ea", "$type": "color" },
+      "200": { "$value": "#eae3d8", "$type": "color" },
+      "250": {
+        "$value": "#e8e0d0",
+        "$type": "color",
+        "$description": "手調的中間階，硬塞進整十階會改到畫面"
+      },
+      "300": { "$value": "#d5cabb", "$type": "color" },
+      "500": { "$value": "#a2957f", "$type": "color" },
+      "600": { "$value": "#8b7767", "$type": "color" },
+      "700": { "$value": "#6f5b4c", "$type": "color" },
+      "800": { "$value": "#5c4a3d", "$type": "color" }
+    },
+    "white": { "$value": "#ffffff", "$type": "color" }
+  }
+}

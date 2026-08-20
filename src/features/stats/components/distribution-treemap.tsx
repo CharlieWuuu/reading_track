@@ -2,7 +2,7 @@
 
 import { ResponsiveContainer, Tooltip, Treemap } from "recharts";
 import { DistributionGroup, DistributionSlice } from "@/utils/bookStats";
-import { CATEGORICAL, SERIES_PRIMARY, VIZ_TOKENS } from "@/utils/chartPalette";
+import { CATEGORICAL, SERIES_OVERFLOW, SERIES_PRIMARY } from "@/utils/chartPalette";
 
 const styles = {
   root: "viz-root flex h-full min-h-0 flex-col gap-3.5",
@@ -23,9 +23,6 @@ const styles = {
  * 類別色循環使用會讓不同的東西撞成同色，讀起來像同一類。
  */
 const MIN_OPACITY = 0.35;
-
-/** 超出色票的那些共用灰色，不自己生新顏色 */
-const OVERFLOW_COLOR = "#9CA3AF";
 
 const LABEL_MIN_WIDTH = 48;
 const LABEL_MIN_HEIGHT = 26;
@@ -56,8 +53,7 @@ export function DistributionTreemap({
 
   return (
     <div className={styles.root} data-palette="reading-track">
-      <style>{`.viz-root {${VIZ_TOKENS}}`}</style>
-      <p className={styles.title} style={{ color: "var(--text-primary)" }}>
+      <p className={styles.title} style={{ color: "var(--color-ink-viz)" }}>
         {title}
       </p>
       <div className={styles.chart}>
@@ -84,7 +80,7 @@ export function DistributionTreemap({
           {shaded.map((group) => (
             <li key={group.name} className={styles.legendItem}>
               <span className={styles.swatch} style={{ background: group.color }} />
-              <span style={{ color: "var(--text-secondary)" }}>{group.name}</span>
+              <span style={{ color: "var(--color-ink-viz-muted)" }}>{group.name}</span>
             </li>
           ))}
         </ul>
@@ -109,7 +105,7 @@ function shadeFlat(data: DistributionSlice[], colorful: boolean) {
   // 色票只有八階，第九名之後一律灰色——循環使用會讓不同的類別撞成同色
   return data.map((slice, i) => ({
     ...slice,
-    color: i < CATEGORICAL.length ? CATEGORICAL[i] : OVERFLOW_COLOR,
+    color: i < CATEGORICAL.length ? CATEGORICAL[i] : SERIES_OVERFLOW,
     opacity: 1,
   }));
 }

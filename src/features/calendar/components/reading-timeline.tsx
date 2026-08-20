@@ -199,20 +199,20 @@ export function ReadingTimeline({ books, action }: { books: Book[]; action?: Rea
                           不然書名的第一個字會壓在開始的點上。
                         */}
                         <span
-                          className={`translate-y-0.5 truncate text-[9px] leading-2.5 text-[#2B5A8E] ${
+                          className={`text-series-1 translate-y-0.5 truncate text-[9px] leading-2.5 ${
                             segment.opensLeft ? "" : "pl-2"
                           }`}
                         >
                           {segment.book.title}
                         </span>
                         <span className="relative h-1.5 shrink-0">
-                          <span className="absolute inset-x-0 top-1/2 h-0.5 -translate-y-1/2 bg-[#2B5A8E]" />
+                          <span className="bg-series-1 absolute inset-x-0 top-1/2 h-0.5 -translate-y-1/2" />
                           {/* 頭尾的點：只在真正的開始／讀完那天才畫；還在讀的線停在今天但不封口 */}
                           {!segment.opensLeft && (
-                            <span className="absolute top-1/2 left-0 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-[#2B5A8E]" />
+                            <span className="bg-series-1 absolute top-1/2 left-0 h-1.5 w-1.5 -translate-y-1/2 rounded-full" />
                           )}
                           {!segment.opensRight && !segment.ongoing && (
-                            <span className="absolute top-1/2 right-0 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-[#2B5A8E]" />
+                            <span className="bg-series-1 absolute top-1/2 right-0 h-1.5 w-1.5 -translate-y-1/2 rounded-full" />
                           )}
                         </span>
                       </Link>

@@ -5,7 +5,7 @@ import { BookCover } from "@/components/ui/book-cover";
 import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
 import { KeywordEntry } from "@/features/keywords/utils/keyword-stats";
 import { KeywordInfo, parseSpan } from "@/types/keyword";
-import { CATEGORICAL } from "@/utils/chartPalette";
+import { CATEGORICAL, SERIES_OVERFLOW } from "@/utils/chartPalette";
 
 const styles = {
   wrap: "flex h-full min-h-0 flex-col gap-2",
@@ -28,8 +28,6 @@ const styles = {
   // 書用封面認，線的顏色畫成封面的外框，兩件事合成一個圖例（同地圖）
 };
 
-/** 色票只有八階，第九本之後一律用灰色，不自己生新顏色（同地圖） */
-const OVERFLOW_COLOR = "#9CA3AF";
 const OVERFLOW_LABEL = "其他";
 
 /** 一格刻度多寬。整條數線就是刻度數乘這個寬度，超出畫面就橫向捲 */
@@ -225,7 +223,7 @@ function toSpans(entries: KeywordEntry[], infos: Map<string, KeywordInfo>): Span
   }
 
   const colors = colorByBook(spans.map((s) => s.book));
-  return spans.map((span) => ({ ...span, color: colors.get(span.book) ?? OVERFLOW_COLOR }));
+  return spans.map((span) => ({ ...span, color: colors.get(span.book) ?? SERIES_OVERFLOW }));
 }
 
 /** 條數多的書排前面拿到深色；超出色票的共用灰色 */
@@ -236,7 +234,7 @@ function colorByBook(books: string[]): Map<string, string> {
   return new Map(
     [...counts.entries()]
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "zh-Hant"))
-      .map(([book], i) => [book, i < CATEGORICAL.length ? CATEGORICAL[i] : OVERFLOW_COLOR]),
+      .map(([book], i) => [book, i < CATEGORICAL.length ? CATEGORICAL[i] : SERIES_OVERFLOW]),
   );
 }
 
@@ -258,7 +256,7 @@ function legendOf(
   const items: Array<{ title: string; cover: string; color: string }> = [];
 
   for (const span of spans) {
-    const overflow = span.color === OVERFLOW_COLOR;
+    const overflow = span.color === SERIES_OVERFLOW;
     const title = overflow ? OVERFLOW_LABEL : span.book;
     if (seen.has(title)) continue;
     seen.add(title);
