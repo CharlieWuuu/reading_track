@@ -5,7 +5,7 @@ import { CardMasonry } from "@/components/ui/card-masonry";
 import { VocabularyEntry } from "@/utils/vocabulary-stats";
 
 const styles = {
-  card: "flex cursor-pointer flex-col gap-2 rounded-lg border bg-white p-4 hover:border-gray-400",
+  card: "flex cursor-pointer flex-col gap-2 rounded-lg bg-white p-4 hover:bg-gray-50",
   head: "flex items-center justify-between gap-2",
   // 單字是這張卡的主角，大一級才看得出主從
   headWord: "min-w-0 truncate text-base font-semibold md:text-lg",

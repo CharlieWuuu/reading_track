@@ -21,7 +21,7 @@ export default function ProfilePage() {
         <SignInPrompt />
       ) : (
         <PageBody>
-          <div className="flex w-full flex-col gap-6 rounded-lg border bg-white p-5">
+          <div className="flex w-full flex-col gap-6 rounded-lg bg-white p-5">
             <div className="flex items-center gap-4">
               {session.user.image ? (
                 // eslint-disable-next-line @next/next/no-img-element

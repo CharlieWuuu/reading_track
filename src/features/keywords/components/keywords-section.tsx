@@ -23,7 +23,7 @@ const KeywordMap = dynamic(
 const styles = {
   wrap: "flex min-h-0 flex-1 flex-col gap-3",
   tabs: "flex shrink-0 justify-end",
-  panel: "flex min-h-0 flex-1 flex-col gap-3 rounded-lg border bg-white p-4 md:p-5",
+  panel: "flex min-h-0 flex-1 flex-col gap-3 rounded-lg bg-white p-4 md:p-5",
   // 地圖自己就是一整面內容，留白只會讓它變小；底圖直接貼到框線
   mapPanel: "flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border bg-white",
   chart: "min-h-0 flex-1",

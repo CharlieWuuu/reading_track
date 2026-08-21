@@ -77,7 +77,7 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
   const found = result !== null && result.notice === "";
 
   return (
-    <form onSubmit={handleLookup} className="space-y-4 rounded-lg border bg-white p-5">
+    <form onSubmit={handleLookup} className="space-y-4 rounded-lg bg-white p-5">
       <p className="text-sm text-gray-500">
         先查書籍資料，確認查到的內容之後再進編輯頁。書名和網址擇一填寫即可，兩個都填會以網址為準。
       </p>

@@ -64,7 +64,7 @@ function ArticleCards({ articles }: { articles: Article[] }) {
         <li key={a.id}>
           <Link
             href={articleEditHref(a.id)}
-            className="flex h-full flex-col gap-2 rounded-lg border bg-white p-3 transition hover:shadow"
+            className="flex h-full flex-col gap-2 rounded-lg bg-white p-3 transition hover:shadow"
           >
             <div className="flex min-w-0 items-start gap-2">
               <Favicon
