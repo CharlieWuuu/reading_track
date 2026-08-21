@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import {
+  badRequest,
+  guarded,
+  readJsonBody,
+  requireSession,
+  sheetFailure,
+  unauthorized,
+} from "@/app/api/_lib/respond";
 import { lookupKeyword } from "@/lib/keywords/wikipedia";
 import {
   deleteKeyword,
@@ -20,19 +27,18 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session?.accessToken) return NextResponse.json({ error: "請先登入" }, { status: 401 });
+async function GETHandler(req: NextRequest) {
+  const session = await requireSession();
+  if (!session) return unauthorized();
 
   const sheetId = req.nextUrl.searchParams.get("sheetId");
-  if (!sheetId) return NextResponse.json({ error: "缺少 Sheet ID" }, { status: 400 });
+  if (!sheetId) return badRequest("缺少 Sheet ID");
 
   try {
-    const keywords = await listKeywordInfos(sheetId, session.accessToken);
+    const keywords = await listKeywordInfos(sheetId, session.accessToken!);
     return NextResponse.json({ keywords });
   } catch (err) {
-    console.error("listKeywordInfos failed:", err);
-    return NextResponse.json({ error: "讀取關鍵字失敗" }, { status: 502 });
+    return sheetFailure("讀取", "listKeywordInfos", err);
   }
 }
 
@@ -42,22 +48,25 @@ function isFilled(info: { wikiUrl: string; summary: string }): boolean {
 }
 
 /** 把還沒查過的關鍵字查回來寫進主檔，回報這次補了幾個、還剩幾個 */
-export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session?.accessToken) return NextResponse.json({ error: "請先登入" }, { status: 401 });
+async function POSTHandler(req: NextRequest) {
+  const session = await requireSession();
+  if (!session) return unauthorized();
 
-  const { sheetId, names, retry } = (await req.json()) as {
+  const body = await readJsonBody<{
     sheetId: string;
     names: string[];
     /** true 時連「查過但沒查到」的也重查一次；平常不重查，免得每次都白跑一趟 */
     retry?: boolean;
-  };
+  }>(req, "enrich keywords");
+  if (!body) return badRequest("請求內容不是有效的 JSON");
+
+  const { sheetId, names, retry } = body;
   if (!sheetId || !Array.isArray(names)) {
-    return NextResponse.json({ error: "缺少必要欄位" }, { status: 400 });
+    return badRequest("缺少必要欄位");
   }
 
   try {
-    const existing = await listKeywordInfos(sheetId, session.accessToken);
+    const existing = await listKeywordInfos(sheetId, session.accessToken!);
     // 平常只查主檔裡沒有的那些：查過就會留下一列，即使是空的，
     // 那代表「維基沒有這個條目」，不該每次補齊都再去問一次。
     const known = new Set((retry ? existing.filter(isFilled) : existing).map((info) => info.name));
@@ -71,7 +80,7 @@ export async function POST(req: NextRequest) {
       const previous = existing.find((info) => info.name === name);
       infos.push({ ...found, topics: previous?.topics ?? "" });
     }
-    await saveKeywordInfos(sheetId, session.accessToken, infos);
+    await saveKeywordInfos(sheetId, session.accessToken!, infos);
 
     return NextResponse.json({
       added: infos.length,
@@ -80,58 +89,66 @@ export async function POST(req: NextRequest) {
       remaining: Math.max(0, pending.length - infos.length),
     });
   } catch (err) {
-    console.error("enrichKeywords failed:", err);
-    return NextResponse.json({ error: "補齊關鍵字失敗" }, { status: 502 });
+    return sheetFailure("補齊", "enrichKeywords", err);
   }
 }
 
 /** 手動改一筆關鍵字主檔 */
-export async function PUT(req: NextRequest) {
-  const session = await auth();
-  if (!session?.accessToken) return NextResponse.json({ error: "請先登入" }, { status: 401 });
+async function PUTHandler(req: NextRequest) {
+  const session = await requireSession();
+  if (!session) return unauthorized();
 
-  const { sheetId, keyword, previousName } = (await req.json()) as {
+  const body = await readJsonBody<{
     sheetId: string;
     keyword: KeywordInfo;
     /** 有改名時帶原本的名字進來 */
     previousName?: string;
-  };
+  }>(req, "replace keyword");
+  if (!body) return badRequest("請求內容不是有效的 JSON");
+
+  const { sheetId, keyword, previousName } = body;
   if (!sheetId || !keyword?.name) {
-    return NextResponse.json({ error: "缺少必要欄位" }, { status: 400 });
+    return badRequest("缺少必要欄位");
   }
 
   try {
-    await replaceKeywordInfo(sheetId, session.accessToken, keyword, previousName);
+    await replaceKeywordInfo(sheetId, session.accessToken!, keyword, previousName);
 
     // 書籍表用名字指向主檔，改名一定要連帶改寫，不然那些書就對不上了
     const renamed =
       previousName && previousName !== keyword.name
-        ? await renameKeyword(sheetId, session.accessToken, previousName, keyword.name)
+        ? await renameKeyword(sheetId, session.accessToken!, previousName, keyword.name)
         : 0;
 
     return NextResponse.json({ ok: true, renamed });
   } catch (err) {
-    console.error("replaceKeywordInfo failed:", err);
-    return NextResponse.json({ error: "儲存關鍵字失敗" }, { status: 502 });
+    return sheetFailure("儲存", "replaceKeywordInfo", err);
   }
 }
 
-export async function DELETE(req: NextRequest) {
-  const session = await auth();
-  if (!session?.accessToken) return NextResponse.json({ error: "請先登入" }, { status: 401 });
+async function DELETEHandler(req: NextRequest) {
+  const session = await requireSession();
+  if (!session) return unauthorized();
 
-  const { sheetId, name } = (await req.json()) as { sheetId: string; name: string };
+  const body = await readJsonBody<{ sheetId: string; name: string }>(req, "delete keyword");
+  if (!body) return badRequest("請求內容不是有效的 JSON");
+
+  const { sheetId, name } = body;
   if (!sheetId || !name?.trim()) {
-    return NextResponse.json({ error: "缺少必要欄位" }, { status: 400 });
+    return badRequest("缺少必要欄位");
   }
 
   try {
-    const removed = await deleteKeyword(sheetId, session.accessToken, name.trim());
+    const removed = await deleteKeyword(sheetId, session.accessToken!, name.trim());
     return NextResponse.json({ ok: true, removed });
   } catch (err) {
-    console.error("deleteKeyword failed:", err);
-    return NextResponse.json({ error: "刪除關鍵字失敗" }, { status: 502 });
+    return sheetFailure("刪除", "deleteKeyword", err);
   }
 }
 
 export const maxDuration = 30;
+
+export const GET = guarded("GET keywords", GETHandler);
+export const POST = guarded("POST keywords", POSTHandler);
+export const PUT = guarded("PUT keywords", PUTHandler);
+export const DELETE = guarded("DELETE keywords", DELETEHandler);
