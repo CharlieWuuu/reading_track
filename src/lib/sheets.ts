@@ -5,6 +5,7 @@ import {
   PRIVATE_TYPES_SETTING_KEY,
 } from "@/config/sheet-format";
 import { forgetDoc, loadedDoc } from "@/lib/sheet-doc";
+import { ttlCache } from "@/lib/ttl-cache";
 import { Article } from "@/types/article";
 import { Book, inferStatus, normalizePlatform, normalizeStatus, splitLines } from "@/types/book";
 import { KeywordInfo } from "@/types/keyword";
@@ -777,23 +778,18 @@ export async function readSetting(
   return (row?.get("值") ?? "").toString().trim();
 }
 
-/**
- * 密碼與私人類型都在同一張小表，一次讀完；分兩支會跑兩趟 Sheet。
- *
- * 私人類型是多值，一個類型一列——不在一格裡塞逗號，Sheet 上才改得動。
- */
-export async function readPrivacySettings(
-  sheetId: string,
-  accessToken: string,
-): Promise<{ stored: string; privateKinds: string[]; privateTypes: string[] }> {
+type PrivacySettings = { stored: string; privateKinds: string[]; privateTypes: string[] };
+
+async function loadPrivacySettings(key: string): Promise<PrivacySettings> {
+  const [sheetId, accessToken] = key.split(" ");
   const sheet = await getSettingsSheet(sheetId, accessToken);
   const rows = await sheet.getRows();
   const cell = (row: (typeof rows)[number], header: string) =>
     (row.get(header) ?? "").toString().trim();
 
-  const valuesOf = (key: string) =>
+  const valuesOf = (name: string) =>
     rows
-      .filter((r) => cell(r, "設定") === key)
+      .filter((r) => cell(r, "設定") === name)
       .map((r) => cell(r, "值"))
       .filter(Boolean);
 
@@ -805,6 +801,21 @@ export async function readPrivacySettings(
   };
 }
 
+/** 設定分頁幾乎不變，但每支 list 都要讀一次。寫入時自己推掉，所以改完馬上看得到 */
+const privacyCache = ttlCache(30_000, loadPrivacySettings);
+
+/**
+ * 密碼與私人類型都在同一張小表，一次讀完；分兩支會跑兩趟 Sheet。
+ *
+ * 私人類型是多值，一個類型一列——不在一格裡塞逗號，Sheet 上才改得動。
+ */
+export async function readPrivacySettings(
+  sheetId: string,
+  accessToken: string,
+): Promise<PrivacySettings> {
+  return privacyCache.get(`${sheetId} ${accessToken}`);
+}
+
 /** 值是空字串就把那一列刪掉，Sheet 上不留一列空設定 */
 export async function writeSetting(
   sheetId: string,
@@ -812,6 +823,8 @@ export async function writeSetting(
   key: string,
   value: string,
 ) {
+  // 改完要馬上看得到，不能等 TTL 到期
+  privacyCache.forget(`${sheetId} ${accessToken}`);
   const sheet = await getSettingsSheet(sheetId, accessToken);
   const rows = await sheet.getRows();
   const row = rows.find((r) => (r.get("設定") ?? "").toString().trim() === key);
