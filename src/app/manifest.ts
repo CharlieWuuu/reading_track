@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     // 已安裝的 app 靠 id 認身分，改了會被當成另一個 app
     id: "/books",
-    name: "Archivum 檔案室",
+    name: "Archivum",
     short_name: "Archivum",
     description: "個人書籍與文章追蹤",
     start_url: "/books",

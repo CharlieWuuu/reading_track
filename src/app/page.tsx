@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Archivum 檔案室 — 用你自己的 Google 試算表記錄閱讀",
+  title: "Archivum — 用你自己的 Google 試算表記錄閱讀",
   description: "Archivum 是個人閱讀紀錄工具，書籍與文章資料存在你自己的 Google 試算表裡。",
 };
 
@@ -39,7 +39,7 @@ export default function Home() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-10 py-10">
       <header className="flex flex-col gap-4">
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Archivum 檔案室</h1>
+        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Archivum</h1>
         <p className="text-base leading-relaxed text-gray-700 sm:text-lg">
           記錄你讀過的書與文章。資料存在你自己的 Google 試算表裡，隨時可以直接打開來看、修改或匯出。
         </p>

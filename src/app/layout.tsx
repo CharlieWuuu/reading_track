@@ -22,7 +22,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Archivum 檔案室",
+  title: "Archivum",
   description: "個人書籍與文章追蹤",
   appleWebApp: {
     capable: true,

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "隱私權政策｜Archivum 檔案室",
+  title: "隱私權政策｜Archivum",
   description: "Archivum 如何處理你的資料",
 };
 
