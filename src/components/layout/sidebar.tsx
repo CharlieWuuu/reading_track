@@ -25,12 +25,6 @@ const styles = {
     "flex h-8 w-8 shrink-0 items-center justify-center rounded text-gray-400 hover:bg-gray-100 hover:text-gray-900",
 };
 
-/** 側欄空間夠，用完整名稱；底部導覽列則用短標籤 */
-const FULL_LABELS: Record<string, string> = {
-  "/books": "書籍紀錄",
-  "/articles": "文章紀錄",
-};
-
 type CollapseButtonProps = {
   collapsed: boolean;
   onClick: () => void;
@@ -56,18 +50,17 @@ type NavLinkProps = {
 };
 
 function NavLink({ item, collapsed, active }: NavLinkProps) {
-  const label = FULL_LABELS[item.href] ?? item.label; // 側欄空間夠，用完整名稱
   return (
     <li>
       <Link
         href={item.href}
-        title={collapsed ? label : undefined}
+        title={collapsed ? item.label : undefined}
         className={`${styles.link} ${collapsed ? styles.linkCollapsed : ""} ${
           active ? styles.linkActive : styles.linkIdle
         }`}
       >
         <item.Icon active={active} />
-        {!collapsed && label}
+        {!collapsed && item.label}
       </Link>
     </li>
   );

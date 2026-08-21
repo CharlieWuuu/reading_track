@@ -31,7 +31,7 @@ export function ReadingHeader({ current }: { current: Tab }) {
 
   return (
     <PageHeader
-      title="閱讀紀錄"
+      title="閱讀"
       action={
         <div className="flex min-w-0 items-center gap-2">
           <SearchButton value={query} onChange={(next) => setParams({ q: next || null })} />
