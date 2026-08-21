@@ -107,7 +107,6 @@ export function WritingForm({ entry }: { entry?: Writing }) {
   } = useRecordForm({
     resource: "writings",
     editHref: writingEditHref,
-    bodyKey: "writing",
     existingId: entry?.id ?? "",
     payload: toPayload(form),
     redirectTo: "/writing",

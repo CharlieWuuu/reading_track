@@ -185,7 +185,6 @@ export function BookForm({
   } = useRecordForm({
     resource: "books",
     editHref: bookEditHref,
-    bodyKey: "book",
     existingId: book?.id ?? "",
     payload: toPayload(form, book),
     redirectTo: backHref,

@@ -144,7 +144,6 @@ export function ArticleForm({ article }: { article?: Article }) {
   } = useRecordForm({
     resource: "articles",
     editHref: articleEditHref,
-    bodyKey: "article",
     existingId: article?.id ?? "",
     payload: toPayload(form, article),
     redirectTo: "/reading/articles",
