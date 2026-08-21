@@ -1,15 +1,13 @@
 # 待辦
 
-## 1. src/testing/（低優先）
+## 1. 剩下沒測的純函式（低優先）
 
-bulletproof 有這層，但目前沒東西可放：真測試只有 2 個檔
-（`app/api/_lib/*.test.ts`），78 個測試絕大多數是 storybook story。
-沒有 test-utils、mock、fixture。
+`src/testing/factories.ts` 已經有書／文章／紀事三支工廠，照著寫就好。
+還沒測的：`reflections`、`record-stats`、`vocabulary-stats`、`article-stats`、
+`entry-stats`、`search`、`tag-colors`。
 
-實際是「寫測試基礎建設」不是搬檔案：
-
-- test-utils（render 包 provider）+ 假資料產生器：1–2 小時
-- 再加 MSW mock API：2–3 小時
+MSW 沒導：`components/ui/` 沒有元件自己抓資料，story 也不打 API，
+現在補只是養一套沒人用的 mock。等有元件層的整合測試再說。
 
 ## 2. 零碎
 
