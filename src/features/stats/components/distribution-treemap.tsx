@@ -6,7 +6,6 @@ import { CATEGORICAL, SERIES_OVERFLOW, SERIES_PRIMARY } from "@/utils/chart-pale
 
 const styles = {
   root: "viz-root flex h-full min-h-0 flex-col gap-3.5",
-  title: "shrink-0 text-sm font-medium",
   chart: "min-h-0 flex-1",
   empty: "flex h-full items-center justify-center text-xs text-gray-400",
   tooltip: "rounded border bg-white px-2 py-1 text-xs shadow",
@@ -28,7 +27,6 @@ const LABEL_MIN_WIDTH = 48;
 const LABEL_MIN_HEIGHT = 26;
 
 type DistributionTreemapProps = {
-  title: string;
   /** 給了 groups 就畫兩層（大格子＝上層），否則一層 */
   data?: DistributionSlice[];
   groups?: DistributionGroup[];
@@ -39,7 +37,6 @@ type DistributionTreemapProps = {
 
 /** 類別很多時取代圓餅圖：面積＝數量，二十幾個類別也塞得進一個畫面 */
 export function DistributionTreemap({
-  title,
   data,
   groups,
   colorful = false,
@@ -53,9 +50,6 @@ export function DistributionTreemap({
 
   return (
     <div className={styles.root} data-palette="reading-track">
-      <p className={styles.title} style={{ color: "var(--color-ink-viz)" }}>
-        {title}
-      </p>
       <div className={styles.chart}>
         <ResponsiveContainer width="100%" height="100%">
           <Treemap data={shaded} dataKey="value" content={<Cell />} isAnimationActive={false}>

@@ -198,7 +198,6 @@ function BooksStats() {
           node: (
             <Panel>
               <DistributionTreemap
-                title={chart.label}
                 data={chart.data}
                 groups={chart.groups}
                 colorful={chart.colorful}
@@ -217,7 +216,6 @@ function BooksStats() {
                   <div key={chart.key} className="flex h-104 flex-col xl:h-128">
                     <Panel>
                       <DistributionTreemap
-                        title={chart.label}
                         data={chart.data}
                         groups={chart.groups}
                         colorful={chart.colorful}
