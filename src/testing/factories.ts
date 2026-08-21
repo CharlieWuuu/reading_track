@@ -1,6 +1,7 @@
 import { Article } from "@/types/article";
 import { Book } from "@/types/book";
 import { Entry } from "@/types/entry";
+import { QuoteRow, VocabularyRow } from "@/types/record";
 
 /**
  * 測試用的假資料。
@@ -65,6 +66,34 @@ export function makeArticle(overrides: Partial<Article> = {}): Article {
     note: "",
     keywords: "",
     private: "",
+    ...overrides,
+  };
+}
+
+export function makeVocabulary(overrides: Partial<VocabularyRow> = {}): VocabularyRow {
+  return {
+    id: nextId("vocabulary"),
+    bookId: "book-1",
+    bookTitle: "測試書名",
+    word: "測試單字",
+    pronunciation: "",
+    wordTranslation: "",
+    sentence: "",
+    sentenceTranslation: "",
+    chapter: "",
+    language: "", // 空字串代表跟著書走
+    ...overrides,
+  };
+}
+
+export function makeQuote(overrides: Partial<QuoteRow> = {}): QuoteRow {
+  return {
+    id: nextId("quote"),
+    bookId: "book-1",
+    bookTitle: "測試書名",
+    text: "一句話",
+    chapter: "",
+    note: "",
     ...overrides,
   };
 }
