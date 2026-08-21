@@ -20,7 +20,7 @@ function EditKeyword() {
   const router = useRouter();
   const { name } = useParams<{ name: string }>();
   // 從哪裡點進來就回哪裡：分頁與看法都在那串參數裡
-  const from = useSearchParams().get("from") || "/notes?tab=keywords";
+  const from = useSearchParams().get("from") || "/reading/keywords";
   const keyword = decodeURIComponent(name);
   const { byName, save, remove, isLoading, error } = useKeywordInfos();
 
