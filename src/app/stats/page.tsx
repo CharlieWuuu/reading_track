@@ -149,7 +149,7 @@ function BooksStats() {
             label: "每季完成本數",
             scrollHeight: "h-70 sm:h-[32rem]",
             node: (
-              <Panel title="每季完成本數">
+              <Panel>
                 <YearlyTrendChart quarterlyData={quarterly} monthlyData={monthly} height="100%" />
               </Panel>
             ),
@@ -159,7 +159,7 @@ function BooksStats() {
             label: "累積完成本數",
             scrollHeight: "h-70 sm:h-[32rem]",
             node: (
-              <Panel title="累積完成本數">
+              <Panel>
                 <CumulativeChart quarterlyData={quarterly} height="100%" />
               </Panel>
             ),
@@ -182,7 +182,7 @@ function BooksStats() {
             key: "cumulative",
             label: "累積完成本數",
             node: (
-              <Panel title="累積完成本數">
+              <Panel>
                 <CumulativeChart quarterlyData={quarterly} height="100%" />
               </Panel>
             ),
@@ -198,7 +198,6 @@ function BooksStats() {
           node: (
             <Panel>
               <DistributionTreemap
-                title={chart.label}
                 data={chart.data}
                 groups={chart.groups}
                 colorful={chart.colorful}
@@ -217,7 +216,6 @@ function BooksStats() {
                   <div key={chart.key} className="flex h-104 flex-col xl:h-128">
                     <Panel>
                       <DistributionTreemap
-                        title={chart.label}
                         data={chart.data}
                         groups={chart.groups}
                         colorful={chart.colorful}
@@ -238,7 +236,7 @@ function BooksStats() {
           scrollHeight: "aspect-square",
           node: (
             <Panel>
-              <DistributionPie title={pie.label} data={pie.data} height="100%" />
+              <DistributionPie data={pie.data} height="100%" />
             </Panel>
           ),
         }))
@@ -254,7 +252,7 @@ function BooksStats() {
                     className="flex min-h-0 flex-col rounded-lg border bg-white p-5"
                   >
                     <div className="min-h-0 flex-1">
-                      <DistributionPie title={pie.label} data={pie.data} height="100%" />
+                      <DistributionPie data={pie.data} height="100%" />
                     </div>
                   </div>
                 ))}
@@ -270,12 +268,7 @@ function BooksStats() {
           needsHeight: false,
           node: (
             <div className="rounded-lg border bg-white p-4">
-              <RankingBar
-                title={r.label}
-                data={r.data}
-                unit={r.unit}
-                showCover={r.key === "reread"}
-              />
+              <RankingBar data={r.data} unit={r.unit} showCover={r.key === "reread"} />
             </div>
           ),
         }))
@@ -288,19 +281,14 @@ function BooksStats() {
             node: (
               <div className="flex flex-col gap-4">
                 <div className="rounded-lg border bg-white p-5">
-                  <RankingBar
-                    title={reread.label}
-                    data={reread.data}
-                    unit={reread.unit}
-                    showCover
-                  />
+                  <RankingBar data={reread.data} unit={reread.unit} showCover />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   {rankings
                     .filter((r) => r.key !== "reread")
                     .map((r) => (
                       <div key={r.key} className="rounded-lg border bg-white p-5">
-                        <RankingBar title={r.label} data={r.data} unit={r.unit} />
+                        <RankingBar data={r.data} unit={r.unit} />
                       </div>
                     ))}
                 </div>
@@ -361,7 +349,7 @@ function ArticlesStats() {
             label: "每月完成篇數",
             scrollHeight: "h-70 sm:h-[32rem]",
             node: (
-              <Panel title="每月完成篇數">
+              <Panel>
                 <MonthlyTrendChart data={monthly} unit="篇" seriesLabel="完成篇數" height="100%" />
               </Panel>
             ),
@@ -392,7 +380,7 @@ function ArticlesStats() {
       needsHeight: false,
       node: (
         <div className="rounded-lg border bg-white p-5">
-          <RankingBar title="來源網站" data={sources} unit="篇" emptyHint="尚無讀完的文章" />
+          <RankingBar data={sources} unit="篇" emptyHint="尚無讀完的文章" />
         </div>
       ),
     },
@@ -404,7 +392,7 @@ function ArticlesStats() {
           scrollHeight: "aspect-square",
           node: (
             <Panel>
-              <DistributionPie title={pie.label} data={pie.data} unit="篇" height="100%" />
+              <DistributionPie data={pie.data} unit="篇" height="100%" />
             </Panel>
           ),
         }))
@@ -416,7 +404,7 @@ function ArticlesStats() {
               <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
                 {pies.map((pie) => (
                   <Panel key={pie.key}>
-                    <DistributionPie title={pie.label} data={pie.data} unit="篇" height="100%" />
+                    <DistributionPie data={pie.data} unit="篇" height="100%" />
                   </Panel>
                 ))}
               </div>
@@ -446,8 +434,8 @@ function EntriesStats() {
   // 紀事只有類型一種分類，所以只有一張圖
   const pies = [{ key: "kind", label: "類型分布", data: getKindDistribution(entries) }];
 
-  const trend = (
-    <Panel title="每月筆數">
+  const trend = (title?: string) => (
+    <Panel title={title}>
       <MonthlyTrendChart data={monthly} unit="筆" seriesLabel="筆數" height="100%" />
     </Panel>
   );
@@ -462,7 +450,7 @@ function EntriesStats() {
             needsHeight: false,
             node: <ArticleKpiCards {...kpis} unit="筆" />,
           },
-          { key: "monthly", label: "每月筆數", scrollHeight: "h-70 sm:h-[32rem]", node: trend },
+          { key: "monthly", label: "每月筆數", scrollHeight: "h-70 sm:h-[32rem]", node: trend() },
         ]
       : [
           {
@@ -471,7 +459,7 @@ function EntriesStats() {
             node: (
               <div className="flex min-h-0 flex-1 flex-col gap-3">
                 <ArticleKpiCards {...kpis} unit="筆" />
-                {trend}
+                {trend("每月筆數")}
               </div>
             ),
           },
@@ -483,7 +471,7 @@ function EntriesStats() {
           scrollHeight: "aspect-square",
           node: (
             <Panel>
-              <DistributionPie title={pie.label} data={pie.data} unit="筆" height="100%" />
+              <DistributionPie data={pie.data} unit="筆" height="100%" />
             </Panel>
           ),
         }))
@@ -495,7 +483,7 @@ function EntriesStats() {
               <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
                 {pies.map((pie) => (
                   <Panel key={pie.key}>
-                    <DistributionPie title={pie.label} data={pie.data} unit="筆" height="100%" />
+                    <DistributionPie data={pie.data} unit="筆" height="100%" />
                   </Panel>
                 ))}
               </div>
