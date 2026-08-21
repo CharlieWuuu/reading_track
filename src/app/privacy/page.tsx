@@ -74,7 +74,7 @@ export default function PrivacyPage() {
         <p>有任何疑問請來信 charliewu500@gmail.com。</p>
       </section>
 
-      <Link href="/books" className="inline-block text-xs text-gray-500 underline">
+      <Link href="/reading/books" className="inline-block text-xs text-gray-500 underline">
         回到書籍列表
       </Link>
     </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { NAV_ITEMS } from "./nav-items";
+import { isNavActive, NAV_ITEMS } from "./nav-items";
 
 /**
  * 手機版底部導覽列。桌機版走側欄（Sidebar），兩邊共用同一份 NAV_ITEMS。
@@ -18,7 +18,7 @@ export function BottomNav() {
     >
       <ul className="flex items-stretch">
         {NAV_ITEMS.map((item) => {
-          const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+          const active = isNavActive(item, pathname);
           return (
             <li key={item.href} className="flex-1">
               <Link

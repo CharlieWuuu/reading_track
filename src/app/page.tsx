@@ -45,7 +45,7 @@ export default function Home() {
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <Link
-            href="/books"
+            href="/reading/books"
             className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
           >
             開始使用

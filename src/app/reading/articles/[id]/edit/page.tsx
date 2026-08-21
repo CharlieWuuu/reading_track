@@ -18,7 +18,7 @@ function EditArticle() {
     <>
       <PageHeader
         title="編輯文章"
-        backHref="/books?type=article"
+        backHref="/reading/articles"
         action={article && <ArticleFormTabs />}
       />
       <PageBody>

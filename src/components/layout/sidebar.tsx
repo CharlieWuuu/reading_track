@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useSidebarStore } from "@/stores/use-sidebar-store";
-import { NAV_ITEMS, NavItem } from "./nav-items";
+import { isNavActive, NAV_ITEMS, NavItem } from "./nav-items";
 import { PrivacyButton } from "./privacy-button";
 import { RefreshButton } from "./refresh-button";
 
@@ -23,12 +23,6 @@ const styles = {
   tools: "flex items-center gap-1",
   iconButton:
     "flex h-8 w-8 shrink-0 items-center justify-center rounded text-gray-400 hover:bg-gray-100 hover:text-gray-900",
-};
-
-/** 側欄空間夠，用完整名稱；底部導覽列則用短標籤 */
-const FULL_LABELS: Record<string, string> = {
-  "/books": "書籍紀錄",
-  "/articles": "文章紀錄",
 };
 
 type CollapseButtonProps = {
@@ -49,10 +43,6 @@ function CollapseButton({ collapsed, onClick }: CollapseButtonProps) {
   );
 }
 
-function isActive(item: NavItem, pathname: string) {
-  return item.exact ? pathname === item.href : pathname.startsWith(item.href);
-}
-
 type NavLinkProps = {
   item: NavItem;
   collapsed: boolean;
@@ -60,18 +50,17 @@ type NavLinkProps = {
 };
 
 function NavLink({ item, collapsed, active }: NavLinkProps) {
-  const label = FULL_LABELS[item.href] ?? item.label; // 側欄空間夠，用完整名稱
   return (
     <li>
       <Link
         href={item.href}
-        title={collapsed ? label : undefined}
+        title={collapsed ? item.label : undefined}
         className={`${styles.link} ${collapsed ? styles.linkCollapsed : ""} ${
           active ? styles.linkActive : styles.linkIdle
         }`}
       >
         <item.Icon active={active} />
-        {!collapsed && label}
+        {!collapsed && item.label}
       </Link>
     </li>
   );
@@ -106,7 +95,7 @@ export function Sidebar({ authSlot }: SidebarProps) {
             key={item.href}
             item={item}
             collapsed={collapsed}
-            active={isActive(item, pathname)}
+            active={isNavActive(item, pathname)}
           />
         ))}
       </ul>

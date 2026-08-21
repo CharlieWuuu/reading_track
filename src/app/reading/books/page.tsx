@@ -1,0 +1,22 @@
+"use client";
+
+import { Suspense } from "react";
+import { PageBody } from "@/components/layout/page-body";
+import { BookTable } from "@/features/books/components/book-table";
+import { ReadingHeader } from "@/features/reading/components/reading-header";
+import { useMounted } from "@/hooks/use-mounted";
+
+/** 讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */
+export default function BooksPage() {
+  const mounted = useMounted();
+
+  return (
+    <Suspense fallback={null}>
+      <ReadingHeader />
+      <PageBody>
+        {/* 表格／書封兩種檢視都在 BookTable 裡，搜尋也是它自己讀網址 */}
+        {mounted && <BookTable />}
+      </PageBody>
+    </Suspense>
+  );
+}
