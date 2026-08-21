@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { BookTable } from "@/features/books/components/book-table";
-import { LibraryHeader } from "@/features/library/components/library-header";
+import { ReadingHeader } from "@/features/reading/components/reading-header";
 import { useMounted } from "@/hooks/use-mounted";
 
 function BooksBody() {
@@ -12,7 +12,7 @@ function BooksBody() {
 
   return (
     <>
-      <LibraryHeader current="book" />
+      <ReadingHeader current="book" />
       <PageBody>
         {/* 表格／書封兩種檢視都在 BookTable 裡，搜尋也是它自己讀網址 */}
         <BookTable />

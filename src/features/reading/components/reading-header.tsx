@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
 import { ActionButton, TabBar } from "@/components/ui/controls";
 import { SearchButton } from "@/components/ui/search-button";
-import { BookViewToggle } from "@/features/library/components/book-view-toggle";
+import { BookViewToggle } from "@/features/reading/components/book-view-toggle";
 import { useUrlParams } from "@/hooks/use-url-param";
 
 /**
@@ -24,7 +24,7 @@ type Tab = (typeof TABS)[number]["key"];
 
 const HREF: Record<Tab, string> = { book: "/books", article: "/articles" };
 
-export function LibraryHeader({ current }: { current: Tab }) {
+export function ReadingHeader({ current }: { current: Tab }) {
   const router = useRouter();
   const { searchParams, setParams } = useUrlParams();
   const query = searchParams.get("q") ?? "";

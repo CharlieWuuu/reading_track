@@ -3,8 +3,8 @@
 import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageMessage } from "@/components/layout/page-message";
-import { LibraryHeader } from "@/features/library/components/library-header";
-import { ReadingList } from "@/features/library/components/reading-list";
+import { ReadingHeader } from "@/features/reading/components/reading-header";
+import { ReadingList } from "@/features/reading/components/reading-list";
 import { useArticles } from "@/hooks/use-articles";
 import { useMounted } from "@/hooks/use-mounted";
 import { useUrlParams } from "@/hooks/use-url-param";
@@ -29,7 +29,7 @@ function ArticlesBody() {
 
   return (
     <>
-      <LibraryHeader current="article" />
+      <ReadingHeader current="article" />
       <PageBody>
         {isLoading ? (
           <PageMessage>載入中…</PageMessage>
