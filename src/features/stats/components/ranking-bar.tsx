@@ -11,13 +11,11 @@ import { SEQUENTIAL } from "@/utils/chart-palette";
  * 在 SVG 裡塞圖片既難對齊也難裁切，用 HTML 反而簡單、字也清楚。
  */
 export function RankingBar({
-  title,
   data,
   unit = "本",
   showCover = false,
   emptyHint,
 }: {
-  title: string;
   data: RankingItem[];
   unit?: string;
   /** 顯示代表書封（重讀排行看的就是書本身，放封面最好認） */
@@ -29,8 +27,6 @@ export function RankingBar({
   return (
     // 高度隨內容，不撐滿面板——排行的列數本來就少，硬撐只會在下面留一大片空白
     <div className="flex flex-col gap-3.5">
-      <p className="shrink-0 text-sm font-medium">{title}</p>
-
       {data.length === 0 ? (
         // 每個都只出現一次時榜單會是空的，說清楚原因比留一張空圖好
         <div className="py-6 text-center text-xs text-gray-400">

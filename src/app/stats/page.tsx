@@ -270,12 +270,7 @@ function BooksStats() {
           needsHeight: false,
           node: (
             <div className="rounded-lg border bg-white p-4">
-              <RankingBar
-                title={r.label}
-                data={r.data}
-                unit={r.unit}
-                showCover={r.key === "reread"}
-              />
+              <RankingBar data={r.data} unit={r.unit} showCover={r.key === "reread"} />
             </div>
           ),
         }))
@@ -288,19 +283,14 @@ function BooksStats() {
             node: (
               <div className="flex flex-col gap-4">
                 <div className="rounded-lg border bg-white p-5">
-                  <RankingBar
-                    title={reread.label}
-                    data={reread.data}
-                    unit={reread.unit}
-                    showCover
-                  />
+                  <RankingBar data={reread.data} unit={reread.unit} showCover />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   {rankings
                     .filter((r) => r.key !== "reread")
                     .map((r) => (
                       <div key={r.key} className="rounded-lg border bg-white p-5">
-                        <RankingBar title={r.label} data={r.data} unit={r.unit} />
+                        <RankingBar data={r.data} unit={r.unit} />
                       </div>
                     ))}
                 </div>
@@ -392,7 +382,7 @@ function ArticlesStats() {
       needsHeight: false,
       node: (
         <div className="rounded-lg border bg-white p-5">
-          <RankingBar title="來源網站" data={sources} unit="篇" emptyHint="尚無讀完的文章" />
+          <RankingBar data={sources} unit="篇" emptyHint="尚無讀完的文章" />
         </div>
       ),
     },
