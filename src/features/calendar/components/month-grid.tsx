@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { PagerButton } from "@/components/ui/pager-button";
 import { articleEditHref, bookEditHref, bookHref } from "@/config/routes";
 import { buildMonthGrid, CalendarDay } from "@/features/calendar/utils/calendar-utils";
+import { cellBorder } from "@/features/calendar/utils/cell-border";
 import { Article } from "@/types/article";
 import { Book } from "@/types/book";
 
@@ -155,20 +156,12 @@ export function MonthGrid({
         {days.map((day, i) => {
           const isToday = day.date.toDateString() === today.toDateString();
           const isSelected = day.date.toDateString() === selected.toDateString();
-          const isLastCol = i % 7 === 6;
-          const isLastRow = i >= days.length - 7;
           return (
             <button
               key={i}
               onClick={() => setSelectedTime(day.date.getTime())}
-              className={`flex h-16 flex-col items-center gap-0.5 py-1 ${
-                isLastCol ? "" : "border-r"
-              } ${isLastRow ? "" : "border-b"} ${
-                isSelected
-                  ? "bg-gray-100"
-                  : day.inCurrentMonth
-                    ? "bg-white"
-                    : "border-gray-100 bg-gray-50"
+              className={`flex h-16 flex-col items-center gap-0.5 py-1 ${cellBorder(i, days.length)} ${
+                isSelected ? "bg-gray-100" : day.inCurrentMonth ? "bg-white" : "bg-gray-50"
               }`}
             >
               <span
@@ -227,12 +220,7 @@ export function MonthGrid({
       <div className="hidden min-h-0 flex-1 auto-rows-fr grid-cols-7 sm:grid">
         {days.map((day, i) => {
           const isToday = day.date.toDateString() === today.toDateString();
-          const isFirstCol = i % 7 === 0;
-          const isFirstRow = i < 7;
-          const isLastCol = i % 7 === 6;
-          const isLastRow = i >= days.length - 7;
-          // 最外圈的框由整個月曆的外框負責，格子自己不要再畫一條
-          const edge = `${isFirstCol ? "border-l-0" : ""} ${isFirstRow ? "border-t-0" : ""}`;
+          const border = cellBorder(i, days.length);
           return (
             // 點整格開這天的彈窗；格內的書封／文章連結照常可點
             <div
@@ -246,16 +234,10 @@ export function MonthGrid({
                   setPopupTime(day.date.getTime());
                 }
               }}
-              className={
-                day.inCurrentMonth
-                  ? // 當月四邊都框起來；負邊界讓相鄰的框疊在一起，不會變兩倍粗，
-                    // z-10 則讓黑框壓過隔壁非當月的淡格線
-                    `relative z-10 -mr-px -mb-px flex min-h-0 cursor-pointer flex-col overflow-hidden border border-gray-900 bg-white p-1.5 text-left hover:bg-gray-50 ${edge}`
-                  : // 非當月只有格線淡一階；整格降透明度會連書封一起變灰，反而髒
-                    `relative flex min-h-0 cursor-pointer flex-col overflow-hidden border-gray-100 bg-gray-50 p-1.5 text-left hover:bg-gray-100 ${
-                      isLastCol ? "" : "border-r"
-                    } ${isLastRow ? "" : "border-b"} ${edge}`
-              }
+              // 當月與非當月的差別只在底色；整格降透明度會連書封一起變灰，反而髒
+              className={`relative flex min-h-0 cursor-pointer flex-col overflow-hidden p-1.5 text-left ${border} ${
+                day.inCurrentMonth ? "bg-white hover:bg-gray-50" : "bg-gray-50 hover:bg-gray-100"
+              }`}
             >
               {/* 日期壓在左上角，書封才能對整個格子置中，不會被日期推偏 */}
               <span
