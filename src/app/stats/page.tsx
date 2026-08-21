@@ -12,6 +12,7 @@ import { DistributionPie } from "@/features/stats/components/distribution-pie";
 import { DistributionTreemap } from "@/features/stats/components/distribution-treemap";
 import { KpiCards } from "@/features/stats/components/kpi-cards";
 import { MonthlyTrendChart } from "@/features/stats/components/monthly-trend-chart";
+import { Panel } from "@/features/stats/components/panel";
 import { RankingBar } from "@/features/stats/components/ranking-bar";
 import { Section, SectionList } from "@/features/stats/components/section-list";
 import { YearlyTrendChart } from "@/features/stats/components/yearly-trend-chart";
@@ -53,16 +54,6 @@ const TABS: { key: Tab; label: string }[] = [
   // 月曆是統計的一種看法，桌機與手機都放在這裡當分頁
   { key: "calendar", label: "月曆" },
 ];
-
-/** 圖表卡片：撐滿一頁的高度，圖本身用 100% 跟著縮放 */
-function Panel({ title, children }: { title?: string; children: React.ReactNode }) {
-  return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3.5 rounded-lg border bg-white p-3 md:p-5">
-      {title && <p className="shrink-0 text-sm font-medium">{title}</p>}
-      <div className="min-h-0 flex-1">{children}</div>
-    </div>
-  );
-}
 
 function BooksStats() {
   const { sheetId } = useSheetStore();
