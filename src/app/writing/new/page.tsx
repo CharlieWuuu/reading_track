@@ -3,16 +3,16 @@
 import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
-import { JournalForm } from "@/features/journal/components/journal-form";
-import { JournalFormTabs } from "@/features/journal/components/journal-form-tabs";
+import { WritingForm } from "@/features/writing/components/writing-form";
+import { WritingFormTabs } from "@/features/writing/components/writing-form-tabs";
 
-function NewJournal() {
+function NewWriting() {
   return (
     <>
-      <PageHeader title="新增書寫" backHref="/journal" action={<JournalFormTabs />} />
+      <PageHeader title="新增書寫" backHref="/writing" action={<WritingFormTabs />} />
       <PageBody>
         <div className="flex min-h-0 flex-1 flex-col">
-          <JournalForm />
+          <WritingForm />
         </div>
       </PageBody>
     </>
@@ -20,10 +20,10 @@ function NewJournal() {
 }
 
 /** 分頁列與表單都讀網址參數，整頁包一層 Suspense，靜態預先產生才不會失敗 */
-export default function NewJournalPage() {
+export default function NewWritingPage() {
   return (
     <Suspense fallback={null}>
-      <NewJournal />
+      <NewWriting />
     </Suspense>
   );
 }

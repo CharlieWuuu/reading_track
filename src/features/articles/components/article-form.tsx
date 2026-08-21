@@ -10,7 +10,7 @@ import { compactLines } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
 import { useArticleFormTab } from "@/features/articles/components/article-form-tabs";
-import { RelatedJournal } from "@/features/journal/components/related-journal";
+import { RelatedWriting } from "@/features/writing/components/related-writings";
 import { useArticles } from "@/hooks/use-articles";
 import { useRecordForm } from "@/hooks/use-record-form";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
@@ -272,7 +272,7 @@ export function ArticleForm({ article }: { article?: Article }) {
         {/* 心得寫成書寫，跟書籍同一套：一篇文章可以有很多則，所以自己一頁 */}
         <TabPanel active={tab === "notes"}>
           {isEdit && article ? (
-            <RelatedJournal sourceId={article.id} sourceTitle={form.title} kind="文章" />
+            <RelatedWriting sourceId={article.id} sourceTitle={form.title} kind="文章" />
           ) : (
             <p className="rounded border border-dashed px-3 py-2 text-xs text-gray-400">
               存好這篇文章之後就可以寫心得了

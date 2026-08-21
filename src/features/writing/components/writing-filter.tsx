@@ -36,7 +36,7 @@ export type FilterGroup = {
  * 頁首本來有一整排類型分頁，加上新增按鈕手機一定擠爆；而且篩選是偶爾才用
  * 一次的東西，不該一直佔著位置。篩選中的時候按鈕直接顯示篩的是什麼。
  */
-export function JournalFilter({
+export function WritingFilter({
   groups,
   onChange,
 }: {

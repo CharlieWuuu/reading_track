@@ -8,7 +8,7 @@ export interface Metric {
   id: string;
   /** 量測的那一天，不是發表日 */
   date: string;
-  journalId: string;
+  writingId: string;
   /** 冗餘存一份，Sheet 打開來才看得懂那一列在講哪一篇 */
   title: string;
   platform: string;

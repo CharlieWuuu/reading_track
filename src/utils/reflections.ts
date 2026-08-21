@@ -1,5 +1,5 @@
 import { splitLines } from "@/types/book";
-import { JournalEntry } from "@/types/journal";
+import { Writing } from "@/types/writing";
 import { parseDate } from "@/utils/date";
 
 export type ReflectionSource = "書籍" | "文章" | "紀事";
@@ -32,8 +32,8 @@ export function isUrl(value: string): boolean {
 }
 
 /** requireNote 為真時只收有寫心得的；紀事頁要看到全部，所以傳 false */
-export function journalToReflections(journal: JournalEntry[], requireNote = true): Reflection[] {
-  return journal
+export function journalToReflections(writings: Writing[], requireNote = true): Reflection[] {
+  return writings
     .filter((e) => !requireNote || e.note.trim())
     .map((e) => ({
       id: e.id,
@@ -42,7 +42,7 @@ export function journalToReflections(journal: JournalEntry[], requireNote = true
       date: e.date,
       note: e.note,
       keywords: splitLines(e.keywords),
-      href: `/journal/${e.id}/edit`,
+      href: `/writing/${e.id}/edit`,
       kind: e.kind,
       origin: e.link,
       sourceTitle: e.sourceTitle,

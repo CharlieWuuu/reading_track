@@ -4,8 +4,8 @@ import * as articleItem from "@/app/api/articles/[id]/route";
 import * as articles from "@/app/api/articles/route";
 import * as bookItem from "@/app/api/books/[id]/route";
 import * as books from "@/app/api/books/route";
-import * as journalItem from "@/app/api/journal/[id]/route";
-import * as journal from "@/app/api/journal/route";
+import * as writingItem from "@/app/api/writings/[id]/route";
+import * as writings from "@/app/api/writings/route";
 import * as sheets from "@/lib/sheets";
 
 vi.mock("@/lib/auth", () => ({ auth: vi.fn(async () => ({ accessToken: "fake-token" })) }));
@@ -13,16 +13,16 @@ vi.mock("@/lib/auth", () => ({ auth: vi.fn(async () => ({ accessToken: "fake-tok
 vi.mock("@/lib/sheets", () => ({
   listBooks: vi.fn(async () => [{ id: "從 listBooks 來的" }]),
   listArticles: vi.fn(async () => [{ id: "從 listArticles 來的" }]),
-  listJournal: vi.fn(async () => [{ id: "從 listJournal 來的" }]),
+  listWritings: vi.fn(async () => [{ id: "從 listWritings 來的" }]),
   addBookRow: vi.fn(async () => undefined),
   addArticleRow: vi.fn(async () => undefined),
-  addJournalRow: vi.fn(async () => undefined),
+  addWritingRow: vi.fn(async () => undefined),
   updateBookRow: vi.fn(async () => undefined),
   updateArticleRow: vi.fn(async () => undefined),
-  updateJournalRow: vi.fn(async () => undefined),
+  updateWritingRow: vi.fn(async () => undefined),
   deleteBookRow: vi.fn(async () => undefined),
   deleteArticleRow: vi.fn(async () => undefined),
-  deleteJournalRow: vi.fn(async () => undefined),
+  deleteWritingRow: vi.fn(async () => undefined),
   readPrivacySettings: vi.fn(async () => ({ stored: "", privateKinds: [], privateTypes: [] })),
 }));
 
@@ -35,7 +35,7 @@ const SHEET = "sheet-1";
 const cases = [
   { name: "books", plural: "books", singular: "book", mod: books, item: bookItem },
   { name: "articles", plural: "articles", singular: "article", mod: articles, item: articleItem },
-  { name: "journal", plural: "journal", singular: "journal", mod: journal, item: journalItem },
+  { name: "writings", plural: "writings", singular: "writing", mod: writings, item: writingItem },
 ] as const;
 
 const fns = sheets as unknown as Record<string, ReturnType<typeof vi.fn>>;

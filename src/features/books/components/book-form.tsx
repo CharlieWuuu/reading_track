@@ -24,7 +24,7 @@ import { PrivateToggle } from "@/components/ui/private-toggle";
 import { useBookFormTab } from "@/features/books/components/book-form-tabs";
 import { QuoteListInput } from "@/features/books/components/quote-list-input";
 import { VocabularyListInput } from "@/features/books/components/vocabulary-list-input";
-import { RelatedJournal } from "@/features/journal/components/related-journal";
+import { RelatedWriting } from "@/features/writing/components/related-writings";
 import { useBooks } from "@/hooks/use-books";
 import { useRecordForm } from "@/hooks/use-record-form";
 import { useRecords } from "@/hooks/use-records";
@@ -437,7 +437,7 @@ export function BookForm({
           <div className="flex min-h-0 flex-col gap-3 sm:flex-row md:flex-1">
             <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
               {isEdit && book ? (
-                <RelatedJournal sourceId={book.id} sourceTitle={form.title} kind="書籍" />
+                <RelatedWriting sourceId={book.id} sourceTitle={form.title} kind="書籍" />
               ) : (
                 <p className="rounded border border-dashed px-3 py-2 text-xs text-gray-400">
                   存好這本書之後就可以寫心得了

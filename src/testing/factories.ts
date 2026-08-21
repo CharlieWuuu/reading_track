@@ -1,7 +1,7 @@
 import { Article } from "@/types/article";
 import { Book } from "@/types/book";
-import { JournalEntry } from "@/types/journal";
 import { QuoteRow, VocabularyRow } from "@/types/record";
+import { Writing } from "@/types/writing";
 
 /**
  * 測試用的假資料。
@@ -98,9 +98,9 @@ export function makeQuote(overrides: Partial<QuoteRow> = {}): QuoteRow {
   };
 }
 
-export function makeJournal(overrides: Partial<JournalEntry> = {}): JournalEntry {
+export function makeWriting(overrides: Partial<Writing> = {}): Writing {
   return {
-    id: nextId("journal"),
+    id: nextId("writings"),
     date: "2026-08-10",
     title: "測試紀事",
     kind: "書籍",

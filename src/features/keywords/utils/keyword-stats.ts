@@ -25,7 +25,7 @@ export function getKeywordEntries(books: Book[]): KeywordEntry[] {
 export type KeywordMentions = {
   books: { id: string; title: string; coverUrl: string }[];
   articles: { id: string; title: string }[];
-  journal: { id: string; title: string }[];
+  writings: { id: string; title: string }[];
 };
 
 /**
@@ -38,7 +38,7 @@ export function getKeywordMentions(
   name: string,
   books: Book[],
   articles: { id: string; title: string; keywords: string }[],
-  journal: { id: string; title: string; keywords: string }[],
+  writings: { id: string; title: string; keywords: string }[],
 ): KeywordMentions {
   const has = (keywords: string) => splitLines(keywords).includes(name);
   return {
@@ -46,6 +46,6 @@ export function getKeywordMentions(
       .filter((b) => has(b.keywords))
       .map((b) => ({ id: b.id, title: b.title, coverUrl: b.coverUrl })),
     articles: articles.filter((a) => has(a.keywords)).map((a) => ({ id: a.id, title: a.title })),
-    journal: journal.filter((e) => has(e.keywords)).map((e) => ({ id: e.id, title: e.title })),
+    writings: writings.filter((e) => has(e.keywords)).map((e) => ({ id: e.id, title: e.title })),
   };
 }

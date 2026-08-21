@@ -211,7 +211,7 @@ export function fieldValue(item: object, field: string): string {
   return typeof value === "string" ? value : "";
 }
 
-export type CategorySource = "book" | "article" | "journal";
+export type CategorySource = "book" | "article" | "writings";
 
 /**
  * 每一組選項對應到哪種紀錄的哪個欄位。
@@ -231,7 +231,7 @@ export const CATEGORY_FIELDS: Record<
   language: { field: "language", sources: ["book", "article"] },
   articleDomain: { field: "domain", sources: ["article"] },
   articleSubDomain: { field: "subDomain", sources: ["article"] },
-  kind: { field: "kind", sources: ["journal"] },
+  kind: { field: "kind", sources: ["writings"] },
 };
 
 export interface BookCategories {

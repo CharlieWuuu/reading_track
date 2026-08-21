@@ -1,11 +1,11 @@
 import { createCollectionRoute } from "@/app/api/_lib/collection-route";
-import { addJournalRow, listJournal } from "@/lib/sheets";
+import { addWritingRow, listWritings } from "@/lib/sheets";
 
 const route = createCollectionRoute({
-  key: "journal",
-  itemKey: "journal",
-  list: listJournal,
-  add: addJournalRow,
+  key: "writings",
+  itemKey: "writing",
+  list: listWritings,
+  add: addWritingRow,
 });
 
 export const GET = route.GET;
