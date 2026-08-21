@@ -4,11 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { useSidebarStore } from "@/stores/use-sidebar-store";
 import { isNavActive, NAV_ITEMS, NavItem } from "./nav-items";
-import { PrivacyButton } from "./privacy-button";
-import { RefreshButton } from "./refresh-button";
 
 const styles = {
   nav: "flex h-full shrink-0 flex-col border-r border-gray-900 bg-white",
@@ -74,10 +71,6 @@ type SidebarProps = {
 export function Sidebar({ authSlot }: SidebarProps) {
   const pathname = usePathname();
   const { collapsed, toggle } = useSidebarStore();
-  const { data: session } = useSession();
-
-  // 沒登入就沒有資料可以重抓，按鈕不該出現
-  const showRefresh = Boolean(session?.user);
 
   return (
     <nav className={`${styles.nav} ${collapsed ? "w-16" : "w-56"}`}>
@@ -101,13 +94,8 @@ export function Sidebar({ authSlot }: SidebarProps) {
       </ul>
 
       <div className={`${styles.footer} ${collapsed ? "items-center p-2" : "p-4"}`}>
-        {/* 工具類操作固定在帳號按鈕上面一排，收合前後都在同一個位置 */}
-        <div
-          className={`${styles.tools} ${collapsed ? "flex-col" : "flex-row-reverse justify-between"}`}
-        >
+        <div className={`${styles.tools} ${collapsed ? "justify-center" : "justify-end"}`}>
           <CollapseButton collapsed={collapsed} onClick={toggle} />
-          {showRefresh && <RefreshButton compact={collapsed} />}
-          {showRefresh && <PrivacyButton compact={collapsed} />}
         </div>
         {authSlot}
       </div>
