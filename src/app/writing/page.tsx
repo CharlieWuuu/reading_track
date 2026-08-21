@@ -50,24 +50,22 @@ function WritingList() {
   );
   if (!mounted) return null;
 
-  if (isLoading || error || writings.length === 0) {
-    return (
-      <>
-        <PageHeader title="書寫" action={action} />
-        <PageMessage tone={error ? "error" : "muted"}>
-          {isLoading ? "載入中…" : error || "符合條件的書寫是空的"}
-        </PageMessage>
-      </>
-    );
-  }
+  const empty = isLoading || error || writings.length === 0;
 
+  // 頁首兩個分支都一樣，畫一次就好
   return (
     <>
       <PageHeader title="書寫" action={action} />
-      <PageBody>
-        {/* 沒寫心得的也要看得到：這裡是紀事本身的清單 */}
-        <ReflectionTimeline reflections={journalToReflections(writings, false)} />
-      </PageBody>
+      {empty ? (
+        <PageMessage tone={error ? "error" : "muted"}>
+          {isLoading ? "載入中…" : error || "符合條件的書寫是空的"}
+        </PageMessage>
+      ) : (
+        <PageBody>
+          {/* 沒寫心得的也要看得到：這裡是紀事本身的清單 */}
+          <ReflectionTimeline reflections={journalToReflections(writings, false)} />
+        </PageBody>
+      )}
     </>
   );
 }
