@@ -1,14 +1,10 @@
-import { OAuth2Client } from "google-auth-library";
-import {
-  GoogleSpreadsheet,
-  GoogleSpreadsheetRow,
-  GoogleSpreadsheetWorksheet,
-} from "google-spreadsheet";
+import { GoogleSpreadsheetRow, GoogleSpreadsheetWorksheet } from "google-spreadsheet";
 import {
   PRIVACY_SETTING_KEY,
   PRIVATE_KINDS_SETTING_KEY,
   PRIVATE_TYPES_SETTING_KEY,
 } from "@/config/sheet-format";
+import { forgetDoc, loadedDoc } from "@/lib/sheet-doc";
 import { Article } from "@/types/article";
 import { Book, inferStatus, normalizePlatform, normalizeStatus, splitLines } from "@/types/book";
 import { KeywordInfo } from "@/types/keyword";
@@ -27,12 +23,6 @@ import {
   TableSpec,
   WRITING_TABLE,
 } from "./sheet-schema";
-
-function getAuthClient(accessToken: string) {
-  const auth = new OAuth2Client();
-  auth.setCredentials({ access_token: accessToken });
-  return auth;
-}
 
 /**
  * 現有表頭 -> 欄位對照，順便把表頭整理成正式的中文欄名：
@@ -129,8 +119,7 @@ async function getTableSheet<F extends string, L extends F>(
   accessToken: string,
   spec: TableSpec<F, L>,
 ) {
-  const doc = new GoogleSpreadsheet(sheetId, getAuthClient(accessToken));
-  await doc.loadInfo();
+  const doc = await loadedDoc(sheetId, accessToken);
 
   // 舊名字也要找一遍，不然分頁改過名就會多開一張空表
   let sheet = [spec.title, ...(spec.titleAliases ?? [])]
@@ -138,6 +127,7 @@ async function getTableSheet<F extends string, L extends F>(
     .find(Boolean);
   if (!sheet) {
     sheet = await doc.addSheet({ title: spec.title, headerValues: defaultHeaders(spec) });
+    forgetDoc(sheetId, accessToken);
   }
   const columns = await resolveColumns(sheet, spec);
   return { sheet, columns };
@@ -188,8 +178,7 @@ async function listTableValues<F extends string, L extends F>(
 }
 
 export async function verifySheetAccess(sheetId: string, accessToken: string) {
-  const doc = new GoogleSpreadsheet(sheetId, getAuthClient(accessToken));
-  await doc.loadInfo();
+  const doc = await loadedDoc(sheetId, accessToken);
   return { title: doc.title };
 }
 
@@ -407,11 +396,11 @@ const KEYWORD_HEADERS = ["名稱", "領域", "座標", "起訖", "維基連結",
 const RENAMED_HEADERS: Record<string, string> = { 學科: "領域" };
 
 async function getKeywordsSheet(sheetId: string, accessToken: string) {
-  const doc = new GoogleSpreadsheet(sheetId, getAuthClient(accessToken));
-  await doc.loadInfo();
+  const doc = await loadedDoc(sheetId, accessToken);
 
   const sheet = doc.sheetsByTitle[KEYWORDS_SHEET_TITLE];
   if (!sheet) {
+    forgetDoc(sheetId, accessToken);
     return doc.addSheet({ title: KEYWORDS_SHEET_TITLE, headerValues: KEYWORD_HEADERS });
   }
 
@@ -591,11 +580,13 @@ async function getRecordSheet(
   title: string,
   headerValues: string[],
 ) {
-  const doc = new GoogleSpreadsheet(sheetId, getAuthClient(accessToken));
-  await doc.loadInfo();
+  const doc = await loadedDoc(sheetId, accessToken);
 
   const sheet = doc.sheetsByTitle[title];
-  if (!sheet) return doc.addSheet({ title, headerValues });
+  if (!sheet) {
+    forgetDoc(sheetId, accessToken);
+    return doc.addSheet({ title, headerValues });
+  }
 
   // 後來新增的欄位要補到既有的表上，否則寫進去的值會被當成不存在的欄丟掉
   await sheet.loadHeaderRow().catch(() => {});
@@ -765,12 +756,12 @@ const SETTINGS_SHEET_TITLE = "設定";
 const SETTINGS_HEADERS = ["設定", "值"];
 
 async function getSettingsSheet(sheetId: string, accessToken: string) {
-  const doc = new GoogleSpreadsheet(sheetId, getAuthClient(accessToken));
-  await doc.loadInfo();
+  const doc = await loadedDoc(sheetId, accessToken);
 
   let sheet = doc.sheetsByTitle[SETTINGS_SHEET_TITLE];
   if (!sheet) {
     sheet = await doc.addSheet({ title: SETTINGS_SHEET_TITLE, headerValues: SETTINGS_HEADERS });
+    forgetDoc(sheetId, accessToken);
   }
   return sheet;
 }
