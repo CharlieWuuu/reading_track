@@ -18,7 +18,7 @@ const FEATURES = [
   "calendar",
   "entries",
   "keywords",
-  "library",
+  "reading",
   "notes",
   "settings",
   "stats",
