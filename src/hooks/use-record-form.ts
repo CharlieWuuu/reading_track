@@ -2,14 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ITEM_KEYS, Resource } from "@/config/item-keys";
 import { useAutoSave } from "@/hooks/use-auto-save";
 import { useSheetStore } from "@/stores/use-sheet-store";
 
 type RecordFormOptions<P> = {
-  /** API 路徑上的那一段，例如 "books"；也決定 POST 的 body 長什麼樣 */
-  resource: "books" | "articles" | "writings";
-  /** POST 時包住整筆資料的那個鍵，例如 { sheetId, book: {...} }。一律單數，對齊 route 的 itemKey */
-  bodyKey: "book" | "article" | "writing";
+  /** API 路徑上的那一段，例如 "books"；body 的鍵由 ITEM_KEYS 推出來，不用另外傳 */
+  resource: Resource;
   /** 編輯既有的那一筆時給編號；新增時是空字串 */
   existingId: string;
   /** 現在這一刻要送出去的內容 */
@@ -46,7 +45,6 @@ const failIfNotOk = (message: string, mutate: () => Promise<unknown>) => async (
  */
 export function useRecordForm<P>({
   resource,
-  bodyKey,
   existingId,
   payload,
   redirectTo,
@@ -56,6 +54,7 @@ export function useRecordForm<P>({
   validate,
   onSaved,
 }: RecordFormOptions<P>) {
+  const bodyKey = ITEM_KEYS[resource];
   const router = useRouter();
   const { sheetId } = useSheetStore();
   const [submitting, setSubmitting] = useState(false);

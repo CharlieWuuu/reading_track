@@ -1,9 +1,10 @@
 import { createCollectionRoute } from "@/app/api/_lib/collection-route";
+import { ITEM_KEYS } from "@/config/item-keys";
 import { addWritingRow, listWritings } from "@/lib/sheets";
 
 const route = createCollectionRoute({
   key: "writings",
-  itemKey: "writing",
+  itemKey: ITEM_KEYS.writings,
   list: listWritings,
   add: addWritingRow,
 });

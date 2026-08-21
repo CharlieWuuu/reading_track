@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { PenLine } from "lucide-react";
+import { ITEM_KEYS } from "@/config/item-keys";
 import { useWritings } from "@/hooks/use-writings";
 import { useSheetStore } from "@/stores/use-sheet-store";
 import { Writing } from "@/types/writing";
@@ -81,7 +82,7 @@ export function RelatedWriting({
       const res = await fetch("/api/writings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sheetId, writings }),
+        body: JSON.stringify({ sheetId, [ITEM_KEYS.writings]: writings }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "儲存失敗");
