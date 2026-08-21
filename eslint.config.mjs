@@ -78,6 +78,14 @@ const eslintConfig = defineConfig([
     },
   },
   {
+    // 假資料只給測試用，不能被正式程式碼 import——不然它會跟著進 bundle
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/**/*.test.{ts,tsx}", "src/**/*.stories.tsx", "src/testing/**"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: ["@/testing/*", "**/testing/*"] }],
+    },
+  },
+  {
     files: ["src/**/*.{ts,tsx}"],
     ignores: ["src/app/**"], // 動態路由 [id] 與 _lib 底線資料夾過不了 kebab 檢查
     plugins: { "check-file": checkFile },
