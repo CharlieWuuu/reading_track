@@ -27,7 +27,7 @@ export function QuotesSection({ books }: { books: Book[] }) {
           title={record.bookTitle}
           showTitle={false}
           coverUrl={record.bookCover}
-          onClick={() => router.push(`/quotes/${record.id}/edit`)}
+          onClick={() => router.push(`/reading/quotes/${record.id}/edit`)}
         >
           <QuoteBlock quote={record} />
         </RecordCard>
