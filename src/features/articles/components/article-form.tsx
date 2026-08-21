@@ -145,7 +145,7 @@ export function ArticleForm({ article }: { article?: Article }) {
     bodyKey: "article",
     existingId: article?.id ?? "",
     payload: toPayload(form, article),
-    redirectTo: "/books?type=article",
+    redirectTo: "/articles",
     mutate,
     validate: () => (form.title.trim() ? undefined : "請填標題"),
   });
