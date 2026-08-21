@@ -10,3 +10,5 @@ const route = createCollectionRoute({
 
 export const GET = route.GET;
 export const POST = route.POST;
+
+export const maxDuration = 30;

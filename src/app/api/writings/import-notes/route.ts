@@ -89,3 +89,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "搬移失敗" }, { status: 502 });
   }
 }
+
+export const maxDuration = 30;

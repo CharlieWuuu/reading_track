@@ -133,3 +133,5 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "刪除關鍵字失敗" }, { status: 502 });
   }
 }
+
+export const maxDuration = 30;

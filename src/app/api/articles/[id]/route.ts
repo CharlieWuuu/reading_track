@@ -9,3 +9,5 @@ const route = createItemRoute({
 
 export const PATCH = route.PATCH;
 export const DELETE = route.DELETE;
+
+export const maxDuration = 30;
