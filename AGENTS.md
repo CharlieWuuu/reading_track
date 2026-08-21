@@ -19,6 +19,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 壞：refactor: recordEdits 其實是 hook，改名 useRecordEdits 進 hooks/
 ```
 
+# 程式風格
+
+**FP 為核心。** 純函式優先：輸入輸出明確、不改參數、不藏副作用。I/O（fetch、Sheet、localStorage）集中在薄一層，運算與轉換抽成純函式進 `utils/`，這樣才測得到。用 map／filter／reduce 表達轉換，不要邊迴圈邊改外部變數。資料不可變，要改回傳新的。不用 class 與繼承。
+
+**一個檔一件事。** 超過 150 行就問「這裡面是不是有兩件事」，尤其「有 I/O 的部分」與「純資料整形」混在一起時要拆。
+
 # 重構流程
 
 一個主題一支分支，一個資料夾一個 commit。
