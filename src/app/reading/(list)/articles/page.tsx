@@ -1,9 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
-import { PageBody } from "@/components/layout/page-body";
 import { PageMessage } from "@/components/layout/page-message";
-import { ReadingHeader } from "@/features/reading/components/reading-header";
 import { ReadingList } from "@/features/reading/components/reading-list";
 import { useArticles } from "@/hooks/use-articles";
 import { useMounted } from "@/hooks/use-mounted";
@@ -11,7 +8,7 @@ import { useUrlParams } from "@/hooks/use-url-param";
 import { isBookViewMode, useBookViewStore } from "@/stores/use-book-view-store";
 import { matchesSearch, searchTerms } from "@/utils/search";
 
-function ArticlesBody() {
+export default function ArticlesPage() {
   const mounted = useMounted();
   const { articles, isLoading, error } = useArticles();
   const { searchParams } = useUrlParams();
@@ -26,30 +23,9 @@ function ArticlesBody() {
   );
 
   if (!mounted) return null;
+  if (isLoading) return <PageMessage>載入中…</PageMessage>;
+  if (error) return <PageMessage tone="error">{error}</PageMessage>;
+  if (found.length === 0 && terms.length > 0) return <PageMessage>沒有符合的文章</PageMessage>;
 
-  return (
-    <>
-      <ReadingHeader current="article" />
-      <PageBody>
-        {isLoading ? (
-          <PageMessage>載入中…</PageMessage>
-        ) : error ? (
-          <PageMessage tone="error">{error}</PageMessage>
-        ) : found.length === 0 && terms.length > 0 ? (
-          <PageMessage>沒有符合的文章</PageMessage>
-        ) : (
-          <ReadingList articles={found} view={view} />
-        )}
-      </PageBody>
-    </>
-  );
-}
-
-/** 讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */
-export default function ArticlesPage() {
-  return (
-    <Suspense fallback={null}>
-      <ArticlesBody />
-    </Suspense>
-  );
+  return <ReadingList articles={found} view={view} />;
 }

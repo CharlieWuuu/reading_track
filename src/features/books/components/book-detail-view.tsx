@@ -121,7 +121,7 @@ export function BookDetailView() {
   // 從書單帶進來的檢視方式與頁碼，一路傳給編輯頁，存完才回得到同一個畫面
   const { searchParams } = useUrlParams();
   const back = searchParams.get("back");
-  const backHref = back ? `/books?${back}` : "/books";
+  const backHref = back ? `/reading/books?${back}` : "/reading/books";
   const book = books.find((b) => b.id === id);
 
   if (!sheetId || isLoading || error || !book) {

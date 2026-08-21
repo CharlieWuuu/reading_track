@@ -16,7 +16,11 @@ function EditArticle() {
 
   return (
     <>
-      <PageHeader title="編輯文章" backHref="/articles" action={article && <ArticleFormTabs />} />
+      <PageHeader
+        title="編輯文章"
+        backHref="/reading/articles"
+        action={article && <ArticleFormTabs />}
+      />
       <PageBody>
         <RecordGate loading={isLoading} error={error} missing={!article && "找不到這篇文章"}>
           <div className="shrink-0 md:min-h-0 md:flex-1">

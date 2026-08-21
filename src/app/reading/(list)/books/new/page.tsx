@@ -13,7 +13,7 @@ function NewBook() {
   // 從書單進來時帶著檢視方式與頁碼，返回要回到同一頁
   const { searchParams } = useUrlParams();
   const back = searchParams.get("back");
-  const backHref = back ? `/books?${back}` : "/books";
+  const backHref = back ? `/reading/books?${back}` : "/reading/books";
 
   return (
     <>

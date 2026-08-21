@@ -27,10 +27,10 @@ export function isNavActive(item: NavItem, pathname: string) {
 export const NAV_ITEMS: NavItem[] = [
   {
     // 書與文章是兩條路由，導覽上仍然是同一區
-    href: "/books",
+    href: "/reading/books",
     label: "閱讀",
     exact: true,
-    siblings: ["/articles"],
+    siblings: ["/reading/articles"],
     Icon: () => <Library size={20} strokeWidth={1.5} />,
   },
   {

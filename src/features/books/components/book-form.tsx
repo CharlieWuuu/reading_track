@@ -145,7 +145,7 @@ export function BookForm({
   // 從書單進來時會帶著檢視方式與頁碼，存完要回到同一頁
   const { searchParams } = useUrlParams();
   const back = searchParams.get("back");
-  const listHref = back ? `/books?${back}` : "/books";
+  const listHref = back ? `/reading/books?${back}` : "/reading/books";
   // 編輯是從書籍資訊進來的，離開就回那一頁；新增沒有資訊頁可回，直接回書單
   const backHref = book
     ? `/books/${book.id}${back ? `?back=${encodeURIComponent(back)}` : ""}`

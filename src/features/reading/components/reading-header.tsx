@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
 import { ActionButton, TabBar } from "@/components/ui/controls";
 import { SearchButton } from "@/components/ui/search-button";
@@ -22,10 +22,12 @@ const TABS = [
 
 type Tab = (typeof TABS)[number]["key"];
 
-const HREF: Record<Tab, string> = { book: "/books", article: "/articles" };
+const HREF: Record<Tab, string> = { book: "/reading/books", article: "/reading/articles" };
 
-export function ReadingHeader({ current }: { current: Tab }) {
+export function ReadingHeader() {
   const router = useRouter();
+  // 在哪一個分頁看網址就知道，不用各頁再傳一次
+  const current: Tab = usePathname().startsWith("/reading/articles") ? "article" : "book";
   const { searchParams, setParams } = useUrlParams();
   const query = searchParams.get("q") ?? "";
 
@@ -38,7 +40,7 @@ export function ReadingHeader({ current }: { current: Tab }) {
           <TabBar items={TABS} value={current} onChange={(next) => router.push(HREF[next])} />
           <BookViewToggle cardLabel={current === "book" ? "書封" : "卡片"} />
           {/* 按鈕就寫「新增」：旁邊的分頁已經說了現在在看書籍還是文章 */}
-          <ActionButton href={current === "book" ? "/books/new" : "/articles/new"}>
+          <ActionButton href={current === "book" ? "/reading/books/new" : "/reading/articles/new"}>
             新增
           </ActionButton>
         </div>

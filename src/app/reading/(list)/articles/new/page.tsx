@@ -9,7 +9,7 @@ import { ArticleFormTabs } from "@/features/articles/components/article-form-tab
 function NewArticle() {
   return (
     <>
-      <PageHeader title="新增文章" backHref="/articles" action={<ArticleFormTabs />} />
+      <PageHeader title="新增文章" backHref="/reading/articles" action={<ArticleFormTabs />} />
       <PageBody>
         <div className="shrink-0 md:min-h-0 md:flex-1">
           <ArticleForm />
