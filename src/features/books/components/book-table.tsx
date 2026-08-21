@@ -7,6 +7,7 @@ import { Tag } from "lucide-react";
 import { PageMessage } from "@/components/layout/page-message";
 import { BookCover } from "@/components/ui/book-cover";
 import { STATUS_STYLES, StatusBadge, TagList } from "@/components/ui/tag-badge";
+import { bookHref } from "@/config/routes";
 import { useBooks } from "@/hooks/use-books";
 import { useMounted } from "@/hooks/use-mounted";
 import { useUrlParams } from "@/hooks/use-url-param";
@@ -121,8 +122,7 @@ export function BookTable() {
   const clearKeyword = () => setParams({ keyword: null });
   // 帶著目前的檢視進詳細頁，一路傳到編輯頁，存檔後才回得到同一個畫面
   const query = searchParams.toString();
-  const detailHref = (id: string) =>
-    `/books/${id}${query ? `?back=${encodeURIComponent(query)}` : ""}`;
+  const detailHref = (id: string) => bookHref(id, query || undefined);
 
   // 還沒掛載完就什麼都別說，免得閃一下「請先連接」
   if (!mounted) return null;

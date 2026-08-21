@@ -16,6 +16,8 @@ type RecordFormOptions<P> = {
   payload: P;
   /** 存完之後要去哪 */
   redirectTo: string;
+  /** 這一筆的編輯頁；用 config/routes 的那幾支，不要拿 resource 去拼——頁面路徑跟 API 路徑是兩套 */
+  editHref: (id: string) => string;
   /** 刪完之後要去哪；書籍存完是回它的詳細頁，但那一頁已經沒了，所以要回清單 */
   deleteRedirectTo?: string;
   /** 重新抓清單；刪除時可以傳自己的更新函式，見 mutateOnDelete */
@@ -48,6 +50,7 @@ export function useRecordForm<P>({
   existingId,
   payload,
   redirectTo,
+  editHref,
   deleteRedirectTo,
   mutate,
   validate,
@@ -155,9 +158,9 @@ export function useRecordForm<P>({
     const isNew = !existingId && !autoSave.savedIdRef.current;
     await autoSave.save();
     const id = autoSave.savedIdRef.current;
-    const editHref = `/${resource}/${id}/edit`;
-    if (isNew && id) router.replace(editHref);
-    go(isNew && id ? editHref : fallbackHref);
+    const href = id ? editHref(id) : "";
+    if (isNew && id) router.replace(href);
+    go(isNew && id ? href : fallbackHref);
   }
 
   return { submitting, error, setError, handleSubmit, handleDelete, openRecordThen };

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
+import { bookEditHref } from "@/config/routes";
 import { useBooks } from "@/hooks/use-books";
 import { validateBooks } from "@/utils/validate-book";
 
@@ -28,7 +29,7 @@ export function DataIssuesPanel() {
         <ul className="space-y-1 text-xs">
           {issues.map((issue, i) => (
             <li key={`${issue.bookId}-${issue.field}-${i}`} className="truncate">
-              <Link href={`/books/${issue.bookId}/edit`} className="font-medium hover:underline">
+              <Link href={bookEditHref(issue.bookId)} className="font-medium hover:underline">
                 {issue.title}
               </Link>
               <span className="text-gray-600">：{issue.message}</span>

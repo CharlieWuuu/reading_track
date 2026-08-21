@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ExternalLink, Pencil } from "lucide-react";
 import { BookCover } from "@/components/ui/book-cover";
 import { Dialog } from "@/components/ui/dialog";
+import { articleEditHref, bookHref } from "@/config/routes";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { getKeywordMentions } from "@/features/keywords/utils/keyword-stats";
 import { topicLabel } from "@/features/keywords/utils/topic-labels";
@@ -86,7 +87,7 @@ export function KeywordPopup({ name, onClose }: { name: string; onClose: () => v
             <span className={styles.groupLabel}>書</span>
             <div className={styles.list}>
               {mentions.books.map((book) => (
-                <Link key={book.id} href={`/books/${book.id}`} className={styles.row}>
+                <Link key={book.id} href={bookHref(book.id)} className={styles.row}>
                   <BookCover url={book.coverUrl} title={book.title} size="sm" />
                   <span className={styles.title}>{book.title}</span>
                 </Link>
@@ -100,7 +101,7 @@ export function KeywordPopup({ name, onClose }: { name: string; onClose: () => v
             <span className={styles.groupLabel}>文章</span>
             <div className={styles.list}>
               {mentions.articles.map((article) => (
-                <Link key={article.id} href={`/articles/${article.id}/edit`} className={styles.row}>
+                <Link key={article.id} href={articleEditHref(article.id)} className={styles.row}>
                   <span className={styles.title}>{article.title}</span>
                 </Link>
               ))}

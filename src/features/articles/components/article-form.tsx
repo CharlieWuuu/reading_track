@@ -9,6 +9,7 @@ import { FormActions } from "@/components/ui/form-actions";
 import { compactLines } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
+import { articleEditHref } from "@/config/routes";
 import { useArticleFormTab } from "@/features/articles/components/article-form-tabs";
 import { RelatedWriting } from "@/features/writing/components/related-writings";
 import { useArticles } from "@/hooks/use-articles";
@@ -142,6 +143,7 @@ export function ArticleForm({ article }: { article?: Article }) {
     openRecordThen,
   } = useRecordForm({
     resource: "articles",
+    editHref: articleEditHref,
     bodyKey: "article",
     existingId: article?.id ?? "",
     payload: toPayload(form, article),
