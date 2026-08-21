@@ -87,3 +87,5 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "儲存失敗" }, { status: 502 });
   }
 }
+
+export const maxDuration = 30;

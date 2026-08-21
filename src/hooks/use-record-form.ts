@@ -26,6 +26,12 @@ type RecordFormOptions<P> = {
   onSaved?: (id: string) => Promise<void>;
 };
 
+/** 自動存檔沒看回應的話，POST 失敗會被當成成功，之後就一直 PATCH 一個不存在的編號 */
+const failIfNotOk = (message: string, mutate: () => Promise<unknown>) => async (res: Response) => {
+  if (!res.ok) throw new Error(message);
+  return mutate();
+};
+
 /**
  * 書籍、文章、書寫三張表單共用的存檔骨架。
  *
@@ -62,14 +68,14 @@ export function useRecordForm<P>({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sheetId, [bodyKey]: { id, ...body } }),
         keepalive: true,
-      }).then(() => mutate()),
+      }).then(failIfNotOk("自動存檔失敗", mutate)),
     update: (id, body) =>
       fetch(`/api/${resource}/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sheetId, patch: body }),
         keepalive: true,
-      }).then(() => mutate()),
+      }).then(failIfNotOk("自動存檔失敗", mutate)),
   });
 
   async function handleSubmit(e: React.FormEvent) {
