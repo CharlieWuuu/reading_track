@@ -74,6 +74,18 @@ export function dayLabel(value: string | null | undefined): string {
   return date.getFullYear() === at.getFullYear() ? md : `${date.getFullYear()}/${md}`;
 }
 
+/**
+ * 時間戳只在當天有意義。
+ *
+ * 「上週三 14:32」的時分沒有人會用到——隔了幾天之後，人記得的是哪一天，不是幾點。
+ * 今天的則相反：「今天」講了等於沒講，時間才是新資訊。
+ */
+export function whenLabel(value: string | null | undefined): string {
+  const day = dayLabel(value);
+  if (day !== "今天") return day;
+  return timeLabel(value) || day; // 舊資料只有日期，退回「今天」
+}
+
 /** Sheet 上存的是空白分隔，datetime-local 要的是中間一個 T */
 export function toDateTimeInput(value: string): string {
   if (!value.trim()) return "";

@@ -6,7 +6,7 @@ import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { useArticles } from "@/hooks/use-articles";
 import { useBooks } from "@/hooks/use-books";
 import { useMetrics } from "@/hooks/use-metrics";
-import { dayLabel, timeLabel } from "@/utils/date";
+import { whenLabel } from "@/utils/date";
 import { groupByWeek, isUrl, Reflection } from "@/utils/reflections";
 import { tagColorClass } from "@/utils/tag-colors";
 
@@ -94,7 +94,7 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
                   : undefined;
               const kind = r.kind || r.source;
               const metric = latestByWriting.get(r.id);
-              const time = timeLabel(r.date);
+              const when = whenLabel(r.date);
               // 三樣都沒有就別畫那一列，不然每一則底下都多一段空白
               const hasFoot = Boolean(metric || r.origin?.trim() || r.keywords.length);
 
@@ -125,10 +125,7 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
                       <span className={styles.head}>
                         <span className={styles.title}>{r.title}</span>
                         <span className={`${styles.kind} ${kindTone(kind)}`}>{kind}</span>
-                        <span className={styles.time}>
-                          {dayLabel(r.date)}
-                          {time && ` ${time}`}
-                        </span>
+                        <span className={styles.time}>{when}</span>
                       </span>
                       {r.note.trim() && <span className={styles.note}>{r.note}</span>}
                     </Link>
