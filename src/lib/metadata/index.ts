@@ -1,6 +1,7 @@
 import { Book } from "@/types/book";
+import { titleSimilarity } from "@/utils/title-similarity";
 import { googleBooksProvider } from "./google-books";
-import { SourceUnavailableError, titleSimilarity } from "./http";
+import { SourceUnavailableError } from "./http";
 import { ndlProvider } from "./ndl";
 import { openLibraryProvider } from "./open-library";
 import { pubuProvider } from "./pubu";

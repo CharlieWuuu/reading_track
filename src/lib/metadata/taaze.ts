@@ -1,6 +1,7 @@
 import type { CheerioAPI } from "cheerio";
 import { SECTIGO_EV_R36_PEM } from "./certs";
-import { digitsOnly, fetchDom } from "./http";
+import { digitsOnly } from "./html";
+import { fetchDom } from "./http";
 import { normalizeLanguage } from "./readmoo";
 import { BookMetadata, Candidate, MetadataProvider } from "./types";
 
