@@ -238,7 +238,7 @@ function BooksStats() {
           scrollHeight: "aspect-square",
           node: (
             <Panel>
-              <DistributionPie title={pie.label} data={pie.data} height="100%" />
+              <DistributionPie data={pie.data} height="100%" />
             </Panel>
           ),
         }))
@@ -254,7 +254,7 @@ function BooksStats() {
                     className="flex min-h-0 flex-col rounded-lg border bg-white p-5"
                   >
                     <div className="min-h-0 flex-1">
-                      <DistributionPie title={pie.label} data={pie.data} height="100%" />
+                      <DistributionPie data={pie.data} height="100%" />
                     </div>
                   </div>
                 ))}
@@ -394,7 +394,7 @@ function ArticlesStats() {
           scrollHeight: "aspect-square",
           node: (
             <Panel>
-              <DistributionPie title={pie.label} data={pie.data} unit="篇" height="100%" />
+              <DistributionPie data={pie.data} unit="篇" height="100%" />
             </Panel>
           ),
         }))
@@ -406,7 +406,7 @@ function ArticlesStats() {
               <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
                 {pies.map((pie) => (
                   <Panel key={pie.key}>
-                    <DistributionPie title={pie.label} data={pie.data} unit="篇" height="100%" />
+                    <DistributionPie data={pie.data} unit="篇" height="100%" />
                   </Panel>
                 ))}
               </div>
@@ -473,7 +473,7 @@ function EntriesStats() {
           scrollHeight: "aspect-square",
           node: (
             <Panel>
-              <DistributionPie title={pie.label} data={pie.data} unit="筆" height="100%" />
+              <DistributionPie data={pie.data} unit="筆" height="100%" />
             </Panel>
           ),
         }))
@@ -485,7 +485,7 @@ function EntriesStats() {
               <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
                 {pies.map((pie) => (
                   <Panel key={pie.key}>
-                    <DistributionPie title={pie.label} data={pie.data} unit="筆" height="100%" />
+                    <DistributionPie data={pie.data} unit="筆" height="100%" />
                   </Panel>
                 ))}
               </div>

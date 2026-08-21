@@ -80,12 +80,10 @@ function renderLabelLine({ cx, cy, midAngle, outerRadius, percent, fill }: Label
 }
 
 export function DistributionPie({
-  title,
   data,
   unit = "本",
   height = 240,
 }: {
-  title: string;
   data: DistributionSlice[];
   unit?: string;
   height?: number | `${number}%`;
@@ -95,16 +93,13 @@ export function DistributionPie({
   if (slots.length === 0) {
     return (
       <div className="flex h-64 flex-col items-center justify-center text-sm text-gray-400">
-        {title}：尚無資料
+        尚無資料
       </div>
     );
   }
 
   return (
     <div className="viz-root flex h-full min-h-0 flex-col gap-3.5" data-palette="reading-track">
-      <p className="shrink-0 text-sm font-medium" style={{ color: "var(--color-ink-viz)" }}>
-        {title}
-      </p>
       <div className="min-h-0 flex-1">
         <ResponsiveContainer width="100%" height={height}>
           {/* 半徑用百分比，容器多高就畫多大；外圈留白給拉線的標籤 */}
