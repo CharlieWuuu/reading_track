@@ -40,9 +40,8 @@ yarn-error.log*
 # claude code local settings
 .claude/
 
-# 開發紀錄，只留本機
-/docs/devlog.md
-/docs/todo.md
+# 開發紀錄、待辦、記憶，只留本機
+/docs/
 
 # typescript
 *.tsbuildinfo
