@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useSidebarStore } from "@/stores/use-sidebar-store";
-import { NAV_ITEMS, NavItem } from "./nav-items";
+import { isNavActive, NAV_ITEMS, NavItem } from "./nav-items";
 import { PrivacyButton } from "./privacy-button";
 import { RefreshButton } from "./refresh-button";
 
@@ -47,10 +47,6 @@ function CollapseButton({ collapsed, onClick }: CollapseButtonProps) {
       )}
     </button>
   );
-}
-
-function isActive(item: NavItem, pathname: string) {
-  return item.exact ? pathname === item.href : pathname.startsWith(item.href);
 }
 
 type NavLinkProps = {
@@ -106,7 +102,7 @@ export function Sidebar({ authSlot }: SidebarProps) {
             key={item.href}
             item={item}
             collapsed={collapsed}
-            active={isActive(item, pathname)}
+            active={isNavActive(item, pathname)}
           />
         ))}
       </ul>
