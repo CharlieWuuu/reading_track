@@ -8,8 +8,8 @@ import { useSheetStore } from "@/stores/use-sheet-store";
 type RecordFormOptions<P> = {
   /** API 路徑上的那一段，例如 "books"；也決定 POST 的 body 長什麼樣 */
   resource: "books" | "articles" | "writings";
-  /** POST 時包住整筆資料的那個鍵，例如 { sheetId, book: {...} } */
-  bodyKey: "book" | "article" | "writings";
+  /** POST 時包住整筆資料的那個鍵，例如 { sheetId, book: {...} }。一律單數，對齊 route 的 itemKey */
+  bodyKey: "book" | "article" | "writing";
   /** 編輯既有的那一筆時給編號；新增時是空字串 */
   existingId: string;
   /** 現在這一刻要送出去的內容 */
