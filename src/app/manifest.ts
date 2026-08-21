@@ -4,8 +4,8 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     // 已安裝的 app 靠 id 認身分，改了會被當成另一個 app
     id: "/books",
-    name: "ReadingTrack",
-    short_name: "ReadingTrack",
+    name: "Archivum",
+    short_name: "Archivum",
     description: "個人書籍與文章追蹤",
     start_url: "/books",
     // scope 決定哪些網址算「app 內」；超出範圍會跳出瀏覽器

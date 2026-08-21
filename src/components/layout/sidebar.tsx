@@ -94,9 +94,9 @@ export function Sidebar({ authSlot }: SidebarProps) {
     <nav className={`${styles.nav} ${collapsed ? "w-16" : "w-56"}`}>
       <div className={styles.brand}>
         {collapsed ? (
-          <Image src="/icon.svg" alt="ReadingTrack" width={32} height={32} className="rounded-lg" />
+          <Image src="/icon.svg" alt="Archivum" width={32} height={32} className="rounded-lg" />
         ) : (
-          <span className={styles.title}>ReadingTrack</span>
+          <span className={styles.title}>Archivum</span>
         )}
       </div>
 

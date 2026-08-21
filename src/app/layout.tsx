@@ -22,11 +22,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ReadingTrack",
+  title: "Archivum",
   description: "個人書籍與文章追蹤",
   appleWebApp: {
     capable: true,
-    title: "ReadingTrack",
+    title: "Archivum",
     statusBarStyle: "default",
   },
   // 圖示都放 public/，這裡宣告；PNG 是給不吃 SVG 的舊瀏覽器的後備

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "隱私權政策｜ReadingTrack",
-  description: "ReadingTrack 如何處理你的資料",
+  title: "隱私權政策｜Archivum",
+  description: "Archivum 如何處理你的資料",
 };
 
 /**
@@ -21,9 +21,8 @@ export default function PrivacyPage() {
       <section className="space-y-2">
         <h2 className="font-medium text-gray-900">我們存取哪些資料</h2>
         <p>
-          ReadingTrack 使用 Google 帳號登入，並在你透過 Google 檔案選擇器挑選後，
-          僅存取你指定的那一份 Google
-          試算表，用來讀取與寫入你的書籍與文章紀錄。我們會取得你的姓名、電子郵件與大頭貼，
+          Archivum 使用 Google 帳號登入，並在你透過 Google 檔案選擇器挑選後， 僅存取你指定的那一份
+          Google 試算表，用來讀取與寫入你的書籍與文章紀錄。我們會取得你的姓名、電子郵件與大頭貼，
           僅用於顯示登入狀態。
         </p>
       </section>
@@ -66,7 +65,7 @@ export default function PrivacyPage() {
           >
             Google 帳號的第三方應用程式頁面
           </a>
-          移除 ReadingTrack。你的閱讀紀錄在你自己的試算表中，刪除該試算表即可刪除全部內容。
+          移除 Archivum。你的閱讀紀錄在你自己的試算表中，刪除該試算表即可刪除全部內容。
         </p>
       </section>
 
