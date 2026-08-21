@@ -11,7 +11,7 @@ import {
 } from "@/config/sheet-format";
 import { Article } from "@/types/article";
 import { Book, inferStatus, normalizePlatform, normalizeStatus, splitLines } from "@/types/book";
-import { Entry } from "@/types/entry";
+import { JournalEntry } from "@/types/journal";
 import { KeywordInfo } from "@/types/keyword";
 import { Metric } from "@/types/metric";
 import { QuoteRow, VocabularyRow } from "@/types/record";
@@ -21,7 +21,7 @@ import {
   BookField,
   ColumnMap,
   defaultHeaders,
-  ENTRY_TABLE,
+  JOURNAL_TABLE,
   managedFields,
   mapHeaders,
   METRIC_TABLE,
@@ -241,38 +241,42 @@ export async function deleteArticleRow(sheetId: string, accessToken: string, id:
   await deleteTableRow(sheetId, accessToken, ARTICLE_TABLE, id);
 }
 
-export async function listEntries(sheetId: string, accessToken: string): Promise<Entry[]> {
-  const { values } = await listTableValues(sheetId, accessToken, ENTRY_TABLE);
+export async function listJournal(sheetId: string, accessToken: string): Promise<JournalEntry[]> {
+  const { values } = await listTableValues(sheetId, accessToken, JOURNAL_TABLE);
   return values.map((v) => ({ ...v, date: v.date || null }));
 }
 
-export async function addEntryRow(sheetId: string, accessToken: string, entry: Entry) {
-  await addTableRow(sheetId, accessToken, ENTRY_TABLE, entry);
+export async function addJournalRow(sheetId: string, accessToken: string, journal: JournalEntry) {
+  await addTableRow(sheetId, accessToken, JOURNAL_TABLE, journal);
 }
 
-export async function updateEntryRow(
+export async function updateJournalRow(
   sheetId: string,
   accessToken: string,
   id: string,
-  patch: Partial<Entry>,
+  patch: Partial<JournalEntry>,
 ) {
-  await updateTableRow(sheetId, accessToken, ENTRY_TABLE, id, patch);
+  await updateTableRow(sheetId, accessToken, JOURNAL_TABLE, id, patch);
 }
 
-export async function deleteEntryRow(sheetId: string, accessToken: string, id: string) {
-  await deleteTableRow(sheetId, accessToken, ENTRY_TABLE, id);
+export async function deleteJournalRow(sheetId: string, accessToken: string, id: string) {
+  await deleteTableRow(sheetId, accessToken, JOURNAL_TABLE, id);
 }
 
 /** 一次寫入多筆紀事。搬移舊心得時一次幾十列，逐列寫會撞到寫入配額 */
-export async function addEntryRows(sheetId: string, accessToken: string, entries: Entry[]) {
-  if (entries.length === 0) return;
-  const { sheet, columns } = await getTableSheet(sheetId, accessToken, ENTRY_TABLE);
+export async function addJournalRows(
+  sheetId: string,
+  accessToken: string,
+  journal: JournalEntry[],
+) {
+  if (journal.length === 0) return;
+  const { sheet, columns } = await getTableSheet(sheetId, accessToken, JOURNAL_TABLE);
 
   await sheet.addRows(
-    entries.map((entry) => {
+    journal.map((journal) => {
       const raw: Record<string, string> = {};
-      for (const field of managedFields(ENTRY_TABLE)) {
-        raw[columns[field] ?? ENTRY_TABLE.labels[field]] = entry[field] ?? "";
+      for (const field of managedFields(JOURNAL_TABLE)) {
+        raw[columns[field] ?? JOURNAL_TABLE.labels[field]] = journal[field] ?? "";
       }
       return raw;
     }),

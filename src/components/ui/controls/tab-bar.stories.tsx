@@ -21,7 +21,7 @@ export const Default: Story = {
         items={[
           { key: "books", label: "書籍" },
           { key: "articles", label: "文章" },
-          { key: "entries", label: "片段" },
+          { key: "journal", label: "片段" },
         ]}
         value={tab}
         onChange={setTab}

@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useArticles } from "@/hooks/use-articles";
 import { useBooks } from "@/hooks/use-books";
-import { useEntries } from "@/hooks/use-entries";
+import { useJournal } from "@/hooks/use-journal";
 import {
   BookCategories,
   CATEGORY_FIELDS,
@@ -23,13 +23,13 @@ import {
 export function useCategories() {
   const { books } = useBooks();
   const { articles } = useArticles();
-  const { entries } = useEntries();
+  const { journal } = useJournal();
 
   const counts = useMemo(() => {
     const records: Record<CategorySource, object[]> = {
       book: books,
       article: articles,
-      entry: entries,
+      journal: journal,
     };
 
     const result = {} as Record<keyof BookCategories, Map<string, number>>;
@@ -47,7 +47,7 @@ export function useCategories() {
       result[key] = map;
     }
     return result;
-  }, [books, articles, entries]);
+  }, [books, articles, journal]);
 
   /** 用得多的排前面，同樣多才照筆畫——選單最上面就是你最常用的那幾個 */
   const categories = useMemo(() => {

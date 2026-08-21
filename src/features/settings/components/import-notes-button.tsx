@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useEntries } from "@/hooks/use-entries";
+import { useJournal } from "@/hooks/use-journal";
 import { useSheetStore } from "@/stores/use-sheet-store";
 
 const styles = {
@@ -22,7 +22,7 @@ const styles = {
  */
 export function ImportNotesButton() {
   const { sheetId } = useSheetStore();
-  const { mutate } = useEntries();
+  const { mutate } = useJournal();
   const [pending, setPending] = useState<{ count: number; titles: string[] } | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -31,7 +31,7 @@ export function ImportNotesButton() {
   useEffect(() => {
     if (!sheetId) return;
     let cancelled = false;
-    fetch(`/api/entries/import-notes?sheetId=${encodeURIComponent(sheetId)}`)
+    fetch(`/api/journal/import-notes?sheetId=${encodeURIComponent(sheetId)}`)
       .then((res) => res.json())
       .then((data) => {
         if (cancelled || data.error) return;
@@ -49,7 +49,7 @@ export function ImportNotesButton() {
     setStatus("loading");
     setMessage("");
     try {
-      const res = await fetch("/api/entries/import-notes", {
+      const res = await fetch("/api/journal/import-notes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sheetId }),

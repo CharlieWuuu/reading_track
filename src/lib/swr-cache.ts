@@ -6,7 +6,7 @@ const MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 interface Persisted {
   savedAt: number;
-  entries: [string, { data: unknown }][];
+  journal: [string, { data: unknown }][];
 }
 
 /**
@@ -38,7 +38,7 @@ export function localStorageProvider(): Cache {
     if (raw) {
       const parsed = JSON.parse(raw) as Persisted;
       if (Date.now() - parsed.savedAt < MAX_AGE_MS) {
-        for (const [key, value] of parsed.entries) map.set(key, value as State);
+        for (const [key, value] of parsed.journal) map.set(key, value as State);
       }
     }
   } catch {
@@ -49,16 +49,16 @@ export function localStorageProvider(): Cache {
     if (disabled) return;
     try {
       // 只留成功抓到的資料，錯誤與載入狀態不必留到下次
-      const entries: Persisted["entries"] = [];
+      const journal: Persisted["journal"] = [];
       for (const [key, value] of map) {
         // 解鎖狀態下抓到的資料含私人項目，不落地——不然鎖上之後翻 localStorage 還是看得到
         if (key.includes("unlock=")) continue;
         const data = (value as { data?: unknown } | undefined)?.data;
-        if (data !== undefined) entries.push([key, { data }]);
+        if (data !== undefined) journal.push([key, { data }]);
       }
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ savedAt: Date.now(), entries } satisfies Persisted),
+        JSON.stringify({ savedAt: Date.now(), journal } satisfies Persisted),
       );
     } catch {
       // 空間不足或隱私模式就放棄快取，不影響功能
@@ -91,7 +91,7 @@ export function readCached<T>(key: string | null): T | undefined {
     if (!raw) return undefined;
     const parsed = JSON.parse(raw) as Persisted;
     if (Date.now() - parsed.savedAt >= MAX_AGE_MS) return undefined;
-    const hit = parsed.entries.find(([k]) => k === key);
+    const hit = parsed.journal.find(([k]) => k === key);
     return hit ? (hit[1].data as T) : undefined;
   } catch {
     return undefined;

@@ -16,7 +16,7 @@ const FEATURES = [
   "auth",
   "books",
   "calendar",
-  "entries",
+  "journal",
   "keywords",
   "reading",
   "notes",
@@ -25,8 +25,8 @@ const FEATURES = [
 ];
 
 const ALLOWED = {
-  articles: ["entries"],
-  books: ["entries", "keywords", "notes"],
+  articles: ["journal"],
+  books: ["journal", "keywords", "notes"],
   notes: ["keywords"],
 };
 

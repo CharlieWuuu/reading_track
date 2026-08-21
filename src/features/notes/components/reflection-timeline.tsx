@@ -63,7 +63,7 @@ function kindTone(kind: string): string {
  * 掃過去就知道這一則是從哪來的，不需要一條數線也不需要「延伸自 ○○」那行字。
  */
 export function ReflectionTimeline({ reflections }: { reflections: Reflection[] }) {
-  const { latestByEntry } = useMetrics();
+  const { latestByJournal } = useMetrics();
   const { books } = useBooks();
   const { articles } = useArticles();
   const coverById = new Map(books.filter((b) => b.coverUrl).map((b) => [b.id, b.coverUrl]));
@@ -93,7 +93,7 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
                   ? articleUrlById.get(r.sourceId)!
                   : undefined;
               const kind = r.kind || r.source;
-              const metric = latestByEntry.get(r.id);
+              const metric = latestByJournal.get(r.id);
               const time = timeLabel(r.date);
               // 三樣都沒有就別畫那一列，不然每一則底下都多一段空白
               const hasFoot = Boolean(metric || r.origin?.trim() || r.keywords.length);

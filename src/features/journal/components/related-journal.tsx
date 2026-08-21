@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import { PenLine } from "lucide-react";
-import { useEntries } from "@/hooks/use-entries";
+import { useJournal } from "@/hooks/use-journal";
 import { useSheetStore } from "@/stores/use-sheet-store";
-import { Entry } from "@/types/entry";
+import { JournalEntry } from "@/types/journal";
 import { now } from "@/utils/date";
 
 const styles = {
@@ -33,7 +33,7 @@ const styles = {
  * 框裡寫的每一次都存成新的一則，所以它自己沒有狀態：要改舊的就點上面那一筆
  * 進去改，不會出現「我在編輯哪一則」這種要猜的事。
  */
-export function RelatedEntries({
+export function RelatedJournal({
   sourceId,
   sourceTitle,
   kind,
@@ -43,12 +43,12 @@ export function RelatedEntries({
   /** 這裡寫出來的那則算哪一種：書籍、文章 */
   kind: string;
 }) {
-  const { entries, mutate } = useEntries();
+  const { journal, mutate } = useJournal();
   const { sheetId } = useSheetStore();
   const [draft, setDraft] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const mine = entries.filter((e) => e.sourceId && e.sourceId === sourceId);
+  const mine = journal.filter((e) => e.sourceId && e.sourceId === sourceId);
 
   const query = new URLSearchParams({ sourceId, sourceTitle, kind });
 
@@ -61,7 +61,7 @@ export function RelatedEntries({
     }
 
     // 標題預設就是書名／文章標題，想取別的名字再進書寫頁改
-    const entry: Entry = {
+    const journal: JournalEntry = {
       id: crypto.randomUUID(),
       date: now(),
       title: sourceTitle,
@@ -78,10 +78,10 @@ export function RelatedEntries({
     setSaving(true);
     setError("");
     try {
-      const res = await fetch("/api/entries", {
+      const res = await fetch("/api/journal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sheetId, entry }),
+        body: JSON.stringify({ sheetId, journal }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "儲存失敗");
@@ -107,7 +107,7 @@ export function RelatedEntries({
           <p className={styles.empty}>還沒有寫過</p>
         ) : (
           mine.map((e) => (
-            <Link key={e.id} href={`/entries/${e.id}/edit`} className={styles.row}>
+            <Link key={e.id} href={`/journal/${e.id}/edit`} className={styles.row}>
               <span className={styles.title}>{e.title}</span>
               <span className={styles.meta}>
                 {[e.date, e.kind].filter(Boolean).join(" · ")}
@@ -137,7 +137,7 @@ export function RelatedEntries({
         </button>
         {/* 想順手填日期、類型、關鍵字就走這條；草稿帶過去不會白打 */}
         <Link
-          href={`/entries/new?${new URLSearchParams({ ...Object.fromEntries(query), note: draft })}`}
+          href={`/journal/new?${new URLSearchParams({ ...Object.fromEntries(query), note: draft })}`}
           className={styles.more}
         >
           填其他欄位

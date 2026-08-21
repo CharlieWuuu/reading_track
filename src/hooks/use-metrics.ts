@@ -22,19 +22,19 @@ export function useMetrics() {
   const metrics = useMemo(() => data?.metrics ?? [], [data?.metrics]);
 
   /** 每則紀事最新的那一次量測；畫面上只顯示它，歷次留在 Sheet 裡當曲線 */
-  const latestByEntry = useMemo(() => {
+  const latestByJournal = useMemo(() => {
     const map = new Map<string, Metric>();
     for (const metric of metrics) {
-      if (!metric.entryId) continue;
-      const current = map.get(metric.entryId);
-      if (!current || metric.date >= current.date) map.set(metric.entryId, metric);
+      if (!metric.journalId) continue;
+      const current = map.get(metric.journalId);
+      if (!current || metric.date >= current.date) map.set(metric.journalId, metric);
     }
     return map;
   }, [metrics]);
 
   return {
     metrics,
-    latestByEntry,
+    latestByJournal,
     isLoading,
     error: error instanceof Error ? error.message : undefined,
     mutate,

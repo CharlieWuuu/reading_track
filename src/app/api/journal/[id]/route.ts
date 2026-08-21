@@ -1,10 +1,10 @@
 import { createItemRoute } from "@/app/api/_lib/item-route";
-import { deleteEntryRow, updateEntryRow } from "@/lib/sheets";
+import { deleteJournalRow, updateJournalRow } from "@/lib/sheets";
 
 const route = createItemRoute({
-  key: "entry",
-  update: updateEntryRow,
-  remove: deleteEntryRow,
+  key: "journal",
+  update: updateJournalRow,
+  remove: deleteJournalRow,
 });
 
 export const PATCH = route.PATCH;

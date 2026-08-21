@@ -16,8 +16,10 @@ export function VocabularySection({ books }: { books: Book[] }) {
 
   return (
     <VocabularyPanel
-      entries={getVocabularyEntries(vocabulary, books)}
-      onEdit={(entry) => router.push(`/reading/vocabulary/${encodeURIComponent(entry.word)}/edit`)}
+      journal={getVocabularyEntries(vocabulary, books)}
+      onEdit={(journal) =>
+        router.push(`/reading/vocabulary/${encodeURIComponent(journal.word)}/edit`)
+      }
     />
   );
 }
