@@ -208,9 +208,8 @@ export function MonthGrid({
                 )}
               </span>
 
-              {/* mt-auto：圓點固定貼在格子底部，沒書封的那天才不會整個往上跳 */}
               <span
-                className={`mt-auto flex h-1.5 shrink-0 items-center ${
+                className={`flex h-1.5 shrink-0 items-center ${
                   day.inCurrentMonth ? "" : "opacity-50"
                 }`}
               >
