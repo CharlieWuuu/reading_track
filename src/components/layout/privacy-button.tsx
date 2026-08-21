@@ -27,7 +27,7 @@ const styles = {
  * 鎖著的時候伺服器根本不會把那些列送過來（見 lib/privacy.ts），所以鎖上就等於
  * 那些書、文章、書寫在這個瀏覽器裡不存在——統計、月曆、關鍵字也一起乾淨。
  */
-export function PrivacyButton({ compact = false }: { compact?: boolean }) {
+export function PrivacyButton() {
   const { sheetId } = useSheetStore();
   const { token, unlock, lock } = usePrivacyStore();
   const { mutate } = useSWRConfig();
@@ -94,12 +94,10 @@ export function PrivacyButton({ compact = false }: { compact?: boolean }) {
         onClick={() => (unlocked ? handleLock() : setOpen(true))}
         title={unlocked ? "隱藏私人項目" : "顯示私人項目"}
         aria-label={unlocked ? "隱藏私人項目" : "顯示私人項目"}
-        className={`${styles.button} ${compact ? "w-8 justify-center" : "px-2"} ${
-          unlocked ? "bg-gray-900 text-white" : ""
-        }`}
+        className={`${styles.button} px-2 ${unlocked ? "bg-gray-900 text-white" : ""}`}
       >
         {unlocked ? <LockOpen size={14} strokeWidth={1.5} /> : <Lock size={14} strokeWidth={1.5} />}
-        {!compact && (unlocked ? "私人：顯示中" : "私人")}
+        {unlocked ? "私人：顯示中" : "私人"}
       </button>
 
       {open && (
