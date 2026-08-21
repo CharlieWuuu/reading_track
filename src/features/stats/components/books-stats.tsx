@@ -210,10 +210,7 @@ export function BooksStats() {
             node: (
               <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
                 {pies.map((pie) => (
-                  <div
-                    key={pie.key}
-                    className="flex min-h-0 flex-col rounded-lg border bg-white p-5"
-                  >
+                  <div key={pie.key} className="flex min-h-0 flex-col rounded-lg bg-white p-5">
                     <div className="min-h-0 flex-1">
                       <DistributionPie data={pie.data} height="100%" />
                     </div>
@@ -230,7 +227,7 @@ export function BooksStats() {
           label: r.label,
           needsHeight: false,
           node: (
-            <div className="rounded-lg border bg-white p-4">
+            <div className="rounded-lg bg-white p-4">
               <RankingBar data={r.data} unit={r.unit} showCover={r.key === "reread"} />
             </div>
           ),
@@ -243,14 +240,14 @@ export function BooksStats() {
             // 重讀排行帶書封，自己占一整列；作者與出版社排在下面兩欄
             node: (
               <div className="flex flex-col gap-4">
-                <div className="rounded-lg border bg-white p-5">
+                <div className="rounded-lg bg-white p-5">
                   <RankingBar data={reread.data} unit={reread.unit} showCover />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   {rankings
                     .filter((r) => r.key !== "reread")
                     .map((r) => (
-                      <div key={r.key} className="rounded-lg border bg-white p-5">
+                      <div key={r.key} className="rounded-lg bg-white p-5">
                         <RankingBar data={r.data} unit={r.unit} />
                       </div>
                     ))}

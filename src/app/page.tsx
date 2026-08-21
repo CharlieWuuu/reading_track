@@ -61,7 +61,7 @@ export default function Home() {
           <h2 className="text-sm font-medium text-gray-900">怎麼用</h2>
           <ol className="flex flex-col gap-3">
             {STEPS.map((step, i) => (
-              <li key={step.title} className="flex gap-3 rounded-lg border bg-white p-4">
+              <li key={step.title} className="flex gap-3 rounded-lg bg-white p-4">
                 <span className="text-sm font-medium text-gray-400 tabular-nums">{i + 1}</span>
                 <div className="flex flex-col gap-1">
                   <p className="text-sm font-medium">{step.title}</p>
