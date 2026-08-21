@@ -34,7 +34,7 @@ export const NAV_ITEMS: NavItem[] = [
     Icon: () => <Library size={20} strokeWidth={1.5} />,
   },
   {
-    href: "/entries",
+    href: "/journal",
     label: "書寫",
     exact: true,
     Icon: () => <PenLine size={20} strokeWidth={1.5} />,

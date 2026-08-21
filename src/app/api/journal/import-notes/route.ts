@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { addEntryRows, listArticles, listBooks, listEntries } from "@/lib/sheets";
-import { Entry } from "@/types/entry";
+import { addJournalRows, listArticles, listBooks, listJournal } from "@/lib/sheets";
+import { JournalEntry } from "@/types/journal";
 
 /**
  * 把書籍與文章的「心得／筆記」欄搬成一則則紀事。
@@ -10,13 +10,13 @@ import { Entry } from "@/types/entry";
  * 按第二次不會重複搬。
  */
 async function collect(sheetId: string, accessToken: string) {
-  const [books, articles, entries] = await Promise.all([
+  const [books, articles, journal] = await Promise.all([
     listBooks(sheetId, accessToken),
     listArticles(sheetId, accessToken),
-    listEntries(sheetId, accessToken),
+    listJournal(sheetId, accessToken),
   ]);
 
-  const migrated = new Set(entries.map((e) => e.sourceId).filter(Boolean));
+  const migrated = new Set(journal.map((e) => e.sourceId).filter(Boolean));
 
   const sources = [
     ...books.map((b) => ({
@@ -37,7 +37,7 @@ async function collect(sheetId: string, accessToken: string) {
 
   return sources
     .filter((s) => s.note.trim() && !migrated.has(s.id))
-    .map<Entry>((s) => ({
+    .map<JournalEntry>((s) => ({
       id: crypto.randomUUID(),
       date: s.date ?? "",
       title: s.title,
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const pending = await collect(sheetId, session.accessToken!);
-    await addEntryRows(sheetId, session.accessToken!, pending);
+    await addJournalRows(sheetId, session.accessToken!, pending);
     return NextResponse.json({ migrated: pending.length });
   } catch (err) {
     console.error("import-notes failed:", err);

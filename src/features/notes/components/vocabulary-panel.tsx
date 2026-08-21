@@ -13,7 +13,7 @@ const styles = {
   translation: "-mt-1 text-xs text-gray-500",
   count: "shrink-0 text-xs text-gray-400 tabular-nums",
   list: "flex flex-col gap-2",
-  entry: "flex flex-col gap-0.5",
+  journal: "flex flex-col gap-0.5",
   // 例句是原文，翻譯是輔助，兩者深淺分開才不會讀成同一段
   sentence: "text-xs leading-relaxed text-gray-700",
   sentenceTranslation: "text-xs leading-relaxed text-gray-400",
@@ -23,33 +23,33 @@ const styles = {
 };
 
 type VocabularyPanelProps = {
-  entries: VocabularyEntry[];
-  onEdit: (entry: VocabularyEntry) => void;
+  journal: VocabularyEntry[];
+  onEdit: (journal: VocabularyEntry) => void;
 };
 
 /** 單字一個詞一張卡，帶著讀到它的那一句 */
-export function VocabularyPanel({ entries, onEdit }: VocabularyPanelProps) {
-  if (entries.length === 0) {
+export function VocabularyPanel({ journal, onEdit }: VocabularyPanelProps) {
+  if (journal.length === 0) {
     return <div className={styles.empty}>還沒有記下任何單字，先到書籍的「單字」欄記幾個</div>;
   }
 
   return (
     <CardMasonry>
-      {entries.map((entry) => {
+      {journal.map((journal) => {
         // 同一個詞在不同書可能各記了翻譯，重複的只留一個
         const translations = [
-          ...new Set(entry.encounters.map((e) => e.wordTranslation).filter(Boolean)),
+          ...new Set(journal.encounters.map((e) => e.wordTranslation).filter(Boolean)),
         ];
         // 同一個詞的讀音在各本書應該一樣，取第一個有填的就好
-        const pronunciation = entry.encounters.find((e) => e.pronunciation)?.pronunciation ?? "";
+        const pronunciation = journal.encounters.find((e) => e.pronunciation)?.pronunciation ?? "";
         return (
-          <div key={entry.word} className={styles.card} onClick={() => onEdit(entry)}>
+          <div key={journal.word} className={styles.card} onClick={() => onEdit(journal)}>
             <div className={styles.head}>
-              <span className={styles.headWord}>{entry.word}</span>
+              <span className={styles.headWord}>{journal.word}</span>
 
               {/* 讀到它的書跟著標題同一列靠右：它是註腳，不該自己佔一行 */}
               <div className={styles.covers}>
-                {entry.encounters.slice(0, 5).map((encounter, i) => (
+                {journal.encounters.slice(0, 5).map((encounter, i) => (
                   <BookCover
                     key={i}
                     url={encounter.bookCover}
@@ -58,8 +58,8 @@ export function VocabularyPanel({ entries, onEdit }: VocabularyPanelProps) {
                   />
                 ))}
                 {/* 只遇過一次的不標次數，那是常態，標了只是雜訊 */}
-                {entry.encounters.length > 1 && (
-                  <span className={styles.count}>{entry.encounters.length} 次</span>
+                {journal.encounters.length > 1 && (
+                  <span className={styles.count}>{journal.encounters.length} 次</span>
                 )}
               </div>
             </div>
@@ -72,8 +72,8 @@ export function VocabularyPanel({ entries, onEdit }: VocabularyPanelProps) {
             )}
 
             <div className={styles.list}>
-              {entry.encounters.map((encounter, i) => (
-                <div key={i} className={styles.entry}>
+              {journal.encounters.map((encounter, i) => (
+                <div key={i} className={styles.journal}>
                   {encounter.sentence && <p className={styles.sentence}>{encounter.sentence}</p>}
                   {encounter.sentenceTranslation && (
                     <p className={styles.sentenceTranslation}>{encounter.sentenceTranslation}</p>

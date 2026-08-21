@@ -42,18 +42,18 @@ function toRow(encounter: VocabularyEncounter): VocabularyRow {
 }
 
 type VocabularyFormProps = {
-  entry: VocabularyEntry;
+  journal: VocabularyEntry;
   onSave: (edits: VocabularyEdit[]) => Promise<void>;
   /** 存完或按取消之後要去哪 */
   onDone: () => void;
 };
 
 /** 單字存在各自的書裡，所以在同一個詞底下一本書一組，分別改回去 */
-export function VocabularyForm({ entry, onSave, onDone }: VocabularyFormProps) {
+export function VocabularyForm({ journal, onSave, onDone }: VocabularyFormProps) {
   const { categories } = useCategories();
   const [edits, setEdits] = useState<VocabularyEdit[]>(() =>
     // bookCover 只是顯示用的，不屬於那一列紀錄，寫回去時不該跟著跑
-    entry.encounters.map((encounter) => toRow(encounter)),
+    journal.encounters.map((encounter) => toRow(encounter)),
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -76,7 +76,7 @@ export function VocabularyForm({ entry, onSave, onDone }: VocabularyFormProps) {
   return (
     <div className={styles.form}>
       {edits.map((edit, i) => {
-        const encounter = entry.encounters[i];
+        const encounter = journal.encounters[i];
         // 主檔的語言選項可能沒有這一筆現在填的值，補進去才不會一開啟就被改掉
         const languages = categories.language.includes(edit.language)
           ? categories.language

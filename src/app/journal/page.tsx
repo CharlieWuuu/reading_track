@@ -6,33 +6,33 @@ import { PageHeader } from "@/components/layout/page-header";
 import { PageMessage } from "@/components/layout/page-message";
 import { ActionButton } from "@/components/ui/controls";
 import { SearchButton } from "@/components/ui/search-button";
-import { EntryFilter } from "@/features/entries/components/entry-filter";
+import { JournalFilter } from "@/features/journal/components/journal-filter";
 import { ReflectionTimeline } from "@/features/notes/components/reflection-timeline";
-import { useEntries } from "@/hooks/use-entries";
+import { useJournal } from "@/hooks/use-journal";
 import { useMounted } from "@/hooks/use-mounted";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { splitTags } from "@/types/book";
-import { Entry } from "@/types/entry";
-import { entriesToReflections } from "@/utils/reflections";
+import { JournalEntry } from "@/types/journal";
+import { journalToReflections } from "@/utils/reflections";
 import { matchesSearch, searchTerms } from "@/utils/search";
 
 /** 選項只列真的有紀事在用的值，選了才不會篩出一片空白 */
-function usedKinds(entries: Entry[]): string[] {
-  return [...new Set(entries.flatMap((e) => splitTags(e.kind)))].sort((a, b) =>
+function usedKinds(journal: JournalEntry[]): string[] {
+  return [...new Set(journal.flatMap((e) => splitTags(e.kind)))].sort((a, b) =>
     a.localeCompare(b, "zh-Hant"),
   );
 }
 
-function EntriesList() {
+function JournalList() {
   const mounted = useMounted();
-  const { entries: allEntries, isLoading, error } = useEntries();
+  const { journal: allJournal, isLoading, error } = useJournal();
   const { searchParams, setParams } = useUrlParams();
 
   const kind = searchParams.get("kind") ?? "";
   const query = searchParams.get("q") ?? "";
   const terms = searchTerms(query);
   // 標題、內文、關鍵字都算：想得起來的可能是任何一個，內文更是常常只記得半句
-  const entries = allEntries.filter(
+  const journal = allJournal.filter(
     (e) =>
       (!kind || e.kind === kind) &&
       matchesSearch(terms, e.title, e.note, e.keywords, e.kind, e.sourceTitle),
@@ -41,16 +41,16 @@ function EntriesList() {
   const action = (
     <div className="flex min-w-0 items-center gap-2">
       <SearchButton value={query} onChange={(next) => setParams({ q: next || null })} />
-      <EntryFilter
-        groups={[{ key: "kind", label: "類型", options: usedKinds(allEntries), value: kind }]}
+      <JournalFilter
+        groups={[{ key: "kind", label: "類型", options: usedKinds(allJournal), value: kind }]}
         onChange={(key, next) => setParams({ [key]: next || null })}
       />
-      <ActionButton href="/entries/new">新增</ActionButton>
+      <ActionButton href="/journal/new">新增</ActionButton>
     </div>
   );
   if (!mounted) return null;
 
-  if (isLoading || error || entries.length === 0) {
+  if (isLoading || error || journal.length === 0) {
     return (
       <>
         <PageHeader title="書寫" action={action} />
@@ -66,17 +66,17 @@ function EntriesList() {
       <PageHeader title="書寫" action={action} />
       <PageBody>
         {/* 沒寫心得的也要看得到：這裡是紀事本身的清單 */}
-        <ReflectionTimeline reflections={entriesToReflections(entries, false)} />
+        <ReflectionTimeline reflections={journalToReflections(journal, false)} />
       </PageBody>
     </>
   );
 }
 
 /** 底下讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */
-export default function EntriesPage() {
+export default function JournalPage() {
   return (
     <Suspense fallback={null}>
-      <EntriesList />
+      <JournalList />
     </Suspense>
   );
 }

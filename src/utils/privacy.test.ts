@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { makeBook, makeEntry, resetIds } from "@/testing/factories";
+import { makeBook, makeJournal, resetIds } from "@/testing/factories";
 import { isPrivate, isUnlocked, passcodeToToken, tokenToStored, withPrivacy } from "./privacy";
 
 resetIds();
@@ -9,23 +9,23 @@ const locked = { unlocked: false, options: NO_OPTIONS };
 
 describe("isPrivate", () => {
   it("個別列標了就是私人", () => {
-    expect(isPrivate(makeEntry({ private: "是" }))).toBe(true);
+    expect(isPrivate(makeJournal({ private: "是" }))).toBe(true);
   });
 
   it("認得幾種常見的寫法，大小寫不拘", () => {
     for (const mark of ["是", "y", "YES", "true", "1", "私人"]) {
-      expect(isPrivate(makeEntry({ private: mark }))).toBe(true);
+      expect(isPrivate(makeJournal({ private: mark }))).toBe(true);
     }
   });
 
   it("沒標又沒清單就是公開", () => {
-    expect(isPrivate(makeEntry())).toBe(false);
+    expect(isPrivate(makeJournal())).toBe(false);
   });
 
   it("類型在清單裡，整批算私人", () => {
     const options = { ...NO_OPTIONS, kinds: new Set(["日記"]) };
-    expect(isPrivate(makeEntry({ kind: "日記" }), options)).toBe(true);
-    expect(isPrivate(makeEntry({ kind: "書籍" }), options)).toBe(false);
+    expect(isPrivate(makeJournal({ kind: "日記" }), options)).toBe(true);
+    expect(isPrivate(makeJournal({ kind: "書籍" }), options)).toBe(false);
   });
 
   it("屬性在清單裡的書也算私人", () => {
@@ -42,19 +42,19 @@ describe("isPrivate", () => {
 
   it("空字串的類型不會對上空清單以外的東西", () => {
     const options = { ...NO_OPTIONS, kinds: new Set([""]) };
-    expect(isPrivate(makeEntry({ kind: "" }), options)).toBe(false);
+    expect(isPrivate(makeJournal({ kind: "" }), options)).toBe(false);
   });
 });
 
 describe("withPrivacy", () => {
   it("鎖著就把私人的整列拿掉", () => {
-    const rows = [makeEntry({ id: "a" }), makeEntry({ id: "b", private: "是" })];
+    const rows = [makeJournal({ id: "a" }), makeJournal({ id: "b", private: "是" })];
 
     expect(withPrivacy(rows, locked).map((r) => r.id)).toEqual(["a"]);
   });
 
   it("解鎖了就原樣回傳，清單也不管用", () => {
-    const rows = [makeEntry({ id: "a", kind: "日記" }), makeEntry({ id: "b", private: "是" })];
+    const rows = [makeJournal({ id: "a", kind: "日記" }), makeJournal({ id: "b", private: "是" })];
     const unlocked = { unlocked: true, options: { ...NO_OPTIONS, kinds: new Set(["日記"]) } };
 
     expect(withPrivacy(rows, unlocked).map((r) => r.id)).toEqual(["a", "b"]);

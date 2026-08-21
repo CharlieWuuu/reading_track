@@ -9,16 +9,16 @@ import { FormActions } from "@/components/ui/form-actions";
 import { compactLines } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
-import { useEntryFormTab } from "@/features/entries/components/entry-form-tabs";
-import { SourcePicker } from "@/features/entries/components/source-picker";
-import { useEntries } from "@/hooks/use-entries";
+import { useJournalFormTab } from "@/features/journal/components/journal-form-tabs";
+import { SourcePicker } from "@/features/journal/components/source-picker";
+import { useJournal } from "@/hooks/use-journal";
 import { useMetrics } from "@/hooks/use-metrics";
 import { useRecordForm } from "@/hooks/use-record-form";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { useSheetStore } from "@/stores/use-sheet-store";
 import { splitLines } from "@/types/book";
-import { Entry } from "@/types/entry";
+import { JournalEntry } from "@/types/journal";
 import { fromDateTimeInput, now, toDateTimeInput } from "@/utils/date";
 
 // 內文吃掉整個表單剩下的高度：這一欄是主體，寫長了不該只給它一個小框
@@ -52,7 +52,7 @@ function toPayload(form: FormState) {
 }
 
 /** 從書籍頁按「寫一則心得」進來時，延伸自與類型已經知道了，不用再選一次 */
-function toForm(entry: Entry | undefined, prefill: Partial<FormState>): FormState {
+function toForm(entry: JournalEntry | undefined, prefill: Partial<FormState>): FormState {
   if (!entry) return { ...emptyForm, date: now(), ...prefill };
   return {
     ...emptyForm,
@@ -64,16 +64,16 @@ function toForm(entry: Entry | undefined, prefill: Partial<FormState>): FormStat
 /**
  * 一件事 + 我怎麼想。心得欄是主體，其他欄位都是為了讓它之後找得到。
  */
-export function EntryForm({ entry }: { entry?: Entry }) {
+export function JournalForm({ entry }: { entry?: JournalEntry }) {
   const router = useRouter();
   const from = useCurrentHref();
   const { sheetId } = useSheetStore();
-  const { entries, mutate } = useEntries();
-  const { tab, setTab } = useEntryFormTab();
+  const { journal, mutate } = useJournal();
+  const { tab, setTab } = useJournalFormTab();
   const isEdit = Boolean(entry);
 
   // 建議只收紀事自己用過的：書、文章、紀事各記各的，混在一起選單會很吵
-  const keywordSuggestions = [...new Set(entries.flatMap((e) => splitLines(e.keywords)))].sort(
+  const keywordSuggestions = [...new Set(journal.flatMap((e) => splitLines(e.keywords)))].sort(
     (a, b) => a.localeCompare(b, "zh-Hant"),
   );
 
@@ -89,8 +89,8 @@ export function EntryForm({ entry }: { entry?: Entry }) {
   );
   const [fetchingStats, setFetchingStats] = useState(false);
   const [statsNote, setStatsNote] = useState("");
-  const { latestByEntry, mutate: mutateMetrics } = useMetrics();
-  const latest = entry ? latestByEntry.get(entry.id) : undefined;
+  const { latestByJournal, mutate: mutateMetrics } = useMetrics();
+  const latest = entry ? latestByJournal.get(entry.id) : undefined;
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -104,11 +104,11 @@ export function EntryForm({ entry }: { entry?: Entry }) {
     handleDelete,
     openRecordThen,
   } = useRecordForm({
-    resource: "entries",
-    bodyKey: "entry",
+    resource: "journal",
+    bodyKey: "journal",
     existingId: entry?.id ?? "",
     payload: toPayload(form),
-    redirectTo: "/entries",
+    redirectTo: "/journal",
     mutate,
     validate: () => (form.title.trim() ? undefined : "請填標題"),
   });
@@ -149,7 +149,7 @@ export function EntryForm({ entry }: { entry?: Entry }) {
       const metric = {
         id: crypto.randomUUID(),
         date: now(),
-        entryId: entry.id,
+        journalId: entry.id,
         title: form.title || stats.title || "",
         platform: stats.platform,
         views: stats.views,

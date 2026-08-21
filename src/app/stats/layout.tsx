@@ -8,7 +8,7 @@ import { TabBar } from "@/components/ui/controls";
 const TABS = [
   { key: "books", label: "書籍" },
   { key: "articles", label: "文章" },
-  { key: "entries", label: "書寫" },
+  { key: "journal", label: "書寫" },
   // 月曆是統計的一種看法，桌機與手機都放在這裡當分頁
   { key: "calendar", label: "月曆" },
 ] as const;

@@ -9,7 +9,7 @@ import { getKeywordMentions } from "@/features/keywords/utils/keyword-stats";
 import { topicLabel } from "@/features/keywords/utils/topic-labels";
 import { useArticles } from "@/hooks/use-articles";
 import { useBooks } from "@/hooks/use-books";
-import { useEntries } from "@/hooks/use-entries";
+import { useJournal } from "@/hooks/use-journal";
 import { keywordEditHref, useCurrentHref } from "@/lib/keywords/href";
 import { formatSpan, parseSpan } from "@/types/keyword";
 
@@ -42,19 +42,19 @@ export function KeywordPopup({ name, onClose }: { name: string; onClose: () => v
   const { byName, isLoading: loadingInfos } = useKeywordInfos();
   const { books, isLoading: loadingBooks } = useBooks();
   const { articles, isLoading: loadingArticles } = useArticles();
-  const { entries, isLoading: loadingEntries } = useEntries();
+  const { journal, isLoading: loadingJournal } = useJournal();
   // 「沒有摘要」「沒有紀錄提到它」都是載完才下得了的判斷，載入中就只說載入中
-  const loading = loadingInfos || loadingBooks || loadingArticles || loadingEntries;
+  const loading = loadingInfos || loadingBooks || loadingArticles || loadingJournal;
 
   const info = byName.get(name);
   const topics = info?.topics ? info.topics.split("、").filter(Boolean).map(topicLabel) : [];
   const span = parseSpan(info?.span ?? "");
-  const mentions = getKeywordMentions(name, books, articles, entries);
+  const mentions = getKeywordMentions(name, books, articles, journal);
   const nothing =
     !info?.summary &&
     mentions.books.length === 0 &&
     mentions.articles.length === 0 &&
-    mentions.entries.length === 0;
+    mentions.journal.length === 0;
 
   return (
     <Dialog title={name} showTitle={false} onClose={onClose}>
@@ -108,13 +108,13 @@ export function KeywordPopup({ name, onClose }: { name: string; onClose: () => v
           </div>
         )}
 
-        {mentions.entries.length > 0 && (
+        {mentions.journal.length > 0 && (
           <div className={styles.group}>
             <span className={styles.groupLabel}>書寫</span>
             <div className={styles.list}>
-              {mentions.entries.map((entry) => (
-                <Link key={entry.id} href={`/entries/${entry.id}/edit`} className={styles.row}>
-                  <span className={styles.title}>{entry.title}</span>
+              {mentions.journal.map((journal) => (
+                <Link key={journal.id} href={`/journal/${journal.id}/edit`} className={styles.row}>
+                  <span className={styles.title}>{journal.title}</span>
                 </Link>
               ))}
             </div>

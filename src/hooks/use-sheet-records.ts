@@ -7,7 +7,7 @@ import { usePrivacyStore } from "@/stores/use-privacy-store";
 import { useSheetStore } from "@/stores/use-sheet-store";
 
 /** API 路徑上的那一段，也是回應裡包住資料的那個鍵：/api/books 回 { books: [...] } */
-export type SheetResource = "books" | "articles" | "entries";
+export type SheetResource = "books" | "articles" | "journal";
 
 async function fetcher<T>(url: string): Promise<Record<string, T[]>> {
   const res = await fetch(url);

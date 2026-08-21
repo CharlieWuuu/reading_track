@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { makeEntry, resetIds } from "@/testing/factories";
-import { entriesToReflections, groupByWeek, isUrl, type Reflection } from "./reflections";
+import { makeJournal, resetIds } from "@/testing/factories";
+import { groupByWeek, isUrl, journalToReflections, type Reflection } from "./reflections";
 
 resetIds();
 
@@ -20,31 +20,31 @@ describe("isUrl", () => {
   });
 });
 
-describe("entriesToReflections", () => {
+describe("journalToReflections", () => {
   it("預設只收有寫心得的", () => {
-    const entries = [makeEntry({ note: "寫了一句話" }), makeEntry({ note: "   " })];
+    const journal = [makeJournal({ note: "寫了一句話" }), makeJournal({ note: "   " })];
 
-    expect(entriesToReflections(entries)).toHaveLength(1);
+    expect(journalToReflections(journal)).toHaveLength(1);
   });
 
   it("requireNote false 就全收", () => {
-    const entries = [makeEntry({ note: "寫了一句話" }), makeEntry({ note: "" })];
+    const journal = [makeJournal({ note: "寫了一句話" }), makeJournal({ note: "" })];
 
-    expect(entriesToReflections(entries, false)).toHaveLength(2);
+    expect(journalToReflections(journal, false)).toHaveLength(2);
   });
 
   it("關鍵字一行一個", () => {
-    const entries = [makeEntry({ keywords: "專注\n習慣" })];
+    const journal = [makeJournal({ keywords: "專注\n習慣" })];
 
-    expect(entriesToReflections(entries)[0].keywords).toEqual(["專注", "習慣"]);
+    expect(journalToReflections(journal)[0].keywords).toEqual(["專注", "習慣"]);
   });
 
   it("href 指回編輯頁，來源欄搬到 origin", () => {
-    const entry = makeEntry({ link: "https://example.com/post" });
+    const journal = makeJournal({ link: "https://example.com/post" });
 
-    const [reflection] = entriesToReflections([entry]);
+    const [reflection] = journalToReflections([journal]);
 
-    expect(reflection.href).toBe(`/entries/${entry.id}/edit`);
+    expect(reflection.href).toBe(`/journal/${journal.id}/edit`);
     expect(reflection.origin).toBe("https://example.com/post");
     expect(reflection.source).toBe("紀事");
   });
