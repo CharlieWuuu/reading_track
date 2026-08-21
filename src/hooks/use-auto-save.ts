@@ -37,11 +37,24 @@ export function useAutoSave<P>({ ready, existingId, payload, create, update }: A
     if (deletedRef.current || !ready) return;
     const snapshot = JSON.stringify(payload);
     if (snapshot === savedRef.current) return;
+    const previous = savedRef.current;
     savedRef.current = snapshot;
 
+    // 存壞了就把記號退回去，下次才會重送；不然這一筆就停在「以為存過了」
+    const revert = () => {
+      savedRef.current = previous;
+    };
+
     const id = savedIdRef.current;
-    savedIdRef.current = id || newId;
-    return (id ? update(id, payload) : create(newId, payload)).catch(() => {});
+    if (id) return update(id, payload).catch(revert);
+
+    // 編號要等 create 真的成功才記住。先記的話，POST 失敗後每次存檔都會 PATCH
+    // 一個 Sheet 上不存在的列，這一筆就永久卡死
+    return create(newId, payload)
+      .then(() => {
+        savedIdRef.current = newId;
+      })
+      .catch(revert);
   }
 
   // 每次重畫都把最新的那一份放進 ref：卸載時跑的是當下的內容，不是掛載那一刻的
