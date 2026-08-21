@@ -105,7 +105,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
     openRecordThen,
   } = useRecordForm({
     resource: "writings",
-    bodyKey: "writings",
+    bodyKey: "writing",
     existingId: entry?.id ?? "",
     payload: toPayload(form),
     redirectTo: "/writing",
