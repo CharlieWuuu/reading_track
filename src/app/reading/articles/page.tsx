@@ -1,6 +1,9 @@
 "use client";
 
+import { Suspense } from "react";
+import { PageBody } from "@/components/layout/page-body";
 import { PageMessage } from "@/components/layout/page-message";
+import { ReadingHeader } from "@/features/reading/components/reading-header";
 import { ReadingList } from "@/features/reading/components/reading-list";
 import { useArticles } from "@/hooks/use-articles";
 import { useMounted } from "@/hooks/use-mounted";
@@ -8,7 +11,7 @@ import { useUrlParams } from "@/hooks/use-url-param";
 import { isBookViewMode, useBookViewStore } from "@/stores/use-book-view-store";
 import { matchesSearch, searchTerms } from "@/utils/search";
 
-export default function ArticlesPage() {
+function ArticlesBody() {
   const mounted = useMounted();
   const { articles, isLoading, error } = useArticles();
   const { searchParams } = useUrlParams();
@@ -28,4 +31,16 @@ export default function ArticlesPage() {
   if (found.length === 0 && terms.length > 0) return <PageMessage>沒有符合的文章</PageMessage>;
 
   return <ReadingList articles={found} view={view} />;
+}
+
+/** 讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */
+export default function ArticlesPage() {
+  return (
+    <Suspense fallback={null}>
+      <ReadingHeader />
+      <PageBody>
+        <ArticlesBody />
+      </PageBody>
+    </Suspense>
+  );
 }
