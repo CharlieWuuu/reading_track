@@ -1,4 +1,5 @@
-import { digitsOnly, fetchDom, flatText, labelValue } from "./http";
+import { digitsOnly, flatText, labelValue } from "./html";
+import { fetchDom } from "./http";
 import { BookMetadata, Candidate, MetadataProvider } from "./types";
 
 /**
