@@ -149,7 +149,7 @@ function BooksStats() {
             label: "每季完成本數",
             scrollHeight: "h-70 sm:h-[32rem]",
             node: (
-              <Panel title="每季完成本數">
+              <Panel>
                 <YearlyTrendChart quarterlyData={quarterly} monthlyData={monthly} height="100%" />
               </Panel>
             ),
@@ -159,7 +159,7 @@ function BooksStats() {
             label: "累積完成本數",
             scrollHeight: "h-70 sm:h-[32rem]",
             node: (
-              <Panel title="累積完成本數">
+              <Panel>
                 <CumulativeChart quarterlyData={quarterly} height="100%" />
               </Panel>
             ),
@@ -182,7 +182,7 @@ function BooksStats() {
             key: "cumulative",
             label: "累積完成本數",
             node: (
-              <Panel title="累積完成本數">
+              <Panel>
                 <CumulativeChart quarterlyData={quarterly} height="100%" />
               </Panel>
             ),
@@ -349,7 +349,7 @@ function ArticlesStats() {
             label: "每月完成篇數",
             scrollHeight: "h-70 sm:h-[32rem]",
             node: (
-              <Panel title="每月完成篇數">
+              <Panel>
                 <MonthlyTrendChart data={monthly} unit="篇" seriesLabel="完成篇數" height="100%" />
               </Panel>
             ),
@@ -434,8 +434,8 @@ function EntriesStats() {
   // 紀事只有類型一種分類，所以只有一張圖
   const pies = [{ key: "kind", label: "類型分布", data: getKindDistribution(entries) }];
 
-  const trend = (
-    <Panel title="每月筆數">
+  const trend = (title?: string) => (
+    <Panel title={title}>
       <MonthlyTrendChart data={monthly} unit="筆" seriesLabel="筆數" height="100%" />
     </Panel>
   );
@@ -450,7 +450,7 @@ function EntriesStats() {
             needsHeight: false,
             node: <ArticleKpiCards {...kpis} unit="筆" />,
           },
-          { key: "monthly", label: "每月筆數", scrollHeight: "h-70 sm:h-[32rem]", node: trend },
+          { key: "monthly", label: "每月筆數", scrollHeight: "h-70 sm:h-[32rem]", node: trend() },
         ]
       : [
           {
@@ -459,7 +459,7 @@ function EntriesStats() {
             node: (
               <div className="flex min-h-0 flex-1 flex-col gap-3">
                 <ArticleKpiCards {...kpis} unit="筆" />
-                {trend}
+                {trend("每月筆數")}
               </div>
             ),
           },
