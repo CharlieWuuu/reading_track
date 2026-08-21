@@ -7,6 +7,7 @@ import {
   timeLabel,
   toDateTimeInput,
   today,
+  whenLabel,
 } from "./date";
 
 /** 假時間一律用本地時區的那一刻，這幾支函式全是照本地時區算的 */
@@ -101,6 +102,30 @@ describe("dayLabel", () => {
 
   it("壞字串給空字串", () => {
     expect(dayLabel("不是日期")).toBe("");
+  });
+});
+
+describe("whenLabel", () => {
+  it("今天只給時間，「今天」兩個字等於沒講", () => {
+    freeze("2026-08-19T18:00:00");
+    expect(whenLabel("2026-08-19 14:32")).toBe("14:32");
+  });
+
+  // 「上週三 14:32」的時分沒有人會用到
+  it("昨天以前不帶時分", () => {
+    freeze("2026-08-19T18:00:00");
+    expect(whenLabel("2026-08-18 14:32")).toBe("昨天");
+    expect(whenLabel("2026-08-16 14:32")).toBe("週日");
+    expect(whenLabel("2026-08-01 14:32")).toBe("8/1");
+  });
+
+  it("今天但沒記時間就退回「今天」", () => {
+    freeze("2026-08-19T18:00:00");
+    expect(whenLabel("2026-08-19")).toBe("今天");
+  });
+
+  it("壞字串給空字串", () => {
+    expect(whenLabel("不是日期")).toBe("");
   });
 });
 
