@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { makeJournal, resetIds } from "@/testing/factories";
+import { makeWriting, resetIds } from "@/testing/factories";
 import { groupByWeek, isUrl, journalToReflections, type Reflection } from "./reflections";
 
 resetIds();
@@ -22,29 +22,29 @@ describe("isUrl", () => {
 
 describe("journalToReflections", () => {
   it("預設只收有寫心得的", () => {
-    const journal = [makeJournal({ note: "寫了一句話" }), makeJournal({ note: "   " })];
+    const writings = [makeWriting({ note: "寫了一句話" }), makeWriting({ note: "   " })];
 
-    expect(journalToReflections(journal)).toHaveLength(1);
+    expect(journalToReflections(writings)).toHaveLength(1);
   });
 
   it("requireNote false 就全收", () => {
-    const journal = [makeJournal({ note: "寫了一句話" }), makeJournal({ note: "" })];
+    const writings = [makeWriting({ note: "寫了一句話" }), makeWriting({ note: "" })];
 
-    expect(journalToReflections(journal, false)).toHaveLength(2);
+    expect(journalToReflections(writings, false)).toHaveLength(2);
   });
 
   it("關鍵字一行一個", () => {
-    const journal = [makeJournal({ keywords: "專注\n習慣" })];
+    const writings = [makeWriting({ keywords: "專注\n習慣" })];
 
-    expect(journalToReflections(journal)[0].keywords).toEqual(["專注", "習慣"]);
+    expect(journalToReflections(writings)[0].keywords).toEqual(["專注", "習慣"]);
   });
 
   it("href 指回編輯頁，來源欄搬到 origin", () => {
-    const journal = makeJournal({ link: "https://example.com/post" });
+    const writings = makeWriting({ link: "https://example.com/post" });
 
-    const [reflection] = journalToReflections([journal]);
+    const [reflection] = journalToReflections([writings]);
 
-    expect(reflection.href).toBe(`/journal/${journal.id}/edit`);
+    expect(reflection.href).toBe(`/writing/${writings.id}/edit`);
     expect(reflection.origin).toBe("https://example.com/post");
     expect(reflection.source).toBe("紀事");
   });

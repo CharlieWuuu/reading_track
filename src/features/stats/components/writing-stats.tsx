@@ -7,28 +7,28 @@ import { MonthlyTrendChart } from "@/features/stats/components/monthly-trend-cha
 import { Panel } from "@/features/stats/components/panel";
 import { Section, SectionList } from "@/features/stats/components/section-list";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { useJournal } from "@/hooks/use-journal";
 import { useMounted } from "@/hooks/use-mounted";
+import { useWritings } from "@/hooks/use-writings";
 import { useSheetStore } from "@/stores/use-sheet-store";
-import { getJournalKpis, getJournalMonthlyTrend, getKindDistribution } from "@/utils/journal-stats";
+import { getKindDistribution, getWritingKpis, getWritingMonthlyTrend } from "@/utils/writing-stats";
 
 /** 紀事的形狀跟文章一樣，只是單位是「筆」，分布看的是類型與領域 */
-export function JournalStats() {
+export function WritingStats() {
   const { sheetId } = useSheetStore();
   const mounted = useMounted();
-  const { journal, isLoading, error } = useJournal();
+  const { writings, isLoading, error } = useWritings();
   const isMobile = useIsMobile();
 
   if (!mounted) return null;
   if (!sheetId) return <PageMessage>請先到「設定」頁面連接 Google Sheet</PageMessage>;
   if (isLoading) return <PageMessage>載入中…</PageMessage>;
   if (error) return <PageMessage tone="error">{error}</PageMessage>;
-  if (journal.length === 0) return <PageMessage>還沒有任何紀事</PageMessage>;
+  if (writings.length === 0) return <PageMessage>還沒有任何紀事</PageMessage>;
 
-  const kpis = getJournalKpis(journal);
-  const monthly = getJournalMonthlyTrend(journal);
+  const kpis = getWritingKpis(writings);
+  const monthly = getWritingMonthlyTrend(writings);
   // 紀事只有類型一種分類，所以只有一張圖
-  const pies = [{ key: "kind", label: "類型分布", data: getKindDistribution(journal) }];
+  const pies = [{ key: "kind", label: "類型分布", data: getKindDistribution(writings) }];
 
   const trend = (title?: string) => (
     <Panel title={title}>

@@ -24,7 +24,7 @@ export default function EditVocabularyPage() {
   const { saveVocabulary } = useRecordEdits(books);
 
   const name = decodeURIComponent(word);
-  const journal = getVocabularyEntries(vocabulary, books).find((e) => e.word === name);
+  const writings = getVocabularyEntries(vocabulary, books).find((e) => e.word === name);
 
   return (
     <>
@@ -33,11 +33,11 @@ export default function EditVocabularyPage() {
         <RecordGate
           loading={isLoading || loadingBooks}
           error={error}
-          missing={!journal && "找不到這個詞"}
+          missing={!writings && "找不到這個詞"}
         >
-          {journal && (
+          {writings && (
             <VocabularyForm
-              journal={journal}
+              writings={writings}
               onSave={saveVocabulary}
               onDone={() => router.back()}
             />

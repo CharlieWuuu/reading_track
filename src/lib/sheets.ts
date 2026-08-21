@@ -11,21 +11,21 @@ import {
 } from "@/config/sheet-format";
 import { Article } from "@/types/article";
 import { Book, inferStatus, normalizePlatform, normalizeStatus, splitLines } from "@/types/book";
-import { JournalEntry } from "@/types/journal";
 import { KeywordInfo } from "@/types/keyword";
 import { Metric } from "@/types/metric";
 import { QuoteRow, VocabularyRow } from "@/types/record";
+import { Writing } from "@/types/writing";
 import {
   ARTICLE_TABLE,
   BOOK_TABLE,
   BookField,
   ColumnMap,
   defaultHeaders,
-  JOURNAL_TABLE,
   managedFields,
   mapHeaders,
   METRIC_TABLE,
   TableSpec,
+  WRITING_TABLE,
 } from "./sheet-schema";
 
 function getAuthClient(accessToken: string) {
@@ -241,42 +241,38 @@ export async function deleteArticleRow(sheetId: string, accessToken: string, id:
   await deleteTableRow(sheetId, accessToken, ARTICLE_TABLE, id);
 }
 
-export async function listJournal(sheetId: string, accessToken: string): Promise<JournalEntry[]> {
-  const { values } = await listTableValues(sheetId, accessToken, JOURNAL_TABLE);
+export async function listWritings(sheetId: string, accessToken: string): Promise<Writing[]> {
+  const { values } = await listTableValues(sheetId, accessToken, WRITING_TABLE);
   return values.map((v) => ({ ...v, date: v.date || null }));
 }
 
-export async function addJournalRow(sheetId: string, accessToken: string, journal: JournalEntry) {
-  await addTableRow(sheetId, accessToken, JOURNAL_TABLE, journal);
+export async function addWritingRow(sheetId: string, accessToken: string, writing: Writing) {
+  await addTableRow(sheetId, accessToken, WRITING_TABLE, writing);
 }
 
-export async function updateJournalRow(
+export async function updateWritingRow(
   sheetId: string,
   accessToken: string,
   id: string,
-  patch: Partial<JournalEntry>,
+  patch: Partial<Writing>,
 ) {
-  await updateTableRow(sheetId, accessToken, JOURNAL_TABLE, id, patch);
+  await updateTableRow(sheetId, accessToken, WRITING_TABLE, id, patch);
 }
 
-export async function deleteJournalRow(sheetId: string, accessToken: string, id: string) {
-  await deleteTableRow(sheetId, accessToken, JOURNAL_TABLE, id);
+export async function deleteWritingRow(sheetId: string, accessToken: string, id: string) {
+  await deleteTableRow(sheetId, accessToken, WRITING_TABLE, id);
 }
 
 /** 一次寫入多筆紀事。搬移舊心得時一次幾十列，逐列寫會撞到寫入配額 */
-export async function addJournalRows(
-  sheetId: string,
-  accessToken: string,
-  journal: JournalEntry[],
-) {
-  if (journal.length === 0) return;
-  const { sheet, columns } = await getTableSheet(sheetId, accessToken, JOURNAL_TABLE);
+export async function addWritingRows(sheetId: string, accessToken: string, writings: Writing[]) {
+  if (writings.length === 0) return;
+  const { sheet, columns } = await getTableSheet(sheetId, accessToken, WRITING_TABLE);
 
   await sheet.addRows(
-    journal.map((journal) => {
+    writings.map((writings) => {
       const raw: Record<string, string> = {};
-      for (const field of managedFields(JOURNAL_TABLE)) {
-        raw[columns[field] ?? JOURNAL_TABLE.labels[field]] = journal[field] ?? "";
+      for (const field of managedFields(WRITING_TABLE)) {
+        raw[columns[field] ?? WRITING_TABLE.labels[field]] = writings[field] ?? "";
       }
       return raw;
     }),

@@ -7,7 +7,7 @@
  * 這裡刻意不存事件本身（軌跡、時數、commit）。那些留在原本的系統裡，
  * 需要時用「連結」指過去——這張表只放經過思考的東西。
  */
-export interface JournalEntry {
+export interface Writing {
   id: string;
   /** 只有一個日期：這件事發生／我想到它的那天 */
   date: string | null;

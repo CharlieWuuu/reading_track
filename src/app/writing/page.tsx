@@ -6,33 +6,33 @@ import { PageHeader } from "@/components/layout/page-header";
 import { PageMessage } from "@/components/layout/page-message";
 import { ActionButton } from "@/components/ui/controls";
 import { SearchButton } from "@/components/ui/search-button";
-import { JournalFilter } from "@/features/journal/components/journal-filter";
 import { ReflectionTimeline } from "@/features/notes/components/reflection-timeline";
-import { useJournal } from "@/hooks/use-journal";
+import { WritingFilter } from "@/features/writing/components/writing-filter";
 import { useMounted } from "@/hooks/use-mounted";
 import { useUrlParams } from "@/hooks/use-url-param";
+import { useWritings } from "@/hooks/use-writings";
 import { splitTags } from "@/types/book";
-import { JournalEntry } from "@/types/journal";
+import { Writing } from "@/types/writing";
 import { journalToReflections } from "@/utils/reflections";
 import { matchesSearch, searchTerms } from "@/utils/search";
 
 /** 選項只列真的有紀事在用的值，選了才不會篩出一片空白 */
-function usedKinds(journal: JournalEntry[]): string[] {
-  return [...new Set(journal.flatMap((e) => splitTags(e.kind)))].sort((a, b) =>
+function usedKinds(writings: Writing[]): string[] {
+  return [...new Set(writings.flatMap((e) => splitTags(e.kind)))].sort((a, b) =>
     a.localeCompare(b, "zh-Hant"),
   );
 }
 
-function JournalList() {
+function WritingList() {
   const mounted = useMounted();
-  const { journal: allJournal, isLoading, error } = useJournal();
+  const { writings: allWriting, isLoading, error } = useWritings();
   const { searchParams, setParams } = useUrlParams();
 
   const kind = searchParams.get("kind") ?? "";
   const query = searchParams.get("q") ?? "";
   const terms = searchTerms(query);
   // 標題、內文、關鍵字都算：想得起來的可能是任何一個，內文更是常常只記得半句
-  const journal = allJournal.filter(
+  const writings = allWriting.filter(
     (e) =>
       (!kind || e.kind === kind) &&
       matchesSearch(terms, e.title, e.note, e.keywords, e.kind, e.sourceTitle),
@@ -41,16 +41,16 @@ function JournalList() {
   const action = (
     <div className="flex min-w-0 items-center gap-2">
       <SearchButton value={query} onChange={(next) => setParams({ q: next || null })} />
-      <JournalFilter
-        groups={[{ key: "kind", label: "類型", options: usedKinds(allJournal), value: kind }]}
+      <WritingFilter
+        groups={[{ key: "kind", label: "類型", options: usedKinds(allWriting), value: kind }]}
         onChange={(key, next) => setParams({ [key]: next || null })}
       />
-      <ActionButton href="/journal/new">新增</ActionButton>
+      <ActionButton href="/writing/new">新增</ActionButton>
     </div>
   );
   if (!mounted) return null;
 
-  if (isLoading || error || journal.length === 0) {
+  if (isLoading || error || writings.length === 0) {
     return (
       <>
         <PageHeader title="書寫" action={action} />
@@ -66,17 +66,17 @@ function JournalList() {
       <PageHeader title="書寫" action={action} />
       <PageBody>
         {/* 沒寫心得的也要看得到：這裡是紀事本身的清單 */}
-        <ReflectionTimeline reflections={journalToReflections(journal, false)} />
+        <ReflectionTimeline reflections={journalToReflections(writings, false)} />
       </PageBody>
     </>
   );
 }
 
 /** 底下讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */
-export default function JournalPage() {
+export default function WritingPage() {
   return (
     <Suspense fallback={null}>
-      <JournalList />
+      <WritingList />
     </Suspense>
   );
 }

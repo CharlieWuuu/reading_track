@@ -1,11 +1,11 @@
 import { Article } from "@/types/article";
 import { Book } from "@/types/book";
-import { JournalEntry } from "@/types/journal";
 import { Metric } from "@/types/metric";
+import { Writing } from "@/types/writing";
 
 export type BookField = keyof Book;
 export type ArticleField = keyof Article;
-export type JournalField = keyof JournalEntry;
+export type WritingField = keyof Writing;
 export type MetricField = keyof Metric;
 
 /**
@@ -212,7 +212,7 @@ export const ARTICLE_TABLE: TableSpec<ArticleField> = {
 // 「這算哪一種」的決定，而那個決定沒有後果。要分開看用「類型」篩就好。
 // ---------------------------------------------------------------------------
 
-export const JOURNAL_TABLE: TableSpec<JournalField> = {
+export const WRITING_TABLE: TableSpec<WritingField> = {
   title: "書寫",
   fields: [
     "id",
@@ -254,13 +254,13 @@ export const JOURNAL_TABLE: TableSpec<JournalField> = {
 
 export const METRIC_TABLE: TableSpec<MetricField> = {
   title: "數據",
-  fields: ["id", "date", "journalId", "title", "platform", "views", "reads"],
+  fields: ["id", "date", "writingId", "title", "platform", "views", "reads"],
   idField: "id",
   legacy: [],
   labels: {
     id: "編號",
     date: "日期",
-    journalId: "紀事編號",
+    writingId: "紀事編號",
     title: "標題",
     platform: "平台",
     views: "瀏覽數",
@@ -269,7 +269,7 @@ export const METRIC_TABLE: TableSpec<MetricField> = {
   aliases: {
     id: ["id", "編號", "識別碼"],
     date: ["date", "日期", "量測日期"],
-    journalId: ["journalid", "紀事編號"],
+    writingId: ["journalid", "紀事編號"],
     title: ["title", "標題"],
     platform: ["platform", "平台"],
     views: ["views", "viewcount", "pageview", "瀏覽數"],
