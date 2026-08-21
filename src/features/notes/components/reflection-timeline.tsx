@@ -20,8 +20,8 @@ const styles = {
   weekLabel: "shrink-0 text-xs text-gray-400 tabular-nums",
   weekYear: "shrink-0 text-[11px] text-gray-300 tabular-nums",
   weekLine: "h-px flex-1 bg-gray-200",
-  items: "flex min-w-0 flex-col divide-y divide-gray-100",
-  item: "flex w-full min-w-0 items-start gap-3 py-3 text-left",
+  items: "flex min-w-0 flex-col gap-6",
+  item: "flex w-full min-w-0 items-start gap-3 text-left",
   // 三種左圖佔一樣寬，右邊那欄的起點才會對齊成一直線
   avatar: "flex size-7 shrink-0 items-center justify-center",
   // 書封是 2:3 的直式圖，套進圓形頭像要撐滿再裁掉上下。
