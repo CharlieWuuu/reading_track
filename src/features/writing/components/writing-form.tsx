@@ -9,6 +9,7 @@ import { FormActions } from "@/components/ui/form-actions";
 import { compactLines } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
+import { writingEditHref } from "@/config/routes";
 import { SourcePicker } from "@/features/writing/components/source-picker";
 import { useWritingsFormTab } from "@/features/writing/components/writing-form-tabs";
 import { useMetrics } from "@/hooks/use-metrics";
@@ -105,6 +106,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
     openRecordThen,
   } = useRecordForm({
     resource: "writings",
+    editHref: writingEditHref,
     bodyKey: "writing",
     existingId: entry?.id ?? "",
     payload: toPayload(form),

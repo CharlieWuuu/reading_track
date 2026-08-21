@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { PagerButton } from "@/components/ui/pager-button";
+import { bookEditHref } from "@/config/routes";
 import { Book } from "@/types/book";
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
@@ -183,7 +184,7 @@ export function ReadingTimeline({ books, action }: { books: Book[]; action?: Rea
                     {lane.map((segment) => (
                       <Link
                         key={segment.book.id}
-                        href={`/books/${segment.book.id}/edit`}
+                        href={bookEditHref(segment.book.id)}
                         title={`${segment.book.title}｜${segment.book.startDate} ～ ${
                           segment.book.endDate ?? "閱讀中"
                         }`}

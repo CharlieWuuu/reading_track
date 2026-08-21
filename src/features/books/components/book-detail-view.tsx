@@ -8,6 +8,7 @@ import { PageMessage } from "@/components/layout/page-message";
 import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
 import { StatusBadge, TagList } from "@/components/ui/tag-badge";
+import { bookEditHref } from "@/config/routes";
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { NoteBlock, QuoteBlock, VocabularyItem } from "@/features/notes/components/record-items";
 import { useBooks } from "@/hooks/use-books";
@@ -150,13 +151,7 @@ export function BookDetailView() {
       <PageHeader
         title="書籍資訊"
         backHref={backHref}
-        action={
-          <ActionButton
-            href={`/books/${book.id}/edit${back ? `?back=${encodeURIComponent(back)}` : ""}`}
-          >
-            編輯
-          </ActionButton>
-        }
+        action={<ActionButton href={bookEditHref(book.id, back)}>編輯</ActionButton>}
       />
 
       {/* 一份文件：單欄、靠章節標題分段，不切成一張張卡片 */}

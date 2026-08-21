@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { PagerButton } from "@/components/ui/pager-button";
+import { articleEditHref, bookEditHref, bookHref } from "@/config/routes";
 import { buildMonthGrid, CalendarDay } from "@/features/calendar/utils/calendar-utils";
 import { Article } from "@/types/article";
 import { Book } from "@/types/book";
@@ -19,7 +20,7 @@ function DayArticles({ articles }: { articles: Article[] }) {
   return (
     <div className="mt-1 flex items-center gap-1">
       <Link
-        href={`/articles/${first.id}/edit`}
+        href={articleEditHref(first.id)}
         onClick={(e) => e.stopPropagation()}
         title={first.title}
         className="min-w-0 flex-1 truncate rounded-sm bg-blue-50 px-1 py-0.5 text-[10px] text-blue-900 hover:bg-blue-100"
@@ -44,7 +45,7 @@ function DayDetail({ day }: { day?: CalendarDay }) {
       {day.books.map((b) => (
         <Link
           key={b.id}
-          href={`/books/${b.id}/edit`}
+          href={bookEditHref(b.id)}
           className="flex items-center gap-2 rounded border px-2 py-1.5 hover:bg-gray-50"
         >
           {b.coverUrl ? (
@@ -59,7 +60,7 @@ function DayDetail({ day }: { day?: CalendarDay }) {
       {day.articles.map((a) => (
         <Link
           key={a.id}
-          href={`/articles/${a.id}/edit`}
+          href={articleEditHref(a.id)}
           title={a.title}
           className="block truncate rounded bg-blue-50 px-2 py-1.5 text-xs text-blue-900 hover:bg-blue-100"
         >
@@ -278,7 +279,7 @@ export function MonthGrid({
                 {day.books.length > 0 && (
                   <span className="relative flex shrink-0">
                     <Link
-                      href={`/books/${day.books[0].id}`}
+                      href={bookHref(day.books[0].id)}
                       title={day.books[0].title}
                       onClick={(e) => e.stopPropagation()}
                       className="block"

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { PageMessage } from "@/components/layout/page-message";
 import { Favicon } from "@/components/ui/favicon";
 import { TagList } from "@/components/ui/tag-badge";
+import { articleEditHref } from "@/config/routes";
 import { BookViewMode } from "@/stores/use-book-view-store";
 import { Article } from "@/types/article";
 import { splitLines, splitTags } from "@/types/book";
@@ -32,7 +33,7 @@ function articleTags(a: Article) {
 function CompactRow({ article }: { article: Article }) {
   const tags = articleTags(article);
   return (
-    <Link href={`/articles/${article.id}/edit`} className={styles.row}>
+    <Link href={articleEditHref(article.id)} className={styles.row}>
       {/* 文章沒有封面，站台圖示至少讓「這是哪裡的文章」一眼認得出來 */}
       <Favicon url={article.sourceUrl} fallback={article.platform || article.title} />
       <div className={styles.body}>
@@ -62,7 +63,7 @@ function ArticleCards({ articles }: { articles: Article[] }) {
       {articles.map((a) => (
         <li key={a.id}>
           <Link
-            href={`/articles/${a.id}/edit`}
+            href={articleEditHref(a.id)}
             className="flex h-full flex-col gap-2 rounded-lg border bg-white p-3 transition hover:shadow"
           >
             <div className="flex min-w-0 items-start gap-2">
@@ -112,7 +113,7 @@ function ArticleTable({ articles }: { articles: Article[] }) {
           {articles.map((a) => (
             <tr
               key={a.id}
-              onClick={() => router.push(`/articles/${a.id}/edit`)}
+              onClick={() => router.push(articleEditHref(a.id))}
               className="cursor-pointer border-t hover:bg-gray-50"
             >
               <td className="px-3 py-2">

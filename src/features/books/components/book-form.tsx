@@ -21,6 +21,7 @@ import { FormActions } from "@/components/ui/form-actions";
 import { compactLines, LineListInput } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
+import { bookEditHref, bookHref } from "@/config/routes";
 import { useBookFormTab } from "@/features/books/components/book-form-tabs";
 import { QuoteListInput } from "@/features/books/components/quote-list-input";
 import { VocabularyListInput } from "@/features/books/components/vocabulary-list-input";
@@ -147,9 +148,7 @@ export function BookForm({
   const back = searchParams.get("back");
   const listHref = back ? `/reading/books?${back}` : "/reading/books";
   // 編輯是從書籍資訊進來的，離開就回那一頁；新增沒有資訊頁可回，直接回書單
-  const backHref = book
-    ? `/books/${book.id}${back ? `?back=${encodeURIComponent(back)}` : ""}`
-    : listHref;
+  const backHref = book ? bookHref(book.id, back) : listHref;
 
   const { tab, setTab } = useBookFormTab();
   const from = useCurrentHref();
@@ -185,6 +184,7 @@ export function BookForm({
     openRecordThen,
   } = useRecordForm({
     resource: "books",
+    editHref: bookEditHref,
     bodyKey: "book",
     existingId: book?.id ?? "",
     payload: toPayload(form, book),
