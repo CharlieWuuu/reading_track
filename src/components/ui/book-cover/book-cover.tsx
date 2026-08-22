@@ -10,21 +10,21 @@
 
 const SIZES = {
   /** 一整排小封面當註腳用（關鍵字卡、單字卡） */
-  xs: "w-4 rounded-[2px]",
+  xs: "w-4 rounded-thumb",
   /** 視窗裡的清單 */
-  sm: "w-5 rounded-[2px]",
+  sm: "w-5 rounded-thumb",
   /** 排行榜 */
-  md: "w-7 rounded-sm",
+  md: "w-7 rounded-thumb",
   /** 一列一則的清單（片段、單字編輯） */
-  lg: "w-8 rounded-sm md:w-11",
+  lg: "w-8 rounded-thumb md:w-11",
   /** 表格的一列 */
-  xl: "w-10 rounded-sm",
+  xl: "w-10 rounded-thumb",
   /** 搜尋結果那一列 */
-  search: "w-12 rounded-sm",
+  search: "w-12 rounded-thumb",
   /** 詳細頁那張大的 */
-  detail: "w-24 rounded md:w-32",
+  detail: "w-24 rounded-control md:w-32",
   /** 書封牆：寬度交給格線 */
-  full: "w-full rounded",
+  full: "w-full rounded-control",
 } as const;
 
 const TEXT = {

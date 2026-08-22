@@ -49,7 +49,7 @@ export default function Home() {
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href="/reading/books"
-              className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+              className="rounded-control bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
             >
               開始使用
             </Link>
@@ -61,7 +61,7 @@ export default function Home() {
           <h2 className="text-sm font-medium text-gray-900">怎麼用</h2>
           <ol className="flex flex-col gap-3">
             {STEPS.map((step, i) => (
-              <li key={step.title} className="flex gap-3 rounded-lg bg-white p-4">
+              <li key={step.title} className="rounded-surface flex gap-3 bg-white p-4">
                 <span className="text-sm font-medium text-gray-400 tabular-nums">{i + 1}</span>
                 <div className="flex flex-col gap-1">
                   <p className="text-sm font-medium">{step.title}</p>
@@ -83,7 +83,7 @@ export default function Home() {
           </ul>
         </section>
 
-        <section className="flex flex-col gap-3 rounded-lg border border-dashed p-5">
+        <section className="rounded-surface flex flex-col gap-3 border border-dashed p-5">
           <h2 className="text-sm font-medium text-gray-900">為什麼需要存取你的 Google 試算表</h2>
           <p className="text-sm leading-relaxed text-gray-700">
             Archivum 沒有自己的資料庫。你的閱讀紀錄從頭到尾都寫在你指定的那一份 Google

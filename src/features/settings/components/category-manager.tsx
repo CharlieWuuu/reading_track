@@ -20,7 +20,7 @@ const styles = {
   group: "flex flex-col gap-1",
   title: "text-sm font-medium",
   list: "flex flex-wrap gap-1.5",
-  item: "flex items-baseline gap-1 rounded border px-2 py-1 text-xs text-gray-600",
+  item: "flex items-baseline gap-1 rounded-control border px-2 py-1 text-xs text-gray-600",
   count: "text-[10px] text-gray-400 tabular-nums",
   empty: "text-xs text-gray-400",
 };

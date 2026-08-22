@@ -114,12 +114,12 @@ export function SheetPicker({ onSelect }: { onSelect: (sheetId: string, name: st
         type="button"
         onClick={openPicker}
         disabled={!ready}
-        className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+        className="rounded-control bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
       >
         {ready ? "選擇 Google Sheet" : "載入中…"}
       </button>
       {error && (
-        <div className="mt-2 rounded bg-red-50 p-2 text-xs wrap-break-word text-red-700">
+        <div className="rounded-control mt-2 bg-red-50 p-2 text-xs wrap-break-word text-red-700">
           {error}
         </div>
       )}

@@ -8,22 +8,23 @@ import { EMPTY_VOCABULARY, VocabularyRow } from "@/types/record";
 const styles = {
   wrap: "flex flex-col items-stretch gap-2 md:min-h-0 md:flex-1 md:overflow-y-auto",
   // overflow-hidden 讓第一列與最後一列的 hover 底色跟著外框收圓角
-  list: "flex shrink-0 flex-col divide-y overflow-hidden rounded border",
+  list: "flex shrink-0 flex-col divide-y overflow-hidden rounded-control border",
   // 一個一列，點開才編輯：六個欄位攤開來，記十個單字就是六十個輸入框
   item: "flex w-full min-w-0 cursor-pointer items-baseline gap-2 px-3 py-2 text-left hover:bg-gray-50",
   word: "min-w-0 shrink-0 truncate text-sm text-gray-700",
   translation: "min-w-0 flex-1 truncate text-xs text-gray-400",
-  add: "flex w-full shrink-0 items-center justify-center gap-1 rounded border border-dashed px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50",
+  add: "flex w-full shrink-0 items-center justify-center gap-1 rounded-control border border-dashed px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50",
   form: "flex flex-col gap-3",
   pair: "grid grid-cols-1 gap-3 sm:grid-cols-2",
   field: "flex flex-col gap-1",
   label: "text-xs font-medium text-gray-500",
-  input: "w-full rounded border px-3 py-1.5 text-sm",
-  sentence: "min-h-28 w-full resize-none rounded border px-3 py-1.5 text-sm",
+  input: "w-full rounded-control border px-3 py-1.5 text-sm",
+  sentence: "min-h-28 w-full resize-none rounded-control border px-3 py-1.5 text-sm",
   actions: "flex items-center gap-2 pt-1",
-  save: "rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700",
-  cancel: "rounded border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50",
-  remove: "ml-auto rounded px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 hover:text-red-600",
+  save: "rounded-control bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700",
+  cancel: "rounded-control border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50",
+  remove:
+    "ml-auto rounded-control px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 hover:text-red-600",
 };
 
 type VocabularyListInputProps = {

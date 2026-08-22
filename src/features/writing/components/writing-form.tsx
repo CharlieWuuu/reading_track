@@ -24,7 +24,7 @@ import { fromDateTimeInput, now, toDateTimeInput } from "@/utils/date";
 
 // 內文吃掉整個表單剩下的高度：這一欄是主體，寫長了不該只給它一個小框
 const TEXTAREA_CLASS =
-  "min-h-32 w-full min-w-0 flex-1 resize-none rounded border px-3 py-2 text-sm";
+  "min-h-32 w-full min-w-0 flex-1 resize-none rounded-control border px-3 py-2 text-sm";
 
 /** 沒選到的分頁留在畫面上但藏起來，切回來時打到一半的內容還在 */
 function TabPanel({ active, children }: { active: boolean; children: React.ReactNode }) {
@@ -266,7 +266,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
                   type="button"
                   onClick={handleFetchStats}
                   disabled={fetchingStats}
-                  className="shrink-0 rounded border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+                  className="rounded-control shrink-0 border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
                 >
                   {fetchingStats ? "抓取中…" : "抓取數據"}
                 </button>

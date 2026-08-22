@@ -17,7 +17,7 @@ export function PrivateToggle({
 }) {
   const checked = value.trim() === PRIVATE_MARK;
   return (
-    <label className="flex items-center gap-2 self-end rounded border px-3 py-2 text-sm">
+    <label className="rounded-control flex items-center gap-2 self-end border px-3 py-2 text-sm">
       <input
         type="checkbox"
         checked={checked}

@@ -68,6 +68,9 @@
   --color-map-chrome-disabled: var(--color-gray-50);
   --color-map-attribution-ink: var(--color-gray-400);
   --color-map-attribution-link: var(--color-gray-500);
+  --radius-thumb: 2px; /** 書封、favicon、圖例色塊：小圖只要一點點就夠，再多會看起來像貼紙 */
+  --radius-control: 4px; /** 按鈕、輸入框、分頁列、標籤——頁首那一排全部同一階 */
+  --radius-surface: 8px; /** 卡片、面板、浮層這類成塊的東西 */
   --color-surface: var(--color-white); /** 頁面底色 */
   --color-surface-viz: var(--color-sand-50); /** 圖表畫布，比頁面底色暖一點才分得出圖與頁 */
   --color-ink-viz: var(--color-sand-800); /** 深棕彩度太低會被讀成資料色，所以只當圖上的文字 */

@@ -27,7 +27,7 @@ export function CalendarBody() {
 
   // 檢視切換交給各自的頂列去畫，不另外佔頁首的位置
   const viewToggle = (
-    <div className="inline-flex rounded border border-gray-300 p-0.5">
+    <div className="rounded-control inline-flex border border-gray-300 p-0.5">
       {VIEWS.map((option) => (
         <button
           key={option.id}
@@ -35,7 +35,7 @@ export function CalendarBody() {
           aria-pressed={view === option.id}
           aria-label={option.label}
           title={option.label}
-          className={`rounded p-1.5 ${
+          className={`rounded-control p-1.5 ${
             view === option.id ? "bg-gray-900 text-white" : "text-gray-400 hover:text-gray-900"
           }`}
         >

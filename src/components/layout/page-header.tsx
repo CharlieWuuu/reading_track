@@ -6,7 +6,7 @@ const styles = {
   header: "flex shrink-0 flex-col gap-3 md:gap-5",
   bar: "flex shrink-0 flex-wrap items-center justify-between gap-2 md:gap-3",
   heading: "flex min-w-0 items-center gap-1",
-  back: "-ml-1 flex size-7 shrink-0 items-center justify-center rounded text-gray-600 hover:bg-gray-100",
+  back: "-ml-1 flex size-7 shrink-0 items-center justify-center rounded-control text-gray-600 hover:bg-gray-100",
   title: "truncate text-base font-semibold",
   actions: "flex min-w-0 flex-1 items-center justify-end *:min-w-0", // *:min-w-0 讓傳進來的內容縮得下去
   line: "h-px shrink-0 bg-gray-900",

@@ -8,10 +8,10 @@ export function SignInPrompt({ text = "請先登入 Google 帳號" }: { text?: s
     <button
       type="button"
       onClick={() => signIn("google")}
-      className="flex w-full flex-col items-center gap-2 rounded-lg bg-white p-8 text-center text-sm text-gray-500 hover:bg-gray-50"
+      className="rounded-surface flex w-full flex-col items-center gap-2 bg-white p-8 text-center text-sm text-gray-500 hover:bg-gray-50"
     >
       <span>{text}</span>
-      <span className="rounded bg-gray-900 px-3 py-1.5 text-sm font-medium text-white">
+      <span className="rounded-control bg-gray-900 px-3 py-1.5 text-sm font-medium text-white">
         使用 Google 登入
       </span>
     </button>

@@ -77,7 +77,7 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
   const found = result !== null && result.notice === "";
 
   return (
-    <form onSubmit={handleLookup} className="space-y-4 rounded-lg bg-white p-5">
+    <form onSubmit={handleLookup} className="rounded-surface space-y-4 bg-white p-5">
       <p className="text-sm text-gray-500">
         先查書籍資料，確認查到的內容之後再進編輯頁。書名和網址擇一填寫即可，兩個都填會以網址為準。
       </p>
@@ -91,7 +91,7 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
             setResult(null);
           }}
           placeholder="輸入書名"
-          className="w-full rounded border px-3 py-2 text-sm"
+          className="rounded-control w-full border px-3 py-2 text-sm"
         />
       </div>
 
@@ -105,7 +105,7 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
             setResult(null);
           }}
           placeholder="貼上電子書或書店連結"
-          className="w-full rounded border px-3 py-2 text-sm"
+          className="rounded-control w-full border px-3 py-2 text-sm"
         />
       </div>
 
@@ -117,7 +117,7 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
         <button
           type="submit"
           disabled={!canSubmit || loading}
-          className={`rounded px-4 py-2 text-sm font-medium disabled:opacity-50 ${
+          className={`rounded-control px-4 py-2 text-sm font-medium disabled:opacity-50 ${
             found
               ? "border border-gray-900 hover:bg-gray-100"
               : "bg-gray-900 text-white hover:bg-gray-700"
@@ -131,7 +131,7 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
           <button
             type="button"
             onClick={() => onDone(result)}
-            className={`rounded px-4 py-2 text-sm font-medium ${
+            className={`rounded-control px-4 py-2 text-sm font-medium ${
               found
                 ? "bg-gray-900 text-white hover:bg-gray-700"
                 : "border border-gray-900 hover:bg-gray-100"
@@ -157,7 +157,7 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
 
 function FoundCard({ prefill }: { prefill: Partial<Book> }) {
   return (
-    <div className="flex gap-3 rounded border border-green-200 bg-green-50 p-3">
+    <div className="rounded-control flex gap-3 border border-green-200 bg-green-50 p-3">
       {prefill.coverUrl && (
         <BookCover url={prefill.coverUrl} title={prefill.title ?? ""} size="search" />
       )}
@@ -176,7 +176,7 @@ function FoundCard({ prefill }: { prefill: Partial<Book> }) {
 
 function NotFoundCard() {
   return (
-    <div className="rounded border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+    <div className="rounded-control border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
       查不到這本書的資料。可以換個關鍵字重查，或直接繼續自己填。
     </div>
   );

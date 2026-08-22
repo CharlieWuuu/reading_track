@@ -7,12 +7,12 @@ import { CONTROL_HEIGHT } from "@/components/ui/controls";
 const styles = {
   root: "relative shrink-0",
   // 高度吃全站常數，跟旁邊的新增按鈕、別頁的分頁列站在一起才不會一高一矮
-  trigger: `flex ${CONTROL_HEIGHT} items-center gap-1.5 rounded border px-2.5 text-sm whitespace-nowrap hover:bg-gray-50`,
+  trigger: `flex ${CONTROL_HEIGHT} items-center gap-1.5 rounded-control border px-2.5 text-sm whitespace-nowrap hover:bg-gray-50`,
   triggerOn: "border-gray-900 bg-gray-900 text-white hover:bg-gray-700",
   triggerOff: "border-gray-300 text-gray-600",
   // 選單靠右對齊：按鈕本來就在頁首右側，往左展開才不會超出畫面
   panel:
-    "absolute right-0 z-50 mt-1 max-h-80 w-48 divide-y overflow-y-auto rounded-lg border bg-white shadow-lg",
+    "absolute right-0 z-50 mt-1 max-h-80 w-48 divide-y overflow-y-auto rounded-surface border bg-white shadow-lg",
   group: "py-1",
   groupLabel: "px-3 pt-1 pb-0.5 text-[11px] text-gray-400",
   item: "flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-gray-50",

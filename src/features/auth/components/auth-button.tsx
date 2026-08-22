@@ -24,7 +24,7 @@ export function AuthButton() {
     return (
       <Link
         href="/profile"
-        className="flex items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-gray-100"
+        className="rounded-control flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-gray-100"
       >
         {session.user.image ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -44,7 +44,7 @@ export function AuthButton() {
   return (
     <button
       onClick={() => signIn("google")}
-      className={`rounded bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700 ${
+      className={`rounded-control bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700 ${
         compact ? "text-xs whitespace-nowrap" : "w-full"
       }`}
     >

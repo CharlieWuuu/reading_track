@@ -132,14 +132,14 @@ export function OptionSelect({
         tabIndex={0}
         onClick={() => setOpen((v) => !v)}
         onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setOpen((v) => !v)}
-        className="w-full cursor-pointer rounded border px-3 py-2 text-left text-sm"
+        className="rounded-control w-full cursor-pointer border px-3 py-2 text-left text-sm"
       >
         {selected.length > 0 ? (
           <span className="flex flex-wrap gap-1">
             {selected.map((option) => (
               <span
                 key={option}
-                className="flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5 text-xs"
+                className="rounded-control flex items-center gap-1 bg-gray-100 px-1.5 py-0.5 text-xs"
               >
                 {option}
                 {onEditOption && (
@@ -169,7 +169,7 @@ export function OptionSelect({
           <div
             ref={panelRef}
             style={{ top: rect.top, left: rect.left, width: rect.width }}
-            className="fixed z-50 overflow-hidden rounded-lg border bg-white shadow-lg"
+            className="rounded-surface fixed z-50 overflow-hidden border bg-white shadow-lg"
           >
             <input
               autoFocus
@@ -208,7 +208,7 @@ export function OptionSelect({
                   <button
                     type="button"
                     onClick={() => pick(option)}
-                    className={`flex-1 rounded px-2 py-1.5 text-left text-sm hover:bg-gray-50 ${
+                    className={`rounded-control flex-1 px-2 py-1.5 text-left text-sm hover:bg-gray-50 ${
                       isSelected(option) ? "font-medium" : ""
                     }`}
                   >

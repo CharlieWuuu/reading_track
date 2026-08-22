@@ -7,10 +7,10 @@ const styles = {
   backdrop:
     "fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-0 sm:items-center sm:p-6",
   panel:
-    "flex max-h-[85vh] w-full max-w-2xl flex-col gap-3 rounded-t-xl border bg-white p-4 sm:rounded-xl sm:p-5",
+    "flex max-h-[85vh] w-full max-w-2xl flex-col gap-3 rounded-t-surface border bg-white p-4 sm:rounded-surface sm:p-5",
   head: "flex shrink-0 items-start justify-end gap-3",
   title: "mr-auto min-w-0 truncate text-sm font-semibold",
-  close: "shrink-0 rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-900",
+  close: "shrink-0 rounded-control p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-900",
   body: "flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto",
 };
 

@@ -6,14 +6,14 @@ const styles = {
   wrap: "flex shrink-0 flex-col gap-2",
   error: "text-xs text-red-600",
   row: "flex flex-wrap items-center gap-2",
-  save: "rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50",
-  cancel: "rounded border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50",
+  save: "rounded-control bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50",
+  cancel: "rounded-control border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50",
   // 刪除一律靠最右邊，跟儲存隔開，不會順手按到
   danger: "ml-auto flex items-center gap-2 text-xs",
   remove: "text-red-600 hover:underline disabled:opacity-50",
   confirm:
-    "rounded bg-red-600 px-3 py-1.5 font-medium text-white hover:bg-red-700 disabled:opacity-50",
-  confirmCancel: "rounded border px-3 py-1.5 text-gray-600 hover:bg-gray-50",
+    "rounded-control bg-red-600 px-3 py-1.5 font-medium text-white hover:bg-red-700 disabled:opacity-50",
+  confirmCancel: "rounded-control border px-3 py-1.5 text-gray-600 hover:bg-gray-50",
 };
 
 type FormActionsProps = {

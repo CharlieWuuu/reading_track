@@ -186,7 +186,7 @@ export function BookDetailView() {
                   <KeywordTag
                     key={keyword}
                     name={keyword}
-                    className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200"
+                    className="rounded-control bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200"
                   />
                 ))}
               </div>

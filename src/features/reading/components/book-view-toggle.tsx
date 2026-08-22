@@ -30,7 +30,7 @@ export function BookViewToggle({ cardLabel = "書封" }: { cardLabel?: string })
   }
 
   return (
-    <div className="inline-flex h-8 items-center rounded border border-gray-300 p-0.5 md:h-9">
+    <div className="rounded-control inline-flex h-8 items-center border border-gray-300 p-0.5 md:h-9">
       {OPTIONS.map((option) => (
         <button
           key={option.id}
@@ -38,7 +38,7 @@ export function BookViewToggle({ cardLabel = "書封" }: { cardLabel?: string })
           aria-pressed={view === option.id}
           aria-label={option.label}
           title={option.label}
-          className={`flex h-full items-center rounded px-1.5 ${
+          className={`rounded-control flex h-full items-center px-1.5 ${
             view === option.id ? "bg-gray-900 text-white" : "text-gray-400 hover:text-gray-900"
           }`}
         >

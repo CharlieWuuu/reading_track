@@ -76,7 +76,7 @@ export function EnrichButton() {
       <button
         onClick={handleClick}
         disabled={status === "loading"}
-        className="rounded border border-gray-900 px-4 py-2 text-sm font-medium hover:bg-gray-100 disabled:opacity-50"
+        className="rounded-control border border-gray-900 px-4 py-2 text-sm font-medium hover:bg-gray-100 disabled:opacity-50"
       >
         {status === "loading" ? "補齊中…" : "自動補齊資料"}
       </button>

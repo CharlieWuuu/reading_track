@@ -24,7 +24,7 @@ const styles = {
   dotEnd: "right-0 translate-x-1/2",
   empty: "flex h-full items-center justify-center text-xs text-gray-400",
   legend: "flex shrink-0 flex-wrap items-center gap-1.5",
-  legendItem: "overflow-hidden rounded-[2px]",
+  legendItem: "overflow-hidden rounded-thumb",
   // 書用封面認，線的顏色畫成封面的外框，兩件事合成一個圖例（同地圖）
 };
 

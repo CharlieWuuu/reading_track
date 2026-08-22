@@ -16,10 +16,10 @@ const styles = {
   map: "min-h-0 flex-1 isolate",
   // 圖例浮在地圖上：地圖已經佔滿整個面板，再切一條給圖例會把地圖壓扁
   legendBox:
-    "pointer-events-auto absolute bottom-2 left-2 z-20 flex max-w-[calc(100%-1rem)] flex-col gap-1.5 rounded-lg border border-gray-300 bg-white/95 p-1.5 shadow-sm",
+    "pointer-events-auto absolute bottom-2 left-2 z-20 flex max-w-[calc(100%-1rem)] flex-col gap-1.5 rounded-surface border border-gray-300 bg-white/95 p-1.5 shadow-sm",
   legendToggle: "flex items-center gap-1 text-xs font-medium text-gray-600",
   legend: "flex max-h-40 shrink-0 flex-wrap items-center gap-1.5 overflow-y-auto",
-  legendItem: "overflow-hidden rounded-[2px]",
+  legendItem: "overflow-hidden rounded-thumb",
   empty: "flex h-full items-center justify-center text-xs text-gray-400",
 };
 

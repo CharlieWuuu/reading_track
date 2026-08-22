@@ -28,14 +28,14 @@ function KeywordFilter({
   onClear: () => void;
 }) {
   return (
-    <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm">
+    <div className="rounded-surface flex shrink-0 flex-wrap items-center gap-2 bg-white px-3 py-2 text-sm">
       <Tag size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
       <span className="font-medium">{keyword}</span>
       <span className="text-xs text-gray-400">{count} 本</span>
       <button
         type="button"
         onClick={onClear}
-        className="ml-auto rounded px-2 py-0.5 text-xs text-gray-500 hover:bg-gray-100"
+        className="rounded-control ml-auto px-2 py-0.5 text-xs text-gray-500 hover:bg-gray-100"
       >
         清除
       </button>
@@ -58,7 +58,7 @@ function StatusDot({ status }: { status: ReadingStatus }) {
   if (status === "已讀完") return null;
   return (
     <span
-      className={`absolute top-1 left-1 rounded px-1 py-px text-[10px] leading-4 ring-2 ring-white ${STATUS_STYLES[status]}`}
+      className={`rounded-control absolute top-1 left-1 px-1 py-px text-[10px] leading-4 ring-2 ring-white ${STATUS_STYLES[status]}`}
     >
       {status}
     </span>
@@ -196,7 +196,7 @@ export function BookTable() {
       {keyword && <KeywordFilter keyword={keyword} count={books.length} onClear={clearKeyword} />}
 
       {/* 手機版：卡片列表，欄位太多的表格在小螢幕上不好讀 */}
-      <div className="shrink-0 overflow-hidden rounded-lg border bg-white md:hidden">
+      <div className="rounded-surface shrink-0 overflow-hidden border bg-white md:hidden">
         <ul className="divide-y">
           {books.map((b, i) => (
             <li key={b.id || `card-${i}`}>
@@ -243,7 +243,7 @@ export function BookTable() {
       </div>
 
       {/* 外框負責圓角與邊框，捲動只發生在裡面：表頭 sticky 住，只有列在動 */}
-      <div className="hidden min-h-0 w-full flex-1 overflow-y-auto rounded-lg border bg-white md:block">
+      <div className="rounded-surface hidden min-h-0 w-full flex-1 overflow-y-auto border bg-white md:block">
         <table className="w-full table-fixed text-sm">
           {/* sticky 的儲存格自己畫底色與下緣線，邊框不會跟著黏住 */}
           <thead className="bg-table-header-bg sticky top-0 z-10 text-left [&_th]:shadow-[inset_0_-1px_0_var(--color-table-header-rule)]">

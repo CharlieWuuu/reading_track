@@ -190,7 +190,7 @@ export function ArticleForm({ article }: { article?: Article }) {
                 type="button"
                 onClick={() => handleFetch()}
                 disabled={fetching}
-                className="shrink-0 rounded border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+                className="rounded-control shrink-0 border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
               >
                 {fetching ? "抓取中…" : "抓取資料"}
               </button>
@@ -275,7 +275,7 @@ export function ArticleForm({ article }: { article?: Article }) {
           {isEdit && article ? (
             <RelatedWriting sourceId={article.id} sourceTitle={form.title} kind="文章" />
           ) : (
-            <p className="rounded border border-dashed px-3 py-2 text-xs text-gray-400">
+            <p className="rounded-control border border-dashed px-3 py-2 text-xs text-gray-400">
               存好這篇文章之後就可以寫心得了
             </p>
           )}

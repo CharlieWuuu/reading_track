@@ -34,7 +34,7 @@ export function TagList({
         <span
           key={`${item}-${index}`}
           /* 高度寫死，跟同一行的文字對得起來 */
-          className={`inline-flex shrink-0 items-center rounded leading-none font-medium ${
+          className={`rounded-control inline-flex shrink-0 items-center leading-none font-medium ${
             size === "sm" ? "h-4 px-1.5 text-[10px]" : "h-5 px-1.5 text-[11px]"
           } ${TAG_TONES[tone]}`}
         >

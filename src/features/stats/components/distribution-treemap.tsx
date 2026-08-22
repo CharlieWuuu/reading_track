@@ -8,10 +8,10 @@ const styles = {
   root: "viz-root flex h-full min-h-0 flex-col gap-3.5",
   chart: "min-h-0 flex-1",
   empty: "flex h-full items-center justify-center text-xs text-gray-400",
-  tooltip: "rounded border bg-white px-2 py-1 text-xs shadow",
+  tooltip: "rounded-control border bg-white px-2 py-1 text-xs shadow",
   legend: "flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1.5",
   legendItem: "flex items-center gap-1.5 text-xs",
-  swatch: "size-2.5 shrink-0 rounded-[2px]",
+  swatch: "size-2.5 shrink-0 rounded-thumb",
 };
 
 /**
