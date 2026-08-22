@@ -73,7 +73,7 @@ export function Sidebar({ authSlot }: SidebarProps) {
   const { collapsed, toggle } = useSidebarStore();
 
   return (
-    <nav className={`${styles.nav} ${collapsed ? "w-16" : "w-56"}`}>
+    <nav className={`${styles.nav} ${collapsed ? "w-16" : "w-48"}`}>
       <div className={styles.brand}>
         {collapsed ? (
           <Image

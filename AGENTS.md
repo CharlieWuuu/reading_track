@@ -33,7 +33,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 1. 開分支
 2. 每步先講「要改什麼、為什麼、風險」，確認後才動手
-3. 每個 commit 前跑 `npm run check:all`
+3. merge 回 main 前跑 `npm run check:all`（commit 不擋，pre-push 才擋）
 4. 收尾寫 `docs/devlog.md`（gitignore，只留本機；新的寫最上面）
 5. `git merge --no-ff` 回 main → push
 
@@ -63,8 +63,8 @@ eslint 用 `import/no-restricted-paths` 鎖邊界，跨 feature 例外列在 `AL
 # 指令
 
 - `npm run check:all` — lint + format + types + test
-- `npm run check:fast` — 前三項（pre-commit 跑這個，約 16 秒）
-- husky：pre-commit 跑 check:fast、pre-push 跑 test、commit-msg 擋非 Conventional Commits
+- `npm run check:fast` — 前三項（約 16 秒，手動跑）
+- husky：pre-push 跑 check:all、commit-msg 擋非 Conventional Commits；commit 不檢查
 - eslint 有 `--cache`；改設定後第一次慢（`import/no-cycle` 約 83 秒）
 
 # 產品原則
