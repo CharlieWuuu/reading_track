@@ -1,6 +1,7 @@
 "use client";
 
 import { CalendarDays, GanttChartSquare } from "lucide-react";
+import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { MonthGrid } from "@/features/calendar/components/month-grid";
 import { ReadingTimeline } from "@/features/calendar/components/reading-timeline";
@@ -52,11 +53,9 @@ export function CalendarBody() {
       ? error
       : !sheetId
         ? "請先到「設定」頁面連接 Google Sheet"
-        : isLoading
-          ? "載入中…"
-          : "";
+        : "";
 
-  // 訊息框跟月曆佔一樣的空間，切換的時候版面不會跳動
+  // 訊息框與轉圈圈都跟月曆佔一樣的空間，切換的時候版面不會跳動
   if (message || !mounted) {
     return (
       <PageMessage tone={error ? "error" : "muted"} fill>
@@ -64,6 +63,8 @@ export function CalendarBody() {
       </PageMessage>
     );
   }
+
+  if (isLoading) return <PageLoading fill />;
 
   return view === "timeline" ? (
     <ReadingTimeline books={books} action={viewToggle} />

@@ -1,5 +1,6 @@
 "use client";
 
+import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { CumulativeChart } from "@/features/stats/components/cumulative-chart";
 import { DistributionPie } from "@/features/stats/components/distribution-pie";
@@ -41,7 +42,7 @@ export function BooksStats() {
   }
 
   if (isLoading) {
-    return <PageMessage>載入中…</PageMessage>;
+    return <PageLoading />;
   }
 
   if (error) {

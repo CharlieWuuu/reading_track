@@ -1,5 +1,6 @@
 "use client";
 
+import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { ArticleKpiCards } from "@/features/stats/components/article-kpi-cards";
 import { DistributionPie } from "@/features/stats/components/distribution-pie";
@@ -32,7 +33,7 @@ export function ArticlesStats() {
   }
 
   if (isLoading) {
-    return <PageMessage>載入中…</PageMessage>;
+    return <PageLoading />;
   }
 
   if (error) {

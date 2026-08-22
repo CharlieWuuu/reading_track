@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ChartPie, GanttChartSquare, LayoutGrid, Map } from "lucide-react";
 import { PageMessage } from "@/components/layout/page-message";
 import { ViewToggle } from "@/components/ui/controls";
+import { Spinner } from "@/components/ui/spinner";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { KeywordCards } from "@/features/keywords/components/keyword-cards";
 import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
@@ -17,7 +18,14 @@ import { Book } from "@/types/book";
 /** leaflet 直接碰 window，不能在伺服器端預先產生 */
 const KeywordMap = dynamic(
   () => import("@/features/keywords/components/keyword-map").then((m) => m.KeywordMap),
-  { ssr: false, loading: () => <div className={styles.loading}>地圖載入中…</div> },
+  {
+    ssr: false,
+    loading: () => (
+      <div className={styles.loading}>
+        <Spinner size={20} className="text-gray-400" />
+      </div>
+    ),
+  },
 );
 
 const styles = {

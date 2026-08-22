@@ -1,5 +1,6 @@
 "use client";
 
+import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { ArticleKpiCards } from "@/features/stats/components/article-kpi-cards";
 import { DistributionPie } from "@/features/stats/components/distribution-pie";
@@ -21,7 +22,7 @@ export function WritingStats() {
 
   if (!mounted) return null;
   if (!sheetId) return <PageMessage>請先到「設定」頁面連接 Google Sheet</PageMessage>;
-  if (isLoading) return <PageMessage>載入中…</PageMessage>;
+  if (isLoading) return <PageLoading />;
   if (error) return <PageMessage tone="error">{error}</PageMessage>;
   if (writings.length === 0) return <PageMessage>還沒有任何紀事</PageMessage>;
 
