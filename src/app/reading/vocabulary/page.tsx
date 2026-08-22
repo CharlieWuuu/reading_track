@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { BooksGate } from "@/features/books/components/books-gate";
+import { QuickAddRecordButton } from "@/features/notes/components/quick-add-record-button";
 import { VocabularySection } from "@/features/notes/components/vocabulary-section";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
 
@@ -10,7 +11,7 @@ import { ReadingHeader } from "@/features/reading/components/reading-header";
 export default function VocabularyPage() {
   return (
     <Suspense fallback={null}>
-      <ReadingHeader />
+      <ReadingHeader newButton={<QuickAddRecordButton kind="vocabulary" />} />
       <PageBody>
         <BooksGate>{(books) => <VocabularySection books={books} />}</BooksGate>
       </PageBody>
