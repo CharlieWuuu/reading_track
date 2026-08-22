@@ -2,6 +2,7 @@
 
 import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
+import { BookStatusMenu } from "@/features/books/components/book-status-menu";
 import { BookTable } from "@/features/books/components/book-table";
 import { BookViewMenu } from "@/features/reading/components/book-view-menu";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
@@ -13,7 +14,7 @@ export default function BooksPage() {
 
   return (
     <Suspense fallback={null}>
-      <ReadingHeader views={<BookViewMenu />} />
+      <ReadingHeader views={<BookViewMenu />} filters={<BookStatusMenu />} />
       <PageBody>
         {/* 表格／書封兩種檢視都在 BookTable 裡，搜尋也是它自己讀網址 */}
         {mounted && <BookTable />}
