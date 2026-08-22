@@ -30,9 +30,11 @@ const NEW_HREF: Partial<Record<ReadingTab, string>> = {
 type ReadingHeaderProps = {
   /** 這一頁有幾種看法時放進來（BookViewMenu、KeywordViewMenu）；頁首不該認得任何一個 feature */
   views?: React.ReactNode;
+  /** 新增不是換頁而是跳彈窗的那幾頁，自己把按鈕傳進來 */
+  newButton?: React.ReactNode;
 };
 
-export function ReadingHeader({ views }: ReadingHeaderProps = {}) {
+export function ReadingHeader({ views, newButton }: ReadingHeaderProps = {}) {
   const router = useRouter();
   const segment = usePathname().split("/")[2];
   // 在哪一個分頁看網址就知道，不用各頁再傳一次
@@ -56,11 +58,12 @@ export function ReadingHeader({ views }: ReadingHeaderProps = {}) {
           />
           {views}
           {/* 按鈕只放一個加號：旁邊的類型已經說了現在在看書籍還是文章 */}
-          {newHref && (
-            <ActionButton href={newHref} label="新增">
-              <Plus size={16} strokeWidth={2} aria-hidden />
-            </ActionButton>
-          )}
+          {newButton ??
+            (newHref && (
+              <ActionButton href={newHref} label="新增">
+                <Plus size={16} strokeWidth={2} aria-hidden />
+              </ActionButton>
+            ))}
         </div>
       }
     />
