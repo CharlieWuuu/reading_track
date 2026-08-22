@@ -51,8 +51,6 @@
   --color-ink: var(--color-gray-900);
   --color-ink-muted: var(--color-gray-500);
   --color-ink-faint: var(--color-gray-400);
-  --color-rule: var(--color-gray-300);
-  --color-rule-strong: var(--color-gray-900);
   --color-series-overflow: #9ca3af; /** 第 9 個以後合併成「其他」的那一格，不是第 9 個色；值同 Tailwind gray-400，但 recharts 要字面值 */
   --color-tag-article-bg: var(--color-gray-100);
   --color-tag-article-ink: var(--color-gray-500); /** 文章標籤是自由打的，沒有固定選項可配色，整組同一個中性色 */
@@ -64,7 +62,6 @@
   --color-table-header-bg: var(--color-gray-100);
   --color-map-label-bg: rgba(255, 255, 255, 0.9); /** 地名常駐在密集的點上，要半透明白底才讀得到 */
   --color-map-label-ink: var(--color-gray-700);
-  --color-map-chrome-border: var(--color-gray-300);
   --color-map-chrome-disabled: var(--color-gray-50);
   --color-map-attribution-ink: var(--color-gray-400);
   --color-map-attribution-link: var(--color-gray-500);
@@ -76,6 +73,9 @@
   --color-ink-viz: var(--color-sand-800); /** 深棕彩度太低會被讀成資料色，所以只當圖上的文字 */
   --color-ink-viz-muted: var(--color-sand-700);
   --color-ink-viz-faint: var(--color-sand-600);
+  --color-rule: var(--color-sand-300); /** 框線與底色同一支色系才像一套；原本是冷灰，配米白底會偏藍 */
+  --color-rule-soft: var(--color-sand-250); /** 同一塊裡分列用；rule 是「這是兩個東西」，這一階是「同一件事的下一行」 */
+  --color-rule-strong: var(--color-sand-800); /** 外殼邊界（側欄、底部導覽）與強調框；純黑改成深棕，跟其餘的框同色系 */
   --color-grid: var(--color-sand-250); /** 圖表格線；米白太淺當不了資料色，當格線剛好 */
   --color-series-1: var(--color-blue-600);
   --color-status-want-bg: var(--color-sand-200);
@@ -96,8 +96,9 @@
   --color-control-ink: var(--color-white);
   --color-control-ink-idle: var(--color-ink-muted); /** 分頁列沒選中的那幾格 */
   --color-control-ink-faint: var(--color-ink-faint);
-  --color-control-border: var(--color-rule);
   --color-control-menu-hover: var(--color-surface-sunken);
-  --color-table-header-rule: var(--color-rule-strong); /** 表頭下緣用 inset shadow 畫，sticky 時 border 會被捲掉 */
+  --color-control-border: var(--color-rule);
   --color-control-menu-bg: var(--color-surface);
+  --color-table-header-rule: var(--color-rule-strong); /** 表頭下緣用 inset shadow 畫，sticky 時 border 會被捲掉 */
+  --color-map-chrome-border: var(--color-rule);
 }

@@ -385,16 +385,23 @@ export const TOKEN_MANIFEST: TokenEntry[] = [
   {
     "name": "color-rule",
     "layer": "semantic",
-    "value": "var(--color-gray-300)",
-    "alias": null,
-    "description": null
+    "value": "#d5cabb",
+    "alias": "sand.300",
+    "description": "框線與底色同一支色系才像一套；原本是冷灰，配米白底會偏藍"
+  },
+  {
+    "name": "color-rule-soft",
+    "layer": "semantic",
+    "value": "#e8e0d0",
+    "alias": "sand.250",
+    "description": "同一塊裡分列用；rule 是「這是兩個東西」，這一階是「同一件事的下一行」"
   },
   {
     "name": "color-rule-strong",
     "layer": "semantic",
-    "value": "var(--color-gray-900)",
-    "alias": null,
-    "description": null
+    "value": "#5c4a3d",
+    "alias": "sand.800",
+    "description": "外殼邊界（側欄、底部導覽）與強調框；純黑改成深棕，跟其餘的框同色系"
   },
   {
     "name": "color-grid",
@@ -588,7 +595,7 @@ export const TOKEN_MANIFEST: TokenEntry[] = [
   {
     "name": "color-control-border",
     "layer": "component",
-    "value": "var(--color-gray-300)",
+    "value": "#d5cabb",
     "alias": "rule",
     "description": null
   },
@@ -623,7 +630,7 @@ export const TOKEN_MANIFEST: TokenEntry[] = [
   {
     "name": "color-table-header-rule",
     "layer": "component",
-    "value": "var(--color-gray-900)",
+    "value": "#5c4a3d",
     "alias": "rule-strong",
     "description": "表頭下緣用 inset shadow 畫，sticky 時 border 會被捲掉"
   },
@@ -644,8 +651,8 @@ export const TOKEN_MANIFEST: TokenEntry[] = [
   {
     "name": "color-map-chrome-border",
     "layer": "component",
-    "value": "var(--color-gray-300)",
-    "alias": null,
+    "value": "#d5cabb",
+    "alias": "rule",
     "description": null
   },
   {

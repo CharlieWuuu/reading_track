@@ -41,7 +41,7 @@
         "ink": { "$value": "var(--color-gray-700)", "$type": "color" }
       },
       "chrome": {
-        "border": { "$value": "var(--color-gray-300)", "$type": "color" },
+        "border": { "$value": "{color.rule}", "$type": "color" },
         "disabled": { "$value": "var(--color-gray-50)", "$type": "color" }
       },
       "attribution": {
