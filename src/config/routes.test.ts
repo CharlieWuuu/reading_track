@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 import * as routes from "./routes";
+import { READING_TABS, readingTabHref, STATS_TABS, statsTabHref } from "./tabs";
 
 /**
  * 路由表是編譯期就知道的東西，所以「連過去沒有那一頁」應該由測試擋，不是點了才發現。
@@ -47,6 +48,20 @@ describe("routes.ts 產生的網址都有對應的頁", () => {
 
   it.each(cases)("%s → %s", (_name, href) => {
     expect(exists(href), `${href} 沒有對應的 page.tsx`).toBe(true);
+  });
+});
+
+/**
+ * 分頁的 key 就是網址的一段。`/stats/writings` 曾經一路 404——key 寫成複數而
+ * 資料夾是單數，而網址是 `/stats/${next}` 拼出來的，字面路徑那組掃不到。
+ */
+describe("分頁的 key 都有對應的頁", () => {
+  it.each(READING_TABS.map((t) => t.key))("/reading/%s", (key) => {
+    expect(exists(readingTabHref(key)), `${readingTabHref(key)} 沒有對應的 page.tsx`).toBe(true);
+  });
+
+  it.each(STATS_TABS.map((t) => t.key))("/stats/%s", (key) => {
+    expect(exists(statsTabHref(key)), `${statsTabHref(key)} 沒有對應的 page.tsx`).toBe(true);
   });
 });
 
