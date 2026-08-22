@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ExternalLink, Pencil } from "lucide-react";
 import { BookCover } from "@/components/ui/book-cover";
 import { Dialog } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
 import { articleEditHref, bookHref, keywordEditHref } from "@/config/routes";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { getKeywordMentions } from "@/features/keywords/utils/keyword-stats";
@@ -77,7 +78,9 @@ export function KeywordPopup({ name, onClose }: { name: string; onClose: () => v
         {info?.summary ? (
           <p className={styles.summary}>{info.summary}</p>
         ) : loading ? (
-          <p className={styles.empty}>載入中…</p>
+          <p className={styles.empty}>
+            <Spinner size={14} />
+          </p>
         ) : (
           <p className={styles.empty}>還沒有摘要，可以按編輯去查維基</p>
         )}

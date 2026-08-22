@@ -1,5 +1,6 @@
 "use client";
 
+import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { SectionList } from "@/features/stats/components/section-list";
 import { useArticleSections } from "@/features/stats/hooks/use-article-sections";
@@ -21,7 +22,7 @@ export function ArticlesStats() {
   }
 
   if (isLoading) {
-    return <PageMessage>載入中…</PageMessage>;
+    return <PageLoading />;
   }
 
   if (error) {

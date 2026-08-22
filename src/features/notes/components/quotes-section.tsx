@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { RecordCard } from "@/features/notes/components/record-card";
 import { QuoteBlock } from "@/features/notes/components/record-items";
@@ -16,7 +17,7 @@ export function QuotesSection({ books }: { books: Book[] }) {
   const { quotes, isLoading } = useRecords();
   const records = getQuoteRecords(quotes, books);
 
-  if (isLoading) return <PageMessage>載入中…</PageMessage>;
+  if (isLoading) return <PageLoading />;
   if (records.length === 0) return <PageMessage>還沒有記下任何佳句</PageMessage>;
 
   return (

@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
+import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
@@ -129,13 +130,13 @@ export function BookDetailView() {
     return (
       <>
         <PageHeader title="書籍資訊" backHref={backHref} />
-        <PageMessage tone={error ? "error" : "muted"}>
-          {!sheetId
-            ? "請先到「設定」頁面連接 Google Sheet"
-            : isLoading
-              ? "載入中…"
-              : error || "找不到這本書"}
-        </PageMessage>
+        {isLoading && sheetId ? (
+          <PageLoading />
+        ) : (
+          <PageMessage tone={error ? "error" : "muted"}>
+            {!sheetId ? "請先到「設定」頁面連接 Google Sheet" : error || "找不到這本書"}
+          </PageMessage>
+        )}
       </>
     );
   }

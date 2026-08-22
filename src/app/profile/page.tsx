@@ -4,6 +4,7 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
+import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { SignInPrompt } from "@/components/ui/sign-in-prompt";
 import { clearLocalData } from "@/utils/clear-local-data";
@@ -16,7 +17,7 @@ export default function ProfilePage() {
     <>
       <PageHeader title="個人資訊" />
       {status === "loading" ? (
-        <PageMessage>載入中…</PageMessage>
+        <PageLoading />
       ) : !session?.user ? (
         <SignInPrompt />
       ) : (

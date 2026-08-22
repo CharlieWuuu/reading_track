@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { AlignLeft, Plus, Rows3 } from "lucide-react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
+import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { ActionButton, SelectMenu } from "@/components/ui/controls";
 import { SearchBar } from "@/components/ui/search-bar";
@@ -80,9 +81,11 @@ function WritingList() {
   return (
     <>
       <PageHeader title="書寫" action={action} />
-      {empty ? (
+      {isLoading ? (
+        <PageLoading />
+      ) : empty ? (
         <PageMessage tone={error ? "error" : "muted"}>
-          {isLoading ? "載入中…" : error || "符合條件的書寫是空的"}
+          {error || "符合條件的書寫是空的"}
         </PageMessage>
       ) : (
         <PageBody>

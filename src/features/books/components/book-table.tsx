@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { Tag } from "lucide-react";
+import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { BookCover } from "@/components/ui/book-cover";
 import { STATUS_STYLES, StatusBadge, TagList } from "@/components/ui/tag-badge";
@@ -132,7 +133,7 @@ export function BookTable() {
   }
 
   if (isLoading) {
-    return <PageMessage>載入中…</PageMessage>;
+    return <PageLoading />;
   }
 
   if (error) {

@@ -3,6 +3,7 @@
 import Script from "next/script";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
+import { Spinner } from "@/components/ui/spinner";
 
 declare global {
   interface Window {
@@ -116,7 +117,7 @@ export function SheetPicker({ onSelect }: { onSelect: (sheetId: string, name: st
         disabled={!ready}
         className="rounded-control bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
       >
-        {ready ? "選擇 Google Sheet" : "載入中…"}
+        {ready ? "選擇 Google Sheet" : <Spinner size={14} />}
       </button>
       {error && (
         <div className="rounded-control mt-2 bg-red-50 p-2 text-xs wrap-break-word text-red-700">

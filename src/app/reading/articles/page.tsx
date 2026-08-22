@@ -2,6 +2,7 @@
 
 import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
+import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { BookViewMenu } from "@/features/reading/components/book-view-menu";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
@@ -27,7 +28,7 @@ function ArticlesBody() {
   );
 
   if (!mounted) return null;
-  if (isLoading) return <PageMessage>載入中…</PageMessage>;
+  if (isLoading) return <PageLoading />;
   if (error) return <PageMessage tone="error">{error}</PageMessage>;
   if (found.length === 0 && terms.length > 0) return <PageMessage>沒有符合的文章</PageMessage>;
 
