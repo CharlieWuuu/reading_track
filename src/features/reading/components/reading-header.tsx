@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { ActionButton, SelectMenu } from "@/components/ui/controls";
-import { SearchButton } from "@/components/ui/search-button";
+import { SearchBar } from "@/components/ui/search-bar";
 import { useUrlParams } from "@/hooks/use-url-param";
 
 /**
@@ -55,11 +55,7 @@ export function ReadingHeader({ views }: ReadingHeaderProps = {}) {
       title="閱讀"
       action={
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <SearchButton
-            alwaysOpen
-            value={query}
-            onChange={(next) => setParams({ q: next || null })}
-          />
+          <SearchBar value={query} onChange={(next) => setParams({ q: next || null })} />
           <SelectMenu
             label="類型"
             items={TABS}
