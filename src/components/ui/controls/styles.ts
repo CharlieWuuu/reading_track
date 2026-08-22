@@ -13,6 +13,8 @@ const TEXT = "text-xs font-medium md:text-sm";
 
 export const styles = {
   primary: `flex ${HEIGHT} shrink-0 items-center rounded-control bg-control-bg px-3 ${TEXT} text-control-ink hover:bg-control-bg-hover md:px-4`,
+  // 只有一個圖示時左右不留文字的餘裕，寬度跟高度差不多才像一顆鍵
+  primaryIcon: `flex ${HEIGHT} aspect-square shrink-0 items-center justify-center rounded-control bg-control-bg ${TEXT} text-control-ink hover:bg-control-bg-hover`,
   secondary: `flex ${HEIGHT} shrink-0 items-center gap-1 rounded-control border px-3 ${TEXT} text-control-ink-secondary hover:bg-control-ghost-hover`,
   // 只佔自己的寬度，窄螢幕放不下時才在自己裡面橫捲
   // 邊框跟同一排的檢視切換用同一個灰階，兩顆控制項擺在一起才不會一深一淺

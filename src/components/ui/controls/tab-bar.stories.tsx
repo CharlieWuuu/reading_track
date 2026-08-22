@@ -30,29 +30,25 @@ export const Default: Story = {
   },
 };
 
-/** 某個分頁底下還有多種看法時，點它是放下選單而不是換頁 */
-export const WithMenu: Story = {
+/** 窄容器：分頁列自己橫捲，不會把旁邊的東西擠出畫面 */
+export const InNarrowContainer: Story = {
   render: function Render() {
     const [tab, setTab] = useState("books");
-    const [view, setView] = useState("table");
     return (
-      <TabBar
-        items={[
-          { key: "books", label: "書籍" },
-          { key: "stats", label: "統計" },
-        ]}
-        value={tab}
-        onChange={setTab}
-        menu={{
-          for: "stats",
-          items: [
-            { key: "table", label: "表格" },
-            { key: "map", label: "地圖" },
-          ],
-          value: view,
-          onChange: setView,
-        }}
-      />
+      <div className="flex w-64 items-center gap-2">
+        <TabBar
+          items={[
+            { key: "books", label: "書籍" },
+            { key: "articles", label: "文章" },
+            { key: "quotes", label: "佳句" },
+            { key: "vocabulary", label: "單字" },
+            { key: "keywords", label: "關鍵字" },
+          ]}
+          value={tab}
+          onChange={setTab}
+        />
+        <ActionButton>新增</ActionButton>
+      </div>
     );
   },
 };

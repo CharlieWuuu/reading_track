@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageMessage } from "@/components/layout/page-message";
+import { BookViewMenu } from "@/features/reading/components/book-view-menu";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
 import { ReadingList } from "@/features/reading/components/reading-list";
 import { useArticles } from "@/hooks/use-articles";
@@ -37,7 +38,7 @@ function ArticlesBody() {
 export default function ArticlesPage() {
   return (
     <Suspense fallback={null}>
-      <ReadingHeader />
+      <ReadingHeader views={<BookViewMenu cardLabel="卡片" />} />
       <PageBody>
         <ArticlesBody />
       </PageBody>
