@@ -2,14 +2,19 @@
 
 import { useEffect } from "react";
 import { LayoutGrid, Rows3 } from "lucide-react";
+import { SelectMenu } from "@/components/ui/controls";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { BookViewMode, isBookViewMode, useBookViewStore } from "@/stores/use-book-view-store";
 
 /** cardLabel：書籍那邊卡片就是書封牆，文章沒有封面，叫「卡片」比較誠實 */
-export function BookViewToggle({ cardLabel = "書封" }: { cardLabel?: string }) {
-  const OPTIONS: Array<{ id: BookViewMode; label: string; Icon: () => React.ReactElement }> = [
-    { id: "table", label: "表格", Icon: () => <Rows3 size={16} strokeWidth={1.5} /> },
-    { id: "card", label: cardLabel, Icon: () => <LayoutGrid size={16} strokeWidth={1.5} /> },
+export function BookViewMenu({ cardLabel = "書封" }: { cardLabel?: string }) {
+  const items = [
+    { key: "table" as const, label: "表格", Icon: () => <Rows3 size={16} strokeWidth={1.5} /> },
+    {
+      key: "card" as const,
+      label: cardLabel,
+      Icon: () => <LayoutGrid size={16} strokeWidth={1.5} />,
+    },
   ];
 
   const { view: savedView, setView: saveView } = useBookViewStore();
@@ -29,22 +34,5 @@ export function BookViewToggle({ cardLabel = "書封" }: { cardLabel?: string })
     setParams({ view: next, page: null });
   }
 
-  return (
-    <div className="rounded-control inline-flex h-8 items-center border border-gray-300 p-0.5 md:h-9">
-      {OPTIONS.map((option) => (
-        <button
-          key={option.id}
-          onClick={() => select(option.id)}
-          aria-pressed={view === option.id}
-          aria-label={option.label}
-          title={option.label}
-          className={`rounded-control flex h-full items-center px-1.5 ${
-            view === option.id ? "bg-gray-900 text-white" : "text-gray-400 hover:text-gray-900"
-          }`}
-        >
-          <option.Icon />
-        </button>
-      ))}
-    </div>
-  );
+  return <SelectMenu label="顯示方式" items={items} value={view} onChange={select} />;
 }
