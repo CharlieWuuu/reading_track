@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { ActionButton, SelectMenu } from "@/components/ui/controls";
 import { SearchBar } from "@/components/ui/search-bar";
+import { READING_TABS, ReadingTab, readingTabHref } from "@/config/tabs";
 import { useUrlParams } from "@/hooks/use-url-param";
 
 /**
@@ -19,18 +20,9 @@ import { useUrlParams } from "@/hooks/use-url-param";
  * 五個分頁收成一顆「類型」選單而不是排成一列：手機放不下五格，擠出畫面
  * 就再也點不到了。省下來的寬度給搜尋框常駐。
  */
-const TABS = [
-  { key: "books", label: "書籍" },
-  { key: "articles", label: "文章" },
-  { key: "quotes", label: "佳句" },
-  { key: "vocabulary", label: "單字" },
-  { key: "keywords", label: "關鍵字" },
-] as const;
-
-type Tab = (typeof TABS)[number]["key"];
 
 /** 佳句單字關鍵字是從書裡摘出來的，不單獨新增 */
-const NEW_HREF: Partial<Record<Tab, string>> = {
+const NEW_HREF: Partial<Record<ReadingTab, string>> = {
   books: "/reading/books/new",
   articles: "/reading/articles/new",
 };
@@ -44,7 +36,7 @@ export function ReadingHeader({ views }: ReadingHeaderProps = {}) {
   const router = useRouter();
   const segment = usePathname().split("/")[2];
   // 在哪一個分頁看網址就知道，不用各頁再傳一次
-  const current = (TABS.some((t) => t.key === segment) ? segment : "books") as Tab;
+  const current = (READING_TABS.some((t) => t.key === segment) ? segment : "books") as ReadingTab;
   const { searchParams, setParams } = useUrlParams();
   const query = searchParams.get("q") ?? "";
 
@@ -58,9 +50,9 @@ export function ReadingHeader({ views }: ReadingHeaderProps = {}) {
           <SearchBar value={query} onChange={(next) => setParams({ q: next || null })} />
           <SelectMenu
             label="類型"
-            items={TABS}
+            items={READING_TABS}
             value={current}
-            onChange={(next) => router.push(`/reading/${next}`)}
+            onChange={(next) => router.push(readingTabHref(next))}
           />
           {views}
           {/* 按鈕只放一個加號：旁邊的類型已經說了現在在看書籍還是文章 */}
