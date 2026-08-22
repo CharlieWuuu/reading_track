@@ -160,7 +160,7 @@ export function ReadingTimeline({ books, action }: { books: Book[]; action?: Rea
                     <div
                       key={i}
                       className={`border-l px-1 py-1 text-xs first:border-l-0 ${
-                        inMonth ? "text-gray-700" : "border-gray-100 text-gray-300"
+                        inMonth ? "text-gray-700" : "border-rule-soft text-gray-300"
                       }`}
                     >
                       <span

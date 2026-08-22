@@ -119,7 +119,7 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
           disabled={!canSubmit || loading}
           className={`rounded-control px-4 py-2 text-sm font-medium disabled:opacity-50 ${
             found
-              ? "border border-gray-900 hover:bg-gray-100"
+              ? "border-rule-strong border hover:bg-gray-100"
               : "bg-gray-900 text-white hover:bg-gray-700"
           }`}
         >
@@ -134,7 +134,7 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
             className={`rounded-control px-4 py-2 text-sm font-medium ${
               found
                 ? "bg-gray-900 text-white hover:bg-gray-700"
-                : "border border-gray-900 hover:bg-gray-100"
+                : "border-rule-strong border hover:bg-gray-100"
             }`}
           >
             {found ? "使用這筆資料，繼續" : "仍要繼續，手動填寫"}

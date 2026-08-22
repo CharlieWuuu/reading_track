@@ -5,9 +5,9 @@ import { Search, X } from "lucide-react";
 import { CONTROL_HEIGHT } from "@/components/ui/controls";
 
 const styles = {
-  button: `flex ${CONTROL_HEIGHT} shrink-0 items-center justify-center rounded-control border border-gray-300 px-2.5 text-gray-600 hover:bg-gray-50`,
+  button: `flex ${CONTROL_HEIGHT} shrink-0 items-center justify-center rounded-control border border-rule px-2.5 text-gray-600 hover:bg-gray-50`,
   // 展開時讓輸入框吃掉剩下的寬度，但不把旁邊的分頁與新增擠掉
-  box: `flex ${CONTROL_HEIGHT} min-w-0 flex-1 items-center gap-1.5 rounded-control border border-gray-900 px-2.5`,
+  box: `flex ${CONTROL_HEIGHT} min-w-0 flex-1 items-center gap-1.5 rounded-control border border-rule-strong px-2.5`,
   input: "min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400",
   clear: "shrink-0 text-gray-400 hover:text-gray-900",
 };

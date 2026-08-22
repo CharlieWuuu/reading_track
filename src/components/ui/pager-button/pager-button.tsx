@@ -23,7 +23,7 @@ export function PagerButton({
       disabled={disabled}
       aria-label={label}
       title={label}
-      className="rounded-control flex h-7 w-7 items-center justify-center border border-dashed border-gray-300 leading-none text-gray-400 hover:border-gray-500 hover:text-gray-900 disabled:opacity-30 disabled:hover:border-gray-300 disabled:hover:text-gray-400"
+      className="rounded-control border-rule hover:border-rule-strong disabled:hover:border-rule flex h-7 w-7 items-center justify-center border border-dashed leading-none text-gray-400 hover:text-gray-900 disabled:opacity-30 disabled:hover:text-gray-400"
     >
       {direction === "prev" ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
     </button>

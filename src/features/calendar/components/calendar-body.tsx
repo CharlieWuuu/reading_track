@@ -27,7 +27,7 @@ export function CalendarBody() {
 
   // 檢視切換交給各自的頂列去畫，不另外佔頁首的位置
   const viewToggle = (
-    <div className="rounded-control inline-flex border border-gray-300 p-0.5">
+    <div className="rounded-control border-rule inline-flex border p-0.5">
       {VIEWS.map((option) => (
         <button
           key={option.id}
