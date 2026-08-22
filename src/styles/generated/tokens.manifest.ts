@@ -385,15 +385,15 @@ export const TOKEN_MANIFEST: TokenEntry[] = [
   {
     "name": "color-rule",
     "layer": "semantic",
-    "value": "#d5cabb",
-    "alias": "sand.300",
-    "description": "框線與底色同一支色系才像一套；原本是冷灰，配米白底會偏藍"
+    "value": "#e8e0d0",
+    "alias": "sand.250",
+    "description": "框線與底色同一支色系才像一套；原本的冷灰配米白底會偏藍，且對白底 1.47:1 太搶"
   },
   {
     "name": "color-rule-soft",
     "layer": "semantic",
-    "value": "#e8e0d0",
-    "alias": "sand.250",
+    "value": "#eae3d8",
+    "alias": "sand.200",
     "description": "同一塊裡分列用；rule 是「這是兩個東西」，這一階是「同一件事的下一行」"
   },
   {
@@ -595,7 +595,7 @@ export const TOKEN_MANIFEST: TokenEntry[] = [
   {
     "name": "color-control-border",
     "layer": "component",
-    "value": "#d5cabb",
+    "value": "#e8e0d0",
     "alias": "rule",
     "description": null
   },
@@ -651,7 +651,7 @@ export const TOKEN_MANIFEST: TokenEntry[] = [
   {
     "name": "color-map-chrome-border",
     "layer": "component",
-    "value": "#d5cabb",
+    "value": "#e8e0d0",
     "alias": "rule",
     "description": null
   },

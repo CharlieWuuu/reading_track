@@ -40,12 +40,12 @@
       "$type": "color"
     },
     "rule": {
-      "$value": "{color.sand.300}",
+      "$value": "{color.sand.250}",
       "$type": "color",
-      "$description": "框線與底色同一支色系才像一套；原本是冷灰，配米白底會偏藍"
+      "$description": "框線與底色同一支色系才像一套；原本的冷灰配米白底會偏藍，且對白底 1.47:1 太搶"
     },
     "rule-soft": {
-      "$value": "{color.sand.250}",
+      "$value": "{color.sand.200}",
       "$type": "color",
       "$description": "同一塊裡分列用；rule 是「這是兩個東西」，這一階是「同一件事的下一行」"
     },
