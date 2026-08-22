@@ -6,5 +6,7 @@ import { KEYWORD_VIEWS, useKeywordView } from "@/features/keywords/components/ke
 /** 關鍵字的四種看法，收在頁首那顆「顯示方式」裡 */
 export function KeywordViewMenu() {
   const { view, setView } = useKeywordView();
-  return <SelectMenu label="顯示方式" items={KEYWORD_VIEWS} value={view} onChange={setView} />;
+  return (
+    <SelectMenu iconOnly label="顯示方式" items={KEYWORD_VIEWS} value={view} onChange={setView} />
+  );
 }
