@@ -24,7 +24,9 @@ export function DataIssuesPanel() {
       </p>
 
       {issues.length === 0 ? (
-        <p className="rounded border border-dashed p-3 text-xs text-gray-500">沒有發現問題。</p>
+        <p className="rounded-control border border-dashed p-3 text-xs text-gray-500">
+          沒有發現問題。
+        </p>
       ) : (
         <ul className="space-y-1 text-xs">
           {issues.map((issue, i) => (

@@ -14,7 +14,7 @@ const styles = {
   // overflow-hidden：hover 底色才會被圓角裁掉，不會在頭尾兩列破圖
   // shrink-0：overflow 一旦不是 visible，flex 子項就會被壓扁，清單長了也捲不到
   // 桌機只捲清單本身，外框與圓角留在原地；手機仍是整頁捲
-  list: "shrink-0 divide-y overflow-hidden rounded-lg border bg-white md:min-h-0 md:flex-1 md:overflow-y-auto",
+  list: "shrink-0 divide-y overflow-hidden rounded-surface border bg-white md:min-h-0 md:flex-1 md:overflow-y-auto",
   row: "flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 sm:gap-4 sm:px-4 sm:py-3",
   body: "flex min-w-0 flex-1 flex-col gap-1",
   title: "truncate text-sm font-medium whitespace-nowrap",
@@ -64,7 +64,7 @@ function ArticleCards({ articles }: { articles: Article[] }) {
         <li key={a.id}>
           <Link
             href={articleEditHref(a.id)}
-            className="flex h-full flex-col gap-2 rounded-lg bg-white p-3 transition hover:shadow"
+            className="rounded-surface flex h-full flex-col gap-2 bg-white p-3 transition hover:shadow"
           >
             <div className="flex min-w-0 items-start gap-2">
               <Favicon
@@ -95,7 +95,7 @@ function ArticleCards({ articles }: { articles: Article[] }) {
 function ArticleTable({ articles }: { articles: Article[] }) {
   const router = useRouter();
   return (
-    <div className="hidden min-h-0 w-full flex-1 overflow-y-auto rounded-lg border bg-white md:block">
+    <div className="rounded-surface hidden min-h-0 w-full flex-1 overflow-y-auto border bg-white md:block">
       <table className="w-full table-fixed text-sm">
         <thead className="bg-table-header-bg sticky top-0 z-10 text-left [&_th]:shadow-[inset_0_-1px_0_var(--color-table-header-rule)]">
           <tr>

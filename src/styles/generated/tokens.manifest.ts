@@ -668,5 +668,26 @@ export const TOKEN_MANIFEST: TokenEntry[] = [
     "value": "var(--color-gray-500)",
     "alias": null,
     "description": null
+  },
+  {
+    "name": "radius-thumb",
+    "layer": "semantic",
+    "value": "2px",
+    "alias": null,
+    "description": "書封、favicon、圖例色塊：小圖只要一點點就夠，再多會看起來像貼紙"
+  },
+  {
+    "name": "radius-control",
+    "layer": "semantic",
+    "value": "4px",
+    "alias": null,
+    "description": "按鈕、輸入框、分頁列、標籤——頁首那一排全部同一階"
+  },
+  {
+    "name": "radius-surface",
+    "layer": "semantic",
+    "value": "8px",
+    "alias": null,
+    "description": "卡片、面板、浮層這類成塊的東西"
   }
 ];

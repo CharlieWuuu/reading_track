@@ -18,18 +18,18 @@ const styles = {
   wrap: "flex min-h-0 flex-col gap-3",
   head: "flex flex-wrap items-center gap-2",
   name: "mr-auto text-base font-semibold",
-  topic: "rounded bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-600",
+  topic: "rounded-control bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-600",
   span: "text-[11px] text-gray-400 tabular-nums",
   summary: "text-sm leading-relaxed text-gray-700",
   empty: "text-xs text-gray-400",
   group: "flex flex-col gap-1",
   groupLabel: "text-[11px] text-gray-400",
   list: "flex flex-col",
-  row: "flex items-center gap-2 rounded py-1 text-sm hover:bg-gray-50",
+  row: "flex items-center gap-2 rounded-control py-1 text-sm hover:bg-gray-50",
   title: "min-w-0 truncate",
   actions: "flex items-center gap-2 pt-1",
-  edit: "flex items-center gap-1 rounded border px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50",
-  wiki: "flex items-center gap-1 rounded border px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50",
+  edit: "flex items-center gap-1 rounded-control border px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50",
+  wiki: "flex items-center gap-1 rounded-control border px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50",
 };
 
 /**

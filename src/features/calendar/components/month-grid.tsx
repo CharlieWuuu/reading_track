@@ -24,7 +24,7 @@ function DayArticles({ articles }: { articles: Article[] }) {
         href={articleEditHref(first.id)}
         onClick={(e) => e.stopPropagation()}
         title={first.title}
-        className="min-w-0 flex-1 truncate rounded-sm bg-blue-50 px-1 py-0.5 text-[10px] text-blue-900 hover:bg-blue-100"
+        className="rounded-thumb min-w-0 flex-1 truncate bg-blue-50 px-1 py-0.5 text-[10px] text-blue-900 hover:bg-blue-100"
       >
         {first.title}
       </Link>
@@ -47,13 +47,13 @@ function DayDetail({ day }: { day?: CalendarDay }) {
         <Link
           key={b.id}
           href={bookEditHref(b.id)}
-          className="flex items-center gap-2 rounded border px-2 py-1.5 hover:bg-gray-50"
+          className="rounded-control flex items-center gap-2 border px-2 py-1.5 hover:bg-gray-50"
         >
           {b.coverUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={b.coverUrl} alt="" className="h-9 w-6 rounded-sm object-cover" />
+            <img src={b.coverUrl} alt="" className="rounded-thumb h-9 w-6 object-cover" />
           ) : (
-            <div className="h-9 w-6 rounded-sm bg-gray-200" />
+            <div className="rounded-thumb h-9 w-6 bg-gray-200" />
           )}
           <span className="min-w-0 flex-1 truncate text-xs">{b.title}</span>
         </Link>
@@ -63,7 +63,7 @@ function DayDetail({ day }: { day?: CalendarDay }) {
           key={a.id}
           href={articleEditHref(a.id)}
           title={a.title}
-          className="block truncate rounded bg-blue-50 px-2 py-1.5 text-xs text-blue-900 hover:bg-blue-100"
+          className="rounded-control block truncate bg-blue-50 px-2 py-1.5 text-xs text-blue-900 hover:bg-blue-100"
         >
           {a.title}
         </Link>
@@ -131,7 +131,7 @@ export function MonthGrid({
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border bg-white">
+    <div className="rounded-surface flex min-h-0 flex-1 flex-col overflow-hidden border bg-white">
       <div className="flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2 sm:px-4 sm:py-3">
         <div className="flex items-center gap-2">
           <PagerButton direction="prev" onClick={goPrev} label="上個月" />
@@ -190,10 +190,10 @@ export function MonthGrid({
                     <img
                       src={day.books[0].coverUrl}
                       alt=""
-                      className="h-full w-full rounded-[2px] object-cover shadow-sm"
+                      className="rounded-thumb h-full w-full object-cover shadow-sm"
                     />
                   ) : (
-                    <span className="h-full w-full rounded-[2px] bg-gray-300" />
+                    <span className="rounded-thumb h-full w-full bg-gray-300" />
                   ))}
                 {day.books.length > 1 && (
                   <span className="absolute -top-1 -right-1 rounded-full bg-gray-900 px-1 text-[8px] leading-[1.2] text-white">
@@ -271,10 +271,10 @@ export function MonthGrid({
                         <img
                           src={day.books[0].coverUrl}
                           alt={day.books[0].title}
-                          className="h-12 w-8 rounded-sm object-cover shadow-sm lg:h-14 lg:w-10"
+                          className="rounded-thumb h-12 w-8 object-cover shadow-sm lg:h-14 lg:w-10"
                         />
                       ) : (
-                        <span className="flex h-12 w-8 items-center justify-center rounded-sm bg-gray-200 text-[10px] leading-tight text-gray-500 lg:h-14 lg:w-10">
+                        <span className="rounded-thumb flex h-12 w-8 items-center justify-center bg-gray-200 text-[10px] leading-tight text-gray-500 lg:h-14 lg:w-10">
                           {day.books[0].title.slice(0, 2)}
                         </span>
                       )}
@@ -316,7 +316,7 @@ export function MonthGrid({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="max-h-[70vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-4 shadow-xl"
+            className="rounded-surface max-h-[70vh] w-full max-w-md overflow-y-auto bg-white p-4 shadow-xl"
           >
             <div className="mb-3 flex items-center justify-between">
               <p className="text-sm font-medium">
@@ -325,7 +325,7 @@ export function MonthGrid({
               <button
                 onClick={() => setPopupTime(null)}
                 aria-label="關閉"
-                className="rounded px-2 py-1 text-gray-400 hover:bg-gray-100 hover:text-gray-900"
+                className="rounded-control px-2 py-1 text-gray-400 hover:bg-gray-100 hover:text-gray-900"
               >
                 ✕
               </button>

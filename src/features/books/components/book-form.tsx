@@ -271,7 +271,7 @@ export function BookForm({
       className="flex flex-col gap-3 md:h-full md:min-h-0"
     >
       {notice && (
-        <p className="shrink-0 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+        <p className="rounded-control shrink-0 border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
           {notice}
         </p>
       )}
@@ -326,7 +326,7 @@ export function BookForm({
                 type="button"
                 onClick={handleRefetch}
                 disabled={refetching}
-                className="rounded border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+                className="rounded-control border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
               >
                 {refetching ? "抓取中…" : "重新抓取資料"}
               </button>
@@ -438,7 +438,7 @@ export function BookForm({
               {isEdit && book ? (
                 <RelatedWriting sourceId={book.id} sourceTitle={form.title} kind="書籍" />
               ) : (
-                <p className="rounded border border-dashed px-3 py-2 text-xs text-gray-400">
+                <p className="rounded-control border border-dashed px-3 py-2 text-xs text-gray-400">
                   存好這本書之後就可以寫心得了
                 </p>
               )}

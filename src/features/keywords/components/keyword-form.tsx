@@ -13,22 +13,22 @@ const styles = {
   label: "flex items-center gap-1.5 text-sm font-medium",
   hint: "text-xs font-normal text-gray-400",
   // py-2 跟 OptionSelect 的觸發鈕一樣高，名稱與領域並排才不會一高一矮
-  input: "w-full rounded border px-3 py-2 text-sm",
+  input: "w-full rounded-control border px-3 py-2 text-sm",
   // 摘要是整頁最長的一欄，給它一個真的打得下去的高度
-  summary: "min-h-64 w-full flex-1 resize-none rounded border px-3 py-2 text-sm",
+  summary: "min-h-64 w-full flex-1 resize-none rounded-control border px-3 py-2 text-sm",
   actions: "flex flex-wrap items-center gap-2 pt-1",
   lookup:
-    "rounded border px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50",
+    "rounded-control border px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50",
   note: "text-xs text-gray-400",
-  save: "rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50",
-  cancel: "rounded border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50",
+  save: "rounded-control bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50",
+  cancel: "rounded-control border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50",
   error: "text-xs text-red-600",
   // 刪除靠最右邊，跟儲存隔開，不會順手按到
   danger: "ml-auto flex items-center gap-2 text-xs",
   remove: "text-red-600 hover:underline disabled:opacity-50",
   confirm:
-    "rounded bg-red-600 px-3 py-1.5 font-medium text-white hover:bg-red-700 disabled:opacity-50",
-  cancelSmall: "rounded border px-3 py-1.5 text-gray-600 hover:bg-gray-50",
+    "rounded-control bg-red-600 px-3 py-1.5 font-medium text-white hover:bg-red-700 disabled:opacity-50",
+  cancelSmall: "rounded-control border px-3 py-1.5 text-gray-600 hover:bg-gray-50",
 };
 
 /** 名稱與領域同一列，座標自己一列；領域要配建議清單，不走這個迴圈 */

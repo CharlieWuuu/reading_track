@@ -97,7 +97,7 @@ export function RangedBarChart({
             <button
               key={option.key}
               onClick={() => changeRange(option.key)}
-              className={`rounded px-2 py-1 text-xs font-medium ${
+              className={`rounded-control px-2 py-1 text-xs font-medium ${
                 rangeKey === option.key
                   ? "bg-gray-900 text-white"
                   : "text-gray-500 hover:bg-gray-100"

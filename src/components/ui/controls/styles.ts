@@ -12,18 +12,18 @@ const HEIGHT = CONTROL_HEIGHT;
 const TEXT = "text-xs font-medium md:text-sm";
 
 export const styles = {
-  primary: `flex ${HEIGHT} shrink-0 items-center rounded bg-control-bg px-3 ${TEXT} text-control-ink hover:bg-control-bg-hover md:px-4`,
-  secondary: `flex ${HEIGHT} shrink-0 items-center gap-1 rounded border px-3 ${TEXT} text-control-ink-secondary hover:bg-control-ghost-hover`,
+  primary: `flex ${HEIGHT} shrink-0 items-center rounded-control bg-control-bg px-3 ${TEXT} text-control-ink hover:bg-control-bg-hover md:px-4`,
+  secondary: `flex ${HEIGHT} shrink-0 items-center gap-1 rounded-control border px-3 ${TEXT} text-control-ink-secondary hover:bg-control-ghost-hover`,
   // 只佔自己的寬度，窄螢幕放不下時才在自己裡面橫捲
   // 邊框跟同一排的檢視切換用同一個灰階，兩顆控制項擺在一起才不會一深一淺
-  tabs: `flex ${HEIGHT} w-fit max-w-full items-center gap-1 overflow-x-auto rounded-lg border border-control-border p-1`,
-  tab: `flex h-full shrink-0 items-center rounded px-2.5 ${TEXT} whitespace-nowrap md:px-3`,
+  tabs: `flex ${HEIGHT} w-fit max-w-full items-center gap-1 overflow-x-auto rounded-control border border-control-border p-1`,
+  tab: `flex h-full shrink-0 items-center rounded-control px-2.5 ${TEXT} whitespace-nowrap md:px-3`,
   tabActive: "bg-control-bg text-control-ink",
   tabIdle: "text-control-ink-idle hover:bg-control-ghost-hover",
-  menu: "absolute right-0 z-30 mt-1 flex min-w-32 flex-col rounded-lg border bg-control-menu-bg py-1 shadow-lg",
+  menu: "absolute right-0 z-30 mt-1 flex min-w-32 flex-col rounded-surface border bg-control-menu-bg py-1 shadow-lg",
   menuItem: "flex w-full items-center gap-2 px-3 py-1.5 text-sm hover:bg-control-menu-hover",
-  viewToggle: `inline-flex ${HEIGHT} shrink-0 items-center rounded border border-control-border p-0.5`,
-  viewButton: "flex h-full items-center rounded px-2",
+  viewToggle: `inline-flex ${HEIGHT} shrink-0 items-center rounded-control border border-control-border p-0.5`,
+  viewButton: "flex h-full items-center rounded-control px-2",
   viewActive: "bg-control-bg text-control-ink",
   viewIdle:
     "text-control-ink-faint hover:bg-control-ghost-hover hover:text-control-ink-faint-hover",

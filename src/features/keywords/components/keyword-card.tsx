@@ -7,12 +7,12 @@ import { topicLabel } from "@/features/keywords/utils/topic-labels";
 import { KeywordInfo } from "@/types/keyword";
 
 const styles = {
-  card: "flex cursor-pointer flex-col gap-2 rounded-lg bg-white p-4 hover:bg-gray-50",
+  card: "flex cursor-pointer flex-col gap-2 rounded-surface bg-white p-4 hover:bg-gray-50",
   head: "flex items-baseline justify-between gap-2",
   name: "flex min-w-0 items-center gap-1.5 truncate text-sm font-medium",
   count: "shrink-0 text-xs text-gray-400 tabular-nums",
   meta: "flex shrink-0 flex-wrap items-center justify-end gap-1.5",
-  topic: "rounded bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-600",
+  topic: "rounded-control bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-600",
   span: "text-[11px] text-gray-400 tabular-nums",
   summary: "text-xs leading-relaxed text-gray-600",
   wiki: "shrink-0 text-gray-300 hover:text-blue-700",

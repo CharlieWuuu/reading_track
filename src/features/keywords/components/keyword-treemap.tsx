@@ -11,7 +11,7 @@ const styles = {
   chart: "min-h-0 flex-1",
   legend: "flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1",
   legendItem: "flex items-center gap-1 text-[11px] text-gray-500",
-  swatch: "h-2.5 w-2.5 shrink-0 rounded-sm",
+  swatch: "h-2.5 w-2.5 shrink-0 rounded-thumb",
   empty: "flex h-full items-center justify-center text-xs text-gray-400",
 };
 

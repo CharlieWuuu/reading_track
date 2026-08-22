@@ -38,7 +38,7 @@ export function Field({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onPaste={onPaste && ((e) => onPaste(e.clipboardData.getData("text")))}
-        className={`box-border block w-full max-w-full min-w-0 rounded border px-3 py-2 text-sm ${
+        className={`rounded-control box-border block w-full max-w-full min-w-0 border px-3 py-2 text-sm ${
           DATE_TYPES.includes(type) ? DATE_INPUT_CLASS : ""
         }`}
       />

@@ -5,49 +5,84 @@
       "$type": "color",
       "$description": "頁面底色"
     },
-    "surface-sunken": { "$value": "var(--color-gray-50)", "$type": "color" },
+    "surface-sunken": {
+      "$value": "var(--color-gray-50)",
+      "$type": "color"
+    },
     "surface-viz": {
       "$value": "{color.sand.50}",
       "$type": "color",
       "$description": "圖表畫布，比頁面底色暖一點才分得出圖與頁"
     },
-
-    "ink": { "$value": "var(--color-gray-900)", "$type": "color" },
-    "ink-muted": { "$value": "var(--color-gray-500)", "$type": "color" },
-    "ink-faint": { "$value": "var(--color-gray-400)", "$type": "color" },
+    "ink": {
+      "$value": "var(--color-gray-900)",
+      "$type": "color"
+    },
+    "ink-muted": {
+      "$value": "var(--color-gray-500)",
+      "$type": "color"
+    },
+    "ink-faint": {
+      "$value": "var(--color-gray-400)",
+      "$type": "color"
+    },
     "ink-viz": {
       "$value": "{color.sand.800}",
       "$type": "color",
       "$description": "深棕彩度太低會被讀成資料色，所以只當圖上的文字"
     },
-    "ink-viz-muted": { "$value": "{color.sand.700}", "$type": "color" },
-    "ink-viz-faint": { "$value": "{color.sand.600}", "$type": "color" },
-
-    "rule": { "$value": "var(--color-gray-300)", "$type": "color" },
-    "rule-strong": { "$value": "var(--color-gray-900)", "$type": "color" },
+    "ink-viz-muted": {
+      "$value": "{color.sand.700}",
+      "$type": "color"
+    },
+    "ink-viz-faint": {
+      "$value": "{color.sand.600}",
+      "$type": "color"
+    },
+    "rule": {
+      "$value": "var(--color-gray-300)",
+      "$type": "color"
+    },
+    "rule-strong": {
+      "$value": "var(--color-gray-900)",
+      "$type": "color"
+    },
     "grid": {
       "$value": "{color.sand.250}",
       "$type": "color",
       "$description": "圖表格線；米白太淺當不了資料色，當格線剛好"
     },
-
     "series": {
-      "1": { "$value": "{color.blue.600}", "$type": "color" },
+      "1": {
+        "$value": "{color.blue.600}",
+        "$type": "color"
+      },
       "overflow": {
         "$value": "#9ca3af",
         "$type": "color",
         "$description": "第 9 個以後合併成「其他」的那一格，不是第 9 個色；值同 Tailwind gray-400，但 recharts 要字面值"
       }
     },
-
     "status": {
       "want": {
-        "bg": { "$value": "{color.sand.200}", "$type": "color" },
-        "ink": { "$value": "{color.sand.800}", "$type": "color" }
+        "bg": {
+          "$value": "{color.sand.200}",
+          "$type": "color"
+        },
+        "ink": {
+          "$value": "{color.sand.800}",
+          "$type": "color"
+        }
       },
       "reading": {
-        "bg": { "$value": "{color.gold.600}", "$type": "color" },
-        "ink": { "$value": "{color.white}", "$type": "color" }
+        "bg": {
+          "$value": "{color.gold.600}",
+          "$type": "color"
+        },
+        "ink": {
+          "$value": "{color.white}",
+          "$type": "color"
+        }
       },
       "done": {
         "bg": {
@@ -55,14 +90,22 @@
           "$type": "color",
           "$description": "多數狀態給最淡的一階，同色系但幾乎不出聲"
         },
-        "ink": { "$value": "{color.sand.500}", "$type": "color" }
+        "ink": {
+          "$value": "{color.sand.500}",
+          "$type": "color"
+        }
       }
     },
-
     "tag": {
       "domain": {
-        "bg": { "$value": "{color.mint.100}", "$type": "color" },
-        "ink": { "$value": "{color.mint.700}", "$type": "color" },
+        "bg": {
+          "$value": "{color.mint.100}",
+          "$type": "color"
+        },
+        "ink": {
+          "$value": "{color.mint.700}",
+          "$type": "color"
+        },
         "ring": {
           "$value": "{color.mint.300}",
           "$type": "color",
@@ -70,25 +113,63 @@
         }
       },
       "platform": {
-        "bg": { "$value": "{color.azure.100}", "$type": "color" },
-        "ink": { "$value": "{color.azure.700}", "$type": "color" }
+        "bg": {
+          "$value": "{color.azure.100}",
+          "$type": "color"
+        },
+        "ink": {
+          "$value": "{color.azure.700}",
+          "$type": "color"
+        }
       },
       "type": {
-        "ink": { "$value": "{color.coral.700}", "$type": "color" },
-        "ring": { "$value": "{color.coral.300}", "$type": "color" }
+        "ink": {
+          "$value": "{color.coral.700}",
+          "$type": "color"
+        },
+        "ring": {
+          "$value": "{color.coral.300}",
+          "$type": "color"
+        }
       },
       "language": {
-        "bg": { "$value": "{color.gold.100}", "$type": "color" },
-        "ink": { "$value": "{color.gold.700}", "$type": "color" }
+        "bg": {
+          "$value": "{color.gold.100}",
+          "$type": "color"
+        },
+        "ink": {
+          "$value": "{color.gold.700}",
+          "$type": "color"
+        }
       },
       "article": {
-        "bg": { "$value": "var(--color-gray-100)", "$type": "color" },
+        "bg": {
+          "$value": "var(--color-gray-100)",
+          "$type": "color"
+        },
         "ink": {
           "$value": "var(--color-gray-500)",
           "$type": "color",
           "$description": "文章標籤是自由打的，沒有固定選項可配色，整組同一個中性色"
         }
       }
+    }
+  },
+  "radius": {
+    "thumb": {
+      "$value": "2px",
+      "$type": "dimension",
+      "$description": "書封、favicon、圖例色塊：小圖只要一點點就夠，再多會看起來像貼紙"
+    },
+    "control": {
+      "$value": "4px",
+      "$type": "dimension",
+      "$description": "按鈕、輸入框、分頁列、標籤——頁首那一排全部同一階"
+    },
+    "surface": {
+      "$value": "8px",
+      "$type": "dimension",
+      "$description": "卡片、面板、浮層這類成塊的東西"
     }
   }
 }

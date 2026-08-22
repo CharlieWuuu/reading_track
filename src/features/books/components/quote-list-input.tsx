@@ -8,23 +8,24 @@ import { EMPTY_QUOTE, QuoteRow } from "@/types/record";
 const styles = {
   wrap: "flex flex-col items-stretch gap-2 md:min-h-0 md:flex-1 md:overflow-y-auto",
   // overflow-hidden 讓第一列與最後一列的 hover 底色跟著外框收圓角
-  list: "flex shrink-0 flex-col divide-y overflow-hidden rounded border",
+  list: "flex shrink-0 flex-col divide-y overflow-hidden rounded-control border",
   // 一句一列，點開才編輯：抄了二十句時，攤開的欄位會把整張表單淹掉
   item: "flex w-full min-w-0 cursor-pointer items-start gap-2 px-3 py-2 text-left hover:bg-gray-50",
   mark: "mt-0.5 shrink-0 rotate-180 text-gray-300",
   // 一列一行：清單只負責讓人找到那一句，內容進彈窗才看得完整
   itemText: "min-w-0 flex-1 truncate text-sm text-gray-700",
-  add: "flex w-full shrink-0 items-center justify-center gap-1 rounded border border-dashed px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50",
+  add: "flex w-full shrink-0 items-center justify-center gap-1 rounded-control border border-dashed px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50",
   form: "flex flex-col gap-3",
   field: "flex flex-col gap-1",
   label: "text-xs font-medium text-gray-500",
-  text: "min-h-40 w-full resize-none rounded border px-3 py-1.5 text-sm",
-  note: "min-h-28 w-full resize-none rounded border px-3 py-1.5 text-sm",
-  input: "w-full rounded border px-3 py-1.5 text-sm",
+  text: "min-h-40 w-full resize-none rounded-control border px-3 py-1.5 text-sm",
+  note: "min-h-28 w-full resize-none rounded-control border px-3 py-1.5 text-sm",
+  input: "w-full rounded-control border px-3 py-1.5 text-sm",
   actions: "flex items-center gap-2 pt-1",
-  save: "rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50",
-  cancel: "rounded border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50",
-  remove: "ml-auto rounded px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 hover:text-red-600",
+  save: "rounded-control bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50",
+  cancel: "rounded-control border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50",
+  remove:
+    "ml-auto rounded-control px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 hover:text-red-600",
 };
 
 type QuoteListInputProps = {

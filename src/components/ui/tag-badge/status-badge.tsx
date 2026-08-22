@@ -16,7 +16,7 @@ export const STATUS_STYLES: Record<ReadingStatus, string> = {
 export function StatusBadge({ status }: { status: ReadingStatus }) {
   return (
     <span
-      className={`inline-block shrink-0 rounded px-1.5 py-0.5 text-[11px] whitespace-nowrap ${STATUS_STYLES[status] ?? STATUS_STYLES.想讀}`}
+      className={`rounded-control inline-block shrink-0 px-1.5 py-0.5 text-[11px] whitespace-nowrap ${STATUS_STYLES[status] ?? STATUS_STYLES.想讀}`}
     >
       {status}
     </span>

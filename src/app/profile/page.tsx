@@ -21,7 +21,7 @@ export default function ProfilePage() {
         <SignInPrompt />
       ) : (
         <PageBody>
-          <div className="flex w-full flex-col gap-6 rounded-lg bg-white p-5">
+          <div className="rounded-surface flex w-full flex-col gap-6 bg-white p-5">
             <div className="flex items-center gap-4">
               {session.user.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -42,7 +42,7 @@ export default function ProfilePage() {
                 clearLocalData();
                 signOut();
               }}
-              className="w-full rounded border px-3 py-2 text-sm font-medium hover:bg-gray-100"
+              className="rounded-control w-full border px-3 py-2 text-sm font-medium hover:bg-gray-100"
             >
               登出
             </button>

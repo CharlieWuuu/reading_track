@@ -17,7 +17,7 @@ export function PageMessage({ children, tone = "muted", fill = false }: PageMess
 
   return (
     <div
-      className={`w-full rounded-lg bg-white p-8 text-center text-sm ${
+      className={`rounded-surface w-full bg-white p-8 text-center text-sm ${
         tone === "error" ? "text-red-600" : "text-gray-500"
       } ${fill ? "flex min-h-0 flex-1 items-center justify-center" : ""}`}
     >

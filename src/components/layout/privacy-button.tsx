@@ -10,13 +10,13 @@ import { useSheetStore } from "@/stores/use-sheet-store";
 
 const styles = {
   button:
-    "flex h-8 items-center gap-1.5 rounded border border-gray-900 text-xs font-medium transition-colors hover:bg-gray-900 hover:text-white",
+    "flex h-8 items-center gap-1.5 rounded-control border border-gray-900 text-xs font-medium transition-colors hover:bg-gray-900 hover:text-white",
   form: "flex flex-col gap-3",
   hint: "text-xs text-gray-500",
-  input: "w-full rounded border px-3 py-2 text-sm",
+  input: "w-full rounded-control border px-3 py-2 text-sm",
   actions: "flex items-center gap-2",
   submit:
-    "rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50",
+    "rounded-control bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50",
   link: "text-xs text-gray-500 hover:underline",
   error: "text-xs text-red-600",
 };

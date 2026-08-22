@@ -37,7 +37,7 @@ export function Favicon({
   if (!host || failed) {
     return (
       <span
-        className={`flex shrink-0 items-center justify-center rounded-sm bg-gray-100 text-[10px] leading-none text-gray-400 ${className}`}
+        className={`rounded-thumb flex shrink-0 items-center justify-center bg-gray-100 text-[10px] leading-none text-gray-400 ${className}`}
       >
         {fallback.trim().slice(0, 1) || "—"}
       </span>
@@ -51,7 +51,7 @@ export function Favicon({
       alt=""
       loading="lazy"
       onError={() => setFailed(true)}
-      className={`shrink-0 rounded-sm object-contain ${className}`}
+      className={`rounded-thumb shrink-0 object-contain ${className}`}
     />
   );
 }

@@ -34,13 +34,13 @@ const styles = {
   body: "flex min-w-0 flex-1 flex-col gap-1",
   head: "flex w-full min-w-0 items-baseline gap-2",
   title: "min-w-0 truncate text-sm font-medium",
-  kind: "shrink-0 rounded px-1 py-px text-[10px]",
+  kind: "shrink-0 rounded-control px-1 py-px text-[10px]",
   time: "ml-auto shrink-0 text-[11px] text-gray-400 tabular-nums",
   // 整塊是連結，但不做任何 hover 效果：一路往下讀的時候，滑鼠掃過一列就亮一列很吵
   noteLink: "flex w-full min-w-0 flex-col gap-1",
   note: "w-full min-w-0 text-sm leading-relaxed break-words whitespace-pre-wrap text-gray-700",
   foot: "flex w-full min-w-0 flex-wrap items-center gap-1",
-  tag: "rounded bg-gray-100 px-1 py-px text-[10px] text-gray-500 hover:bg-gray-200",
+  tag: "rounded-control bg-gray-100 px-1 py-px text-[10px] text-gray-500 hover:bg-gray-200",
   origin: "max-w-full truncate text-[11px] text-gray-400",
   originLink: "max-w-full truncate text-[11px] text-gray-400 underline hover:text-gray-900",
 };
