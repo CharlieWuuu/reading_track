@@ -34,5 +34,5 @@ export function BookViewMenu({ cardLabel = "書封" }: { cardLabel?: string }) {
     setParams({ view: next, page: null });
   }
 
-  return <SelectMenu label="顯示方式" items={items} value={view} onChange={select} />;
+  return <SelectMenu iconOnly label="顯示方式" items={items} value={view} onChange={select} />;
 }
