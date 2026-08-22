@@ -9,7 +9,7 @@ import { Book } from "@/types/book";
 import { getQuoteRecords } from "@/utils/vocabulary-stats";
 
 // 內文長度差很多，排成多欄只會高高低低；一則一列往下排反而好讀
-const styles = { list: "flex flex-col divide-y divide-gray-100" };
+const styles = { list: "flex flex-col divide-y divide-rule-soft" };
 
 export function QuotesSection({ books }: { books: Book[] }) {
   const router = useRouter();

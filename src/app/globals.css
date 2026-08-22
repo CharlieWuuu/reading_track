@@ -21,6 +21,14 @@
   color-scheme: light;
 }
 
+/* Tailwind v4 的 border 沒指定顏色時是 currentColor，等於跟著文字變深。
+   全站的框都該是同一條淡棕線，所以把預設值指回 token，光寫 border 就對了 */
+*,
+::before,
+::after {
+  border-color: var(--color-rule);
+}
+
 html {
   /* 補上 html 底色，避免手機捲動回彈時露出深色畫布 */
   background: var(--background);

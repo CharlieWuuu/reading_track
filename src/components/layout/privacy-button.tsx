@@ -10,7 +10,7 @@ import { useSheetStore } from "@/stores/use-sheet-store";
 
 const styles = {
   button:
-    "flex h-8 items-center gap-1.5 rounded-control border border-gray-900 text-xs font-medium transition-colors hover:bg-gray-900 hover:text-white",
+    "flex h-8 items-center gap-1.5 rounded-control border border-rule-strong text-xs font-medium transition-colors hover:bg-gray-900 hover:text-white",
   form: "flex flex-col gap-3",
   hint: "text-xs text-gray-500",
   input: "w-full rounded-control border px-3 py-2 text-sm",

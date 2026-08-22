@@ -50,6 +50,9 @@ export const TOKENS = {
   "ink-viz": "#5c4a3d", // 深棕彩度太低會被讀成資料色，所以只當圖上的文字
   "ink-viz-muted": "#6f5b4c",
   "ink-viz-faint": "#8b7767",
+  "rule": "#e8e0d0", // 框線與底色同一支色系才像一套；原本的冷灰配米白底會偏藍，且對白底 1.47:1 太搶
+  "rule-soft": "#eae3d8", // 同一塊裡分列用；rule 是「這是兩個東西」，這一階是「同一件事的下一行」
+  "rule-strong": "#5c4a3d", // 外殼邊界（側欄、底部導覽）與強調框；純黑改成深棕，跟其餘的框同色系
   "grid": "#e8e0d0", // 圖表格線；米白太淺當不了資料色，當格線剛好
   "series-1": "#2b5a8e",
   "series-overflow": "#9ca3af", // 第 9 個以後合併成「其他」的那一格，不是第 9 個色；值同 Tailwind gray-400，但 recharts 要字面值
@@ -69,8 +72,11 @@ export const TOKENS = {
   "tag-language-bg": "#f7edcf",
   "tag-language-ink": "#8a6d1b",
   "control-ink": "#ffffff",
+  "control-border": "#e8e0d0",
   "control-menu-bg": "#ffffff",
+  "table-header-rule": "#5c4a3d", // 表頭下緣用 inset shadow 畫，sticky 時 border 會被捲掉
   "map-label-bg": "rgba(255, 255, 255, 0.9)", // 地名常駐在密集的點上，要半透明白底才讀得到
+  "map-chrome-border": "#e8e0d0",
 } as const;
 
 export type TokenName = keyof typeof TOKENS;

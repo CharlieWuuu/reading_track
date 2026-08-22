@@ -13,7 +13,7 @@ export function BottomNav() {
 
   return (
     <nav
-      className="shrink-0 border-t border-gray-900 bg-white md:hidden"
+      className="border-rule-strong shrink-0 border-t bg-white md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <ul className="flex items-stretch">

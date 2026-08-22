@@ -40,12 +40,19 @@
       "$type": "color"
     },
     "rule": {
-      "$value": "var(--color-gray-300)",
-      "$type": "color"
+      "$value": "{color.sand.250}",
+      "$type": "color",
+      "$description": "框線與底色同一支色系才像一套；原本的冷灰配米白底會偏藍，且對白底 1.47:1 太搶"
+    },
+    "rule-soft": {
+      "$value": "{color.sand.200}",
+      "$type": "color",
+      "$description": "同一塊裡分列用；rule 是「這是兩個東西」，這一階是「同一件事的下一行」"
     },
     "rule-strong": {
-      "$value": "var(--color-gray-900)",
-      "$type": "color"
+      "$value": "{color.sand.800}",
+      "$type": "color",
+      "$description": "外殼邊界（側欄、底部導覽）與強調框；純黑改成深棕，跟其餘的框同色系"
     },
     "grid": {
       "$value": "{color.sand.250}",

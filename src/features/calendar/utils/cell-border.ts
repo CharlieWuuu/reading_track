@@ -9,7 +9,7 @@
 export function cellBorder(index: number, total: number): string {
   const isLastCol = index % 7 === 6;
   const isLastRow = index >= total - 7;
-  return ["border-gray-100", isLastCol ? "" : "border-r", isLastRow ? "" : "border-b"]
+  return ["border-rule-soft", isLastCol ? "" : "border-r", isLastRow ? "" : "border-b"]
     .filter(Boolean)
     .join(" ");
 }
