@@ -1,27 +1,27 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { SearchButton } from "./search-button";
+import { SearchBar } from "./search-bar";
 
 const meta = {
-  component: SearchButton,
+  component: SearchBar,
   args: { value: "", onChange: () => {} },
   render: function Render(args) {
     const [value, setValue] = useState(args.value);
     return (
       <div className="flex w-96 items-center gap-2">
-        <SearchButton {...args} value={value} onChange={setValue} />
+        <SearchBar {...args} value={value} onChange={setValue} />
       </div>
     );
   },
-} satisfies Meta<typeof SearchButton>;
+} satisfies Meta<typeof SearchBar>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** 收起來只是一顆放大鏡，點了才展開 */
-export const Collapsed: Story = {};
+/** 空的時候右邊沒有叉：沒東西可清 */
+export const Empty: Story = {};
 
-/** 有搜尋詞時一定是展開的，否則看不出清單為什麼少一半 */
+/** 有搜尋詞才出現清除鍵 */
 export const WithQuery: Story = {
   args: { value: "馬克思" },
 };

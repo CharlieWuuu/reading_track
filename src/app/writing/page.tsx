@@ -5,7 +5,7 @@ import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageMessage } from "@/components/layout/page-message";
 import { ActionButton } from "@/components/ui/controls";
-import { SearchButton } from "@/components/ui/search-button";
+import { SearchBar } from "@/components/ui/search-bar";
 import { ReflectionTimeline } from "@/features/notes/components/reflection-timeline";
 import { WritingFilter } from "@/features/writing/components/writing-filter";
 import { useMounted } from "@/hooks/use-mounted";
@@ -39,8 +39,8 @@ function WritingList() {
   );
 
   const action = (
-    <div className="flex min-w-0 items-center gap-2">
-      <SearchButton value={query} onChange={(next) => setParams({ q: next || null })} />
+    <div className="flex min-w-0 flex-1 items-center gap-2">
+      <SearchBar value={query} onChange={(next) => setParams({ q: next || null })} />
       <WritingFilter
         groups={[{ key: "kind", label: "類型", options: usedKinds(allWriting), value: kind }]}
         onChange={(key, next) => setParams({ [key]: next || null })}
