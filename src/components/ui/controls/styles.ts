@@ -22,6 +22,11 @@ export const styles = {
   // 邊框跟同一排的檢視切換用同一個灰階，兩顆控制項擺在一起才不會一深一淺
   tabs: `flex ${HEIGHT} w-fit max-w-full items-center gap-1 overflow-x-auto rounded-control border border-control-border p-1`,
   tab: `flex h-full shrink-0 items-center rounded-control px-2.5 ${TEXT} whitespace-nowrap md:px-3`,
+  // 小一號：放在圖表面板裡，跟頁首那排同一套長相但不搶圖的位置
+  tabsSm:
+    "flex h-7 w-fit max-w-full items-center gap-0.5 overflow-x-auto rounded-control border border-control-border p-0.5",
+  tabSm:
+    "flex h-full shrink-0 items-center rounded-control px-2 text-xs font-medium whitespace-nowrap",
   tabActive: "bg-control-bg text-control-ink",
   tabIdle: "text-control-ink-idle hover:bg-control-ghost-hover",
   menu: "absolute right-0 z-30 mt-1 flex min-w-32 flex-col rounded-surface border bg-control-menu-bg py-1 shadow-lg",

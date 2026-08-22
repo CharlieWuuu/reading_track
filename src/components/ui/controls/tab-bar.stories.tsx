@@ -53,6 +53,26 @@ export const InNarrowContainer: Story = {
   },
 };
 
+/** sm：圖表面板裡的期間切換用這一版，同一套長相但不搶圖的位置 */
+export const Small: Story = {
+  render: function Render() {
+    const [range, setRange] = useState("all");
+    return (
+      <TabBar
+        size="sm"
+        items={[
+          { key: "all", label: "全部" },
+          { key: "2y", label: "兩年" },
+          { key: "1y", label: "一年" },
+          { key: "6m", label: "六個月" },
+        ]}
+        value={range}
+        onChange={setRange}
+      />
+    );
+  },
+};
+
 /** 三種控制項排在同一列——高度對不對得起來只有這樣才看得出來 */
 export const InOneRow: Story = {
   render: function Render() {
