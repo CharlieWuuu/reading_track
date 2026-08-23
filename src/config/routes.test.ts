@@ -2,7 +2,8 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 import * as routes from "./routes";
-import { READING_TABS, readingTabHref, STATS_TABS, statsTabHref } from "./tabs";
+import { STATS_TYPES, statsHref } from "./stats-views";
+import { READING_TABS, readingTabHref } from "./tabs";
 
 /**
  * 路由表是編譯期就知道的東西，所以「連過去沒有那一頁」應該由測試擋，不是點了才發現。
@@ -60,8 +61,9 @@ describe("分頁的 key 都有對應的頁", () => {
     expect(exists(readingTabHref(key)), `${readingTabHref(key)} 沒有對應的 page.tsx`).toBe(true);
   });
 
-  it.each(STATS_TABS.map((t) => t.key))("/stats/%s", (key) => {
-    expect(exists(statsTabHref(key)), `${statsTabHref(key)} 沒有對應的 page.tsx`).toBe(true);
+  it.each(STATS_TYPES.map((t) => t.key))("/stats/%s", (key) => {
+    const href = statsHref(key, "chart");
+    expect(exists(href), `${href} 沒有對應的 page.tsx`).toBe(true);
   });
 });
 
