@@ -7,6 +7,7 @@ import { Tag } from "lucide-react";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { BookCover } from "@/components/ui/book-cover";
+import { ListHeading } from "@/components/ui/list-heading";
 import { STATUS_STYLES, StatusBadge, TagList } from "@/components/ui/tag-badge";
 import { bookHref } from "@/config/routes";
 import { useBooks } from "@/hooks/use-books";
@@ -16,7 +17,12 @@ import { isBookViewMode, useBookViewStore } from "@/stores/use-book-view-store";
 import { useSheetStore } from "@/stores/use-sheet-store";
 import { TOKENS } from "@/styles/generated/tokens";
 import { Book, ReadingStatus, splitLines } from "@/types/book";
-import { effectiveStatus, matchesStatus, parseStatusFilter } from "@/utils/book-filter";
+import {
+  effectiveStatus,
+  matchesStatus,
+  parseStatusFilter,
+  statusLabel,
+} from "@/utils/book-filter";
 import { matchesSearch, searchTerms } from "@/utils/search";
 
 /** 目前篩選中的關鍵字。放在清單上方，因為它會改變下面看到的是什麼 */
@@ -128,6 +134,9 @@ export function BookTable() {
       matchesSearch(terms, b.title, b.author, b.publisher, b.keywords, b.note),
   );
   const clearKeyword = () => setParams({ keyword: null });
+  // 搜尋與關鍵字反查會蓋掉狀態篩選，所以標題要照真正生效的條件寫
+  const heading =
+    terms.length > 0 ? "搜尋結果" : keyword ? `提到「${keyword}」` : statusLabel(status);
   // 帶著目前的檢視進詳細頁，一路傳到編輯頁，存檔後才回得到同一個畫面
   const query = searchParams.toString();
   const detailHref = (id: string) => bookHref(id, query || undefined);
@@ -164,7 +173,8 @@ export function BookTable() {
 
   if (view === "card") {
     return (
-      <div>
+      <div className="flex flex-col gap-2">
+        <ListHeading label={heading} count={books.length} />
         {/* 書封牆：一次看到很多本、也看得清楚封面，不加外框讓封面自己說話 */}
         <div>
           <ul className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] md:grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))]">
@@ -201,6 +211,7 @@ export function BookTable() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <ListHeading label={heading} count={books.length} />
       {keyword && <KeywordFilter keyword={keyword} count={books.length} onClear={clearKeyword} />}
 
       {/* 手機版：卡片列表，欄位太多的表格在小螢幕上不好讀 */}
