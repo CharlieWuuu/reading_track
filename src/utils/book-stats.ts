@@ -241,7 +241,10 @@ export function getAuthorRanking(books: Book[], limit = 5): RankingItem[] {
 /**
  * 重讀排行：同一本書在表裡有幾筆讀完的紀錄就是讀過幾次。
  *
- * 用書名比對而不是 id——每讀一次就是新增一列，兩列的 id 本來就不同。
+ * 仍然用書名比對。`originId`（見 `utils/book-reads.ts`）比書名可靠，但它是
+ * 08-23 才加的欄位——改成用它，08-23 以前的重讀會因為沒有連結而全部散開。
+ * 等舊資料補完連結再換，那時候書名打錯就不會再讓同一本書分裂。
+ *
  * 只算「已讀完」的，想讀／閱讀中那筆還沒完成，不該算成又讀了一次。
  */
 export function getRereadRanking(books: Book[], limit = 5): RankingItem[] {

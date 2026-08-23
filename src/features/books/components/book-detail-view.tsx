@@ -17,6 +17,7 @@ import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useSheetStore } from "@/stores/use-sheet-store";
 import { Book, formatCount, splitLines } from "@/types/book";
+import { sameBook } from "@/utils/book-reads";
 
 /**
  * 章節標題：一行小字加一條細線，就是文件裡的分節。
@@ -143,8 +144,10 @@ export function BookDetailView() {
 
   const keywords = splitLines(book.keywords);
   const relatedArticles = splitLines(book.relatedArticles);
-  const bookQuotes = quotes.filter((row) => row.bookId === book.id);
-  const bookVocabulary = vocabulary.filter((row) => row.bookId === book.id);
+  // 佳句與單字綁的是「某一次讀」那一列，所以重讀的那幾列要一起算進來
+  const readIds = new Set(sameBook(books, book).map((b) => b.id));
+  const bookQuotes = quotes.filter((row) => readIds.has(row.bookId));
+  const bookVocabulary = vocabulary.filter((row) => readIds.has(row.bookId));
   const note = book.note.trim();
 
   return (

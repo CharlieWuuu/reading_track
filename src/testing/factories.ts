@@ -47,6 +47,7 @@ export function makeBook(overrides: Partial<Book> = {}): Book {
     private: "",
     relatedArticles: "",
     vocabulary: "",
+    originId: "",
     ...overrides,
   };
 }

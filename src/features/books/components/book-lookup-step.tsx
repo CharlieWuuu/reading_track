@@ -37,7 +37,15 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
    */
   function pickReadBook(book: Book) {
     // 這四欄是「這一次」的事，其餘都是「這本書」的事
-    const carried: Partial<Book> = { ...book, id: "", startDate: "", endDate: "", note: "" };
+    const carried: Partial<Book> = {
+      ...book,
+      id: "",
+      startDate: "",
+      endDate: "",
+      note: "",
+      // 一律指回最初那一列：選到的如果本身也是重讀，就沿用它的源頭，不接成一條鏈
+      originId: book.originId || book.id,
+    };
     // 講清楚剛才發生了什麼：欄位突然全滿，沒說一聲會以為是查到的
     onDone({
       prefill: carried,
