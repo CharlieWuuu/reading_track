@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { PagerButton } from "@/components/ui/pager-button";
-import { articleEditHref, bookEditHref, bookHref, writingEditHref } from "@/config/routes";
+import { articleHref, bookEditHref, bookHref, writingHref } from "@/config/routes";
 import { buildMonthGrid, CalendarDay } from "@/features/calendar/utils/calendar-utils";
 import { cellBorder } from "@/features/calendar/utils/cell-border";
 import { Article } from "@/types/article";
@@ -32,7 +32,7 @@ function DayArticles({ articles }: { articles: Article[] }) {
   return (
     <div className="mt-1 flex items-center gap-1">
       <Link
-        href={articleEditHref(first.id)}
+        href={articleHref(first.id)}
         onClick={(e) => e.stopPropagation()}
         title={first.title}
         className="rounded-thumb min-w-0 flex-1 truncate bg-blue-50 px-1 py-0.5 text-[10px] text-blue-900 hover:bg-blue-100"
@@ -56,7 +56,7 @@ function DayWritings({ writings }: { writings: Writing[] }) {
   return (
     <div className="mt-1 flex items-center gap-1">
       <Link
-        href={writingEditHref(first.id)}
+        href={writingHref(first.id)}
         onClick={(e) => e.stopPropagation()}
         title={first.title}
         className="rounded-thumb bg-gold-100 text-gold-800 hover:bg-gold-200 min-w-0 flex-1 truncate px-1 py-0.5 text-[10px]"
@@ -96,7 +96,7 @@ function DayDetail({ day }: { day?: CalendarDay }) {
       {day.articles.map((a) => (
         <Link
           key={a.id}
-          href={articleEditHref(a.id)}
+          href={articleHref(a.id)}
           title={a.title}
           className="rounded-control block truncate bg-blue-50 px-2 py-1.5 text-xs text-blue-900 hover:bg-blue-100"
         >
@@ -106,7 +106,7 @@ function DayDetail({ day }: { day?: CalendarDay }) {
       {day.writings.map((w) => (
         <Link
           key={w.id}
-          href={writingEditHref(w.id)}
+          href={writingHref(w.id)}
           title={w.title}
           className="rounded-control bg-gold-100 text-gold-800 hover:bg-gold-200 block truncate px-2 py-1.5 text-xs"
         >

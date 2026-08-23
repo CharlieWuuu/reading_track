@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
+import { quoteHref } from "@/config/routes";
 import { RecordCard } from "@/features/notes/components/record-card";
 import { QuoteBlock } from "@/features/notes/components/record-items";
 import { useRecords } from "@/hooks/use-records";
@@ -28,7 +29,7 @@ export function QuotesSection({ books }: { books: Book[] }) {
           title={record.bookTitle}
           showTitle={false}
           coverUrl={record.bookCover}
-          onClick={() => router.push(`/reading/quotes/${record.id}/edit`)}
+          onClick={() => router.push(quoteHref(record.id))}
         >
           <QuoteBlock quote={record} />
         </RecordCard>

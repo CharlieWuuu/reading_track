@@ -8,10 +8,12 @@ import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
+import { DetailField, DetailFields, DetailSection } from "@/components/ui/detail";
+import { NoteBlock } from "@/components/ui/note-block";
 import { StatusBadge, TagList } from "@/components/ui/tag-badge";
 import { bookEditHref } from "@/config/routes";
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
-import { NoteBlock, QuoteBlock, VocabularyItem } from "@/features/notes/components/record-items";
+import { QuoteBlock, VocabularyItem } from "@/features/notes/components/record-items";
 import { useBooks } from "@/hooks/use-books";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
@@ -19,57 +21,20 @@ import { useSheetStore } from "@/stores/use-sheet-store";
 import { Book, formatCount, splitLines } from "@/types/book";
 import { sameBook } from "@/utils/book-reads";
 
-/**
- * 章節標題：一行小字加一條細線，就是文件裡的分節。
- * 這一頁刻意不用卡片——一本書的資料是一份文件，不是十張獨立的小卡。
- */
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="flex flex-col gap-3">
-      <h3 className="border-rule-soft border-b pb-1.5 text-base text-gray-400">{title}</h3>
-      {children}
-    </section>
-  );
-}
-
-/** 資訊表的一列：欄位名稱在左，值在右，中間靠固定欄寬對齊成一直排 */
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="grid grid-cols-[4.5rem_minmax(0,1fr)] items-baseline gap-3 py-1.5">
-      <span className="text-xs text-gray-400">{label}</span>
-      <div className="min-w-0 text-sm text-gray-800">{children || "—"}</div>
-    </div>
-  );
-}
-
-/**
- * 短欄位排成兩欄的資訊表，每列之間一條淺色分隔線，讀起來像一份目錄。
- *
- * 手機摺成一欄時兩組會上下接起來，接縫那一條要自己補——分隔線畫在各組內部，
- * 組跟組之間本來就沒有。桌機是並排的兩欄，補了反而多一條橫線。
- */
-function Fields({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="divide-rule-soft [&>div]:divide-rule-soft grid grid-cols-1 gap-x-10 divide-y sm:grid-cols-2 sm:divide-y-0 [&>div]:divide-y">
-      {children}
-    </div>
-  );
-}
-
 /** 這本書本身的事實：換誰來讀都一樣，所以跟書名放在一起當書名頁 */
 function BookFacts({ book }: { book: Book }) {
   return (
-    <Fields>
+    <DetailFields>
       <div>
-        <Field label="作者">{book.author}</Field>
-        <Field label="出版社">{book.publisher}</Field>
-        <Field label="ISBN">{book.isbn}</Field>
-        <Field label="語言">{book.language}</Field>
+        <DetailField label="作者">{book.author}</DetailField>
+        <DetailField label="出版社">{book.publisher}</DetailField>
+        <DetailField label="ISBN">{book.isbn}</DetailField>
+        <DetailField label="語言">{book.language}</DetailField>
       </div>
       <div>
-        <Field label="頁數">{formatCount(book.pageCount)}</Field>
-        <Field label="字數">{formatCount(book.wordCount)}</Field>
-        <Field label="來源">
+        <DetailField label="頁數">{formatCount(book.pageCount)}</DetailField>
+        <DetailField label="字數">{formatCount(book.wordCount)}</DetailField>
+        <DetailField label="來源">
           {book.sourceUrl && (
             <a
               href={book.sourceUrl}
@@ -82,38 +47,40 @@ function BookFacts({ book }: { book: Book }) {
               <ExternalLink size={12} strokeWidth={1.5} aria-hidden />
             </a>
           )}
-        </Field>
+        </DetailField>
       </div>
-    </Fields>
+    </DetailFields>
   );
 }
 
 /** 我對這本書做的事：狀態、讀的時間、在哪讀、怎麼歸類，換個人就是另一組答案 */
 function MyMarks({ book }: { book: Book }) {
   return (
-    <Fields>
+    <DetailFields>
       <div>
-        <Field label="狀態">
+        <DetailField label="狀態">
           <StatusBadge status={book.status} />
-        </Field>
-        <Field label="開始日期">{book.startDate}</Field>
-        <Field label="完成日期">{book.endDate}</Field>
+        </DetailField>
+        <DetailField label="開始日期">{book.startDate}</DetailField>
+        <DetailField label="完成日期">{book.endDate}</DetailField>
       </div>
       <div>
-        <Field label="平台">
+        <DetailField label="平台">
           {book.platform && <TagList values={[book.platform]} tone="platform" />}
-        </Field>
-        <Field label="領域">
+        </DetailField>
+        <DetailField label="領域">
           {(book.domain || book.subDomain) && (
             <div className="flex flex-wrap items-center gap-1.5">
               <TagList values={[book.domain]} tone="domain" />
               <TagList values={[book.subDomain]} tone="subDomain" />
             </div>
           )}
-        </Field>
-        <Field label="屬性">{book.type && <TagList values={[book.type]} tone="type" />}</Field>
+        </DetailField>
+        <DetailField label="屬性">
+          {book.type && <TagList values={[book.type]} tone="type" />}
+        </DetailField>
       </div>
-    </Fields>
+    </DetailFields>
   );
 }
 
@@ -180,12 +147,12 @@ export function BookDetailView() {
           </header>
 
           {/* 書本身的事實在上面的書名頁；這一節以下全是我加上去的，用章節線隔開 */}
-          <Section title="標記">
+          <DetailSection title="標記">
             <MyMarks book={book} />
-          </Section>
+          </DetailSection>
 
           {keywords.length > 0 && (
-            <Section title="關鍵字">
+            <DetailSection title="關鍵字">
               <div className="flex flex-wrap items-center gap-1.5">
                 {keywords.map((keyword) => (
                   <KeywordTag
@@ -195,11 +162,11 @@ export function BookDetailView() {
                   />
                 ))}
               </div>
-            </Section>
+            </DetailSection>
           )}
 
           {bookQuotes.length > 0 && (
-            <Section title="佳句">
+            <DetailSection title="佳句">
               <ul className="flex flex-col gap-5">
                 {bookQuotes.map((row) => (
                   <li key={row.id}>
@@ -207,28 +174,28 @@ export function BookDetailView() {
                   </li>
                 ))}
               </ul>
-            </Section>
+            </DetailSection>
           )}
 
           {bookVocabulary.length > 0 && (
-            <Section title="單字">
+            <DetailSection title="單字">
               <ul className="flex flex-col gap-4">
                 {bookVocabulary.map((row) => (
                   <VocabularyItem key={row.id} row={row} />
                 ))}
               </ul>
-            </Section>
+            </DetailSection>
           )}
 
           {note && (
-            <Section title="心得">
+            <DetailSection title="心得">
               {/* 心得是這一頁唯一的長文，只有這一段限行長：一行拉到整個寬螢幕會讀不下去 */}
               <NoteBlock note={note} />
-            </Section>
+            </DetailSection>
           )}
 
           {relatedArticles.length > 0 && (
-            <Section title="相關文章">
+            <DetailSection title="相關文章">
               <ul className="flex flex-col gap-1.5">
                 {relatedArticles.map((url) => (
                   <li key={url} className="min-w-0">
@@ -245,7 +212,7 @@ export function BookDetailView() {
                   </li>
                 ))}
               </ul>
-            </Section>
+            </DetailSection>
           )}
         </article>
       </PageBody>

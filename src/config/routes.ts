@@ -18,11 +18,20 @@ export const bookHref = (id: string, back?: string | null) =>
 export const bookEditHref = (id: string, back?: string | null) =>
   withBack(`/reading/books/${id}/edit`, back);
 
+export const articleHref = (id: string) => `/reading/articles/${id}`;
 export const articleEditHref = (id: string) => `/reading/articles/${id}/edit`;
 
+export const writingHref = (id: string) => `/writing/${id}`;
 export const writingEditHref = (id: string) => `/writing/${id}/edit`;
 
+export const quoteHref = (id: string) => `/reading/quotes/${id}`;
 export const quoteEditHref = (id: string) => `/reading/quotes/${id}/edit`;
+
+/**
+ * 單字的鍵是詞本身而不是編號：同一個詞在不同書各有一列，那一頁一次看完（改完）
+ * 所有列。換成 row id 等於改成「只看其中一次相遇」，那不是這一頁在講的事。
+ */
+export const vocabularyHref = (word: string) => `/reading/vocabulary/${encodeURIComponent(word)}`;
 
 export const vocabularyEditHref = (word: string) =>
   `/reading/vocabulary/${encodeURIComponent(word)}/edit`;

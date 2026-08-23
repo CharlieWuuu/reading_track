@@ -21,15 +21,6 @@ export function QuoteBlock({ quote }: { quote: Pick<QuoteRow, "text" | "chapter"
   );
 }
 
-/** 心得是長文，用襯線字與寬行距，看起來就是一段文章 */
-export function NoteBlock({ note }: { note: string }) {
-  return (
-    <p className="max-w-3xl font-serif text-[15px] leading-[1.9] whitespace-pre-wrap text-gray-800 md:text-base">
-      {note}
-    </p>
-  );
-}
-
 /** 單字排成詞條：單字與翻譯同一行，例句與翻譯縮排在下面 */
 export function VocabularyItem({ row }: { row: VocabularyRow }) {
   return (
