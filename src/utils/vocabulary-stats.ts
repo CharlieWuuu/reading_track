@@ -46,6 +46,27 @@ export function getVocabularyEntries(rows: VocabularyRow[], books: Book[]): Voca
     );
 }
 
+/** 目前真的有單字在用的語言。選項只列有東西的，選了才不會篩出一片空白 */
+export function vocabularyLanguages(entries: VocabularyEntry[]): string[] {
+  return [
+    ...new Set(entries.flatMap((entry) => entry.encounters.map((e) => e.language).filter(Boolean))),
+  ].sort((a, b) => a.localeCompare(b, "zh-Hant"));
+}
+
+/**
+ * 依語言篩。空字串是「全部」。
+ *
+ * 只要有一次相遇是這個語言就留下——同一個詞可能在中文書裡當外來語出現過，
+ * 那也是「這個語言的單字」。
+ */
+export function filterVocabularyByLanguage(
+  entries: VocabularyEntry[],
+  language: string,
+): VocabularyEntry[] {
+  if (!language) return entries;
+  return entries.filter((entry) => entry.encounters.some((e) => e.language === language));
+}
+
 export type QuoteRecord = QuoteRow & { bookCover: string };
 
 export function getQuoteRecords(rows: QuoteRow[], books: Book[]): QuoteRecord[] {

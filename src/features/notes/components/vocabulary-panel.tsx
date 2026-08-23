@@ -5,20 +5,22 @@ import { CardMasonry } from "@/components/ui/card-masonry";
 import { VocabularyEntry } from "@/utils/vocabulary-stats";
 
 const styles = {
-  card: "flex cursor-pointer flex-col gap-2 rounded-surface border bg-white p-4 hover:bg-gray-50",
+  card: "flex min-w-0 cursor-pointer flex-col gap-2 rounded-surface border bg-white p-4 hover:bg-gray-50",
   head: "flex items-center justify-between gap-2",
   // 單字是這張卡的主角，大一級才看得出主從
   headWord: "min-w-0 truncate text-base font-semibold md:text-lg",
   pronunciation: "-mt-1 text-xs text-gray-400",
-  translation: "-mt-1 text-xs text-gray-500",
+  translation: "-mt-1 text-xs break-words text-gray-500",
   count: "shrink-0 text-xs text-gray-400 tabular-nums",
   list: "flex flex-col gap-2",
   writings: "flex flex-col gap-0.5",
   // 例句是原文，翻譯是輔助，兩者深淺分開才不會讀成同一段
-  sentence: "text-xs leading-relaxed text-gray-700",
-  sentenceTranslation: "text-xs leading-relaxed text-gray-400",
-  // 封面靠右下角，淡淡一排就好：它是註腳，不是這張卡的主角
-  covers: "flex shrink-0 items-center gap-1 opacity-60",
+  sentence: "text-xs leading-relaxed break-words text-gray-700",
+  sentenceTranslation: "text-xs leading-relaxed break-words text-gray-400",
+  // 封面靠右下角，淡淡一排就好：它是註腳，不是這張卡的主角。
+  // 不能 shrink-0：手機一欄只有一半螢幕寬，五張封面加次數會把卡片撐出去，
+  // 外層 PageBody 的 overflow-y-auto 讓另一軸變成 auto，就長出橫向捲軸
+  covers: "flex min-w-0 items-center gap-1 overflow-hidden opacity-60",
   empty: "py-6 text-center text-xs text-gray-400",
 };
 
@@ -49,7 +51,7 @@ export function VocabularyPanel({ writings, onEdit }: VocabularyPanelProps) {
 
               {/* 讀到它的書跟著標題同一列靠右：它是註腳，不該自己佔一行 */}
               <div className={styles.covers}>
-                {writings.encounters.slice(0, 5).map((encounter, i) => (
+                {writings.encounters.slice(0, 3).map((encounter, i) => (
                   <BookCover
                     key={i}
                     url={encounter.bookCover}

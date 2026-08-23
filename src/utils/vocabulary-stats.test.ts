@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { makeBook, makeQuote, makeVocabulary, resetIds } from "@/testing/factories";
-import { getNoteRecords, getQuoteRecords, getVocabularyEntries } from "./vocabulary-stats";
+import {
+  filterVocabularyByLanguage,
+  getNoteRecords,
+  getQuoteRecords,
+  getVocabularyEntries,
+  vocabularyLanguages,
+} from "./vocabulary-stats";
 
 resetIds();
 
@@ -95,5 +101,26 @@ describe("getNoteRecords", () => {
       bookTitle: "書名",
       bookCover: "cover.jpg",
     });
+  });
+});
+
+describe("語言篩選", () => {
+  const rows = [
+    makeVocabulary({ word: "ephemeral", bookId: "b1", language: "英文" }),
+    makeVocabulary({ word: "刹那", bookId: "b2", language: "" }),
+  ];
+  const books = [
+    makeBook({ id: "b1", language: "英文" }),
+    makeBook({ id: "b2", language: "日文" }),
+  ];
+
+  it("沒填語言的跟著書走，選項只列真的有在用的", () => {
+    expect(vocabularyLanguages(getVocabularyEntries(rows, books))).toEqual(["日文", "英文"]);
+  });
+
+  it("空字串是全部", () => {
+    const entries = getVocabularyEntries(rows, books);
+    expect(filterVocabularyByLanguage(entries, "")).toHaveLength(2);
+    expect(filterVocabularyByLanguage(entries, "日文").map((e) => e.word)).toEqual(["刹那"]);
   });
 });
