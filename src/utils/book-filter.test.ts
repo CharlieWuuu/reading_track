@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { Book, ReadingStatus } from "@/types/book";
-import { DEFAULT_STATUS, effectiveStatus, matchesStatus, parseStatusFilter } from "./book-filter";
+import {
+  DEFAULT_STATUS,
+  effectiveStatus,
+  matchesStatus,
+  parseStatusFilter,
+  STATUS_LABELS,
+  statusFromLabel,
+  statusLabel,
+} from "./book-filter";
 
 const book = (status: ReadingStatus) => ({ status }) as Book;
 
@@ -47,5 +55,20 @@ describe("effectiveStatus", () => {
   it("沒在搜尋就照使用者選的", () => {
     expect(effectiveStatus("done", false)).toBe("done");
     expect(effectiveStatus("all", false)).toBe("all");
+  });
+});
+
+describe("篩選選單上的標籤", () => {
+  it.each(["all", "done", "reading", "want"] as const)("%s 轉成標籤再轉回來是同一個", (status) => {
+    expect(statusFromLabel(statusLabel(status))).toBe(status);
+  });
+
+  it("全部是空字串，跟其他篩選一致", () => {
+    expect(statusLabel("all")).toBe("");
+    expect(statusFromLabel("")).toBe("all");
+  });
+
+  it("三個狀態都在選單裡", () => {
+    expect(STATUS_LABELS).toEqual(["已讀完", "閱讀中", "想讀"]);
   });
 });

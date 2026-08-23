@@ -16,6 +16,20 @@ const STATUS_OF: Record<Exclude<StatusFilter, "all">, ReadingStatus> = {
   want: "想讀",
 };
 
+/** 篩選選單上顯示的就是狀態本身；空字串是「全部」，跟其他篩選一致 */
+export const STATUS_LABELS = Object.values(STATUS_OF);
+
+export function statusLabel(status: StatusFilter): string {
+  return status === "all" ? "" : STATUS_OF[status];
+}
+
+export function statusFromLabel(label: string): StatusFilter {
+  const found = (Object.keys(STATUS_OF) as Array<Exclude<StatusFilter, "all">>).find(
+    (key) => STATUS_OF[key] === label,
+  );
+  return found ?? "all";
+}
+
 /** 網址上用英文 key：狀態本身是中文，放進網址要編碼，分享出去一長串 */
 export function parseStatusFilter(raw: string | null | undefined): StatusFilter {
   if (raw === "all" || raw === "done" || raw === "reading" || raw === "want") return raw;
