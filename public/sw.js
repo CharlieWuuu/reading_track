@@ -1,9 +1,9 @@
-// Reading Track service worker
+// Archivum service worker
 //
 // 刻意保守：只快取「靜態外殼」。所有 /api/ 與登入相關的請求一律直接走網路，
 // 不進快取——那些是跟帳號綁定的私人資料，留在裝置上並不安全。
 
-const CACHE = "reading-track-v6";
+const CACHE = "archivum-v7";
 
 const SHELL = ["/icon-192.png", "/icon-512.png", "/apple-touch-icon.png", "/manifest.webmanifest"];
 

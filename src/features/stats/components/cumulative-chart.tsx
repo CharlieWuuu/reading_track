@@ -51,7 +51,7 @@ export function CumulativeChart({
   }, []);
 
   return (
-    <div className="viz-root flex h-full min-h-0 flex-col" data-palette="reading-track">
+    <div className="viz-root flex h-full min-h-0 flex-col" data-palette="archivum">
       <div className="min-h-0 flex-1">
         <ResponsiveContainer width="100%" height={height}>
           <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
