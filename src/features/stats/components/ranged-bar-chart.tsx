@@ -110,7 +110,11 @@ export function RangedBarChart({
               dataKey="key"
               tick={{ fill: "var(--color-ink-viz-faint)", fontSize: 12 }}
               axisLine={{ stroke: "var(--color-grid)" }}
+              // 負的 tickSize＝刻度往圖裡面畫。往外畫會把軸線推離圖，
+              // 中間多一條沒有內容的帶狀空白
               tickLine={{ stroke: "var(--color-grid)" }}
+              tickSize={-5}
+              tickMargin={9}
               interval={0}
               tickFormatter={(value: string) => range.tick(value, visible.length <= 12)}
             />

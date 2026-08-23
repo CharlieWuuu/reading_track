@@ -2,6 +2,7 @@
 
 export type Section = {
   key: string;
+  /** 只給人在程式裡認這一段用；畫面上的標題寫在各自的 Panel 上 */
   label: string;
   node: React.ReactNode;
   /**
@@ -25,6 +26,9 @@ export type Section = {
  * 區塊之間一條線而不只是空白：一頁有六七塊，只靠空白看不出「這裡換了一個主題」。
  * 線畫在外層的包裝上，高度留在內層——`h-[26rem]` 是 border-box，
  * padding 加在同一層會把圖表壓小。
+ *
+ * 標題不畫在這裡：一個區塊裡可能並排兩張圖（兩個樹狀圖、兩個圓餅），
+ * 共用一行「分布」等於兩張圖都沒有名字。改成每張卡自己寫，見 Panel。
  */
 export function SectionList({ sections }: { sections: Section[] }) {
   return (
@@ -38,7 +42,6 @@ export function SectionList({ sections }: { sections: Section[] }) {
                 : (section.scrollHeight ?? "h-[26rem] sm:h-[32rem]")
             }`}
           >
-            <h3 className="shrink-0 text-sm font-medium text-gray-500">{section.label}</h3>
             {section.needsHeight === false ? (
               section.node
             ) : (

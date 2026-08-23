@@ -49,7 +49,7 @@ export function useArticleSections(articles: Article[]): Section[] {
               label: "每月完成篇數",
               scrollHeight: "h-70 sm:h-[32rem]",
               node: (
-                <Panel>
+                <Panel title="每月完成篇數">
                   <MonthlyTrendChart
                     data={monthly}
                     unit="篇"
@@ -84,9 +84,9 @@ export function useArticleSections(articles: Article[]): Section[] {
         label: "來源站台",
         needsHeight: false,
         node: (
-          <div className="rounded-surface border bg-white p-5">
+          <Panel title="來源站台">
             <RankingBar data={sources} unit="篇" emptyHint="尚無讀完的文章" />
-          </div>
+          </Panel>
         ),
       },
       ...(isMobile
@@ -96,7 +96,7 @@ export function useArticleSections(articles: Article[]): Section[] {
             // 圓餅本來就是圓的，容器做成正方形剛好貼合，不會上下留白
             scrollHeight: "aspect-square",
             node: (
-              <Panel>
+              <Panel title={pie.label}>
                 <DistributionPie data={pie.data} unit="篇" height="100%" />
               </Panel>
             ),
@@ -108,7 +108,7 @@ export function useArticleSections(articles: Article[]): Section[] {
               node: (
                 <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
                   {pies.map((pie) => (
-                    <Panel key={pie.key}>
+                    <Panel key={pie.key} title={pie.label}>
                       <DistributionPie data={pie.data} unit="篇" height="100%" />
                     </Panel>
                   ))}

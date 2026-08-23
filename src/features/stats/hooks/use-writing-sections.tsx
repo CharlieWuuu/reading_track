@@ -26,7 +26,7 @@ export function useWritingSections(writings: Writing[]): Section[] {
     // 紀事只有類型一種分類，所以只有一張圖
     const pies = [{ key: "kind", label: "類型分布", data: getKindDistribution(writings) }];
 
-    const trend = (title?: string) => (
+    const trend = (title = "每月筆數") => (
       <Panel title={title}>
         <MonthlyTrendChart data={monthly} unit="筆" seriesLabel="筆數" height="100%" />
       </Panel>
@@ -62,7 +62,7 @@ export function useWritingSections(writings: Writing[]): Section[] {
             label: pie.label,
             scrollHeight: "aspect-square",
             node: (
-              <Panel>
+              <Panel title={pie.label}>
                 <DistributionPie data={pie.data} unit="筆" height="100%" />
               </Panel>
             ),
@@ -74,7 +74,7 @@ export function useWritingSections(writings: Writing[]): Section[] {
               node: (
                 <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
                   {pies.map((pie) => (
-                    <Panel key={pie.key}>
+                    <Panel key={pie.key} title={pie.label}>
                       <DistributionPie data={pie.data} unit="筆" height="100%" />
                     </Panel>
                   ))}
