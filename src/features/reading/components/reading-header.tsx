@@ -48,7 +48,6 @@ export function ReadingHeader({ views, filters, newButton }: ReadingHeaderProps 
 
   return (
     <PageHeader
-      title="閱讀"
       action={
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <SearchBar value={query} onChange={(next) => setParams({ q: next || null })} />

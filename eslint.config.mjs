@@ -28,6 +28,9 @@ const ALLOWED = {
   articles: ["writing"],
   books: ["writing", "keywords", "notes"],
   notes: ["keywords"],
+  // KeywordTag 是全站唯一的關鍵字標籤（點了跳同一個視窗），書寫的表格也要用它。
+  // 沒有搬到共用層是因為它連著 KeywordPopup，那支吃關鍵字的資料 hook
+  writing: ["keywords"],
 };
 
 const featureZones = FEATURES.map((feature) => ({
