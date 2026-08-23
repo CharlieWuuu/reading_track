@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import useSWR from "swr";
 import { readCached } from "@/lib/swr-cache";
 import { usePrivacyStore } from "@/stores/use-privacy-store";
@@ -24,8 +25,11 @@ export function useRecords() {
     ? `/api/records?sheetId=${encodeURIComponent(sheetId)}${unlock ? `&unlock=${unlock}` : ""}`
     : null;
 
+  // 綁在 key 上：readCached 是在 render 當中被呼叫的，每次都重讀一次舊快取
+  const fallbackData = useMemo(() => readCached<Records>(key), [key]);
+
   const { data, error, isLoading, mutate } = useSWR(key, fetcher, {
-    fallbackData: readCached<Records>(key),
+    fallbackData,
   });
 
   /** 一本書的紀錄整批換掉，跟後端同一個約定 */

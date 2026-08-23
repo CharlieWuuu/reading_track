@@ -33,8 +33,11 @@ export function useSheetRecords<T>(resource: SheetResource, sort: (rows: T[]) =>
     : null;
 
   // 先用上次存下來的資料把畫面畫出來，再於背景重新抓
+  // 綁在 key 上：readCached 是在 render 當中被呼叫的，每次都重讀一次舊快取
+  const fallbackData = useMemo(() => readCached<Record<string, T[]>>(key), [key]);
+
   const { data, error, isLoading, isValidating, mutate } = useSWR(key, fetcher<T>, {
-    fallbackData: readCached<Record<string, T[]>>(key),
+    fallbackData,
   });
 
   const rows = data?.[resource];

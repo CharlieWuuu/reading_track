@@ -1,5 +1,6 @@
 "use client";
 
+import { CachePanel } from "@/features/settings/components/cache-panel";
 import { DataIssuesPanel } from "@/features/settings/components/data-issues-panel";
 import { ImportNotesButton } from "@/features/settings/components/import-notes-button";
 
@@ -23,6 +24,10 @@ export function MaintenancePanel({ enrichSlot }: { enrichSlot: React.ReactNode }
 
       <div className="mt-6 border-t pt-4">
         <DataIssuesPanel />
+      </div>
+
+      <div className="mt-6 border-t pt-4">
+        <CachePanel />
       </div>
     </div>
   );
