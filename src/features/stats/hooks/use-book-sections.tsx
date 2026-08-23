@@ -23,7 +23,7 @@ import {
   getQuarterlyTrend,
   getRereadRanking,
   getTypeDistribution,
-} from "@/utils/book-stats";
+} from "@/utils/stats/book-stats";
 
 /**
  * 書籍統計要畫哪幾塊。

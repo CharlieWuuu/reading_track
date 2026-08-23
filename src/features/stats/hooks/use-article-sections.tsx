@@ -15,7 +15,7 @@ import {
   getArticleMonthlyTrend,
   getArticleTypeDistribution,
   getSourceRanking,
-} from "@/utils/article-stats";
+} from "@/utils/stats/article-stats";
 
 /**
  * 文章統計要畫哪幾塊。結構與 useBookSections 相同：資料算完組成陣列，

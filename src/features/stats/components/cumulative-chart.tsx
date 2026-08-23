@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { QuarterCount } from "@/utils/book-stats";
+import { QuarterCount } from "@/utils/stats/book-stats";
 
 /** 每一季只在第一季標出年份，其餘留刻度線就好，不然 X 軸會擠成一團 */
 function quarterTick(value: string) {

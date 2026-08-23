@@ -7,7 +7,7 @@ import { RecordCard } from "@/features/notes/components/record-card";
 import { QuoteBlock } from "@/features/notes/components/record-items";
 import { useRecords } from "@/hooks/use-records";
 import { Book } from "@/types/book";
-import { getQuoteRecords } from "@/utils/vocabulary-stats";
+import { getQuoteRecords } from "@/utils/stats/vocabulary-stats";
 
 // 內文長度差很多，排成多欄只會高高低低；一則一列往下排反而好讀
 const styles = { list: "flex flex-col divide-y divide-rule-soft" };

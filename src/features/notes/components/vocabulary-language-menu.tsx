@@ -4,7 +4,7 @@ import { FilterMenu } from "@/components/ui/filter-menu";
 import { useBooks } from "@/hooks/use-books";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
-import { getVocabularyEntries, vocabularyLanguages } from "@/utils/vocabulary-stats";
+import { getVocabularyEntries, vocabularyLanguages } from "@/utils/stats/vocabulary-stats";
 
 /**
  * 單字的語言篩選。用跟書單、書寫同一顆篩選鍵。
