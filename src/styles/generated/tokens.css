@@ -102,6 +102,6 @@
   --color-control-ink: var(--color-accent-ink);
   --color-control-border: var(--color-rule);
   --color-control-menu-bg: var(--color-surface);
-  --color-table-header-rule: var(--color-rule-strong); /** 表頭下緣用 inset shadow 畫，sticky 時 border 會被捲掉 */
+  --color-table-header-rule: var(--color-rule); /** 表頭下緣用 inset shadow 畫，sticky 時 border 會被捲掉。用一般的框線色，深棕壓在淺色表頭下面太重 */
   --color-map-chrome-border: var(--color-rule);
 }

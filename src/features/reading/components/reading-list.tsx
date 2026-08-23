@@ -114,7 +114,7 @@ function ArticleTable({ articles }: { articles: Article[] }) {
             <tr
               key={a.id}
               onClick={() => router.push(articleEditHref(a.id))}
-              className="cursor-pointer border-t hover:bg-gray-50"
+              className="cursor-pointer border-t first:border-t-0 hover:bg-gray-50"
             >
               <td className="px-3 py-2">
                 <Favicon url={a.sourceUrl} fallback={a.platform || a.title} className="size-5" />

@@ -651,9 +651,9 @@ export const TOKEN_MANIFEST: TokenEntry[] = [
   {
     "name": "color-table-header-rule",
     "layer": "component",
-    "value": "#5c4a3d",
-    "alias": "rule-strong",
-    "description": "表頭下緣用 inset shadow 畫，sticky 時 border 會被捲掉"
+    "value": "#e8e0d0",
+    "alias": "rule",
+    "description": "表頭下緣用 inset shadow 畫，sticky 時 border 會被捲掉。用一般的框線色，深棕壓在淺色表頭下面太重"
   },
   {
     "name": "color-map-label-bg",

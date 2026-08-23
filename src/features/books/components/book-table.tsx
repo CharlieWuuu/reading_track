@@ -290,7 +290,7 @@ export function BookTable() {
                 key={b.id || `row-${i}`}
 
                 onClick={() => router.push(detailHref(b.id))}
-                className={`cursor-pointer border-t ${rowTone(b.endDate, thisYear)}`}
+                className={`cursor-pointer border-t first:border-t-0 ${rowTone(b.endDate, thisYear)}`}
               >
                 {/*
                 狀態色條疊在第一格上，不用 border-l——那會把整個 tbody 往右推 3px，

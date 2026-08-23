@@ -5,6 +5,7 @@ import { writingEditHref } from "@/config/routes";
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { splitLines, splitTags } from "@/types/book";
 import { Writing } from "@/types/writing";
+import { shortDate } from "@/utils/date";
 import { tagColorClass } from "@/utils/tag-colors";
 
 /**
@@ -13,8 +14,8 @@ import { tagColorClass } from "@/utils/tag-colors";
  * 內文刻意不進表格——紀事的內文長短差很多，塞進格子裡不是被截斷就是把列撐高，
  * 兩種都讓「這陣子寫了什麼」變得難掃。要看內容點進去就好，表格負責找到那一則。
  *
- * 欄位由左到右是「這是什麼 → 叫什麼 → 關於什麼 → 從哪來 → 什麼時候」。
- * 日期擺最右邊：它是查證用的，不是掃描時在找的東西。
+ * 日期擺第一欄，只寫 `08/19`：一整欄同寬的數字，往下掃就是一條時間軸。
+ * 完整年份沒有意義——同一個畫面裡的紀事幾乎都是今年的，跨年的才補上。
  *
  * 窄螢幕不再藏欄位，改成整張表左右滑——藏起來的欄位在手機上等於不存在，
  * 而「這則是什麼類型」正是手機上最想先看到的。
@@ -34,11 +35,11 @@ export function WritingTable({ writings }: { writings: Writing[] }) {
       <table className="w-full min-w-[40rem] table-fixed text-sm">
         <thead className="bg-table-header-bg sticky top-0 z-10 text-left [&_th]:shadow-[inset_0_-1px_0_var(--color-table-header-rule)]">
           <tr>
-            <th className="w-[14%] px-3 py-2 whitespace-nowrap">類型</th>
-            <th className="w-[34%] px-3 py-2 whitespace-nowrap">標題</th>
-            <th className="w-[22%] px-3 py-2 whitespace-nowrap">關鍵字</th>
-            <th className="w-[20%] px-3 py-2 whitespace-nowrap">延伸自</th>
             <th className="w-[10%] px-3 py-2 whitespace-nowrap">日期</th>
+            <th className="w-[13%] px-3 py-2 whitespace-nowrap">類型</th>
+            <th className="w-[33%] px-3 py-2 whitespace-nowrap">標題</th>
+            <th className="w-[23%] px-3 py-2 whitespace-nowrap">關鍵字</th>
+            <th className="w-[21%] px-3 py-2 whitespace-nowrap">延伸自</th>
           </tr>
         </thead>
         <tbody>
@@ -46,8 +47,11 @@ export function WritingTable({ writings }: { writings: Writing[] }) {
             <tr
               key={e.id}
               onClick={() => router.push(writingEditHref(e.id))}
-              className="cursor-pointer border-t hover:bg-gray-50"
+              className="cursor-pointer border-t first:border-t-0 hover:bg-gray-50"
             >
+              <td className="px-3 py-2 whitespace-nowrap text-gray-500 tabular-nums">
+                {shortDate(e.date) || "—"}
+              </td>
               <td className="max-w-0 overflow-hidden px-3 py-2">
                 <div className="flex flex-nowrap gap-1.5">
                   {splitTags(e.kind).map((kind) => (
@@ -79,7 +83,6 @@ export function WritingTable({ writings }: { writings: Writing[] }) {
                   {e.sourceTitle}
                 </span>
               </td>
-              <td className="px-3 py-2 whitespace-nowrap tabular-nums">{e.date || "—"}</td>
             </tr>
           ))}
         </tbody>
