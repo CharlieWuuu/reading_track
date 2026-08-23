@@ -1,5 +1,6 @@
 import { Book, splitTags } from "@/types/book";
 import { QuoteRow } from "@/types/record";
+import { rootId } from "@/utils/book-reads";
 
 export interface YearCount {
   year: string;
@@ -295,19 +296,38 @@ export function getAuthorRanking(books: Book[], limit = 5): RankingItem[] {
 /**
  * 重讀排行：同一本書在表裡有幾筆讀完的紀錄就是讀過幾次。
  *
- * 仍然用書名比對。`originId`（見 `utils/book-reads.ts`）比書名可靠，但它是
- * 08-23 才加的欄位——改成用它，08-23 以前的重讀會因為沒有連結而全部散開。
+ * 用 `originId` 認人（見 `utils/book-reads.ts`），不用書名。書名會把「同名的
+ * 兩本不同書」算成重讀，也會因為一次打錯字就讓同一本書分裂成兩筆。
  *
- * 補連結的工具做好了（設定→資料維護的「補同一本書編號」），但那要人一組一組
- * 確認過。等使用者跑完、舊資料真的都連上了再換，不然這張圖會先壞掉。
+ * 代價是沒有補連結的舊資料會散開——那要人一組一組確認過（設定→資料維護的
+ * 「補同一本書編號」），不是程式猜得出來的。
  *
+ * 書名取源頭那一列的：重讀時副標可能補得比較完整，但排行上要的是同一個名字。
  * 只算「已讀完」的，想讀／閱讀中那筆還沒完成，不該算成又讀了一次。
  */
 export function getRereadRanking(books: Book[], limit = 5): RankingItem[] {
-  return rank(
-    completedBooks(books).map((b) => ({ names: b.title.trim() ? [b.title.trim()] : [], book: b })),
-    limit,
-  );
+  const counts = new Map<string, number>();
+  const titles = new Map<string, string>();
+  const covers = new Map<string, string>();
+
+  for (const book of completedBooks(books)) {
+    const key = rootId(book);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+    const title = book.title.trim();
+    // 源頭那一列的書名優先；源頭沒讀完（不在這裡）就用第一個有名字的
+    if (title && (book.id === key || !titles.get(key))) titles.set(key, title);
+    if (!covers.has(key) && book.coverUrl) covers.set(key, book.coverUrl);
+  }
+
+  return [...counts.entries()]
+    .filter(([key, value]) => value >= 2 && titles.get(key))
+    .map(([key, value]) => ({
+      name: titles.get(key)!,
+      value,
+      coverUrl: covers.get(key),
+    }))
+    .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name, "zh-Hant"))
+    .slice(0, limit);
 }
 
 function rank(groups: Array<{ names: string[]; book: Book }>, limit: number): RankingItem[] {
