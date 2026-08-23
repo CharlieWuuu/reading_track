@@ -1,6 +1,6 @@
 "use client";
 
-import { TabBar } from "@/components/ui/controls";
+import { SegmentedControl } from "@/components/ui/controls";
 import { useUrlParams } from "@/hooks/use-url-param";
 
 export type ArticleFormTab = "article" | "tags" | "notes";
@@ -26,5 +26,5 @@ export function useArticleFormTab() {
 /** 表單的分頁列，放在頁首的操作區 */
 export function ArticleFormTabs() {
   const { tab, setTab } = useArticleFormTab();
-  return <TabBar items={TABS} value={tab} onChange={setTab} />;
+  return <SegmentedControl items={TABS} value={tab} onChange={setTab} />;
 }

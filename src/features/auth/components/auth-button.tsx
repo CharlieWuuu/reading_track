@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
+import { Spinner } from "@/components/ui/spinner";
 import { useSidebarStore } from "@/stores/use-sidebar-store";
 
 /** 側欄收合時只顯示頭像；收合狀態直接讀 store，免得要跨 server/client 邊界傳 */
@@ -17,7 +18,7 @@ export function AuthButton() {
   }, [session?.error]);
 
   if (status === "loading") {
-    return <span className="text-sm text-gray-400">載入中…</span>;
+    return <Spinner size={14} className="text-gray-400" />;
   }
 
   if (session?.user) {

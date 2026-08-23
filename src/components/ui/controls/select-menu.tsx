@@ -24,7 +24,7 @@ type SelectMenuProps<T extends string> = {
 /**
  * 一排選項收成一顆按鈕，點了才放下來。
  *
- * 跟 TabBar 的差別是「幾個選項要不要一直佔著寬度」：頁首那一列在手機上放不下
+ * 跟 SegmentedControl 的差別是「幾個選項要不要一直佔著寬度」：頁首那一列在手機上放不下
  * 五個分頁，擠出畫面就點不到了（`min-width:auto` 讓它連捲都捲不動）。
  */
 export function SelectMenu<T extends string>({

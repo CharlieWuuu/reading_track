@@ -1,5 +1,6 @@
 "use client";
 
+import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { useBooks } from "@/hooks/use-books";
 import { useMounted } from "@/hooks/use-mounted";
@@ -19,7 +20,7 @@ export function BooksGate({ children }: BooksGateProps) {
   // 還沒掛載完就什麼都別說，免得閃一下「請先連接」
   if (!mounted) return null;
   if (!sheetId) return <PageMessage>請先到「設定」頁面連接 Google Sheet</PageMessage>;
-  if (isLoading) return <PageMessage>載入中…</PageMessage>;
+  if (isLoading) return <PageLoading />;
   if (error) return <PageMessage tone="error">{error}</PageMessage>;
 
   return <>{children(books)}</>;

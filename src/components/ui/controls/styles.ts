@@ -18,17 +18,17 @@ export const styles = {
   secondary: `flex ${HEIGHT} shrink-0 items-center gap-1 rounded-control border px-3 ${TEXT} text-control-ink-secondary hover:bg-control-ghost-hover`,
   // 沒有文字就不用留文字的左右餘裕；圖示旁邊還有一個 chevron，所以不做成正方形
   secondaryIcon: `flex ${HEIGHT} shrink-0 items-center gap-0.5 rounded-control border px-2 ${TEXT} text-control-ink-secondary hover:bg-control-ghost-hover`,
+  // 一排選項：分頁與檢視切換共用這一組（SegmentedControl）
   // 只佔自己的寬度，窄螢幕放不下時才在自己裡面橫捲
-  // 邊框跟同一排的檢視切換用同一個灰階，兩顆控制項擺在一起才不會一深一淺
-  tabs: `flex ${HEIGHT} w-fit max-w-full items-center gap-1 overflow-x-auto rounded-control border border-control-border p-1`,
-  tab: `flex h-full shrink-0 items-center rounded-control px-2.5 ${TEXT} whitespace-nowrap md:px-3`,
-  tabActive: "bg-control-bg text-control-ink",
-  tabIdle: "text-control-ink-idle hover:bg-control-ghost-hover",
+  segmentBox: `flex ${HEIGHT} w-fit max-w-full items-center gap-1 overflow-x-auto rounded-control border border-control-border p-1`,
+  segment: `flex h-full shrink-0 items-center rounded-control px-2.5 ${TEXT} whitespace-nowrap md:px-3`,
+  // 小一號：放在圖表面板裡，跟頁首那排同一套長相但不搶圖的位置
+  segmentBoxSm:
+    "flex h-7 w-fit max-w-full items-center gap-0.5 overflow-x-auto rounded-control border border-control-border p-0.5",
+  segmentSm:
+    "flex h-full shrink-0 items-center rounded-control px-2 text-xs font-medium whitespace-nowrap",
+  segmentActive: "bg-control-bg text-control-ink",
+  segmentIdle: "text-control-ink-idle hover:bg-control-ghost-hover",
   menu: "absolute right-0 z-30 mt-1 flex min-w-32 flex-col rounded-surface border bg-control-menu-bg py-1 shadow-lg",
   menuItem: "flex w-full items-center gap-2 px-3 py-1.5 text-sm hover:bg-control-menu-hover",
-  viewToggle: `inline-flex ${HEIGHT} shrink-0 items-center rounded-control border border-control-border p-0.5`,
-  viewButton: "flex h-full items-center rounded-control px-2",
-  viewActive: "bg-control-bg text-control-ink",
-  viewIdle:
-    "text-control-ink-faint hover:bg-control-ghost-hover hover:text-control-ink-faint-hover",
 };

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { Tag } from "lucide-react";
+import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { BookCover } from "@/components/ui/book-cover";
 import { STATUS_STYLES, StatusBadge, TagList } from "@/components/ui/tag-badge";
@@ -15,6 +16,7 @@ import { isBookViewMode, useBookViewStore } from "@/stores/use-book-view-store";
 import { useSheetStore } from "@/stores/use-sheet-store";
 import { TOKENS } from "@/styles/generated/tokens";
 import { Book, ReadingStatus, splitLines } from "@/types/book";
+import { effectiveStatus, matchesStatus, parseStatusFilter } from "@/utils/book-filter";
 import { matchesSearch, searchTerms } from "@/utils/search";
 
 /** 目前篩選中的關鍵字。放在清單上方，因為它會改變下面看到的是什麼 */
@@ -114,8 +116,14 @@ export function BookTable() {
   const keyword = searchParams.get("keyword") ?? "";
   // 搜尋框在頁首，這裡跟著網址走：關鍵字反查與搜尋兩個條件同時成立
   const terms = searchTerms(searchParams.get("q") ?? "");
+  // 找東西的時候不篩狀態：搜書名找不到會讓人以為那本書不見了
+  const status = effectiveStatus(
+    parseStatusFilter(searchParams.get("status")),
+    terms.length > 0 || Boolean(keyword),
+  );
   const books = allBooks.filter(
     (b) =>
+      matchesStatus(b, status) &&
       (!keyword || splitLines(b.keywords).includes(keyword)) &&
       matchesSearch(terms, b.title, b.author, b.publisher, b.keywords, b.note),
   );
@@ -132,7 +140,7 @@ export function BookTable() {
   }
 
   if (isLoading) {
-    return <PageMessage>載入中…</PageMessage>;
+    return <PageLoading />;
   }
 
   if (error) {

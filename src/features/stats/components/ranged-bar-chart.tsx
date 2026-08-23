@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { SegmentedControl } from "@/components/ui/controls";
 import { PagerButton } from "@/components/ui/pager-button";
 
 export interface RangeOption {
@@ -92,21 +93,13 @@ export function RangedBarChart({
             />
           </div>
         )}
-        <div className="flex gap-1">
-          {ranges.map((option) => (
-            <button
-              key={option.key}
-              onClick={() => changeRange(option.key)}
-              className={`rounded-control px-2 py-1 text-xs font-medium ${
-                rangeKey === option.key
-                  ? "bg-gray-900 text-white"
-                  : "text-gray-500 hover:bg-gray-100"
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
+        {/* 期間切換跟頁首的分頁列是同一件事，用同一個元件的小尺寸版 */}
+        <SegmentedControl
+          size="sm"
+          items={ranges.map((option) => ({ key: option.key, label: option.label }))}
+          value={rangeKey}
+          onChange={changeRange}
+        />
       </div>
 
       <div className="min-h-0 flex-1">

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { BookCover } from "@/components/ui/book-cover";
+import { scrapeBook, searchBookByTitle } from "@/features/books/api/lookup-book";
 import { Book, formatCount } from "@/types/book";
 
 export interface LookupResult {
@@ -28,22 +29,13 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
   const canSubmit = Boolean(title.trim() || url.trim());
 
   async function lookupByUrl(): Promise<Partial<Book> | null> {
-    const res = await fetch("/api/scrape", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: url.trim() }),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data?.title ? { ...data, sourceUrl: url.trim() } : { sourceUrl: url.trim() };
+    const sourceUrl = url.trim();
+    const found = await scrapeBook(sourceUrl);
+    // 沒查到也把網址記住：使用者已經貼了，不該讓他再貼一次
+    return found ? { ...found, sourceUrl } : { sourceUrl };
   }
 
-  async function lookupByTitle(): Promise<Partial<Book> | null> {
-    const res = await fetch(`/api/search-book?q=${encodeURIComponent(title.trim())}`);
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.results?.[0] ?? null;
-  }
+  const lookupByTitle = () => searchBookByTitle(title.trim());
 
   async function handleLookup(e: React.FormEvent) {
     e.preventDefault();

@@ -10,6 +10,8 @@ import { compactLines } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
 import { keywordEditHref, writingEditHref } from "@/config/routes";
+import { saveMetric } from "@/features/writing/api/save-metric";
+import { scrapeWritingStats } from "@/features/writing/api/scrape-stats";
 import { SourcePicker } from "@/features/writing/components/source-picker";
 import { useWritingsFormTab } from "@/features/writing/components/writing-form-tabs";
 import { useMetrics } from "@/hooks/use-metrics";
@@ -139,13 +141,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
     setFetchingStats(true);
     setStatsNote("");
     try {
-      const res = await fetch("/api/scrape-stats", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
-      });
-      const stats = await res.json();
-      if (!res.ok) throw new Error(stats.error ?? "抓取失敗");
+      const stats = await scrapeWritingStats(url);
 
       const metric = {
         id: crypto.randomUUID(),
@@ -156,12 +152,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
         views: stats.views,
         reads: stats.reads,
       };
-      const saved = await fetch("/api/metrics", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sheetId, metric }),
-      });
-      if (!saved.ok) throw new Error("寫入失敗");
+      await saveMetric(sheetId, metric);
 
       await mutateMetrics();
       setStatsNote(
