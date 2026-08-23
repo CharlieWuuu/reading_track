@@ -3,8 +3,8 @@
 import { AlignLeft, Plus, Rows3 } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { ActionButton, SelectMenu } from "@/components/ui/controls";
+import { FilterMenu } from "@/components/ui/filter-menu";
 import { SearchBar } from "@/components/ui/search-bar";
-import { WritingFilter } from "@/features/writing/components/writing-filter";
 import { WRITING_VIEWS } from "@/features/writing/views";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useWritings } from "@/hooks/use-writings";
@@ -45,7 +45,7 @@ export function WritingHeader() {
             value={view}
             onChange={(next) => setParams({ view: WRITING_VIEWS.toParam(next) })}
           />
-          <WritingFilter
+          <FilterMenu
             groups={[{ key: "kind", label: "類型", options: usedKinds(writings), value: kind }]}
             onChange={(key, next) => setParams({ [key]: next || null })}
           />

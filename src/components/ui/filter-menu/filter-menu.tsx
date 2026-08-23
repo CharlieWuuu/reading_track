@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Check, SlidersHorizontal } from "lucide-react";
 import { CONTROL_HEIGHT } from "@/components/ui/controls";
+import { useOutsideClick } from "@/hooks/use-outside-click";
 
 const styles = {
   root: "relative shrink-0",
@@ -33,10 +34,12 @@ export type FilterGroup = {
 /**
  * 篩選收在按鈕裡，點了才展開。
  *
- * 頁首本來有一整排類型分頁，加上新增按鈕手機一定擠爆；而且篩選是偶爾才用
- * 一次的東西，不該一直佔著位置。篩選中的時候按鈕直接顯示篩的是什麼。
+ * 頁首那一排本來就擠，而篩選是偶爾才動一次的東西，不該一直佔著位置。
+ * 窄螢幕連文字都收掉只留圖示；篩選中的時候按鈕直接顯示篩的是什麼。
+ *
+ * 選項與目前的值都由呼叫端給——它不認得書、也不認得紀事，只管長相與展開收合。
  */
-export function WritingFilter({
+export function FilterMenu({
   groups,
   onChange,
 }: {
@@ -44,17 +47,7 @@ export function WritingFilter({
   onChange: (key: string, next: string) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  // 點到別的地方就收起來
-  useEffect(() => {
-    if (!open) return;
-    function onPointerDown(e: MouseEvent) {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
-    }
-    document.addEventListener("mousedown", onPointerDown);
-    return () => document.removeEventListener("mousedown", onPointerDown);
-  }, [open]);
+  const rootRef = useOutsideClick<HTMLDivElement>(open, () => setOpen(false));
 
   function pick(key: string, next: string) {
     onChange(key, next);
