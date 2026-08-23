@@ -19,9 +19,10 @@ function usedKinds(writings: Writing[]): string[] {
 }
 
 const ICON = { size: 16, strokeWidth: 1.5 } as const;
+/** 預設的那一個排前面，選單打開時第一眼看到的就是現在這個 */
 const VIEW_ITEMS = [
-  { key: "table" as const, label: "表格", Icon: () => <Rows3 {...ICON} /> },
   { key: "timeline" as const, label: "時間軸", Icon: () => <AlignLeft {...ICON} /> },
+  { key: "table" as const, label: "表格", Icon: () => <Rows3 {...ICON} /> },
 ];
 
 /** 書寫的頁首。跟清單一樣自己讀網址，不用把狀態繞一圈從 page 傳下來 */
