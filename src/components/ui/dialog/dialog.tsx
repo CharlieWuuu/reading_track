@@ -4,10 +4,11 @@ import { useEffect } from "react";
 import { X } from "lucide-react";
 
 const styles = {
-  backdrop:
-    "fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-0 sm:items-center sm:p-6",
+  // 一律置中。手機版原本從底部長出來，但裡面有輸入框時 iOS 的鍵盤會把整片
+  // 頂到看不見——fixed 認的是版面視窗，鍵盤不會把它推上去
+  backdrop: "fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 sm:p-6",
   panel:
-    "flex max-h-[85vh] w-full max-w-2xl flex-col gap-3 rounded-t-surface border bg-white p-4 sm:rounded-surface sm:p-5",
+    "rounded-surface flex max-h-[85dvh] w-full max-w-2xl flex-col gap-3 border bg-white p-4 sm:p-5",
   head: "flex shrink-0 items-start justify-end gap-3",
   title: "mr-auto min-w-0 truncate text-sm font-semibold",
   close: "shrink-0 rounded-control p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-900",
@@ -23,7 +24,7 @@ type DialogProps = {
   children: React.ReactNode;
 };
 
-/** 手機從底部長出來、桌機置中的彈出視窗。點背景或按 Esc 關閉 */
+/** 置中的彈出視窗。點背景或按 Esc 關閉 */
 export function Dialog({ title, showTitle = true, onClose, children }: DialogProps) {
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
