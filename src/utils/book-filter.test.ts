@@ -7,6 +7,7 @@ import {
   parseStatusFilter,
   STATUS_LABELS,
   statusFromLabel,
+  statusHeading,
   statusLabel,
 } from "./book-filter";
 
@@ -65,6 +66,11 @@ describe("篩選選單上的標籤", () => {
 
   it("全部是空字串，跟其他篩選一致", () => {
     expect(statusLabel("all")).toBe("");
+  });
+
+  it("標題列的「全部」要寫得出來，不能是空字串", () => {
+    expect(statusHeading("all")).toBe("全部");
+    expect(statusHeading("reading")).toBe("閱讀中");
     expect(statusFromLabel("")).toBe("all");
   });
 

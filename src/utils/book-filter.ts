@@ -19,8 +19,14 @@ const STATUS_OF: Record<Exclude<StatusFilter, "all">, ReadingStatus> = {
 /** 篩選選單上顯示的就是狀態本身；空字串是「全部」，跟其他篩選一致 */
 export const STATUS_LABELS = Object.values(STATUS_OF);
 
+/** 篩選選單用：空字串代表「全部」，跟其他篩選一致 */
 export function statusLabel(status: StatusFilter): string {
   return status === "all" ? "" : STATUS_OF[status];
+}
+
+/** 標題列用：那裡要寫得出「全部」，空字串會變成一條沒有名字的線 */
+export function statusHeading(status: StatusFilter): string {
+  return status === "all" ? "全部" : STATUS_OF[status];
 }
 
 export function statusFromLabel(label: string): StatusFilter {

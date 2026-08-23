@@ -9,8 +9,9 @@ const styles = {
   root: "relative shrink-0",
   // 高度吃全站常數，跟旁邊的新增按鈕、別頁的分頁列站在一起才不會一高一矮
   trigger: `flex ${CONTROL_HEIGHT} items-center gap-1.5 rounded-control border px-2.5 text-sm whitespace-nowrap hover:bg-gray-50`,
-  // 篩選中用淺色底，不整顆填滿：它是一個狀態，不是這一排最重要的動作
-  triggerOn: "border-gold-300 bg-gold-100 text-gold-800 hover:bg-gold-200",
+  // 篩選中不換底色也不換框：頁首那一排每顆長得一樣，這顆自己變色會像壞掉。
+  // 「正在篩什麼」由按鈕上顯示的文字本身說明，不需要再用顏色喊一次
+  triggerOn: "border-rule text-gray-900",
   triggerOff: "border-rule text-gray-600",
   // 選單靠右對齊：按鈕本來就在頁首右側，往左展開才不會超出畫面
   panel:
