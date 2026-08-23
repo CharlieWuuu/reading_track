@@ -2,7 +2,17 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { Suspense } from "react";
-import { CalendarDays, ChartPie, GanttChartSquare, History, Map } from "lucide-react";
+import {
+  BookOpen,
+  CalendarDays,
+  ChartPie,
+  GanttChartSquare,
+  History,
+  Map,
+  Newspaper,
+  PenLine,
+  Tag,
+} from "lucide-react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { SelectMenu } from "@/components/ui/controls";
@@ -11,6 +21,7 @@ import {
   resolveView,
   STATS_TYPES,
   statsHref,
+  StatsType,
   StatsView,
   viewsFor,
 } from "@/config/stats-views";
@@ -22,6 +33,13 @@ const ICON = { size: 16, strokeWidth: 1.5 } as const;
  * 圖示留在這裡而不是 config/stats-views.ts：那支是純資料（測試也讀它），
  * 一放 JSX 就得改成 .tsx，還會把 lucide 綁進設定層。
  */
+const TYPE_ICONS: Record<StatsType, () => React.ReactElement> = {
+  books: () => <BookOpen {...ICON} />,
+  articles: () => <Newspaper {...ICON} />,
+  writing: () => <PenLine {...ICON} />,
+  keywords: () => <Tag {...ICON} />,
+};
+
 const VIEW_ICONS: Record<StatsView, () => React.ReactElement> = {
   chart: () => <ChartPie {...ICON} />,
   calendar: () => <CalendarDays {...ICON} />,
@@ -51,7 +69,7 @@ function StatsHeader() {
         <div className="flex min-w-0 items-center gap-2">
           <SelectMenu
             label="類型"
-            items={STATS_TYPES}
+            items={STATS_TYPES.map((item) => ({ ...item, Icon: TYPE_ICONS[item.key] }))}
             value={type}
             // 換類型時目前的看法可能不適用，resolveView 會退回圖表
             onChange={(next) => router.push(statsHref(next, resolveView(next, view)))}

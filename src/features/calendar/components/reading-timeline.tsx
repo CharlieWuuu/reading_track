@@ -70,9 +70,15 @@ export function ReadingTimeline({ books }: { books: Book[] }) {
               <div
                 key={tick.offset}
                 style={{ width: tick.days * DAY_PX }}
-                className="border-rule-soft shrink-0 truncate border-l px-1 py-1.5 first:border-l-0"
+                className="border-rule-soft relative shrink-0 border-l py-1.5 first:border-l-0"
               >
-                {tick.year ? `${tick.year} 年 ${tick.label}` : tick.label}
+                {/*
+                  月份名黏在自己那一格的左緣：捲過去之後名字仍然跟著這個月走，
+                  直到下一個月把它推出去。不黏的話捲到月中就不知道現在看的是幾月
+                */}
+                <span className="bg-surface sticky left-0 inline-block truncate px-1">
+                  {tick.year ? `${tick.year} 年 ${tick.label}` : tick.label}
+                </span>
               </div>
             ))}
           </div>
@@ -87,9 +93,10 @@ export function ReadingTimeline({ books }: { books: Book[] }) {
               />
             ))}
             {todayOffset >= 0 && (
+              // 虛線：它是一條參考線，不是資料的一部分
               <span
                 style={{ left: todayOffset * DAY_PX }}
-                className="bg-accent absolute inset-y-0 w-px"
+                className="border-accent absolute inset-y-0 border-l border-dashed"
                 title="今天"
               />
             )}

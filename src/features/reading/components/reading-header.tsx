@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { BookOpen, Languages, Newspaper, Plus, Quote, Tag } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { ActionButton, SelectMenu } from "@/components/ui/controls";
 import { SearchBar } from "@/components/ui/search-bar";
@@ -20,6 +20,17 @@ import { useUrlParams } from "@/hooks/use-url-param";
  * 五個分頁收成一顆「類型」選單而不是排成一列：手機放不下五格，擠出畫面
  * 就再也點不到了。省下來的寬度給搜尋框常駐。
  */
+
+const ICON = { size: 16, strokeWidth: 1.5 } as const;
+
+/** 圖示放在這裡不放 config/tabs.ts：那支是純資料，測試也讀它，放 JSX 就得改副檔名 */
+const TAB_ICONS: Record<ReadingTab, () => React.ReactElement> = {
+  books: () => <BookOpen {...ICON} />,
+  articles: () => <Newspaper {...ICON} />,
+  quotes: () => <Quote {...ICON} />,
+  vocabulary: () => <Languages {...ICON} />,
+  keywords: () => <Tag {...ICON} />,
+};
 
 /** 佳句單字關鍵字是從書裡摘出來的，不單獨新增 */
 const NEW_HREF: Partial<Record<ReadingTab, string>> = {
@@ -53,7 +64,7 @@ export function ReadingHeader({ views, filters, newButton }: ReadingHeaderProps 
           <SearchBar value={query} onChange={(next) => setParams({ q: next || null })} />
           <SelectMenu
             label="類型"
-            items={READING_TABS}
+            items={READING_TABS.map((tab) => ({ ...tab, Icon: TAB_ICONS[tab.key] }))}
             value={current}
             onChange={(next) => router.push(readingTabHref(next))}
           />
