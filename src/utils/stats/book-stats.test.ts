@@ -230,14 +230,29 @@ describe("排行", () => {
     expect(getPublisherRanking(books)[0].coverUrl).toBe("https://example.com/2.jpg");
   });
 
-  // 每讀一次就是新增一列，兩列的 id 本來就不同，所以用書名比對
-  it("重讀看的是書名，不是編號", () => {
+  // 每讀一次就是新增一列，重讀那列的 originId 指回第一次
+  it("重讀看的是 originId，不是書名", () => {
     const books = [
       makeBook({ id: "b1", title: "被討厭的勇氣" }),
-      makeBook({ id: "b2", title: "被討厭的勇氣" }),
+      makeBook({ id: "b2", title: "被討厭的勇氣", originId: "b1" }),
     ];
 
     expect(getRereadRanking(books)).toMatchObject([{ name: "被討厭的勇氣", value: 2 }]);
+  });
+
+  it("同名但沒有連結的兩列是兩本不同的書，不算重讀", () => {
+    const books = [makeBook({ id: "b1", title: "筆記" }), makeBook({ id: "b2", title: "筆記" })];
+
+    expect(getRereadRanking(books)).toEqual([]);
+  });
+
+  it("書名取源頭那一列的：重讀時補上的副標不該換掉排行上的名字", () => {
+    const books = [
+      makeBook({ id: "b1", title: "深度工作力" }),
+      makeBook({ id: "b2", title: "深度工作力：淺薄時代的關鍵能力", originId: "b1" }),
+    ];
+
+    expect(getRereadRanking(books)[0].name).toBe("深度工作力");
   });
 
   it("還沒讀完的那次不算又讀了一次", () => {
