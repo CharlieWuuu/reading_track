@@ -25,7 +25,7 @@ const FEATURES = [
 ];
 
 const ALLOWED = {
-  articles: ["writing"],
+  articles: ["writing", "keywords"],
   books: ["writing", "keywords", "notes"],
   notes: ["keywords"],
   // KeywordTag 是全站唯一的關鍵字標籤（點了跳同一個視窗），書寫的表格也要用它。

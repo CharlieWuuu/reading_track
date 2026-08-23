@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { writingEditHref } from "@/config/routes";
+import { writingHref } from "@/config/routes";
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { splitLines, splitTags } from "@/types/book";
 import { Writing } from "@/types/writing";
@@ -46,7 +46,7 @@ export function WritingTable({ writings }: { writings: Writing[] }) {
           {writings.map((e) => (
             <tr
               key={e.id}
-              onClick={() => router.push(writingEditHref(e.id))}
+              onClick={() => router.push(writingHref(e.id))}
               className="cursor-pointer border-t first:border-t-0 hover:bg-gray-50"
             >
               <td className="px-3 py-2 whitespace-nowrap text-gray-500 tabular-nums">

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { PageLoading } from "@/components/layout/page-loading";
+import { vocabularyHref } from "@/config/routes";
 import { VocabularyPanel } from "@/features/notes/components/vocabulary-panel";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
@@ -22,9 +23,7 @@ export function VocabularySection({ books }: { books: Book[] }) {
         getVocabularyEntries(vocabulary, books),
         searchParams.get("lang") ?? "",
       )}
-      onEdit={(writings) =>
-        router.push(`/reading/vocabulary/${encodeURIComponent(writings.word)}/edit`)
-      }
+      onEdit={(writings) => router.push(vocabularyHref(writings.word))}
     />
   );
 }
