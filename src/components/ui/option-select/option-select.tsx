@@ -4,6 +4,13 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Pencil, type LucideIcon } from "lucide-react";
 import { createPortal } from "react-dom";
 
+/** 按鈕與選單之間留一點縫 */
+const GAP = 4;
+/** 下面剩不到這麼多就考慮翻到按鈕上方 */
+const MIN_PANEL_PX = 224;
+/** 上下都很擠時至少留這麼高，不然選單只剩一條縫 */
+const MIN_HEIGHT_PX = 120;
+
 /**
  * 仿 Notion 的選擇器：搜尋、選，打字就能登一個還沒用過的值。
  *
@@ -43,7 +50,13 @@ export function OptionSelect({
   const [query, setQuery] = useState("");
   const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const [rect, setRect] = useState<{ top: number; left: number; width: number } | null>(null);
+  const [rect, setRect] = useState<{
+    top?: number;
+    bottom?: number;
+    left: number;
+    width: number;
+    maxHeight: number;
+  } | null>(null);
 
   // 點到別的地方就收起來（選單被送到 body 底下，所以兩塊都要檢查）
   useEffect(() => {
@@ -61,22 +74,50 @@ export function OptionSelect({
    * 選單用 portal 送到 body 並固定定位。
    *
    * 編輯表單刻意每一頁都不給捲（外層是 overflow-hidden），選單如果留在原地
-   * 會被裁掉一半；改成 fixed 就不受任何祖先的 overflow 影響。
+   * 會被裁掉一半；改成 fixed 就不受任何祖先的 overflow 影響。代價是位置要自己量，
+   * 而且捲動時要重量——fixed 的座標是相對視窗的，按鈕捲走了它不會跟著走。
    */
   useLayoutEffect(() => {
     if (!open) return;
+
+    // scroll 用 capture 聽，等於每一個會捲的祖先捲一格就進來一次。
+    // 併到下一個 frame 再量，一次捲動只會重算一次
+    let frame = 0;
+    function schedule() {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        measure();
+      });
+    }
+
     function measure() {
       const el = rootRef.current;
       if (!el) return;
       const r = el.getBoundingClientRect();
-      setRect({ top: r.bottom + 4, left: r.left, width: r.width });
+      const below = window.innerHeight - r.bottom - GAP;
+      const above = r.top - GAP;
+      // 下面塞不下、而且上面比較寬敞才翻面。fixed 的東西超出視窗是捲不到的
+      const flip = below < MIN_PANEL_PX && above > below;
+
+      // 翻面時貼的是按鈕的上緣（bottom），不是算出來的 top——那樣不必先知道
+      // 選單有多高，內容長短變了也不會跳位
+      setRect({
+        top: flip ? undefined : r.bottom + GAP,
+        bottom: flip ? window.innerHeight - r.top + GAP : undefined,
+        left: r.left,
+        width: r.width,
+        maxHeight: Math.max(MIN_HEIGHT_PX, Math.floor(flip ? above : below)),
+      });
     }
+
     measure();
-    window.addEventListener("resize", measure);
-    window.addEventListener("scroll", measure, true);
+    window.addEventListener("resize", schedule);
+    window.addEventListener("scroll", schedule, true);
     return () => {
-      window.removeEventListener("resize", measure);
-      window.removeEventListener("scroll", measure, true);
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener("scroll", schedule, true);
     };
   }, [open]);
 
@@ -168,8 +209,14 @@ export function OptionSelect({
         createPortal(
           <div
             ref={panelRef}
-            style={{ top: rect.top, left: rect.left, width: rect.width }}
-            className="rounded-surface fixed z-50 overflow-hidden border bg-white shadow-lg"
+            style={{
+              top: rect.top,
+              bottom: rect.bottom,
+              left: rect.left,
+              width: rect.width,
+              maxHeight: rect.maxHeight,
+            }}
+            className="rounded-surface fixed z-50 flex flex-col overflow-hidden border bg-white shadow-lg"
           >
             <input
               autoFocus
@@ -186,7 +233,7 @@ export function OptionSelect({
               className="w-full border-b px-3 py-2 text-sm outline-none"
             />
 
-            <ul className="max-h-56 overflow-y-auto py-1">
+            <ul className="min-h-0 flex-1 overflow-y-auto py-1">
               {selected.length > 0 && (
                 <li>
                   <button
