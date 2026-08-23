@@ -8,7 +8,7 @@ describe("resolveView", () => {
 
   it("這個類型沒有的看法退回圖表，不留空畫面", () => {
     expect(resolveView("articles", "timeline")).toBe("chart");
-    expect(resolveView("writing", "calendar")).toBe("chart");
+    expect(resolveView("writing", "timeline")).toBe("chart");
   });
 
   it("沒帶參數就是圖表", () => {
@@ -19,7 +19,7 @@ describe("resolveView", () => {
 describe("viewsFor", () => {
   it("只列這個類型畫得出來的，順序照 STATS_VIEWS", () => {
     expect(viewsFor("books").map((v) => v.key)).toEqual(["chart", "calendar", "timeline"]);
-    expect(viewsFor("writing").map((v) => v.key)).toEqual(["chart"]);
+    expect(viewsFor("writing").map((v) => v.key)).toEqual(["chart", "calendar"]);
   });
 });
 

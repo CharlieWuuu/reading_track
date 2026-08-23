@@ -29,7 +29,7 @@ export type StatsView = (typeof STATS_VIEWS)[number]["key"];
 export const VIEWS_BY_TYPE: Record<StatsType, readonly StatsView[]> = {
   books: ["chart", "calendar", "timeline"],
   articles: ["chart", "calendar"],
-  writing: ["chart"],
+  writing: ["chart", "calendar"],
 };
 
 export function isStatsType(value: string | undefined): value is StatsType {

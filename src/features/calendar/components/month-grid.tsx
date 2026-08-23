@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { PagerButton } from "@/components/ui/pager-button";
-import { articleEditHref, bookEditHref, bookHref } from "@/config/routes";
+import { articleEditHref, bookEditHref, bookHref, writingEditHref } from "@/config/routes";
 import { buildMonthGrid, CalendarDay } from "@/features/calendar/utils/calendar-utils";
 import { cellBorder } from "@/features/calendar/utils/cell-border";
 import { Article } from "@/types/article";
 import { Book } from "@/types/book";
+import { Writing } from "@/types/writing";
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
@@ -35,9 +36,33 @@ function DayArticles({ articles }: { articles: Article[] }) {
   );
 }
 
-/** 某一天的完整書籍與文章清單，手機下方明細與桌機彈窗共用 */
+/** 格子裡只列第一則紀事，其餘用「+N」表示，完整清單看下方明細 */
+function DayWritings({ writings }: { writings: Writing[] }) {
+  if (writings.length === 0) return null;
+
+  const first = writings[0];
+  const hidden = writings.length - 1;
+
+  return (
+    <div className="mt-1 flex items-center gap-1">
+      <Link
+        href={writingEditHref(first.id)}
+        onClick={(e) => e.stopPropagation()}
+        title={first.title}
+        className="rounded-thumb bg-gold-100 text-gold-800 hover:bg-gold-200 min-w-0 flex-1 truncate px-1 py-0.5 text-[10px]"
+      >
+        {first.title}
+      </Link>
+      {hidden > 0 && (
+        <span className="shrink-0 text-[10px] font-medium text-gray-500">+{hidden}</span>
+      )}
+    </div>
+  );
+}
+
+/** 某一天的完整書籍、文章與紀事清單，手機下方明細與桌機彈窗共用 */
 function DayDetail({ day }: { day?: CalendarDay }) {
-  if (!day || (day.books.length === 0 && day.articles.length === 0)) {
+  if (!day || (day.books.length === 0 && day.articles.length === 0 && day.writings.length === 0)) {
     return <p className="text-xs text-gray-400">這天沒有紀錄</p>;
   }
 
@@ -68,11 +93,29 @@ function DayDetail({ day }: { day?: CalendarDay }) {
           {a.title}
         </Link>
       ))}
+      {day.writings.map((w) => (
+        <Link
+          key={w.id}
+          href={writingEditHref(w.id)}
+          title={w.title}
+          className="rounded-control bg-gold-100 text-gold-800 hover:bg-gold-200 block truncate px-2 py-1.5 text-xs"
+        >
+          {w.title}
+        </Link>
+      ))}
     </div>
   );
 }
 
-export function MonthGrid({ books, articles }: { books: Book[]; articles: Article[] }) {
+export function MonthGrid({
+  books,
+  articles = [],
+  writings = [],
+}: {
+  books?: Book[];
+  articles?: Article[];
+  writings?: Writing[];
+}) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -83,8 +126,8 @@ export function MonthGrid({ books, articles }: { books: Book[]; articles: Articl
   const [popupTime, setPopupTime] = useState<number | null>(null);
 
   const days = useMemo(
-    () => buildMonthGrid(year, month, books, articles),
-    [year, month, books, articles],
+    () => buildMonthGrid(year, month, books ?? [], articles, writings),
+    [year, month, books, articles, writings],
   );
 
   const selectedDay = days.find((d) => d.date.toDateString() === selected.toDateString());
@@ -200,6 +243,9 @@ export function MonthGrid({ books, articles }: { books: Book[]; articles: Articl
                 {day.articles.length > 0 && (
                   <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
                 )}
+                {day.writings.length > 0 && (
+                  <span className="bg-gold-600 ml-0.5 h-1.5 w-1.5 rounded-full" />
+                )}
               </span>
             </button>
           );
@@ -281,6 +327,7 @@ export function MonthGrid({ books, articles }: { books: Book[]; articles: Articl
               {/* 非當月只淡化內容，格子底色與日期維持原樣 */}
               <div className={day.inCurrentMonth ? "" : "opacity-50"}>
                 <DayArticles articles={day.articles} />
+                <DayWritings writings={day.writings} />
               </div>
             </div>
           );
