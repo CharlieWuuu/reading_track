@@ -17,7 +17,7 @@ function ArticlesStatsView() {
 
   return (
     <DataGate isLoading={isLoading} error={error} fill>
-      <MonthGrid books={[]} articles={articles} />
+      <MonthGrid articles={articles} />
     </DataGate>
   );
 }

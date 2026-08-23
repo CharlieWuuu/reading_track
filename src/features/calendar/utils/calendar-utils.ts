@@ -1,11 +1,13 @@
 import { Article } from "@/types/article";
 import { Book } from "@/types/book";
+import { Writing } from "@/types/writing";
 
 export interface CalendarDay {
   date: Date;
   inCurrentMonth: boolean;
   books: Book[];
   articles: Article[];
+  writings: Writing[];
 }
 
 function dateKey(d: Date): string {
@@ -14,33 +16,36 @@ function dateKey(d: Date): string {
   ).padStart(2, "0")}`;
 }
 
+/** 依日期分堆。日期空著或格式壞掉的落在月曆外面，直接跳過 */
+function groupByDay<T>(items: T[], getDate: (item: T) => string | null): Map<string, T[]> {
+  const byDay = new Map<string, T[]>();
+  for (const item of items) {
+    const raw = getDate(item);
+    if (!raw) continue;
+    const date = new Date(raw);
+    if (Number.isNaN(date.getTime())) continue;
+    const key = dateKey(date);
+    byDay.set(key, [...(byDay.get(key) ?? []), item]);
+  }
+  return byDay;
+}
+
+/**
+ * 三種東西共用同一張月曆：書與文章看「哪一天讀完」，紀事看「哪一天寫的」。
+ *
+ * 沒有合併成一個 entries 陣列，是因為畫法差很多——書有封面、文章是一條標題、
+ * 紀事還有類型。合併之後每個地方都要再 switch 一次，不會比較短。
+ */
 export function buildMonthGrid(
   year: number,
   month: number,
   books: Book[],
   articles: Article[] = [],
+  writings: Writing[] = [],
 ): CalendarDay[] {
-  const booksByDay = new Map<string, Book[]>();
-  for (const b of books) {
-    if (!b.endDate) continue;
-    const d = new Date(b.endDate);
-    if (Number.isNaN(d.getTime())) continue;
-    const key = dateKey(d);
-    const list = booksByDay.get(key) ?? [];
-    list.push(b);
-    booksByDay.set(key, list);
-  }
-
-  const articlesByDay = new Map<string, Article[]>();
-  for (const a of articles) {
-    if (!a.endDate) continue;
-    const d = new Date(a.endDate);
-    if (Number.isNaN(d.getTime())) continue;
-    const key = dateKey(d);
-    const list = articlesByDay.get(key) ?? [];
-    list.push(a);
-    articlesByDay.set(key, list);
-  }
+  const booksByDay = groupByDay(books, (b) => b.endDate);
+  const articlesByDay = groupByDay(articles, (a) => a.endDate);
+  const writingsByDay = groupByDay(writings, (w) => w.date);
 
   const firstOfMonth = new Date(year, month, 1);
   const startWeekday = firstOfMonth.getDay();
@@ -60,6 +65,7 @@ export function buildMonthGrid(
       inCurrentMonth: date.getMonth() === month,
       books: booksByDay.get(key) ?? [],
       articles: articlesByDay.get(key) ?? [],
+      writings: writingsByDay.get(key) ?? [],
     });
   }
 

@@ -22,11 +22,7 @@ function BooksStatsView() {
 
   return (
     <DataGate isLoading={isLoading} error={error} fill>
-      {view === "calendar" ? (
-        <MonthGrid books={books} articles={[]} />
-      ) : (
-        <ReadingTimeline books={books} />
-      )}
+      {view === "calendar" ? <MonthGrid books={books} /> : <ReadingTimeline books={books} />}
     </DataGate>
   );
 }
