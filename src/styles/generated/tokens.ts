@@ -79,7 +79,7 @@ export const TOKENS = {
   "control-ink": "#ffffff",
   "control-border": "#e8e0d0",
   "control-menu-bg": "#ffffff",
-  "table-header-rule": "#5c4a3d", // 表頭下緣用 inset shadow 畫，sticky 時 border 會被捲掉
+  "table-header-rule": "#e8e0d0", // 表頭下緣用 inset shadow 畫，sticky 時 border 會被捲掉。用一般的框線色，深棕壓在淺色表頭下面太重
   "map-label-bg": "rgba(255, 255, 255, 0.9)", // 地名常駐在密集的點上，要半透明白底才讀得到
   "map-chrome-border": "#e8e0d0",
 } as const;

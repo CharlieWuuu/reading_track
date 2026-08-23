@@ -4,6 +4,7 @@ import {
   fromDateTimeInput,
   now,
   parseDate,
+  shortDate,
   timeLabel,
   toDateTimeInput,
   today,
@@ -144,5 +145,21 @@ describe("datetime-local 的來回", () => {
 
   it("換回來是空白分隔，秒數不留", () => {
     expect(fromDateTimeInput("2026-08-19T14:32:10")).toBe("2026-08-19 14:32");
+  });
+});
+
+describe("shortDate", () => {
+  it("今年只寫月日，補零對齊", () => {
+    const year = new Date().getFullYear();
+    expect(shortDate(`${year}-08-09`)).toBe("08/09");
+  });
+
+  it("跨年才補年份", () => {
+    expect(shortDate("2019-12-31")).toBe("2019/12/31");
+  });
+
+  it("沒有日期就空字串", () => {
+    expect(shortDate(null)).toBe("");
+    expect(shortDate("不是日期")).toBe("");
   });
 });

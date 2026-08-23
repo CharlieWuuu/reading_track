@@ -75,6 +75,21 @@ export function dayLabel(value: string | null | undefined): string {
 }
 
 /**
+ * 表格欄位用的短日期：`08/19`，跨年才補年份。
+ *
+ * 不用 dayLabel：那支會回「今天」「週三」，一整欄長短不一，對不齊也掃不快。
+ * 表格要的是同寬的數字。
+ */
+export function shortDate(value: string | null | undefined): string {
+  const date = parseDate(value);
+  if (!date) return "";
+
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const md = `${pad(date.getMonth() + 1)}/${pad(date.getDate())}`;
+  return date.getFullYear() === new Date().getFullYear() ? md : `${date.getFullYear()}/${md}`;
+}
+
+/**
  * 時間戳只在當天有意義。
  *
  * 「上週三 14:32」的時分沒有人會用到——隔了幾天之後，人記得的是哪一天，不是幾點。
