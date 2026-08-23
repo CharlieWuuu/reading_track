@@ -2,11 +2,33 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { Suspense } from "react";
+import { CalendarDays, ChartPie, GanttChartSquare, History, Map } from "lucide-react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { SelectMenu } from "@/components/ui/controls";
-import { isStatsType, resolveView, STATS_TYPES, statsHref, viewsFor } from "@/config/stats-views";
+import {
+  isStatsType,
+  resolveView,
+  STATS_TYPES,
+  statsHref,
+  StatsView,
+  viewsFor,
+} from "@/config/stats-views";
 import { useUrlParams } from "@/hooks/use-url-param";
+
+const ICON = { size: 16, strokeWidth: 1.5 } as const;
+
+/**
+ * 圖示留在這裡而不是 config/stats-views.ts：那支是純資料（測試也讀它），
+ * 一放 JSX 就得改成 .tsx，還會把 lucide 綁進設定層。
+ */
+const VIEW_ICONS: Record<StatsView, () => React.ReactElement> = {
+  chart: () => <ChartPie {...ICON} />,
+  calendar: () => <CalendarDays {...ICON} />,
+  timeline: () => <GanttChartSquare {...ICON} />,
+  map: () => <Map {...ICON} />,
+  era: () => <History {...ICON} />,
+};
 
 /**
  * 統計的頁首：兩顆選單，「看哪一種東西」與「怎麼看」。
@@ -20,7 +42,7 @@ function StatsHeader() {
   const type = isStatsType(segment) ? segment : "books";
   const { searchParams } = useUrlParams();
   const view = resolveView(type, searchParams.get("view"));
-  const views = viewsFor(type);
+  const views = viewsFor(type).map((v) => ({ ...v, Icon: VIEW_ICONS[v.key] }));
 
   return (
     <PageHeader
@@ -37,6 +59,7 @@ function StatsHeader() {
           {/* 只有一種看法時那顆選單沒有意義，不畫 */}
           {views.length > 1 && (
             <SelectMenu
+              iconOnly
               label="顯示方式"
               items={views}
               value={view}
