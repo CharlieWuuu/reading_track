@@ -37,3 +37,7 @@ export const keywordEditHref = (name: string, from?: string) => {
   const base = `/reading/keywords/${encodeURIComponent(name)}/edit`;
   return from ? `${base}?from=${encodeURIComponent(from)}` : base;
 };
+
+/** 設定的分頁走網址，側欄那顆頭像才指得進「帳號」 */
+export const settingsTabHref = (tab: "connect" | "categories" | "maintenance" | "account") =>
+  tab === "connect" ? "/settings" : `/settings?tab=${tab}`;
