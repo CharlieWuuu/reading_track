@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { PageLoading } from "@/components/layout/page-loading";
-import { PageMessage } from "@/components/layout/page-message";
 import { VocabularyPanel } from "@/features/notes/components/vocabulary-panel";
 import { useRecords } from "@/hooks/use-records";
 import { Book } from "@/types/book";

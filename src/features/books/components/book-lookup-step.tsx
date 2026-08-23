@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { BookCover } from "@/components/ui/book-cover";
 import { scrapeBook, searchBookByTitle } from "@/features/books/api/lookup-book";
+import { ReadBookSuggestions } from "@/features/books/components/read-book-suggestions";
+import { useBooks } from "@/hooks/use-books";
 import { Book, formatCount } from "@/types/book";
 
 export interface LookupResult {
@@ -25,6 +27,23 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<LookupResult | null>(null);
+  const { books } = useBooks();
+
+  /**
+   * 重讀：直接帶上次那筆，只留下「這次才會不同的」四欄不帶。
+   *
+   * 狀態不用清——它是從日期推出來的（`types/book.ts` 的 `statusOf`），
+   * 日期空著就自動回到「想讀」。
+   */
+  function pickReadBook(book: Book) {
+    // 這四欄是「這一次」的事，其餘都是「這本書」的事
+    const carried: Partial<Book> = { ...book, id: "", startDate: "", endDate: "", note: "" };
+    // 講清楚剛才發生了什麼：欄位突然全滿，沒說一聲會以為是查到的
+    onDone({
+      prefill: carried,
+      notice: "已帶入上次讀這本書的資料。日期與心得留空，其餘照舊。",
+    });
+  }
 
   const canSubmit = Boolean(title.trim() || url.trim());
 
@@ -74,7 +93,7 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
         先查書籍資料，確認查到的內容之後再進編輯頁。書名和網址擇一填寫即可，兩個都填會以網址為準。
       </p>
 
-      <div>
+      <div className="relative">
         <label className="mb-1 block text-sm font-medium">書名</label>
         <input
           value={title}
@@ -85,6 +104,8 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
           placeholder="輸入書名"
           className="rounded-control w-full border px-3 py-2 text-sm"
         />
+        {/* 讀過的先跳出來：重讀不用重查，上次那筆就是最準的 */}
+        <ReadBookSuggestions books={books} query={title} onPick={pickReadBook} />
       </div>
 
       <div>
