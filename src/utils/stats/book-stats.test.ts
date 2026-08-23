@@ -3,6 +3,7 @@ import { makeBook, resetIds } from "@/testing/factories";
 import { QuoteRow } from "@/types/record";
 import {
   getAuthorRanking,
+  getCumulativeSeries,
   getDomainDistribution,
   getDomainGroups,
   getKpis,
@@ -255,5 +256,46 @@ describe("排行", () => {
     ]);
 
     expect(getPublisherRanking(books, 2)).toHaveLength(2);
+  });
+});
+
+describe("getCumulativeSeries", () => {
+  it("不分組時只有一條，數字一路累加不會下降", () => {
+    const { keys, rows } = getCumulativeSeries([
+      makeBook({ endDate: "2026-01-15" }),
+      makeBook({ endDate: "2026-05-15" }),
+      makeBook({ endDate: "2026-05-20" }),
+    ]);
+    expect(keys).toEqual(["總計"]);
+    // Q1 一本、Q2 兩本，之後的季沒有新的就維持在 3
+    const totals = rows.map((r) => Number(r.總計));
+    expect(totals.slice(0, 2)).toEqual([1, 3]);
+    expect(totals.at(-1)).toBe(3);
+    expect(totals.every((n, i) => i === 0 || n >= totals[i - 1])).toBe(true);
+  });
+
+  it("按領域拆開之後，每一季加起來等於總計", () => {
+    const books = [
+      makeBook({ endDate: "2026-01-15", domain: "心理" }),
+      makeBook({ endDate: "2026-01-20", domain: "歷史" }),
+    ];
+    const split = getCumulativeSeries(books, "domain");
+    const total = getCumulativeSeries(books);
+    const summed = split.rows.map((row) =>
+      split.keys.reduce((sum, key) => sum + Number(row[key] ?? 0), 0),
+    );
+    expect(summed).toEqual(total.rows.map((r) => r.總計));
+  });
+
+  it("沒填領域的算「未分類」，不是丟掉", () => {
+    const { keys } = getCumulativeSeries(
+      [makeBook({ endDate: "2026-01-15", domain: "" })],
+      "domain",
+    );
+    expect(keys).toEqual(["未分類"]);
+  });
+
+  it("沒有讀完的書就沒有線", () => {
+    expect(getCumulativeSeries([makeBook({ endDate: null })])).toEqual({ keys: [], rows: [] });
   });
 });

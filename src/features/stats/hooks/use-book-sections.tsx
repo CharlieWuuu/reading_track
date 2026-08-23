@@ -96,7 +96,7 @@ export function useBookSections(books: Book[], quotes: QuoteRow[]): Section[] {
               label: "每季完成本數",
               scrollHeight: "h-70 sm:h-[32rem]",
               node: (
-                <Panel>
+                <Panel title="每季完成本數">
                   <YearlyTrendChart quarterlyData={quarterly} monthlyData={monthly} height="100%" />
                 </Panel>
               ),
@@ -106,8 +106,8 @@ export function useBookSections(books: Book[], quotes: QuoteRow[]): Section[] {
               label: "累積完成本數",
               scrollHeight: "h-70 sm:h-[32rem]",
               node: (
-                <Panel>
-                  <CumulativeChart quarterlyData={quarterly} height="100%" />
+                <Panel title="累積完成本數">
+                  <CumulativeChart books={books} height="100%" />
                 </Panel>
               ),
             },
@@ -133,8 +133,8 @@ export function useBookSections(books: Book[], quotes: QuoteRow[]): Section[] {
               key: "cumulative",
               label: "累積完成本數",
               node: (
-                <Panel>
-                  <CumulativeChart quarterlyData={quarterly} height="100%" />
+                <Panel title="累積完成本數">
+                  <CumulativeChart books={books} height="100%" />
                 </Panel>
               ),
             },
@@ -147,7 +147,7 @@ export function useBookSections(books: Book[], quotes: QuoteRow[]): Section[] {
             label: chart.label,
             scrollHeight: "h-80 sm:h-[32rem]",
             node: (
-              <Panel>
+              <Panel title={chart.label}>
                 <DistributionTreemap
                   data={chart.data}
                   groups={chart.groups}
@@ -165,7 +165,7 @@ export function useBookSections(books: Book[], quotes: QuoteRow[]): Section[] {
                 <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
                   {treemaps.map((chart) => (
                     <div key={chart.key} className="flex h-104 flex-col xl:h-128">
-                      <Panel>
+                      <Panel title={chart.label}>
                         <DistributionTreemap
                           data={chart.data}
                           groups={chart.groups}
@@ -186,7 +186,7 @@ export function useBookSections(books: Book[], quotes: QuoteRow[]): Section[] {
             // 圓餅本來就是圓的，容器做成正方形剛好貼合，不會上下留白
             scrollHeight: "aspect-square",
             node: (
-              <Panel>
+              <Panel title={pie.label}>
                 <DistributionPie data={pie.data} height="100%" />
               </Panel>
             ),
@@ -198,14 +198,9 @@ export function useBookSections(books: Book[], quotes: QuoteRow[]): Section[] {
               node: (
                 <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
                   {pies.map((pie) => (
-                    <div
-                      key={pie.key}
-                      className="rounded-surface flex min-h-0 flex-col border bg-white p-5"
-                    >
-                      <div className="min-h-0 flex-1">
-                        <DistributionPie data={pie.data} height="100%" />
-                      </div>
-                    </div>
+                    <Panel key={pie.key} title={pie.label}>
+                      <DistributionPie data={pie.data} height="100%" />
+                    </Panel>
                   ))}
                 </div>
               ),
@@ -218,9 +213,9 @@ export function useBookSections(books: Book[], quotes: QuoteRow[]): Section[] {
             label: r.label,
             needsHeight: false,
             node: (
-              <div className="rounded-surface border bg-white p-4">
+              <Panel title={r.label}>
                 <RankingBar data={r.data} unit={r.unit} showCover={r.key === "reread"} />
-              </div>
+              </Panel>
             ),
           }))
         : [
@@ -231,16 +226,16 @@ export function useBookSections(books: Book[], quotes: QuoteRow[]): Section[] {
               // 重讀排行帶書封，自己占一整列；作者與出版社排在下面兩欄
               node: (
                 <div className="flex flex-col gap-4">
-                  <div className="rounded-surface border bg-white p-5">
+                  <Panel title={reread.label}>
                     <RankingBar data={reread.data} unit={reread.unit} showCover />
-                  </div>
+                  </Panel>
                   <div className="grid grid-cols-2 gap-4">
                     {rankings
                       .filter((r) => r.key !== "reread")
                       .map((r) => (
-                        <div key={r.key} className="rounded-surface border bg-white p-5">
+                        <Panel key={r.key} title={r.label}>
                           <RankingBar data={r.data} unit={r.unit} />
-                        </div>
+                        </Panel>
                       ))}
                   </div>
                 </div>

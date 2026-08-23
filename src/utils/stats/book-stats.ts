@@ -69,6 +69,60 @@ export function getYearlyTrend(books: Book[]): YearCount[] {
  * 每季完成本數。沒讀完任何一本的季別要補 0——把空白的季直接跳過，
  * X 軸的間距就不再等於時間長度，趨勢會被壓縮成假的樣子。
  */
+/** 累積曲線的一列：季 + 每個系列到這一季為止的累積量 */
+export type CumulativeRow = { quarter: string } & Record<string, number | string>;
+
+/** 分開畫幾條線就夠了；再多顏色分不出來，尾巴併成「其他」 */
+const CUMULATIVE_SERIES_LIMIT = 6;
+const OTHER = "其他";
+
+/**
+ * 累積完成本數，可以再按某個欄位拆成幾條堆疊起來的線。
+ *
+ * 不拆的時候只有一條「總計」——那跟拆開之後的總高度是同一個數字，
+ * 所以三種看法共用同一支函式，差別只在分幾組。
+ */
+export function getCumulativeSeries(
+  books: Book[],
+  field?: "domain" | "type",
+): { keys: string[]; rows: CumulativeRow[] } {
+  const quarters = getQuarterlyTrend(books).map((q) => q.quarter);
+  if (quarters.length === 0) return { keys: [], rows: [] };
+
+  // 這一季各組各完成幾本
+  const perQuarter = new Map<string, Map<string, number>>();
+  const totals = new Map<string, number>();
+  for (const book of completedBooks(books)) {
+    const date = new Date(book.endDate!);
+    const key = `${date.getFullYear()}-Q${Math.floor(date.getMonth() / 3) + 1}`;
+    // 一格可以放多個屬性，領域雖然是單選、舊資料仍可能是頓號串的
+    const raw = field ? splitTags(book[field]) : [];
+    const names = field ? (raw.length > 0 ? raw : ["未分類"]) : ["總計"];
+    for (const name of names) {
+      const row = perQuarter.get(key) ?? new Map<string, number>();
+      row.set(name, (row.get(name) ?? 0) + 1);
+      perQuarter.set(key, row);
+      totals.set(name, (totals.get(name) ?? 0) + 1);
+    }
+  }
+
+  const ranked = [...totals.entries()].sort((a, b) => b[1] - a[1]).map(([name]) => name);
+  const kept = ranked.slice(0, CUMULATIVE_SERIES_LIMIT);
+  const overflow = new Set(ranked.slice(CUMULATIVE_SERIES_LIMIT));
+  const keys = overflow.size > 0 ? [...kept, OTHER] : kept;
+
+  const running = new Map<string, number>(keys.map((key) => [key, 0]));
+  const rows = quarters.map((quarter) => {
+    for (const [name, count] of perQuarter.get(quarter) ?? []) {
+      const key = overflow.has(name) ? OTHER : name;
+      running.set(key, (running.get(key) ?? 0) + count);
+    }
+    return { quarter, ...Object.fromEntries(running) } as CumulativeRow;
+  });
+
+  return { keys, rows };
+}
+
 export function getQuarterlyTrend(books: Book[]): QuarterCount[] {
   const done = completedBooks(books);
   if (done.length === 0) return [];
