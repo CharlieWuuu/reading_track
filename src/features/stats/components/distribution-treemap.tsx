@@ -49,7 +49,7 @@ export function DistributionTreemap({
   }
 
   return (
-    <div className={styles.root} data-palette="reading-track">
+    <div className={styles.root} data-palette="archivum">
       <div className={styles.chart}>
         <ResponsiveContainer width="100%" height="100%">
           <Treemap data={shaded} dataKey="value" content={<Cell />} isAnimationActive={false}>

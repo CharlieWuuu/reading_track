@@ -99,7 +99,7 @@ export function DistributionPie({
   }
 
   return (
-    <div className="viz-root flex h-full min-h-0 flex-col gap-3.5" data-palette="reading-track">
+    <div className="viz-root flex h-full min-h-0 flex-col gap-3.5" data-palette="archivum">
       <div className="min-h-0 flex-1">
         <ResponsiveContainer width="100%" height={height}>
           {/* 半徑用百分比，容器多高就畫多大；外圈留白給拉線的標籤 */}

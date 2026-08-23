@@ -1,6 +1,6 @@
-# Reading Track
+# Archivum
 
-用 Google Sheet 當資料庫的閱讀紀錄工具。
+用 Google Sheet 當資料庫的閱讀與書寫紀錄工具。
 
 ## 開發
 

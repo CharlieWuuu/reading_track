@@ -75,7 +75,7 @@ export function RangedBarChart({
   }
 
   return (
-    <div className="viz-root flex h-full min-h-0 flex-col gap-3" data-palette="reading-track">
+    <div className="viz-root flex h-full min-h-0 flex-col gap-3" data-palette="archivum">
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
         {windowed && (
           <div className="flex items-center gap-1">

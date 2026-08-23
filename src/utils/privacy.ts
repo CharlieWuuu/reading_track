@@ -61,11 +61,14 @@ function sha256(value: string): string {
 
 /** 使用者打的密碼 → 瀏覽器拿著的解鎖權杖 */
 export function passcodeToToken(passcode: string): string {
+  // 這個字串是雜湊的鹽，不是識別名——算出來的值存在使用者的 Sheet 裡。
+  // 改名 Archivum 時刻意沒動它：改了就對不上舊雜湊，等於把人鎖在私人項目外面。
   return sha256(`reading-track:${passcode.trim()}`);
 }
 
 /** 解鎖權杖 → 存進 Sheet 的那一份 */
 export function tokenToStored(token: string): string {
+  // 同上：這也是鹽，不能跟著改名走
   return sha256(`reading-track-stored:${token}`);
 }
 
