@@ -9,6 +9,7 @@ export interface BookSearchResult {
   language: string;
   pageCount: string;
   wordCount: string;
+  isbn: string;
   source: string;
   /** 這筆資料是從哪個頁面抓來的，帶回去填「來源網址」 */
   sourceUrl: string;
@@ -30,6 +31,7 @@ export async function GET(req: NextRequest) {
     language: item.language ?? "",
     pageCount: item.pageCount ?? "",
     wordCount: item.wordCount ?? "",
+    isbn: item.isbn ?? "",
     source: item.source ?? "",
     sourceUrl: item.sourceUrl ?? "",
   }));

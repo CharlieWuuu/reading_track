@@ -1,3 +1,4 @@
+import { normalizeIsbn } from "@/utils/isbn";
 import { getJsonLd, getMeta } from "./helpers";
 import { Scraper } from "./types";
 
@@ -15,6 +16,7 @@ export const pubuScraper: Scraper = {
       coverUrl,
       publisher: (book?.publisher as string) ?? "",
       platform: "Pubu",
+      isbn: normalizeIsbn(book?.isbn as string | undefined),
     };
   },
 };

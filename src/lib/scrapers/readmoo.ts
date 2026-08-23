@@ -1,3 +1,4 @@
+import { normalizeIsbn } from "@/utils/isbn";
 import { normalizeLanguage } from "../metadata/readmoo";
 import { getMeta, getText } from "./helpers";
 import { Scraper } from "./types";
@@ -20,6 +21,7 @@ export const readmooScraper: Scraper = {
     const bodyText = (await page.textContent("body"))?.replace(/\s+/g, " ") ?? "";
     const wordCount = bodyText.match(/字數\s*[:：]\s*([\d,]+)/)?.[1].replace(/,/g, "") ?? "";
     const language = normalizeLanguage(bodyText.match(/語言\s*[:：]\s*(\S{1,10})/)?.[1] ?? "");
+    const isbn = normalizeIsbn(bodyText.match(/E?ISBN\s*[:：]\s*([\dXx-]+)/)?.[1] ?? "");
 
     return {
       title,
@@ -29,6 +31,7 @@ export const readmooScraper: Scraper = {
       platform: "讀墨",
       wordCount,
       language,
+      isbn,
     };
   },
 };

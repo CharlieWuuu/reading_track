@@ -28,10 +28,10 @@ async function coverIfExists(isbn: string): Promise<string> {
     : "";
 }
 
-const cache = new Map<string, BookMetadata & { isbn?: string }>();
+const cache = new Map<string, BookMetadata>();
 const CACHE_LIMIT = 200;
 
-function remember(url: string, metadata: BookMetadata & { isbn?: string }) {
+function remember(url: string, metadata: BookMetadata) {
   if (cache.size >= CACHE_LIMIT) {
     const oldest = cache.keys().next().value;
     if (oldest) cache.delete(oldest);
@@ -113,7 +113,6 @@ export const ndlProvider: MetadataProvider = {
   fetchDetail: async (url) => {
     const hit = cache.get(url);
     if (!hit) return null;
-    const { isbn, ...metadata } = hit;
-    return { ...metadata, coverUrl: await coverIfExists(isbn ?? "") };
+    return { ...hit, coverUrl: await coverIfExists(hit.isbn ?? "") };
   },
 };

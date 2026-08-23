@@ -1,3 +1,4 @@
+import { normalizeIsbn } from "@/utils/isbn";
 import { digitsOnly, flatText, labelValue } from "./html";
 import { fetchDom } from "./http";
 import { BookMetadata, Candidate, MetadataProvider } from "./types";
@@ -42,6 +43,8 @@ export const readmooProvider: MetadataProvider = {
       publisher: stripFollow(labelValue(text, "出版社")),
       language: normalizeLanguage(labelValue(text, "語言")),
       wordCount: digitsOnly(labelValue(text, "字數")),
+      // 電子書頁常常只有 EISBN，那也是這個版本的號碼，一樣收
+      isbn: normalizeIsbn(labelValue(text, "ISBN") || labelValue(text, "EISBN")),
       coverUrl: $('meta[property="og:image"]').attr("content") ?? "",
       source: "讀墨",
       sourceUrl: url,
