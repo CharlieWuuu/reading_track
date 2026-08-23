@@ -8,9 +8,13 @@ import { RecordGate } from "@/components/layout/record-gate";
 import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
 import { DetailSection } from "@/components/ui/detail";
+import { RelatedNotes } from "@/components/ui/related-notes";
 import { bookHref, vocabularyEditHref } from "@/config/routes";
 import { useBooks } from "@/hooks/use-books";
 import { useRecords } from "@/hooks/use-records";
+import { useWritings } from "@/hooks/use-writings";
+import { sameBook } from "@/utils/book-reads";
+import { notesForSource } from "@/utils/related-notes";
 import { getVocabularyEntries } from "@/utils/stats/vocabulary-stats";
 
 /**
@@ -24,7 +28,15 @@ export function VocabularyDetailView() {
   const name = decodeURIComponent(word);
   const { books, isLoading: loadingBooks } = useBooks();
   const { vocabulary, isLoading, error } = useRecords();
+  const { writings } = useWritings();
   const entry = getVocabularyEntries(vocabulary, books).find((e) => e.word === name);
+
+  // 一個詞可能在好幾本書遇過，每一本（含重讀的那幾列）的紀事都算相關
+  const bookIds = (entry?.encounters ?? []).flatMap((e) => {
+    const book = books.find((b) => b.id === e.bookId);
+    return book ? sameBook(books, book).map((b) => b.id) : [];
+  });
+  const notes = notesForSource(writings, bookIds);
 
   const pronunciation = entry?.encounters.find((e) => e.pronunciation)?.pronunciation ?? "";
   const translations = [
@@ -84,6 +96,12 @@ export function VocabularyDetailView() {
                   ))}
                 </ul>
               </DetailSection>
+
+              {notes.length > 0 && (
+                <DetailSection title="這些書的紀事">
+                  <RelatedNotes notes={notes} />
+                </DetailSection>
+              )}
             </div>
           )}
         </RecordGate>

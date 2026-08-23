@@ -8,10 +8,14 @@ import { RecordGate } from "@/components/layout/record-gate";
 import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
 import { DetailField, DetailFields, DetailSection } from "@/components/ui/detail";
+import { RelatedNotes } from "@/components/ui/related-notes";
 import { bookHref, quoteEditHref } from "@/config/routes";
 import { QuoteBlock } from "@/features/notes/components/record-items";
 import { useBooks } from "@/hooks/use-books";
 import { useRecords } from "@/hooks/use-records";
+import { useWritings } from "@/hooks/use-writings";
+import { sameBook } from "@/utils/book-reads";
+import { notesForSource } from "@/utils/related-notes";
 import { getQuoteRecords } from "@/utils/stats/vocabulary-stats";
 
 /**
@@ -24,7 +28,12 @@ export function QuoteDetailView() {
   const { id } = useParams<{ id: string }>();
   const { books, isLoading: loadingBooks } = useBooks();
   const { quotes, isLoading, error } = useRecords();
+  const { writings } = useWritings();
   const quote = getQuoteRecords(quotes, books).find((q) => q.id === id);
+
+  // 佳句本身沒有紀事，它的相關筆記是「那本書的紀事」——重讀的每一列都算
+  const book = books.find((b) => b.id === quote?.bookId);
+  const notes = notesForSource(writings, book ? sameBook(books, book).map((b) => b.id) : []);
 
   return (
     <>
@@ -67,6 +76,12 @@ export function QuoteDetailView() {
                   <p className="text-sm leading-relaxed whitespace-pre-wrap text-gray-700">
                     {quote.note}
                   </p>
+                </DetailSection>
+              )}
+
+              {notes.length > 0 && (
+                <DetailSection title="這本書的紀事">
+                  <RelatedNotes notes={notes} />
                 </DetailSection>
               )}
             </div>

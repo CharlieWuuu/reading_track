@@ -9,11 +9,14 @@ import { ActionButton } from "@/components/ui/controls";
 import { DetailField, DetailFields, DetailSection } from "@/components/ui/detail";
 import { Favicon } from "@/components/ui/favicon";
 import { NoteBlock } from "@/components/ui/note-block";
+import { RelatedNotes } from "@/components/ui/related-notes";
 import { TagList } from "@/components/ui/tag-badge";
 import { articleEditHref } from "@/config/routes";
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { useArticles } from "@/hooks/use-articles";
+import { useWritings } from "@/hooks/use-writings";
 import { splitLines } from "@/types/book";
+import { notesForSource } from "@/utils/related-notes";
 
 const KEYWORD_TAG =
   "rounded-control bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200";
@@ -22,7 +25,9 @@ const KEYWORD_TAG =
 export function ArticleDetailView() {
   const { id } = useParams<{ id: string }>();
   const { articles, isLoading, error } = useArticles();
+  const { writings } = useWritings();
   const article = articles.find((a) => a.id === id);
+  const notes = notesForSource(writings, article ? [article.id] : []);
   const keywords = splitLines(article?.keywords);
 
   return (
@@ -87,6 +92,12 @@ export function ArticleDetailView() {
               {article.note.trim() && (
                 <DetailSection title="心得">
                   <NoteBlock note={article.note} />
+                </DetailSection>
+              )}
+
+              {notes.length > 0 && (
+                <DetailSection title="紀事">
+                  <RelatedNotes notes={notes} />
                 </DetailSection>
               )}
             </div>

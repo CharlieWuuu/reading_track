@@ -10,6 +10,7 @@ import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
 import { DetailField, DetailFields, DetailSection } from "@/components/ui/detail";
 import { NoteBlock } from "@/components/ui/note-block";
+import { RelatedNotes } from "@/components/ui/related-notes";
 import { StatusBadge, TagList } from "@/components/ui/tag-badge";
 import { bookEditHref } from "@/config/routes";
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
@@ -17,9 +18,11 @@ import { QuoteBlock, VocabularyItem } from "@/features/notes/components/record-i
 import { useBooks } from "@/hooks/use-books";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
+import { useWritings } from "@/hooks/use-writings";
 import { useSheetStore } from "@/stores/use-sheet-store";
 import { Book, formatCount, splitLines } from "@/types/book";
 import { sameBook } from "@/utils/book-reads";
+import { notesForSource } from "@/utils/related-notes";
 
 /** 這本書本身的事實：換誰來讀都一樣，所以跟書名放在一起當書名頁 */
 function BookFacts({ book }: { book: Book }) {
@@ -89,6 +92,7 @@ export function BookDetailView() {
   const { sheetId } = useSheetStore();
   const { books, isLoading, error } = useBooks();
   const { quotes, vocabulary } = useRecords();
+  const { writings } = useWritings();
   // 從書單帶進來的檢視方式與頁碼，一路傳給編輯頁，存完才回得到同一個畫面
   const { searchParams } = useUrlParams();
   const back = searchParams.get("back");
@@ -116,6 +120,7 @@ export function BookDetailView() {
   const readIds = new Set(sameBook(books, book).map((b) => b.id));
   const bookQuotes = quotes.filter((row) => readIds.has(row.bookId));
   const bookVocabulary = vocabulary.filter((row) => readIds.has(row.bookId));
+  const notes = notesForSource(writings, readIds);
   const note = book.note.trim();
 
   return (
@@ -191,6 +196,12 @@ export function BookDetailView() {
             <DetailSection title="心得">
               {/* 心得是這一頁唯一的長文，只有這一段限行長：一行拉到整個寬螢幕會讀不下去 */}
               <NoteBlock note={note} />
+            </DetailSection>
+          )}
+
+          {notes.length > 0 && (
+            <DetailSection title="紀事">
+              <RelatedNotes notes={notes} />
             </DetailSection>
           )}
 

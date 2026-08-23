@@ -5,7 +5,7 @@ import { ExternalLink, Pencil } from "lucide-react";
 import { BookCover } from "@/components/ui/book-cover";
 import { Dialog } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
-import { articleHref, bookHref, keywordEditHref } from "@/config/routes";
+import { articleHref, bookHref, keywordEditHref, writingHref } from "@/config/routes";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { getKeywordMentions } from "@/features/keywords/utils/keyword-stats";
 import { topicLabel } from "@/features/keywords/utils/topic-labels";
@@ -117,11 +117,7 @@ export function KeywordPopup({ name, onClose }: { name: string; onClose: () => v
             <span className={styles.groupLabel}>書寫</span>
             <div className={styles.list}>
               {mentions.writings.map((writings) => (
-                <Link
-                  key={writings.id}
-                  href={`/writing/${writings.id}/edit`}
-                  className={styles.row}
-                >
+                <Link key={writings.id} href={writingHref(writings.id)} className={styles.row}>
                   <span className={styles.title}>{writings.title}</span>
                 </Link>
               ))}
