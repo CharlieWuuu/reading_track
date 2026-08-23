@@ -54,8 +54,6 @@
   --color-series-overflow: #9ca3af; /** 第 9 個以後合併成「其他」的那一格，不是第 9 個色；值同 Tailwind gray-400，但 recharts 要字面值 */
   --color-tag-article-bg: var(--color-gray-100);
   --color-tag-article-ink: var(--color-gray-500); /** 文章標籤是自由打的，沒有固定選項可配色，整組同一個中性色 */
-  --color-control-bg: var(--color-gray-900);
-  --color-control-bg-hover: var(--color-gray-700);
   --color-control-ink-secondary: var(--color-gray-600); /** 次要按鈕的字：比 ink-idle 深一階，它是可按的、不是沒選中的 */
   --color-control-ink-faint-hover: var(--color-gray-700);
   --color-control-ghost-hover: var(--color-gray-100);
@@ -73,6 +71,9 @@
   --color-ink-viz: var(--color-sand-800); /** 深棕彩度太低會被讀成資料色，所以只當圖上的文字 */
   --color-ink-viz-muted: var(--color-sand-700);
   --color-ink-viz-faint: var(--color-sand-600);
+  --color-accent: var(--color-gold-700); /** 主色：主要動作鍵與選中的分頁。gold-600 配白字只有 3.61:1，差一階才過 4.5 */
+  --color-accent-hover: var(--color-gold-800);
+  --color-accent-ink: var(--color-white); /** 壓在主色上的字 */
   --color-rule: var(--color-sand-250); /** 框線與底色同一支色系才像一套；原本的冷灰配米白底會偏藍，且對白底 1.47:1 太搶 */
   --color-rule-soft: var(--color-sand-200); /** 同一塊裡分列用；rule 是「這是兩個東西」，這一階是「同一件事的下一行」 */
   --color-rule-strong: var(--color-sand-800); /** 外殼邊界（側欄、底部導覽）與強調框；純黑改成深棕，跟其餘的框同色系 */
@@ -93,10 +94,12 @@
   --color-tag-type-ring: var(--color-coral-300);
   --color-tag-language-bg: var(--color-gold-100);
   --color-tag-language-ink: var(--color-gold-700);
-  --color-control-ink: var(--color-white);
   --color-control-ink-idle: var(--color-ink-muted); /** 分頁列沒選中的那幾格 */
   --color-control-ink-faint: var(--color-ink-faint);
   --color-control-menu-hover: var(--color-surface-sunken);
+  --color-control-bg: var(--color-accent); /** 主要動作鍵與選中的分頁；改這裡全站一起變 */
+  --color-control-bg-hover: var(--color-accent-hover);
+  --color-control-ink: var(--color-accent-ink);
   --color-control-border: var(--color-rule);
   --color-control-menu-bg: var(--color-surface);
   --color-table-header-rule: var(--color-rule-strong); /** 表頭下緣用 inset shadow 畫，sticky 時 border 會被捲掉 */

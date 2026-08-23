@@ -6,7 +6,7 @@ const styles = {
   wrap: "flex shrink-0 flex-col gap-2",
   error: "text-xs text-red-600",
   row: "flex flex-wrap items-center gap-2",
-  save: "rounded-control bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50",
+  save: "rounded-control bg-control-bg text-control-ink px-4 py-2 text-sm font-medium hover:bg-control-bg-hover disabled:opacity-50",
   cancel: "rounded-control border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50",
   // 刪除一律靠最右邊，跟儲存隔開，不會順手按到
   danger: "ml-auto flex items-center gap-2 text-xs",

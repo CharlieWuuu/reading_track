@@ -115,7 +115,7 @@ export function SheetPicker({ onSelect }: { onSelect: (sheetId: string, name: st
         type="button"
         onClick={openPicker}
         disabled={!ready}
-        className="rounded-control bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+        className="rounded-control bg-control-bg text-control-ink hover:bg-control-bg-hover px-4 py-2 text-sm font-medium disabled:opacity-50"
       >
         {ready ? "選擇 Google Sheet" : <Spinner size={14} />}
       </button>

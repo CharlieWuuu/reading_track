@@ -20,7 +20,7 @@ const styles = {
   empty: "px-3 py-2 text-xs text-gray-400",
   draft: "min-h-32 w-full shrink-0 resize-none rounded-control border px-3 py-2 text-sm",
   actions: "flex shrink-0 items-center gap-2",
-  save: "rounded-control bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50",
+  save: "rounded-control bg-control-bg text-control-ink px-3 py-1.5 text-sm font-medium hover:bg-control-bg-hover disabled:opacity-50",
   more: "rounded-control border px-3 py-1.5 text-sm font-medium hover:bg-gray-50",
   error: "shrink-0 text-xs text-red-600",
 };

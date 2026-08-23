@@ -1,9 +1,13 @@
 {
   "color": {
     "control": {
-      "bg": { "$value": "var(--color-gray-900)", "$type": "color" },
-      "bg-hover": { "$value": "var(--color-gray-700)", "$type": "color" },
-      "ink": { "$value": "{color.white}", "$type": "color" },
+      "bg": {
+        "$value": "{color.accent}",
+        "$type": "color",
+        "$description": "主要動作鍵與選中的分頁；改這裡全站一起變"
+      },
+      "bg-hover": { "$value": "{color.accent-hover}", "$type": "color" },
+      "ink": { "$value": "{color.accent-ink}", "$type": "color" },
       "ink-idle": {
         "$value": "{color.ink-muted}",
         "$type": "color",

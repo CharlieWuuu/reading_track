@@ -141,7 +141,7 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
           className={`rounded-control px-4 py-2 text-sm font-medium disabled:opacity-50 ${
             found
               ? "border-rule-strong border hover:bg-gray-100"
-              : "bg-gray-900 text-white hover:bg-gray-700"
+              : "bg-control-bg text-control-ink hover:bg-control-bg-hover"
           }`}
         >
           {loading ? "查詢中…" : result ? "重新查詢" : "查詢"}
@@ -154,7 +154,7 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
             onClick={() => onDone(result)}
             className={`rounded-control px-4 py-2 text-sm font-medium ${
               found
-                ? "bg-gray-900 text-white hover:bg-gray-700"
+                ? "bg-control-bg text-control-ink hover:bg-control-bg-hover"
                 : "border-rule-strong border hover:bg-gray-100"
             }`}
           >

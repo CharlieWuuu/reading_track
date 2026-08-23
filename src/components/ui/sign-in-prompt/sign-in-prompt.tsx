@@ -11,7 +11,7 @@ export function SignInPrompt({ text = "請先登入 Google 帳號" }: { text?: s
       className="rounded-surface flex w-full flex-col items-center gap-2 border bg-white p-8 text-center text-sm text-gray-500 hover:bg-gray-50"
     >
       <span>{text}</span>
-      <span className="rounded-control bg-gray-900 px-3 py-1.5 text-sm font-medium text-white">
+      <span className="rounded-control bg-control-bg text-control-ink px-3 py-1.5 text-sm font-medium">
         使用 Google 登入
       </span>
     </button>

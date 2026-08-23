@@ -383,6 +383,27 @@ export const TOKEN_MANIFEST: TokenEntry[] = [
     "description": null
   },
   {
+    "name": "color-accent",
+    "layer": "semantic",
+    "value": "#8a6d1b",
+    "alias": "gold.700",
+    "description": "主色：主要動作鍵與選中的分頁。gold-600 配白字只有 3.61:1，差一階才過 4.5"
+  },
+  {
+    "name": "color-accent-hover",
+    "layer": "semantic",
+    "value": "#75591a",
+    "alias": "gold.800",
+    "description": null
+  },
+  {
+    "name": "color-accent-ink",
+    "layer": "semantic",
+    "value": "#ffffff",
+    "alias": "white",
+    "description": "壓在主色上的字"
+  },
+  {
     "name": "color-rule",
     "layer": "semantic",
     "value": "#e8e0d0",
@@ -546,22 +567,22 @@ export const TOKEN_MANIFEST: TokenEntry[] = [
   {
     "name": "color-control-bg",
     "layer": "component",
-    "value": "var(--color-gray-900)",
-    "alias": null,
-    "description": null
+    "value": "#8a6d1b",
+    "alias": "accent",
+    "description": "主要動作鍵與選中的分頁；改這裡全站一起變"
   },
   {
     "name": "color-control-bg-hover",
     "layer": "component",
-    "value": "var(--color-gray-700)",
-    "alias": null,
+    "value": "#75591a",
+    "alias": "accent-hover",
     "description": null
   },
   {
     "name": "color-control-ink",
     "layer": "component",
     "value": "#ffffff",
-    "alias": "white",
+    "alias": "accent-ink",
     "description": null
   },
   {

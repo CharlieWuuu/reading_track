@@ -49,7 +49,7 @@ export default function Home() {
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href="/reading/books"
-              className="rounded-control bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+              className="rounded-control bg-control-bg text-control-ink hover:bg-control-bg-hover px-4 py-2 text-sm font-medium"
             >
               開始使用
             </Link>
