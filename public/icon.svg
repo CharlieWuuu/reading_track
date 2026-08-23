@@ -1,8 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <!-- App icon：一本翻開的書，圓角外側留透明 -->
+  <!-- App icon：檔案夾的索引分隔片，重點是「歸檔」不是「讀」。圓角外側留透明 -->
   <rect width="512" height="512" rx="112" fill="#111827" />
+  <!-- 後面那片只露出標籤，說明這裡不只一份 -->
+  <rect x="272" y="128" width="128" height="80" rx="16" fill="#FCF9F2" opacity=".45" />
   <g fill="#FCF9F2">
-    <path d="M248 168C210 132 156 116 96 120v272c60-4 114 12 152 48z" />
-    <path d="M264 168c38-36 92-52 152-48v272c-60-4-114 12-152 48z" />
+    <!-- 前面這片：左上一個標籤，接著卡片本體 -->
+    <rect x="112" y="152" width="128" height="80" rx="16" />
+    <rect x="112" y="192" width="288" height="168" rx="16" />
+  </g>
+  <!-- 卡片上的兩行索引，用底色挖出來 -->
+  <g fill="#111827">
+    <rect x="152" y="248" width="208" height="16" rx="8" />
+    <rect x="152" y="288" width="144" height="16" rx="8" />
   </g>
 </svg>
