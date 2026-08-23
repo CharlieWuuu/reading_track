@@ -84,7 +84,7 @@ export function useArticleSections(articles: Article[]): Section[] {
         label: "來源站台",
         needsHeight: false,
         node: (
-          <div className="rounded-surface bg-white p-5">
+          <div className="rounded-surface border bg-white p-5">
             <RankingBar data={sources} unit="篇" emptyHint="尚無讀完的文章" />
           </div>
         ),

@@ -25,7 +25,7 @@ export function KpiCards({
       {items.map((item) => (
         <div
           key={item.label}
-          className="rounded-surface flex flex-col gap-0.5 bg-white px-3 py-2.5"
+          className="rounded-surface flex flex-col gap-0.5 border bg-white px-3 py-2.5"
         >
           <p className="text-xs text-gray-500">{item.label}</p>
           <p className="text-xl font-semibold tabular-nums">

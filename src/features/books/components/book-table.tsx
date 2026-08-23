@@ -30,7 +30,7 @@ function KeywordFilter({
   onClear: () => void;
 }) {
   return (
-    <div className="rounded-surface flex shrink-0 flex-wrap items-center gap-2 bg-white px-3 py-2 text-sm">
+    <div className="rounded-surface flex shrink-0 flex-wrap items-center gap-2 border bg-white px-3 py-2 text-sm">
       <Tag size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
       <span className="font-medium">{keyword}</span>
       <span className="text-xs text-gray-400">{count} 本</span>
