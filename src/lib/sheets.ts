@@ -5,6 +5,7 @@ import {
   PRIVATE_TYPES_SETTING_KEY,
 } from "@/config/sheet-format";
 import { forgetDoc, loadedDoc } from "@/lib/sheet-doc";
+import { trip } from "@/lib/sheet-trips";
 import { ttlCache } from "@/lib/ttl-cache";
 import { Article } from "@/types/article";
 import { Book, inferStatus, normalizePlatform, normalizeStatus, splitLines } from "@/types/book";
@@ -71,7 +72,7 @@ async function resolveColumns<F extends string, L extends F>(
 
   if (!changed) return assertComplete(spec, map);
 
-  await sheet.setHeaderRow(nextHeaders);
+  await trip(() => sheet.setHeaderRow(nextHeaders));
   return assertComplete(spec, mapHeaders(spec, nextHeaders));
 }
 
@@ -127,7 +128,9 @@ async function getTableSheet<F extends string, L extends F>(
     .map((title) => doc.sheetsByTitle[title])
     .find(Boolean);
   if (!sheet) {
-    sheet = await doc.addSheet({ title: spec.title, headerValues: defaultHeaders(spec) });
+    sheet = await trip(() =>
+      doc.addSheet({ title: spec.title, headerValues: defaultHeaders(spec) }),
+    );
     forgetDoc(sheetId, accessToken);
   }
   const columns = await resolveColumns(sheet, spec);
@@ -149,22 +152,22 @@ async function listTableValues<F extends string, L extends F>(
   spec: TableSpec<F, L>,
 ): Promise<{ values: Record<F, string>[]; idsBackfilled: number }> {
   const { sheet, columns } = await getTableSheet(sheetId, accessToken, spec);
-  let rows = await sheet.getRows();
+  let rows = await trip(() => sheet.getRows());
 
   const idHeader = headerOf(columns, spec.idField) ?? spec.labels[spec.idField];
   const rowsMissingId = rows.filter((row) => !row.get(idHeader));
   if (rowsMissingId.length > 0) {
     // 一列一次 row.save() 會打爆 Google Sheets 的每分鐘寫入配額，改成一次批次寫入
-    await sheet.loadCells();
+    await trip(() => sheet.loadCells());
     const idColumn = headerIndex(sheet)[idHeader];
     for (const row of rowsMissingId) {
       sheet.getCell(row.rowNumber - 1, idColumn).value = crypto.randomUUID();
     }
-    await sheet.saveUpdatedCells();
+    await trip(() => sheet.saveUpdatedCells());
 
     // re-read so we return the ids that were actually persisted, avoiding a
     // mismatch if a concurrent call backfilled the same rows with different ids
-    rows = await sheet.getRows();
+    rows = await trip(() => sheet.getRows());
   }
 
   const values = rows.map((row) => {
@@ -258,15 +261,15 @@ export async function addWritingRows(sheetId: string, accessToken: string, writi
   if (writings.length === 0) return;
   const { sheet, columns } = await getTableSheet(sheetId, accessToken, WRITING_TABLE);
 
-  await sheet.addRows(
-    writings.map((writings) => {
-      const raw: Record<string, string> = {};
-      for (const field of managedFields(WRITING_TABLE)) {
-        raw[columns[field] ?? WRITING_TABLE.labels[field]] = writings[field] ?? "";
-      }
-      return raw;
-    }),
-  );
+  const rows = writings.map((writing) => {
+    const raw: Record<string, string> = {};
+    for (const field of managedFields(WRITING_TABLE)) {
+      raw[columns[field] ?? WRITING_TABLE.labels[field]] = writing[field] ?? "";
+    }
+    return raw;
+  });
+
+  await trip(() => sheet.addRows(rows));
 }
 
 export async function listMetrics(sheetId: string, accessToken: string): Promise<Metric[]> {
@@ -299,7 +302,7 @@ async function findRow<F extends string, L extends F>(
   spec: TableSpec<F, L>,
   id: string,
 ) {
-  const rows = await sheet.getRows();
+  const rows = await trip(() => sheet.getRows());
   const idHeader = headerOf(columns, spec.idField) ?? spec.labels[spec.idField];
   return rows.find((r) => r.get(idHeader) === id);
 }
@@ -319,7 +322,7 @@ async function updateTableRow<F extends string, L extends F>(
     const header = headerOf(columns, key as F);
     if (header) row.set(header, value ?? "");
   }
-  await row.save();
+  await trip(() => row.save());
 }
 
 async function deleteTableRow<F extends string, L extends F>(
@@ -363,8 +366,8 @@ export async function bulkUpdateBooks(
   if (patches.size === 0) return 0;
 
   const { sheet, columns } = await getBooksSheet(sheetId, accessToken);
-  const rows = await sheet.getRows();
-  await sheet.loadCells();
+  const rows = await trip(() => sheet.getRows());
+  await trip(() => sheet.loadCells());
 
   const index = headerIndex(sheet);
   let written = 0;
@@ -382,7 +385,7 @@ export async function bulkUpdateBooks(
     }
   }
 
-  await sheet.saveUpdatedCells();
+  await trip(() => sheet.saveUpdatedCells());
   return written;
 }
 
@@ -402,14 +405,15 @@ async function getKeywordsSheet(sheetId: string, accessToken: string) {
   const sheet = doc.sheetsByTitle[KEYWORDS_SHEET_TITLE];
   if (!sheet) {
     forgetDoc(sheetId, accessToken);
-    return doc.addSheet({ title: KEYWORDS_SHEET_TITLE, headerValues: KEYWORD_HEADERS });
+    return trip(() => doc.addSheet({ title: KEYWORDS_SHEET_TITLE, headerValues: KEYWORD_HEADERS }));
   }
 
   // 只改標題那一列：欄的位置與底下的值都不動，所以不會有任何一格跑掉
   await sheet.loadHeaderRow().catch(() => {});
   const headers = sheet.headerValues ?? [];
   const renamed = headers.map((header) => RENAMED_HEADERS[header] ?? header);
-  if (renamed.some((header, i) => header !== headers[i])) await sheet.setHeaderRow(renamed);
+  if (renamed.some((header, i) => header !== headers[i]))
+    await trip(() => sheet.setHeaderRow(renamed));
 
   return sheet;
 }
@@ -420,7 +424,7 @@ export async function listKeywordInfos(
   accessToken: string,
 ): Promise<KeywordInfo[]> {
   const sheet = await getKeywordsSheet(sheetId, accessToken);
-  const rows = await sheet.getRows();
+  const rows = await trip(() => sheet.getRows());
 
   return rows
     .map((row) => ({
@@ -443,10 +447,10 @@ export async function listKeywordInfos(
 export async function saveKeywordInfos(sheetId: string, accessToken: string, infos: KeywordInfo[]) {
   if (infos.length === 0) return;
   const sheet = await getKeywordsSheet(sheetId, accessToken);
-  const rows = await sheet.getRows();
+  const rows = await trip(() => sheet.getRows());
   const byName = new Map(rows.map((row) => [(row.get("名稱") ?? "").toString().trim(), row]));
 
-  const added = [];
+  const added: Record<string, string>[] = [];
   for (const info of infos) {
     const row = byName.get(info.name);
     if (!row) {
@@ -461,9 +465,9 @@ export async function saveKeywordInfos(sheetId: string, accessToken: string, inf
       row.set(header, value);
       changed = true;
     }
-    if (changed) await row.save();
+    if (changed) await trip(() => row.save());
   }
-  if (added.length > 0) await sheet.addRows(added);
+  if (added.length > 0) await trip(() => sheet.addRows(added));
 }
 
 /**
@@ -503,7 +507,7 @@ export async function deleteKeyword(
   name: string,
 ): Promise<number> {
   const sheet = await getKeywordsSheet(sheetId, accessToken);
-  const rows = await sheet.getRows();
+  const rows = await trip(() => sheet.getRows());
   const row = rows.find((r) => (r.get("名稱") ?? "").toString().trim() === name);
   if (row) await row.delete();
 
@@ -528,7 +532,7 @@ export async function replaceKeywordInfo(
   previousName?: string,
 ) {
   const sheet = await getKeywordsSheet(sheetId, accessToken);
-  const rows = await sheet.getRows();
+  const rows = await trip(() => sheet.getRows());
   const named = (row: GoogleSpreadsheetRow) => (row.get("名稱") ?? "").toString().trim();
 
   // 改名時，改成的那個名字可能已經有一列（＝合併），留一列就好
@@ -539,11 +543,11 @@ export async function replaceKeywordInfo(
 
   const row = rows.find((r) => named(r) === (previousName || info.name));
   if (!row) {
-    await sheet.addRows([toRowValues(info)]);
+    await trip(() => sheet.addRows([toRowValues(info)]));
     return;
   }
   for (const [header, value] of Object.entries(toRowValues(info))) row.set(header, value);
-  await row.save();
+  await trip(() => row.save());
 }
 
 function toRowValues(info: KeywordInfo): Record<string, string> {
@@ -593,7 +597,7 @@ async function getRecordSheet(
   await sheet.loadHeaderRow().catch(() => {});
   const current = sheet.headerValues ?? [];
   const missing = headerValues.filter((header) => !current.includes(header));
-  if (missing.length > 0) await sheet.setHeaderRow([...current, ...missing]);
+  if (missing.length > 0) await trip(() => sheet.setHeaderRow([...current, ...missing]));
 
   return sheet;
 }
@@ -614,14 +618,14 @@ async function backfillIds(sheet: GoogleSpreadsheetWorksheet, rows: GoogleSpread
   const missing = rows.filter((row) => !text(row, "編號"));
   if (missing.length === 0) return rows;
 
-  await sheet.loadCells();
+  await trip(() => sheet.loadCells());
   const column = headerIndex(sheet)["編號"];
   if (column === undefined) return rows;
 
   for (const row of missing) {
     sheet.getCell(row.rowNumber - 1, column).value = crypto.randomUUID();
   }
-  await sheet.saveUpdatedCells();
+  await trip(() => sheet.saveUpdatedCells());
 
   // 重讀一次，回傳的才是真的寫進去的那些編號
   return sheet.getRows();
@@ -637,7 +641,7 @@ export async function listVocabularyRows(
     VOCABULARY_SHEET_TITLE,
     VOCABULARY_HEADERS,
   );
-  const rows = await backfillIds(sheet, await sheet.getRows());
+  const rows = await backfillIds(sheet, await trip(() => sheet.getRows()));
 
   return rows
     .map((row) => ({
@@ -657,7 +661,7 @@ export async function listVocabularyRows(
 
 export async function listQuoteRows(sheetId: string, accessToken: string): Promise<QuoteRow[]> {
   const sheet = await getRecordSheet(sheetId, accessToken, QUOTES_SHEET_TITLE, QUOTE_HEADERS);
-  const rows = await backfillIds(sheet, await sheet.getRows());
+  const rows = await backfillIds(sheet, await trip(() => sheet.getRows()));
 
   return rows
     .map((row) => ({
@@ -683,7 +687,7 @@ async function replaceBookRows(
   bookId: string,
   values: Record<string, string>[],
 ) {
-  const rows = await sheet.getRows();
+  const rows = await trip(() => sheet.getRows());
   const mine = rows.filter((row) => text(row, "書籍編號") === bookId);
   for (const row of mine.reverse()) await row.delete();
   if (values.length > 0) await sheet.addRows(values);
@@ -773,7 +777,7 @@ export async function readSetting(
   key: string,
 ): Promise<string> {
   const sheet = await getSettingsSheet(sheetId, accessToken);
-  const rows = await sheet.getRows();
+  const rows = await trip(() => sheet.getRows());
   const row = rows.find((r) => (r.get("設定") ?? "").toString().trim() === key);
   return (row?.get("值") ?? "").toString().trim();
 }
@@ -783,7 +787,7 @@ type PrivacySettings = { stored: string; privateKinds: string[]; privateTypes: s
 async function loadPrivacySettings(key: string): Promise<PrivacySettings> {
   const [sheetId, accessToken] = key.split(" ");
   const sheet = await getSettingsSheet(sheetId, accessToken);
-  const rows = await sheet.getRows();
+  const rows = await trip(() => sheet.getRows());
   const cell = (row: (typeof rows)[number], header: string) =>
     (row.get(header) ?? "").toString().trim();
 
@@ -826,7 +830,7 @@ export async function writeSetting(
   // 改完要馬上看得到，不能等 TTL 到期
   privacyCache.forget(`${sheetId} ${accessToken}`);
   const sheet = await getSettingsSheet(sheetId, accessToken);
-  const rows = await sheet.getRows();
+  const rows = await trip(() => sheet.getRows());
   const row = rows.find((r) => (r.get("設定") ?? "").toString().trim() === key);
 
   if (!value) {
@@ -835,7 +839,7 @@ export async function writeSetting(
   }
   if (row) {
     row.set("值", value);
-    await row.save();
+    await trip(() => row.save());
     return;
   }
   await sheet.addRow({ 設定: key, 值: value });
