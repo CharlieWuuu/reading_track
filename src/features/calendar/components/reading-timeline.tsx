@@ -1,21 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { bookEditHref } from "@/config/routes";
 import { Book } from "@/types/book";
 import {
   daysBetween,
   monthTicks,
   packLanes,
+  spanDays,
   spanRange,
   startOfDay,
   toSpans,
 } from "@/utils/timeline";
 
-/** 一天多寬。一本讀三個月的書大約 550px，看得出長度又不用捲太久 */
-const DAY_PX = 6;
-/** 書名寫在線上面，兩段靠太近會擠在一起；排列時當成各自寬了這麼多天 */
-const LABEL_PAD_DAYS = 10;
+/** 一天多寬。一個月大約 300px，月份刻度才寫得下、線也看得出長短 */
+const DAY_PX = 10;
+/** 書名一個字大約這麼寬（text-[10px] 的漢字），用來估這一段實際佔多寬 */
+const CHAR_PX = 10;
 const LANE_PX = 26;
 
 /**
@@ -28,9 +30,16 @@ const LANE_PX = 26;
  * 再按分類上色只會讓人以為顏色另有含意。
  */
 export function ReadingTimeline({ books }: { books: Book[] }) {
+  const scroller = useRef<HTMLDivElement>(null);
   const today = startOfDay(new Date());
   const spans = toSpans(books, today);
   const range = spanRange(spans);
+
+  // 開起來先看最近的。整條軸可能橫跨好幾年，從最早那一頭開始等於一片空白
+  useEffect(() => {
+    const el = scroller.current;
+    if (el) el.scrollLeft = el.scrollWidth;
+  }, [books]);
 
   if (!range) {
     return (
@@ -40,7 +49,11 @@ export function ReadingTimeline({ books }: { books: Book[] }) {
     );
   }
 
-  const lanes = packLanes(spans, LABEL_PAD_DAYS);
+  // 一段實際佔多寬＝線與書名取長的那一個。只看線的話，讀一天的書
+  // 線只有 10px、書名卻有好幾個字，兩個名字會疊在一起
+  const lanes = packLanes(spans, (span) =>
+    Math.max(spanDays(span), Math.ceil((span.book.title.length * CHAR_PX + 8) / DAY_PX)),
+  );
   const totalDays = daysBetween(range.from, range.to) + 1;
   const width = totalDays * DAY_PX;
   const ticks = monthTicks(range.from, range.to);
@@ -49,7 +62,7 @@ export function ReadingTimeline({ books }: { books: Book[] }) {
 
   return (
     <div className="rounded-surface flex min-h-0 flex-1 flex-col overflow-hidden border bg-white">
-      <div className="min-h-0 flex-1 overflow-auto">
+      <div ref={scroller} className="min-h-0 flex-1 overflow-auto">
         <div style={{ width }} className="relative">
           {/* 月份刻度貼在頂端，捲直向時跟著走 */}
           <div className="bg-surface sticky top-0 z-10 flex border-b text-xs text-gray-500">

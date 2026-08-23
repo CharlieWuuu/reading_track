@@ -52,7 +52,7 @@ describe("packLanes", () => {
     expect(packLanes(spans)).toHaveLength(2);
   });
 
-  it("padDays 把靠太近的兩段推開，書名才不會擠在一起", () => {
+  it("書名比線長時就換列，不讓兩個名字疊在一起", () => {
     const spans = toSpans(
       [
         makeBook({ startDate: "2026-01-01", endDate: "2026-01-10" }),
@@ -61,10 +61,11 @@ describe("packLanes", () => {
       TODAY,
     );
     expect(packLanes(spans)).toHaveLength(1);
-    expect(packLanes(spans, 7)).toHaveLength(2);
+    // 每一段都當成 30 天寬（書名很長），兩段就疊到了
+    expect(packLanes(spans, () => 30)).toHaveLength(2);
   });
 
-  it("長的排在最上面那一列", () => {
+  it("寬的排在最上面那一列", () => {
     const spans = toSpans(
       [
         makeBook({ title: "短", startDate: "2026-01-01", endDate: "2026-01-05" }),
