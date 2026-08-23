@@ -1,4 +1,5 @@
 import type { Cache, State } from "swr";
+import { approximateBytes, trimToBudget } from "@/utils/cache-budget";
 
 const STORAGE_KEY = "reading-track-swr-cache";
 /** 超過這個時間的快取就不再拿來墊畫面，避免看到太舊的資料 */
@@ -49,19 +50,28 @@ export function localStorageProvider(): Cache {
     if (disabled) return;
     try {
       // 只留成功抓到的資料，錯誤與載入狀態不必留到下次
-      const writings: Persisted["writings"] = [];
+      const all: Persisted["writings"] = [];
       for (const [key, value] of map) {
         // 解鎖狀態下抓到的資料含私人項目，不落地——不然鎖上之後翻 localStorage 還是看得到
         if (key.includes("unlock=")) continue;
         const data = (value as { data?: unknown } | undefined)?.data;
-        if (data !== undefined) writings.push([key, { data }]);
+        if (data !== undefined) all.push([key, { data }]);
       }
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ savedAt: Date.now(), writings } satisfies Persisted),
-      );
+
+      // 資料越來越多之後整份會超過 localStorage 的額度。原本是 setItem 失敗就
+      // catch 掉，結果變成完全沒有快取、每次開啟都空白等載入，而且毫無跡象。
+      // 改成丟掉最大的那幾筆，小表還是墊得住畫面
+      const { kept, dropped } = trimToBudget(all);
+      if (dropped.length > 0) {
+        console.warn(`[swr-cache] 超過額度，這幾筆不落地：${dropped.join(", ")}`);
+      }
+
+      const payload = JSON.stringify({ savedAt: Date.now(), writings: kept } satisfies Persisted);
+      localStorage.setItem(STORAGE_KEY, payload);
+      snapshot = { raw: payload, parsed: { savedAt: Date.now(), writings: kept } };
     } catch {
-      // 空間不足或隱私模式就放棄快取，不影響功能
+      // 隱私模式或仍然塞不下就放棄快取，不影響功能
+      snapshot = null;
     }
   };
 
@@ -77,6 +87,26 @@ export function localStorageProvider(): Cache {
 }
 
 /**
+ * 上一次讀到／寫出的那一份，避免每次呼叫都重新 parse。
+ *
+ * `readCached` 是在 render 當中被呼叫的（SWR 的 fallbackData），而每次呼叫
+ * 都要 JSON.parse 整份快取。資料一多，光是這個就會讓每次 render 多花好幾毫秒，
+ * 而且每支 hook、每個用到它的元件各算一次。
+ */
+let snapshot: { raw: string; parsed: Persisted } | null = null;
+
+function readSnapshot(): Persisted | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    if (snapshot?.raw !== raw) snapshot = { raw, parsed: JSON.parse(raw) as Persisted };
+    return snapshot.parsed;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * 直接從 localStorage 取某個 key 的舊資料。
  *
  * SWR 的 provider 也會讀同一份快取，但它是在 SWRConfig 掛載時才建立，
@@ -86,20 +116,25 @@ export function localStorageProvider(): Cache {
  */
 export function readCached<T>(key: string | null): T | undefined {
   if (!key || typeof window === "undefined") return undefined;
+  const parsed = readSnapshot();
+  if (!parsed || Date.now() - parsed.savedAt >= MAX_AGE_MS) return undefined;
+  const hit = parsed.writings.find(([k]) => k === key);
+  return hit ? (hit[1].data as T) : undefined;
+}
+
+/** 這份快取現在多大（估計值）。設定頁的「資料維護」拿來顯示 */
+export function cachedBytes(): number {
+  if (typeof window === "undefined") return 0;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return undefined;
-    const parsed = JSON.parse(raw) as Persisted;
-    if (Date.now() - parsed.savedAt >= MAX_AGE_MS) return undefined;
-    const hit = parsed.writings.find(([k]) => k === key);
-    return hit ? (hit[1].data as T) : undefined;
+    return approximateBytes(localStorage.getItem(STORAGE_KEY) ?? "");
   } catch {
-    return undefined;
+    return 0;
   }
 }
 
 export function clearSWRCache() {
   disabled = true;
+  snapshot = null;
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch {
