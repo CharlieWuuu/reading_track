@@ -10,6 +10,7 @@ export const STATS_TYPES = [
   { key: "books", label: "書籍" },
   { key: "articles", label: "文章" },
   { key: "writing", label: "書寫" },
+  { key: "keywords", label: "關鍵字" },
 ] as const;
 
 export type StatsType = (typeof STATS_TYPES)[number]["key"];
@@ -18,6 +19,9 @@ export const STATS_VIEWS = [
   { key: "chart", label: "圖表" },
   { key: "calendar", label: "月曆" },
   { key: "timeline", label: "數線" },
+  { key: "map", label: "地圖" },
+  // 跟書籍的「數線」分開命名：那條是閱讀期間，這條是關鍵字指到的年代
+  { key: "era", label: "年代" },
 ] as const;
 
 export type StatsView = (typeof STATS_VIEWS)[number]["key"];
@@ -30,6 +34,7 @@ export const VIEWS_BY_TYPE: Record<StatsType, readonly StatsView[]> = {
   books: ["chart", "calendar", "timeline"],
   articles: ["chart", "calendar"],
   writing: ["chart", "calendar"],
+  keywords: ["chart", "map", "era"],
 };
 
 export function isStatsType(value: string | undefined): value is StatsType {
