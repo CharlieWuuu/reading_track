@@ -9,7 +9,7 @@ const styles = {
   wrap: "flex flex-col gap-2",
   hint: "text-xs text-gray-500",
   button:
-    "self-start rounded-control bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50",
+    "self-start rounded-control bg-control-bg text-control-ink px-4 py-2 text-sm font-medium hover:bg-control-bg-hover disabled:opacity-50",
   message: "text-xs text-gray-600",
   error: "text-xs text-red-600",
   list: "max-h-32 overflow-y-auto rounded-control border bg-gray-50 px-3 py-2 text-xs text-gray-500",

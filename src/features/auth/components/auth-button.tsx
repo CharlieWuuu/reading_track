@@ -46,7 +46,7 @@ export function AuthButton() {
   return (
     <button
       onClick={() => signIn("google")}
-      className={`rounded-control bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700 ${
+      className={`rounded-control bg-control-bg text-control-ink hover:bg-control-bg-hover px-3 py-1.5 text-sm font-medium ${
         compact ? "text-xs whitespace-nowrap" : "w-full"
       }`}
     >

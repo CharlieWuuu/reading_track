@@ -39,7 +39,7 @@ const styles = {
   input: "w-full rounded-control border px-3 py-2 text-sm",
   area: "min-h-24 w-full resize-none rounded-control border px-3 py-2 text-sm",
   actions: "flex items-center gap-2 pt-1",
-  save: "rounded-control bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50",
+  save: "rounded-control bg-control-bg text-control-ink px-4 py-2 text-sm font-medium hover:bg-control-bg-hover disabled:opacity-50",
   note: "text-xs text-gray-500",
   error: "text-xs text-red-600",
 };

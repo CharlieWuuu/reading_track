@@ -9,7 +9,7 @@ const styles = {
   root: "relative shrink-0",
   // 高度吃全站常數，跟旁邊的新增按鈕、別頁的分頁列站在一起才不會一高一矮
   trigger: `flex ${CONTROL_HEIGHT} items-center gap-1.5 rounded-control border px-2.5 text-sm whitespace-nowrap hover:bg-gray-50`,
-  triggerOn: "border-rule-strong bg-gray-900 text-white hover:bg-gray-700",
+  triggerOn: "border-rule-strong bg-control-bg text-control-ink hover:bg-control-bg-hover",
   triggerOff: "border-rule text-gray-600",
   // 選單靠右對齊：按鈕本來就在頁首右側，往左展開才不會超出畫面
   panel:

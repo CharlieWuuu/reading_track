@@ -166,7 +166,7 @@ export function ReadingTimeline({ books, action }: { books: Book[]; action?: Rea
                       <span
                         className={
                           isToday
-                            ? "inline-flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-white"
+                            ? "bg-control-bg text-control-ink inline-flex h-5 w-5 items-center justify-center rounded-full"
                             : "inline-flex h-5 w-5 items-center justify-center"
                         }
                       >

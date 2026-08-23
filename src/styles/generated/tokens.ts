@@ -50,6 +50,9 @@ export const TOKENS = {
   "ink-viz": "#5c4a3d", // 深棕彩度太低會被讀成資料色，所以只當圖上的文字
   "ink-viz-muted": "#6f5b4c",
   "ink-viz-faint": "#8b7767",
+  "accent": "#8a6d1b", // 主色：主要動作鍵與選中的分頁。gold-600 配白字只有 3.61:1，差一階才過 4.5
+  "accent-hover": "#75591a",
+  "accent-ink": "#ffffff", // 壓在主色上的字
   "rule": "#e8e0d0", // 框線與底色同一支色系才像一套；原本的冷灰配米白底會偏藍，且對白底 1.47:1 太搶
   "rule-soft": "#eae3d8", // 同一塊裡分列用；rule 是「這是兩個東西」，這一階是「同一件事的下一行」
   "rule-strong": "#5c4a3d", // 外殼邊界（側欄、底部導覽）與強調框；純黑改成深棕，跟其餘的框同色系
@@ -71,6 +74,8 @@ export const TOKENS = {
   "tag-type-ring": "#e6c3b4",
   "tag-language-bg": "#f7edcf",
   "tag-language-ink": "#8a6d1b",
+  "control-bg": "#8a6d1b", // 主要動作鍵與選中的分頁；改這裡全站一起變
+  "control-bg-hover": "#75591a",
   "control-ink": "#ffffff",
   "control-border": "#e8e0d0",
   "control-menu-bg": "#ffffff",

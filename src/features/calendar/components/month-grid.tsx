@@ -167,9 +167,9 @@ export function MonthGrid({
               <span
                 className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs ${
                   isSelected
-                    ? "bg-gray-900 text-white"
+                    ? "bg-control-bg text-control-ink"
                     : isToday
-                      ? "text-gray-900 ring-1 ring-gray-900"
+                      ? "text-accent ring-accent ring-1"
                       : day.inCurrentMonth
                         ? "text-gray-700"
                         : "text-gray-300"
@@ -243,7 +243,7 @@ export function MonthGrid({
               <span
                 className={`absolute top-1.5 left-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full text-xs ${
                   isToday
-                    ? "bg-gray-900 text-white"
+                    ? "bg-control-bg text-control-ink"
                     : day.inCurrentMonth
                       ? "text-gray-700"
                       : "text-gray-300"

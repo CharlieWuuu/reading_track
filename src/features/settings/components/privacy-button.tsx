@@ -11,13 +11,13 @@ import { useSheetStore } from "@/stores/use-sheet-store";
 
 const styles = {
   button:
-    "flex h-8 items-center gap-1.5 rounded-control border border-rule-strong text-xs font-medium transition-colors hover:bg-gray-900 hover:text-white",
+    "flex h-8 items-center gap-1.5 rounded-control border border-rule-strong text-xs font-medium transition-colors hover:bg-control-bg hover:text-control-ink",
   form: "flex flex-col gap-3",
   hint: "text-xs text-gray-500",
   input: "w-full rounded-control border px-3 py-2 text-sm",
   actions: "flex items-center gap-2",
   submit:
-    "rounded-control bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50",
+    "rounded-control bg-control-bg text-control-ink px-4 py-2 text-sm font-medium hover:bg-control-bg-hover disabled:opacity-50",
   link: "text-xs text-gray-500 hover:underline",
   error: "text-xs text-red-600",
 };
@@ -89,7 +89,7 @@ export function PrivacyButton() {
         onClick={() => (unlocked ? handleLock() : setOpen(true))}
         title={unlocked ? "隱藏私人項目" : "顯示私人項目"}
         aria-label={unlocked ? "隱藏私人項目" : "顯示私人項目"}
-        className={`${styles.button} px-2 ${unlocked ? "bg-gray-900 text-white" : ""}`}
+        className={`${styles.button} px-2 ${unlocked ? "bg-control-bg text-control-ink" : ""}`}
       >
         {unlocked ? <LockOpen size={14} strokeWidth={1.5} /> : <Lock size={14} strokeWidth={1.5} />}
         {unlocked ? "私人：顯示中" : "私人"}

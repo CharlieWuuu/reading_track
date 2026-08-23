@@ -39,6 +39,13 @@
       "$value": "{color.sand.600}",
       "$type": "color"
     },
+    "accent": {
+      "$value": "{color.gold.700}",
+      "$type": "color",
+      "$description": "主色：主要動作鍵與選中的分頁。gold-600 配白字只有 3.61:1，差一階才過 4.5"
+    },
+    "accent-hover": { "$value": "{color.gold.800}", "$type": "color" },
+    "accent-ink": { "$value": "{color.white}", "$type": "color", "$description": "壓在主色上的字" },
     "rule": {
       "$value": "{color.sand.250}",
       "$type": "color",

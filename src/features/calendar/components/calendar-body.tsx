@@ -37,7 +37,9 @@ export function CalendarBody() {
           aria-label={option.label}
           title={option.label}
           className={`rounded-control p-1.5 ${
-            view === option.id ? "bg-gray-900 text-white" : "text-gray-400 hover:text-gray-900"
+            view === option.id
+              ? "bg-control-bg text-control-ink"
+              : "text-gray-400 hover:text-gray-900"
           }`}
         >
           <option.Icon size={16} strokeWidth={1.5} />

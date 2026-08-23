@@ -23,7 +23,7 @@ const styles = {
   input: "w-full rounded-control border px-3 py-1.5 text-sm",
   sentence: "min-h-28 w-full resize-none rounded-control border px-3 py-1.5 text-sm",
   actions: "flex items-center gap-2 pt-1",
-  save: "rounded-control bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50",
+  save: "rounded-control bg-control-bg text-control-ink px-4 py-2 text-sm font-medium hover:bg-control-bg-hover disabled:opacity-50",
   cancel: "rounded-control border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50",
   error: "text-xs text-red-600",
 };

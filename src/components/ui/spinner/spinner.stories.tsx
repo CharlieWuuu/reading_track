@@ -25,7 +25,7 @@ export const Sizes: Story = {
 /** 按鈕裡：白字的按鈕不用另外指定顏色 */
 export const InButton: Story = {
   render: () => (
-    <button className="rounded-control flex items-center gap-2 bg-gray-900 px-4 py-2 text-sm text-white">
+    <button className="rounded-control bg-control-bg text-control-ink flex items-center gap-2 px-4 py-2 text-sm">
       <Spinner size={14} />
       儲存中
     </button>

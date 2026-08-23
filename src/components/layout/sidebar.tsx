@@ -14,7 +14,7 @@ const styles = {
   list: "flex-1 space-y-1 overflow-y-auto",
   link: "flex items-center gap-2 rounded-control px-3 py-2 text-sm",
   linkCollapsed: "justify-center px-0",
-  linkActive: "bg-gray-900 text-white",
+  linkActive: "bg-control-bg text-control-ink",
   linkIdle: "text-gray-700 hover:bg-gray-100",
   footer: "flex flex-col gap-2 border-t border-rule-strong",
   tools: "flex items-center gap-1",

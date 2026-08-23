@@ -21,7 +21,7 @@ const styles = {
   input: "w-full rounded-control border px-3 py-1.5 text-sm",
   sentence: "min-h-28 w-full resize-none rounded-control border px-3 py-1.5 text-sm",
   actions: "flex items-center gap-2 pt-1",
-  save: "rounded-control bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700",
+  save: "rounded-control bg-control-bg text-control-ink px-4 py-2 text-sm font-medium hover:bg-control-bg-hover",
   cancel: "rounded-control border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50",
   remove:
     "ml-auto rounded-control px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 hover:text-red-600",
