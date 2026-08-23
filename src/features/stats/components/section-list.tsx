@@ -18,23 +18,33 @@ export type Section = {
   scrollHeight?: string;
 };
 
-/** 統計頁的區塊一路往下排。每個區塊要給明確高度——圖表是 height="100%"，父層沒高度會縮成 0 */
+/**
+ * 統計頁的區塊一路往下排。每個區塊要給明確高度——圖表是 height="100%"，
+ * 父層沒高度會縮成 0。
+ *
+ * 區塊之間一條線而不只是空白：一頁有六七塊，只靠空白看不出「這裡換了一個主題」。
+ * 線畫在外層的包裝上，高度留在內層——`h-[26rem]` 是 border-box，
+ * padding 加在同一層會把圖表壓小。
+ */
 export function SectionList({ sections }: { sections: Section[] }) {
   return (
-    <div className="flex shrink-0 flex-col gap-6">
+    <div className="flex shrink-0 flex-col">
       {sections.map((section) => (
-        <div
-          key={section.key}
-          className={`flex flex-col gap-3.5 ${
-            section.needsHeight === false ? "" : (section.scrollHeight ?? "h-[26rem] sm:h-[32rem]")
-          }`}
-        >
-          <h3 className="shrink-0 text-sm font-medium text-gray-500">{section.label}</h3>
-          {section.needsHeight === false ? (
-            section.node
-          ) : (
-            <div className="flex min-h-0 flex-1 flex-col">{section.node}</div>
-          )}
+        <div key={section.key} className="shrink-0 border-t py-6 first:border-t-0 first:pt-0">
+          <div
+            className={`flex flex-col gap-3.5 ${
+              section.needsHeight === false
+                ? ""
+                : (section.scrollHeight ?? "h-[26rem] sm:h-[32rem]")
+            }`}
+          >
+            <h3 className="shrink-0 text-sm font-medium text-gray-500">{section.label}</h3>
+            {section.needsHeight === false ? (
+              section.node
+            ) : (
+              <div className="flex min-h-0 flex-1 flex-col">{section.node}</div>
+            )}
+          </div>
         </div>
       ))}
     </div>
