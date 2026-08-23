@@ -72,7 +72,7 @@ function DayDetail({ day }: { day?: CalendarDay }) {
         <Link
           key={b.id}
           href={bookEditHref(b.id)}
-          className="rounded-control flex items-center gap-2 border px-2 py-1.5 hover:bg-gray-50"
+          className="rounded-control flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50"
         >
           {b.coverUrl ? (
             // eslint-disable-next-line @next/next/no-img-element

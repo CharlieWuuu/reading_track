@@ -45,27 +45,31 @@ export function toSpans(books: Book[], today: Date): Span[] {
   });
 }
 
+/** 一段期間本身有幾天（含頭尾） */
+export function spanDays(span: Span): number {
+  return daysBetween(span.start, span.end) + 1;
+}
+
 /**
- * 排成幾列，同一列裡的期間互不重疊。長的排上面，短的塞進上面剩下的空隙。
+ * 排成幾列，同一列裡的東西畫出來不會疊到。長的排上面，短的塞進上面剩下的空隙。
  *
- * `padDays` 是「視覺上的最小間隔」：書名寫在線的上面，兩段只差一天就會擠在一起，
- * 所以排列時把每段當成比實際寬一點。
+ * 佔多寬由 `extent` 決定，不是期間長度：書名寫在線的左端往右延伸，
+ * 讀一天的書線只有幾個像素、書名卻有好幾個字，只看期間會讓兩個書名疊在一起。
  */
-export function packLanes(spans: Span[], padDays = 0): Span[][] {
+export function packLanes(spans: Span[], extent: (span: Span) => number = spanDays): Span[][] {
   const sorted = [...spans].sort(
-    (a, b) =>
-      daysBetween(b.start, b.end) - daysBetween(a.start, a.end) ||
-      a.start.getTime() - b.start.getTime(),
+    (a, b) => extent(b) - extent(a) || a.start.getTime() - b.start.getTime(),
   );
 
   const lanes: Span[][] = [];
   for (const span of sorted) {
+    const from = daysBetween(sorted[0].start, span.start);
+    const to = from + extent(span);
     const lane = lanes.find((row) =>
-      row.every(
-        (other) =>
-          daysBetween(other.end, span.start) > padDays ||
-          daysBetween(span.end, other.start) > padDays,
-      ),
+      row.every((other) => {
+        const otherFrom = daysBetween(sorted[0].start, other.start);
+        return to <= otherFrom || from >= otherFrom + extent(other);
+      }),
     );
     if (lane) lane.push(span);
     else lanes.push([span]);
