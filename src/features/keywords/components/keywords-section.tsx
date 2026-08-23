@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { ChartPie, GanttChartSquare, LayoutGrid, Map } from "lucide-react";
 import { PageMessage } from "@/components/layout/page-message";
-import { ViewToggle } from "@/components/ui/controls";
+import { SegmentedControl } from "@/components/ui/controls";
 import { Spinner } from "@/components/ui/spinner";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { KeywordCards } from "@/features/keywords/components/keyword-cards";
@@ -89,7 +89,7 @@ export function KeywordsSection({
       {/* 這是檢視切換不是分頁，所以用 icon，並待在內容區右上角 */}
       {showSwitch && (
         <div className={styles.tabs}>
-          <ViewToggle items={KEYWORD_VIEWS} value={view} onChange={setView} />
+          <SegmentedControl items={KEYWORD_VIEWS} value={view} onChange={setView} />
         </div>
       )}
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { TabBar } from "@/components/ui/controls";
+import { SegmentedControl } from "@/components/ui/controls";
 import { PagerButton } from "@/components/ui/pager-button";
 
 export interface RangeOption {
@@ -94,7 +94,7 @@ export function RangedBarChart({
           </div>
         )}
         {/* 期間切換跟頁首的分頁列是同一件事，用同一個元件的小尺寸版 */}
-        <TabBar
+        <SegmentedControl
           size="sm"
           items={ranges.map((option) => ({ key: option.key, label: option.label }))}
           value={rangeKey}

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
-import { TabBar } from "@/components/ui/controls";
+import { SegmentedControl } from "@/components/ui/controls";
 import { SignInPrompt } from "@/components/ui/sign-in-prompt";
 import { AuthButton } from "@/features/auth/components/auth-button";
 import { EnrichButton } from "@/features/books/components/enrich-button";
@@ -35,7 +35,10 @@ export default function SettingsPage() {
 
   return (
     <>
-      <PageHeader title="設定" action={<TabBar items={TABS} value={tab} onChange={setTab} />} />
+      <PageHeader
+        title="設定"
+        action={<SegmentedControl items={TABS} value={tab} onChange={setTab} />}
+      />
       <PageBody>
         <div className="rounded-surface shrink-0 bg-white p-4 md:min-h-0 md:flex-1 md:overflow-y-auto md:p-5">
           {tab === "connect" && <SheetConnectPanel authSlot={<AuthButton />} />}

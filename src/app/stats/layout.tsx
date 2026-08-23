@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
-import { TabBar } from "@/components/ui/controls";
+import { SegmentedControl } from "@/components/ui/controls";
 import { STATS_TABS, StatsTab, statsTabHref } from "@/config/tabs";
 
 /** 四個分頁共用的頁首；哪一頁被選中看網址，重新整理或分享連結都回得到同一個畫面 */
@@ -17,7 +17,7 @@ export default function StatsLayout({ children }: { children: React.ReactNode })
       <PageHeader
         title="統計"
         action={
-          <TabBar
+          <SegmentedControl
             items={STATS_TABS}
             value={tab}
             onChange={(next) => router.push(statsTabHref(next))}
