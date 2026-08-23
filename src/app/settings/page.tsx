@@ -29,35 +29,35 @@ function Settings() {
   const param = searchParams.get("tab");
   const tab = (TABS.some((t) => t.key === param) ? param : "connect") as SettingsTab;
 
-  if (!session?.user) {
-    return (
-      <>
-        <PageHeader title="設定" />
-        <SignInPrompt />
-      </>
-    );
-  }
+  const signedIn = Boolean(session?.user);
 
+  // 頁首畫一次就好，未登入時只是沒有分頁列可切
   return (
     <>
       <PageHeader
         title="設定"
         action={
-          <SegmentedControl
-            items={TABS}
-            value={tab}
-            onChange={(next) => setParams({ tab: next === "connect" ? null : next })}
-          />
+          signedIn && (
+            <SegmentedControl
+              items={TABS}
+              value={tab}
+              onChange={(next) => setParams({ tab: next === "connect" ? null : next })}
+            />
+          )
         }
       />
-      <PageBody>
-        <div className="rounded-surface shrink-0 bg-white p-4 md:min-h-0 md:flex-1 md:overflow-y-auto md:p-5">
-          {tab === "connect" && <SheetConnectPanel />}
-          {tab === "categories" && <CategoryManager />}
-          {tab === "maintenance" && <MaintenancePanel enrichSlot={<EnrichButton />} />}
-          {tab === "account" && <AccountPanel />}
-        </div>
-      </PageBody>
+      {!signedIn ? (
+        <SignInPrompt />
+      ) : (
+        <PageBody>
+          <div className="rounded-surface shrink-0 bg-white p-4 md:min-h-0 md:flex-1 md:overflow-y-auto md:p-5">
+            {tab === "connect" && <SheetConnectPanel />}
+            {tab === "categories" && <CategoryManager />}
+            {tab === "maintenance" && <MaintenancePanel enrichSlot={<EnrichButton />} />}
+            {tab === "account" && <AccountPanel />}
+          </div>
+        </PageBody>
+      )}
     </>
   );
 }
