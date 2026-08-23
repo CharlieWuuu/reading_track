@@ -13,8 +13,7 @@ const styles = {
   block: "flex flex-col gap-2 border-t pt-4",
 };
 
-/** 帳號那顆由 app 那層注入，理由同 Sidebar：設定不該認得 auth 這個 feature */
-export function SheetConnectPanel({ authSlot }: { authSlot: React.ReactNode }) {
+export function SheetConnectPanel() {
   const { sheetId, sheetName, setSheet } = useSheetStore();
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState("");
@@ -66,12 +65,6 @@ export function SheetConnectPanel({ authSlot }: { authSlot: React.ReactNode }) {
           標成私人的書籍、文章與書寫，沒解鎖時伺服器不會送到這台裝置上。關掉分頁會自動鎖回去。
         </p>
         <PrivacyButton />
-      </div>
-
-      {/* 帳號從手機頂欄搬過來：頻率低，不值得一直佔著頂欄的位子 */}
-      <div className={styles.block}>
-        <h3 className={styles.heading}>帳號</h3>
-        {authSlot}
       </div>
     </div>
   );
