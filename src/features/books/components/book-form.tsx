@@ -22,6 +22,7 @@ import { compactLines, LineListInput } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
 import { bookEditHref, bookHref, keywordEditHref } from "@/config/routes";
+import { scrapeBook, searchBookByTitle } from "@/features/books/api/lookup-book";
 import { useBookFormTab } from "@/features/books/components/book-form-tabs";
 import { QuoteListInput } from "@/features/books/components/quote-list-input";
 import { VocabularyListInput } from "@/features/books/components/vocabulary-list-input";
@@ -101,24 +102,6 @@ function toPayload(form: FormState, book?: Book) {
 function Section({ children, pairs }: { children: React.ReactNode; pairs?: boolean }) {
   const cols = pairs ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
   return <div className={`grid min-h-0 shrink-0 content-start gap-3 ${cols}`}>{children}</div>;
-}
-
-async function scrapeByUrl(url: string): Promise<Partial<Book> | null> {
-  const res = await fetch("/api/scrape", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url }),
-  });
-  if (!res.ok) return null;
-  const data = await res.json();
-  return data?.title ? data : null;
-}
-
-async function searchByTitle(title: string): Promise<Partial<Book> | null> {
-  const res = await fetch(`/api/search-book?q=${encodeURIComponent(title)}`);
-  if (!res.ok) return null;
-  const data = await res.json();
-  return data.results?.[0] ?? null;
 }
 
 function toForm(book: Partial<Book>): FormState {
@@ -225,7 +208,7 @@ export function BookForm({
     setRefetching(true);
     setRefetchNote("");
     try {
-      const found = url ? await scrapeByUrl(url) : await searchByTitle(title);
+      const found = url ? await scrapeBook(url) : await searchBookByTitle(title);
       if (!found) {
         setRefetchNote("查不到這本書的資料");
         return;

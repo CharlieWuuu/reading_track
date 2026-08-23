@@ -10,6 +10,7 @@ import { compactLines } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
 import { articleEditHref, keywordEditHref } from "@/config/routes";
+import { scrapeArticle } from "@/features/articles/api/scrape-article";
 import { useArticleFormTab } from "@/features/articles/components/article-form-tabs";
 import { RelatedWriting } from "@/features/writing/components/related-writings";
 import { useArticles } from "@/hooks/use-articles";
@@ -106,13 +107,7 @@ export function ArticleForm({ article }: { article?: Article }) {
     setFetching(true);
     setFetchNote("");
     try {
-      const res = await fetch("/api/scrape-article", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
-      });
-      const found = await res.json();
-      if (!res.ok) throw new Error(found.error ?? "抓取失敗");
+      const found = await scrapeArticle(url);
 
       const filled: string[] = [];
       setForm((f) => {

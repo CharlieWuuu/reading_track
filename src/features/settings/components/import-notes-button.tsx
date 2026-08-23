@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { importNotes, previewImportNotes } from "@/features/settings/api/import-notes";
 import { useWritings } from "@/hooks/use-writings";
 import { useSheetStore } from "@/stores/use-sheet-store";
 
@@ -31,11 +32,10 @@ export function ImportNotesButton() {
   useEffect(() => {
     if (!sheetId) return;
     let cancelled = false;
-    fetch(`/api/writings/import-notes?sheetId=${encodeURIComponent(sheetId)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (cancelled || data.error) return;
-        setPending({ count: data.pending, titles: data.titles ?? [] });
+    previewImportNotes(sheetId)
+      .then((preview) => {
+        if (cancelled || !preview) return;
+        setPending({ count: preview.pending, titles: preview.titles });
       })
       .catch(() => null);
     return () => {
@@ -49,13 +49,7 @@ export function ImportNotesButton() {
     setStatus("loading");
     setMessage("");
     try {
-      const res = await fetch("/api/writings/import-notes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sheetId }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "搬移失敗");
+      const data = await importNotes(sheetId);
 
       await mutate();
       setStatus("done");

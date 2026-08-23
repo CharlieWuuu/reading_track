@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Lock, LockOpen } from "lucide-react";
 import { useSWRConfig } from "swr";
 import { Dialog } from "@/components/ui/dialog";
+import { submitPasscode } from "@/features/settings/api/privacy";
 import { clearSWRCache } from "@/lib/swr-cache";
 import { usePrivacyStore } from "@/stores/use-privacy-store";
 import { useSheetStore } from "@/stores/use-sheet-store";
@@ -65,18 +66,12 @@ export function PrivacyButton() {
     setBusy(true);
     setError("");
     try {
-      const res = await fetch("/api/privacy", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sheetId,
-          action: setting ? "set" : "verify",
-          passcode,
-          current,
-        }),
+      const data = await submitPasscode({
+        sheetId,
+        action: setting ? "set" : "verify",
+        passcode,
+        current,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "解鎖失敗");
       unlock(data.token);
       await mutate(() => true);
       close();

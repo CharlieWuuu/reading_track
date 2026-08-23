@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FormActions } from "@/components/ui/form-actions";
 import { OptionSelect } from "@/components/ui/option-select";
+import { lookupKeyword } from "@/features/keywords/api/lookup-keyword";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { formatSpan, KeywordInfo, parseSpan } from "@/types/keyword";
 
@@ -90,15 +91,7 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
     setError("");
     setNote("");
     try {
-      const res = await fetch("/api/keywords/lookup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: form.name.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "查詢失敗");
-
-      const found = data.keyword as KeywordInfo;
+      const found = await lookupKeyword(form.name.trim());
       if (!found.wikiUrl && !found.summary) {
         setNote("維基沒有這個條目");
         return;

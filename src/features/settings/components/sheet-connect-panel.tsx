@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { PrivacyButton } from "@/components/layout/privacy-button";
 import { verifySheet } from "@/features/settings/api/verify-sheet";
+import { PrivacyButton } from "@/features/settings/components/privacy-button";
 import { SheetPicker } from "@/features/settings/components/sheet-picker";
 import { useSheetStore } from "@/stores/use-sheet-store";
 
