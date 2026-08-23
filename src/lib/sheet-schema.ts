@@ -107,9 +107,14 @@ const COMMON_ALIASES: Record<CommonField, string[]> = {
  */
 export type LegacyField = "quotes" | "vocabulary" | "status";
 
-/** 欄位順序＝新建分頁時的表頭順序，維持舊版的排法，不要重排 */
+/**
+ * 欄位順序＝新建分頁時的表頭順序。
+ *
+ * 編號排在最後：那是給程式認人用的，人在 Sheet 上找的是書名。
+ * 既有的表不會被重排——欄位是靠表頭名字對應的，位置不影響（見 sheets.ts 的
+ * resolveColumns）。想把自己那張表的編號欄搬到最後，直接在 Sheet 上整欄拖走就好。
+ */
 const BOOK_FIELD_ORDER: BookField[] = [
-  "id",
   "title",
   "author",
   "coverUrl",
@@ -134,6 +139,7 @@ const BOOK_FIELD_ORDER: BookField[] = [
   // 後來才加的欄位接在最後：既有的表是就地補欄，插在中間會讓整排值錯位
   "originId",
   "isbn",
+  "id",
 ];
 
 type BookOnlyField = Exclude<BookField, CommonField>;
@@ -189,7 +195,6 @@ export const BOOK_TABLE: TableSpec<BookField, LegacyField> = {
 export const ARTICLE_TABLE: TableSpec<ArticleField> = {
   title: "文章",
   fields: [
-    "id",
     "title",
     "author",
     "platform",
@@ -202,6 +207,7 @@ export const ARTICLE_TABLE: TableSpec<ArticleField> = {
     "note",
     "keywords",
     "private",
+    "id",
   ],
   idField: "id",
   legacy: [],
@@ -222,7 +228,6 @@ export const ARTICLE_TABLE: TableSpec<ArticleField> = {
 export const WRITING_TABLE: TableSpec<WritingField> = {
   title: "書寫",
   fields: [
-    "id",
     "date",
     "title",
     "kind",
@@ -232,6 +237,7 @@ export const WRITING_TABLE: TableSpec<WritingField> = {
     "sourceTitle",
     "sourceId",
     "private",
+    "id",
   ],
   idField: "id",
   legacy: [],
@@ -261,7 +267,7 @@ export const WRITING_TABLE: TableSpec<WritingField> = {
 
 export const METRIC_TABLE: TableSpec<MetricField> = {
   title: "數據",
-  fields: ["id", "date", "writingId", "title", "platform", "views", "reads"],
+  fields: ["date", "writingId", "title", "platform", "views", "reads", "id"],
   idField: "id",
   legacy: [],
   labels: {

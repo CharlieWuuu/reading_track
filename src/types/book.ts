@@ -228,21 +228,22 @@ export type CategorySource = "book" | "article" | "writings";
 /**
  * 每一組選項對應到哪種紀錄的哪個欄位。
  *
- * 領域與次領域刻意三邊分開：書的領域是「為什麼讀這本書」，紀事的領域是
- * 「這件事屬於我生活的哪一塊」，硬共用一份清單只會讓兩邊的選單都變得很吵。
- * 平台、屬性、語言仍然共用——那些在書與文章上問的是同一件事。
+ * 書與文章共用同一棵領域樹：兩邊都是「讀別人寫的東西」，問的是同一件事——
+ * 一本講心理的書跟一篇講心理的文章就是同一個領域。分成兩份的代價是同一個詞
+ * 要打兩次、慢慢長歪，統計也合不起來。
+ *
+ * 紀事沒有領域，它只用「類型」分——那問的是「這件事屬於我生活的哪一塊」，
+ * 跟「這份內容在講什麼」不是同一個問題。
  */
 export const CATEGORY_FIELDS: Record<
   keyof BookCategories,
   { field: string; sources: CategorySource[] }
 > = {
   platform: { field: "platform", sources: ["book", "article"] },
-  domain: { field: "domain", sources: ["book"] },
-  subDomain: { field: "subDomain", sources: ["book"] },
+  domain: { field: "domain", sources: ["book", "article"] },
+  subDomain: { field: "subDomain", sources: ["book", "article"] },
   type: { field: "type", sources: ["book", "article"] },
   language: { field: "language", sources: ["book", "article"] },
-  articleDomain: { field: "domain", sources: ["article"] },
-  articleSubDomain: { field: "subDomain", sources: ["article"] },
   kind: { field: "kind", sources: ["writings"] },
 };
 
@@ -252,9 +253,6 @@ export interface BookCategories {
   subDomain: string[];
   type: string[];
   language: string[];
-  /** 文章的領域與次領域，跟書籍各自一份清單 */
-  articleDomain: string[];
-  articleSubDomain: string[];
   /** 紀事的類型；書籍沒有這一欄，但選項統一存在同一張「選項」分頁 */
   kind: string[];
 }
@@ -274,7 +272,5 @@ export const DEFAULT_CATEGORIES: BookCategories = {
   subDomain: [],
   type: [],
   language: [],
-  articleDomain: [],
-  articleSubDomain: [],
   kind: [],
 };

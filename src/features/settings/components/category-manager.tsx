@@ -9,8 +9,6 @@ const LABELS: Record<keyof BookCategories, string> = {
   subDomain: "次領域",
   type: "屬性",
   language: "語言",
-  articleDomain: "文章領域",
-  articleSubDomain: "文章次領域",
   kind: "類型",
 };
 

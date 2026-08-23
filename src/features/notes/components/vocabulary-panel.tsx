@@ -5,18 +5,19 @@ import { CardMasonry } from "@/components/ui/card-masonry";
 import { VocabularyEntry } from "@/utils/stats/vocabulary-stats";
 
 const styles = {
-  card: "flex min-w-0 cursor-pointer flex-col gap-2 rounded-surface border bg-white p-4 hover:bg-gray-50",
+  card: "flex min-w-0 cursor-pointer flex-col gap-2 rounded-surface border border-rule-strong bg-white p-4 hover:bg-gray-50",
   head: "flex items-center justify-between gap-2",
   // 單字是這張卡的主角，大一級才看得出主從
   headWord: "min-w-0 truncate text-base font-semibold md:text-lg",
   pronunciation: "-mt-1 text-xs text-gray-400",
-  translation: "-mt-1 text-xs break-words text-gray-500",
+  translation: "-mt-1 text-xs [overflow-wrap:anywhere] text-gray-500",
   count: "shrink-0 text-xs text-gray-400 tabular-nums",
   list: "flex flex-col gap-2",
   writings: "flex flex-col gap-0.5",
   // 例句是原文，翻譯是輔助，兩者深淺分開才不會讀成同一段
-  sentence: "text-xs leading-relaxed break-words text-gray-700",
-  sentenceTranslation: "text-xs leading-relaxed break-words text-gray-400",
+  // 例句可能整段是網址：沒有空白就沒有斷點，break-words 斷不開，要 anywhere
+  sentence: "text-xs leading-relaxed [overflow-wrap:anywhere] text-gray-700",
+  sentenceTranslation: "text-xs leading-relaxed [overflow-wrap:anywhere] text-gray-400",
   // 封面靠右下角，淡淡一排就好：它是註腳，不是這張卡的主角。
   // 不能 shrink-0：手機一欄只有一半螢幕寬，五張封面加次數會把卡片撐出去，
   // 外層 PageBody 的 overflow-y-auto 讓另一軸變成 auto，就長出橫向捲軸

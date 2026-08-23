@@ -225,13 +225,13 @@ export function ArticleForm({ article }: { article?: Article }) {
           <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3">
             <CategorySelect
               label="領域"
-              categoryKey="articleDomain"
+              categoryKey="domain"
               value={form.domain}
               onChange={(v) => set("domain", v)}
             />
             <CategorySelect
               label="次領域"
-              categoryKey="articleSubDomain"
+              categoryKey="subDomain"
               value={form.subDomain}
               onChange={(v) => set("subDomain", v)}
             />
