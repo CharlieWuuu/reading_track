@@ -12,6 +12,16 @@ import { Writing } from "@/types/writing";
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
+/** 手機格子裡的數量徽章：顏色跟該類型在明細裡的標籤同一套 */
+const COUNT =
+  "inline-flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full px-1 text-[10px] leading-none font-medium tabular-nums";
+const styles = {
+  count: {
+    article: `${COUNT} bg-blue-50 text-blue-900`,
+    writing: `${COUNT} bg-gold-100 text-gold-800`,
+  },
+};
+
 /** 格子裡只列第一篇文章，其餘用右邊的「+N」表示，完整清單看下方明細 */
 function DayArticles({ articles }: { articles: Article[] }) {
   if (articles.length === 0) return null;
@@ -184,7 +194,7 @@ export function MonthGrid({
         ))}
       </div>
 
-      {/* 手機版：格子放小書封＋文章圓點，選到的那天在下面列出明細，整頁不用捲 */}
+      {/* 手機版：格子放小書封與數量，選到的那天在下面列出明細，整頁不用捲 */}
       <div className="grid shrink-0 grid-cols-7 sm:hidden">
         {days.map((day, i) => {
           const isToday = day.date.toDateString() === today.toDateString();
@@ -193,7 +203,9 @@ export function MonthGrid({
             <button
               key={i}
               onClick={() => setSelectedTime(day.date.getTime())}
-              className={`flex h-16 flex-col items-center gap-0.5 py-1 ${cellBorder(i, days.length)} ${
+              // overflow-hidden + flex-1：格子高度固定，內容多的時候在自己裡面被裁掉，
+              // 不會像原本那樣把圓點推到下一列的日期上
+              className={`flex h-16 flex-col items-center gap-0.5 overflow-hidden py-1 ${cellBorder(i, days.length)} ${
                 isSelected ? "bg-gray-100" : day.inCurrentMonth ? "bg-white" : "bg-gray-50"
               }`}
             >
@@ -211,40 +223,39 @@ export function MonthGrid({
                 {day.date.getDate()}
               </span>
 
-              {/* 格子太窄，只放第一本的小書封，其餘用 +N 表示，點下去看下方明細 */}
+              {/*
+                書封只放第一本，其餘用 +N；文章與紀事沒有圖，用數字說「這天有幾則」。
+                原本是一顆圓點，但圓點只說得出「有」，說不出幾則，也分不出是哪一種。
+              */}
               <span
-                className={`relative flex h-8 w-[1.35rem] shrink-0 items-center justify-center ${
+                className={`flex min-h-0 flex-1 items-center justify-center gap-0.5 ${
                   day.inCurrentMonth ? "" : "opacity-50"
                 }`}
               >
-                {day.books.length > 0 &&
-                  (day.books[0].coverUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={day.books[0].coverUrl}
-                      alt=""
-                      className="rounded-thumb h-full w-full object-cover shadow-sm"
-                    />
-                  ) : (
-                    <span className="rounded-thumb h-full w-full bg-gray-300" />
-                  ))}
-                {day.books.length > 1 && (
-                  <span className="absolute -top-1 -right-1 rounded-full bg-gray-900 px-1 text-[8px] leading-[1.2] text-white">
-                    +{day.books.length - 1}
+                {day.books.length > 0 && (
+                  <span className="relative flex h-full max-h-8 w-[1.35rem] shrink-0 items-center justify-center">
+                    {day.books[0].coverUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={day.books[0].coverUrl}
+                        alt=""
+                        className="rounded-thumb h-full w-full object-cover shadow-sm"
+                      />
+                    ) : (
+                      <span className="rounded-thumb h-full w-full bg-gray-300" />
+                    )}
+                    {day.books.length > 1 && (
+                      <span className="absolute -top-1 -right-1 rounded-full bg-gray-900 px-1 text-[8px] leading-[1.2] text-white">
+                        +{day.books.length - 1}
+                      </span>
+                    )}
                   </span>
                 )}
-              </span>
-
-              <span
-                className={`flex h-1.5 shrink-0 items-center ${
-                  day.inCurrentMonth ? "" : "opacity-50"
-                }`}
-              >
                 {day.articles.length > 0 && (
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                  <span className={styles.count.article}>{day.articles.length}</span>
                 )}
                 {day.writings.length > 0 && (
-                  <span className="bg-gold-600 ml-0.5 h-1.5 w-1.5 rounded-full" />
+                  <span className={styles.count.writing}>{day.writings.length}</span>
                 )}
               </span>
             </button>
