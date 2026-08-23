@@ -6,7 +6,7 @@ import { VocabularyPanel } from "@/features/notes/components/vocabulary-panel";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { Book } from "@/types/book";
-import { filterVocabularyByLanguage, getVocabularyEntries } from "@/utils/vocabulary-stats";
+import { filterVocabularyByLanguage, getVocabularyEntries } from "@/utils/stats/vocabulary-stats";
 
 /** 單字清單：桌機是自己一頁，手機是筆記頁的一個分頁；點一張就進那個詞的編輯頁 */
 export function VocabularySection({ books }: { books: Book[] }) {

@@ -1,11 +1,11 @@
 import { Article } from "@/types/article";
-import { DistributionSlice, MonthCount } from "@/utils/book-stats";
+import { DistributionSlice, MonthCount } from "@/utils/stats/book-stats";
 import {
   getFieldDistribution,
   getRecordKpis,
   getRecordMonthlyTrend,
   type DatedRecord,
-} from "@/utils/record-stats";
+} from "@/utils/stats/record-stats";
 
 /** 文章的日期欄叫「閱讀日期」，統計那邊一律看 date */
 type ArticleRecord = Omit<Article, "endDate"> & DatedRecord;

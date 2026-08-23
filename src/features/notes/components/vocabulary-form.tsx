@@ -5,7 +5,7 @@ import { BookCover } from "@/components/ui/book-cover";
 import { FormActions } from "@/components/ui/form-actions";
 import { useCategories } from "@/hooks/use-categories";
 import { VocabularyRow } from "@/types/record";
-import { VocabularyEncounter, VocabularyEntry } from "@/utils/vocabulary-stats";
+import { VocabularyEncounter, VocabularyEntry } from "@/utils/stats/vocabulary-stats";
 
 const styles = {
   form: "flex flex-col gap-3",

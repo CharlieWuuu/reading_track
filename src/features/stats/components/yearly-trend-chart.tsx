@@ -1,7 +1,7 @@
 "use client";
 
 import { RangedBarChart, RangeOption } from "@/features/stats/components/ranged-bar-chart";
-import { MonthCount, QuarterCount } from "@/utils/book-stats";
+import { MonthCount, QuarterCount } from "@/utils/stats/book-stats";
 
 /** 季數多的時候只在第一季標年份，不然 X 軸會擠成一團；範圍小就每根都標得下 */
 function quarterTick(value: string, dense: boolean) {

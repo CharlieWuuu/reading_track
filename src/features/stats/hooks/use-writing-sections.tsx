@@ -8,7 +8,11 @@ import { Panel } from "@/features/stats/components/panel";
 import { Section } from "@/features/stats/components/section-list";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { Writing } from "@/types/writing";
-import { getKindDistribution, getWritingKpis, getWritingMonthlyTrend } from "@/utils/writing-stats";
+import {
+  getKindDistribution,
+  getWritingKpis,
+  getWritingMonthlyTrend,
+} from "@/utils/stats/writing-stats";
 
 /**
  * 紀事統計要畫哪幾塊。紀事只有類型一種分類，所以比書籍與文章少一組圖。
