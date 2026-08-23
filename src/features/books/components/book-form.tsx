@@ -43,6 +43,7 @@ const emptyForm = {
   author: "",
   coverUrl: "",
   publisher: "",
+  isbn: "",
   platform: "其他",
   startDate: "",
   endDate: "",
@@ -75,6 +76,7 @@ function toPayload(form: FormState, book?: Book) {
     author: form.author,
     coverUrl: form.coverUrl,
     publisher: form.publisher,
+    isbn: form.isbn,
     platform: form.platform,
     sourceUrl: form.sourceUrl,
     // 狀態不給使用者填，一律由日期推導，避免狀態跟日期互相矛盾
@@ -271,13 +273,16 @@ export function BookForm({
             <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
             <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
 
+            <Field label="ISBN" value={form.isbn} onChange={(v) => set("isbn", v)} />
             <Field label="封面網址" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
-            <Field
-              label="來源網址"
-              Icon={LinkIcon}
-              value={form.sourceUrl}
-              onChange={(v) => set("sourceUrl", v)}
-            />
+            <div className="col-span-2">
+              <Field
+                label="來源網址"
+                Icon={LinkIcon}
+                value={form.sourceUrl}
+                onChange={(v) => set("sourceUrl", v)}
+              />
+            </div>
 
             {/* 這三個都很短，擠成一行剛好，不用各佔半排 */}
             <div className="col-span-2 grid grid-cols-3 gap-3">

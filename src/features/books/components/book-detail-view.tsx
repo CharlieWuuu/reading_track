@@ -63,6 +63,7 @@ function BookFacts({ book }: { book: Book }) {
       <div>
         <Field label="作者">{book.author}</Field>
         <Field label="出版社">{book.publisher}</Field>
+        <Field label="ISBN">{book.isbn}</Field>
         <Field label="語言">{book.language}</Field>
       </div>
       <div>

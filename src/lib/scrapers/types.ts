@@ -10,6 +10,7 @@ export interface ScrapedBook {
   language?: string;
   pageCount?: string;
   wordCount?: string;
+  isbn?: string;
 }
 
 export interface Scraper {

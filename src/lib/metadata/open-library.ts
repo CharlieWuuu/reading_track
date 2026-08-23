@@ -1,3 +1,4 @@
+import { normalizeIsbn } from "@/utils/isbn";
 import { fetchJson } from "./http";
 import { BookMetadata, Candidate, MetadataProvider } from "./types";
 
@@ -9,6 +10,7 @@ interface OpenLibraryDoc {
   language?: string[];
   cover_i?: number;
   key?: string;
+  isbn?: string[];
 }
 
 const LANGUAGE_NAMES: Record<string, string> = {
@@ -26,6 +28,7 @@ const SEARCH_FIELDS = [
   "language",
   "cover_i",
   "key",
+  "isbn",
 ].join(",");
 
 /**
@@ -50,6 +53,10 @@ function toMetadata(doc: OpenLibraryDoc, url: string): BookMetadata {
     publisher: doc.publisher?.[0] ?? "",
     pageCount: doc.number_of_pages_median ? String(doc.number_of_pages_median) : "",
     language: doc.language?.length ? (LANGUAGE_NAMES[doc.language[0]] ?? "") : "",
+    // 一筆 work 底下所有版本的號碼都在這，13 碼優先（都是同一部作品的不同版本）
+    isbn: normalizeIsbn(
+      doc.isbn?.find((value) => normalizeIsbn(value).length === 13) ?? doc.isbn?.[0] ?? "",
+    ),
     coverUrl: doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` : "",
     source: "Open Library",
     sourceUrl: url,

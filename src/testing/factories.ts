@@ -41,6 +41,7 @@ export function makeBook(overrides: Partial<Book> = {}): Book {
     language: "中文",
     pageCount: "300",
     wordCount: "",
+    isbn: "",
     note: "",
     quotes: "",
     keywords: "",

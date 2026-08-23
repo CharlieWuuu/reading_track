@@ -133,6 +133,7 @@ const BOOK_FIELD_ORDER: BookField[] = [
   "private",
   // 後來才加的欄位接在最後：既有的表是就地補欄，插在中間會讓整排值錯位
   "originId",
+  "isbn",
 ];
 
 type BookOnlyField = Exclude<BookField, CommonField>;
@@ -147,6 +148,7 @@ const BOOK_ONLY_LABELS: Record<BookOnlyField, string> = {
   relatedArticles: "相關文章",
   vocabulary: "單字",
   originId: "同一本書編號",
+  isbn: "ISBN",
 };
 
 const BOOK_ONLY_ALIASES: Record<BookOnlyField, string[]> = {
@@ -159,6 +161,7 @@ const BOOK_ONLY_ALIASES: Record<BookOnlyField, string[]> = {
   relatedArticles: ["relatedarticles", "articles", "相關文章", "延伸閱讀"],
   vocabulary: ["vocabulary", "words", "單字", "生難字詞", "生字"],
   originId: ["originid", "同一本書編號", "重讀自", "首次編號"],
+  isbn: ["isbn", "isbn13", "isbn10", "書號", "國際書號"],
 };
 
 /**

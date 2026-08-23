@@ -1,4 +1,5 @@
 import type { CheerioAPI } from "cheerio";
+import { normalizeIsbn } from "@/utils/isbn";
 import { SECTIGO_EV_R36_PEM } from "./certs";
 import { digitsOnly } from "./html";
 import { fetchDom } from "./http";
@@ -81,6 +82,7 @@ export const taazeProvider: MetadataProvider = {
       publisher: info.get("出版社") ?? "",
       language: normalizeLanguage(info.get("語言") ?? ""),
       pageCount: digitsOnly(info.get("頁數") ?? ""),
+      isbn: normalizeIsbn(info.get("ISBN") ?? info.get("EISBN") ?? ""),
       coverUrl: $('meta[property="og:image"]').attr("content") ?? "",
       source: "讀冊生活",
       sourceUrl: url,

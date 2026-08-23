@@ -1,4 +1,5 @@
 import type { CheerioAPI } from "cheerio";
+import { normalizeIsbn } from "@/utils/isbn";
 import { fetchDom } from "./http";
 import { normalizeLanguage } from "./readmoo";
 import { Candidate, MetadataProvider } from "./types";
@@ -129,6 +130,7 @@ export const pubuProvider: MetadataProvider = {
       title,
       wordCount: pick(specs, ["字數", "Word count"]),
       pageCount: pick(specs, ["頁數", "Pages"]),
+      isbn: normalizeIsbn(pick(specs, ["ISBN", "EISBN"])),
       author: data.author?.trim() ?? "",
       publisher: data.publisher?.trim() ?? "",
       language: data.inLanguage

@@ -9,6 +9,7 @@ export const ENRICHABLE_FIELDS = [
   "language",
   "pageCount",
   "wordCount",
+  "isbn",
 ] as const;
 
 export type EnrichableField = (typeof ENRICHABLE_FIELDS)[number];

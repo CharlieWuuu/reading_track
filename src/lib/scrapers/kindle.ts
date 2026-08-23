@@ -1,3 +1,4 @@
+import { normalizeIsbn } from "@/utils/isbn";
 import { getText } from "./helpers";
 import { Scraper } from "./types";
 
@@ -18,6 +19,10 @@ export const kindleScraper: Scraper = {
     const publisher = await getLabelValue(page, "Publisher");
     const pageCount = (await getLabelValue(page, "Print length")).match(/\d+/)?.[0] ?? "";
     const language = await getLabelValue(page, "Language");
+    // 電子書只有 ASIN，紙本才給 ISBN；抓不到就留空
+    const isbn = normalizeIsbn(
+      (await getLabelValue(page, "ISBN-13")) || (await getLabelValue(page, "ISBN-10")),
+    );
 
     const coverUrl = await page.evaluate(() => {
       const scripts = Array.from(document.querySelectorAll("script"));
@@ -28,6 +33,6 @@ export const kindleScraper: Scraper = {
       return "";
     });
 
-    return { title, author, coverUrl, publisher, platform: "Kindle", pageCount, language };
+    return { title, author, coverUrl, publisher, platform: "Kindle", pageCount, language, isbn };
   },
 };

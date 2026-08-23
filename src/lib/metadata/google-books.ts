@@ -1,3 +1,4 @@
+import { normalizeIsbn } from "@/utils/isbn";
 import { fetchJson } from "./http";
 import { BookMetadata, Candidate, MetadataProvider } from "./types";
 
@@ -10,6 +11,7 @@ interface VolumeInfo {
   language?: string;
   imageLinks?: { thumbnail?: string; smallThumbnail?: string };
   infoLink?: string;
+  industryIdentifiers?: { type?: string; identifier?: string }[];
 }
 
 interface Volume {
@@ -42,6 +44,12 @@ function toHttps(url: string): string {
   return url.replace(/^http:/, "https:");
 }
 
+/** 同一本書會同時給 ISBN_10 與 ISBN_13，13 碼是現行標準，優先取它 */
+function pickIsbn(ids: VolumeInfo["industryIdentifiers"]): string {
+  const byType = (type: string) => ids?.find((id) => id.type === type)?.identifier;
+  return normalizeIsbn(byType("ISBN_13") ?? byType("ISBN_10") ?? "");
+}
+
 function toMetadata(info: VolumeInfo, url: string): BookMetadata {
   const cover = info.imageLinks?.thumbnail ?? info.imageLinks?.smallThumbnail ?? "";
   return {
@@ -50,6 +58,7 @@ function toMetadata(info: VolumeInfo, url: string): BookMetadata {
     publisher: info.publisher ?? "",
     pageCount: info.pageCount ? String(info.pageCount) : "",
     language: info.language ? (LANGUAGE_NAMES[info.language] ?? "") : "",
+    isbn: pickIsbn(info.industryIdentifiers),
     coverUrl: cover ? toHttps(cover) : "",
     source: "Google Books",
     sourceUrl: url,
