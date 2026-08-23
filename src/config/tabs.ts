@@ -15,16 +15,5 @@ export const READING_TABS = [
 
 export type ReadingTab = (typeof READING_TABS)[number]["key"];
 
-export const STATS_TABS = [
-  { key: "books", label: "書籍" },
-  { key: "articles", label: "文章" },
-  { key: "writing", label: "書寫" },
-  // 月曆是統計的一種看法，桌機與手機都放在這裡當分頁
-  { key: "calendar", label: "月曆" },
-] as const;
-
-export type StatsTab = (typeof STATS_TABS)[number]["key"];
-
-/** 分頁的網址；兩區的分頁都是「第二段就是 key」 */
+/** 分頁的網址：第二段就是 key。統計那邊拆成類型 × 顯示方式了，見 config/stats-views.ts */
 export const readingTabHref = (tab: ReadingTab) => `/reading/${tab}`;
-export const statsTabHref = (tab: StatsTab) => `/stats/${tab}`;
