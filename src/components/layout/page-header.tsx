@@ -23,14 +23,17 @@ export function PageHeader({ title, action, backHref }: PageHeaderProps) {
 
   return (
     <div className={styles.bar}>
-      <div className={styles.heading}>
-        {backHref && (
-          <Link href={backHref} aria-label="返回" className={styles.back}>
-            <ChevronLeft size={20} strokeWidth={1.5} aria-hidden />
-          </Link>
-        )}
-        {title && <h2 className={styles.title}>{title}</h2>}
-      </div>
+      {/* 兩樣都沒有就整格不畫：空的 div 照樣吃掉一個 gap，看起來像左邊多一塊空白 */}
+      {(backHref || title) && (
+        <div className={styles.heading}>
+          {backHref && (
+            <Link href={backHref} aria-label="返回" className={styles.back}>
+              <ChevronLeft size={20} strokeWidth={1.5} aria-hidden />
+            </Link>
+          )}
+          {title && <h2 className={styles.title}>{title}</h2>}
+        </div>
+      )}
       {/* 按鈕的插槽 */}
       <div className={styles.actions}>{action}</div>
     </div>

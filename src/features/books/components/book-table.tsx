@@ -21,7 +21,7 @@ import {
   effectiveStatus,
   matchesStatus,
   parseStatusFilter,
-  statusLabel,
+  statusHeading,
 } from "@/utils/book-filter";
 import { matchesSearch, searchTerms } from "@/utils/search";
 
@@ -136,7 +136,7 @@ export function BookTable() {
   const clearKeyword = () => setParams({ keyword: null });
   // 搜尋與關鍵字反查會蓋掉狀態篩選，所以標題要照真正生效的條件寫
   const heading =
-    terms.length > 0 ? "搜尋結果" : keyword ? `提到「${keyword}」` : statusLabel(status);
+    terms.length > 0 ? "搜尋結果" : keyword ? `提到「${keyword}」` : statusHeading(status);
   // 帶著目前的檢視進詳細頁，一路傳到編輯頁，存檔後才回得到同一個畫面
   const query = searchParams.toString();
   const detailHref = (id: string) => bookHref(id, query || undefined);
@@ -159,6 +159,8 @@ export function BookTable() {
   if (books.length === 0) {
     return (
       <div className="flex w-full flex-col gap-3">
+        {/* 0 本也要說出來：沒有標題列的話，看起來像篩選沒生效 */}
+        <ListHeading label={heading} count={0} />
         {keyword && <KeywordFilter keyword={keyword} count={0} onClear={clearKeyword} />}
         <PageMessage>
           {terms.length > 0
