@@ -7,7 +7,7 @@ import { topicLabel } from "@/features/keywords/utils/topic-labels";
 import { KeywordInfo } from "@/types/keyword";
 
 const styles = {
-  card: "flex cursor-pointer flex-col gap-2 rounded-surface bg-white p-4 hover:bg-gray-50",
+  card: "flex cursor-pointer flex-col gap-2 rounded-surface border bg-white p-4 hover:bg-gray-50",
   head: "flex items-baseline justify-between gap-2",
   name: "flex min-w-0 items-center gap-1.5 truncate text-sm font-medium",
   count: "shrink-0 text-xs text-gray-400 tabular-nums",

@@ -200,7 +200,7 @@ export function useBookSections(books: Book[], quotes: QuoteRow[]): Section[] {
                   {pies.map((pie) => (
                     <div
                       key={pie.key}
-                      className="rounded-surface flex min-h-0 flex-col bg-white p-5"
+                      className="rounded-surface flex min-h-0 flex-col border bg-white p-5"
                     >
                       <div className="min-h-0 flex-1">
                         <DistributionPie data={pie.data} height="100%" />
@@ -218,7 +218,7 @@ export function useBookSections(books: Book[], quotes: QuoteRow[]): Section[] {
             label: r.label,
             needsHeight: false,
             node: (
-              <div className="rounded-surface bg-white p-4">
+              <div className="rounded-surface border bg-white p-4">
                 <RankingBar data={r.data} unit={r.unit} showCover={r.key === "reread"} />
               </div>
             ),
@@ -231,14 +231,14 @@ export function useBookSections(books: Book[], quotes: QuoteRow[]): Section[] {
               // 重讀排行帶書封，自己占一整列；作者與出版社排在下面兩欄
               node: (
                 <div className="flex flex-col gap-4">
-                  <div className="rounded-surface bg-white p-5">
+                  <div className="rounded-surface border bg-white p-5">
                     <RankingBar data={reread.data} unit={reread.unit} showCover />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     {rankings
                       .filter((r) => r.key !== "reread")
                       .map((r) => (
-                        <div key={r.key} className="rounded-surface bg-white p-5">
+                        <div key={r.key} className="rounded-surface border bg-white p-5">
                           <RankingBar data={r.data} unit={r.unit} />
                         </div>
                       ))}

@@ -50,7 +50,7 @@ function Settings() {
         <SignInPrompt />
       ) : (
         <PageBody>
-          <div className="rounded-surface shrink-0 bg-white p-4 md:min-h-0 md:flex-1 md:overflow-y-auto md:p-5">
+          <div className="rounded-surface shrink-0 border bg-white p-4 md:min-h-0 md:flex-1 md:overflow-y-auto md:p-5">
             {tab === "connect" && <SheetConnectPanel />}
             {tab === "categories" && <CategoryManager />}
             {tab === "maintenance" && <MaintenancePanel enrichSlot={<EnrichButton />} />}
