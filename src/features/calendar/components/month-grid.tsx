@@ -72,16 +72,7 @@ function DayDetail({ day }: { day?: CalendarDay }) {
   );
 }
 
-export function MonthGrid({
-  books,
-  articles,
-  action,
-}: {
-  books: Book[];
-  articles: Article[];
-  /** 檢視切換：放在換月那一列的右邊，不另外佔一條 */
-  action?: React.ReactNode;
-}) {
+export function MonthGrid({ books, articles }: { books: Book[]; articles: Article[] }) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -140,7 +131,6 @@ export function MonthGrid({
           </span>
           <PagerButton direction="next" onClick={goNext} disabled={atCurrentMonth} label="下個月" />
         </div>
-        {action}
       </div>
 
       <div className="grid shrink-0 grid-cols-7 border-b text-center text-xs text-gray-500">
