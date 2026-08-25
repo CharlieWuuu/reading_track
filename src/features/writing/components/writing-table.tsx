@@ -51,11 +51,11 @@ export function WritingTable({ writings }: { writings: Writing[] }) {
       <table className="w-full min-w-[32rem] table-fixed text-sm">
         <thead className="bg-table-header-bg sticky top-0 z-10 text-left [&_th]:shadow-[inset_0_-1px_0_var(--color-table-header-rule)]">
           <tr>
-            <th className="w-[10%] px-3 py-2 whitespace-nowrap">日期</th>
-            <th className="w-[13%] px-3 py-2 whitespace-nowrap">類型</th>
-            <th className="w-[33%] px-3 py-2 whitespace-nowrap">標題</th>
-            <th className="w-[23%] px-3 py-2 whitespace-nowrap">關鍵字</th>
-            <th className="w-[21%] px-3 py-2 whitespace-nowrap">延伸自</th>
+            <th className="w-[10%] px-2 py-1.5 whitespace-nowrap">日期</th>
+            <th className="w-[13%] px-2 py-1.5 whitespace-nowrap">類型</th>
+            <th className="w-[33%] px-2 py-1.5 whitespace-nowrap">標題</th>
+            <th className="w-[23%] px-2 py-1.5 whitespace-nowrap">關鍵字</th>
+            <th className="w-[21%] px-2 py-1.5 whitespace-nowrap">延伸自</th>
           </tr>
         </thead>
         <tbody>
@@ -65,10 +65,10 @@ export function WritingTable({ writings }: { writings: Writing[] }) {
               onClick={() => router.push(writingHref(e.id))}
               className={`cursor-pointer border-t first:border-t-0 ${dayTone(groupIndex[i])}`}
             >
-              <td className="px-3 py-2 whitespace-nowrap text-gray-500 tabular-nums">
+              <td className="px-2 py-1.5 whitespace-nowrap text-gray-500 tabular-nums">
                 {shortDate(e.date) || "—"}
               </td>
-              <td className="max-w-0 overflow-hidden px-3 py-2">
+              <td className="max-w-0 overflow-hidden px-2 py-1.5">
                 <div className="flex flex-nowrap gap-1.5">
                   {splitTags(e.kind).map((kind) => (
                     <span key={kind} className={`${styles.kind} ${tagColorClass(kind, [])}`}>
@@ -78,13 +78,13 @@ export function WritingTable({ writings }: { writings: Writing[] }) {
                 </div>
               </td>
               {/* max-w-0 + overflow-hidden：table-fixed 下過長的標題會擠進隔壁欄，寧可切掉 */}
-              <td className="max-w-0 overflow-hidden px-3 py-2">
+              <td className="max-w-0 overflow-hidden px-2 py-1.5">
                 <span className="block overflow-hidden font-medium text-ellipsis whitespace-nowrap">
                   {e.title || "（沒有標題）"}
                 </span>
               </td>
               {/* 關鍵字是一行一個，不是頓號分隔——splitTags 會把整段當成一個標籤 */}
-              <td className="max-w-0 overflow-hidden px-3 py-2">
+              <td className="max-w-0 overflow-hidden px-2 py-1.5">
                 <div
                   onClick={(event) => event.stopPropagation()}
                   className="flex flex-nowrap gap-1"
@@ -94,7 +94,7 @@ export function WritingTable({ writings }: { writings: Writing[] }) {
                   ))}
                 </div>
               </td>
-              <td className="max-w-0 overflow-hidden px-3 py-2">
+              <td className="max-w-0 overflow-hidden px-2 py-1.5">
                 <span className="block overflow-hidden text-ellipsis whitespace-nowrap text-gray-500">
                   {e.sourceTitle}
                 </span>
