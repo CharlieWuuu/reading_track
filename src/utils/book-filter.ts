@@ -2,13 +2,8 @@ import { Book, ReadingStatus } from "@/types/book";
 
 export type StatusFilter = "all" | "done" | "reading" | "want";
 
-/**
- * 預設只看讀完的。
- *
- * 打開書單是為了回顧讀過什麼，不是被提醒還有幾本沒讀完——那件事不需要每次
- * 進來都說一次。要看的時候切一下就有，但它不會自己跳出來。
- */
-export const DEFAULT_STATUS: StatusFilter = "done";
+/** 預設看全部：書單就是全部的書，要挑狀態再切 */
+export const DEFAULT_STATUS: StatusFilter = "all";
 
 const STATUS_OF: Record<Exclude<StatusFilter, "all">, ReadingStatus> = {
   done: "已讀完",

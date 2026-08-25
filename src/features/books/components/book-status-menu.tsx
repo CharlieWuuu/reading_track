@@ -11,8 +11,7 @@ import {
 } from "@/utils/book-filter";
 
 /**
- * 書單的狀態篩選。預設已讀完——打開書單是為了回顧讀過什麼，
- * 不是被提醒還有幾本沒讀完。
+ * 書單的狀態篩選。預設全部。
  *
  * 用跟書寫同一顆篩選鍵：窄螢幕只留圖示，頁首那一排本來就擠。
  * 刻意不顯示數量，「閱讀中 12」那個數字本身就是提醒。
@@ -28,7 +27,7 @@ export function BookStatusMenu() {
       ]}
       onChange={(_key, label) => {
         const next = statusFromLabel(label);
-        // 預設值不寫進網址；但「全部」要寫，不然會被當成沒指定而退回預設
+        // 預設值不寫進網址
         setParams({ status: next === DEFAULT_STATUS ? null : next, page: null });
       }}
     />
