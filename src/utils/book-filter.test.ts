@@ -22,8 +22,8 @@ describe("parseStatusFilter", () => {
     expect(parseStatusFilter(raw)).toBe(DEFAULT_STATUS);
   });
 
-  it("預設是只看讀完的", () => {
-    expect(DEFAULT_STATUS).toBe("done");
+  it("預設看全部", () => {
+    expect(DEFAULT_STATUS).toBe("all");
   });
 });
 

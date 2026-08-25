@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { CalendarCheck, Link as LinkIcon, NotebookPen, Shapes, Tag } from "lucide-react";
+import { CalendarCheck, Link as LinkIcon, Shapes, Tag } from "lucide-react";
 import { CategorySelect } from "@/components/ui/category-select";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
@@ -25,8 +25,7 @@ import { Writing } from "@/types/writing";
 import { fromDateTimeInput, now, toDateTimeInput } from "@/utils/date";
 
 // 內文吃掉整個表單剩下的高度：這一欄是主體，寫長了不該只給它一個小框
-const TEXTAREA_CLASS =
-  "min-h-32 w-full min-w-0 flex-1 resize-none rounded-control border px-3 py-2 text-sm";
+const TEXTAREA_CLASS = "min-h-32 w-full min-w-0 flex-1 resize-none text-sm outline-none";
 
 /** 沒選到的分頁留在畫面上但藏起來，切回來時打到一半的內容還在 */
 function TabPanel({ active, children }: { active: boolean; children: React.ReactNode }) {
@@ -176,22 +175,20 @@ export function WritingForm({ entry }: { entry?: Writing }) {
     >
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
         <TabPanel active={tab === "text"}>
-          <div className="shrink-0">
-            <Field label="標題" value={form.title} onChange={(v) => set("title", v)} />
-          </div>
+          <input
+            value={form.title}
+            onChange={(e) => set("title", e.target.value)}
+            placeholder="標題"
+            className="w-full shrink-0 text-base font-medium outline-none"
+          />
 
           {/* 內文放最大：它是這張表唯一的主體，其他欄位都是為了讓它找得到 */}
-          <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-1">
-            <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
-              <NotebookPen size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-              內文
-            </label>
-            <textarea
-              value={form.note}
-              onChange={(e) => set("note", e.target.value)}
-              className={TEXTAREA_CLASS}
-            />
-          </div>
+          <textarea
+            value={form.note}
+            onChange={(e) => set("note", e.target.value)}
+            placeholder="內文"
+            className={TEXTAREA_CLASS}
+          />
         </TabPanel>
 
         <TabPanel active={tab === "tags"}>
