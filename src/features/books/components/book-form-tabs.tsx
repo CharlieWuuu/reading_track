@@ -3,18 +3,26 @@
 import { SegmentedControl } from "@/components/ui/controls";
 import { useUrlParams } from "@/hooks/use-url-param";
 
-export type BookFormTab = "book" | "tags" | "excerpt" | "notes";
+export type BookFormTab = "book" | "record";
 
 /**
- * 欄位多到一頁看不完，照「這東西是什麼」分頁：
- * 書籍是出版社定的事實、標記是自己貼上去的、摘錄是從書裡抄出來的、筆記是自己寫的。
+ * 兩頁：「這本書是什麼」與「我從裡面留下什麼」。
+ *
+ * 原本切成四頁（書籍／標記／摘錄／筆記），但「摘錄」「筆記」全站別的地方
+ * 叫佳句、單字、書寫——同一個東西在兩處換名字。標記也不值得自己一頁，
+ * 它跟書籍欄位一樣是填表。
  */
 const TABS: { key: BookFormTab; label: string }[] = [
   { key: "book", label: "書籍" },
-  { key: "tags", label: "標記" },
-  { key: "excerpt", label: "摘錄" },
-  { key: "notes", label: "筆記" },
+  { key: "record", label: "紀錄" },
 ];
+
+/** 舊網址還帶著四頁時期的 tab，對過來才不會退回第一頁 */
+const LEGACY: Record<string, BookFormTab> = {
+  tags: "book",
+  excerpt: "record",
+  notes: "record",
+};
 
 /**
  * 看哪一頁寫在網址上，重新整理或分享連結都回得到同一個分頁；預設書籍。
@@ -22,8 +30,10 @@ const TABS: { key: BookFormTab; label: string }[] = [
  */
 export function useBookFormTab() {
   const { searchParams, setParams } = useUrlParams();
-  const param = searchParams.get("tab");
-  const tab: BookFormTab = TABS.some((t) => t.key === param) ? (param as BookFormTab) : "book";
+  const param = searchParams.get("tab") ?? "";
+  const tab: BookFormTab = TABS.some((t) => t.key === param)
+    ? (param as BookFormTab)
+    : (LEGACY[param] ?? "book");
   const setTab = (next: BookFormTab) => setParams({ tab: next === "book" ? null : next });
   return { tab, setTab };
 }
