@@ -94,8 +94,6 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
 
   return (
     <form onSubmit={handleLookup} className="rounded-surface space-y-4 border bg-white p-5">
-      <p className="text-sm text-gray-500">先查書籍資料，確認查到的內容之後再進編輯頁。</p>
-
       {/* 書名與網址同一個框：兩件事都是「這本書叫什麼」，分成兩格只是逼人先分類 */}
       <div className="relative">
         <input
@@ -172,7 +170,6 @@ function FoundCard({ prefill }: { prefill: Partial<Book> }) {
         {prefill.pageCount && (
           <p className="text-gray-600">頁數：{formatCount(prefill.pageCount)}</p>
         )}
-        <p className="pt-0.5 text-green-700">查到資料了，確認沒錯就可以繼續。</p>
       </div>
     </div>
   );
@@ -181,7 +178,7 @@ function FoundCard({ prefill }: { prefill: Partial<Book> }) {
 function NotFoundCard() {
   return (
     <div className="rounded-control border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
-      查不到這本書的資料。可以換個關鍵字重查，或直接繼續自己填。
+      查不到這本書的資料
     </div>
   );
 }

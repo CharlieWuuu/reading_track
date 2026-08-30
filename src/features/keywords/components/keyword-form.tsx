@@ -96,9 +96,8 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
         setNote("維基沒有這個條目");
         return;
       }
-      // 領域是自己分的，維基查回來不該動它
+      // 領域是自己分的，維基查回來不該動它。欄位變了就是查到了，不用再寫一行說明
       setForm((f) => ({ ...found, name: f.name, topics: f.topics }));
-      setNote("已填入維基的資料，確認後按儲存");
     } catch (err) {
       setError(err instanceof Error ? err.message : "查詢失敗");
     } finally {
