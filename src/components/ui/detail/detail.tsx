@@ -15,13 +15,19 @@ export function DetailSection({ title, children }: { title: string; children: Re
   );
 }
 
-/** 資訊表的一列：欄位名稱在左，值在右，中間靠固定欄寬對齊成一直排。
- * 欄名最長三個字，欄寬照三個字給，剩下的寬度留給值 */
+/**
+ * 資訊表的一列：欄位名稱在左，值在右，中間靠固定欄寬對齊成一直排。
+ * 欄名最長三個字，欄寬照三個字給，剩下的寬度留給值。
+ *
+ * 沒有值就整列不畫——一排「—」只是在告訴人「這裡什麼都沒有」，佔的卻是
+ * 跟有內容的欄位一樣的高度。
+ */
 export function DetailField({ label, children }: { label: string; children: React.ReactNode }) {
+  if (!children) return null;
   return (
     <div className="grid grid-cols-[3.25rem_minmax(0,1fr)] items-baseline gap-2 py-1.5">
       <span className="text-xs text-gray-400">{label}</span>
-      <div className="min-w-0 text-sm text-gray-800">{children || "—"}</div>
+      <div className="min-w-0 text-sm text-gray-800">{children}</div>
     </div>
   );
 }
