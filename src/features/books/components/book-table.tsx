@@ -206,7 +206,7 @@ export function BookTable() {
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
+    <div className="flex flex-col gap-3">
       <ListHeading label={heading} count={books.length} />
       {keyword && <KeywordFilter keyword={keyword} count={books.length} onClear={clearKeyword} />}
 
@@ -264,8 +264,9 @@ export function BookTable() {
         </ul>
       </div>
 
-      {/* 外框負責圓角與邊框，捲動只發生在裡面：表頭 sticky 住，只有列在動 */}
-      <div className="rounded-surface hidden min-h-0 w-full flex-1 overflow-y-auto border bg-white md:block">
+      {/* 不自己開捲動容器：捲動一律交給 PageBody，sticky 的表頭改黏在那一層。
+          自己捲的話這一頁的「捲到底」會跟其他頁不一樣（底部留白也吃不到） */}
+      <div className="rounded-surface hidden w-full border bg-white md:block">
         <table className="w-full table-fixed text-sm">
           {/* sticky 的儲存格自己畫底色與下緣線，邊框不會跟著黏住 */}
           <thead className="bg-table-header-bg sticky top-0 z-10 text-left [&_th]:shadow-[inset_0_-1px_0_var(--color-table-header-rule)]">

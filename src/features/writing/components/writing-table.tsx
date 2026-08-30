@@ -46,6 +46,8 @@ export function WritingTable({ writings }: { writings: Writing[] }) {
   }, []);
 
   return (
+    // 這一張靠 min-w 撐出橫向捲軸，overflow-x 會連帶讓 y 也變 auto，
+    // 所以它一定是自己的捲動容器。底部那一格補上，捲到底的留白跟別頁一樣
     <div className="min-h-0 w-full flex-1 overflow-auto border-y bg-white">
       {/* min-w 撐出橫向捲軸：窄螢幕滑著看，寬螢幕照百分比分配 */}
       <table className="w-full min-w-[32rem] table-fixed text-sm">
@@ -103,6 +105,7 @@ export function WritingTable({ writings }: { writings: Writing[] }) {
           ))}
         </tbody>
       </table>
+      <div className="h-6 shrink-0" />
     </div>
   );
 }
