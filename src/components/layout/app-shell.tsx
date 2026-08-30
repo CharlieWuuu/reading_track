@@ -22,7 +22,7 @@ export function AppShell({
         <div className="shrink-0 md:hidden" style={{ height: "env(safe-area-inset-top)" }} />
 
         {/* main 只負責版面與留白，捲動交給頁面裡的 PageBody，頁首才固定得住 */}
-        <main className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-3 px-5 sm:p-4 md:gap-5 md:p-6">
+        <main className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-4 md:gap-5 md:p-6">
           {children}
         </main>
 

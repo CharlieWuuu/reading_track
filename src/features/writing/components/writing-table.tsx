@@ -46,7 +46,7 @@ export function WritingTable({ writings }: { writings: Writing[] }) {
   }, []);
 
   return (
-    <div className="rounded-surface min-h-0 w-full flex-1 overflow-auto border bg-white">
+    <div className="min-h-0 w-full flex-1 overflow-auto border-y bg-white">
       {/* min-w 撐出橫向捲軸：窄螢幕滑著看，寬螢幕照百分比分配 */}
       <table className="w-full min-w-[32rem] table-fixed text-sm">
         <thead className="bg-table-header-bg sticky top-0 z-10 text-left [&_th]:shadow-[inset_0_-1px_0_var(--color-table-header-rule)]">
