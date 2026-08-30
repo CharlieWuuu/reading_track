@@ -13,6 +13,7 @@ export function CategorySelect({
   value,
   onChange,
   multiple = false,
+  hideLabel = false,
 }: {
   label: string;
   Icon?: LucideIcon;
@@ -20,6 +21,7 @@ export function CategorySelect({
   value: string;
   onChange: (value: string) => void;
   multiple?: boolean;
+  hideLabel?: boolean;
 }) {
   const { categories, counts } = useCategories();
 
@@ -33,6 +35,7 @@ export function CategorySelect({
       value={value}
       onChange={onChange}
       multiple={multiple}
+      hideLabel={hideLabel}
     />
   );
 }

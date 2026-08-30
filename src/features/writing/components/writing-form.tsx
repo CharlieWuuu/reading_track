@@ -48,14 +48,18 @@ const emptyForm = {
 
 type FormState = typeof emptyForm;
 
-/** 送出去的那一份：空日期是 null，關鍵字去掉空行 */
-function toPayload(form: FormState) {
-  return { ...form, date: form.date || null, keywords: compactLines(form.keywords) };
+/** 送出去的那一份：新增就用送出的當下當發布時間，關鍵字去掉空行 */
+function toPayload(form: FormState, isEdit: boolean) {
+  return {
+    ...form,
+    date: form.date || (isEdit ? null : now()),
+    keywords: compactLines(form.keywords),
+  };
 }
 
 /** 從書籍頁按「寫一則心得」進來時，延伸自與類型已經知道了，不用再選一次 */
 function toForm(entry: Writing | undefined, prefill: Partial<FormState>): FormState {
-  if (!entry) return { ...emptyForm, date: now(), ...prefill };
+  if (!entry) return { ...emptyForm, ...prefill };
   return {
     ...emptyForm,
     ...Object.fromEntries(Object.entries(entry).filter(([, v]) => v !== undefined && v !== null)),
@@ -109,7 +113,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
     resource: "writings",
     editHref: writingEditHref,
     existingId: entry?.id ?? "",
-    payload: toPayload(form),
+    payload: toPayload(form, isEdit),
     redirectTo: "/writing",
     mutate,
     validate: () => (form.title.trim() ? undefined : "請填標題"),
@@ -193,21 +197,16 @@ export function WritingForm({ entry }: { entry?: Writing }) {
 
         <TabPanel active={tab === "tags"}>
           <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3 sm:grid-cols-3">
-            {/* 日期、類型、關鍵字同一列；手機排不成三欄，關鍵字自己換到下一行 */}
-            <Field
-              label="日期"
-              Icon={CalendarCheck}
-              type="datetime-local"
-              value={toDateTimeInput(form.date)}
-              onChange={(v) => set("date", fromDateTimeInput(v))}
-            />
-            <CategorySelect
-              label="類型"
-              Icon={Shapes}
-              categoryKey="kind"
-              value={form.kind}
-              onChange={(v) => set("kind", v)}
-            />
+            {/* 日期只有編輯時才出現：新增那則的時間就是按下新增的當下，沒什麼好選 */}
+            {isEdit && (
+              <Field
+                label="日期"
+                Icon={CalendarCheck}
+                type="datetime-local"
+                value={toDateTimeInput(form.date)}
+                onChange={(v) => set("date", fromDateTimeInput(v))}
+              />
+            )}
             <div className="col-span-2 min-w-0 sm:col-span-1">
               {/* 關鍵字跟類型同一顆選單，只是它一行一筆存回 Sheet */}
               <OptionSelect
@@ -276,6 +275,19 @@ export function WritingForm({ entry }: { entry?: Writing }) {
       <FormActions
         saving={submitting}
         saveLabel={isEdit ? "儲存變更" : "新增書寫"}
+        // 類型跟著新增鈕：寫完內文順手選一個，不用切到「標記」那一頁
+        extra={
+          <div className="w-36 min-w-0">
+            <CategorySelect
+              label="類型"
+              Icon={Shapes}
+              categoryKey="kind"
+              value={form.kind}
+              onChange={(v) => set("kind", v)}
+              hideLabel
+            />
+          </div>
+        }
         onDelete={isEdit ? handleDelete : undefined}
         deleteLabel="刪除這一筆"
         confirmLabel="確定刪除這一筆？"

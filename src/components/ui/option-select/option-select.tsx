@@ -29,6 +29,7 @@ export function OptionSelect({
   separator = "、",
   onEditOption,
   placeholder,
+  hideLabel = false,
 }: {
   label: string;
   /** 跟詳細卡片同一個圖示，兩邊看起來才像同一個欄位 */
@@ -45,6 +46,8 @@ export function OptionSelect({
   onEditOption?: (value: string) => void;
   /** 沒選任何值時觸發鈕上的字，預設是「選擇或新增○○」 */
   placeholder?: string;
+  /** 擠在按鈕列裡時用：不畫標籤，欄名改掛在觸發鈕的 aria-label 上 */
+  hideLabel?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -161,16 +164,19 @@ export function OptionSelect({
 
   return (
     <div ref={rootRef} className="relative">
-      <label className="mb-1 flex items-center gap-1.5 text-sm font-medium">
-        {Icon && (
-          <Icon size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
-        )}
-        {label}
-      </label>
+      {!hideLabel && (
+        <label className="mb-1 flex items-center gap-1.5 text-sm font-medium">
+          {Icon && (
+            <Icon size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
+          )}
+          {label}
+        </label>
+      )}
 
       <div
         role="button"
         tabIndex={0}
+        aria-label={label}
         onClick={() => setOpen((v) => !v)}
         onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setOpen((v) => !v)}
         className="rounded-control w-full cursor-pointer border px-3 py-2 text-left text-sm"
