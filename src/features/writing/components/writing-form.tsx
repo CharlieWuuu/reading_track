@@ -242,9 +242,10 @@ export function WritingForm({ entry }: { entry?: Writing }) {
                 <Field
                   label="來源"
                   Icon={LinkIcon}
-                  hint="網址或純文字都可以，例如「紙本日記 8/17」"
+                  hint="來源：網址，或「紙本日記 8/17」"
                   value={form.link}
                   onChange={(v) => set("link", v)}
+                  hideLabel
                 />
               </div>
               {/* 量測要掛在編號上，所以存過的那則才抓得動 */}

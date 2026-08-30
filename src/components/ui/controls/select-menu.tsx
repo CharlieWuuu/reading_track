@@ -17,8 +17,11 @@ type SelectMenuProps<T extends string> = {
   onChange: (next: T) => void;
   /** 讀螢幕聽到的名字，例如「類型」「顯示方式」；畫面上顯示的是目前選了哪一項 */
   label: string;
-  /** 按鈕上只留圖示。選單裡的文字照舊——圖示認不出來的時候就靠那行字 */
-  iconOnly?: boolean;
+  /**
+   * 按鈕上只留圖示。選單裡的文字照舊——圖示認不出來的時候就靠那行字。
+   * `"mobile"`＝手機只留圖示，桌機照樣寫出來：手機的頁首那一列擠不下幾個字。
+   */
+  iconOnly?: boolean | "mobile";
 };
 
 /**
@@ -38,7 +41,10 @@ export function SelectMenu<T extends string>({
   const rootRef = useOutsideClick<HTMLDivElement>(open, () => setOpen(false));
   const current = items.find((item) => item.key === value) ?? items[0];
   // 這一組沒有圖示時 iconOnly 不算數：一顆只有箭頭的按鈕說不出自己是什麼
-  const showLabel = !iconOnly || !current?.Icon;
+  const hasIcon = Boolean(current?.Icon);
+  const showLabel = !iconOnly || !hasIcon;
+  // 手機收起來的那一種：文字留在 DOM 裡，只是窄螢幕不畫
+  const labelOnlyOnDesktop = iconOnly === "mobile" && hasIcon;
 
   return (
     <div ref={rootRef} className="relative min-w-0 shrink-0">
@@ -48,10 +54,20 @@ export function SelectMenu<T extends string>({
         title={label}
         aria-expanded={open}
         onClick={() => setOpen(!open)}
-        className={showLabel ? styles.secondary : styles.secondaryIcon}
+        className={
+          labelOnlyOnDesktop
+            ? styles.secondaryResponsive
+            : showLabel
+              ? styles.secondary
+              : styles.secondaryIcon
+        }
       >
         {current?.Icon && <current.Icon />}
-        {showLabel && <span className="truncate">{current?.label}</span>}
+        {labelOnlyOnDesktop ? (
+          <span className="hidden truncate md:inline">{current?.label}</span>
+        ) : (
+          showLabel && <span className="truncate">{current?.label}</span>
+        )}
         <ChevronDown size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
       </button>
 

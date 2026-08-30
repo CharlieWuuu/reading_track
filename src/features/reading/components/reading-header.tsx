@@ -67,6 +67,7 @@ export function ReadingHeader({ views, filters, newButton }: ReadingHeaderProps 
             items={READING_TABS.map((tab) => ({ ...tab, Icon: TAB_ICONS[tab.key] }))}
             value={current}
             onChange={(next) => router.push(readingTabHref(next))}
+            iconOnly="mobile"
           />
           {views}
           {filters}

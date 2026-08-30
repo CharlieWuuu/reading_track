@@ -12,6 +12,7 @@ export function Field({
   onPaste,
   hint,
   type = "text",
+  hideLabel = false,
 }: {
   label: string;
   /** 跟詳細卡片同一個圖示；沒有對應圖示的欄位就不放 */
@@ -23,18 +24,24 @@ export function Field({
   /** 標籤旁邊的淡字說明，通常用來講「這一欄可以填什麼」 */
   hint?: string;
   type?: string;
+  /** 不畫標籤：欄名與說明改寫在框裡當 placeholder，省一行高度 */
+  hideLabel?: boolean;
 }) {
   return (
     <div className="min-w-0">
-      <label className="mb-1 flex items-center gap-1.5 text-sm font-medium">
-        {Icon && (
-          <Icon size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
-        )}
-        {label}
-        {hint && <span className="text-xs font-normal text-gray-400">{hint}</span>}
-      </label>
+      {!hideLabel && (
+        <label className="mb-1 flex items-center gap-1.5 text-sm font-medium">
+          {Icon && (
+            <Icon size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
+          )}
+          {label}
+          {hint && <span className="text-xs font-normal text-gray-400">{hint}</span>}
+        </label>
+      )}
       <input
         type={type}
+        aria-label={label}
+        placeholder={hideLabel ? (hint ?? label) : undefined}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onPaste={onPaste && ((e) => onPaste(e.clipboardData.getData("text")))}

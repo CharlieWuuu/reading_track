@@ -6,6 +6,7 @@ import { scrapeBook, searchBookByTitle } from "@/features/books/api/lookup-book"
 import { ReadBookSuggestions } from "@/features/books/components/read-book-suggestions";
 import { useBooks } from "@/hooks/use-books";
 import { Book, formatCount } from "@/types/book";
+import { parseLookupQuery } from "@/utils/lookup-query";
 
 export interface LookupResult {
   /** 查到的欄位，直接拿去帶入編輯表單 */
@@ -22,8 +23,7 @@ export interface LookupResult {
  * 先看到結果再決定，查壞了可以改關鍵字重查，不用退回上一頁。
  */
 export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => void }) {
-  const [title, setTitle] = useState("");
-  const [url, setUrl] = useState("");
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<LookupResult | null>(null);
@@ -53,33 +53,30 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
     });
   }
 
-  const canSubmit = Boolean(title.trim() || url.trim());
+  // 一個框收兩種輸入：貼連結就爬那一頁，打字就搜書名
+  const lookup = parseLookupQuery(query);
 
-  async function lookupByUrl(): Promise<Partial<Book> | null> {
-    const sourceUrl = url.trim();
-    const found = await scrapeBook(sourceUrl);
+  async function lookupByUrl(url: string): Promise<Partial<Book>> {
+    const found = await scrapeBook(url).catch(() => null);
     // 沒查到也把網址記住：使用者已經貼了，不該讓他再貼一次
-    return found ? { ...found, sourceUrl } : { sourceUrl };
+    return found ? { ...clean(found), sourceUrl: url } : { sourceUrl: url };
   }
 
-  const lookupByTitle = () => searchBookByTitle(title.trim());
+  async function lookupByTitle(title: string): Promise<Partial<Book>> {
+    const found = await searchBookByTitle(title).catch(() => null);
+    return { ...clean(found ?? {}), title: found?.title || title };
+  }
 
   async function handleLookup(e: React.FormEvent) {
     e.preventDefault();
-    if (!canSubmit || loading) return;
+    if (!lookup || loading) return;
 
     setLoading(true);
     setError("");
     setResult(null);
     try {
-      // 網址是明確指向某一本書的，比書名搜尋可靠，所以優先用
-      const fromUrl = url.trim() ? await lookupByUrl().catch(() => null) : null;
-      const fromTitle = title.trim() ? await lookupByTitle().catch(() => null) : null;
-
-      // 兩邊都查的話，以網址為主、書名的結果補空缺
-      const merged: Partial<Book> = { ...(fromTitle ?? {}), ...clean(fromUrl ?? {}) };
-      if (title.trim() && !merged.title) merged.title = title.trim();
-      if (url.trim()) merged.sourceUrl = url.trim();
+      const merged =
+        lookup.kind === "url" ? await lookupByUrl(lookup.url) : await lookupByTitle(lookup.title);
 
       const found = Boolean(merged.author || merged.publisher || merged.coverUrl);
       setResult({
@@ -97,37 +94,23 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
 
   return (
     <form onSubmit={handleLookup} className="rounded-surface space-y-4 border bg-white p-5">
-      <p className="text-sm text-gray-500">
-        先查書籍資料，確認查到的內容之後再進編輯頁。書名和網址擇一填寫即可，兩個都填會以網址為準。
-      </p>
+      <p className="text-sm text-gray-500">先查書籍資料，確認查到的內容之後再進編輯頁。</p>
 
+      {/* 書名與網址同一個框：兩件事都是「這本書叫什麼」，分成兩格只是逼人先分類 */}
       <div className="relative">
-        <label className="mb-1 block text-sm font-medium">書名</label>
         <input
-          value={title}
+          value={query}
           onChange={(e) => {
-            setTitle(e.target.value);
+            setQuery(e.target.value);
             setResult(null);
           }}
-          placeholder="輸入書名"
+          placeholder="輸入書名，或貼上電子書、書店連結"
           className="rounded-control w-full border px-3 py-2 text-sm"
         />
-        {/* 讀過的先跳出來：重讀不用重查，上次那筆就是最準的 */}
-        <ReadBookSuggestions books={books} query={title} onPick={pickReadBook} />
-      </div>
-
-      <div>
-        <label className="mb-1 block text-sm font-medium">書籍網址</label>
-        <input
-          type="url"
-          value={url}
-          onChange={(e) => {
-            setUrl(e.target.value);
-            setResult(null);
-          }}
-          placeholder="貼上電子書或書店連結"
-          className="rounded-control w-full border px-3 py-2 text-sm"
-        />
+        {/* 讀過的先跳出來：重讀不用重查，上次那筆就是最準的。貼網址時不用建議 */}
+        {lookup?.kind !== "url" && (
+          <ReadBookSuggestions books={books} query={query} onPick={pickReadBook} />
+        )}
       </div>
 
       {error && <p className="text-xs text-red-600">{error}</p>}
@@ -137,7 +120,7 @@ export function BookLookupStep({ onDone }: { onDone: (result: LookupResult) => v
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="submit"
-          disabled={!canSubmit || loading}
+          disabled={!lookup || loading}
           className={`rounded-control px-4 py-2 text-sm font-medium disabled:opacity-50 ${
             found
               ? "border-rule-strong border hover:bg-gray-100"
