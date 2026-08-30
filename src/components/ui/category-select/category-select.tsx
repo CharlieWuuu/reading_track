@@ -14,6 +14,7 @@ export function CategorySelect({
   onChange,
   multiple = false,
   hideLabel = false,
+  placeholder,
 }: {
   label: string;
   Icon?: LucideIcon;
@@ -22,6 +23,8 @@ export function CategorySelect({
   onChange: (value: string) => void;
   multiple?: boolean;
   hideLabel?: boolean;
+  /** 不畫標籤時，欄名改由這裡說 */
+  placeholder?: string;
 }) {
   const { categories, counts } = useCategories();
 
@@ -36,6 +39,7 @@ export function CategorySelect({
       onChange={onChange}
       multiple={multiple}
       hideLabel={hideLabel}
+      placeholder={placeholder}
     />
   );
 }

@@ -284,6 +284,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
               categoryKey="kind"
               value={form.kind}
               onChange={(v) => set("kind", v)}
+              placeholder="類型"
               hideLabel
             />
           </div>
