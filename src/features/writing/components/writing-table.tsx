@@ -53,9 +53,9 @@ export function WritingTable({ writings }: { writings: Writing[] }) {
       <table className="w-full min-w-[32rem] table-fixed text-sm">
         <thead className="bg-table-header-bg sticky top-0 z-10 text-left [&_th]:shadow-[inset_0_-1px_0_var(--color-table-header-rule)]">
           <tr>
-            <th className="w-[10%] px-2 py-1.5 whitespace-nowrap">日期</th>
+            <th className="w-[8%] px-2 py-1.5 whitespace-nowrap">日期</th>
             <th className="w-[13%] px-2 py-1.5 whitespace-nowrap">類型</th>
-            <th className="w-[33%] px-2 py-1.5 whitespace-nowrap">標題</th>
+            <th className="w-[35%] px-2 py-1.5 whitespace-nowrap">標題</th>
             <th className="w-[23%] px-2 py-1.5 whitespace-nowrap">關鍵字</th>
             <th className="w-[21%] px-2 py-1.5 whitespace-nowrap">延伸自</th>
           </tr>
@@ -67,7 +67,8 @@ export function WritingTable({ writings }: { writings: Writing[] }) {
               onClick={() => router.push(writingHref(e.id))}
               className={`cursor-pointer border-t first:border-t-0 ${dayTone(groupIndex[i])}`}
             >
-              <td className="px-2 py-1.5 whitespace-nowrap text-gray-500 tabular-nums">
+              {/* 日期是對齊用的座標，不是要讀的內容，比其他欄小一級 */}
+              <td className="px-2 py-1.5 text-xs whitespace-nowrap text-gray-500 tabular-nums">
                 {shortDate(e.date) || "—"}
               </td>
               <td className="max-w-0 overflow-hidden px-2 py-1.5">
