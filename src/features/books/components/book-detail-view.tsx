@@ -134,20 +134,23 @@ export function BookDetailView() {
       {/* 一份文件：單欄、靠章節標題分段，不切成一張張卡片 */}
       <PageBody>
         <article className="flex w-full flex-col gap-8">
-          {/* 書名頁：封面在左，右邊一條垂直線隔開書名與所有欄位 */}
-          {/* 不設 items-start，右欄才會被拉到跟封面一樣高，那條垂直線就不會半途斷掉 */}
-          <header className="flex gap-4 md:gap-6">
-            <BookCover
-              url={book.coverUrl}
-              title={book.title}
-              size="detail"
-              className="self-start"
-            />
-            <div className="border-rule-soft flex min-w-0 flex-1 flex-col gap-4 border-l pl-4 md:pl-6">
-              <h2 className="text-xl leading-snug font-semibold break-words text-gray-900 md:text-2xl">
-                {book.title}
-              </h2>
-              <BookFacts book={book} />
+          {/* 書名頁：書名獨佔一行，底下才是封面與欄位 */}
+          {/* 書名跟封面並排時只剩半個寬度，長書名要斷成三四行才擺得下 */}
+          <header className="flex flex-col gap-4 md:gap-6">
+            <h2 className="text-xl leading-snug font-semibold break-words text-gray-900 md:text-2xl">
+              {book.title}
+            </h2>
+            {/* 不設 items-start，右欄才會被拉到跟封面一樣高，那條垂直線就不會半途斷掉 */}
+            <div className="flex gap-4 md:gap-6">
+              <BookCover
+                url={book.coverUrl}
+                title={book.title}
+                size="detail"
+                className="self-start"
+              />
+              <div className="border-rule-soft flex min-w-0 flex-1 flex-col gap-4 border-l pl-4 md:pl-6">
+                <BookFacts book={book} />
+              </div>
             </div>
           </header>
 
