@@ -42,12 +42,14 @@ export function RangedBarChart({
   seriesLabel,
   emptyText = "尚無資料",
   height = 260,
+  title,
 }: {
   ranges: RangeOption[];
   unit: string;
   seriesLabel: string;
   emptyText?: string;
   height?: number | `${number}%`;
+  title?: string;
 }) {
   const [rangeKey, setRangeKey] = useState(ranges[0]?.key ?? "all");
   /** 往前翻幾個區間，0 是最新的那一段 */
@@ -74,34 +76,45 @@ export function RangedBarChart({
     setOffset(0); // 換區間就回到最新的那一段，不然會停在一段沒資料的過去
   }
 
-  return (
-    <div className="viz-root flex h-full min-h-0 flex-col gap-3" data-palette="archivum">
-      <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-        {windowed && (
-          <div className="flex items-center gap-1">
-            <PagerButton
-              direction="prev"
-              onClick={() => setOffset((o) => o + 1)}
-              disabled={!canGoBack}
-              label="前一段"
-            />
-            <PagerButton
-              direction="next"
-              onClick={() => setOffset((o) => Math.max(0, o - 1))}
-              disabled={offset === 0}
-              label="後一段"
-            />
-          </div>
-        )}
-        {/* 期間切換跟頁首的分頁列是同一件事，用同一個元件的小尺寸版 */}
-        <SegmentedControl
-          size="sm"
-          items={ranges.map((option) => ({ key: option.key, label: option.label }))}
-          value={rangeKey}
-          onChange={changeRange}
-        />
-      </div>
+  const titleAction = (
+    <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+      {windowed && (
+        <div className="flex items-center gap-1">
+          <PagerButton
+            direction="prev"
+            onClick={() => setOffset((o) => o + 1)}
+            disabled={!canGoBack}
+            label="前一段"
+          />
+          <PagerButton
+            direction="next"
+            onClick={() => setOffset((o) => Math.max(0, o - 1))}
+            disabled={offset === 0}
+            label="後一段"
+          />
+        </div>
+      )}
+      {/* 期間切換跟頁首的分頁列是同一件事，用同一個元件的小尺寸版 */}
+      <SegmentedControl
+        size="sm"
+        items={ranges.map((option) => ({ key: option.key, label: option.label }))}
+        value={rangeKey}
+        onChange={changeRange}
+      />
+    </div>
+  );
 
+  return (
+    <div
+      className="rounded-surface flex min-h-0 flex-1 flex-col gap-3.5 border bg-white p-3 md:p-5"
+      data-palette="archivum"
+    >
+      {(title || windowed) && (
+        <div className="flex shrink-0 items-center justify-between gap-3">
+          {title ? <p className="text-sm font-medium">{title}</p> : <span />}
+          {titleAction}
+        </div>
+      )}
       <div className="min-h-0 flex-1">
         <ResponsiveContainer width="100%" height={height}>
           <BarChart data={visible} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>

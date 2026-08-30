@@ -47,9 +47,11 @@ type Split = (typeof SPLITS)[number]["key"];
 export function CumulativeChart({
   books,
   height = 260,
+  title = "累積完成本數",
 }: {
   books: Book[];
   height?: number | `${number}%`;
+  title?: string;
 }) {
   const [split, setSplit] = useState<Split>("all");
   const { keys, rows } = getCumulativeSeries(books, split === "all" ? undefined : split);
@@ -65,12 +67,19 @@ export function CumulativeChart({
   const color = (index: number) =>
     keys.length === 1 ? SERIES_PRIMARY : CATEGORICAL[index % CATEGORICAL.length];
 
+  const titleAction = (
+    <SegmentedControl size="sm" items={SPLITS} value={split} onChange={setSplit} />
+  );
+
   return (
-    <div className="viz-root flex h-full min-h-0 flex-col gap-2" data-palette="archivum">
-      <div className="flex shrink-0 justify-end">
+    <div
+      className="rounded-surface flex min-h-0 flex-1 flex-col gap-3.5 border bg-white p-3 md:p-5"
+      data-palette="archivum"
+    >
+      <div className="flex shrink-0 items-center justify-between gap-3">
+        {title ? <p className="text-sm font-medium">{title}</p> : <span />}
         <SegmentedControl size="sm" items={SPLITS} value={split} onChange={setSplit} />
       </div>
-
       <div className="min-h-0 flex-1">
         <ResponsiveContainer width="100%" height={height}>
           <AreaChart data={rows} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>

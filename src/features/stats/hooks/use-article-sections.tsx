@@ -49,14 +49,13 @@ export function useArticleSections(articles: Article[]): Section[] {
               label: "每月完成篇數",
               scrollHeight: "h-70 sm:h-[32rem]",
               node: (
-                <Panel title="每月完成篇數">
-                  <MonthlyTrendChart
-                    data={monthly}
-                    unit="篇"
-                    seriesLabel="完成篇數"
-                    height="100%"
-                  />
-                </Panel>
+                <MonthlyTrendChart
+                  title="每月完成篇數"
+                  data={monthly}
+                  unit="篇"
+                  seriesLabel="完成篇數"
+                  height="100%"
+                />
               ),
             },
           ]
@@ -67,14 +66,13 @@ export function useArticleSections(articles: Article[]): Section[] {
               node: (
                 <div className="flex min-h-0 flex-1 flex-col gap-3">
                   <ArticleKpiCards {...kpis} />
-                  <Panel title="每月完成篇數">
-                    <MonthlyTrendChart
-                      data={monthly}
-                      unit="篇"
-                      seriesLabel="完成篇數"
-                      height="100%"
-                    />
-                  </Panel>
+                  <MonthlyTrendChart
+                    title="每月完成篇數"
+                    data={monthly}
+                    unit="篇"
+                    seriesLabel="完成篇數"
+                    height="100%"
+                  />
                 </div>
               ),
             },

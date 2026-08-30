@@ -96,20 +96,19 @@ export function useBookSections(books: Book[], quotes: QuoteRow[]): Section[] {
               label: "每季完成本數",
               scrollHeight: "h-70 sm:h-[32rem]",
               node: (
-                <Panel title="每季完成本數">
-                  <YearlyTrendChart quarterlyData={quarterly} monthlyData={monthly} height="100%" />
-                </Panel>
+                <YearlyTrendChart
+                  title="每季完成本數"
+                  quarterlyData={quarterly}
+                  monthlyData={monthly}
+                  height="100%"
+                />
               ),
             },
             {
               key: "cumulative",
               label: "累積完成本數",
               scrollHeight: "h-70 sm:h-[32rem]",
-              node: (
-                <Panel title="累積完成本數">
-                  <CumulativeChart books={books} height="100%" />
-                </Panel>
-              ),
+              node: <CumulativeChart title="累積完成本數" books={books} height="100%" />,
             },
           ]
         : [
@@ -119,24 +118,19 @@ export function useBookSections(books: Book[], quotes: QuoteRow[]): Section[] {
               node: (
                 <div className="flex min-h-0 flex-1 flex-col gap-3">
                   <KpiCards {...kpis} />
-                  <Panel title="每季完成本數">
-                    <YearlyTrendChart
-                      quarterlyData={quarterly}
-                      monthlyData={monthly}
-                      height="100%"
-                    />
-                  </Panel>
+                  <YearlyTrendChart
+                    title="每季完成本數"
+                    quarterlyData={quarterly}
+                    monthlyData={monthly}
+                    height="100%"
+                  />
                 </div>
               ),
             },
             {
               key: "cumulative",
               label: "累積完成本數",
-              node: (
-                <Panel title="累積完成本數">
-                  <CumulativeChart books={books} height="100%" />
-                </Panel>
-              ),
+              node: <CumulativeChart title="累積完成本數" books={books} height="100%" />,
             },
           ]),
       // 樹狀圖：窄的時候一張一頁（格子上的字擠在一起會讀不出來），
