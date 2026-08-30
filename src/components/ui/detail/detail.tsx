@@ -3,20 +3,23 @@
  * 一樣是「一份文件」而不是「十張小卡」，所以共用同一套。
  */
 
-/** 章節標題：一行小字加一條細線，就是文件裡的分節 */
+/** 章節標題：字比內文小但深且粗，配一條細線——淡灰的小標會被內文蓋過去 */
 export function DetailSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="flex flex-col gap-3">
-      <h3 className="border-rule-soft border-b pb-1.5 text-base text-gray-400">{title}</h3>
+      <h3 className="border-rule-soft border-b pb-1.5 text-sm font-semibold text-gray-900">
+        {title}
+      </h3>
       {children}
     </section>
   );
 }
 
-/** 資訊表的一列：欄位名稱在左，值在右，中間靠固定欄寬對齊成一直排 */
+/** 資訊表的一列：欄位名稱在左，值在右，中間靠固定欄寬對齊成一直排。
+ * 欄名最長三個字，欄寬照三個字給，剩下的寬度留給值 */
 export function DetailField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-[4.5rem_minmax(0,1fr)] items-baseline gap-3 py-1.5">
+    <div className="grid grid-cols-[3.25rem_minmax(0,1fr)] items-baseline gap-2 py-1.5">
       <span className="text-xs text-gray-400">{label}</span>
       <div className="min-w-0 text-sm text-gray-800">{children || "—"}</div>
     </div>
