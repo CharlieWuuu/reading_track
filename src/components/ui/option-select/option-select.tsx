@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Pencil, type LucideIcon } from "lucide-react";
+import { useOutsideClick } from "@/hooks/use-outside-click";
 
 /**
  * 仿 Notion 的選擇器：搜尋、選，打字就能登一個還沒用過的值。
@@ -43,18 +44,8 @@ export function OptionSelect({
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  // 點到別的地方就收起來
-  useEffect(() => {
-    if (!open) return;
-    function onPointerDown(e: MouseEvent) {
-      if (rootRef.current?.contains(e.target as Node)) return;
-      setOpen(false);
-    }
-    document.addEventListener("mousedown", onPointerDown);
-    return () => document.removeEventListener("mousedown", onPointerDown);
-  }, [open]);
+  // 收合的規則跟 SelectMenu 同一支 hook，兩顆選單不該各寫一份
+  const rootRef = useOutsideClick<HTMLDivElement>(open, () => setOpen(false));
 
   const keyword = query.trim();
   const filtered = keyword

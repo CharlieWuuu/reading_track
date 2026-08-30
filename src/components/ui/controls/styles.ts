@@ -18,6 +18,8 @@ export const styles = {
   secondary: `flex ${HEIGHT} shrink-0 items-center gap-1 rounded-control border px-3 ${TEXT} text-control-ink-secondary hover:bg-control-ghost-hover`,
   // 沒有文字就不用留文字的左右餘裕；圖示旁邊還有一個 chevron，所以不做成正方形
   secondaryIcon: `flex ${HEIGHT} shrink-0 items-center gap-0.5 rounded-control border px-2 ${TEXT} text-control-ink-secondary hover:bg-control-ghost-hover`,
+  // 手機只有圖示、桌機才長出文字：同一顆按鈕，左右餘裕跟著一起變
+  secondaryResponsive: `flex ${HEIGHT} shrink-0 items-center gap-0.5 rounded-control border px-2 ${TEXT} text-control-ink-secondary hover:bg-control-ghost-hover md:gap-1 md:px-3`,
   // 一排選項：分頁與檢視切換共用這一組（SegmentedControl）
   // 只佔自己的寬度，窄螢幕放不下時才在自己裡面橫捲
   segmentBox: `flex ${HEIGHT} w-fit max-w-full items-center gap-1 overflow-x-auto rounded-control border border-control-border p-1`,
