@@ -100,8 +100,6 @@ export default function Home() {
           <Link href="/privacy" className="underline">
             隱私權政策
           </Link>
-          <span className="text-gray-300">·</span>
-          <span className="text-gray-500">聯絡：charliewu500@gmail.com</span>
         </footer>
       </div>
     </PageBody>

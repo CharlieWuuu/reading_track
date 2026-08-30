@@ -101,6 +101,15 @@ function toPayload(form: FormState, book?: Book) {
 }
 
 /** 一組相關欄位排成同一片格線；pairs 是固定兩欄，手機也不折成一欄 */
+/** 一頁裡的分組小標：一行小字加一條線，跟詳細頁的章節標題同一個長相 */
+function GroupTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <h3 className="border-rule-soft shrink-0 border-b pb-1.5 text-sm font-semibold text-gray-900">
+      {children}
+    </h3>
+  );
+}
+
 function Section({ children, pairs }: { children: React.ReactNode; pairs?: boolean }) {
   const cols = pairs ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
   return <div className={`grid min-h-0 shrink-0 content-start gap-3 ${cols}`}>{children}</div>;
@@ -264,7 +273,7 @@ export function BookForm({
       {/* 欄位一路往下排；桌機在這層捲，手機不自己捲，跟著整頁捲 */}
       <div className="flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
         <TabPanel active={tab === "book"}>
-          {/* 這一頁的欄位兩兩成對（作者｜出版社、頁數｜字數…），書名自己獨佔一行 */}
+          {/* 自己認得的那幾欄先來：書名獨佔一行，其餘兩兩成對 */}
           <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3">
             <div className="col-span-2">
               <Field label="書名" value={form.title} onChange={(v) => set("title", v)} />
@@ -272,17 +281,6 @@ export function BookForm({
 
             <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
             <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
-
-            <Field label="ISBN" value={form.isbn} onChange={(v) => set("isbn", v)} />
-            <Field label="封面網址" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
-            <div className="col-span-2">
-              <Field
-                label="來源網址"
-                Icon={LinkIcon}
-                value={form.sourceUrl}
-                onChange={(v) => set("sourceUrl", v)}
-              />
-            </div>
 
             {/* 這三個都很短，擠成一行剛好，不用各佔半排 */}
             <div className="col-span-2 grid grid-cols-3 gap-3">
@@ -306,6 +304,21 @@ export function BookForm({
                 onChange={(v) => set("language", v)}
               />
             </div>
+          </div>
+
+          {/* 抓回來的那幾欄擺一起：平常不用看，錯了才進來改 */}
+          <GroupTitle>來源資料</GroupTitle>
+          <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3">
+            <Field label="ISBN" value={form.isbn} onChange={(v) => set("isbn", v)} />
+            <Field label="封面網址" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
+            <div className="col-span-2">
+              <Field
+                label="來源網址"
+                Icon={LinkIcon}
+                value={form.sourceUrl}
+                onChange={(v) => set("sourceUrl", v)}
+              />
+            </div>
 
             {/* 用現有的書名／網址重查，補上空欄位 */}
             <div className="col-span-2 flex items-center justify-end gap-2">
@@ -320,9 +333,9 @@ export function BookForm({
               </button>
             </div>
           </div>
-        </TabPanel>
 
-        <TabPanel active={tab === "tags"}>
+          {/* 標記不值得自己一頁：它跟上面一樣是填表，只是填的是自己的看法 */}
+          <GroupTitle>標記</GroupTitle>
           <Section pairs>
             <Field
               label="開始日期"
@@ -372,7 +385,7 @@ export function BookForm({
             />
           </Section>
 
-          {/* 私人跟領域、屬性一樣是自己貼上去的標記，所以也放這一頁 */}
+          {/* 私人跟領域、屬性一樣是自己貼上去的標記 */}
           <PrivateToggle value={form.private} onChange={(v) => set("private", v)} />
 
           {/* 關鍵字也是自己貼上去的標籤，跟領域、屬性同一件事，只是值不固定 */}
@@ -391,10 +404,10 @@ export function BookForm({
           </div>
         </TabPanel>
 
-        {/* 佳句與單字都是從書裡抄出來的片段，連操作都一樣：清單點一列開彈窗 */}
-        {/* 兩邊都是 w-1/2：內容長短不一樣，不加 min-w-0 的話長的那邊會把短的擠掉 */}
-        <TabPanel active={tab === "excerpt"}>
-          <div className="flex min-h-0 flex-col gap-3 sm:flex-row md:flex-1">
+        {/* 從這本書留下來的東西：佳句、單字、書寫、相關文章，全站叫什麼這裡就叫什麼 */}
+        <TabPanel active={tab === "record"}>
+          <div className="flex min-h-0 flex-col gap-3 sm:flex-row">
+            {/* 兩邊都是 w-1/2：內容長短不一樣，不加 min-w-0 的話長的那邊會把短的擠掉 */}
             <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
               <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
                 <Quote size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
@@ -417,11 +430,8 @@ export function BookForm({
               />
             </div>
           </div>
-        </TabPanel>
 
-        {/* 心得寫成紀事，這裡只列出這本書底下有哪些 */}
-        <TabPanel active={tab === "notes"}>
-          <div className="flex min-h-0 flex-col gap-3 sm:flex-row md:flex-1">
+          <div className="flex min-h-0 flex-col gap-3 sm:flex-row">
             <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
               {isEdit && book ? (
                 <RelatedWriting sourceId={book.id} sourceTitle={form.title} kind="書籍" />
