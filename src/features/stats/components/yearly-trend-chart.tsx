@@ -36,10 +36,12 @@ export function YearlyTrendChart({
   quarterlyData,
   monthlyData,
   height = 260,
+  title = "每季完成本數",
 }: {
   quarterlyData: QuarterCount[];
   monthlyData: MonthCount[];
   height?: number | `${number}%`;
+  title?: string;
 }) {
   const quarters = quarterlyData.map((d) => ({ key: d.quarter, count: d.count }));
   const months = monthlyData.map((d) => ({ key: d.month, count: d.count }));
@@ -74,6 +76,7 @@ export function YearlyTrendChart({
 
   return (
     <RangedBarChart
+      title={title}
       ranges={ranges}
       unit="本"
       seriesLabel="完成本數"

@@ -27,9 +27,7 @@ export function useWritingSections(writings: Writing[]): Section[] {
     const pies = [{ key: "kind", label: "類型分布", data: getKindDistribution(writings) }];
 
     const trend = (title = "每月筆數") => (
-      <Panel title={title}>
-        <MonthlyTrendChart data={monthly} unit="筆" seriesLabel="筆數" height="100%" />
-      </Panel>
+      <MonthlyTrendChart title={title} data={monthly} unit="筆" seriesLabel="筆數" height="100%" />
     );
 
     return [

@@ -21,11 +21,13 @@ export function MonthlyTrendChart({
   unit = "本",
   seriesLabel = "完成本數",
   height = 260,
+  title,
 }: {
   data: MonthCount[];
   unit?: string;
   seriesLabel?: string;
   height?: number | `${number}%`;
+  title?: string;
 }) {
   const months = data.map((d) => ({ key: d.month, count: d.count }));
   const ranges: RangeOption[] = [
@@ -35,5 +37,13 @@ export function MonthlyTrendChart({
     { key: "6m", label: "六個月", size: 6 },
   ].map((r) => ({ ...r, data: months, tick: monthTick, tooltipLabel: monthLabel }));
 
-  return <RangedBarChart ranges={ranges} unit={unit} seriesLabel={seriesLabel} height={height} />;
+  return (
+    <RangedBarChart
+      title={title}
+      ranges={ranges}
+      unit={unit}
+      seriesLabel={seriesLabel}
+      height={height}
+    />
+  );
 }
