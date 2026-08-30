@@ -11,8 +11,8 @@ import { groupByWeek, isUrl, Reflection } from "@/utils/reflections";
 import { tagColorClass } from "@/utils/tag-colors";
 
 const styles = {
-  // 左右各留一點：overflow-y 一旦不是 visible 橫向也會裁，頭像的外框線會被切掉一條
-  wrap: "flex min-h-0 w-full min-w-0 flex-1 flex-col gap-5 overflow-y-auto px-0.5 pb-2",
+  // 捲動交給 PageBody：它是唯一的捲動容器，這裡再開一個手感會跟其他頁不一樣
+  wrap: "flex w-full min-w-0 flex-col gap-5",
   week: "flex w-full min-w-0 flex-col",
   // 週只剩一條分隔，不再是可收合的按鈕：整條流是拿來一路往下讀的
   // 週次是一段的開頭，跟下面那幾則要拉開，不然看起來像第一則的一部分
