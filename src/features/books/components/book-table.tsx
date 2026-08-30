@@ -89,12 +89,6 @@ function accentColor(status: ReadingStatus): string | null {
   return null;
 }
 
-function statusAccent(status: ReadingStatus): string {
-  if (status === "想讀") return "border-l-[3px] border-l-status-want-bg";
-  if (status === "閱讀中") return "border-l-[3px] border-l-status-reading-bg";
-  return "border-l-[3px] border-l-transparent";
-}
-
 /**
  * 只有「已讀完」的書有編號：編號代表「讀完的第幾本」，想讀與閱讀中還沒讀完，
  * 給了號碼反而看不出順序。清單本來就已排序，這裡照順序由大到小配號。
@@ -223,8 +217,15 @@ export function BookTable() {
             <li key={b.id || `card-${i}`}>
               <Link
                 href={detailHref(b.id)}
-                className={`flex items-center gap-3 p-3 ${rowTone(b.endDate, thisYear)} ${statusAccent(b.status)}`}
+                className={`relative flex items-center gap-3 p-3 ${rowTone(b.endDate, thisYear)}`}
               >
+                {/* 色條疊在列上，畫法同桌機：border-l 在圓角裁切下會斷成一塊，滿高的絕對定位才連得起來 */}
+                {accentColor(b.status) && (
+                  <span
+                    className="absolute inset-y-0 left-0 w-[3px]"
+                    style={{ background: accentColor(b.status) ?? undefined }}
+                  />
+                )}
                 <BookCover url={b.coverUrl} title={b.title} size="xl" />
                 {/* 手機一列固定兩行：第一行是書名與狀態，第二行擠進作者、標籤與日期 */}
                 <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
