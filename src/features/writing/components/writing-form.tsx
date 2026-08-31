@@ -179,12 +179,26 @@ export function WritingForm({ entry }: { entry?: Writing }) {
     >
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
         <TabPanel active={tab === "text"}>
-          <input
-            value={form.title}
-            onChange={(e) => set("title", e.target.value)}
-            placeholder="標題"
-            className="w-full shrink-0 text-base font-medium outline-none"
-          />
+          {/* 標題與類型同一行：類型是這則的名牌，跟標題一起看才知道自己在寫哪一種 */}
+          <div className="flex shrink-0 items-center gap-2">
+            <input
+              value={form.title}
+              onChange={(e) => set("title", e.target.value)}
+              placeholder="標題"
+              className="min-w-0 flex-1 text-base font-medium outline-none"
+            />
+            <div className="w-28 shrink-0 md:w-36">
+              <CategorySelect
+                label="類型"
+                Icon={Shapes}
+                categoryKey="kind"
+                value={form.kind}
+                onChange={(v) => set("kind", v)}
+                placeholder="類型"
+                hideLabel
+              />
+            </div>
+          </div>
 
           {/* 內文放最大：它是這張表唯一的主體，其他欄位都是為了讓它找得到 */}
           <textarea
@@ -276,20 +290,6 @@ export function WritingForm({ entry }: { entry?: Writing }) {
       <FormActions
         saving={submitting}
         saveLabel={isEdit ? "儲存變更" : "新增書寫"}
-        // 類型跟著新增鈕：寫完內文順手選一個，不用切到「標記」那一頁
-        extra={
-          <div className="w-36 min-w-0">
-            <CategorySelect
-              label="類型"
-              Icon={Shapes}
-              categoryKey="kind"
-              value={form.kind}
-              onChange={(v) => set("kind", v)}
-              placeholder="類型"
-              hideLabel
-            />
-          </div>
-        }
         onDelete={isEdit ? handleDelete : undefined}
         deleteLabel="刪除這一筆"
         confirmLabel="確定刪除這一筆？"
