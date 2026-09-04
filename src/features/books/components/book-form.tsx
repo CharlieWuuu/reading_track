@@ -2,19 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { BookOpen, Newspaper, Quote } from "lucide-react";
 import { CategorySelect } from "@/components/ui/category-select";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
-import { compactLines, LineListInput } from "@/components/ui/line-list-input";
+import { compactLines } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
 import { bookEditHref, bookHref, keywordEditHref, writingNewHref } from "@/config/routes";
 import { useBookFormTab } from "@/features/books/components/book-form-tabs";
-import { QuoteListInput } from "@/features/books/components/quote-list-input";
-import { VocabularyListInput } from "@/features/books/components/vocabulary-list-input";
+import { BookRecordPanel } from "@/features/books/components/book-record-panel";
 import { useBookRefetch } from "@/features/books/hooks/use-book-refetch";
-import { RelatedWriting } from "@/features/writing/components/related-writings";
 import { useBooks } from "@/hooks/use-books";
 import { useRecordForm } from "@/hooks/use-record-form";
 import { useRecords } from "@/hooks/use-records";
@@ -340,55 +337,17 @@ export function BookForm({
 
         {/* 從這本書留下來的東西：佳句、單字、書寫、相關文章，全站叫什麼這裡就叫什麼 */}
         <TabPanel active={tab === "record"}>
-          <div className="flex min-h-0 flex-col gap-3 sm:flex-row">
-            {/* 兩邊都是 w-1/2：內容長短不一樣，不加 min-w-0 的話長的那邊會把短的擠掉 */}
-            <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
-              <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
-                <Quote size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-                佳句
-              </label>
-              <QuoteListInput rows={quoteRows} onChange={setQuoteRows} />
-            </div>
-
-            <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
-              <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
-                <BookOpen size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-                單字
-              </label>
-              <VocabularyListInput
-                rows={vocabularyRows}
-                onChange={setVocabularyRows}
-                bookLanguage={form.language}
-              />
-            </div>
-          </div>
-
-          <div className="flex min-h-0 flex-col gap-3 sm:flex-row">
-            <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
-              {isEdit && book ? (
-                <RelatedWriting
-                  sourceIds={sameBook(allBooks, book).map((b) => b.id)}
-                  onWrite={() => openWriting(book.id)}
-                />
-              ) : (
-                <p className="rounded-control border border-dashed px-3 py-2 text-xs text-gray-400">
-                  存好這本書之後就可以寫心得了
-                </p>
-              )}
-            </div>
-
-            <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
-              <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
-                <Newspaper size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
-                相關文章
-              </label>
-              <LineListInput
-                value={form.relatedArticles}
-                onChange={(v) => set("relatedArticles", v)}
-                placeholder="https://…"
-              />
-            </div>
-          </div>
+          <BookRecordPanel
+            quoteRows={quoteRows}
+            onQuotes={setQuoteRows}
+            vocabularyRows={vocabularyRows}
+            onVocabulary={setVocabularyRows}
+            bookLanguage={form.language}
+            relatedArticles={form.relatedArticles}
+            onRelatedArticles={(v) => set("relatedArticles", v)}
+            writingSourceIds={isEdit && book ? sameBook(allBooks, book).map((b) => b.id) : null}
+            onWrite={() => book && openWriting(book.id)}
+          />
         </TabPanel>
       </div>
 
