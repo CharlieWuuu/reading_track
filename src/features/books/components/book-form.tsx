@@ -384,6 +384,7 @@ export function BookForm({
               categoryKey="subDomain"
               value={form.subDomain}
               onChange={(v) => set("subDomain", v)}
+              parentValue={form.domain}
             />
             <CategorySelect
               label="屬性"

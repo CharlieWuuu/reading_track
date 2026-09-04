@@ -242,6 +242,7 @@ export function ArticleForm({ article }: { article?: Article }) {
               categoryKey="subDomain"
               value={form.subDomain}
               onChange={(v) => set("subDomain", v)}
+              parentValue={form.domain}
             />
             <div className="col-span-2">
               <PrivateToggle value={form.private} onChange={(v) => set("private", v)} />

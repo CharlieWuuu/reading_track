@@ -12,6 +12,7 @@ import {
   splitTags,
   type CategorySource,
 } from "@/types/book";
+import { childrenByDomain } from "@/utils/type-tree";
 
 /**
  * 分類選項一律從資料 group 出來，不再另外維護一張「選項」表。
@@ -60,5 +61,8 @@ export function useCategories() {
     return result;
   }, [counts]);
 
-  return { categories, counts };
+  /** 次領域的選單靠這個縮到「選中的領域底下」，見 CategorySelect */
+  const children = useMemo(() => childrenByDomain([...books, ...articles]), [books, articles]);
+
+  return { categories, counts, children };
 }
