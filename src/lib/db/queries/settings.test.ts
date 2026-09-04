@@ -1,7 +1,6 @@
 import { eq } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
 import { bookTypes } from "@/lib/db/schema/taxonomy";
-import { makeTestDb } from "@/lib/db/test/pglite";
 
 vi.mock("@/lib/db/client", async () => {
   const { makeTestDb } = await import("@/lib/db/test/pglite");

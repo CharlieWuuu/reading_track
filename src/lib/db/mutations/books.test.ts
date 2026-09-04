@@ -1,12 +1,10 @@
 import { eq } from "drizzle-orm";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { books, readings } from "@/lib/db/schema/reading";
 import { bookTypes } from "@/lib/db/schema/taxonomy";
-import { makeTestDb } from "@/lib/db/test/pglite";
 import type { Book } from "@/types/book";
 
 // mutations 從模組層拿 db，換成記憶體裡的那份才測得到
-const testDb = await makeTestDb();
 vi.mock("@/lib/db/client", async () => {
   const { makeTestDb } = await import("@/lib/db/test/pglite");
   return { db: await makeTestDb() };
@@ -42,10 +40,6 @@ function makeBook(patch: Partial<Book> = {}): Book {
     ...patch,
   } as Book;
 }
-
-beforeAll(() => {
-  expect(testDb).toBeTruthy();
-});
 
 describe("addBookRow", () => {
   it("一次閱讀寫成 books 加 readings 兩列", async () => {

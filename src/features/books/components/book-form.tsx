@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { BookOpen, Newspaper, Quote } from "lucide-react";
 import { CategorySelect } from "@/components/ui/category-select";
 import { Field } from "@/components/ui/field";
@@ -10,18 +10,16 @@ import { compactLines, LineListInput } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
 import { bookEditHref, bookHref, keywordEditHref, writingNewHref } from "@/config/routes";
-import { scrapeBook, searchBookByTitle } from "@/features/books/api/lookup-book";
 import { useBookFormTab } from "@/features/books/components/book-form-tabs";
 import { QuoteListInput } from "@/features/books/components/quote-list-input";
 import { VocabularyListInput } from "@/features/books/components/vocabulary-list-input";
-import { useBookRefetchStore } from "@/features/books/stores/use-book-refetch-store";
+import { useBookRefetch } from "@/features/books/hooks/use-book-refetch";
 import { RelatedWriting } from "@/features/writing/components/related-writings";
 import { useBooks } from "@/hooks/use-books";
 import { useRecordForm } from "@/hooks/use-record-form";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useCurrentHref } from "@/lib/keywords/href";
-import { fullerTitle } from "@/lib/metadata";
 import { Book, inferStatus, splitLines } from "@/types/book";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { sameBook } from "@/utils/book-reads";
@@ -168,8 +166,6 @@ export function BookForm({
     setQuoteRows(quotes.filter((row) => row.bookId === bookId));
   }
   const [form, setForm] = useState<FormState>(toForm(book ?? initial ?? {}));
-  const [refetching, setRefetching] = useState(false);
-  const [refetchNote, setRefetchNote] = useState("");
   const isEdit = Boolean(book);
 
   const {
@@ -215,67 +211,7 @@ export function BookForm({
     );
   }
 
-  /**
-   * 按鈕在頁首，狀態在這裡：掛載時登記動作，離開時清掉。
-   * 存的是 ref 不是函式本身，登記一次就好，不用每次 render 重登。
-   */
-  const refetchRef = useRef(() => {});
-  const { register, setProgress, reset } = useBookRefetchStore();
-  useEffect(() => {
-    register(() => refetchRef.current());
-    return reset;
-  }, [register, reset]);
-  useEffect(() => {
-    setProgress({ running: refetching, note: refetchNote });
-  }, [refetching, refetchNote, setProgress]);
-
-  /**
-   * 用現在表單裡的書名／網址重查一次。刻意只補空欄位——
-   * 使用者手動改過的內容比外部來源可信，不能被一鍵蓋掉。
-   */
-  async function handleRefetch() {
-    const url = form.sourceUrl.trim();
-    const title = form.title.trim();
-    if (!url && !title) {
-      setRefetchNote("請先填書名或來源網址");
-      return;
-    }
-
-    setRefetching(true);
-    setRefetchNote("");
-    try {
-      const found = url ? await scrapeBook(url) : await searchBookByTitle(title);
-      if (!found) {
-        setRefetchNote("查不到這本書的資料");
-        return;
-      }
-
-      const filled: string[] = [];
-      setForm((f) => {
-        const next = { ...f };
-        for (const [key, value] of Object.entries(found)) {
-          const k = key as keyof FormState;
-          if (!(k in next) || typeof value !== "string" || !value.trim()) continue;
-          if (String(next[k] ?? "").trim()) continue;
-          (next[k] as string) = value;
-          filled.push(k);
-        }
-        // 書名是唯一的例外：抓到更完整的版本（多半是補上副標題）就換掉
-        const fuller = fullerTitle(f.title, found.title);
-        if (fuller) {
-          next.title = fuller;
-          filled.push("title");
-        }
-        return next;
-      });
-      setRefetchNote(filled.length ? `補上 ${filled.length} 個欄位` : "沒有可補的欄位");
-    } catch (err) {
-      setRefetchNote(err instanceof Error ? err.message : "抓取失敗");
-    } finally {
-      setRefetching(false);
-    }
-  }
-  refetchRef.current = handleRefetch; // 每次 render 換成最新的，登記進 store 的那層不用動
+  useBookRefetch(form, setForm);
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
