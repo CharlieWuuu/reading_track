@@ -1,6 +1,5 @@
 "use client";
 
-import { type LucideIcon } from "lucide-react";
 import { OptionSelect } from "@/components/ui/option-select";
 import { useCategories } from "@/hooks/use-categories";
 import { BookCategories } from "@/types/book";
@@ -9,7 +8,6 @@ import { scopedOptions } from "@/utils/type-tree";
 /** 書籍與紀事的分類欄：選項從資料 group 出來，選單本身跟別處共用 */
 export function CategorySelect({
   label,
-  Icon,
   categoryKey,
   value,
   onChange,
@@ -19,7 +17,6 @@ export function CategorySelect({
   parentValue,
 }: {
   label: string;
-  Icon?: LucideIcon;
   categoryKey: keyof BookCategories;
   value: string;
   onChange: (value: string) => void;
@@ -39,7 +36,6 @@ export function CategorySelect({
   return (
     <OptionSelect
       label={label}
-      Icon={Icon}
       options={options}
       counts={counts[categoryKey]}
       value={value}

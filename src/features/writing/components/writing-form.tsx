@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { CalendarCheck, Link as LinkIcon, Shapes, Tag } from "lucide-react";
 import { CategorySelect } from "@/components/ui/category-select";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
@@ -188,7 +187,6 @@ export function WritingForm({ entry }: { entry?: Writing }) {
             <div className="w-28 shrink-0 md:w-36">
               <CategorySelect
                 label="類型"
-                Icon={Shapes}
                 categoryKey="kind"
                 value={form.kind}
                 onChange={(v) => set("kind", v)}
@@ -213,7 +211,6 @@ export function WritingForm({ entry }: { entry?: Writing }) {
             {isEdit && (
               <Field
                 label="日期"
-                Icon={CalendarCheck}
                 type="datetime-local"
                 value={toDateTimeInput(form.date)}
                 onChange={(v) => set("date", fromDateTimeInput(v))}
@@ -223,7 +220,6 @@ export function WritingForm({ entry }: { entry?: Writing }) {
               {/* 關鍵字跟類型同一顆選單，只是它一行一筆存回 Sheet */}
               <OptionSelect
                 label="關鍵字"
-                Icon={Tag}
                 options={keywordSuggestions}
                 value={form.keywords}
                 onChange={(v) => set("keywords", v)}
@@ -253,7 +249,6 @@ export function WritingForm({ entry }: { entry?: Writing }) {
               <div className="min-w-0 flex-1">
                 <Field
                   label="來源"
-                  Icon={LinkIcon}
                   hint="來源：網址，或「紙本日記 8/17」"
                   value={form.link}
                   onChange={(v) => set("link", v)}

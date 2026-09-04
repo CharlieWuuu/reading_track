@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Tag } from "lucide-react";
 import { OptionSelect } from "./option-select";
 
 const OPTIONS = ["哲學", "歷史", "經濟", "小說", "科普"];
@@ -25,7 +24,7 @@ type Story = StoryObj<typeof meta>;
 export const Empty: Story = {};
 
 export const Selected: Story = {
-  args: { value: "哲學", Icon: Tag },
+  args: { value: "哲學" },
 };
 
 /** 複選：多個值串在同一格裡，Sheet 那邊仍是一欄 */

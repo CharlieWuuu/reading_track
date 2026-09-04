@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { CalendarCheck, Languages, Link as LinkIcon, Store, Tag } from "lucide-react";
 import { CategorySelect } from "@/components/ui/category-select";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
@@ -177,7 +176,6 @@ export function ArticleForm({ article }: { article?: Article }) {
               <div className="min-w-0 flex-1">
                 <Field
                   label="來源網址"
-                  Icon={LinkIcon}
                   value={form.sourceUrl}
                   onChange={(v) => set("sourceUrl", v)}
                   // 貼上就直接抓，不用再按一次按鈕；按鈕留著給手打或想重抓的時候
@@ -203,7 +201,6 @@ export function ArticleForm({ article }: { article?: Article }) {
             {/* 平台是站台名（報導者），期刊論文就填期刊名；作者常常抓不到，允許空白 */}
             <CategorySelect
               label="平台"
-              Icon={Store}
               categoryKey="platform"
               value={form.platform}
               onChange={(v) => set("platform", v)}
@@ -213,14 +210,12 @@ export function ArticleForm({ article }: { article?: Article }) {
             {/* 文章多半一次讀完，只記「哪天讀的」，沒有開始日期 */}
             <Field
               label="閱讀日期"
-              Icon={CalendarCheck}
               type="date"
               value={form.endDate}
               onChange={(v) => set("endDate", v)}
             />
             <CategorySelect
               label="語言"
-              Icon={Languages}
               categoryKey="language"
               value={form.language}
               onChange={(v) => set("language", v)}
@@ -262,7 +257,6 @@ export function ArticleForm({ article }: { article?: Article }) {
           <div className="min-w-0">
             <OptionSelect
               label="關鍵字"
-              Icon={Tag}
               options={keywordSuggestions}
               value={form.keywords}
               onChange={(v) => set("keywords", v)}

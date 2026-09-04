@@ -2,19 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import {
-  BookOpen,
-  CalendarCheck,
-  CalendarPlus,
-  FileText,
-  Languages,
-  Link as LinkIcon,
-  Newspaper,
-  Quote,
-  Store,
-  Tag,
-  Type,
-} from "lucide-react";
+import { BookOpen, Newspaper, Quote } from "lucide-react";
 import { CategorySelect } from "@/components/ui/category-select";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
@@ -111,8 +99,21 @@ function GroupTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Section({ children, pairs }: { children: React.ReactNode; pairs?: boolean }) {
-  const cols = pairs ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+function Section({
+  children,
+  pairs,
+  triples,
+}: {
+  children: React.ReactNode;
+  pairs?: boolean;
+  /** 短欄位三個一行 */
+  triples?: boolean;
+}) {
+  const cols = triples
+    ? "grid-cols-3"
+    : pairs
+      ? "grid-cols-2"
+      : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
   return <div className={`grid min-h-0 shrink-0 content-start gap-3 ${cols}`}>{children}</div>;
 }
 
@@ -279,6 +280,20 @@ export function BookForm({
         </p>
       )}
 
+      {/* 用現有的書名／網址重查，補上空欄位。擺在最上面：它是整張表單的動作，
+          不屬於「來源資料」那一區 */}
+      <div className="flex shrink-0 items-center justify-end gap-2">
+        {refetchNote && <span className="text-xs text-gray-500">{refetchNote}</span>}
+        <button
+          type="button"
+          onClick={handleRefetch}
+          disabled={refetching}
+          className="rounded-control border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+        >
+          {refetching ? "抓取中…" : "重新抓取資料"}
+        </button>
+      </div>
+
       {/* 欄位一路往下排；桌機在這層捲，手機不自己捲，跟著整頁捲 */}
       <div className="flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
         <TabPanel active={tab === "book"}>
@@ -288,26 +303,19 @@ export function BookForm({
               <Field label="書名" value={form.title} onChange={(v) => set("title", v)} />
             </div>
 
-            <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
-            <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
+            {/* ISBN 跟著出版社走：它們講的是同一件事，這本書是哪一版 */}
+            <div className="col-span-2 grid grid-cols-3 gap-3">
+              <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
+              <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
+              <Field label="ISBN" value={form.isbn} onChange={(v) => set("isbn", v)} />
+            </div>
 
             {/* 這三個都很短，擠成一行剛好，不用各佔半排 */}
             <div className="col-span-2 grid grid-cols-3 gap-3">
-              <Field
-                label="頁數"
-                Icon={FileText}
-                value={form.pageCount}
-                onChange={(v) => set("pageCount", v)}
-              />
-              <Field
-                label="字數"
-                Icon={Type}
-                value={form.wordCount}
-                onChange={(v) => set("wordCount", v)}
-              />
+              <Field label="頁數" value={form.pageCount} onChange={(v) => set("pageCount", v)} />
+              <Field label="字數" value={form.wordCount} onChange={(v) => set("wordCount", v)} />
               <CategorySelect
                 label="語言"
-                Icon={Languages}
                 categoryKey="language"
                 value={form.language}
                 onChange={(v) => set("language", v)}
@@ -318,55 +326,30 @@ export function BookForm({
           {/* 抓回來的那幾欄擺一起：平常不用看，錯了才進來改 */}
           <GroupTitle>來源資料</GroupTitle>
           <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3">
-            <Field label="ISBN" value={form.isbn} onChange={(v) => set("isbn", v)} />
             <Field label="封面網址" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
-            <div className="col-span-2">
-              <Field
-                label="來源網址"
-                Icon={LinkIcon}
-                value={form.sourceUrl}
-                onChange={(v) => set("sourceUrl", v)}
-              />
-            </div>
-
-            {/* 用現有的書名／網址重查，補上空欄位 */}
-            <div className="col-span-2 flex items-center justify-end gap-2">
-              {refetchNote && <span className="text-xs text-gray-500">{refetchNote}</span>}
-              <button
-                type="button"
-                onClick={handleRefetch}
-                disabled={refetching}
-                className="rounded-control border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
-              >
-                {refetching ? "抓取中…" : "重新抓取資料"}
-              </button>
-            </div>
+            <Field label="來源網址" value={form.sourceUrl} onChange={(v) => set("sourceUrl", v)} />
           </div>
 
           {/* 標記不值得自己一頁：它跟上面一樣是填表，只是填的是自己的看法 */}
           <GroupTitle>標記</GroupTitle>
-          <Section pairs>
+          {/* 六個標記三三一行：日期跟平台是「這次怎麼讀的」，下一排才是分類 */}
+          <Section triples>
             <Field
               label="開始日期"
-              Icon={CalendarPlus}
               type="date"
               value={form.startDate}
               onChange={(v) => set("startDate", v)}
             />
             <Field
               label="完成日期"
-              Icon={CalendarCheck}
               type="date"
               value={form.endDate}
               onChange={(v) => set("endDate", v)}
             />
-          </Section>
 
-          <Section pairs>
             {/* 平台是「我在哪讀的」，跟書本身無關，所以跟其他自訂分類放一起 */}
             <CategorySelect
               label="平台"
-              Icon={Store}
               categoryKey="platform"
               value={form.platform}
               onChange={(v) => set("platform", v)}
@@ -402,7 +385,6 @@ export function BookForm({
           <div className="min-w-0 shrink-0">
             <OptionSelect
               label="關鍵字"
-              Icon={Tag}
               options={keywordSuggestions}
               value={form.keywords}
               onChange={(v) => set("keywords", v)}
