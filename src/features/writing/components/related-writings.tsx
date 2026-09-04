@@ -4,6 +4,7 @@ import Link from "next/link";
 import { PenLine } from "lucide-react";
 import { writingEditHref } from "@/config/routes";
 import { useWritings } from "@/hooks/use-writings";
+import { notesForSource } from "@/utils/related-notes";
 
 const styles = {
   wrap: "flex min-h-0 flex-col gap-1",
@@ -31,9 +32,16 @@ const styles = {
  * 類型、關鍵字）在書寫頁都有，在書籍頁再擺一個小框等於同一件事兩套入口。
  * 存檔與跳頁由父層那張表單處理，這支不碰 I/O。
  */
-export function RelatedWriting({ sourceId, onWrite }: { sourceId: string; onWrite: () => void }) {
+export function RelatedWriting({
+  sourceIds,
+  onWrite,
+}: {
+  /** 一組編號不是單一個：同一本書讀兩次是兩列，兩次的心得要一起看得到 */
+  sourceIds: string[];
+  onWrite: () => void;
+}) {
   const { writings } = useWritings();
-  const mine = writings.filter((e) => e.sourceId && e.sourceId === sourceId);
+  const mine = notesForSource(writings, sourceIds);
 
   return (
     <div className={styles.wrap}>
