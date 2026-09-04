@@ -111,7 +111,7 @@ function Section({
   triples?: boolean;
 }) {
   const cols = triples
-    ? "grid-cols-3"
+    ? "grid-cols-2 sm:grid-cols-3" // 手機三欄會擠成一團，兩欄剛好
     : pairs
       ? "grid-cols-2"
       : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
@@ -307,15 +307,16 @@ export function BookForm({
               <Field label="書名" value={form.title} onChange={(v) => set("title", v)} />
             </div>
 
-            {/* ISBN 跟著出版社走：它們講的是同一件事，這本書是哪一版 */}
-            <div className="col-span-2 grid grid-cols-3 gap-3">
+            {/* ISBN 跟著出版社走：它們講的是同一件事，這本書是哪一版。
+                三個都是長字串，手機一行一個才讀得完 */}
+            <div className="col-span-2 grid grid-cols-1 gap-3 sm:grid-cols-3">
               <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
               <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
               <Field label="ISBN" value={form.isbn} onChange={(v) => set("isbn", v)} />
             </div>
 
-            {/* 這三個都很短，擠成一行剛好，不用各佔半排 */}
-            <div className="col-span-2 grid grid-cols-3 gap-3">
+            {/* 這三個都很短，擠成一行剛好，不用各佔半排；手機收成兩欄 */}
+            <div className="col-span-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
               <Field label="頁數" value={form.pageCount} onChange={(v) => set("pageCount", v)} />
               <Field label="字數" value={form.wordCount} onChange={(v) => set("wordCount", v)} />
               <CategorySelect
