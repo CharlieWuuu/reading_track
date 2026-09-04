@@ -22,6 +22,7 @@
   "dependencies": {
     "@sparticuz/chromium": "^149.0.0",
     "cheerio": "^1.2.0",
+    "drizzle-orm": "^0.45.2",
     "google-auth-library": "^10.9.1",
     "google-spreadsheet": "^5.3.0",
     "leaflet": "^1.9.4",
@@ -29,6 +30,7 @@
     "next": "16.2.11",
     "next-auth": "^5.0.0-beta.32",
     "playwright-core": "^1.61.1",
+    "postgres": "^3.4.9",
     "react": "19.2.4",
     "react-component-overlay": "^0.1.0",
     "react-dom": "19.2.4",
@@ -53,6 +55,7 @@
     "@vitest/browser-playwright": "4.1.11",
     "@vitest/coverage-v8": "4.1.11",
     "concurrently": "^10.0.5",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.11",
     "eslint-plugin-check-file": "^3.3.2",
@@ -63,7 +66,9 @@
     "prettier-plugin-tailwindcss": "^0.8.1",
     "storybook": "^10.5.9",
     "style-dictionary": "^5.5.2",
+    "supabase": "^2.116.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.13",
     "typescript": "^5",
     "vite": "latest",
     "vitest": "^4.1.11"
