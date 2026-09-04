@@ -10,11 +10,9 @@ async function requireSession() {
   return session;
 }
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: "請先登入" }, { status: 401 });
-
-  const sheetId = req.nextUrl.searchParams.get("sheetId");
 
   try {
     const metrics = await listMetrics();
