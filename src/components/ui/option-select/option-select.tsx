@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { Pencil } from "lucide-react";
-import { FIELD_CONTROL_CLASS, FIELD_ROW_CLASS, FieldLabel } from "@/components/ui/field-label";
+import {
+  FIELD_CONTROL_CLASS,
+  FIELD_INPUT_CLASS,
+  FIELD_ROW_CLASS,
+  FieldLabel,
+} from "@/components/ui/field-label";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 
 /**
@@ -95,7 +100,7 @@ export function OptionSelect({
           aria-label={label}
           onClick={() => setOpen((v) => !v)}
           onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setOpen((v) => !v)}
-          className="rounded-control w-full cursor-pointer border px-3 py-2 text-left text-sm"
+          className={`${FIELD_INPUT_CLASS} w-full cursor-pointer text-left text-sm`}
         >
           {selected.length > 0 ? (
             <span className="flex flex-wrap gap-1">

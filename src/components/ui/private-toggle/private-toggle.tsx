@@ -1,6 +1,11 @@
 "use client";
 
-import { FIELD_CONTROL_CLASS, FIELD_ROW_CLASS, FieldLabel } from "@/components/ui/field-label";
+import {
+  FIELD_CONTROL_CLASS,
+  FIELD_INPUT_CLASS,
+  FIELD_ROW_CLASS,
+  FieldLabel,
+} from "@/components/ui/field-label";
 import { PRIVATE_MARK } from "@/config/privacy";
 
 /**
@@ -20,7 +25,7 @@ export function PrivateToggle({
     <div className={FIELD_ROW_CLASS}>
       <FieldLabel label="私人" />
       <label
-        className={`rounded-control ${FIELD_CONTROL_CLASS} flex items-center gap-2 border px-3 py-2 text-sm`}
+        className={`${FIELD_CONTROL_CLASS} ${FIELD_INPUT_CLASS} flex items-center gap-2 text-sm`}
       >
         <input
           type="checkbox"

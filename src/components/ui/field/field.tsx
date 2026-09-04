@@ -1,4 +1,9 @@
-import { FIELD_CONTROL_CLASS, FIELD_ROW_CLASS, FieldLabel } from "@/components/ui/field-label";
+import {
+  FIELD_CONTROL_CLASS,
+  FIELD_INPUT_CLASS,
+  FIELD_ROW_CLASS,
+  FieldLabel,
+} from "@/components/ui/field-label";
 
 /** iOS 的原生日期控制項有自己的最小寬度，不關掉外觀就會撐破手機寬度 */
 const DATE_INPUT_CLASS = "appearance-none";
@@ -34,7 +39,7 @@ export function Field({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onPaste={onPaste && ((e) => onPaste(e.clipboardData.getData("text")))}
-        className={`rounded-control ${FIELD_CONTROL_CLASS} box-border block w-full max-w-full border px-3 py-2 text-sm ${
+        className={`${FIELD_CONTROL_CLASS} ${FIELD_INPUT_CLASS} box-border block w-full max-w-full text-sm ${
           DATE_TYPES.includes(type) ? DATE_INPUT_CLASS : ""
         }`}
       />

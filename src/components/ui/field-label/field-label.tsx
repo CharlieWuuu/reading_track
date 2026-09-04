@@ -13,6 +13,16 @@ const FIXED_WIDTH = "md:w-16 md:shrink-0";
 /** 平行時輸入框那一欄：撐滿剩下的寬度，min-w-0 才不會被內容撐破 */
 export const FIELD_CONTROL_CLASS = "min-w-0 md:flex-1";
 
+/**
+ * 輸入框長相：只畫下緣一條線。
+ *
+ * 整框的樣子在一頁十幾個欄位時會變成十幾個方塊，比填進去的字還搶眼；
+ * 底線只標「這裡可以寫字」。左右不留內距——沒有框，字就該對齊標籤那條線。
+ * 聚焦時線變成主色，不靠外框也看得出游標在哪一欄。
+ */
+export const FIELD_INPUT_CLASS =
+  "border-0 border-b border-rule bg-transparent px-0 py-1.5 focus:border-accent focus:outline-none";
+
 /** 標籤與輸入框的外框：手機版直排，md 以上並排 */
 export const FIELD_ROW_CLASS = "min-w-0 md:flex md:items-center md:gap-2";
 
