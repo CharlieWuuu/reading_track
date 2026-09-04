@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { PRIVATE_MARK } from "@/config/sheet-format";
+import { PRIVATE_MARK } from "@/config/privacy";
 
 /**
  * 私人項目。
@@ -105,7 +105,7 @@ export type RequestPrivacy = { unlocked: boolean; options: PrivateOptions };
  */
 export async function requestPrivacy(req: { nextUrl: URL }): Promise<RequestPrivacy> {
   const { readPrivacySettings } = await import("@/lib/db/queries/settings");
-  const { PRIVACY_SETTING_KEY } = await import("@/config/sheet-format");
+  const { PRIVACY_SETTING_KEY } = await import("@/config/privacy");
   const { stored, privateKinds, privateTypes, privateKeywords } =
     await readPrivacySettings(PRIVACY_SETTING_KEY);
   const token = req.nextUrl.searchParams.get("unlock");

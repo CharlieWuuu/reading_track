@@ -21,7 +21,7 @@ export function MaintenancePanel({
   return (
     <div>
       <p className="mb-3 text-xs text-gray-500">
-        從網路查書名、作者、書封等資料，補進 Sheet 裡沒填的欄位。 新增一批書之後跑一次就好。
+        從網路查書名、作者、書封等資料，補進沒填的欄位。 新增一批書之後跑一次就好。
       </p>
       {enrichSlot}
 

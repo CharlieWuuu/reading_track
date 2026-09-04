@@ -9,7 +9,7 @@ export interface Metric {
   /** 量測的那一天，不是發表日 */
   date: string;
   writingId: string;
-  /** 冗餘存一份，Sheet 打開來才看得懂那一列在講哪一篇 */
+  /** 舊欄位。資料庫靠 writingId join 得到標題，這裡留著是為了型別相容 */
   title: string;
   platform: string;
   views: string;

@@ -17,24 +17,22 @@ export default function PrivacyPage() {
       <div className="mx-auto max-w-2xl space-y-6 py-8 text-sm leading-relaxed text-gray-700">
         <div>
           <h1 className="text-xl font-semibold text-gray-900">隱私權政策</h1>
-          <p className="mt-1 text-xs text-gray-500">最後更新：2026 年 7 月 30 日</p>
+          <p className="mt-1 text-xs text-gray-500">最後更新：2026 年 9 月 4 日</p>
         </div>
 
         <section className="space-y-2">
           <h2 className="font-medium text-gray-900">我們存取哪些資料</h2>
           <p>
-            Archivum 使用 Google 帳號登入，並在你透過 Google 檔案選擇器挑選後， 僅存取你指定的那一份
-            Google 試算表，用來讀取與寫入你的書籍與文章紀錄。我們會取得你的姓名、電子郵件與大頭貼，
-            僅用於顯示登入狀態。
+            Archivum 使用 Google 帳號登入，只取得你的姓名、電子郵件與大頭貼，僅用於顯示登入狀態。
+            我們不存取你 Google 雲端硬碟裡的任何檔案。
           </p>
         </section>
 
         <section className="space-y-2">
           <h2 className="font-medium text-gray-900">資料存放在哪裡</h2>
           <p>
-            你的閱讀紀錄全部存放在你自己的 Google
-            試算表裡，本服務不另外建立資料庫、不保存你的書籍內容。登入所需的存取權杖只保存在你瀏覽器的
-            加密 cookie 中，用來代表你向 Google 發出請求。
+            你的閱讀紀錄存放在本服務的資料庫（位於 Supabase 東京節點）。標記為「私人」的項目
+            在伺服器端就被過濾掉，不會傳到瀏覽器。登入狀態保存在你瀏覽器的加密 cookie 中。
           </p>
         </section>
 
@@ -43,7 +41,7 @@ export default function PrivacyPage() {
           <ul className="list-disc space-y-1 pl-5">
             <li>不將你的資料提供、販售或分享給第三方</li>
             <li>不用你的資料投放廣告或訓練模型</li>
-            <li>不存取你授權範圍以外的其他 Google 雲端硬碟檔案</li>
+            <li>不存取你的 Google 雲端硬碟檔案</li>
           </ul>
         </section>
 
@@ -67,7 +65,7 @@ export default function PrivacyPage() {
             >
               Google 帳號的第三方應用程式頁面
             </a>
-            移除 Archivum。你的閱讀紀錄在你自己的試算表中，刪除該試算表即可刪除全部內容。
+            移除 Archivum。要刪除閱讀紀錄本身，請直接來信告知，我們會刪除你在資料庫裡的全部資料。
           </p>
         </section>
 

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   badRequest,
+  dataFailure,
   guarded,
   readJsonBody,
   requireSession,
-  sheetFailure,
   unauthorized,
 } from "@/app/api/_lib/respond";
 import { deleteKeyword, renameKeyword, replaceKeywordInfo } from "@/lib/db/mutations/records";
@@ -20,7 +20,7 @@ async function GETHandler() {
     const keywords = await listKeywords();
     return NextResponse.json({ keywords });
   } catch (err) {
-    return sheetFailure("讀取", "listKeywords", err);
+    return dataFailure("讀取", "listKeywords", err);
   }
 }
 
@@ -43,7 +43,7 @@ async function POSTHandler(req: NextRequest) {
     const result = await enrichKeywords(names, retry);
     return NextResponse.json(result);
   } catch (err) {
-    return sheetFailure("補齊", "enrichKeywords", err);
+    return dataFailure("補齊", "enrichKeywords", err);
   }
 }
 
@@ -72,7 +72,7 @@ async function PUTHandler(req: NextRequest) {
 
     return NextResponse.json({ ok: true, renamed });
   } catch (err) {
-    return sheetFailure("儲存", "replaceKeywordInfo", err);
+    return dataFailure("儲存", "replaceKeywordInfo", err);
   }
 }
 
@@ -90,7 +90,7 @@ async function DELETEHandler(req: NextRequest) {
     const removed = await deleteKeyword(name);
     return NextResponse.json({ ok: true, removed });
   } catch (err) {
-    return sheetFailure("刪除", "deleteKeyword", err);
+    return dataFailure("刪除", "deleteKeyword", err);
   }
 }
 

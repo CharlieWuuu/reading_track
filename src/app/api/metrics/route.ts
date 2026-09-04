@@ -6,7 +6,7 @@ import { Metric } from "@/types/metric";
 
 async function requireSession() {
   const session = await auth();
-  if (!session?.accessToken) return null;
+  if (!session?.user) return null;
   return session;
 }
 
@@ -15,14 +15,13 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "請先登入" }, { status: 401 });
 
   const sheetId = req.nextUrl.searchParams.get("sheetId");
-  if (!sheetId) return NextResponse.json({ error: "缺少 Sheet ID" }, { status: 400 });
 
   try {
     const metrics = await listMetrics();
     return NextResponse.json({ metrics });
   } catch (err) {
     console.error("listMetrics failed:", err);
-    return NextResponse.json({ error: "讀取 Sheet 失敗" }, { status: 502 });
+    return NextResponse.json({ error: "讀取失敗" }, { status: 502 });
   }
 }
 

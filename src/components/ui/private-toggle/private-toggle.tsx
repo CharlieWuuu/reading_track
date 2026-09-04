@@ -1,7 +1,7 @@
 "use client";
 
 import { Lock } from "lucide-react";
-import { PRIVATE_MARK } from "@/config/sheet-format";
+import { PRIVATE_MARK } from "@/config/privacy";
 
 /**
  * 標成私人。Sheet 上就是一格「是」，人打開試算表也看得懂。

@@ -56,7 +56,7 @@ async function collect() {
 
 async function requireSession() {
   const session = await auth();
-  return session?.accessToken ? session : null;
+  return session?.user ? session : null;
 }
 
 /** 預覽會搬幾筆，不寫入 */

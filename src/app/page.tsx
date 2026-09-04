@@ -3,14 +3,14 @@ import Link from "next/link";
 import { PageBody } from "@/components/layout/page-body";
 
 export const metadata: Metadata = {
-  title: "Archivum — 用你自己的 Google 試算表記錄閱讀",
-  description: "Archivum 是個人閱讀紀錄工具，書籍與文章資料存在你自己的 Google 試算表裡。",
+  title: "Archivum — 記錄你讀過的書與文章",
+  description: "Archivum 是個人閱讀紀錄工具：書籍、文章、佳句、單字與心得記在同一個地方。",
 };
 
 const STEPS = [
   {
-    title: "連接一份 Google 試算表",
-    body: "用 Google 檔案選擇器挑一份試算表，紀錄就寫在那份檔案裡。",
+    title: "用 Google 帳號登入",
+    body: "不需另外註冊，也不會存取你雲端硬碟裡的任何檔案。",
   },
   {
     title: "新增書籍",
@@ -43,8 +43,8 @@ export default function Home() {
         <header className="flex flex-col gap-4">
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Archivum</h1>
           <p className="text-base leading-relaxed text-gray-700 sm:text-lg">
-            記錄你讀過的書與文章。資料存在你自己的 Google
-            試算表裡，隨時可以直接打開來看、修改或匯出。
+            記錄你讀過的書與文章。同一本書讀第二次是新的一次紀錄，
+            佳句、單字與心得都聚在那本書底下。
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <Link
@@ -84,15 +84,13 @@ export default function Home() {
         </section>
 
         <section className="rounded-surface flex flex-col gap-3 border border-dashed p-5">
-          <h2 className="text-sm font-medium text-gray-900">為什麼需要存取你的 Google 試算表</h2>
+          <h2 className="text-sm font-medium text-gray-900">你的資料放在哪裡</h2>
           <p className="text-sm leading-relaxed text-gray-700">
-            Archivum 沒有自己的資料庫。你的閱讀紀錄從頭到尾都寫在你指定的那一份 Google
-            試算表裡，所以應用程式需要讀取與寫入該檔案的權限。你用 Google
-            檔案選擇器挑選要連接的試算表，授權範圍僅限那一份檔案。
+            閱讀紀錄存在本服務的資料庫。Google 帳號只用來登入，
+            我們不讀取、也不需要你雲端硬碟裡的任何檔案。
           </p>
           <p className="text-sm leading-relaxed text-gray-700">
-            應用程式只能存取你親手挑選的那一份試算表，看不到你雲端硬碟裡的其他檔案，
-            也不會把你的內容保存在我們的伺服器上。
+            標記為「私人」的項目在伺服器端就被過濾掉，鎖著的時候那些資料不會傳到瀏覽器。
           </p>
         </section>
 

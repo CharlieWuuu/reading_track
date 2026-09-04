@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createCollectionRoute } from "@/app/api/_lib/collection-route";
 
 vi.mock("@/lib/auth", () => ({
-  auth: vi.fn(async () => ({ accessToken: "fake-token" })),
+  auth: vi.fn(async () => ({ user: { name: "測試" } })),
 }));
 
 // GET 一定會讀私人清單：鎖著的時候正是要用它過濾
@@ -117,7 +117,7 @@ describe("GET", () => {
 });
 
 describe("失敗", () => {
-  it("Sheet 拋錯回 502", async () => {
+  it("讀取拋錯回 502", async () => {
     const { route } = build(() => {
       throw new Error("boom");
     });
@@ -125,17 +125,6 @@ describe("失敗", () => {
     const res = await route.GET(new NextRequest(url()));
 
     expect(res.status).toBe(502);
-    expect(await res.json()).toEqual({ error: "讀取 Sheet 失敗" });
-  });
-
-  it("配額爆掉回 429 而不是 502", async () => {
-    const { route } = build(() => {
-      throw Object.assign(new Error("quota"), { response: { status: 429 } });
-    });
-
-    const res = await route.GET(new NextRequest(url()));
-
-    expect(res.status).toBe(429);
-    expect(res.headers.get("Retry-After")).toBe("60");
+    expect(await res.json()).toEqual({ error: "讀取失敗" });
   });
 });
