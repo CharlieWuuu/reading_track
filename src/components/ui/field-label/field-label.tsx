@@ -1,10 +1,11 @@
 /**
  * 欄位的標籤。桌機版跟輸入框平行，手機版擺上面一行。
  *
- * 寬度固定，一整排欄位的輸入框左緣才對得齊；四個中文字剛好，
- * 更長的欄名（例如「開始日期」）也還在這個寬度裡。
+ * 寬度固定、文字靠右：欄名長短不一，靠右才會緊貼著自己的輸入框，
+ * 不然兩個字的欄名跟框中間會空一段。四個中文字剛好塞得下。
  */
-export const FIELD_LABEL_CLASS = "mb-1 flex items-center gap-1.5 text-sm font-medium md:mb-0";
+export const FIELD_LABEL_CLASS =
+  "mb-1 flex items-center gap-1.5 text-sm font-medium md:mb-0 md:justify-end md:text-right";
 
 /** 固定寬的那一欄；帶說明的標籤裝不下，那種就讓它照內容撐開 */
 const FIXED_WIDTH = "md:w-16 md:shrink-0";

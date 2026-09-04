@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BookOpen, Newspaper, Quote } from "lucide-react";
 import { CategorySelect } from "@/components/ui/category-select";
 import { Field } from "@/components/ui/field";
@@ -14,6 +14,7 @@ import { scrapeBook, searchBookByTitle } from "@/features/books/api/lookup-book"
 import { useBookFormTab } from "@/features/books/components/book-form-tabs";
 import { QuoteListInput } from "@/features/books/components/quote-list-input";
 import { VocabularyListInput } from "@/features/books/components/vocabulary-list-input";
+import { useBookRefetchStore } from "@/features/books/stores/use-book-refetch-store";
 import { RelatedWriting } from "@/features/writing/components/related-writings";
 import { useBooks } from "@/hooks/use-books";
 import { useRecordForm } from "@/hooks/use-record-form";
@@ -215,6 +216,20 @@ export function BookForm({
   }
 
   /**
+   * 按鈕在頁首，狀態在這裡：掛載時登記動作，離開時清掉。
+   * 存的是 ref 不是函式本身，登記一次就好，不用每次 render 重登。
+   */
+  const refetchRef = useRef(() => {});
+  const { register, setProgress, reset } = useBookRefetchStore();
+  useEffect(() => {
+    register(() => refetchRef.current());
+    return reset;
+  }, [register, reset]);
+  useEffect(() => {
+    setProgress({ running: refetching, note: refetchNote });
+  }, [refetching, refetchNote, setProgress]);
+
+  /**
    * 用現在表單裡的書名／網址重查一次。刻意只補空欄位——
    * 使用者手動改過的內容比外部來源可信，不能被一鍵蓋掉。
    */
@@ -260,6 +275,7 @@ export function BookForm({
       setRefetching(false);
     }
   }
+  refetchRef.current = handleRefetch; // 每次 render 換成最新的，登記進 store 的那層不用動
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -279,20 +295,6 @@ export function BookForm({
           {notice}
         </p>
       )}
-
-      {/* 用現有的書名／網址重查，補上空欄位。擺在最上面：它是整張表單的動作，
-          不屬於「來源資料」那一區 */}
-      <div className="flex shrink-0 items-center justify-end gap-2">
-        {refetchNote && <span className="text-xs text-gray-500">{refetchNote}</span>}
-        <button
-          type="button"
-          onClick={handleRefetch}
-          disabled={refetching}
-          className="rounded-control border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
-        >
-          {refetching ? "抓取中…" : "重新抓取資料"}
-        </button>
-      </div>
 
       {/* 欄位一路往下排；桌機在這層捲，手機不自己捲，跟著整頁捲 */}
       <div className="flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
@@ -321,11 +323,8 @@ export function BookForm({
                 onChange={(v) => set("language", v)}
               />
             </div>
-          </div>
 
-          {/* 抓回來的那幾欄擺一起：平常不用看，錯了才進來改 */}
-          <GroupTitle>來源資料</GroupTitle>
-          <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3">
+            {/* 兩個網址跟上面那些欄位一樣是抓回來的，不值得自己一個分組 */}
             <Field label="封面網址" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
             <Field label="來源網址" value={form.sourceUrl} onChange={(v) => set("sourceUrl", v)} />
           </div>
@@ -378,21 +377,23 @@ export function BookForm({
             />
           </Section>
 
-          {/* 私人跟領域、屬性一樣是自己貼上去的標記 */}
-          <PrivateToggle value={form.private} onChange={(v) => set("private", v)} />
+          {/* 私人跟關鍵字並排：兩個都是自己貼上去的標記，只是一個是開關、一個是標籤。
+              關鍵字會塞很多個，佔兩欄 */}
+          <div className="grid min-h-0 shrink-0 grid-cols-3 content-start gap-3">
+            <PrivateToggle value={form.private} onChange={(v) => set("private", v)} />
 
-          {/* 關鍵字也是自己貼上去的標籤，跟領域、屬性同一件事，只是值不固定 */}
-          <div className="min-w-0 shrink-0">
-            <OptionSelect
-              label="關鍵字"
-              options={keywordSuggestions}
-              value={form.keywords}
-              onChange={(v) => set("keywords", v)}
-              onEditOption={openKeyword}
-              placeholder="一個一組：地名、人名、事件、專有名詞"
-              separator={"\n"}
-              multiple
-            />
+            <div className="col-span-2 min-w-0">
+              <OptionSelect
+                label="關鍵字"
+                options={keywordSuggestions}
+                value={form.keywords}
+                onChange={(v) => set("keywords", v)}
+                onEditOption={openKeyword}
+                placeholder="一個一組：地名、人名、事件、專有名詞"
+                separator={"\n"}
+                multiple
+              />
+            </div>
           </div>
         </TabPanel>
 
