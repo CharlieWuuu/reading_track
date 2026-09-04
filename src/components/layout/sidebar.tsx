@@ -8,15 +8,15 @@ import { useSidebarStore } from "@/stores/use-sidebar-store";
 import { isNavActive, NAV_ITEMS, NavItem } from "./nav-items";
 
 const styles = {
-  nav: "flex h-full shrink-0 flex-col border-r border-rule-strong bg-white",
-  brand: "flex items-center justify-center gap-1 border-b border-rule-strong px-3 py-4",
+  nav: "flex h-full shrink-0 flex-col border-r border-shell-rule bg-white",
+  brand: "flex items-center justify-center gap-1 border-b border-shell-rule px-3 py-4",
   title: "truncate text-lg font-semibold tracking-tight",
   list: "flex-1 space-y-1 overflow-y-auto",
   link: "flex items-center gap-2 rounded-control px-3 py-2 text-sm",
   linkCollapsed: "justify-center px-0",
   linkActive: "bg-control-bg text-control-ink",
   linkIdle: "text-gray-700 hover:bg-gray-100",
-  footer: "flex flex-col gap-2 border-t border-rule-strong",
+  footer: "flex flex-col gap-2 border-t border-shell-rule",
   tools: "flex items-center gap-1",
   iconButton:
     "flex h-8 w-8 shrink-0 items-center justify-center rounded-control text-gray-400 hover:bg-gray-100 hover:text-gray-900",

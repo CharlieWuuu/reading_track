@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, type LucideIcon } from "lucide-react";
+import { Pencil } from "lucide-react";
+import {
+  FIELD_CONTROL_CLASS,
+  FIELD_INPUT_CLASS,
+  FIELD_ROW_CLASS,
+  FieldLabel,
+} from "@/components/ui/field-label";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 
 /**
@@ -13,7 +19,6 @@ import { useOutsideClick } from "@/hooks/use-outside-click";
  */
 export function OptionSelect({
   label,
-  Icon,
   options,
   counts,
   value,
@@ -25,8 +30,6 @@ export function OptionSelect({
   hideLabel = false,
 }: {
   label: string;
-  /** 跟詳細卡片同一個圖示，兩邊看起來才像同一個欄位 */
-  Icon?: LucideIcon;
   options: string[];
   /** 每個選項用了幾次；給了就顯示在選項右邊，說明為什麼是這個順序 */
   counts?: Map<string, number>;
@@ -86,132 +89,128 @@ export function OptionSelect({
   }
 
   return (
-    <div ref={rootRef} className="relative">
-      {!hideLabel && (
-        <label className="mb-1 flex items-center gap-1.5 text-sm font-medium">
-          {Icon && (
-            <Icon size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
+    <div ref={rootRef} className={FIELD_ROW_CLASS}>
+      {!hideLabel && <FieldLabel label={label} />}
+
+      {/* 選單貼著觸發鈕定位，所以 relative 掛在這一欄，不是掛在含標籤的外框 */}
+      <div className={`relative ${FIELD_CONTROL_CLASS}`}>
+        <div
+          role="button"
+          tabIndex={0}
+          aria-label={label}
+          onClick={() => setOpen((v) => !v)}
+          onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setOpen((v) => !v)}
+          className={`${FIELD_INPUT_CLASS} w-full cursor-pointer text-left text-sm`}
+        >
+          {selected.length > 0 ? (
+            <span className="flex flex-wrap gap-1">
+              {selected.map((option) => (
+                <span
+                  key={option}
+                  className="rounded-control flex items-center gap-1 bg-gray-100 px-1.5 py-0.5 text-xs"
+                >
+                  {option}
+                  {onEditOption && (
+                    <button
+                      type="button"
+                      aria-label={`編輯 ${option}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditOption(option);
+                      }}
+                      className="text-gray-400 hover:text-gray-900"
+                    >
+                      <Pencil size={11} strokeWidth={1.5} />
+                    </button>
+                  )}
+                </span>
+              ))}
+            </span>
+          ) : (
+            <span className="text-gray-400">{placeholder ?? `選擇或新增${label}`}</span>
           )}
-          {label}
-        </label>
-      )}
+        </div>
 
-      <div
-        role="button"
-        tabIndex={0}
-        aria-label={label}
-        onClick={() => setOpen((v) => !v)}
-        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setOpen((v) => !v)}
-        className="rounded-control w-full cursor-pointer border px-3 py-2 text-left text-sm"
-      >
-        {selected.length > 0 ? (
-          <span className="flex flex-wrap gap-1">
-            {selected.map((option) => (
-              <span
-                key={option}
-                className="rounded-control flex items-center gap-1 bg-gray-100 px-1.5 py-0.5 text-xs"
-              >
-                {option}
-                {onEditOption && (
-                  <button
-                    type="button"
-                    aria-label={`編輯 ${option}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEditOption(option);
-                    }}
-                    className="text-gray-400 hover:text-gray-900"
-                  >
-                    <Pencil size={11} strokeWidth={1.5} />
-                  </button>
-                )}
-              </span>
-            ))}
-          </span>
-        ) : (
-          <span className="text-gray-400">{placeholder ?? `選擇或新增${label}`}</span>
-        )}
-      </div>
-
-      {/*
+        {/*
         選單貼著按鈕：absolute 定位，捲動時它本來就跟著一起走，不用量也不用補算。
         代價是外層 overflow 會裁到它——所以用它的表單那一層不要把選單那一側切掉。
       */}
-      {open && (
-        <div className="rounded-surface absolute top-full left-0 z-50 mt-1 flex max-h-56 w-full flex-col overflow-hidden border bg-white shadow-lg">
-          <input
-            autoFocus
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => {
-              // Enter 一律不新增，只擋住表單送出。
-              // 中文輸入法選字就是按 Enter，讓它同時代表「加這個標籤」的話，
-              // 打到一半（「清」還沒變成「清邁」）就會先被加進去。
-              if (e.key === "Enter") e.preventDefault();
-              if (e.key === "Escape") setOpen(false);
-            }}
-            placeholder={`搜尋或新增${label}`}
-            className="w-full border-b px-3 py-2 text-sm outline-none"
-          />
+        {open && (
+          <div className="rounded-surface absolute top-full left-0 z-50 mt-1 flex max-h-56 w-full flex-col overflow-hidden border bg-white shadow-lg">
+            <input
+              autoFocus
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                // Enter 一律不新增，只擋住表單送出。
+                // 中文輸入法選字就是按 Enter，讓它同時代表「加這個標籤」的話，
+                // 打到一半（「清」還沒變成「清邁」）就會先被加進去。
+                if (e.key === "Enter") e.preventDefault();
+                if (e.key === "Escape") setOpen(false);
+              }}
+              placeholder={`搜尋或新增${label}`}
+              className="w-full border-b px-3 py-2 text-sm outline-none"
+            />
 
-          <ul className="min-h-0 flex-1 overflow-y-auto py-1">
-            {selected.length > 0 && (
-              <li>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onChange("");
-                    setQuery("");
-                    if (!multiple) setOpen(false);
-                  }}
-                  className="w-full px-3 py-1.5 text-left text-xs text-gray-400 hover:bg-gray-50"
-                >
-                  清除選擇
-                </button>
-              </li>
-            )}
+            <ul className="min-h-0 flex-1 overflow-y-auto py-1">
+              {selected.length > 0 && (
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onChange("");
+                      setQuery("");
+                      if (!multiple) setOpen(false);
+                    }}
+                    className="w-full px-3 py-1.5 text-left text-xs text-gray-400 hover:bg-gray-50"
+                  >
+                    清除選擇
+                  </button>
+                </li>
+              )}
 
-            {filtered.map((option) => (
-              <li key={option} className="flex items-center gap-1 px-1">
-                <button
-                  type="button"
-                  onClick={() => pick(option)}
-                  className={`rounded-control flex-1 px-2 py-1.5 text-left text-sm hover:bg-gray-50 ${
-                    isSelected(option) ? "font-medium" : ""
-                  }`}
-                >
-                  {multiple && (
-                    <span className="mr-1.5 text-xs text-gray-400">
-                      {isSelected(option) ? "✓" : "＋"}
-                    </span>
-                  )}
-                  {option}
-                </button>
-                {/* 用了幾次；選單照次數排，這個數字說明為什麼是這個順序 */}
-                <span className="shrink-0 px-1.5 text-[11px] text-gray-300 tabular-nums">
-                  {counts?.get(option) ?? 0}
-                </span>
-              </li>
-            ))}
+              {filtered.map((option) => (
+                <li key={option} className="flex items-center gap-1 px-1">
+                  <button
+                    type="button"
+                    onClick={() => pick(option)}
+                    className={`rounded-control flex-1 px-2 py-1.5 text-left text-sm hover:bg-gray-50 ${
+                      isSelected(option) ? "font-medium" : ""
+                    }`}
+                  >
+                    {multiple && (
+                      <span className="mr-1.5 text-xs text-gray-400">
+                        {isSelected(option) ? "✓" : "＋"}
+                      </span>
+                    )}
+                    {option}
+                  </button>
+                  {/* 用了幾次；選單照次數排，這個數字說明為什麼是這個順序 */}
+                  <span className="shrink-0 px-1.5 text-[11px] text-gray-300 tabular-nums">
+                    {counts?.get(option) ?? 0}
+                  </span>
+                </li>
+              ))}
 
-            {canCreate && (
-              <li>
-                <button
-                  type="button"
-                  onClick={create}
-                  className="w-full px-3 py-1.5 text-left text-sm hover:bg-gray-50"
-                >
-                  新增「<span className="font-medium">{keyword}</span>」
-                </button>
-              </li>
-            )}
+              {canCreate && (
+                <li>
+                  <button
+                    type="button"
+                    onClick={create}
+                    className="w-full px-3 py-1.5 text-left text-sm hover:bg-gray-50"
+                  >
+                    新增「<span className="font-medium">{keyword}</span>」
+                  </button>
+                </li>
+              )}
 
-            {filtered.length === 0 && !canCreate && (
-              <li className="px-3 py-2 text-xs text-gray-400">打字就可以新增</li>
-            )}
-          </ul>
-        </div>
-      )}
+              {filtered.length === 0 && !canCreate && (
+                <li className="px-3 py-2 text-xs text-gray-400">打字就可以新增</li>
+              )}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

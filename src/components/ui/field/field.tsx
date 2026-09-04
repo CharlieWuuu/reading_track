@@ -1,4 +1,9 @@
-import { type LucideIcon } from "lucide-react";
+import {
+  FIELD_CONTROL_CLASS,
+  FIELD_INPUT_CLASS,
+  FIELD_ROW_CLASS,
+  FieldLabel,
+} from "@/components/ui/field-label";
 
 /** iOS 的原生日期控制項有自己的最小寬度，不關掉外觀就會撐破手機寬度 */
 const DATE_INPUT_CLASS = "appearance-none";
@@ -6,7 +11,6 @@ const DATE_TYPES = ["date", "datetime-local", "time"];
 
 export function Field({
   label,
-  Icon,
   value,
   onChange,
   onPaste,
@@ -15,8 +19,6 @@ export function Field({
   hideLabel = false,
 }: {
   label: string;
-  /** 跟詳細卡片同一個圖示；沒有對應圖示的欄位就不放 */
-  Icon?: LucideIcon;
   value: string;
   onChange: (v: string) => void;
   /** 收到貼上的文字。onChange 也照樣會發，這裡只是多給一個「使用者剛貼了東西」的訊號 */
@@ -28,16 +30,8 @@ export function Field({
   hideLabel?: boolean;
 }) {
   return (
-    <div className="min-w-0">
-      {!hideLabel && (
-        <label className="mb-1 flex items-center gap-1.5 text-sm font-medium">
-          {Icon && (
-            <Icon size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
-          )}
-          {label}
-          {hint && <span className="text-xs font-normal text-gray-400">{hint}</span>}
-        </label>
-      )}
+    <div className={FIELD_ROW_CLASS}>
+      {!hideLabel && <FieldLabel label={label} hint={hint} />}
       <input
         type={type}
         aria-label={label}
@@ -45,7 +39,7 @@ export function Field({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onPaste={onPaste && ((e) => onPaste(e.clipboardData.getData("text")))}
-        className={`rounded-control box-border block w-full max-w-full min-w-0 border px-3 py-2 text-sm ${
+        className={`${FIELD_CONTROL_CLASS} ${FIELD_INPUT_CLASS} box-border block w-full max-w-full text-sm ${
           DATE_TYPES.includes(type) ? DATE_INPUT_CLASS : ""
         }`}
       />

@@ -13,6 +13,10 @@ import postgres from "postgres";
 const url = process.env.DATABASE_URL;
 if (!url) throw new Error("DATABASE_URL 沒設");
 
-const sql = postgres(url, { prepare: false });
+/**
+ * 一個實例只要一條連線。postgres.js 預設開 10，乘上 serverless 的實例數就把
+ * pooler 的額度吃光了——症狀是全站「讀取失敗」，錯誤訊息在伺服器端才看得到。
+ */
+const sql = postgres(url, { prepare: false, max: 1 });
 
 export const db = drizzle(sql);

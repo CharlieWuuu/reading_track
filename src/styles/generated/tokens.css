@@ -76,7 +76,7 @@
   --color-accent-ink: var(--color-white); /** 壓在主色上的字 */
   --color-rule: var(--color-sand-250); /** 框線與底色同一支色系才像一套；原本的冷灰配米白底會偏藍，且對白底 1.47:1 太搶 */
   --color-rule-soft: var(--color-sand-200); /** 同一塊裡分列用；rule 是「這是兩個東西」，這一階是「同一件事的下一行」 */
-  --color-rule-strong: var(--color-sand-800); /** 外殼邊界（側欄、底部導覽）與強調框；純黑改成深棕，跟其餘的框同色系 */
+  --color-rule-strong: var(--color-sand-800); /** 強調框：卡片、搜尋列、次要按鈕。純黑改成深棕，跟其餘的框同色系 */
   --color-grid: var(--color-sand-250); /** 圖表格線；米白太淺當不了資料色，當格線剛好 */
   --color-series-1: var(--color-blue-600);
   --color-status-want-bg: var(--color-sand-200);
@@ -97,6 +97,7 @@
   --color-control-ink-idle: var(--color-ink-muted); /** 分頁列沒選中的那幾格 */
   --color-control-ink-faint: var(--color-ink-faint);
   --color-control-menu-hover: var(--color-surface-sunken);
+  --color-shell-rule: var(--color-accent); /** 外殼邊界（側欄、底部導覽）。用主色的金棕，它畫的是「這裡是外框不是內容」，跟卡片的框不同一回事 */
   --color-control-bg: var(--color-accent); /** 主要動作鍵與選中的分頁；改這裡全站一起變 */
   --color-control-bg-hover: var(--color-accent-hover);
   --color-control-ink: var(--color-accent-ink);

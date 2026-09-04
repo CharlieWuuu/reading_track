@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Calendar, Link2 } from "lucide-react";
 import { Field } from "./field";
 
 const meta = {
@@ -25,15 +24,11 @@ export const Filled: Story = {
   args: { value: "資本論" },
 };
 
-export const WithIcon: Story = {
-  args: { label: "來源", Icon: Link2, value: "https://example.com" },
-};
-
 /** hint 是「這一欄可以填什麼」，不是錯誤訊息——目前沒有錯誤狀態 */
 export const WithHint: Story = {
   args: { label: "頁數", hint: "留空代表還沒讀完", value: "" },
 };
 
 export const DateInput: Story = {
-  args: { label: "讀完日期", Icon: Calendar, type: "date", value: "2026-08-19" },
+  args: { label: "讀完日期", type: "date", value: "2026-08-19" },
 };

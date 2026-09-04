@@ -422,7 +422,14 @@ export const TOKEN_MANIFEST: TokenEntry[] = [
     "layer": "semantic",
     "value": "#5c4a3d",
     "alias": "sand.800",
-    "description": "外殼邊界（側欄、底部導覽）與強調框；純黑改成深棕，跟其餘的框同色系"
+    "description": "強調框：卡片、搜尋列、次要按鈕。純黑改成深棕，跟其餘的框同色系"
+  },
+  {
+    "name": "color-shell-rule",
+    "layer": "semantic",
+    "value": "#8a6d1b",
+    "alias": "accent",
+    "description": "外殼邊界（側欄、底部導覽）。用主色的金棕，它畫的是「這裡是外框不是內容」，跟卡片的框不同一回事"
   },
   {
     "name": "color-grid",

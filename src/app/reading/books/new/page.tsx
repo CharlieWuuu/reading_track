@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { BookForm } from "@/features/books/components/book-form";
 import { BookFormTabs } from "@/features/books/components/book-form-tabs";
 import { BookLookupStep, LookupResult } from "@/features/books/components/book-lookup-step";
+import { BookRefetchButton } from "@/features/books/components/book-refetch-button";
 import { useUrlParams } from "@/hooks/use-url-param";
 
 function NewBook() {
@@ -21,7 +22,14 @@ function NewBook() {
       <PageHeader
         title="新增書籍"
         backHref={backHref}
-        action={result ? <BookFormTabs /> : undefined}
+        action={
+          result ? (
+            <div className="flex min-w-0 items-center gap-2">
+              <BookRefetchButton />
+              <BookFormTabs />
+            </div>
+          ) : undefined
+        }
       />
       <PageBody>
         {result ? (

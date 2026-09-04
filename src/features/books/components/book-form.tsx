@@ -1,20 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import {
-  BookOpen,
-  CalendarCheck,
-  CalendarPlus,
-  FileText,
-  Languages,
-  Link as LinkIcon,
-  Newspaper,
-  Quote,
-  Store,
-  Tag,
-  Type,
-} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { BookOpen, Newspaper, Quote } from "lucide-react";
 import { CategorySelect } from "@/components/ui/category-select";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
@@ -26,6 +14,7 @@ import { scrapeBook, searchBookByTitle } from "@/features/books/api/lookup-book"
 import { useBookFormTab } from "@/features/books/components/book-form-tabs";
 import { QuoteListInput } from "@/features/books/components/quote-list-input";
 import { VocabularyListInput } from "@/features/books/components/vocabulary-list-input";
+import { useBookRefetchStore } from "@/features/books/stores/use-book-refetch-store";
 import { RelatedWriting } from "@/features/writing/components/related-writings";
 import { useBooks } from "@/hooks/use-books";
 import { useRecordForm } from "@/hooks/use-record-form";
@@ -64,7 +53,7 @@ type FormState = typeof emptyForm;
 /** 沒選到的分頁留在畫面上但藏起來，切回來時打到一半的內容還在 */
 function TabPanel({ active, children }: { active: boolean; children: React.ReactNode }) {
   return (
-    <div className={`flex-col gap-3 md:min-h-0 md:flex-1 ${active ? "flex" : "hidden"}`}>
+    <div className={`flex-col gap-10 md:min-h-0 md:flex-1 ${active ? "flex" : "hidden"}`}>
       {children}
     </div>
   );
@@ -111,8 +100,21 @@ function GroupTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Section({ children, pairs }: { children: React.ReactNode; pairs?: boolean }) {
-  const cols = pairs ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+function Section({
+  children,
+  pairs,
+  triples,
+}: {
+  children: React.ReactNode;
+  pairs?: boolean;
+  /** 短欄位三個一行 */
+  triples?: boolean;
+}) {
+  const cols = triples
+    ? "grid-cols-3"
+    : pairs
+      ? "grid-cols-2"
+      : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
   return <div className={`grid min-h-0 shrink-0 content-start gap-3 ${cols}`}>{children}</div>;
 }
 
@@ -214,6 +216,20 @@ export function BookForm({
   }
 
   /**
+   * 按鈕在頁首，狀態在這裡：掛載時登記動作，離開時清掉。
+   * 存的是 ref 不是函式本身，登記一次就好，不用每次 render 重登。
+   */
+  const refetchRef = useRef(() => {});
+  const { register, setProgress, reset } = useBookRefetchStore();
+  useEffect(() => {
+    register(() => refetchRef.current());
+    return reset;
+  }, [register, reset]);
+  useEffect(() => {
+    setProgress({ running: refetching, note: refetchNote });
+  }, [refetching, refetchNote, setProgress]);
+
+  /**
    * 用現在表單裡的書名／網址重查一次。刻意只補空欄位——
    * 使用者手動改過的內容比外部來源可信，不能被一鍵蓋掉。
    */
@@ -259,6 +275,7 @@ export function BookForm({
       setRefetching(false);
     }
   }
+  refetchRef.current = handleRefetch; // 每次 render 換成最新的，登記進 store 的那層不用動
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -271,7 +288,7 @@ export function BookForm({
         if (!form.title.trim()) setTab("book");
         handleSubmit(e);
       }}
-      className="flex flex-col gap-3 md:h-full md:min-h-0"
+      className="flex flex-col gap-6 md:h-full md:min-h-0"
     >
       {notice && (
         <p className="rounded-control shrink-0 border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
@@ -279,8 +296,10 @@ export function BookForm({
         </p>
       )}
 
-      {/* 欄位一路往下排；桌機在這層捲，手機不自己捲，跟著整頁捲 */}
-      <div className="flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
+      {/* 桌機在這層捲，手機不自己捲，跟著整頁捲。
+          這層的子元素是分頁，同時只有一個看得到，所以不需要 gap——
+          分組之間的距離在 TabPanel 上 */}
+      <div className="flex flex-col md:min-h-0 md:flex-1 md:overflow-y-auto">
         <TabPanel active={tab === "book"}>
           {/* 自己認得的那幾欄先來：書名獨佔一行，其餘兩兩成對 */}
           <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3">
@@ -288,128 +307,97 @@ export function BookForm({
               <Field label="書名" value={form.title} onChange={(v) => set("title", v)} />
             </div>
 
-            <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
-            <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
+            {/* ISBN 跟著出版社走：它們講的是同一件事，這本書是哪一版 */}
+            <div className="col-span-2 grid grid-cols-3 gap-3">
+              <Field label="作者" value={form.author} onChange={(v) => set("author", v)} />
+              <Field label="出版社" value={form.publisher} onChange={(v) => set("publisher", v)} />
+              <Field label="ISBN" value={form.isbn} onChange={(v) => set("isbn", v)} />
+            </div>
 
             {/* 這三個都很短，擠成一行剛好，不用各佔半排 */}
             <div className="col-span-2 grid grid-cols-3 gap-3">
-              <Field
-                label="頁數"
-                Icon={FileText}
-                value={form.pageCount}
-                onChange={(v) => set("pageCount", v)}
-              />
-              <Field
-                label="字數"
-                Icon={Type}
-                value={form.wordCount}
-                onChange={(v) => set("wordCount", v)}
-              />
+              <Field label="頁數" value={form.pageCount} onChange={(v) => set("pageCount", v)} />
+              <Field label="字數" value={form.wordCount} onChange={(v) => set("wordCount", v)} />
               <CategorySelect
                 label="語言"
-                Icon={Languages}
                 categoryKey="language"
                 value={form.language}
                 onChange={(v) => set("language", v)}
               />
             </div>
-          </div>
 
-          {/* 抓回來的那幾欄擺一起：平常不用看，錯了才進來改 */}
-          <GroupTitle>來源資料</GroupTitle>
-          <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3">
-            <Field label="ISBN" value={form.isbn} onChange={(v) => set("isbn", v)} />
+            {/* 兩個網址跟上面那些欄位一樣是抓回來的，不值得自己一個分組 */}
             <Field label="封面網址" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
-            <div className="col-span-2">
-              <Field
-                label="來源網址"
-                Icon={LinkIcon}
-                value={form.sourceUrl}
-                onChange={(v) => set("sourceUrl", v)}
-              />
-            </div>
-
-            {/* 用現有的書名／網址重查，補上空欄位 */}
-            <div className="col-span-2 flex items-center justify-end gap-2">
-              {refetchNote && <span className="text-xs text-gray-500">{refetchNote}</span>}
-              <button
-                type="button"
-                onClick={handleRefetch}
-                disabled={refetching}
-                className="rounded-control border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
-              >
-                {refetching ? "抓取中…" : "重新抓取資料"}
-              </button>
-            </div>
+            <Field label="來源網址" value={form.sourceUrl} onChange={(v) => set("sourceUrl", v)} />
           </div>
 
-          {/* 標記不值得自己一頁：它跟上面一樣是填表，只是填的是自己的看法 */}
-          <GroupTitle>標記</GroupTitle>
-          <Section pairs>
-            <Field
-              label="開始日期"
-              Icon={CalendarPlus}
-              type="date"
-              value={form.startDate}
-              onChange={(v) => set("startDate", v)}
-            />
-            <Field
-              label="完成日期"
-              Icon={CalendarCheck}
-              type="date"
-              value={form.endDate}
-              onChange={(v) => set("endDate", v)}
-            />
-          </Section>
+          {/* 標記不值得自己一頁：它跟上面一樣是填表，只是填的是自己的看法。
+              小標跟它管的欄位包在一起，DOM 上就看得出是同一組 */}
+          <div className="flex min-h-0 shrink-0 flex-col gap-3">
+            <GroupTitle>標記</GroupTitle>
 
-          <Section pairs>
-            {/* 平台是「我在哪讀的」，跟書本身無關，所以跟其他自訂分類放一起 */}
-            <CategorySelect
-              label="平台"
-              Icon={Store}
-              categoryKey="platform"
-              value={form.platform}
-              onChange={(v) => set("platform", v)}
-            />
+            {/* 三個一行：兩排欄位，最後一排是私人與關鍵字 */}
+            <Section triples>
+              <Field
+                label="開始日期"
+                type="date"
+                value={form.startDate}
+                onChange={(v) => set("startDate", v)}
+              />
+              <Field
+                label="完成日期"
+                type="date"
+                value={form.endDate}
+                onChange={(v) => set("endDate", v)}
+              />
 
-            {/* 領域改成單選：它問的是「為什麼讀這本書」，一本書只會有一個答案 */}
-            <CategorySelect
-              label="領域"
-              categoryKey="domain"
-              value={form.domain}
-              onChange={(v) => set("domain", v)}
-            />
-            <CategorySelect
-              label="次領域"
-              categoryKey="subDomain"
-              value={form.subDomain}
-              onChange={(v) => set("subDomain", v)}
-            />
-            <CategorySelect
-              label="屬性"
-              categoryKey="type"
-              value={form.type}
-              onChange={(v) => set("type", v)}
-              multiple
-            />
-          </Section>
+              {/* 平台是「我在哪讀的」，跟書本身無關，所以跟其他自訂分類放一起 */}
+              <CategorySelect
+                label="平台"
+                categoryKey="platform"
+                value={form.platform}
+                onChange={(v) => set("platform", v)}
+              />
 
-          {/* 私人跟領域、屬性一樣是自己貼上去的標記 */}
-          <PrivateToggle value={form.private} onChange={(v) => set("private", v)} />
+              {/* 領域改成單選：它問的是「為什麼讀這本書」，一本書只會有一個答案 */}
+              <CategorySelect
+                label="領域"
+                categoryKey="domain"
+                value={form.domain}
+                onChange={(v) => set("domain", v)}
+              />
+              <CategorySelect
+                label="次領域"
+                categoryKey="subDomain"
+                value={form.subDomain}
+                onChange={(v) => set("subDomain", v)}
+                parentValue={form.domain}
+              />
+              <CategorySelect
+                label="屬性"
+                categoryKey="type"
+                value={form.type}
+                onChange={(v) => set("type", v)}
+                multiple
+              />
 
-          {/* 關鍵字也是自己貼上去的標籤，跟領域、屬性同一件事，只是值不固定 */}
-          <div className="min-w-0 shrink-0">
-            <OptionSelect
-              label="關鍵字"
-              Icon={Tag}
-              options={keywordSuggestions}
-              value={form.keywords}
-              onChange={(v) => set("keywords", v)}
-              onEditOption={openKeyword}
-              placeholder="一個一組：地名、人名、事件、專有名詞"
-              separator={"\n"}
-              multiple
-            />
+              {/* 私人跟關鍵字都是自己貼上去的標記，只是一個是開關、一個是標籤；
+                  關鍵字會塞很多個，佔兩欄 */}
+              <PrivateToggle value={form.private} onChange={(v) => set("private", v)} />
+
+              <div className="col-span-2 min-w-0">
+                <OptionSelect
+                  label="關鍵字"
+                  options={keywordSuggestions}
+                  value={form.keywords}
+                  onChange={(v) => set("keywords", v)}
+                  onEditOption={openKeyword}
+                  placeholder="一個一組：地名、人名、事件、專有名詞"
+                  separator={"\n"}
+                  multiple
+                />
+              </div>
+            </Section>
           </div>
         </TabPanel>
 
