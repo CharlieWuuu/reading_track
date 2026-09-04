@@ -67,10 +67,6 @@ export function CumulativeChart({
   const color = (index: number) =>
     keys.length === 1 ? SERIES_PRIMARY : CATEGORICAL[index % CATEGORICAL.length];
 
-  const titleAction = (
-    <SegmentedControl size="sm" items={SPLITS} value={split} onChange={setSplit} />
-  );
-
   return (
     <div
       className="rounded-surface flex min-h-0 flex-1 flex-col gap-3.5 border bg-white p-3 md:p-5"
