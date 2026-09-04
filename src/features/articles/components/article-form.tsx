@@ -276,7 +276,7 @@ export function ArticleForm({ article }: { article?: Article }) {
         {/* 心得寫成書寫，跟書籍同一套：一篇文章可以有很多則，所以自己一頁 */}
         <TabPanel active={tab === "notes"}>
           {isEdit && article ? (
-            <RelatedWriting sourceId={article.id} onWrite={() => openWriting(article.id)} />
+            <RelatedWriting sourceIds={[article.id]} onWrite={() => openWriting(article.id)} />
           ) : (
             <p className="rounded-control border border-dashed px-3 py-2 text-xs text-gray-400">
               存好這篇文章之後就可以寫心得了

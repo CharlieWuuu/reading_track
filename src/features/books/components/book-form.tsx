@@ -35,6 +35,7 @@ import { useCurrentHref } from "@/lib/keywords/href";
 import { fullerTitle } from "@/lib/metadata";
 import { Book, inferStatus, splitLines } from "@/types/book";
 import { QuoteRow, VocabularyRow } from "@/types/record";
+import { sameBook } from "@/utils/book-reads";
 
 const emptyForm = {
   private: "",
@@ -440,7 +441,10 @@ export function BookForm({
           <div className="flex min-h-0 flex-col gap-3 sm:flex-row">
             <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
               {isEdit && book ? (
-                <RelatedWriting sourceId={book.id} onWrite={() => openWriting(book.id)} />
+                <RelatedWriting
+                  sourceIds={sameBook(allBooks, book).map((b) => b.id)}
+                  onWrite={() => openWriting(book.id)}
+                />
               ) : (
                 <p className="rounded-control border border-dashed px-3 py-2 text-xs text-gray-400">
                   存好這本書之後就可以寫心得了

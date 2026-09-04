@@ -54,6 +54,31 @@ function BookFacts({ book }: { book: Book }) {
 }
 
 /** 我對這本書做的事：狀態、讀的時間、在哪讀、怎麼歸類，換個人就是另一組答案 */
+/**
+ * 讀過幾次。只有重讀的書才畫——讀一次的書多一個「讀過 1 次」的區塊是廢話。
+ *
+ * 書單一本書只佔一列，所以次數只有在這裡看得到。
+ */
+function ReadingHistory({ reads }: { reads: Book[] }) {
+  const ordered = [...reads].sort((a, b) =>
+    (a.startDate ?? a.endDate ?? "").localeCompare(b.startDate ?? b.endDate ?? ""),
+  );
+
+  return (
+    <ol className="flex flex-col gap-2">
+      {ordered.map((read, i) => (
+        <li key={read.id} className="flex items-baseline gap-3 text-sm">
+          <span className="shrink-0 text-xs text-gray-400 tabular-nums">第 {i + 1} 次</span>
+          <span className="text-gray-700 tabular-nums">
+            {[read.startDate, read.endDate].filter(Boolean).join(" – ") || "沒有日期"}
+          </span>
+          {read.platform && <span className="text-xs text-gray-400">{read.platform}</span>}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 function MyMarks({ book }: { book: Book }) {
   return (
     <DetailFields>
@@ -116,7 +141,8 @@ export function BookDetailView() {
   const keywords = splitLines(book.keywords);
   const relatedArticles = splitLines(book.relatedArticles);
   // 佳句與單字綁的是「某一次讀」那一列，所以重讀的那幾列要一起算進來
-  const readIds = new Set(sameBook(books, book).map((b) => b.id));
+  const reads = sameBook(books, book);
+  const readIds = new Set(reads.map((b) => b.id));
   const bookQuotes = quotes.filter((row) => readIds.has(row.bookId));
   const bookVocabulary = vocabulary.filter((row) => readIds.has(row.bookId));
   const notes = notesForSource(writings, readIds);
@@ -165,6 +191,12 @@ export function BookDetailView() {
           <DetailSection title="標記">
             <MyMarks book={book} />
           </DetailSection>
+
+          {reads.length > 1 && (
+            <DetailSection title="讀過的次數">
+              <ReadingHistory reads={reads} />
+            </DetailSection>
+          )}
 
           {keywords.length > 0 && (
             <DetailSection title="關鍵字">
