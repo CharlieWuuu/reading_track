@@ -5,18 +5,18 @@ import { PRIVATE_MARK } from "@/config/privacy";
  * 私人項目。
  *
  * 目的很窄：在公司打開這個 app 的時候，某些書、文章、書寫不要出現在畫面上。
- * 它不是加密——資料就在你自己的 Google Sheet 上，打開試算表就看得到。能擋的是
+ * 它不是加密——資料在自己的資料庫裡，拿得到連線字串的人照樣看得到。能擋的是
  * 「同事走過去瞄一眼」，不是拿得到你帳號的人。
  *
  * 但過濾刻意做在伺服器端：鎖著的時候那些列根本不會傳到瀏覽器，比在前端隱藏
  * 好得多——不然按個 F12 或翻一下 localStorage 快取就全看到了。
  *
- * 密碼存 Sheet 的「設定」分頁（換裝置才通用，是使用者選的），存的是兩段雜湊：
+ * 密碼存資料庫的 settings 表（換裝置才通用，是使用者選的），存的是兩段雜湊：
  *
  *   使用者輸入 → sha256 → 解鎖權杖（存瀏覽器 sessionStorage，也是之後每次請求帶的）
- *              → 再 sha256 → 存進 Sheet
+ *              → 再 sha256 → 存進 settings
  *
- * 這樣 Sheet 上那一格被看到，也不能直接拿去當權杖用。
+ * 這樣資料庫裡那一格被看到，也不能直接拿去當權杖用。
  */
 const TRUTHY = new Set([PRIVATE_MARK, "y", "yes", "true", "1", "是的", "私人", "v"]);
 
@@ -71,12 +71,12 @@ function sha256(value: string): string {
 
 /** 使用者打的密碼 → 瀏覽器拿著的解鎖權杖 */
 export function passcodeToToken(passcode: string): string {
-  // 這個字串是雜湊的鹽，不是識別名——算出來的值存在使用者的 Sheet 裡。
+  // 這個字串是雜湊的鹽，不是識別名——算出來的值存在 settings 表裡。
   // 改名 Archivum 時刻意沒動它：改了就對不上舊雜湊，等於把人鎖在私人項目外面。
   return sha256(`reading-track:${passcode.trim()}`);
 }
 
-/** 解鎖權杖 → 存進 Sheet 的那一份 */
+/** 解鎖權杖 → 存進資料庫的那一份 */
 export function tokenToStored(token: string): string {
   // 同上：這也是鹽，不能跟著改名走
   return sha256(`reading-track-stored:${token}`);

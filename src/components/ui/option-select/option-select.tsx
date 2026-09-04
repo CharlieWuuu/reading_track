@@ -14,7 +14,7 @@ import { useOutsideClick } from "@/hooks/use-outside-click";
  * 仿 Notion 的選擇器：搜尋、選，打字就能登一個還沒用過的值。
  *
  * 選項一律由呼叫端給——它們全都是從資料 group 出來的，沒有一張「選項」表
- * 要維護。`multiple` 的欄位可以複選，多個值存在同一格裡，Sheet 那邊還是一欄；
+ * 要維護。`multiple` 的欄位可以複選，多個值存在同一格裡，存回去還是一欄；
  * 分隔符可換，關鍵字那種一行一筆的欄位就傳換行。
  */
 export function OptionSelect({

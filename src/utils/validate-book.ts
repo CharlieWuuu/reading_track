@@ -16,7 +16,7 @@ function isValidDate(value: string) {
 }
 
 /**
- * 檢查使用者直接在 Sheet 裡改出來的小問題。
+ * 檢查資料上常見的小問題（多半是從試算表搬過來時留下的）。
  * 這些只是提示，不會擋住任何操作，也不會自動改資料。
  */
 export function validateBook(book: Book): BookIssue[] {

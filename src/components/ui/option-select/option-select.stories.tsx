@@ -27,7 +27,7 @@ export const Selected: Story = {
   args: { value: "哲學" },
 };
 
-/** 複選：多個值串在同一格裡，Sheet 那邊仍是一欄 */
+/** 複選：多個值串在同一格裡，存回去仍是一欄 */
 export const Multiple: Story = {
   args: { label: "屬性", multiple: true, value: "哲學、歷史" },
 };

@@ -39,7 +39,7 @@ export const WithExtra: Story = {
 };
 
 export const WithError: Story = {
-  args: { onCancel: () => {}, error: "寫進 Sheet 失敗，請再試一次" },
+  args: { onCancel: () => {}, error: "寫入失敗，請再試一次" },
 };
 
 /** 沒給 onSave 就變成 type="submit"，交給外面的 form */

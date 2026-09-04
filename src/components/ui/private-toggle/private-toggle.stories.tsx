@@ -16,7 +16,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Off: Story = {};
 
-/** 勾起來的值就是 Sheet 上那一格「是」 */
+/** 勾起來存的就是那個「是」 */
 export const On: Story = {
   args: { value: "是" },
 };

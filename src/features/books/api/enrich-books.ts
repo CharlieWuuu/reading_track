@@ -15,7 +15,7 @@ export type EnrichResult = {
 };
 
 /**
- * 從網路補齊 Sheet 裡沒填的欄位。
+ * 從網路補齊沒填的欄位。
  *
  * 一次跑不完會回 nextAfter，帶著它再呼叫一次就從那裡接下去——
  * route 有 30 秒上限，書多的時候一定會中斷。

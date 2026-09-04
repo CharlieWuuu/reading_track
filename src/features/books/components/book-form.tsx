@@ -207,7 +207,7 @@ export function BookForm({
     openRecordThen((back) => router.push(keywordEditHref(name, back)), from);
   }
 
-  /** 心得寫成一則書寫；先把這本書存完再跳，不讓兩邊的寫入同時打 Sheet */
+  /** 心得寫成一則書寫；先把這本書存完再跳，不讓兩邊的寫入同時進行 */
   function openWriting(id: string) {
     openRecordThen(
       () => router.push(writingNewHref({ sourceId: id, sourceTitle: form.title, kind: "書籍" })),

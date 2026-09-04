@@ -131,7 +131,7 @@ describe("whenLabel", () => {
 });
 
 describe("datetime-local 的來回", () => {
-  it("Sheet 的空白分隔換成 T", () => {
+  it("空白分隔換成 T", () => {
     expect(toDateTimeInput("2026-08-19 14:32")).toBe("2026-08-19T14:32");
   });
 

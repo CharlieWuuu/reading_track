@@ -1,4 +1,4 @@
-/** 關鍵字主檔的一列。全部存純文字，Sheet 打開來要看得懂 */
+/** 關鍵字主檔的一列。全部存純文字，直接查資料庫也要看得懂 */
 export interface KeywordInfo {
   name: string;
   /** 維基的主題分類，多個以頓號相接；刻意不含 Geography，理由見 lookup */
@@ -28,7 +28,7 @@ export function parseCoordinates(value: string): { lat: number; lon: number } | 
 /**
  * 起訖畫成數線要的是數字；只有單邊也回得出來，另一邊給 null。
  *
- * 手打進 Sheet 的寫法很雜（1949／1949年4月6日／1949/4/6），一律只取年，
+ * 手打的寫法很雜（1949／1949年4月6日／1949/4/6），一律只取年，
  * 後面的月日忽略——數線本來就以年為單位。沒有破折號就當成單一年份。
  */
 export function parseSpan(value: string): { from: number | null; to: number | null } | null {
@@ -54,7 +54,7 @@ function parseYear(value: string): number | null {
   return match[1] ? -Math.abs(year) : year;
 }
 
-/** 兩個年份欄併回 Sheet 上那一格；兩邊都空就是空字串 */
+/** 兩個年份欄併回原本那一格；兩邊都空就是空字串 */
 export function formatSpan(from: string, to: string): string {
   const a = from.trim();
   const b = to.trim();

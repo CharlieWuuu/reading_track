@@ -69,7 +69,7 @@ async function lookup(
 }
 
 export interface LookupHints {
-  /** 使用者在 Sheet 標了語言時帶進來，純漢字的日文書名才問得到國會圖書館 */
+  /** 使用者標了語言時帶進來，純漢字的日文書名才問得到國會圖書館 */
   language?: string;
 }
 

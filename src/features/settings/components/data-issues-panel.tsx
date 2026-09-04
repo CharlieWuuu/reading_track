@@ -7,7 +7,7 @@ import { useBooks } from "@/hooks/use-books";
 import { validateBooks } from "@/utils/validate-book";
 
 /**
- * 資料從 Sheet 搬過來時難免有格式對不上的地方，這裡把它們挑出來。
+ * 從試算表搬過來的資料難免有格式對不上的地方，這裡把它們挑出來。
  *
  * 這些只是提醒，不會擋住任何操作，也不會自動改資料——所以放在設定頁，
  * 想看的時候再來看，不再跳出來擋在書單上面。

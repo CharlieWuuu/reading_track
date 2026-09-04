@@ -74,8 +74,8 @@ describe("withPrivacy", () => {
 });
 
 describe("解鎖權杖", () => {
-  // 存進 Sheet 的是再雜湊過的一份，被看到也不能直接拿去當權杖
-  it("Sheet 上存的那份跟瀏覽器拿的那份不一樣", () => {
+  // 存進資料庫的是再雜湊過的一份，被看到也不能直接拿去當權杖
+  it("資料庫存的那份跟瀏覽器拿的那份不一樣", () => {
     const token = passcodeToToken("開門");
     expect(tokenToStored(token)).not.toBe(token);
   });

@@ -3,7 +3,7 @@
  *
  * 每一列都同時存書籍編號與書名：編號是真正的 join key（不會變），
  * 書名純粹是給人看的，寫入時由 app 補上——只靠編號的話，
- * 打開 Sheet 會看到一整排 UUID，那就等於放棄可讀性了。
+ * 直接查資料庫時會看到一整排 UUID，那就等於放棄可讀性了。
  */
 export interface VocabularyRow {
   id: string;

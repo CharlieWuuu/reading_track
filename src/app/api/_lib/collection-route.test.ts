@@ -46,7 +46,7 @@ describe("POST 的鍵名接線", () => {
     expect(add).toHaveBeenCalledWith(book);
   });
 
-  it("body 裡沒有 book 就回 400，不去碰 Sheet", async () => {
+  it("body 裡沒有 book 就回 400，不去碰資料庫", async () => {
     const { add, route } = build();
 
     const res = await route.POST(post(JSON.stringify({})));

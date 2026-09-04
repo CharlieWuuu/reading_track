@@ -217,7 +217,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
               />
             )}
             <div className="col-span-2 min-w-0 sm:col-span-1">
-              {/* 關鍵字跟類型同一顆選單，只是它一行一筆存回 Sheet */}
+              {/* 關鍵字跟類型同一顆選單，只是它一行一筆存回去 */}
               <OptionSelect
                 label="關鍵字"
                 options={keywordSuggestions}

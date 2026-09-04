@@ -49,7 +49,7 @@ export function useAutoSave<P>({ ready, existingId, payload, create, update }: A
     if (id) return update(id, payload).catch(revert);
 
     // 編號要等 create 真的成功才記住。先記的話，POST 失敗後每次存檔都會 PATCH
-    // 一個 Sheet 上不存在的列，這一筆就永久卡死
+    // 一筆資料庫裡不存在的列，這一筆就永久卡死
     return create(newId, payload)
       .then(() => {
         savedIdRef.current = newId;

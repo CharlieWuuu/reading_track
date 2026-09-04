@@ -1,6 +1,6 @@
 "use client";
 
-import { useSheetRecords } from "@/hooks/use-sheet-records";
+import { useCollection } from "@/hooks/use-collection";
 import { Book, ReadingStatus } from "@/types/book";
 
 // 想讀擺最前面：那是「接下來要看什麼」的清單，最常被翻。
@@ -24,6 +24,6 @@ function sortBooks(books: Book[]): Book[] {
 }
 
 export function useBooks() {
-  const { records, ...rest } = useSheetRecords<Book>("books", sortBooks);
+  const { records, ...rest } = useCollection<Book>("books", sortBooks);
   return { books: records, ...rest };
 }
