@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PRIVACY_SETTING_KEY } from "@/config/sheet-format";
+import { PRIVACY_SETTING_KEY } from "@/config/privacy";
 import { auth } from "@/lib/auth";
 import { readSetting, writeSetting } from "@/lib/db/queries/settings";
 import { isUnlocked, passcodeToToken, tokenToStored } from "@/utils/privacy";
 
 async function requireSession() {
   const session = await auth();
-  if (!session?.accessToken) return null;
+  if (!session?.user) return null;
   return session;
 }
 

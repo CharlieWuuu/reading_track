@@ -61,7 +61,7 @@ export interface Book {
   subDomain: string;
   type: string;
   language: string;
-  /** 紙本／電子書頁數，以字串保存，方便使用者直接在 Sheet 編輯 */
+  /** 紙本／電子書頁數。資料庫存 int，這裡是字串——表單直接綁這個欄位，還沒改形狀 */
   pageCount: string;
   /** 電子書常見的總字數 */
   wordCount: string;

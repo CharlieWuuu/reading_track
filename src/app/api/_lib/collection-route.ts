@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   badRequest,
+  dataFailure,
   guarded,
   readJsonBody,
   requireSession,
-  sheetFailure,
   unauthorized,
 } from "@/app/api/_lib/respond";
 import { PrivateRow, requestPrivacy, withPrivacy } from "@/utils/privacy";
@@ -38,7 +38,7 @@ export function createCollectionRoute<T extends Row>(config: CollectionConfig<T>
       const privacy = await requestPrivacy(req);
       return NextResponse.json({ [key]: withPrivacy(rows, privacy) });
     } catch (err) {
-      return sheetFailure("讀取", `list ${key}`, err);
+      return dataFailure("讀取", `list ${key}`, err);
     }
   }
 
@@ -59,7 +59,7 @@ export function createCollectionRoute<T extends Row>(config: CollectionConfig<T>
       await add(item);
       return NextResponse.json({ ok: true });
     } catch (err) {
-      return sheetFailure("寫入", `add ${key}`, err);
+      return dataFailure("寫入", `add ${key}`, err);
     }
   }
 

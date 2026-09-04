@@ -14,19 +14,16 @@ export const maxDuration = 60;
  */
 const CONCURRENCY = 2;
 
-/** 留給最後批次寫回 Sheet 的時間 */
+/** 留給最後批次寫回資料庫的時間 */
 const WRITE_BUDGET_MS = 12000;
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.accessToken) {
+  if (!session?.user) {
     return NextResponse.json({ error: "請先登入" }, { status: 401 });
   }
 
-  const { sheetId, after } = (await req.json()) as { sheetId: string; after?: string };
-  if (!sheetId) return NextResponse.json({ error: "缺少 Sheet ID" }, { status: 400 });
-
-  const accessToken = session.accessToken;
+  const { after } = (await req.json()) as { after?: string };
 
   let books: Book[];
   let idsBackfilled: number;
@@ -34,8 +31,8 @@ export async function POST(req: NextRequest) {
     // 讀取時會順便把沒有編號的列補上 uuid
     ({ books, idsBackfilled } = await listBooksWithMeta());
   } catch (err) {
-    console.error("enrich: 讀取 Sheet 失敗", err);
-    return NextResponse.json({ error: "讀取 Sheet 失敗" }, { status: 502 });
+    console.error("enrich: 讀取失敗", err);
+    return NextResponse.json({ error: "讀取失敗" }, { status: 502 });
   }
 
   const allCandidates = books.filter((b) => b.title && missingFields(b).length > 0);

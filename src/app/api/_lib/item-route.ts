@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   badRequest,
+  dataFailure,
   guarded,
   readJsonBody,
   requireSession,
-  sheetFailure,
   unauthorized,
 } from "@/app/api/_lib/respond";
 
@@ -36,7 +36,7 @@ export function createItemRoute<P>(config: ItemConfig<P>): ItemRoute {
       await update(id, body.patch);
       return NextResponse.json({ ok: true });
     } catch (err) {
-      return sheetFailure("更新", `update ${key}`, err);
+      return dataFailure("更新", `update ${key}`, err);
     }
   }
 
@@ -49,7 +49,7 @@ export function createItemRoute<P>(config: ItemConfig<P>): ItemRoute {
       await remove(id);
       return NextResponse.json({ ok: true });
     } catch (err) {
-      return sheetFailure("刪除", `delete ${key}`, err);
+      return dataFailure("刪除", `delete ${key}`, err);
     }
   }
 

@@ -1,5 +1,5 @@
 import { asc, eq, isNull } from "drizzle-orm";
-import { PRIVATE_MARK } from "@/config/sheet-format";
+import { PRIVATE_MARK } from "@/config/privacy";
 import { db } from "@/lib/db/client";
 import { bookKeywords } from "@/lib/db/schema/keyword-links";
 import { books, readings } from "@/lib/db/schema/reading";

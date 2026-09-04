@@ -14,7 +14,6 @@ import { useBooks } from "@/hooks/use-books";
 import { useMounted } from "@/hooks/use-mounted";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { isBookViewMode, useBookViewStore } from "@/stores/use-book-view-store";
-import { useSheetStore } from "@/stores/use-sheet-store";
 import { TOKENS } from "@/styles/generated/tokens";
 import { Book, ReadingStatus, splitLines } from "@/types/book";
 import {
@@ -102,7 +101,6 @@ function completionNumbers(books: Book[]): Map<string, number> {
 
 export function BookTable() {
   const router = useRouter();
-  const { sheetId } = useSheetStore();
   const mounted = useMounted();
   const { books: allBooks, isLoading, error } = useBooks();
   const numbers = useMemo(() => completionNumbers(allBooks), [allBooks]);
@@ -135,12 +133,7 @@ export function BookTable() {
   const query = searchParams.toString();
   const detailHref = (id: string) => bookHref(id, query || undefined);
 
-  // 還沒掛載完就什麼都別說，免得閃一下「請先連接」
   if (!mounted) return null;
-
-  if (!sheetId) {
-    return <PageMessage>請先到「設定」頁面連接 Google Sheet</PageMessage>;
-  }
 
   if (isLoading) {
     return <PageLoading />;

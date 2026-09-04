@@ -34,10 +34,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       authorization: {
         params: {
-          // 只要 drive.file：使用者透過 Picker 挑給這個 app 的檔案。
-          // 那是非機密範圍，不需要 Google 驗證，也沒有未驗證警告與人數上限。
-          // 不用 spreadsheets（可存取全部試算表）——那是機密範圍，且我們用不到。
-          scope: "openid email profile https://www.googleapis.com/auth/drive.file",
+          // 只要登入用的三個範圍。紀錄改存自己的資料庫之後就不再碰使用者的檔案，
+          // 留著 drive.file 等於要求一個用不到的權限
+          scope: "openid email profile",
           access_type: "offline",
           prompt: "consent",
         },

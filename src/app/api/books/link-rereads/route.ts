@@ -13,11 +13,11 @@ export const maxDuration = 30;
  * 是同一本書。理由寫在 utils/reread-candidates：書名有錯字或真的是不同版本的
  * 那種，本來就需要人看一眼。
  *
- * 仍然要驗一次編號存不存在：前端送來的東西不能直接寫進使用者的 Sheet。
+ * 仍然要驗一次編號存不存在：前端送來的東西不能直接寫進資料庫。
  */
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.accessToken) {
+  if (!session?.user) {
     return NextResponse.json({ error: "請先登入" }, { status: 401 });
   }
 

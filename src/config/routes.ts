@@ -68,11 +68,11 @@ export const keywordEditHref = (name: string, from?: string): string => {
   return from ? `${base}?from=${encodeURIComponent(from)}` : base;
 };
 
-type SettingsTab = "connect" | "categories" | "maintenance" | "account";
+type SettingsTab = "categories" | "maintenance" | "account";
 
 /** 設定的分頁走網址，側欄那顆頭像才指得進「帳號」 */
 export const settingsTabHref = (tab: SettingsTab): string => {
-  return tab === "connect" ? "/settings" : `/settings?tab=${tab}`;
+  return tab === "categories" ? "/settings" : `/settings?tab=${tab}`;
 };
 
 type WritingSource = {

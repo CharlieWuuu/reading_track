@@ -10,7 +10,7 @@ import * as articleMutations from "@/lib/db/mutations/articles";
 import * as bookMutations from "@/lib/db/mutations/books";
 import * as writingMutations from "@/lib/db/mutations/writings";
 
-vi.mock("@/lib/auth", () => ({ auth: vi.fn(async () => ({ accessToken: "fake-token" })) }));
+vi.mock("@/lib/auth", () => ({ auth: vi.fn(async () => ({ user: { name: "測試" } })) }));
 
 vi.mock("@/lib/db/queries/books", () => ({
   listBooks: vi.fn(async () => [{ id: "從 listBooks 來的" }]),
