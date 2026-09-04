@@ -296,8 +296,9 @@ export function BookForm({
         </p>
       )}
 
-      {/* 欄位一路往下排；桌機在這層捲，手機不自己捲，跟著整頁捲 */}
-      <div className="flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
+      {/* 欄位一路往下排；桌機在這層捲，手機不自己捲，跟著整頁捲。
+          gap 比組內的大一階，兩組之間才分得開 */}
+      <div className="flex flex-col gap-6 md:min-h-0 md:flex-1 md:overflow-y-auto">
         <TabPanel active={tab === "book"}>
           {/* 自己認得的那幾欄先來：書名獨佔一行，其餘兩兩成對 */}
           <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3">
@@ -329,71 +330,73 @@ export function BookForm({
             <Field label="來源網址" value={form.sourceUrl} onChange={(v) => set("sourceUrl", v)} />
           </div>
 
-          {/* 標記不值得自己一頁：它跟上面一樣是填表，只是填的是自己的看法 */}
-          <GroupTitle>標記</GroupTitle>
-          {/* 六個標記三三一行：日期跟平台是「這次怎麼讀的」，下一排才是分類 */}
-          <Section triples>
-            <Field
-              label="開始日期"
-              type="date"
-              value={form.startDate}
-              onChange={(v) => set("startDate", v)}
-            />
-            <Field
-              label="完成日期"
-              type="date"
-              value={form.endDate}
-              onChange={(v) => set("endDate", v)}
-            />
+          {/* 標記不值得自己一頁：它跟上面一樣是填表，只是填的是自己的看法。
+              小標跟它管的欄位包在一起，DOM 上就看得出是同一組 */}
+          <div className="flex min-h-0 shrink-0 flex-col gap-3">
+            <GroupTitle>標記</GroupTitle>
 
-            {/* 平台是「我在哪讀的」，跟書本身無關，所以跟其他自訂分類放一起 */}
-            <CategorySelect
-              label="平台"
-              categoryKey="platform"
-              value={form.platform}
-              onChange={(v) => set("platform", v)}
-            />
+            {/* 三個一行：兩排欄位，最後一排是私人與關鍵字 */}
+            <Section triples>
+              <Field
+                label="開始日期"
+                type="date"
+                value={form.startDate}
+                onChange={(v) => set("startDate", v)}
+              />
+              <Field
+                label="完成日期"
+                type="date"
+                value={form.endDate}
+                onChange={(v) => set("endDate", v)}
+              />
 
-            {/* 領域改成單選：它問的是「為什麼讀這本書」，一本書只會有一個答案 */}
-            <CategorySelect
-              label="領域"
-              categoryKey="domain"
-              value={form.domain}
-              onChange={(v) => set("domain", v)}
-            />
-            <CategorySelect
-              label="次領域"
-              categoryKey="subDomain"
-              value={form.subDomain}
-              onChange={(v) => set("subDomain", v)}
-              parentValue={form.domain}
-            />
-            <CategorySelect
-              label="屬性"
-              categoryKey="type"
-              value={form.type}
-              onChange={(v) => set("type", v)}
-              multiple
-            />
-          </Section>
+              {/* 平台是「我在哪讀的」，跟書本身無關，所以跟其他自訂分類放一起 */}
+              <CategorySelect
+                label="平台"
+                categoryKey="platform"
+                value={form.platform}
+                onChange={(v) => set("platform", v)}
+              />
 
-          {/* 私人跟關鍵字並排：兩個都是自己貼上去的標記，只是一個是開關、一個是標籤。
-              關鍵字會塞很多個，佔兩欄 */}
-          <div className="grid min-h-0 shrink-0 grid-cols-3 content-start gap-3">
-            <PrivateToggle value={form.private} onChange={(v) => set("private", v)} />
-
-            <div className="col-span-2 min-w-0">
-              <OptionSelect
-                label="關鍵字"
-                options={keywordSuggestions}
-                value={form.keywords}
-                onChange={(v) => set("keywords", v)}
-                onEditOption={openKeyword}
-                placeholder="一個一組：地名、人名、事件、專有名詞"
-                separator={"\n"}
+              {/* 領域改成單選：它問的是「為什麼讀這本書」，一本書只會有一個答案 */}
+              <CategorySelect
+                label="領域"
+                categoryKey="domain"
+                value={form.domain}
+                onChange={(v) => set("domain", v)}
+              />
+              <CategorySelect
+                label="次領域"
+                categoryKey="subDomain"
+                value={form.subDomain}
+                onChange={(v) => set("subDomain", v)}
+                parentValue={form.domain}
+              />
+              <CategorySelect
+                label="屬性"
+                categoryKey="type"
+                value={form.type}
+                onChange={(v) => set("type", v)}
                 multiple
               />
-            </div>
+
+              {/* 私人跟關鍵字都是自己貼上去的標記，只是一個是開關、一個是標籤；
+                  關鍵字會塞很多個，佔兩欄 */}
+              <PrivateToggle value={form.private} onChange={(v) => set("private", v)} />
+
+              <div className="col-span-2 min-w-0">
+                <OptionSelect
+                  label="關鍵字"
+                  options={keywordSuggestions}
+                  value={form.keywords}
+                  onChange={(v) => set("keywords", v)}
+                  onEditOption={openKeyword}
+                  placeholder="一個一組：地名、人名、事件、專有名詞"
+                  separator={"\n"}
+                  multiple
+                />
+              </div>
+            </Section>
           </div>
         </TabPanel>
 
