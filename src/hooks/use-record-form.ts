@@ -7,27 +7,18 @@ import { useAutoSave } from "@/hooks/use-auto-save";
 import { useSheetStore } from "@/stores/use-sheet-store";
 
 type RecordFormOptions<P> = {
-  /** API 路徑上的那一段，例如 "books"；body 的鍵由 ITEM_KEYS 推出來，不用另外傳 */
-  resource: Resource;
-  /** 編輯既有的那一筆時給編號；新增時是空字串 */
-  existingId: string;
-  /** 現在這一刻要送出去的內容 */
+  resource: Resource; // API 路徑上的那一段，例如 "books"
+  existingId: string; // 新增時是空字串
   payload: P;
-  /** 存完之後要去哪 */
-  redirectTo: string;
-  /** 這一筆的編輯頁；用 config/routes 的那幾支，不要拿 resource 去拼——頁面路徑跟 API 路徑是兩套 */
-  editHref: (id: string) => string;
-  /** 刪完之後要去哪；書籍存完是回它的詳細頁，但那一頁已經沒了，所以要回清單 */
-  deleteRedirectTo?: string;
-  /** 重新抓清單；刪除時可以傳自己的更新函式，見 mutateOnDelete */
+  redirectTo: string; // 刪完之後要去哪
+  editHref: (id: string) => string; // 用 config/routes 的，頁面路徑跟 API 路徑是兩套
+  deleteRedirectTo?: string; // 刪完不能回這一筆的詳細頁，那一頁已經沒了
   mutate: () => Promise<unknown>;
-  /** 沒填必填欄位時回一句話，回了就不送出 */
-  validate: () => string | undefined;
-  /** 存好之後還要寫別的東西（書籍的佳句與單字靠書籍編號認人，得等書存完） */
-  onSaved?: (id: string) => Promise<void>;
+  validate: () => string | undefined; // 回一句話就不送出
+  onSaved?: (id: string) => Promise<void>; // 佳句與單字靠編號認人，得等這一筆存完
 };
 
-/** 自動存檔沒看回應的話，POST 失敗會被當成成功，之後就一直 PATCH 一個不存在的編號 */
+/** 自動存檔不看回應，POST 失敗會被當成成功，之後一直 PATCH 不存在的編號 */
 const failIfNotOk = (message: string, mutate: () => Promise<unknown>) => async (res: Response) => {
   if (!res.ok) throw new Error(message);
   return mutate();
@@ -36,12 +27,7 @@ const failIfNotOk = (message: string, mutate: () => Promise<unknown>) => async (
 /**
  * 書籍、文章、書寫三張表單共用的存檔骨架。
  *
- * 三張表本來各寫一份一模一樣的東西：驗證、POST 或 PATCH、重抓清單、跳回列表、
- * 出錯時把訊息放在同一個地方、刪除前先標記不要被自動存檔救回來。差別只有
- * 「叫什麼名字」跟「存完要不要多寫幾列」。
- *
- * 自動存檔包在裡面：新增頁自動存過一次就記住編號，按下儲存時會認得那個編號，
- * 所以是改同一筆而不是再開一筆。
+ * 自動存檔包在裡面：新增頁自動存過一次就記住編號，按下儲存是改同一筆，不會變兩筆。
  */
 export function useRecordForm<P>({
   resource,
@@ -95,7 +81,7 @@ export function useRecordForm<P>({
     setSubmitting(true);
     setError("");
     try {
-      // 自動存檔可能已經先建好這一筆了，那按下儲存就是改它，不是再開一筆
+      // 自動存檔可能已經建好這一筆，那按下儲存是改它
       const id = existingId || autoSave.savedIdRef.current || autoSave.newId;
       const isNew = !existingId && !autoSave.savedIdRef.current;
       const res = isNew
@@ -115,7 +101,7 @@ export function useRecordForm<P>({
       await onSaved?.(id);
       autoSave.markSaved(payload, id);
       await mutate();
-      router.push(redirectTo);
+      router.back(); // 存完就是離開，跟按返回鍵同一件事
     } catch (err) {
       setError(err instanceof Error ? err.message : "儲存失敗");
     } finally {
@@ -125,8 +111,7 @@ export function useRecordForm<P>({
 
   async function handleDelete() {
     if (!existingId || !sheetId) return;
-    // 刪完會離開這一頁，卸載時的自動存檔不能把它救回來
-    autoSave.markDeleted();
+    autoSave.markDeleted(); // 不然卸載時的自動存檔會把它救回來
 
     setSubmitting(true);
     setError("");
@@ -148,10 +133,9 @@ export function useRecordForm<P>({
   }
 
   /**
-   * 點關鍵字跳到那個字的編輯頁。
+   * 先讓這一筆落地，再跳去別頁。
    *
-   * 從「新增」跳走時先讓這一筆落地，並把網址換成它的編輯頁——
-   * 不然按上一頁會回到空的新增頁，再存一次就變成兩筆。
+   * 從「新增」跳走時網址要換成編輯頁，不然按上一頁會回到空的新增頁，再存一次就兩筆。
    */
   async function openRecordThen(go: (backHref: string) => void, fallbackHref: string) {
     const isNew = !existingId && !autoSave.savedIdRef.current;
