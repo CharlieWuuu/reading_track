@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import useSWR from "swr";
 import { readCached } from "@/lib/swr-cache";
 import { usePrivacyStore } from "@/stores/use-privacy-store";
-import { useSheetStore } from "@/stores/use-sheet-store";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 
 type Records = { vocabulary: VocabularyRow[]; quotes: QuoteRow[] };
@@ -18,12 +17,9 @@ async function fetcher(url: string): Promise<Records> {
 
 /** 單字與佳句各自一張表，一起讀：它們總是一起顯示，分兩次抓只是多一趟往返 */
 export function useRecords() {
-  const { sheetId } = useSheetStore();
   // 佳句、單字跟著它那本書的私人設定，所以也要帶解鎖權杖
   const unlock = usePrivacyStore((s) => s.token);
-  const key = sheetId
-    ? `/api/records?sheetId=${encodeURIComponent(sheetId)}${unlock ? `&unlock=${unlock}` : ""}`
-    : null;
+  const key = `/api/records${unlock ? `?unlock=${unlock}` : ""}`;
 
   // 綁在 key 上：readCached 是在 render 當中被呼叫的，每次都重讀一次舊快取
   const fallbackData = useMemo(() => readCached<Records>(key), [key]);
@@ -39,11 +35,10 @@ export function useRecords() {
     bookTitle: string,
     rows: VocabularyRow[] | QuoteRow[],
   ) {
-    if (!sheetId) throw new Error("請先連接 Google Sheet");
     const res = await fetch("/api/records", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sheetId, kind, bookId, bookTitle, rows }),
+      body: JSON.stringify({ kind, bookId, rows }),
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));

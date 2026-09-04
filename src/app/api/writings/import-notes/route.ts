@@ -1,6 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { addWritingRows, listArticles, listBooks, listWritings } from "@/lib/sheets";
+import { addWritingRows } from "@/lib/db/mutations/writings";
+import { listArticles } from "@/lib/db/queries/articles";
+import { listBooks } from "@/lib/db/queries/books";
+import { listWritings } from "@/lib/db/queries/writings";
 import { Writing } from "@/types/writing";
 
 /**
@@ -9,11 +12,11 @@ import { Writing } from "@/types/writing";
  * 刻意不動原本那一欄——搬錯了才有得回頭。已經搬過的靠「延伸自編號」認出來，
  * 按第二次不會重複搬。
  */
-async function collect(sheetId: string, accessToken: string) {
+async function collect() {
   const [books, articles, writings] = await Promise.all([
-    listBooks(sheetId, accessToken),
-    listArticles(sheetId, accessToken),
-    listWritings(sheetId, accessToken),
+    listBooks(),
+    listArticles(),
+    listWritings(),
   ]);
 
   const migrated = new Set(writings.map((e) => e.sourceId).filter(Boolean));
@@ -57,32 +60,26 @@ async function requireSession() {
 }
 
 /** 預覽會搬幾筆，不寫入 */
-export async function GET(req: NextRequest) {
+export async function GET() {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: "請先登入" }, { status: 401 });
 
-  const sheetId = req.nextUrl.searchParams.get("sheetId");
-  if (!sheetId) return NextResponse.json({ error: "缺少 Sheet ID" }, { status: 400 });
-
   try {
-    const pending = await collect(sheetId, session.accessToken!);
+    const pending = await collect();
     return NextResponse.json({ pending: pending.length, titles: pending.map((e) => e.title) });
   } catch (err) {
     console.error("import-notes preview failed:", err);
-    return NextResponse.json({ error: "讀取 Sheet 失敗" }, { status: 502 });
+    return NextResponse.json({ error: "讀取失敗" }, { status: 502 });
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: "請先登入" }, { status: 401 });
 
-  const { sheetId } = (await req.json()) as { sheetId: string };
-  if (!sheetId) return NextResponse.json({ error: "缺少 Sheet ID" }, { status: 400 });
-
   try {
-    const pending = await collect(sheetId, session.accessToken!);
-    await addWritingRows(sheetId, session.accessToken!, pending);
+    const pending = await collect();
+    await addWritingRows(pending);
     return NextResponse.json({ migrated: pending.length });
   } catch (err) {
     console.error("import-notes failed:", err);

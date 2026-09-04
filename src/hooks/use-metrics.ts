@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import useSWR from "swr";
 import { readCached } from "@/lib/swr-cache";
-import { useSheetStore } from "@/stores/use-sheet-store";
 import { Metric } from "@/types/metric";
 
 async function fetcher(url: string): Promise<{ metrics: Metric[] }> {
@@ -12,8 +11,7 @@ async function fetcher(url: string): Promise<{ metrics: Metric[] }> {
 }
 
 export function useMetrics() {
-  const { sheetId } = useSheetStore();
-  const key = sheetId ? `/api/metrics?sheetId=${encodeURIComponent(sheetId)}` : null;
+  const key = "/api/metrics";
 
   const { data, error, isLoading, mutate } = useSWR(key, fetcher, {
     fallbackData: readCached<{ metrics: Metric[] }>(key),

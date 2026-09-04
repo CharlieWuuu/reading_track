@@ -6,19 +6,19 @@ vi.mock("@/lib/auth", () => ({
   auth: vi.fn(async () => ({ accessToken: "fake-token" })),
 }));
 
-// GET 一定會去讀設定分頁（私人類型清單鎖著的時候正是要用它）
-vi.mock("@/lib/sheets", () => ({
+// GET 一定會讀私人清單：鎖著的時候正是要用它過濾
+vi.mock("@/lib/db/queries/settings", () => ({
   readPrivacySettings: vi.fn(async () => ({
     stored: "",
     privateKinds: ["日記"],
-    privateTypes: ["工作"],
+    privateTypes: ["政治"],
+    privateKeywords: ["祕密"],
   })),
 }));
 
-type Row = { id: string; private?: string; kind?: string; type?: string };
+type Row = { id: string; private?: string; kind?: string; domain?: string; keywords?: string };
 
-const SHEET = "sheet-1";
-const url = () => `http://localhost/api/books?sheetId=${SHEET}`;
+const url = () => "http://localhost/api/books";
 const post = (body: string) => new NextRequest(url(), { method: "POST", body });
 
 /** rows 給陣列就正常回傳，給函式就讓它拋 */
@@ -40,16 +40,16 @@ describe("POST 的鍵名接線", () => {
     const { add, route } = build();
     const book: Row = { id: "b1" };
 
-    const res = await route.POST(post(JSON.stringify({ sheetId: SHEET, book })));
+    const res = await route.POST(post(JSON.stringify({ book })));
 
     expect(res.status).toBe(200);
-    expect(add).toHaveBeenCalledWith(SHEET, "fake-token", book);
+    expect(add).toHaveBeenCalledWith(book);
   });
 
   it("body 裡沒有 book 就回 400，不去碰 Sheet", async () => {
     const { add, route } = build();
 
-    const res = await route.POST(post(JSON.stringify({ sheetId: SHEET })));
+    const res = await route.POST(post(JSON.stringify({})));
 
     expect(res.status).toBe(400);
     expect(add).not.toHaveBeenCalled();
@@ -82,18 +82,29 @@ describe("GET", () => {
     expect(await res.json()).toEqual({ books: [{ id: "b1" }] });
   });
 
-  it("屬性在私人清單裡的那筆也不會離開伺服器", async () => {
+  it("類型標了私人的那筆也不會離開伺服器", async () => {
     const { route } = build([
-      { id: "b1", type: "閒書" },
-      { id: "b2", type: "工作" },
+      { id: "b1", domain: "文學" },
+      { id: "b2", domain: "政治" },
     ]);
 
     const res = await route.GET(new NextRequest(url()));
 
-    expect(await res.json()).toEqual({ books: [{ id: "b1", type: "閒書" }] });
+    expect(await res.json()).toEqual({ books: [{ id: "b1", domain: "文學" }] });
   });
 
-  it("類型在私人清單裡的那筆也不會離開伺服器", async () => {
+  it("掛了私人關鍵字的那筆也不會離開伺服器", async () => {
+    const { route } = build([
+      { id: "b1", keywords: "東京" },
+      { id: "b2", keywords: "東京\n祕密" },
+    ]);
+
+    const res = await route.GET(new NextRequest(url()));
+
+    expect(await res.json()).toEqual({ books: [{ id: "b1", keywords: "東京" }] });
+  });
+
+  it("書寫的類型標了私人的那筆也不會離開伺服器", async () => {
     const { route } = build([
       { id: "b1", kind: "書籍" },
       { id: "b2", kind: "日記" },

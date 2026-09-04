@@ -19,7 +19,6 @@ import { useRecordForm } from "@/hooks/use-record-form";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useWritings } from "@/hooks/use-writings";
 import { useCurrentHref } from "@/lib/keywords/href";
-import { useSheetStore } from "@/stores/use-sheet-store";
 import { splitLines } from "@/types/book";
 import { Writing } from "@/types/writing";
 import { fromDateTimeInput, now, toDateTimeInput } from "@/utils/date";
@@ -73,7 +72,6 @@ function toForm(entry: Writing | undefined, prefill: Partial<FormState>): FormSt
 export function WritingForm({ entry }: { entry?: Writing }) {
   const router = useRouter();
   const from = useCurrentHref();
-  const { sheetId } = useSheetStore();
   const { writings, mutate } = useWritings();
   const { tab, setTab } = useWritingsFormTab();
   const isEdit = Boolean(entry);
@@ -134,7 +132,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
    * 要有紀事編號才掛得上去，所以只有存過的那則才抓得動。
    */
   async function handleFetchStats() {
-    if (!entry || !sheetId) return;
+    if (!entry) return;
     const url = form.link.trim();
     if (!url) {
       setStatsNote("請先填來源網址");
@@ -155,7 +153,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
         views: stats.views,
         reads: stats.reads,
       };
-      await saveMetric(sheetId, metric);
+      await saveMetric(metric);
 
       await mutateMetrics();
       setStatsNote(

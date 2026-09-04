@@ -7,7 +7,6 @@ import { Dialog } from "@/components/ui/dialog";
 import { submitPasscode } from "@/features/settings/api/privacy";
 import { clearSWRCache } from "@/lib/swr-cache";
 import { usePrivacyStore } from "@/stores/use-privacy-store";
-import { useSheetStore } from "@/stores/use-sheet-store";
 
 const styles = {
   button:
@@ -29,7 +28,6 @@ const styles = {
  * 那些書、文章、書寫在這個瀏覽器裡不存在——統計、月曆、關鍵字也一起乾淨。
  */
 export function PrivacyButton() {
-  const { sheetId } = useSheetStore();
   const { token, unlock, lock } = usePrivacyStore();
   const { mutate } = useSWRConfig();
   const [open, setOpen] = useState(false);
@@ -58,16 +56,10 @@ export function PrivacyButton() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!sheetId) {
-      setError("請先到「設定」頁面連接 Google Sheet");
-      return;
-    }
-
     setBusy(true);
     setError("");
     try {
       const data = await submitPasscode({
-        sheetId,
         action: setting ? "set" : "verify",
         passcode,
         current,

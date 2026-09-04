@@ -20,11 +20,11 @@ export type EnrichResult = {
  * 一次跑不完會回 nextAfter，帶著它再呼叫一次就從那裡接下去——
  * route 有 30 秒上限，書多的時候一定會中斷。
  */
-export async function enrichBooks(sheetId: string, after: string | null): Promise<EnrichResult> {
+export async function enrichBooks(after: string | null): Promise<EnrichResult> {
   const res = await fetch("/api/books/enrich", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sheetId, after }),
+    body: JSON.stringify({ after }),
   });
   const data = await res.json();
   if (!res.ok) {

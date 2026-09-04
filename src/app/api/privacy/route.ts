@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PRIVACY_SETTING_KEY } from "@/config/sheet-format";
 import { auth } from "@/lib/auth";
-import { readSetting, writeSetting } from "@/lib/sheets";
+import { readSetting, writeSetting } from "@/lib/db/queries/settings";
 import { isUnlocked, passcodeToToken, tokenToStored } from "@/utils/privacy";
 
 async function requireSession() {
@@ -11,19 +11,16 @@ async function requireSession() {
 }
 
 /** 有沒有設過密碼。前端靠它決定要問密碼還是請你先設一個 */
-export async function GET(req: NextRequest) {
+export async function GET() {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: "請先登入" }, { status: 401 });
 
-  const sheetId = req.nextUrl.searchParams.get("sheetId");
-  if (!sheetId) return NextResponse.json({ error: "缺少 Sheet ID" }, { status: 400 });
-
   try {
-    const stored = await readSetting(sheetId, session.accessToken!, PRIVACY_SETTING_KEY);
+    const stored = await readSetting(PRIVACY_SETTING_KEY);
     return NextResponse.json({ hasPasscode: Boolean(stored) });
   } catch (err) {
     console.error("readSetting failed:", err);
-    return NextResponse.json({ error: "讀取 Sheet 失敗" }, { status: 502 });
+    return NextResponse.json({ error: "讀取失敗" }, { status: 502 });
   }
 }
 
@@ -35,18 +32,17 @@ export async function POST(req: NextRequest) {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: "請先登入" }, { status: 401 });
 
-  const { sheetId, action, passcode, current } = (await req.json()) as {
-    sheetId?: string;
+  const { action, passcode, current } = (await req.json()) as {
     action?: "set" | "verify";
     passcode?: string;
     current?: string;
   };
-  if (!sheetId || !action || !passcode?.trim()) {
+  if (!action || !passcode?.trim()) {
     return NextResponse.json({ error: "缺少必要欄位" }, { status: 400 });
   }
 
   try {
-    const stored = await readSetting(sheetId, session.accessToken!, PRIVACY_SETTING_KEY);
+    const stored = await readSetting(PRIVACY_SETTING_KEY);
     const token = passcodeToToken(passcode);
 
     if (action === "verify") {
@@ -60,11 +56,11 @@ export async function POST(req: NextRequest) {
     if (stored && !isUnlocked(passcodeToToken(current ?? ""), stored)) {
       return NextResponse.json({ error: "原本的密碼不對" }, { status: 403 });
     }
-    await writeSetting(sheetId, session.accessToken!, PRIVACY_SETTING_KEY, tokenToStored(token));
+    await writeSetting(PRIVACY_SETTING_KEY, tokenToStored(token));
     return NextResponse.json({ token });
   } catch (err) {
     console.error("privacy update failed:", err);
-    return NextResponse.json({ error: "寫入 Sheet 失敗" }, { status: 502 });
+    return NextResponse.json({ error: "寫入失敗" }, { status: 502 });
   }
 }
 

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { importNotes, previewImportNotes } from "@/features/settings/api/import-notes";
 import { useWritings } from "@/hooks/use-writings";
-import { useSheetStore } from "@/stores/use-sheet-store";
 
 const styles = {
   wrap: "flex flex-col gap-2",
@@ -22,7 +21,6 @@ const styles = {
  * 按第二次不會重複搬。
  */
 export function ImportNotesButton() {
-  const { sheetId } = useSheetStore();
   const { mutate } = useWritings();
   const [pending, setPending] = useState<{ count: number; titles: string[] } | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
@@ -30,9 +28,8 @@ export function ImportNotesButton() {
 
   // 先看會搬幾筆再決定要不要按，不要按下去才知道
   useEffect(() => {
-    if (!sheetId) return;
     let cancelled = false;
-    previewImportNotes(sheetId)
+    previewImportNotes()
       .then((preview) => {
         if (cancelled || !preview) return;
         setPending({ count: preview.pending, titles: preview.titles });
@@ -41,15 +38,13 @@ export function ImportNotesButton() {
     return () => {
       cancelled = true;
     };
-  }, [sheetId, status]);
-
-  if (!sheetId) return null;
+  }, [status]);
 
   async function handleClick() {
     setStatus("loading");
     setMessage("");
     try {
-      const data = await importNotes(sheetId);
+      const data = await importNotes();
 
       await mutate();
       setStatus("done");

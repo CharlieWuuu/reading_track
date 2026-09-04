@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { bulkUpdateBooks, listBooks } from "@/lib/sheets";
+import { linkReread } from "@/lib/db/mutations/books";
+import { listBooks } from "@/lib/db/queries/books";
 import { Book } from "@/types/book";
 
 export const maxDuration = 30;
@@ -20,21 +21,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "請先登入" }, { status: 401 });
   }
 
-  const { sheetId, links } = (await req.json()) as {
-    sheetId?: string;
-    links?: Record<string, string>;
-  };
-  if (!sheetId) return NextResponse.json({ error: "缺少 Sheet ID" }, { status: 400 });
+  const { links } = (await req.json()) as { links?: Record<string, string> };
   if (!links || Object.keys(links).length === 0) {
     return NextResponse.json({ error: "沒有要連結的列" }, { status: 400 });
   }
 
   let books: Book[];
   try {
-    books = await listBooks(sheetId, session.accessToken);
+    books = await listBooks();
   } catch (err) {
-    console.error("link-rereads: 讀取 Sheet 失敗", err);
-    return NextResponse.json({ error: "讀取 Sheet 失敗" }, { status: 502 });
+    console.error("link-rereads: 讀取失敗", err);
+    return NextResponse.json({ error: "讀取失敗" }, { status: 502 });
   }
 
   const ids = new Set(books.map((b) => b.id));
@@ -50,12 +47,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "沒有對得上的列" }, { status: 400 });
   }
 
+  let linked = 0;
   try {
-    await bulkUpdateBooks(sheetId, session.accessToken, patches);
+    for (const [id, patch] of patches) {
+      if (await linkReread(id, patch.originId!)) linked++;
+    }
   } catch (err) {
-    console.error("link-rereads: 寫回 Sheet 失敗", err);
-    return NextResponse.json({ error: "寫回 Sheet 失敗，請稍後再試" }, { status: 502 });
+    console.error("link-rereads: 寫回失敗", err);
+    return NextResponse.json({ error: "寫回失敗，請稍後再試" }, { status: 502 });
   }
 
-  return NextResponse.json({ linked: patches.size });
+  return NextResponse.json({ linked });
 }

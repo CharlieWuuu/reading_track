@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ITEM_KEYS, Resource } from "@/config/item-keys";
 import { useAutoSave } from "@/hooks/use-auto-save";
-import { useSheetStore } from "@/stores/use-sheet-store";
 
 type RecordFormOptions<P> = {
   resource: Resource; // API 路徑上的那一段，例如 "books"
@@ -42,26 +41,25 @@ export function useRecordForm<P>({
 }: RecordFormOptions<P>) {
   const bodyKey = ITEM_KEYS[resource];
   const router = useRouter();
-  const { sheetId } = useSheetStore();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   const autoSave = useAutoSave({
-    ready: Boolean(sheetId && !validate()),
+    ready: !validate(),
     existingId,
     payload,
     create: (id, body) =>
       fetch(`/api/${resource}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sheetId, [bodyKey]: { id, ...body } }),
+        body: JSON.stringify({ [bodyKey]: { id, ...body } }),
         keepalive: true,
       }).then(failIfNotOk("自動存檔失敗", mutate)),
     update: (id, body) =>
       fetch(`/api/${resource}/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sheetId, patch: body }),
+        body: JSON.stringify({ patch: body }),
         keepalive: true,
       }).then(failIfNotOk("自動存檔失敗", mutate)),
   });
@@ -73,11 +71,6 @@ export function useRecordForm<P>({
       setError(problem);
       return;
     }
-    if (!sheetId) {
-      setError("請先到「設定」頁面連接 Google Sheet");
-      return;
-    }
-
     setSubmitting(true);
     setError("");
     try {
@@ -88,12 +81,12 @@ export function useRecordForm<P>({
         ? await fetch(`/api/${resource}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sheetId, [bodyKey]: { id, ...payload } }),
+            body: JSON.stringify({ [bodyKey]: { id, ...payload } }),
           })
         : await fetch(`/api/${resource}/${id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sheetId, patch: payload }),
+            body: JSON.stringify({ patch: payload }),
           });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "儲存失敗");
@@ -110,16 +103,13 @@ export function useRecordForm<P>({
   }
 
   async function handleDelete() {
-    if (!existingId || !sheetId) return;
+    if (!existingId) return;
     autoSave.markDeleted(); // 不然卸載時的自動存檔會把它救回來
 
     setSubmitting(true);
     setError("");
     try {
-      const res = await fetch(
-        `/api/${resource}/${existingId}?sheetId=${encodeURIComponent(sheetId)}`,
-        { method: "DELETE" },
-      );
+      const res = await fetch(`/api/${resource}/${existingId}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error ?? "刪除失敗");

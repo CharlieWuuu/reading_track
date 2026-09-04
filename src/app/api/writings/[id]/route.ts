@@ -1,5 +1,5 @@
 import { createItemRoute } from "@/app/api/_lib/item-route";
-import { deleteWritingRow, updateWritingRow } from "@/lib/sheets";
+import { deleteWritingRow, updateWritingRow } from "@/lib/db/mutations/writings";
 
 const route = createItemRoute({
   key: "writings",
