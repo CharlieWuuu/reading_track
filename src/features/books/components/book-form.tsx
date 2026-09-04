@@ -21,7 +21,7 @@ import { FormActions } from "@/components/ui/form-actions";
 import { compactLines, LineListInput } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
-import { bookEditHref, bookHref, keywordEditHref } from "@/config/routes";
+import { bookEditHref, bookHref, keywordEditHref, writingNewHref } from "@/config/routes";
 import { scrapeBook, searchBookByTitle } from "@/features/books/api/lookup-book";
 import { useBookFormTab } from "@/features/books/components/book-form-tabs";
 import { QuoteListInput } from "@/features/books/components/quote-list-input";
@@ -202,6 +202,14 @@ export function BookForm({
       return;
     }
     openRecordThen((back) => router.push(keywordEditHref(name, back)), from);
+  }
+
+  /** 心得寫成一則書寫；先把這本書存完再跳，不讓兩邊的寫入同時打 Sheet */
+  function openWriting(id: string) {
+    openRecordThen(
+      () => router.push(writingNewHref({ sourceId: id, sourceTitle: form.title, kind: "書籍" })),
+      from,
+    );
   }
 
   /**
@@ -412,7 +420,6 @@ export function BookForm({
               <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
                 <Quote size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
                 佳句
-                <span className="text-xs font-normal text-gray-400">點一句可以編輯</span>
               </label>
               <QuoteListInput rows={quoteRows} onChange={setQuoteRows} />
             </div>
@@ -421,7 +428,6 @@ export function BookForm({
               <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
                 <BookOpen size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
                 單字
-                <span className="text-xs font-normal text-gray-400">點一個可以編輯</span>
               </label>
               <VocabularyListInput
                 rows={vocabularyRows}
@@ -434,7 +440,7 @@ export function BookForm({
           <div className="flex min-h-0 flex-col gap-3 sm:flex-row">
             <div className="flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2">
               {isEdit && book ? (
-                <RelatedWriting sourceId={book.id} sourceTitle={form.title} kind="書籍" />
+                <RelatedWriting sourceId={book.id} onWrite={() => openWriting(book.id)} />
               ) : (
                 <p className="rounded-control border border-dashed px-3 py-2 text-xs text-gray-400">
                   存好這本書之後就可以寫心得了
@@ -446,7 +452,6 @@ export function BookForm({
               <label className="flex shrink-0 items-center gap-1.5 text-sm font-medium">
                 <Newspaper size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" />
                 相關文章
-                <span className="text-xs font-normal text-gray-400">一行一個網址</span>
               </label>
               <LineListInput
                 value={form.relatedArticles}

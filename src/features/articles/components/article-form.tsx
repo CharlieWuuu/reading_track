@@ -9,7 +9,7 @@ import { FormActions } from "@/components/ui/form-actions";
 import { compactLines } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
-import { articleEditHref, keywordEditHref } from "@/config/routes";
+import { articleEditHref, keywordEditHref, writingNewHref } from "@/config/routes";
 import { scrapeArticle } from "@/features/articles/api/scrape-article";
 import { useArticleFormTab } from "@/features/articles/components/article-form-tabs";
 import { RelatedWriting } from "@/features/writing/components/related-writings";
@@ -155,6 +155,14 @@ export function ArticleForm({ article }: { article?: Article }) {
     openRecordThen((back) => router.push(keywordEditHref(name, back)), from);
   }
 
+  /** 心得寫成一則書寫；先把這篇文章存完再跳，不讓兩邊的寫入同時打 Sheet */
+  function openWriting(id: string) {
+    openRecordThen(
+      () => router.push(writingNewHref({ sourceId: id, sourceTitle: form.title, kind: "文章" })),
+      from,
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 md:h-full md:min-h-0">
       <div className="flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
@@ -268,7 +276,7 @@ export function ArticleForm({ article }: { article?: Article }) {
         {/* 心得寫成書寫，跟書籍同一套：一篇文章可以有很多則，所以自己一頁 */}
         <TabPanel active={tab === "notes"}>
           {isEdit && article ? (
-            <RelatedWriting sourceId={article.id} sourceTitle={form.title} kind="文章" />
+            <RelatedWriting sourceId={article.id} onWrite={() => openWriting(article.id)} />
           ) : (
             <p className="rounded-control border border-dashed px-3 py-2 text-xs text-gray-400">
               存好這篇文章之後就可以寫心得了
