@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { bulkUpdateBooks } from "@/lib/db/mutations/books";
+import { listBooksWithMeta } from "@/lib/db/queries/books";
 import { fetchBookMetadata, mergeEnrichment, missingFields } from "@/lib/metadata";
-import { bulkUpdateBooks, listBooksWithMeta } from "@/lib/sheets";
 import { Book } from "@/types/book";
 
 // Vercel Hobby 方案上限就是 60 秒；升級到 Pro 可以調到 300
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
   let idsBackfilled: number;
   try {
     // 讀取時會順便把沒有編號的列補上 uuid
-    ({ books, idsBackfilled } = await listBooksWithMeta(sheetId, accessToken));
+    ({ books, idsBackfilled } = await listBooksWithMeta());
   } catch (err) {
     console.error("enrich: 讀取 Sheet 失敗", err);
     return NextResponse.json({ error: "讀取 Sheet 失敗" }, { status: 502 });
@@ -90,12 +91,11 @@ export async function POST(req: NextRequest) {
 
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
-  // 所有異動一次寫回，避免打爆 Google Sheets 的寫入配額
   try {
-    await bulkUpdateBooks(sheetId, accessToken, patches);
+    await bulkUpdateBooks(patches);
   } catch (err) {
-    console.error("enrich: 寫回 Sheet 失敗", err);
-    return NextResponse.json({ error: "寫回 Sheet 失敗，請稍後再試", updated: 0 }, { status: 502 });
+    console.error("enrich: 寫回失敗", err);
+    return NextResponse.json({ error: "寫回失敗，請稍後再試", updated: 0 }, { status: 502 });
   }
 
   const remaining = Math.max(0, candidates.length - (lastAttempted + 1));

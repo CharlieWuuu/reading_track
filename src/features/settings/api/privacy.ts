@@ -5,7 +5,6 @@
  * 都靠它決定要不要把私人的那幾列送出來——過濾一律在伺服器端。
  */
 export async function submitPasscode(input: {
-  sheetId: string;
   /** set＝設定新密碼（要附 current），verify＝解鎖 */
   action: "set" | "verify";
   passcode: string;

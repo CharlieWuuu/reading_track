@@ -1,5 +1,5 @@
 import { Article } from "@/types/article";
-import { Book, splitLines } from "@/types/book";
+import { splitLines } from "@/types/book";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { Writing } from "@/types/writing";
 import { BookGroup } from "./group-books";

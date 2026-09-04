@@ -19,7 +19,6 @@ import { useBooks } from "@/hooks/use-books";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useWritings } from "@/hooks/use-writings";
-import { useSheetStore } from "@/stores/use-sheet-store";
 import { Book, formatCount, splitLines } from "@/types/book";
 import { sameBook } from "@/utils/book-reads";
 import { notesForSource } from "@/utils/related-notes";
@@ -87,7 +86,6 @@ function MyMarks({ book }: { book: Book }) {
 
 export function BookDetailView() {
   const { id } = useParams<{ id: string }>();
-  const { sheetId } = useSheetStore();
   const { books, isLoading, error } = useBooks();
   const { quotes, vocabulary } = useRecords();
   const { writings } = useWritings();
@@ -97,17 +95,20 @@ export function BookDetailView() {
   const backHref = back ? `/reading/books?${back}` : "/reading/books";
   const book = books.find((b) => b.id === id);
 
-  if (!sheetId || isLoading || error || !book) {
+  if (isLoading || error || !book) {
     return (
       <>
         <PageHeader title="書籍資訊" backHref={backHref} />
-        {isLoading && sheetId ? (
-          <PageLoading />
-        ) : (
-          <PageMessage tone={error ? "error" : "muted"}>
-            {!sheetId ? "請先到「設定」頁面連接 Google Sheet" : error || "找不到這本書"}
-          </PageMessage>
-        )}
+        {/* 訊息也走 PageBody：不然它只是頁首下面一個小方塊，跟載入中的位置對不齊 */}
+        <PageBody>
+          {isLoading ? (
+            <PageLoading />
+          ) : (
+            <PageMessage tone={error ? "error" : "muted"} fill>
+              {error || "找不到這本書"}
+            </PageMessage>
+          )}
+        </PageBody>
       </>
     );
   }

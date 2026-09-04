@@ -1,6 +1,7 @@
 import { createCollectionRoute } from "@/app/api/_lib/collection-route";
 import { ITEM_KEYS } from "@/config/item-keys";
-import { addWritingRow, listWritings } from "@/lib/sheets";
+import { addWritingRow } from "@/lib/db/mutations/writings";
+import { listWritings } from "@/lib/db/queries/writings";
 
 const route = createCollectionRoute({
   key: "writings",

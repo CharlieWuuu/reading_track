@@ -22,11 +22,16 @@
 }
 
 /* Tailwind v4 的 border 沒指定顏色時是 currentColor，等於跟著文字變深。
-   全站的框都該是同一條淡棕線，所以把預設值指回 token，光寫 border 就對了 */
-*,
-::before,
-::after {
-  border-color: var(--color-rule);
+   全站的框都該是同一條淡棕線，所以把預設值指回 token，光寫 border 就對了。
+
+   一定要放進 @layer base：不在任何 layer 的規則優先權高過所有 layer，
+   寫在外面的話 border-current 這類 utility 會被它壓掉，指定顏色也不會變 */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-rule);
+  }
 }
 
 html {

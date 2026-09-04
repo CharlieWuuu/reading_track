@@ -7,22 +7,20 @@ import {
   sheetFailure,
   unauthorized,
 } from "@/app/api/_lib/respond";
+import { deleteKeyword, renameKeyword, replaceKeywordInfo } from "@/lib/db/mutations/records";
+import { listKeywords } from "@/lib/db/queries/records";
 import { enrichKeywords } from "@/lib/keywords/enrich";
-import { deleteKeyword, listKeywordInfos, renameKeyword, replaceKeywordInfo } from "@/lib/sheets";
 import { KeywordInfo } from "@/types/keyword";
 
-async function GETHandler(req: NextRequest) {
+async function GETHandler() {
   const session = await requireSession();
   if (!session) return unauthorized();
 
-  const sheetId = req.nextUrl.searchParams.get("sheetId");
-  if (!sheetId) return badRequest("缺少 Sheet ID");
-
   try {
-    const keywords = await listKeywordInfos(sheetId, session.accessToken!);
+    const keywords = await listKeywords();
     return NextResponse.json({ keywords });
   } catch (err) {
-    return sheetFailure("讀取", "listKeywordInfos", err);
+    return sheetFailure("讀取", "listKeywords", err);
   }
 }
 
@@ -32,20 +30,17 @@ async function POSTHandler(req: NextRequest) {
   if (!session) return unauthorized();
 
   const body = await readJsonBody<{
-    sheetId: string;
     names: string[];
     /** true 時連「查過但沒查到」的也重查一次；平常不重查，免得每次都白跑一趟 */
     retry?: boolean;
   }>(req, "enrich keywords");
   if (!body) return badRequest("請求內容不是有效的 JSON");
 
-  const { sheetId, names, retry } = body;
-  if (!sheetId || !Array.isArray(names)) {
-    return badRequest("缺少必要欄位");
-  }
+  const { names, retry } = body;
+  if (!Array.isArray(names)) return badRequest("缺少必要欄位");
 
   try {
-    const result = await enrichKeywords(sheetId, session.accessToken!, names, retry);
+    const result = await enrichKeywords(names, retry);
     return NextResponse.json(result);
   } catch (err) {
     return sheetFailure("補齊", "enrichKeywords", err);
@@ -58,26 +53,22 @@ async function PUTHandler(req: NextRequest) {
   if (!session) return unauthorized();
 
   const body = await readJsonBody<{
-    sheetId: string;
     keyword: KeywordInfo;
     /** 有改名時帶原本的名字進來 */
     previousName?: string;
   }>(req, "replace keyword");
   if (!body) return badRequest("請求內容不是有效的 JSON");
 
-  const { sheetId, keyword, previousName } = body;
-  if (!sheetId || !keyword?.name) {
-    return badRequest("缺少必要欄位");
-  }
+  const { keyword, previousName } = body;
+  if (!keyword?.name) return badRequest("缺少必要欄位");
 
   try {
-    await replaceKeywordInfo(sheetId, session.accessToken!, keyword, previousName);
-
-    // 書籍表用名字指向主檔，改名一定要連帶改寫，不然那些書就對不上了
+    // 改名先做：名字是主鍵，關聯表靠 on update cascade 跟著改
     const renamed =
       previousName && previousName !== keyword.name
-        ? await renameKeyword(sheetId, session.accessToken!, previousName, keyword.name)
+        ? await renameKeyword(previousName, keyword.name)
         : 0;
+    await replaceKeywordInfo(keyword);
 
     return NextResponse.json({ ok: true, renamed });
   } catch (err) {
@@ -89,16 +80,14 @@ async function DELETEHandler(req: NextRequest) {
   const session = await requireSession();
   if (!session) return unauthorized();
 
-  const body = await readJsonBody<{ sheetId: string; name: string }>(req, "delete keyword");
+  const body = await readJsonBody<{ name: string }>(req, "delete keyword");
   if (!body) return badRequest("請求內容不是有效的 JSON");
 
-  const { sheetId, name } = body;
-  if (!sheetId || !name?.trim()) {
-    return badRequest("缺少必要欄位");
-  }
+  const name = body.name?.trim();
+  if (!name) return badRequest("缺少必要欄位");
 
   try {
-    const removed = await deleteKeyword(sheetId, session.accessToken!, name.trim());
+    const removed = await deleteKeyword(name);
     return NextResponse.json({ ok: true, removed });
   } catch (err) {
     return sheetFailure("刪除", "deleteKeyword", err);

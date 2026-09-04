@@ -4,7 +4,11 @@ import { isPrivate, isUnlocked, passcodeToToken, tokenToStored, withPrivacy } fr
 
 resetIds();
 
-const NO_OPTIONS = { kinds: new Set<string>(), types: new Set<string>() };
+const NO_OPTIONS = {
+  kinds: new Set<string>(),
+  types: new Set<string>(),
+  keywords: new Set<string>(),
+};
 const locked = { unlocked: false, options: NO_OPTIONS };
 
 describe("isPrivate", () => {
@@ -28,16 +32,24 @@ describe("isPrivate", () => {
     expect(isPrivate(makeWriting({ kind: "書籍" }), options)).toBe(false);
   });
 
-  it("屬性在清單裡的書也算私人", () => {
-    const options = { ...NO_OPTIONS, types: new Set(["工作"]) };
-    expect(isPrivate(makeBook({ type: "工作" }), options)).toBe(true);
-    expect(isPrivate(makeBook({ type: "閒書" }), options)).toBe(false);
+  it("類型標私人時，書的領域與次領域都算", () => {
+    const options = { ...NO_OPTIONS, types: new Set(["政治"]) };
+    expect(isPrivate(makeBook({ domain: "政治" }), options)).toBe(true);
+    expect(isPrivate(makeBook({ domain: "人文社科", subDomain: "政治" }), options)).toBe(true);
+    expect(isPrivate(makeBook({ domain: "文學" }), options)).toBe(false);
   });
 
-  // 兩張清單各自對到各自的欄位，混用會讓「私人屬性」意外藏掉書寫
-  it("類型清單不會去比對屬性欄", () => {
-    const options = { ...NO_OPTIONS, kinds: new Set(["工作"]) };
-    expect(isPrivate(makeBook({ type: "工作" }), options)).toBe(false);
+  it("掛了私人的關鍵字就算私人，三種紀錄共用同一份", () => {
+    const options = { ...NO_OPTIONS, keywords: new Set(["日記"]) };
+    expect(isPrivate(makeBook({ keywords: "東京\n日記" }), options)).toBe(true);
+    expect(isPrivate(makeWriting({ keywords: "日記" }), options)).toBe(true);
+    expect(isPrivate(makeBook({ keywords: "東京" }), options)).toBe(false);
+  });
+
+  // 兩份清單各自對到各自的欄位，混用會讓書籍的類型意外藏掉書寫
+  it("書寫的類型清單不會去比對書的領域", () => {
+    const options = { ...NO_OPTIONS, kinds: new Set(["政治"]) };
+    expect(isPrivate(makeBook({ domain: "政治" }), options)).toBe(false);
   });
 
   it("空字串的類型不會對上空清單以外的東西", () => {

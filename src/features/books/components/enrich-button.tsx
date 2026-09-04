@@ -3,10 +3,8 @@
 import { useState } from "react";
 import { enrichBooks } from "@/features/books/api/enrich-books";
 import { useBooks } from "@/hooks/use-books";
-import { useSheetStore } from "@/stores/use-sheet-store";
 
 export function EnrichButton() {
-  const { sheetId } = useSheetStore();
   const { mutate } = useBooks();
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -14,14 +12,12 @@ export function EnrichButton() {
   // 上次掃到哪一本，下次從那之後接著跑，避免每次都被同一批查不到的書卡住
   const [after, setAfter] = useState<string | null>(null);
 
-  if (!sheetId) return null;
-
   async function handleClick() {
     setStatus("loading");
     setMessage("");
     setDetails([]);
     try {
-      const data = await enrichBooks(sheetId, after);
+      const data = await enrichBooks(after);
 
       const parts = [`已補齊 ${data.updated} 筆（掃描 ${data.scanned} 筆）`];
       if (data.idsBackfilled > 0) parts.push(`補上 ${data.idsBackfilled} 個編號`);

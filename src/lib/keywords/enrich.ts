@@ -1,5 +1,6 @@
+import { saveKeywordInfos } from "@/lib/db/mutations/records";
+import { listKeywords as listKeywordInfos } from "@/lib/db/queries/records";
 import { lookupKeyword } from "@/lib/keywords/wikipedia";
-import { listKeywordInfos, saveKeywordInfos } from "@/lib/sheets";
 import { KeywordInfo } from "@/types/keyword";
 
 /** 一次補太多會打爆維基也拖垮 request，多的留給下一次 */
@@ -27,13 +28,8 @@ export function pendingNames(names: string[], existing: KeywordInfo[], retry = f
 export type EnrichResult = { added: number; found: number; remaining: number };
 
 /** 把還沒查過的關鍵字查回來寫進主檔，回報這次補了幾個、還剩幾個 */
-export async function enrichKeywords(
-  sheetId: string,
-  accessToken: string,
-  names: string[],
-  retry = false,
-): Promise<EnrichResult> {
-  const existing = await listKeywordInfos(sheetId, accessToken);
+export async function enrichKeywords(names: string[], retry = false): Promise<EnrichResult> {
+  const existing = await listKeywordInfos();
   const pending = pendingNames(names, existing, retry);
 
   const infos: KeywordInfo[] = [];
@@ -44,7 +40,7 @@ export async function enrichKeywords(
     const previous = existing.find((info) => info.name === name);
     infos.push({ ...found, topics: previous?.topics ?? "" });
   }
-  await saveKeywordInfos(sheetId, accessToken, infos);
+  await saveKeywordInfos(infos);
 
   return {
     added: infos.length,

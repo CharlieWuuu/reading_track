@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useBooks } from "@/hooks/use-books";
-import { useSheetStore } from "@/stores/use-sheet-store";
 import { Book } from "@/types/book";
 import {
   findRereadGroups,
@@ -44,7 +43,6 @@ function readLabel(book: Book): string {
  * 一組一個勾：整批同意跟逐組同意的差別，在於錯的那一組要不要連累其他組。
  */
 export function RereadLinker() {
-  const { sheetId } = useSheetStore();
   const { books, mutate } = useBooks();
   const [skipped, setSkipped] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
@@ -64,10 +62,6 @@ export function RereadLinker() {
   }
 
   async function handleSubmit() {
-    if (!sheetId) {
-      setError("請先到「設定」頁面連接 Google Sheet");
-      return;
-    }
     setBusy(true);
     setError("");
     try {
@@ -78,7 +72,7 @@ export function RereadLinker() {
       const res = await fetch("/api/books/link-rereads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sheetId, links }),
+        body: JSON.stringify({ links }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "寫入失敗");

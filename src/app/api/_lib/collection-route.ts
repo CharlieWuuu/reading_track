@@ -19,10 +19,10 @@ export type CollectionRoute = { GET: Handler; POST: Handler };
 type CollectionConfig<T extends Row> = {
   /** 路徑上的那一段，也是回應裡包住資料的鍵：/api/books 回 { books: [...] } */
   key: string;
-  /** POST body 裡包住單筆的鍵，是 key 的單數：{ sheetId, book } */
+  /** POST body 裡包住單筆的鍵，是 key 的單數：{ book } */
   itemKey: string;
-  list: (sheetId: string, accessToken: string) => Promise<T[]>;
-  add: (sheetId: string, accessToken: string, item: T) => Promise<unknown>;
+  list: () => Promise<T[]>;
+  add: (item: T) => Promise<unknown>;
 };
 
 export function createCollectionRoute<T extends Row>(config: CollectionConfig<T>): CollectionRoute {
@@ -32,13 +32,10 @@ export function createCollectionRoute<T extends Row>(config: CollectionConfig<T>
     const session = await requireSession();
     if (!session) return unauthorized();
 
-    const sheetId = req.nextUrl.searchParams.get("sheetId");
-    if (!sheetId) return badRequest("缺少 Sheet ID");
-
     try {
-      const rows = await list(sheetId, session.accessToken!);
+      const rows = await list();
       // 鎖著的時候私人的那幾筆根本不會離開伺服器
-      const privacy = await requestPrivacy(req, sheetId, session.accessToken!);
+      const privacy = await requestPrivacy(req);
       return NextResponse.json({ [key]: withPrivacy(rows, privacy) });
     } catch (err) {
       return sheetFailure("讀取", `list ${key}`, err);
@@ -55,12 +52,11 @@ export function createCollectionRoute<T extends Row>(config: CollectionConfig<T>
     );
     if (!body) return badRequest("請求內容不是有效的 JSON");
 
-    const sheetId = body.sheetId;
     const item = body[itemKey] as T | undefined;
-    if (!sheetId || !item) return badRequest("缺少必要欄位");
+    if (!item) return badRequest("缺少必要欄位");
 
     try {
-      await add(sheetId, session.accessToken!, item);
+      await add(item);
       return NextResponse.json({ ok: true });
     } catch (err) {
       return sheetFailure("寫入", `add ${key}`, err);

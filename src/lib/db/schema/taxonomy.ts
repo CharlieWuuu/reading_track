@@ -38,3 +38,13 @@ export const keywords = pgTable("keywords", {
   summary: text("summary").notNull().default(""),
   isPrivate: boolean("is_private").notNull().default(false),
 });
+
+/**
+ * app 層的小設定。目前只有私人項目的密碼雜湊。
+ *
+ * 放資料庫而不是環境變數，是因為使用者要能在畫面上改密碼——環境變數改不了。
+ */
+export const settings = pgTable("settings", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull().default(""),
+});
