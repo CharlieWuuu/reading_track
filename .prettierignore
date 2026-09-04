@@ -24,3 +24,4 @@ src/styles/generated/
 
 # drizzle 自己維護的狀態檔，格式交給它
 supabase/migrations/meta/
+supabase/.temp/
