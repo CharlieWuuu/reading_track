@@ -53,7 +53,7 @@ type FormState = typeof emptyForm;
 /** 沒選到的分頁留在畫面上但藏起來，切回來時打到一半的內容還在 */
 function TabPanel({ active, children }: { active: boolean; children: React.ReactNode }) {
   return (
-    <div className={`flex-col gap-3 md:min-h-0 md:flex-1 ${active ? "flex" : "hidden"}`}>
+    <div className={`flex-col gap-10 md:min-h-0 md:flex-1 ${active ? "flex" : "hidden"}`}>
       {children}
     </div>
   );
@@ -288,7 +288,7 @@ export function BookForm({
         if (!form.title.trim()) setTab("book");
         handleSubmit(e);
       }}
-      className="flex flex-col gap-3 md:h-full md:min-h-0"
+      className="flex flex-col gap-6 md:h-full md:min-h-0"
     >
       {notice && (
         <p className="rounded-control shrink-0 border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
@@ -296,9 +296,10 @@ export function BookForm({
         </p>
       )}
 
-      {/* 欄位一路往下排；桌機在這層捲，手機不自己捲，跟著整頁捲。
-          gap 比組內的大一階，兩組之間才分得開 */}
-      <div className="flex flex-col gap-6 md:min-h-0 md:flex-1 md:overflow-y-auto">
+      {/* 桌機在這層捲，手機不自己捲，跟著整頁捲。
+          這層的子元素是分頁，同時只有一個看得到，所以不需要 gap——
+          分組之間的距離在 TabPanel 上 */}
+      <div className="flex flex-col md:min-h-0 md:flex-1 md:overflow-y-auto">
         <TabPanel active={tab === "book"}>
           {/* 自己認得的那幾欄先來：書名獨佔一行，其餘兩兩成對 */}
           <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3">

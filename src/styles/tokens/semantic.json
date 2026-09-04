@@ -59,7 +59,12 @@
     "rule-strong": {
       "$value": "{color.sand.800}",
       "$type": "color",
-      "$description": "外殼邊界（側欄、底部導覽）與強調框；純黑改成深棕，跟其餘的框同色系"
+      "$description": "強調框：卡片、搜尋列、次要按鈕。純黑改成深棕，跟其餘的框同色系"
+    },
+    "shell-rule": {
+      "$value": "{color.accent}",
+      "$type": "color",
+      "$description": "外殼邊界（側欄、底部導覽）。用主色的金棕，它畫的是「這裡是外框不是內容」，跟卡片的框不同一回事"
     },
     "grid": {
       "$value": "{color.sand.250}",
