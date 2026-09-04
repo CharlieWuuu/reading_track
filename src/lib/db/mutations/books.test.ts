@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
 import { books, readings } from "@/lib/db/schema/reading";
 import { bookTypes } from "@/lib/db/schema/taxonomy";
-import type { Book } from "@/types/book";
+import { makeBook } from "@/lib/db/test/factories";
 
 // mutations 從模組層拿 db，換成記憶體裡的那份才測得到
 vi.mock("@/lib/db/client", async () => {
@@ -12,34 +12,6 @@ vi.mock("@/lib/db/client", async () => {
 
 const { addBookRow, deleteBookRow, updateBookRow } = await import("./books");
 const { db } = await import("@/lib/db/client");
-
-function makeBook(patch: Partial<Book> = {}): Book {
-  return {
-    id: crypto.randomUUID(),
-    title: "資本論",
-    author: "馬克思",
-    publisher: "",
-    language: "中文",
-    domain: "人文社科",
-    subDomain: "歷史",
-    type: "散文",
-    platform: "",
-    isbn: "",
-    sourceUrl: "",
-    coverUrl: "",
-    pageCount: "",
-    wordCount: "",
-    status: "",
-    startDate: "",
-    endDate: "",
-    keywords: "",
-    private: "",
-    originId: "",
-    note: "",
-    relatedArticles: "",
-    ...patch,
-  } as Book;
-}
 
 describe("addBookRow", () => {
   it("一次閱讀寫成 books 加 readings 兩列", async () => {
