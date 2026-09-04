@@ -5,7 +5,9 @@
 ## 開發
 
 ```bash
-npm run dev   # http://localhost:4173
+npm run dev       # http://localhost:4173
+npm run storybook # 元件目錄，要看的時候才開（http://localhost:6006）
+npm run dev:all   # 兩個一起
 ```
 
 ## Google Sheet 欄位
