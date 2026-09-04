@@ -20,3 +20,12 @@ if (!url) throw new Error("DATABASE_URL 沒設");
 const sql = postgres(url, { prepare: false, max: 1 });
 
 export const db = drizzle(sql);
+
+/**
+ * 交易裡面要用的那個 handle。
+ *
+ * 交易的每一句都必須走它——用外層的 db 等於在交易外面另開一條連線，
+ * 那些語句不會被回滾，而且 max: 1 的時候會直接死鎖（交易佔著唯一那條，
+ * 外層的查詢排隊等它，它又在等查詢）。
+ */
+export type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];

@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { PRIVATE_MARK } from "@/config/privacy";
-import { db } from "@/lib/db/client";
+import { db, type Tx } from "@/lib/db/client";
 import { writingKeywords } from "@/lib/db/schema/keyword-links";
 import { articles, readings } from "@/lib/db/schema/reading";
 import { keywords, writingTypes } from "@/lib/db/schema/taxonomy";
@@ -8,6 +8,7 @@ import { metrics, writings } from "@/lib/db/schema/writing";
 import { splitLines } from "@/types/book";
 import { Metric } from "@/types/metric";
 import { Writing } from "@/types/writing";
+import { toDate } from "./values";
 
 /**
  * 書寫寫回資料表。
@@ -19,11 +20,11 @@ import { Writing } from "@/types/writing";
 
 const SOURCE_KINDS = ["書籍", "文章"];
 
-async function typeIdFor(kind: string): Promise<string | null> {
+async function typeIdFor(tx: Tx, kind: string): Promise<string | null> {
   const name = kind.trim();
   if (!name || SOURCE_KINDS.includes(name)) return null;
 
-  const [row] = await db
+  const [row] = await tx
     .insert(writingTypes)
     .values({ name })
     .onConflictDoUpdate({ target: writingTypes.name, set: { name } })
@@ -48,31 +49,31 @@ async function sourceFor(
   return { bookId: null, articleId: article?.id ?? null };
 }
 
-async function setKeywords(writingId: string, names: string[]): Promise<void> {
+async function setKeywords(tx: Tx, writingId: string, names: string[]): Promise<void> {
   if (names.length)
-    await db
+    await tx
       .insert(keywords)
       .values(names.map((name) => ({ name })))
       .onConflictDoNothing();
-  await db.delete(writingKeywords).where(eq(writingKeywords.writingId, writingId));
+  await tx.delete(writingKeywords).where(eq(writingKeywords.writingId, writingId));
   if (names.length)
-    await db.insert(writingKeywords).values(names.map((keyword) => ({ writingId, keyword })));
+    await tx.insert(writingKeywords).values(names.map((keyword) => ({ writingId, keyword })));
 }
 
 export async function addWritingRow(writing: Writing): Promise<void> {
   const source = await sourceFor(writing.sourceId);
-  await db.transaction(async () => {
-    await db.insert(writings).values({
+  await db.transaction(async (tx) => {
+    await tx.insert(writings).values({
       id: writing.id,
       ...source,
-      typeId: await typeIdFor(writing.kind),
+      typeId: await typeIdFor(tx, writing.kind),
       title: writing.title,
       note: writing.note,
-      date: writing.date,
+      date: toDate(writing.date),
       link: writing.link,
       isPrivate: writing.private === PRIVATE_MARK,
     });
-    await setKeywords(writing.id, splitLines(writing.keywords));
+    await setKeywords(tx, writing.id, splitLines(writing.keywords));
   });
 }
 
@@ -84,16 +85,18 @@ export async function updateWritingRow(id: string, patch: Partial<Writing>): Pro
   const values: Record<string, unknown> = {};
   if (patch.title !== undefined) values.title = patch.title;
   if (patch.note !== undefined) values.note = patch.note;
-  if (patch.date !== undefined) values.date = patch.date;
+  if (patch.date !== undefined) values.date = toDate(patch.date);
   if (patch.link !== undefined) values.link = patch.link;
   if (patch.private !== undefined) values.isPrivate = patch.private === PRIVATE_MARK;
-  if (patch.kind !== undefined) values.typeId = await typeIdFor(patch.kind);
   if (patch.sourceId !== undefined) Object.assign(values, await sourceFor(patch.sourceId));
 
-  await db.transaction(async () => {
+  await db.transaction(async (tx) => {
+    // 類型是 upsert，也就是寫入；跟主體同一個交易才會一起回滾
+    if (patch.kind !== undefined) values.typeId = await typeIdFor(tx, patch.kind);
+
     if (Object.keys(values).length)
-      await db.update(writings).set(values).where(eq(writings.id, id));
-    if (patch.keywords !== undefined) await setKeywords(id, splitLines(patch.keywords));
+      await tx.update(writings).set(values).where(eq(writings.id, id));
+    if (patch.keywords !== undefined) await setKeywords(tx, id, splitLines(patch.keywords));
   });
 }
 
