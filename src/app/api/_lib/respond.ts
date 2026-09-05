@@ -24,8 +24,16 @@ export async function requireSession() {
   return demoViewer();
 }
 
-/** 寫入用。demo 訪客過不了這一關，真的登入才行 */
-export async function requireWriter() {
+/**
+ * 寫入用。demo 站的訪客也能寫——按了有反應才像產品，髒掉的資料每天重置洗掉。
+ *
+ * 只有 enrich 例外：它去打外部 API，不該讓陌生人替你消耗額度，
+ * 那支自己用 requireOwner。
+ */
+export const requireWriter = requireSession;
+
+/** 真的登入才過得了。給會花錢或動到帳號設定的端點 */
+export async function requireOwner() {
   const session = await auth();
   return session?.user?.id ? session : null;
 }
