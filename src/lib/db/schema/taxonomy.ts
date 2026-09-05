@@ -1,4 +1,5 @@
-import { AnyPgColumn, boolean, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { AnyPgColumn, boolean, pgTable, primaryKey, text, unique, uuid } from "drizzle-orm/pg-core";
+import { users } from "./users";
 
 /**
  * 標記類的表。書、文章、書寫都靠這幾張分類。
@@ -10,6 +11,9 @@ import { AnyPgColumn, boolean, pgTable, text, uuid } from "drizzle-orm/pg-core";
 
 /** 書與文章的類型樹。子類型就是子節點，深度不限兩層 */
 export const bookTypes = pgTable("book_types", {
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   id: uuid("id").primaryKey().defaultRandom(),
   parentId: uuid("parent_id").references((): AnyPgColumn => bookTypes.id, { onDelete: "cascade" }), // 刪掉一個類型，底下的子類型跟著走
   name: text("name").notNull(),
@@ -17,17 +21,31 @@ export const bookTypes = pgTable("book_types", {
 });
 
 /** 書寫的類型。平的一層，沒有子類型 */
-export const writingTypes = pgTable("writing_types", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: text("name").notNull().unique(),
-  isPrivate: boolean("is_private").notNull().default(false),
-});
+export const writingTypes = pgTable(
+  "writing_types",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    isPrivate: boolean("is_private").notNull().default(false),
+  },
+  (t) => [unique().on(t.userId, t.name)], // 名字只在同一個人底下唯一
+);
 
 /** 散文、圖文。講形式，書與文章共用，書寫沒有 */
-export const attributes = pgTable("attributes", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: text("name").notNull().unique(),
-});
+export const attributes = pgTable(
+  "attributes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+  },
+  (t) => [unique().on(t.userId, t.name)],
+);
 
 /**
  * 專有名詞。名字就是身分，關聯表用 on update cascade 接改名。
@@ -35,21 +53,35 @@ export const attributes = pgTable("attributes", {
  * 不帶私人旗標：關鍵字是人名、地名、事件，「馬克思」本身不敏感，
  * 敏感的是那本書屬於哪個領域——藏東西一律從領域與類型下手。
  */
-export const keywords = pgTable("keywords", {
-  name: text("name").primaryKey(),
-  topics: text("topics").notNull().default(""), // 維基主題，多個以頓號相接
-  coordinates: text("coordinates").notNull().default(""), // "25.033,121.565"
-  span: text("span").notNull().default(""), // 生卒或起訖
-  wikiUrl: text("wiki_url").notNull().default(""),
-  summary: text("summary").notNull().default(""),
-});
+export const keywords = pgTable(
+  "keywords",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    topics: text("topics").notNull().default(""), // 維基主題，多個以頓號相接
+    coordinates: text("coordinates").notNull().default(""), // "25.033,121.565"
+    span: text("span").notNull().default(""), // 生卒或起訖
+    wikiUrl: text("wiki_url").notNull().default(""),
+    summary: text("summary").notNull().default(""),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.name] })],
+);
 
 /**
  * app 層的小設定。目前只有私人項目的密碼雜湊。
  *
  * 放資料庫而不是環境變數，是因為使用者要能在畫面上改密碼——環境變數改不了。
  */
-export const settings = pgTable("settings", {
-  key: text("key").primaryKey(),
-  value: text("value").notNull().default(""),
-});
+export const settings = pgTable(
+  "settings",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    key: text("key").notNull(),
+    value: text("value").notNull().default(""),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.key] })],
+);

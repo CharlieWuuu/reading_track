@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { boolean, check, date, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { articles, books } from "./reading";
 import { writingTypes } from "./taxonomy";
+import { users } from "./users";
 
 /**
  * 自己寫的東西，以及它的流量。
@@ -12,6 +13,9 @@ import { writingTypes } from "./taxonomy";
 export const writings = pgTable(
   "writings",
   {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
     id: uuid("id").primaryKey().defaultRandom(),
     bookId: uuid("book_id").references(() => books.id, { onDelete: "set null" }),
     articleId: uuid("article_id").references(() => articles.id, { onDelete: "set null" }),
@@ -27,6 +31,9 @@ export const writings = pgTable(
 );
 
 export const metrics = pgTable("metrics", {
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   id: uuid("id").primaryKey().defaultRandom(),
   writingId: uuid("writing_id")
     .notNull()

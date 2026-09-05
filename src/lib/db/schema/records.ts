@@ -1,5 +1,6 @@
 import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { books } from "./reading";
+import { users } from "./users";
 
 /**
  * 讀到的東西：佳句、單字。
@@ -9,6 +10,9 @@ import { books } from "./reading";
  */
 
 export const quotes = pgTable("quotes", {
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   id: uuid("id").primaryKey().defaultRandom(),
   bookId: uuid("book_id").references(() => books.id, { onDelete: "set null" }),
   text: text("text").notNull(),
@@ -18,6 +22,9 @@ export const quotes = pgTable("quotes", {
 });
 
 export const vocabulary = pgTable("vocabulary", {
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   id: uuid("id").primaryKey().defaultRandom(),
   bookId: uuid("book_id").references(() => books.id, { onDelete: "set null" }),
   word: text("word").notNull(),

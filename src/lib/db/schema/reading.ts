@@ -1,5 +1,6 @@
 import { boolean, date, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { attributes, bookTypes } from "./taxonomy";
+import { users } from "./users";
 
 /**
  * 讀的東西：書、讀一次、文章。
@@ -10,6 +11,9 @@ import { attributes, bookTypes } from "./taxonomy";
  */
 
 export const books = pgTable("books", {
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   id: uuid("id").primaryKey().defaultRandom(),
   title: text("title").notNull(),
   author: text("author").notNull().default(""),
@@ -21,6 +25,9 @@ export const books = pgTable("books", {
 
 /** 讀一次。版本資訊掛在這裡，因為紙本與電子書就是不同的一次 */
 export const readings = pgTable("readings", {
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   id: uuid("id").primaryKey().defaultRandom(),
   bookId: uuid("book_id")
     .notNull()
@@ -40,6 +47,9 @@ export const readings = pgTable("readings", {
 });
 
 export const articles = pgTable("articles", {
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   id: uuid("id").primaryKey().defaultRandom(),
   title: text("title").notNull(),
   author: text("author").notNull().default(""),
