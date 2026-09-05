@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { articleKeywords } from "@/lib/db/schema/keyword-links";
 import { articles } from "@/lib/db/schema/reading";
 import { keywords } from "@/lib/db/schema/taxonomy";
+import { seedUser } from "@/lib/db/test/factories";
 import type { Article } from "@/types/article";
 
 vi.mock("@/lib/db/client", async () => {
@@ -12,6 +13,7 @@ vi.mock("@/lib/db/client", async () => {
 
 const { addArticleRow, updateArticleRow, deleteArticleRow } = await import("./articles");
 const { db } = await import("@/lib/db/client");
+const userId = await seedUser(db);
 
 function makeArticle(patch: Partial<Article> = {}): Article {
   return {
@@ -34,7 +36,7 @@ function makeArticle(patch: Partial<Article> = {}): Article {
 describe("addArticleRow", () => {
   it("沒填日期存得進去", async () => {
     const article = makeArticle({ endDate: "" });
-    await addArticleRow(article);
+    await addArticleRow(userId, article);
 
     const [row] = await db.select().from(articles).where(eq(articles.id, article.id));
     expect(row.endDate).toBeNull();
@@ -42,7 +44,7 @@ describe("addArticleRow", () => {
 
   it("關鍵字同時進主檔與關聯表", async () => {
     const article = makeArticle({ keywords: "馬克思\n資本論" });
-    await addArticleRow(article);
+    await addArticleRow(userId, article);
 
     const linked = await db
       .select()
@@ -58,9 +60,9 @@ describe("addArticleRow", () => {
 describe("updateArticleRow", () => {
   it("換一組關鍵字，舊的關聯要清掉", async () => {
     const article = makeArticle({ keywords: "舊字" });
-    await addArticleRow(article);
+    await addArticleRow(userId, article);
 
-    await updateArticleRow(article.id, { keywords: "新字" });
+    await updateArticleRow(userId, article.id, { keywords: "新字" });
 
     const linked = await db
       .select()
@@ -71,9 +73,9 @@ describe("updateArticleRow", () => {
 
   it("日期清空存回 null", async () => {
     const article = makeArticle({ endDate: "2026-02-02" });
-    await addArticleRow(article);
+    await addArticleRow(userId, article);
 
-    await updateArticleRow(article.id, { endDate: "" });
+    await updateArticleRow(userId, article.id, { endDate: "" });
 
     const [row] = await db.select().from(articles).where(eq(articles.id, article.id));
     expect(row.endDate).toBeNull();
@@ -83,9 +85,9 @@ describe("updateArticleRow", () => {
 describe("deleteArticleRow", () => {
   it("刪掉文章，關聯靠 cascade 一起走", async () => {
     const article = makeArticle({ keywords: "會被連帶刪掉的字" });
-    await addArticleRow(article);
+    await addArticleRow(userId, article);
 
-    await deleteArticleRow(article.id);
+    await deleteArticleRow(userId, article.id);
 
     expect(await db.select().from(articles).where(eq(articles.id, article.id))).toHaveLength(0);
     expect(

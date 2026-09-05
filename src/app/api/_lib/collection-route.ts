@@ -21,8 +21,8 @@ type CollectionConfig<T extends Row> = {
   key: string;
   /** POST body 裡包住單筆的鍵，是 key 的單數：{ book } */
   itemKey: string;
-  list: () => Promise<T[]>;
-  add: (item: T) => Promise<unknown>;
+  list: (userId: string) => Promise<T[]>;
+  add: (userId: string, item: T) => Promise<unknown>;
 };
 
 export function createCollectionRoute<T extends Row>(config: CollectionConfig<T>): CollectionRoute {
@@ -33,9 +33,9 @@ export function createCollectionRoute<T extends Row>(config: CollectionConfig<T>
     if (!session) return unauthorized();
 
     try {
-      const rows = await list();
+      const rows = await list(session.user.id);
       // 鎖著的時候私人的那幾筆根本不會離開伺服器
-      const privacy = await requestPrivacy(req);
+      const privacy = await requestPrivacy(session.user.id, req);
       return NextResponse.json({ [key]: withPrivacy(rows, privacy) });
     } catch (err) {
       return dataFailure("讀取", `list ${key}`, err);
@@ -56,7 +56,7 @@ export function createCollectionRoute<T extends Row>(config: CollectionConfig<T>
     if (!item) return badRequest("缺少必要欄位");
 
     try {
-      await add(item);
+      await add(session.user.id, item);
       return NextResponse.json({ ok: true });
     } catch (err) {
       return dataFailure("寫入", `add ${key}`, err);

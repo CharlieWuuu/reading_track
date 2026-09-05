@@ -1,3 +1,5 @@
+import type { db as Db } from "@/lib/db/client";
+import { users } from "@/lib/db/schema/users";
 import type { Book } from "@/types/book";
 
 /** 測試用的一本書。全部欄位都是空字串，要測什麼就蓋什麼 */
@@ -29,4 +31,10 @@ export function makeBook(patch: Partial<Book> = {}): Book {
     relatedArticles: "",
     ...patch,
   };
+}
+
+/** 每個測試檔先建一個人，多租戶之後所有讀寫都要掛在誰身上 */
+export async function seedUser(db: typeof Db, email = "test@example.com"): Promise<string> {
+  const [row] = await db.insert(users).values({ email }).returning({ id: users.id });
+  return row.id;
 }

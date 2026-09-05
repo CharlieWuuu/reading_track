@@ -102,10 +102,16 @@ export type RequestPrivacy = { unlocked: boolean; options: PrivateOptions };
  *
  * 清單不管有沒有帶權杖都得讀——鎖著的時候正是要靠它過濾。
  */
-export async function requestPrivacy(req: { nextUrl: URL }): Promise<RequestPrivacy> {
+export async function requestPrivacy(
+  userId: string,
+  req: { nextUrl: URL },
+): Promise<RequestPrivacy> {
   const { readPrivacySettings } = await import("@/lib/db/queries/settings");
   const { PRIVACY_SETTING_KEY } = await import("@/config/privacy");
-  const { stored, privateKinds, privateTypes } = await readPrivacySettings(PRIVACY_SETTING_KEY);
+  const { stored, privateKinds, privateTypes } = await readPrivacySettings(
+    userId,
+    PRIVACY_SETTING_KEY,
+  );
   const token = req.nextUrl.searchParams.get("unlock");
 
   return {

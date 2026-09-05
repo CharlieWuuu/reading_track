@@ -2,8 +2,10 @@ import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createCollectionRoute } from "@/app/api/_lib/collection-route";
 
+const USER_ID = "u1";
+
 vi.mock("@/lib/auth", () => ({
-  auth: vi.fn(async () => ({ user: { name: "測試" } })),
+  auth: vi.fn(async () => ({ user: { id: USER_ID, name: "測試" } })),
 }));
 
 // GET 一定會讀私人清單：鎖著的時候正是要用它過濾
@@ -42,7 +44,7 @@ describe("POST 的鍵名接線", () => {
     const res = await route.POST(post(JSON.stringify({ book })));
 
     expect(res.status).toBe(200);
-    expect(add).toHaveBeenCalledWith(book);
+    expect(add).toHaveBeenCalledWith(USER_ID, book);
   });
 
   it("body 裡沒有 book 就回 400，不去碰資料庫", async () => {

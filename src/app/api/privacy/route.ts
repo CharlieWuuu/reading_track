@@ -16,7 +16,7 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: "請先登入" }, { status: 401 });
 
   try {
-    const stored = await readSetting(PRIVACY_SETTING_KEY);
+    const stored = await readSetting(session.user.id, PRIVACY_SETTING_KEY);
     return NextResponse.json({ hasPasscode: Boolean(stored) });
   } catch (err) {
     console.error("readSetting failed:", err);
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const stored = await readSetting(PRIVACY_SETTING_KEY);
+    const stored = await readSetting(session.user.id, PRIVACY_SETTING_KEY);
     const token = passcodeToToken(passcode);
 
     if (action === "verify") {
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     if (stored && !isUnlocked(passcodeToToken(current ?? ""), stored)) {
       return NextResponse.json({ error: "原本的密碼不對" }, { status: 403 });
     }
-    await writeSetting(PRIVACY_SETTING_KEY, tokenToStored(token));
+    await writeSetting(session.user.id, PRIVACY_SETTING_KEY, tokenToStored(token));
     return NextResponse.json({ token });
   } catch (err) {
     console.error("privacy update failed:", err);

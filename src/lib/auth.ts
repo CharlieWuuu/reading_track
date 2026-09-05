@@ -1,5 +1,8 @@
+import { compare } from "bcryptjs";
 import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
+import { findOrCreateGoogleUser, findUserByEmail } from "@/lib/db/queries/users";
 
 async function refreshAccessToken(refreshToken: string) {
   const res = await fetch("https://oauth2.googleapis.com/token", {
@@ -42,9 +45,34 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
       },
     }),
+    // demo 與沒有 Google 帳號的人。沒有註冊入口，帳號由 scripts/create-user 建
+    Credentials({
+      credentials: { email: {}, password: {} },
+      async authorize(raw) {
+        const email = String(raw?.email ?? "").trim();
+        const password = String(raw?.password ?? "");
+        if (!email || !password) return null;
+
+        const user = await findUserByEmail(email);
+        if (!user?.passwordHash) return null;
+        if (!(await compare(password, user.passwordHash))) return null;
+
+        return { id: user.id, email: user.email };
+      },
+    }),
   ],
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({ token, account, user }) {
+      // 每一種登入都要換到自己的 uuid，之後每一支查詢都靠它
+      if (account?.provider === "google") {
+        token.userId = await findOrCreateGoogleUser(
+          account.providerAccountId,
+          String(token.email ?? ""),
+        );
+      } else if (user?.id) {
+        token.userId = user.id;
+      }
+
       if (account) {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
@@ -75,6 +103,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
     async session({ session, token }) {
+      session.user.id = token.userId as string;
       session.accessToken = token.accessToken as string;
       session.error = token.error as string | undefined;
       return session;

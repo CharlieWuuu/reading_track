@@ -7,10 +7,11 @@ import { attributes } from "@/lib/db/schema/taxonomy";
 import { Article } from "@/types/article";
 import { typePaths } from "./taxonomy";
 
-async function keywordsByArticle(): Promise<Map<string, string[]>> {
+async function keywordsByArticle(userId: string): Promise<Map<string, string[]>> {
   const rows = await db
     .select({ articleId: articleKeywords.articleId, keyword: articleKeywords.keyword })
     .from(articleKeywords)
+    .where(eq(articleKeywords.userId, userId))
     .orderBy(asc(articleKeywords.keyword));
 
   const map = new Map<string, string[]>();
@@ -18,14 +19,15 @@ async function keywordsByArticle(): Promise<Map<string, string[]>> {
   return map;
 }
 
-export async function listArticles(): Promise<Article[]> {
+export async function listArticles(userId: string): Promise<Article[]> {
   const [types, keywords, rows] = await Promise.all([
-    typePaths(),
-    keywordsByArticle(),
+    typePaths(userId),
+    keywordsByArticle(userId),
     db
       .select({ article: articles, attribute: attributes.name })
       .from(articles)
       .leftJoin(attributes, eq(attributes.id, articles.attributeId))
+      .where(eq(articles.userId, userId))
       .orderBy(asc(articles.createdAt)),
   ]);
 

@@ -28,8 +28,12 @@ export function pendingNames(names: string[], existing: KeywordInfo[], retry = f
 export type EnrichResult = { added: number; found: number; remaining: number };
 
 /** 把還沒查過的關鍵字查回來寫進主檔，回報這次補了幾個、還剩幾個 */
-export async function enrichKeywords(names: string[], retry = false): Promise<EnrichResult> {
-  const existing = await listKeywordInfos();
+export async function enrichKeywords(
+  userId: string,
+  names: string[],
+  retry = false,
+): Promise<EnrichResult> {
+  const existing = await listKeywordInfos(userId);
   const pending = pendingNames(names, existing, retry);
 
   const infos: KeywordInfo[] = [];
@@ -40,7 +44,7 @@ export async function enrichKeywords(names: string[], retry = false): Promise<En
     const previous = existing.find((info) => info.name === name);
     infos.push({ ...found, topics: previous?.topics ?? "" });
   }
-  await saveKeywordInfos(infos);
+  await saveKeywordInfos(userId, infos);
 
   return {
     added: infos.length,

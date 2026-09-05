@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
 import { bookTypes } from "@/lib/db/schema/taxonomy";
+import { seedUser } from "@/lib/db/test/factories";
 
 vi.mock("@/lib/db/client", async () => {
   const { makeTestDb } = await import("@/lib/db/test/pglite");
@@ -9,26 +10,27 @@ vi.mock("@/lib/db/client", async () => {
 
 const { readPrivacySettings } = await import("./settings");
 const { db } = await import("@/lib/db/client");
+const userId = await seedUser(db);
 
 /** 種一棵 政治 → 選舉 → 地方選舉 的三層樹，回傳每一層的 id */
 async function seedTree() {
   const [root] = await db
     .insert(bookTypes)
-    .values({ name: "政治" })
+    .values({ userId, name: "政治" })
     .returning({ id: bookTypes.id });
   const [mid] = await db
     .insert(bookTypes)
-    .values({ name: "選舉", parentId: root.id })
+    .values({ userId, name: "選舉", parentId: root.id })
     .returning({ id: bookTypes.id });
-  await db.insert(bookTypes).values({ name: "地方選舉", parentId: mid.id });
-  await db.insert(bookTypes).values({ name: "文學" }); // 沒被標的另一棵
+  await db.insert(bookTypes).values({ userId, name: "地方選舉", parentId: mid.id });
+  await db.insert(bookTypes).values({ userId, name: "文學" }); // 沒被標的另一棵
   return root;
 }
 
 describe("readPrivacySettings 的私人類型", () => {
   it("沒有標任何東西時是空的", async () => {
     await seedTree();
-    const { privateTypes } = await readPrivacySettings("passcode");
+    const { privateTypes } = await readPrivacySettings(userId, "passcode");
     expect(privateTypes).toEqual([]);
   });
 
@@ -36,7 +38,7 @@ describe("readPrivacySettings 的私人類型", () => {
     const root = await seedTree();
     await db.update(bookTypes).set({ isPrivate: true }).where(eq(bookTypes.id, root.id));
 
-    const { privateTypes } = await readPrivacySettings("passcode");
+    const { privateTypes } = await readPrivacySettings(userId, "passcode");
     expect(new Set(privateTypes)).toEqual(new Set(["政治", "選舉", "地方選舉"]));
   });
 
@@ -44,7 +46,7 @@ describe("readPrivacySettings 的私人類型", () => {
     const root = await seedTree();
     await db.update(bookTypes).set({ isPrivate: true }).where(eq(bookTypes.id, root.id));
 
-    const { privateTypes } = await readPrivacySettings("passcode");
+    const { privateTypes } = await readPrivacySettings(userId, "passcode");
     expect(privateTypes).not.toContain("文學");
   });
 });

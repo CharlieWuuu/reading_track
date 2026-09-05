@@ -15,7 +15,7 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: "請先登入" }, { status: 401 });
 
   try {
-    const metrics = await listMetrics();
+    const metrics = await listMetrics(session.user.id);
     return NextResponse.json({ metrics });
   } catch (err) {
     console.error("listMetrics failed:", err);
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   if (!metric) return NextResponse.json({ error: "缺少必要欄位" }, { status: 400 });
 
   try {
-    await addMetricRow(metric);
+    await addMetricRow(session.user.id, metric);
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "寫入失敗" }, { status: 502 });

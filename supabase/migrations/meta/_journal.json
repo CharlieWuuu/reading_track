@@ -22,6 +22,13 @@
       "when": 1788581526841,
       "tag": "0002_drop_keyword_private",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788594923715,
+      "tag": "0003_multi_tenant",
+      "breakpoints": true
     }
   ]
 }

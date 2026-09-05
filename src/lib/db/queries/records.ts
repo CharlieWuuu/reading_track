@@ -15,13 +15,14 @@ import { firstReadingIdByBookId } from "./books";
  * 那種列在畫面上是沒有主人的紀錄。
  */
 
-export async function listQuoteRows(): Promise<QuoteRow[]> {
+export async function listQuoteRows(userId: string): Promise<QuoteRow[]> {
   const [firstReading, rows] = await Promise.all([
-    firstReadingIdByBookId(),
+    firstReadingIdByBookId(userId),
     db
       .select({ quote: quotes, bookTitle: books.title })
       .from(quotes)
       .leftJoin(books, eq(books.id, quotes.bookId))
+      .where(eq(quotes.userId, userId))
       .orderBy(asc(quotes.createdAt)),
   ]);
 
@@ -35,13 +36,14 @@ export async function listQuoteRows(): Promise<QuoteRow[]> {
   }));
 }
 
-export async function listVocabularyRows(): Promise<VocabularyRow[]> {
+export async function listVocabularyRows(userId: string): Promise<VocabularyRow[]> {
   const [firstReading, rows] = await Promise.all([
-    firstReadingIdByBookId(),
+    firstReadingIdByBookId(userId),
     db
       .select({ word: vocabulary, bookTitle: books.title })
       .from(vocabulary)
       .leftJoin(books, eq(books.id, vocabulary.bookId))
+      .where(eq(vocabulary.userId, userId))
       .orderBy(asc(vocabulary.createdAt)),
   ]);
 
@@ -59,8 +61,12 @@ export async function listVocabularyRows(): Promise<VocabularyRow[]> {
   }));
 }
 
-export async function listKeywords(): Promise<KeywordInfo[]> {
-  const rows = await db.select().from(keywords).orderBy(asc(keywords.name));
+export async function listKeywords(userId: string): Promise<KeywordInfo[]> {
+  const rows = await db
+    .select()
+    .from(keywords)
+    .where(eq(keywords.userId, userId))
+    .orderBy(asc(keywords.name));
   return rows.map((k) => ({
     name: k.name,
     topics: k.topics,

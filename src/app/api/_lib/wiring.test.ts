@@ -10,7 +10,11 @@ import * as articleMutations from "@/lib/db/mutations/articles";
 import * as bookMutations from "@/lib/db/mutations/books";
 import * as writingMutations from "@/lib/db/mutations/writings";
 
-vi.mock("@/lib/auth", () => ({ auth: vi.fn(async () => ({ user: { name: "測試" } })) }));
+const USER_ID = "u1";
+
+vi.mock("@/lib/auth", () => ({
+  auth: vi.fn(async () => ({ user: { id: USER_ID, name: "測試" } })),
+}));
 
 vi.mock("@/lib/db/queries/books", () => ({
   listBooks: vi.fn(async () => [{ id: "從 listBooks 來的" }]),
@@ -102,7 +106,7 @@ describe.each(cases)("$name", ({ plural, singular, mod, item, fns }) => {
     );
 
     expect(res.status).toBe(200);
-    expect(mutations[`add${cap(singular)}Row`]).toHaveBeenCalledWith(record);
+    expect(mutations[`add${cap(singular)}Row`]).toHaveBeenCalledWith(USER_ID, record);
   });
 
   it(`PATCH 交給 update${cap(singular)}Row`, async () => {
@@ -114,13 +118,13 @@ describe.each(cases)("$name", ({ plural, singular, mod, item, fns }) => {
     );
 
     expect(res.status).toBe(200);
-    expect(mutations[`update${cap(singular)}Row`]).toHaveBeenCalledWith("r1", patch);
+    expect(mutations[`update${cap(singular)}Row`]).toHaveBeenCalledWith(USER_ID, "r1", patch);
   });
 
   it(`DELETE 交給 delete${cap(singular)}Row`, async () => {
     const res = await item.DELETE(new NextRequest(url(), { method: "DELETE" }), { params });
 
     expect(res.status).toBe(200);
-    expect(mutations[`delete${cap(singular)}Row`]).toHaveBeenCalledWith("r1");
+    expect(mutations[`delete${cap(singular)}Row`]).toHaveBeenCalledWith(USER_ID, "r1");
   });
 });

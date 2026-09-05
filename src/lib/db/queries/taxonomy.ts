@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { bookTypes, writingTypes } from "@/lib/db/schema/taxonomy";
 
@@ -7,10 +8,13 @@ import { bookTypes, writingTypes } from "@/lib/db/schema/taxonomy";
  * 舊形狀把樹壓成兩個欄位，所以有父節點的自己算次領域、沒有的就是領域本身。
  * 樹超過兩層時只取最近的父節點——舊欄位裝不下更多，等 UI 改形狀才會用到全路徑。
  */
-export async function typePaths(): Promise<Map<string, { domain: string; subDomain: string }>> {
+export async function typePaths(
+  userId: string,
+): Promise<Map<string, { domain: string; subDomain: string }>> {
   const rows = await db
     .select({ id: bookTypes.id, name: bookTypes.name, parentId: bookTypes.parentId })
-    .from(bookTypes);
+    .from(bookTypes)
+    .where(eq(bookTypes.userId, userId));
 
   const byId = new Map(rows.map((r) => [r.id, r]));
   return new Map(
@@ -43,7 +47,7 @@ export interface PrivacyFlags {
  * 旗標掛在類型與關鍵字身上，之前只能直接改資料庫；這支把三張表撈成同一個形狀，
  * 畫面才不用替每一種各寫一遍。
  */
-export async function privacyFlags(): Promise<PrivacyFlags> {
+export async function privacyFlags(userId: string): Promise<PrivacyFlags> {
   const [typeRows, writingRows] = await Promise.all([
     db
       .select({
@@ -52,10 +56,12 @@ export async function privacyFlags(): Promise<PrivacyFlags> {
         parentId: bookTypes.parentId,
         isPrivate: bookTypes.isPrivate,
       })
-      .from(bookTypes),
+      .from(bookTypes)
+      .where(eq(bookTypes.userId, userId)),
     db
       .select({ id: writingTypes.id, name: writingTypes.name, isPrivate: writingTypes.isPrivate })
-      .from(writingTypes),
+      .from(writingTypes)
+      .where(eq(writingTypes.userId, userId)),
   ]);
 
   const byParent = new Map<string, typeof typeRows>();
