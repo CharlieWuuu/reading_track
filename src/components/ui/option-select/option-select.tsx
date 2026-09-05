@@ -28,6 +28,7 @@ export function OptionSelect({
   onEditOption,
   placeholder,
   hideLabel = false,
+  bare = false,
 }: {
   label: string;
   options: string[];
@@ -44,6 +45,8 @@ export function OptionSelect({
   placeholder?: string;
   /** 擠在按鈕列裡時用：不畫標籤，欄名改掛在觸發鈕的 aria-label 上 */
   hideLabel?: boolean;
+  /** 不畫底線，只留 placeholder——欄位跟標題並排時，一條線反而搶眼 */
+  bare?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -100,7 +103,9 @@ export function OptionSelect({
           aria-label={label}
           onClick={() => setOpen((v) => !v)}
           onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setOpen((v) => !v)}
-          className={`${FIELD_INPUT_CLASS} w-full cursor-pointer text-left text-sm`}
+          className={`w-full cursor-pointer text-left text-sm ${
+            bare ? "px-0 py-1.5" : FIELD_INPUT_CLASS
+          }`}
         >
           {selected.length > 0 ? (
             <span className="flex flex-wrap gap-1">

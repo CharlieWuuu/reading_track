@@ -13,6 +13,7 @@ export function CategorySelect({
   onChange,
   multiple = false,
   hideLabel = false,
+  bare = false,
   placeholder,
   parentValue,
 }: {
@@ -22,6 +23,8 @@ export function CategorySelect({
   onChange: (value: string) => void;
   multiple?: boolean;
   hideLabel?: boolean;
+  /** 不畫底線，只留 placeholder */
+  bare?: boolean;
   /** 不畫標籤時，欄名改由這裡說 */
   placeholder?: string;
   /** 給了就把選項縮到這個父分類底下（次領域傳領域的值）；父值空的就列全部 */
@@ -42,6 +45,7 @@ export function CategorySelect({
       onChange={onChange}
       multiple={multiple}
       hideLabel={hideLabel}
+      bare={bare}
       placeholder={placeholder}
     />
   );

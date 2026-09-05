@@ -189,6 +189,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
                 onChange={(v) => set("kind", v)}
                 placeholder="類型"
                 hideLabel
+                bare
               />
             </div>
           </div>
