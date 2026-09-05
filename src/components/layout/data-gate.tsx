@@ -31,7 +31,7 @@ export function DataGate({
 }: DataGateProps) {
   const mounted = useMounted();
 
-  // 伺服器端不知道有沒有連 Sheet（那存在 localStorage），先不畫免得閃一下
+  // 伺服器端不知道有沒有解鎖（那存在 localStorage），先不畫免得閃一下
   if (!mounted) return null;
   if (isLoading) return <PageLoading fill={fill} />;
   if (error)

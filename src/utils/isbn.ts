@@ -3,7 +3,7 @@
  *
  * 來源給的格式很雜：「978-986-359-412-3」「9789863594123（平裝）」
  * 「ISBN：9789863594123 EISBN：...」都有。只認 10 碼與 13 碼，
- * 其餘一律當作沒抓到——寧可空著，也不要把商品編號當成 ISBN 存進 Sheet。
+ * 其餘一律當作沒抓到——寧可空著，也不要把商品編號當成 ISBN 存下來。
  */
 export function normalizeIsbn(raw: string | null | undefined): string {
   if (!raw) return "";

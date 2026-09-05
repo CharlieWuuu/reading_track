@@ -2,7 +2,7 @@ import * as cheerio from "cheerio";
 import { fetchText, resourceExists } from "./http";
 import { BookMetadata, Candidate, MetadataProvider } from "./types";
 
-/** 有假名就幾乎確定是日文書；純漢字的日文書名要靠 Sheet 上標的語言才認得出來 */
+/** 有假名就幾乎確定是日文書；純漢字的日文書名要靠使用者標的語言才認得出來 */
 export function looksJapanese(text: string): boolean {
   return /[぀-ゟ゠-ヿ]/.test(text);
 }
@@ -19,7 +19,7 @@ export function ndlThumbnailUrl(isbn: string): string {
 
 export const NDL_REFERER = { Referer: "https://ndlsearch.ndl.go.jp/" };
 
-/** 沒有書封的 ISBN 會回 404，先確認過才寫進 Sheet，免得留一堆破圖 */
+/** 沒有書封的 ISBN 會回 404，先確認過才寫進去，免得留一堆破圖 */
 async function coverIfExists(isbn: string): Promise<string> {
   if (!isbn) return "";
   const url = ndlThumbnailUrl(isbn);

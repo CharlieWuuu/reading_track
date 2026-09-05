@@ -1,1 +1,3 @@
-npm run check:all
+# 只跑 lint + format + types（約 16 秒）。測試在 CI 上跑——
+# 三分鐘的 pre-push 會讓人養成 --no-verify 的習慣，那比沒有 hook 更糟
+npm run check:fast

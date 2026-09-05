@@ -13,6 +13,7 @@ import { scrapeArticle } from "@/features/articles/api/scrape-article";
 import { useArticleFormTab } from "@/features/articles/components/article-form-tabs";
 import { RelatedWriting } from "@/features/writing/components/related-writings";
 import { useArticles } from "@/hooks/use-articles";
+import { useEntryForm } from "@/hooks/use-entry-form";
 import { useRecordForm } from "@/hooks/use-record-form";
 import { useCurrentHref } from "@/lib/keywords/href";
 import { Article } from "@/types/article";
@@ -81,13 +82,10 @@ export function ArticleForm({ article }: { article?: Article }) {
   );
 
   const { tab } = useArticleFormTab();
-  const [form, setForm] = useState<FormState>(toForm(article ?? {}, isEdit));
+  // 背景重抓回來的資料要蓋掉畫面上的舊快取——但只在使用者還沒動過的時候
+  const { form, set, update } = useEntryForm(article, (a) => toForm(a ?? {}, isEdit));
   const [fetching, setFetching] = useState(false);
   const [fetchNote, setFetchNote] = useState("");
-
-  function set<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setForm((f) => ({ ...f, [key]: value }));
-  }
 
   /**
    * 用網址抓標題、站台、作者。刻意只補空欄位——
@@ -109,7 +107,7 @@ export function ArticleForm({ article }: { article?: Article }) {
       const found = await scrapeArticle(url);
 
       const filled: string[] = [];
-      setForm((f) => {
+      update((f) => {
         const next = { ...f };
         for (const [key, value] of Object.entries(found)) {
           const k = key as keyof FormState;
@@ -154,7 +152,7 @@ export function ArticleForm({ article }: { article?: Article }) {
     openRecordThen((back) => router.push(keywordEditHref(name, back)), from);
   }
 
-  /** 心得寫成一則書寫；先把這篇文章存完再跳，不讓兩邊的寫入同時打 Sheet */
+  /** 心得寫成一則書寫；先把這篇文章存完再跳，不讓兩邊的寫入同時進行 */
   function openWriting(id: string) {
     openRecordThen(
       () => router.push(writingNewHref({ sourceId: id, sourceTitle: form.title, kind: "文章" })),

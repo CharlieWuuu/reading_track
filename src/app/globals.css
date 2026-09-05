@@ -34,6 +34,14 @@
   }
 }
 
+/* 捲軸細一點、顏色跟框線同一支色系。
+   macOS 設成「一律顯示捲動列」時每個捲動容器都會留一條永久的灰軌，
+   原生那條在米白底上偏冷；軌道透明、只留把手，安靜很多 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-rule) transparent;
+}
+
 html {
   /* 補上 html 底色，避免手機捲動回彈時露出深色畫布 */
   background: var(--background);

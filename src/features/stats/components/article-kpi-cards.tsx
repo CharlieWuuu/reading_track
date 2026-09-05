@@ -17,8 +17,9 @@ export function ArticleKpiCards({
     { label: "平均每月", value: avgPerMonth.toFixed(1), unit },
   ];
 
+  // 手機三張擠一排會讓數字比標籤還小，收成兩排
   return (
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
       {items.map((item) => (
         <div
           key={item.label}

@@ -86,7 +86,7 @@ export function tagOrder(categories: Partial<BookCategories> | undefined): strin
   ];
 }
 
-/** 不在選項清單裡的標籤（使用者直接在 Sheet 手打的）也要有固定顏色 */
+/** 不在選項清單裡的標籤（使用者自己打的）也要有固定顏色 */
 function hash(value: string): number {
   let h = 0;
   for (let i = 0; i < value.length; i++) {

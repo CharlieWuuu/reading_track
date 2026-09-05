@@ -12,7 +12,7 @@ async function fetcher(url: string): Promise<{ keywords: KeywordInfo[] }> {
 
 export type EnrichResult = { added: number; found: number; remaining: number };
 
-/** 關鍵字主檔存在試算表的「關鍵字」工作表，跨書共用、只查一次 */
+/** 關鍵字主檔跨三種紀錄共用，只查一次 */
 export function useKeywordInfos() {
   const { mutate: mutateGlobal } = useSWRConfig();
   const key = "/api/keywords";

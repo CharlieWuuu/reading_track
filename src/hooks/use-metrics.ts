@@ -19,7 +19,7 @@ export function useMetrics() {
 
   const metrics = useMemo(() => data?.metrics ?? [], [data?.metrics]);
 
-  /** 每則紀事最新的那一次量測；畫面上只顯示它，歷次留在 Sheet 裡當曲線 */
+  /** 每則紀事最新的那一次量測；畫面上只顯示它，歷次留著當曲線 */
   const latestByWriting = useMemo(() => {
     const map = new Map<string, Metric>();
     for (const metric of metrics) {

@@ -6,7 +6,7 @@ import { readCached } from "@/lib/swr-cache";
 import { usePrivacyStore } from "@/stores/use-privacy-store";
 
 /** API 路徑上的那一段，也是回應裡包住資料的那個鍵：/api/books 回 { books: [...] } */
-export type SheetResource = "books" | "articles" | "writings";
+export type CollectionName = "books" | "articles" | "writings";
 
 async function fetcher<T>(url: string): Promise<Record<string, T[]>> {
   const res = await fetch(url);
@@ -16,7 +16,7 @@ async function fetcher<T>(url: string): Promise<Record<string, T[]>> {
 }
 
 /**
- * 讀一張表。書籍、文章、書寫共用這一支，差別只有表名與排序。
+ * 讀一份清單。書籍、文章、書寫共用這一支，差別只有名字與排序。
  *
  * 解鎖權杖進 key：鎖上與解鎖是兩份不同的快取，鎖上時不會看到剛才的私人資料。
  *
@@ -24,7 +24,7 @@ async function fetcher<T>(url: string): Promise<Record<string, T[]>> {
  * 這個判斷原本在三支 hook 裡各寫一次，而且寫法不一樣（有的看陣列長度、有的看
  * data 在不在），於是「還在抓」與「真的沒有」在不同頁面的答案會不一致。
  */
-export function useSheetRecords<T>(resource: SheetResource, sort: (rows: T[]) => T[]) {
+export function useCollection<T>(resource: CollectionName, sort: (rows: T[]) => T[]) {
   const unlock = usePrivacyStore((s) => s.token);
   const key = `/api/${resource}${unlock ? `?unlock=${unlock}` : ""}`;
 

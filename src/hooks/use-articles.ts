@@ -1,6 +1,6 @@
 "use client";
 
-import { useSheetRecords } from "@/hooks/use-sheet-records";
+import { useCollection } from "@/hooks/use-collection";
 import { Article } from "@/types/article";
 
 /** 只有一個日期，直接由新到舊；沒填日期的排最後，那是還沒讀完的 */
@@ -14,6 +14,6 @@ function sortArticles(articles: Article[]): Article[] {
 }
 
 export function useArticles() {
-  const { records, ...rest } = useSheetRecords<Article>("articles", sortArticles);
+  const { records, ...rest } = useCollection<Article>("articles", sortArticles);
   return { articles: records, ...rest };
 }

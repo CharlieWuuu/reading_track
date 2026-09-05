@@ -26,7 +26,7 @@ export interface Candidate {
 }
 
 export interface ProviderHints {
-  /** 書在 Sheet 上標的語言，讓來源決定要不要接手（例：純漢字的日文書名） */
+  /** 這本書標的語言，讓來源決定要不要接手（例：純漢字的日文書名） */
   language?: string;
 }
 

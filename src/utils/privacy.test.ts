@@ -7,7 +7,6 @@ resetIds();
 const NO_OPTIONS = {
   kinds: new Set<string>(),
   types: new Set<string>(),
-  keywords: new Set<string>(),
 };
 const locked = { unlocked: false, options: NO_OPTIONS };
 
@@ -39,11 +38,9 @@ describe("isPrivate", () => {
     expect(isPrivate(makeBook({ domain: "文學" }), options)).toBe(false);
   });
 
-  it("掛了私人的關鍵字就算私人，三種紀錄共用同一份", () => {
-    const options = { ...NO_OPTIONS, keywords: new Set(["日記"]) };
-    expect(isPrivate(makeBook({ keywords: "東京\n日記" }), options)).toBe(true);
-    expect(isPrivate(makeWriting({ keywords: "日記" }), options)).toBe(true);
-    expect(isPrivate(makeBook({ keywords: "東京" }), options)).toBe(false);
+  it("關鍵字不帶私人旗標——掛什麼字都不會讓一筆紀錄變私人", () => {
+    const options = { ...NO_OPTIONS, types: new Set(["政治"]) };
+    expect(isPrivate(makeBook({ keywords: "日記\n東京" }), options)).toBe(false);
   });
 
   // 兩份清單各自對到各自的欄位，混用會讓書籍的類型意外藏掉書寫
@@ -74,8 +71,8 @@ describe("withPrivacy", () => {
 });
 
 describe("解鎖權杖", () => {
-  // 存進 Sheet 的是再雜湊過的一份，被看到也不能直接拿去當權杖
-  it("Sheet 上存的那份跟瀏覽器拿的那份不一樣", () => {
+  // 存進資料庫的是再雜湊過的一份，被看到也不能直接拿去當權杖
+  it("資料庫存的那份跟瀏覽器拿的那份不一樣", () => {
     const token = passcodeToToken("開門");
     expect(tokenToStored(token)).not.toBe(token);
   });

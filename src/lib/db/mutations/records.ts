@@ -39,9 +39,9 @@ export async function replaceBookQuotes(readingId: string, items: QuoteRow[]): P
       note: item.note,
     }));
 
-  await db.transaction(async () => {
-    await db.delete(quotes).where(eq(quotes.bookId, bookId));
-    if (rows.length) await db.insert(quotes).values(rows);
+  await db.transaction(async (tx) => {
+    await tx.delete(quotes).where(eq(quotes.bookId, bookId));
+    if (rows.length) await tx.insert(quotes).values(rows);
   });
 }
 
@@ -66,9 +66,9 @@ export async function replaceBookVocabulary(
       language: item.language,
     }));
 
-  await db.transaction(async () => {
-    await db.delete(vocabulary).where(eq(vocabulary.bookId, bookId));
-    if (rows.length) await db.insert(vocabulary).values(rows);
+  await db.transaction(async (tx) => {
+    await tx.delete(vocabulary).where(eq(vocabulary.bookId, bookId));
+    if (rows.length) await tx.insert(vocabulary).values(rows);
   });
 }
 
@@ -122,14 +122,14 @@ export async function renameKeyword(from: string, to: string): Promise<number> {
     .from(keywords)
     .where(eq(keywords.name, to));
 
-  await db.transaction(async () => {
+  await db.transaction(async (tx) => {
     if (existing) {
       // 合併：舊名字的關聯改指新名字，重複的丟掉，然後刪掉舊那一列
       const rows = affected.map((r) => ({ bookId: r.bookId, keyword: to }));
-      if (rows.length) await db.insert(bookKeywords).values(rows).onConflictDoNothing();
-      await db.delete(keywords).where(eq(keywords.name, from));
+      if (rows.length) await tx.insert(bookKeywords).values(rows).onConflictDoNothing();
+      await tx.delete(keywords).where(eq(keywords.name, from));
     } else {
-      await db.update(keywords).set({ name: to }).where(eq(keywords.name, from));
+      await tx.update(keywords).set({ name: to }).where(eq(keywords.name, from));
     }
   });
 

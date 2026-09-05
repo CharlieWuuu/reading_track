@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { bookTypes, keywords, settings, writingTypes } from "@/lib/db/schema/taxonomy";
+import { bookTypes, settings, writingTypes } from "@/lib/db/schema/taxonomy";
 
 /**
  * 設定與私人清單。
@@ -59,18 +59,16 @@ export interface PrivacySettings {
   stored: string;
   privateKinds: string[];
   privateTypes: string[];
-  privateKeywords: string[];
 }
 
 export async function readPrivacySettings(passcodeKey: string): Promise<PrivacySettings> {
-  const [stored, types, kinds, words] = await Promise.all([
+  const [stored, types, kinds] = await Promise.all([
     readSetting(passcodeKey),
     privateTypeNames(),
     db
       .select({ name: writingTypes.name })
       .from(writingTypes)
       .where(eq(writingTypes.isPrivate, true)),
-    db.select({ name: keywords.name }).from(keywords).where(eq(keywords.isPrivate, true)),
   ]);
 
   return {
@@ -78,6 +76,5 @@ export async function readPrivacySettings(passcodeKey: string): Promise<PrivacyS
     // 書寫看類型，書籍與文章看類型樹；欄名不同，兩份清單各自對應
     privateKinds: kinds.map((k) => k.name),
     privateTypes: types,
-    privateKeywords: words.map((k) => k.name),
   };
 }

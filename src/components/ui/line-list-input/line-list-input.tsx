@@ -19,7 +19,7 @@ const styles = {
 };
 
 type LineListInputProps = {
-  /** 一行一筆的原始文字，存進 Sheet 的還是這個格式 */
+  /** 一行一筆的原始文字，存起來還是這個格式 */
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
@@ -110,7 +110,7 @@ export function LineListInput({
   );
 }
 
-/** 存檔前把使用者留下的空白列清掉，Sheet 裡不要出現空行 */
+/** 存檔前把使用者留下的空白列清掉，資料裡不要出現空行 */
 export function compactLines(value: string): string {
   return splitLines(value).join("\n");
 }

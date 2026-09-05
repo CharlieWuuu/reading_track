@@ -39,7 +39,7 @@ const ROWS = [[{ key: "name", label: "名稱" }], [{ key: "coordinates", label: 
  * 領域的選項就是「已經用過的領域」，不另外維護一份清單。
  *
  * 跟類型、領域同一個做法：打字就能登一個新的，用得多的排前面。
- * 多個領域用頓號串在同一格，Sheet 那邊仍然是一欄。
+ * 多個領域用頓號串在同一格，存回去仍然是一欄。
  */
 function usedTopics(infos: KeywordInfo[]): Map<string, number> {
   const counts = new Map<string, number>();
@@ -79,7 +79,7 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
 
   const set = (key: keyof KeywordInfo, value: string) => setForm((f) => ({ ...f, [key]: value }));
 
-  // 起訖在 Sheet 上是「1809－1882」一格，這裡拆成兩欄填，存回去再併起來
+  // 起訖存的是「1809－1882」一格，這裡拆成兩欄填，存回去再併起來
   const span = parseSpan(form.span);
   const spanFrom = span?.from == null ? "" : String(span.from);
   const spanTo = span?.to == null ? "" : String(span.to);

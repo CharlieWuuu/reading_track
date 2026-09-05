@@ -53,7 +53,6 @@ function BookFacts({ book }: { book: Book }) {
   );
 }
 
-/** 我對這本書做的事：狀態、讀的時間、在哪讀、怎麼歸類，換個人就是另一組答案 */
 /**
  * 讀過幾次。只有重讀的書才畫——讀一次的書多一個「讀過 1 次」的區塊是廢話。
  *
@@ -79,20 +78,26 @@ function ReadingHistory({ reads }: { reads: Book[] }) {
   );
 }
 
-function MyMarks({ book }: { book: Book }) {
+/**
+ * 進這一頁最先想知道的三件事：讀完了沒、什麼時候讀的、在哪讀的。
+ * 它們原本排在分類旁邊，得先捲過封面與 ISBN 才看得到，所以提到書名底下。
+ */
+function ReadingMeta({ book }: { book: Book }) {
+  const span = [book.startDate, book.endDate].filter(Boolean).join(" – ");
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-gray-500">
+      <StatusBadge status={book.status} />
+      {span && <span className="tabular-nums">{span}</span>}
+      {book.platform && <TagList values={[book.platform]} tone="platform" />}
+    </div>
+  );
+}
+
+/** 怎麼歸類的。狀態與日期提到書名底下之後，這一節只剩分類 */
+function Classification({ book }: { book: Book }) {
   return (
     <DetailFields>
       <div>
-        <DetailField label="狀態">
-          <StatusBadge status={book.status} />
-        </DetailField>
-        <DetailField label="開始日期">{book.startDate}</DetailField>
-        <DetailField label="完成日期">{book.endDate}</DetailField>
-      </div>
-      <div>
-        <DetailField label="平台">
-          {book.platform && <TagList values={[book.platform]} tone="platform" />}
-        </DetailField>
         <DetailField label="領域">
           {(book.domain || book.subDomain) && (
             <div className="flex flex-wrap items-center gap-1.5">
@@ -101,6 +106,8 @@ function MyMarks({ book }: { book: Book }) {
             </div>
           )}
         </DetailField>
+      </div>
+      <div>
         <DetailField label="屬性">
           {book.type && <TagList values={[book.type]} tone="type" />}
         </DetailField>
@@ -173,6 +180,8 @@ export function BookDetailView() {
                 </p>
               )}
             </div>
+
+            <ReadingMeta book={book} />
             {/* 不設 items-start，右欄才會被拉到跟封面一樣高，那條垂直線就不會半途斷掉 */}
             <div className="flex gap-4 md:gap-6">
               <BookCover
@@ -188,8 +197,8 @@ export function BookDetailView() {
           </header>
 
           {/* 書本身的事實在上面的書名頁；這一節以下全是我加上去的，用章節線隔開 */}
-          <DetailSection title="標記">
-            <MyMarks book={book} />
+          <DetailSection title="分類">
+            <Classification book={book} />
           </DetailSection>
 
           {reads.length > 1 && (

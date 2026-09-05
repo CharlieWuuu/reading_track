@@ -13,7 +13,7 @@ export const BOOK_PLATFORMS: BookPlatform[] = [
 ];
 
 /**
- * 使用者可能在 Sheet 打成「HyRead」「hyread」，那都是同一個平台。
+ * 使用者可能打成「HyRead」「hyread」，那都是同一個平台。
  * 只用來收斂大小寫；平台已經是可自訂的選項，對不上不代表資料有錯。
  */
 export function normalizePlatform(raw: string): BookPlatform | null {
@@ -147,7 +147,7 @@ function parseLegacyQuote(line: string): Quote {
 /**
  * 一格裡放多個標籤（目前用在「屬性」）。
  *
- * 分隔符寫入時固定用頓號，讀取時連逗號、直線都接受——使用者會直接在 Sheet 裡
+ * 分隔符寫入時固定用頓號，讀取時連逗號、直線都接受——早年的資料是在試算表裡
  * 手打，硬性要求某一種符號只會讓資料變髒。
  */
 export const TAG_SEPARATOR = "、";
@@ -262,7 +262,7 @@ export interface BookCategories {
  *
  * 預設一套分類只會塞進一堆沒人用的選項，而且選單上分不出哪些是你真的在用的。
  * 清單一律由「資料上實際出現過的值」長出來（見 useCategories），
- * 想固定下來就自己在設定頁或 Sheet 上維護。
+ * 想固定下來就自己在設定頁維護。
  *
  * BOOK_PLATFORMS 仍然留著，但只給 normalizePlatform 收斂大小寫用，不當預設選項。
  */

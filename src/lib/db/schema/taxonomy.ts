@@ -4,7 +4,8 @@ import { AnyPgColumn, boolean, pgTable, text, uuid } from "drizzle-orm/pg-core";
  * 標記類的表。書、文章、書寫都靠這幾張分類。
  *
  * 私人旗標放在這裡而不是每一筆資料上：想藏的是「政治」「日記」這種主題，
- * 標一次就好，不用一本一本標。屬性不帶旗標——散文、圖文講的是形式，不敏感。
+ * 標一次就好，不用一本一本標。屬性與關鍵字不帶旗標——散文、圖文講的是形式，
+ * 關鍵字講的是專有名詞，兩者都不是「這本書關於什麼」。
  */
 
 /** 書與文章的類型樹。子類型就是子節點，深度不限兩層 */
@@ -28,7 +29,12 @@ export const attributes = pgTable("attributes", {
   name: text("name").notNull().unique(),
 });
 
-/** 專有名詞。名字就是身分，關聯表用 on update cascade 接改名 */
+/**
+ * 專有名詞。名字就是身分，關聯表用 on update cascade 接改名。
+ *
+ * 不帶私人旗標：關鍵字是人名、地名、事件，「馬克思」本身不敏感，
+ * 敏感的是那本書屬於哪個領域——藏東西一律從領域與類型下手。
+ */
 export const keywords = pgTable("keywords", {
   name: text("name").primaryKey(),
   topics: text("topics").notNull().default(""), // 維基主題，多個以頓號相接
@@ -36,7 +42,6 @@ export const keywords = pgTable("keywords", {
   span: text("span").notNull().default(""), // 生卒或起訖
   wikiUrl: text("wiki_url").notNull().default(""),
   summary: text("summary").notNull().default(""),
-  isPrivate: boolean("is_private").notNull().default(false),
 });
 
 /**

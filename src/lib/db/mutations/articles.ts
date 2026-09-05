@@ -1,64 +1,61 @@
 import { eq } from "drizzle-orm";
 import { PRIVATE_MARK } from "@/config/privacy";
-import { db } from "@/lib/db/client";
+import { db, type Tx } from "@/lib/db/client";
 import { articleKeywords } from "@/lib/db/schema/keyword-links";
 import { articles } from "@/lib/db/schema/reading";
 import { keywords } from "@/lib/db/schema/taxonomy";
 import { Article } from "@/types/article";
 import { splitLines } from "@/types/book";
 import { attributeIdFor, typeIdFor } from "./taxonomy";
+import { toDate } from "./values";
 
-async function setKeywords(articleId: string, names: string[]): Promise<void> {
+async function setKeywords(tx: Tx, articleId: string, names: string[]): Promise<void> {
   if (names.length)
-    await db
+    await tx
       .insert(keywords)
       .values(names.map((name) => ({ name })))
       .onConflictDoNothing();
-  await db.delete(articleKeywords).where(eq(articleKeywords.articleId, articleId));
+  await tx.delete(articleKeywords).where(eq(articleKeywords.articleId, articleId));
   if (names.length)
-    await db.insert(articleKeywords).values(names.map((keyword) => ({ articleId, keyword })));
+    await tx.insert(articleKeywords).values(names.map((keyword) => ({ articleId, keyword })));
 }
 
 export async function addArticleRow(article: Article): Promise<void> {
-  await db.transaction(async () => {
-    await db.insert(articles).values({
+  await db.transaction(async (tx) => {
+    await tx.insert(articles).values({
       id: article.id,
       title: article.title,
       author: article.author,
       platform: article.platform,
       sourceUrl: article.sourceUrl,
-      endDate: article.endDate,
+      endDate: toDate(article.endDate),
       language: article.language,
-      typeId: await typeIdFor(article.domain, article.subDomain),
-      attributeId: await attributeIdFor(article.type),
+      typeId: await typeIdFor(tx, article.domain, article.subDomain),
+      attributeId: await attributeIdFor(tx, article.type),
       isPrivate: article.private === PRIVATE_MARK,
     });
-    await setKeywords(article.id, splitLines(article.keywords));
+    await setKeywords(tx, article.id, splitLines(article.keywords));
   });
 }
 
 export async function updateArticleRow(id: string, patch: Partial<Article>): Promise<void> {
   const values: Record<string, unknown> = {};
-  for (const field of [
-    "title",
-    "author",
-    "platform",
-    "sourceUrl",
-    "endDate",
-    "language",
-  ] as const) {
+  for (const field of ["title", "author", "platform", "sourceUrl", "language"] as const) {
     if (patch[field] !== undefined) values[field] = patch[field];
   }
-  if (patch.domain !== undefined || patch.subDomain !== undefined) {
-    values.typeId = await typeIdFor(patch.domain ?? "", patch.subDomain ?? "");
-  }
-  if (patch.type !== undefined) values.attributeId = await attributeIdFor(patch.type);
+  if (patch.endDate !== undefined) values.endDate = toDate(patch.endDate);
   if (patch.private !== undefined) values.isPrivate = patch.private === PRIVATE_MARK;
 
-  await db.transaction(async () => {
+  await db.transaction(async (tx) => {
+    // 分類是 upsert，也就是寫入；跟主體同一個交易才會一起回滾
+    if (patch.domain !== undefined || patch.subDomain !== undefined) {
+      values.typeId = await typeIdFor(tx, patch.domain ?? "", patch.subDomain ?? "");
+    }
+    if (patch.type !== undefined) values.attributeId = await attributeIdFor(tx, patch.type);
+
     if (Object.keys(values).length)
-      await db.update(articles).set(values).where(eq(articles.id, id));
-    if (patch.keywords !== undefined) await setKeywords(id, splitLines(patch.keywords));
+      await tx.update(articles).set(values).where(eq(articles.id, id));
+    if (patch.keywords !== undefined) await setKeywords(tx, id, splitLines(patch.keywords));
   });
 }
 

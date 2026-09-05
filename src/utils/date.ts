@@ -5,7 +5,7 @@
  * 光「今天」就有三種寫法（有的用 toISOString 再切字串，在台灣的早上八點前
  * 會拿到昨天）。日期是這個 app 最常出錯的東西，不該有第二個版本。
  *
- * 存進 Sheet 的格式是「2026-08-19」或「2026-08-19 14:32」——空白分隔是因為
+ * 存起來的格式是「2026-08-19」或「2026-08-19 14:32」——空白分隔是因為
  * 那一格也是給人讀的，T 只是機器的分隔符號。
  */
 
@@ -101,7 +101,7 @@ export function whenLabel(value: string | null | undefined): string {
   return timeLabel(value) || day; // 舊資料只有日期，退回「今天」
 }
 
-/** Sheet 上存的是空白分隔，datetime-local 要的是中間一個 T */
+/** 存的是空白分隔，datetime-local 要的是中間一個 T */
 export function toDateTimeInput(value: string): string {
   if (!value.trim()) return "";
   const [day, clock = "00:00"] = value.trim().split(/[ T]/);

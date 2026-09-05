@@ -29,8 +29,13 @@ function ArticlesBody() {
 
   if (!mounted) return null;
   if (isLoading) return <PageLoading />;
-  if (error) return <PageMessage tone="error">{error}</PageMessage>;
-  if (found.length === 0 && terms.length > 0) return <PageMessage>沒有符合的文章</PageMessage>;
+  if (error)
+    return (
+      <PageMessage tone="error" fill>
+        {error}
+      </PageMessage>
+    );
+  if (found.length === 0 && terms.length > 0) return <PageMessage fill>沒有符合的文章</PageMessage>;
 
   return <ReadingList articles={found} view={view} />;
 }

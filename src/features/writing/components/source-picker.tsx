@@ -26,7 +26,7 @@ type Candidate = { id: string; title: string; coverUrl: string; kind: string };
 /**
  * 選這則是讀了什麼之後寫的。
  *
- * 存兩份：標題給人看（Sheet 打開來就懂），編號給程式（改書名也不會斷）。
+ * 存兩份：標題給人看，編號給程式（改書名也不會斷）。
  * 也可以直接打字不選——讀了系統外的東西一樣寫得下。
  */
 export function SourcePicker({

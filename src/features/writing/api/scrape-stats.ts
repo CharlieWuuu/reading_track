@@ -1,4 +1,4 @@
-/** 欄位型別跟著 Sheet 走：數字也存字串，Sheet 打開來要看得懂 */
+/** 欄位型別沿用舊形狀：數字也存字串 */
 export type WritingStatsResult = {
   title?: string;
   platform: string;
