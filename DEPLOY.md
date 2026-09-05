@@ -2,6 +2,9 @@
 
 環境變數照 `.env.local.example`，但 `AUTH_SECRET` 要重新產一組別跟本機共用；`AUTH_URL` 不用設，程式開了 `trustHost`。
 
+`DATABASE_URL` 一定要設，[client.ts](src/lib/db/client.ts) 沒有它會直接 throw，全站讀寫都會炸。
+port 用 `6543`（交易模式的 pooler）。`DIRECT_URL` 不用設，那只有本機跑 drizzle-kit 才需要。
+
 OAuth 回呼網址每多一個網域就要去 Cloud Console 加一條 `https://<網域>/api/auth/callback/google`。
 
 ## 區域
