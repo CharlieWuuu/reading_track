@@ -1,4 +1,4 @@
-import { asc, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 import { PRIVATE_MARK } from "@/config/privacy";
 import { db } from "@/lib/db/client";
 import { bookKeywords } from "@/lib/db/schema/keyword-links";
@@ -15,10 +15,11 @@ import { typePaths } from "./taxonomy";
  * 讓切換資料來源這件事不牽動任何畫面。
  */
 
-async function keywordsByBook(): Promise<Map<string, string[]>> {
+async function keywordsByBook(userId: string): Promise<Map<string, string[]>> {
   const rows = await db
     .select({ bookId: bookKeywords.bookId, keyword: bookKeywords.keyword })
     .from(bookKeywords)
+    .where(eq(bookKeywords.userId, userId))
     .orderBy(asc(bookKeywords.keyword));
 
   const map = new Map<string, string[]>();
@@ -26,10 +27,10 @@ async function keywordsByBook(): Promise<Map<string, string[]>> {
   return map;
 }
 
-export async function listBooks(): Promise<Book[]> {
+export async function listBooks(userId: string): Promise<Book[]> {
   const [types, keywords, rows] = await Promise.all([
-    typePaths(),
-    keywordsByBook(),
+    typePaths(userId),
+    keywordsByBook(userId),
     db
       .select({
         reading: readings,
@@ -39,6 +40,7 @@ export async function listBooks(): Promise<Book[]> {
       .from(readings)
       .innerJoin(books, eq(books.id, readings.bookId))
       .leftJoin(attributes, eq(attributes.id, books.attributeId))
+      .where(eq(readings.userId, userId))
       .orderBy(asc(readings.createdAt)),
   ]);
 
@@ -82,21 +84,27 @@ export async function listBooks(): Promise<Book[]> {
 }
 
 /** 舊介面回報補了幾個編號；資料庫不需要補，永遠是 0 */
-export async function listBooksWithMeta(): Promise<{ books: Book[]; idsBackfilled: number }> {
-  return { books: await listBooks(), idsBackfilled: 0 };
+export async function listBooksWithMeta(
+  userId: string,
+): Promise<{ books: Book[]; idsBackfilled: number }> {
+  return { books: await listBooks(userId), idsBackfilled: 0 };
 }
 
 /** 佳句、單字、心得記的是「書」，但畫面上的編號是「某一次讀」，兩邊要對得起來 */
-export async function bookIdByReadingId(): Promise<Map<string, string>> {
-  const rows = await db.select({ id: readings.id, bookId: readings.bookId }).from(readings);
+export async function bookIdByReadingId(userId: string): Promise<Map<string, string>> {
+  const rows = await db
+    .select({ id: readings.id, bookId: readings.bookId })
+    .from(readings)
+    .where(eq(readings.userId, userId));
   return new Map(rows.map((r) => [r.id, r.bookId]));
 }
 
 /** 反過來：一本書對應到它第一次讀的那個編號 */
-export async function firstReadingIdByBookId(): Promise<Map<string, string>> {
+export async function firstReadingIdByBookId(userId: string): Promise<Map<string, string>> {
   const rows = await db
     .select({ id: readings.id, bookId: readings.bookId })
     .from(readings)
+    .where(eq(readings.userId, userId))
     .orderBy(asc(readings.createdAt));
 
   const map = new Map<string, string>();
@@ -105,10 +113,10 @@ export async function firstReadingIdByBookId(): Promise<Map<string, string>> {
 }
 
 /** 沒有任何一次閱讀的書不該存在；留著這支給匯入後的健檢用 */
-export async function orphanBooks() {
+export async function orphanBooks(userId: string) {
   return db
     .select({ id: books.id, title: books.title })
     .from(books)
     .leftJoin(readings, eq(readings.bookId, books.id))
-    .where(isNull(readings.id));
+    .where(and(eq(books.userId, userId), isNull(readings.id)));
 }

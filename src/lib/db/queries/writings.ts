@@ -16,10 +16,11 @@ import { firstReadingIdByBookId } from "./books";
  * 才是真正的類型。資料庫把兩者分開存了，這裡再合回去，畫面才不用改。
  */
 
-async function keywordsByWriting(): Promise<Map<string, string[]>> {
+async function keywordsByWriting(userId: string): Promise<Map<string, string[]>> {
   const rows = await db
     .select({ writingId: writingKeywords.writingId, keyword: writingKeywords.keyword })
     .from(writingKeywords)
+    .where(eq(writingKeywords.userId, userId))
     .orderBy(asc(writingKeywords.keyword));
 
   const map = new Map<string, string[]>();
@@ -27,10 +28,10 @@ async function keywordsByWriting(): Promise<Map<string, string[]>> {
   return map;
 }
 
-export async function listWritings(): Promise<Writing[]> {
+export async function listWritings(userId: string): Promise<Writing[]> {
   const [keywords, firstReading, rows] = await Promise.all([
-    keywordsByWriting(),
-    firstReadingIdByBookId(),
+    keywordsByWriting(userId),
+    firstReadingIdByBookId(userId),
     db
       .select({
         writing: writings,
@@ -42,6 +43,7 @@ export async function listWritings(): Promise<Writing[]> {
       .leftJoin(writingTypes, eq(writingTypes.id, writings.typeId))
       .leftJoin(books, eq(books.id, writings.bookId))
       .leftJoin(articles, eq(articles.id, writings.articleId))
+      .where(eq(writings.userId, userId))
       .orderBy(asc(writings.createdAt)),
   ]);
 
@@ -65,8 +67,12 @@ export async function listWritings(): Promise<Writing[]> {
   });
 }
 
-export async function listMetrics(): Promise<Metric[]> {
-  const rows = await db.select().from(metrics).orderBy(asc(metrics.date));
+export async function listMetrics(userId: string): Promise<Metric[]> {
+  const rows = await db
+    .select()
+    .from(metrics)
+    .where(eq(metrics.userId, userId))
+    .orderBy(asc(metrics.date));
   return rows.map((m) => ({
     id: m.id,
     date: m.date,
