@@ -71,6 +71,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         );
       } else if (user?.id) {
         token.userId = user.id;
+      } else if (!token.userId && token.email) {
+        // 加多租戶之前就登入的 session，token 裡沒有 userId——用 email 補回來，
+        // 不然每支查詢都拿 undefined 去比對
+        token.userId = (await findUserByEmail(String(token.email)))?.id;
       }
 
       if (account) {

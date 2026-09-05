@@ -19,7 +19,7 @@ const WRITE_BUDGET_MS = 12000;
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "請先登入" }, { status: 401 });
   }
 

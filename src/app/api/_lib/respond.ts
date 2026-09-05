@@ -3,7 +3,9 @@ import { auth } from "@/lib/auth";
 
 export async function requireSession() {
   const session = await auth();
-  if (!session?.user) return null;
+  // userId 是每支查詢的依據，沒有它就當作沒登入——寧可要求重新登入，
+  // 也不要拿 undefined 去比對
+  if (!session?.user?.id) return null;
   return session;
 }
 

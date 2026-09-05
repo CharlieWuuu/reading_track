@@ -6,7 +6,7 @@ import { Metric } from "@/types/metric";
 
 async function requireSession() {
   const session = await auth();
-  if (!session?.user) return null;
+  if (!session?.user?.id) return null;
   return session;
 }
 

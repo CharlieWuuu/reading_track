@@ -6,7 +6,7 @@ import { isUnlocked, passcodeToToken, tokenToStored } from "@/utils/privacy";
 
 async function requireSession() {
   const session = await auth();
-  if (!session?.user) return null;
+  if (!session?.user?.id) return null;
   return session;
 }
 
