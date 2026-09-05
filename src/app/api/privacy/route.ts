@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readOnly, requireWriter } from "@/app/api/_lib/respond";
 import { PRIVACY_SETTING_KEY } from "@/config/privacy";
 import { auth } from "@/lib/auth";
 import { readSetting, writeSetting } from "@/lib/db/queries/settings";
@@ -29,8 +30,8 @@ export async function GET() {
  * verify：解鎖，對了就回傳權杖，之後每次讀清單都帶著它。
  */
 export async function POST(req: NextRequest) {
-  const session = await requireSession();
-  if (!session) return NextResponse.json({ error: "請先登入" }, { status: 401 });
+  const session = await requireWriter();
+  if (!session) return readOnly();
 
   const { action, passcode, current } = (await req.json()) as {
     action?: "set" | "verify";

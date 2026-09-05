@@ -4,7 +4,9 @@ import {
   dataFailure,
   guarded,
   readJsonBody,
+  readOnly,
   requireSession,
+  requireWriter,
   unauthorized,
 } from "@/app/api/_lib/respond";
 import { deleteKeyword, renameKeyword, replaceKeywordInfo } from "@/lib/db/mutations/records";
@@ -26,8 +28,8 @@ async function GETHandler() {
 
 /** 把還沒查過的關鍵字查回來寫進主檔，回報這次補了幾個、還剩幾個 */
 async function POSTHandler(req: NextRequest) {
-  const session = await requireSession();
-  if (!session) return unauthorized();
+  const session = await requireWriter();
+  if (!session) return readOnly();
 
   const body = await readJsonBody<{
     names: string[];
@@ -49,8 +51,8 @@ async function POSTHandler(req: NextRequest) {
 
 /** 手動改一筆關鍵字主檔 */
 async function PUTHandler(req: NextRequest) {
-  const session = await requireSession();
-  if (!session) return unauthorized();
+  const session = await requireWriter();
+  if (!session) return readOnly();
 
   const body = await readJsonBody<{
     keyword: KeywordInfo;
@@ -77,8 +79,8 @@ async function PUTHandler(req: NextRequest) {
 }
 
 async function DELETEHandler(req: NextRequest) {
-  const session = await requireSession();
-  if (!session) return unauthorized();
+  const session = await requireWriter();
+  if (!session) return readOnly();
 
   const body = await readJsonBody<{ name: string }>(req, "delete keyword");
   if (!body) return badRequest("請求內容不是有效的 JSON");

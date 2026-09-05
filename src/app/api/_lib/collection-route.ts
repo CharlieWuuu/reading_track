@@ -4,7 +4,9 @@ import {
   dataFailure,
   guarded,
   readJsonBody,
+  readOnly,
   requireSession,
+  requireWriter,
   unauthorized,
 } from "@/app/api/_lib/respond";
 import { PrivateRow, requestPrivacy, withPrivacy } from "@/utils/privacy";
@@ -43,8 +45,8 @@ export function createCollectionRoute<T extends Row>(config: CollectionConfig<T>
   }
 
   async function POST(req: NextRequest): Promise<NextResponse> {
-    const session = await requireSession();
-    if (!session) return unauthorized();
+    const session = await requireWriter();
+    if (!session) return readOnly();
 
     const body = await readJsonBody<{ sheetId?: string } & Record<string, unknown>>(
       req,

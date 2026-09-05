@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { readOnly, requireSession, requireWriter } from "@/app/api/_lib/respond";
 import { replaceBookQuotes, replaceBookVocabulary } from "@/lib/db/mutations/records";
 import { listBooks } from "@/lib/db/queries/books";
 import { listQuoteRows, listVocabularyRows } from "@/lib/db/queries/records";
@@ -14,8 +14,8 @@ function isKind(value: string | null): value is Kind {
 }
 
 export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "請先登入" }, { status: 401 });
+  const session = await requireSession();
+  if (!session) return NextResponse.json({ error: "請先登入" }, { status: 401 });
 
   try {
     const [vocabulary, quotes, privacy] = await Promise.all([
@@ -42,8 +42,8 @@ export async function GET(req: NextRequest) {
 
 /** 一本書的紀錄整批換掉。前端本來就握有那本書的完整清單，逐列比對只是自找麻煩 */
 export async function PUT(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "請先登入" }, { status: 401 });
+  const session = await requireWriter();
+  if (!session) return readOnly();
 
   const { kind, bookId, rows } = (await req.json()) as {
     kind: Kind;
