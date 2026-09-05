@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readOnly, requireSession, requireWriter } from "@/app/api/_lib/respond";
-import { replaceBookQuotes, replaceBookVocabulary } from "@/lib/db/mutations/records";
+import {
+  addQuote,
+  addVocabulary,
+  replaceBookQuotes,
+  replaceBookVocabulary,
+} from "@/lib/db/mutations/records";
 import { listBooks } from "@/lib/db/queries/books";
 import { listQuoteRows, listVocabularyRows } from "@/lib/db/queries/records";
 import { QuoteRow, VocabularyRow } from "@/types/record";
@@ -37,6 +42,34 @@ export async function GET(req: NextRequest) {
   } catch (err) {
     console.error("listRecords failed:", err);
     return NextResponse.json({ error: "讀取單字與佳句失敗" }, { status: 502 });
+  }
+}
+
+/**
+ * 一列新增。PUT 是以書為單位整批取代，沒有書就沒有那個單位——
+ * 不掛書的單字與佳句只能走這裡。bookId 可以是空字串。
+ */
+export async function POST(req: NextRequest) {
+  const session = await requireWriter();
+  if (!session) return readOnly();
+
+  const { kind, bookId, row } = (await req.json()) as {
+    kind: Kind;
+    bookId?: string;
+    row: VocabularyRow | QuoteRow;
+  };
+  if (!isKind(kind) || !row) {
+    return NextResponse.json({ error: "缺少必要欄位" }, { status: 400 });
+  }
+
+  try {
+    const userId = session.user.id;
+    if (kind === "vocabulary") await addVocabulary(userId, bookId ?? "", row as VocabularyRow);
+    else await addQuote(userId, bookId ?? "", row as QuoteRow);
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error("addRecord failed:", err);
+    return NextResponse.json({ error: "儲存失敗" }, { status: 502 });
   }
 }
 

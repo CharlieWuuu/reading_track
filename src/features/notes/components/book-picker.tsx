@@ -21,8 +21,10 @@ const styles = {
 /**
  * 這一句是從哪本書來的。
  *
- * 跟書寫的 SourcePicker 不同：那裡可以自己打字（讀系統外的東西也能寫），
- * 這裡一定要選中一本——佳句與單字靠 bookId 掛回那本書，沒有 id 就成了孤兒。
+ * 跟書寫的 SourcePicker 不同：那裡可以自己打字，這裡只能從清單挑——佳句與單字
+ * 靠 bookId 掛回那本書，打進來的書名沒有 id，掛不回去。
+ *
+ * 留白是合法的：來源不是書的字與句子照樣留得下來，那種列在畫面上沒有書名。
  */
 export function BookPicker({
   books,
@@ -45,7 +47,7 @@ export function BookPicker({
 
   return (
     <div ref={rootRef} className={styles.root}>
-      <label className={styles.label}>哪一本書</label>
+      <label className={styles.label}>哪一本書（不填也可以）</label>
 
       <div className={styles.field}>
         <input
