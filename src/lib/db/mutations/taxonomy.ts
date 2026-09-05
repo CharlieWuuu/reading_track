@@ -10,12 +10,18 @@ import { splitLines } from "@/types/book";
  * 這幾支只在交易裡被呼叫，所以一律收 tx；用外層的 db 會跑在交易外面。
  */
 
-async function upsertType(tx: Tx, name: string, parentId: string | null): Promise<string> {
+async function upsertType(
+  tx: Tx,
+  userId: string,
+  name: string,
+  parentId: string | null,
+): Promise<string> {
   const [existing] = await tx
     .select({ id: bookTypes.id })
     .from(bookTypes)
     .where(
       and(
+        eq(bookTypes.userId, userId),
         eq(bookTypes.name, name),
         parentId ? eq(bookTypes.parentId, parentId) : isNull(bookTypes.parentId),
       ),
@@ -24,30 +30,39 @@ async function upsertType(tx: Tx, name: string, parentId: string | null): Promis
 
   const [row] = await tx
     .insert(bookTypes)
-    .values({ name, parentId })
+    .values({ userId, name, parentId })
     .returning({ id: bookTypes.id });
   return row.id;
 }
 
 /** 領域是父節點、次領域是它的子節點；只填領域就掛在領域本身 */
-export async function typeIdFor(tx: Tx, domain: string, subDomain: string): Promise<string | null> {
+export async function typeIdFor(
+  tx: Tx,
+  userId: string,
+  domain: string,
+  subDomain: string,
+): Promise<string | null> {
   const parentName = domain.trim();
   if (!parentName) return null;
 
-  const parentId = await upsertType(tx, parentName, null);
+  const parentId = await upsertType(tx, userId, parentName, null);
   const childName = subDomain.trim();
-  return childName ? upsertType(tx, childName, parentId) : parentId;
+  return childName ? upsertType(tx, userId, childName, parentId) : parentId;
 }
 
 /** 屬性改成單選了，舊資料若還帶著多行就取第一個 */
-export async function attributeIdFor(tx: Tx, value: string): Promise<string | null> {
+export async function attributeIdFor(
+  tx: Tx,
+  userId: string,
+  value: string,
+): Promise<string | null> {
   const name = splitLines(value)[0]?.trim();
   if (!name) return null;
 
   const [row] = await tx
     .insert(attributes)
-    .values({ name })
-    .onConflictDoUpdate({ target: attributes.name, set: { name } })
+    .values({ userId, name })
+    .onConflictDoUpdate({ target: [attributes.userId, attributes.name], set: { name } })
     .returning({ id: attributes.id });
   return row.id;
 }
@@ -62,13 +77,21 @@ export async function attributeIdFor(tx: Tx, value: string): Promise<string | nu
 export type PrivacyTarget = "type" | "writingType";
 
 export async function setPrivacyFlag(
+  userId: string,
   target: PrivacyTarget,
   id: string,
   isPrivate: boolean,
 ): Promise<void> {
+  // 帶 userId 的 where：別人的節點編號猜到了也改不動
   if (target === "type") {
-    await db.update(bookTypes).set({ isPrivate }).where(eq(bookTypes.id, id));
+    await db
+      .update(bookTypes)
+      .set({ isPrivate })
+      .where(and(eq(bookTypes.userId, userId), eq(bookTypes.id, id)));
     return;
   }
-  await db.update(writingTypes).set({ isPrivate }).where(eq(writingTypes.id, id));
+  await db
+    .update(writingTypes)
+    .set({ isPrivate })
+    .where(and(eq(writingTypes.userId, userId), eq(writingTypes.id, id)));
 }
