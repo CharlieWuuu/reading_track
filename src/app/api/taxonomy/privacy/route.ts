@@ -10,7 +10,7 @@ import {
 import { setPrivacyFlag, type PrivacyTarget } from "@/lib/db/mutations/taxonomy";
 import { privacyFlags } from "@/lib/db/queries/taxonomy";
 
-const TARGETS: PrivacyTarget[] = ["type", "writingType", "keyword"];
+const TARGETS: PrivacyTarget[] = ["type", "writingType"];
 
 /** 設定頁那份清單：類型樹、書寫類型、關鍵字，各自帶著現在的旗標 */
 export const GET = guarded("taxonomy privacy GET", async () => {

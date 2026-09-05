@@ -5,7 +5,7 @@ import { Lock, LockOpen } from "lucide-react";
 import { usePrivacyFlags } from "@/features/settings/api";
 import type { PrivacyFlagNode } from "@/lib/db/queries/taxonomy";
 
-type Target = "type" | "writingType" | "keyword";
+type Target = "type" | "writingType";
 type Flip = (target: Target, node: PrivacyFlagNode) => void;
 
 const styles = {
@@ -124,13 +124,15 @@ export function PrivacyFlagsPanel() {
   return (
     <div className={styles.wrap}>
       <p className={styles.hint}>
-        標了鎖的類型與關鍵字，沒解鎖時整批不會出現在畫面上——包含統計與月曆，
-        而且是伺服器那端就擋掉，不是前端藏起來。標父類型等於標了它底下的每一個分支。
+        標了鎖的項目，沒解鎖時整批不會出現在畫面上——包含統計與月曆，而且是伺服器
+        那端就擋掉，不是前端藏起來。標一個領域等於標了它底下的每一個次領域。
       </p>
       {failed && <p className={styles.error}>{failed}</p>}
 
+      {/* 書與文章叫領域／次領域，書寫才叫類型——刻意不統一，
+          三個東西都叫「類型」的話畫面上分不出在講哪一個 */}
       <Group
-        title="類型（書與文章）"
+        title="領域（書與文章）"
         target="type"
         nodes={flags.types}
         busyId={busyId}
@@ -143,7 +145,6 @@ export function PrivacyFlagsPanel() {
         busyId={busyId}
         onFlip={flip}
       />
-      <Group title="關鍵字" target="keyword" nodes={flags.keywords} busyId={busyId} onFlip={flip} />
     </div>
   );
 }

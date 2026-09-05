@@ -1,6 +1,6 @@
 import { and, eq, isNull } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db/client";
-import { attributes, bookTypes, keywords, writingTypes } from "@/lib/db/schema/taxonomy";
+import { attributes, bookTypes, writingTypes } from "@/lib/db/schema/taxonomy";
 import { splitLines } from "@/types/book";
 
 /**
@@ -53,13 +53,13 @@ export async function attributeIdFor(tx: Tx, value: string): Promise<string | nu
 }
 
 /**
- * 標記／取消私人。三種各有一張表，但畫面上是同一件事，所以收成一支。
+ * 標記／取消私人。兩種各有一張表，但畫面上是同一件事，所以收成一支。
  *
  * 不進交易：一次只改一列，而且它不牽動別的表——類型底下的子類型會跟著藏，
  * 那是讀取時沿樹走出來的（見 queries/settings 的 privateTypeNames），
  * 不是把旗標抄下去。
  */
-export type PrivacyTarget = "type" | "writingType" | "keyword";
+export type PrivacyTarget = "type" | "writingType";
 
 export async function setPrivacyFlag(
   target: PrivacyTarget,
@@ -70,9 +70,5 @@ export async function setPrivacyFlag(
     await db.update(bookTypes).set({ isPrivate }).where(eq(bookTypes.id, id));
     return;
   }
-  if (target === "writingType") {
-    await db.update(writingTypes).set({ isPrivate }).where(eq(writingTypes.id, id));
-    return;
-  }
-  await db.update(keywords).set({ isPrivate }).where(eq(keywords.name, id));
+  await db.update(writingTypes).set({ isPrivate }).where(eq(writingTypes.id, id));
 }

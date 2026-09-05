@@ -15,6 +15,13 @@
       "when": 1788516898262,
       "tag": "0001_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788581526841,
+      "tag": "0002_drop_keyword_private",
+      "breakpoints": true
     }
   ]
 }

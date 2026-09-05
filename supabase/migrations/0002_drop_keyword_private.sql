@@ -1,0 +1,1 @@
+ALTER TABLE "keywords" DROP COLUMN "is_private";

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db/client";
-import { bookTypes, keywords, writingTypes } from "@/lib/db/schema/taxonomy";
+import { bookTypes, writingTypes } from "@/lib/db/schema/taxonomy";
 
 /**
  * 類型樹攤成「節點 → 領域／次領域」。
@@ -33,9 +33,8 @@ export interface PrivacyFlagNode {
 }
 
 export interface PrivacyFlags {
-  types: PrivacyFlagNode[]; // 書與文章的類型樹
+  types: PrivacyFlagNode[]; // 書與文章的領域樹
   writingTypes: PrivacyFlagNode[]; // 書寫的類型，平的
-  keywords: PrivacyFlagNode[]; // 關鍵字，名字就是 id
 }
 
 /**
@@ -45,7 +44,7 @@ export interface PrivacyFlags {
  * 畫面才不用替每一種各寫一遍。
  */
 export async function privacyFlags(): Promise<PrivacyFlags> {
-  const [typeRows, writingRows, keywordRows] = await Promise.all([
+  const [typeRows, writingRows] = await Promise.all([
     db
       .select({
         id: bookTypes.id,
@@ -57,7 +56,6 @@ export async function privacyFlags(): Promise<PrivacyFlags> {
     db
       .select({ id: writingTypes.id, name: writingTypes.name, isPrivate: writingTypes.isPrivate })
       .from(writingTypes),
-    db.select({ name: keywords.name, isPrivate: keywords.isPrivate }).from(keywords),
   ]);
 
   const byParent = new Map<string, typeof typeRows>();
@@ -81,8 +79,5 @@ export async function privacyFlags(): Promise<PrivacyFlags> {
       .sort(byName)
       .map(toNode),
     writingTypes: writingRows.sort(byName).map((r) => ({ ...r, children: [] })),
-    keywords: keywordRows
-      .sort(byName)
-      .map((r) => ({ id: r.name, name: r.name, isPrivate: r.isPrivate, children: [] })),
   };
 }
