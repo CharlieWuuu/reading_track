@@ -17,7 +17,7 @@ async function GETHandler() {
   if (!session) return unauthorized();
 
   try {
-    const keywords = await listKeywords();
+    const keywords = await listKeywords(session.user.id);
     return NextResponse.json({ keywords });
   } catch (err) {
     return dataFailure("讀取", "listKeywords", err);
@@ -40,7 +40,7 @@ async function POSTHandler(req: NextRequest) {
   if (!Array.isArray(names)) return badRequest("缺少必要欄位");
 
   try {
-    const result = await enrichKeywords(names, retry);
+    const result = await enrichKeywords(session.user.id, names, retry);
     return NextResponse.json(result);
   } catch (err) {
     return dataFailure("補齊", "enrichKeywords", err);
@@ -66,9 +66,9 @@ async function PUTHandler(req: NextRequest) {
     // 改名先做：名字是主鍵，關聯表靠 on update cascade 跟著改
     const renamed =
       previousName && previousName !== keyword.name
-        ? await renameKeyword(previousName, keyword.name)
+        ? await renameKeyword(session.user.id, previousName, keyword.name)
         : 0;
-    await replaceKeywordInfo(keyword);
+    await replaceKeywordInfo(session.user.id, keyword);
 
     return NextResponse.json({ ok: true, renamed });
   } catch (err) {
@@ -87,7 +87,7 @@ async function DELETEHandler(req: NextRequest) {
   if (!name) return badRequest("缺少必要欄位");
 
   try {
-    const removed = await deleteKeyword(name);
+    const removed = await deleteKeyword(session.user.id, name);
     return NextResponse.json({ ok: true, removed });
   } catch (err) {
     return dataFailure("刪除", "deleteKeyword", err);

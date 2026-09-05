@@ -14,10 +14,11 @@ const TARGETS: PrivacyTarget[] = ["type", "writingType"];
 
 /** 設定頁那份清單：類型樹、書寫類型、關鍵字，各自帶著現在的旗標 */
 export const GET = guarded("taxonomy privacy GET", async () => {
-  if (!(await requireSession())) return unauthorized();
+  const session = await requireSession();
+  if (!session) return unauthorized();
 
   try {
-    return NextResponse.json(await privacyFlags());
+    return NextResponse.json(await privacyFlags(session.user.id));
   } catch (err) {
     return dataFailure("讀取", "privacyFlags", err);
   }
@@ -25,7 +26,8 @@ export const GET = guarded("taxonomy privacy GET", async () => {
 
 /** 標記或取消一個節點 */
 export const PATCH = guarded("taxonomy privacy PATCH", async (req: NextRequest) => {
-  if (!(await requireSession())) return unauthorized();
+  const session = await requireSession();
+  if (!session) return unauthorized();
 
   const body = await readJsonBody<{ target?: PrivacyTarget; id?: string; isPrivate?: boolean }>(
     req,
@@ -37,7 +39,7 @@ export const PATCH = guarded("taxonomy privacy PATCH", async (req: NextRequest) 
   }
 
   try {
-    await setPrivacyFlag(target, id, isPrivate);
+    await setPrivacyFlag(session.user.id, target, id, isPrivate);
     return NextResponse.json({ ok: true });
   } catch (err) {
     return dataFailure("寫入", "setPrivacyFlag", err);

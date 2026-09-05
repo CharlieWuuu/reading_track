@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   let idsBackfilled: number;
   try {
     // 讀取時會順便把沒有編號的列補上 uuid
-    ({ books, idsBackfilled } = await listBooksWithMeta());
+    ({ books, idsBackfilled } = await listBooksWithMeta(session.user.id));
   } catch (err) {
     console.error("enrich: 讀取失敗", err);
     return NextResponse.json({ error: "讀取失敗" }, { status: 502 });
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
   try {
-    await bulkUpdateBooks(patches);
+    await bulkUpdateBooks(session.user.id, patches);
   } catch (err) {
     console.error("enrich: 寫回失敗", err);
     return NextResponse.json({ error: "寫回失敗，請稍後再試", updated: 0 }, { status: 502 });

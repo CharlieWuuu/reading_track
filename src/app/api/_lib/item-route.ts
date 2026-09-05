@@ -17,8 +17,8 @@ export type ItemRoute = { PATCH: Handler; DELETE: Handler };
 type ItemConfig<P> = {
   /** 只拿來當 log 標籤，這一組 route 的鍵名都固定 */
   key: string;
-  update: (id: string, patch: P) => Promise<unknown>;
-  remove: (id: string) => Promise<unknown>;
+  update: (userId: string, id: string, patch: P) => Promise<unknown>;
+  remove: (userId: string, id: string) => Promise<unknown>;
 };
 
 export function createItemRoute<P>(config: ItemConfig<P>): ItemRoute {
@@ -33,7 +33,7 @@ export function createItemRoute<P>(config: ItemConfig<P>): ItemRoute {
     if (!body) return badRequest("請求內容不是有效的 JSON");
 
     try {
-      await update(id, body.patch);
+      await update(session.user.id, id, body.patch);
       return NextResponse.json({ ok: true });
     } catch (err) {
       return dataFailure("更新", `update ${key}`, err);
@@ -46,7 +46,7 @@ export function createItemRoute<P>(config: ItemConfig<P>): ItemRoute {
 
     const { id } = await params;
     try {
-      await remove(id);
+      await remove(session.user.id, id);
       return NextResponse.json({ ok: true });
     } catch (err) {
       return dataFailure("刪除", `delete ${key}`, err);

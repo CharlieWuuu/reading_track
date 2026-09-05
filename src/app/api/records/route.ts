@@ -19,14 +19,14 @@ export async function GET(req: NextRequest) {
 
   try {
     const [vocabulary, quotes, privacy] = await Promise.all([
-      listVocabularyRows(),
-      listQuoteRows(),
-      requestPrivacy(req),
+      listVocabularyRows(session.user.id),
+      listQuoteRows(session.user.id),
+      requestPrivacy(session.user.id, req),
     ]);
     if (privacy.unlocked) return NextResponse.json({ vocabulary, quotes });
 
     // 佳句與單字自己沒有私人欄，但它們屬於某一本書——那本書私人，它們就跟著藏起來
-    const books = await listBooks();
+    const books = await listBooks(session.user.id);
     const hidden = new Set(
       books.filter((book) => isPrivate(book, privacy.options)).map((b) => b.id),
     );
@@ -55,8 +55,9 @@ export async function PUT(req: NextRequest) {
   }
 
   try {
-    if (kind === "vocabulary") await replaceBookVocabulary(bookId, rows as VocabularyRow[]);
-    else await replaceBookQuotes(bookId, rows as QuoteRow[]);
+    const userId = session.user.id;
+    if (kind === "vocabulary") await replaceBookVocabulary(userId, bookId, rows as VocabularyRow[]);
+    else await replaceBookQuotes(userId, bookId, rows as QuoteRow[]);
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("replaceBookRecords failed:", err);
