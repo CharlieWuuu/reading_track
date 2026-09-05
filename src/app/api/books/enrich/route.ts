@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readOnly, requireWriter } from "@/app/api/_lib/respond";
+import { requireWriter, unauthorized } from "@/app/api/_lib/respond";
 import { bulkUpdateBooks } from "@/lib/db/mutations/books";
 import { listBooksWithMeta } from "@/lib/db/queries/books";
+import { DEMO_DAILY_LIMIT, takeDemoQuota } from "@/lib/demo/quota";
 import { fetchBookMetadata, mergeEnrichment, missingFields } from "@/lib/metadata";
 import { Book } from "@/types/book";
 
@@ -19,7 +20,15 @@ const WRITE_BUDGET_MS = 12000;
 
 export async function POST(req: NextRequest) {
   const session = await requireWriter();
-  if (!session) return readOnly();
+  if (!session) return unauthorized();
+
+  // demo 訪客也能補資料，但一天有額度——這條路要打外部 API
+  if ("demo" in session && !(await takeDemoQuota(session.user.id, CONCURRENCY))) {
+    return NextResponse.json(
+      { error: `展示版今天的補資料額度用完了（每天 ${DEMO_DAILY_LIMIT} 次）` },
+      { status: 429 },
+    );
+  }
 
   const { after } = (await req.json()) as { after?: string };
 

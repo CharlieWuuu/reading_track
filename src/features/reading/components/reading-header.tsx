@@ -5,7 +5,6 @@ import { BookOpen, Languages, Newspaper, Plus, Quote, Tag } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { ActionButton, SelectMenu } from "@/components/ui/controls";
 import { SearchBar } from "@/components/ui/search-bar";
-import { IS_DEMO } from "@/config/demo";
 import { READING_TABS, ReadingTab, readingTabHref } from "@/config/tabs";
 import { useUrlParams } from "@/hooks/use-url-param";
 
@@ -73,14 +72,12 @@ export function ReadingHeader({ views, filters, newButton }: ReadingHeaderProps 
           {views}
           {filters}
           {/* 按鈕只放一個加號：旁邊的類型已經說了現在在看書籍還是文章 */}
-          {IS_DEMO
-            ? null
-            : (newButton ??
-              (newHref && (
-                <ActionButton href={newHref} label="新增">
-                  <Plus size={16} strokeWidth={2} aria-hidden />
-                </ActionButton>
-              )))}
+          {newButton ??
+            (newHref && (
+              <ActionButton href={newHref} label="新增">
+                <Plus size={16} strokeWidth={2} aria-hidden />
+              </ActionButton>
+            ))}
         </div>
       }
     />

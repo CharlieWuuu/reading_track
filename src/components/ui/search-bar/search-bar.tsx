@@ -6,15 +6,17 @@ import { CONTROL_HEIGHT } from "@/components/ui/controls";
 
 const styles = {
   box: `flex ${CONTROL_HEIGHT} min-w-0 flex-1 items-center gap-1.5 rounded-control border border-rule-strong px-2.5`,
+  collapsed: `flex ${CONTROL_HEIGHT} aspect-square shrink-0 items-center justify-center rounded-control text-gray-400 hover:bg-gray-100 hover:text-gray-900`,
   input: "min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400",
   clear: "shrink-0 text-gray-400 hover:text-gray-900",
 };
 
 /**
- * 頁首那一列的搜尋框，吃掉標題與右邊控制項之間的寬度。
+ * 頁首那一列的搜尋框。平常收成一顆放大鏡，點了才展開。
  *
- * 原本收成一顆放大鏡，點了才展開——那是因為旁邊還排著五個分頁；分頁收進選單
- * 之後那一列空了出來，常駐比「點一下才能打字」少一步。
+ * 中間有一版是常駐的（分頁收進選單後那一列空了），但一個永遠空著的輸入框
+ * 佔掉整列還是太吵——搜尋是偶爾才用的動作，值得多按一下換畫面乾淨。
+ * 有字的時候不收回去，不然看不出清單正被過濾。
  */
 export function SearchBar({
   value,
@@ -35,11 +37,29 @@ export function SearchBar({
   }, [text, value, onChange]);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const [open, setOpen] = useState(Boolean(value));
 
   function clear() {
     setText("");
     onChange("");
     inputRef.current?.focus();
+  }
+
+  if (!open && !text) {
+    return (
+      <button
+        type="button"
+        aria-label={placeholder}
+        onClick={() => {
+          setOpen(true);
+          // 這一輪還沒畫出 input，等下一輪再對焦
+          requestAnimationFrame(() => inputRef.current?.focus());
+        }}
+        className={styles.collapsed}
+      >
+        <Search size={16} strokeWidth={1.5} aria-hidden />
+      </button>
+    );
   }
 
   return (
@@ -50,6 +70,7 @@ export function SearchBar({
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => e.key === "Escape" && clear()}
+        onBlur={() => !text && setOpen(false)}
         placeholder={placeholder}
         aria-label={placeholder}
         className={styles.input}
