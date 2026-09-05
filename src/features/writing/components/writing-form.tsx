@@ -13,6 +13,7 @@ import { saveMetric } from "@/features/writing/api/save-metric";
 import { scrapeWritingStats } from "@/features/writing/api/scrape-stats";
 import { SourcePicker } from "@/features/writing/components/source-picker";
 import { useWritingsFormTab } from "@/features/writing/components/writing-form-tabs";
+import { useEntryForm } from "@/hooks/use-entry-form";
 import { useMetrics } from "@/hooks/use-metrics";
 import { useRecordForm } from "@/hooks/use-record-form";
 import { useUrlParams } from "@/hooks/use-url-param";
@@ -81,23 +82,19 @@ export function WritingForm({ entry }: { entry?: Writing }) {
   );
 
   const { searchParams } = useUrlParams();
-  const [form, setForm] = useState<FormState>(() =>
-    toForm(entry, {
-      sourceId: searchParams.get("sourceId") ?? "",
-      sourceTitle: searchParams.get("sourceTitle") ?? "",
-      kind: searchParams.get("kind") ?? "",
-      // 從書籍／文章那個框帶過來的草稿，不用再打一次
-      note: searchParams.get("note") ?? "",
-    }),
-  );
+  const prefill = {
+    sourceId: searchParams.get("sourceId") ?? "",
+    sourceTitle: searchParams.get("sourceTitle") ?? "",
+    kind: searchParams.get("kind") ?? "",
+    // 從書籍／文章那個框帶過來的草稿，不用再打一次
+    note: searchParams.get("note") ?? "",
+  };
+  // 背景重抓回來的資料要蓋掉畫面上的舊快取——但只在使用者還沒動過的時候
+  const { form, set, update } = useEntryForm(entry, (e) => toForm(e, prefill));
   const [fetchingStats, setFetchingStats] = useState(false);
   const [statsNote, setStatsNote] = useState("");
   const { latestByWriting, mutate: mutateMetrics } = useMetrics();
   const latest = entry ? latestByWriting.get(entry.id) : undefined;
-
-  function set<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setForm((f) => ({ ...f, [key]: value }));
-  }
 
   const {
     submitting,
@@ -239,7 +236,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
               <SourcePicker
                 title={form.sourceTitle}
                 onChange={(title, id) =>
-                  setForm((f) => ({ ...f, sourceTitle: title, sourceId: id }))
+                  update((f) => ({ ...f, sourceTitle: title, sourceId: id }))
                 }
               />
             </div>

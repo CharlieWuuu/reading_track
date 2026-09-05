@@ -10,6 +10,7 @@ import { useBookFormTab } from "@/features/books/components/book-form-tabs";
 import { BookRecordPanel } from "@/features/books/components/book-record-panel";
 import { useBookRefetch } from "@/features/books/hooks/use-book-refetch";
 import { useBooks } from "@/hooks/use-books";
+import { useEntryForm } from "@/hooks/use-entry-form";
 import { useRecordForm } from "@/hooks/use-record-form";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
@@ -132,7 +133,8 @@ export function BookForm({
     setVocabularyRows(vocabulary.filter((row) => row.bookId === bookId));
     setQuoteRows(quotes.filter((row) => row.bookId === bookId));
   }
-  const [form, setForm] = useState<FormState>(toForm(book ?? initial ?? {}));
+  // 背景重抓回來的資料要蓋掉畫面上的舊快取——但只在使用者還沒動過的時候
+  const { form, set, update } = useEntryForm(book, (b) => toForm(b ?? initial ?? {}));
   const isEdit = Boolean(book);
 
   const {
@@ -178,11 +180,7 @@ export function BookForm({
     );
   }
 
-  useBookRefetch(form, setForm);
-
-  function set<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setForm((f) => ({ ...f, [key]: value }));
-  }
+  useBookRefetch(form, update);
 
   return (
     // 書名在「書籍」那一頁，沒填時要先切過去，不然錯誤訊息旁邊是空的
