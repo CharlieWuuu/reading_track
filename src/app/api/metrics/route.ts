@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readOnly, requireWriter } from "@/app/api/_lib/respond";
 import { auth } from "@/lib/auth";
 import { addMetricRow } from "@/lib/db/mutations/writings";
 import { listMetrics } from "@/lib/db/queries/writings";
@@ -24,8 +25,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await requireSession();
-  if (!session) return NextResponse.json({ error: "請先登入" }, { status: 401 });
+  const session = await requireWriter();
+  if (!session) return readOnly();
 
   const { metric } = (await req.json()) as { metric: Metric };
   if (!metric) return NextResponse.json({ error: "缺少必要欄位" }, { status: 400 });

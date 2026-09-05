@@ -4,7 +4,9 @@ import {
   dataFailure,
   guarded,
   readJsonBody,
+  readOnly,
   requireSession,
+  requireWriter,
   unauthorized,
 } from "@/app/api/_lib/respond";
 import { setPrivacyFlag, type PrivacyTarget } from "@/lib/db/mutations/taxonomy";
@@ -26,8 +28,8 @@ export const GET = guarded("taxonomy privacy GET", async () => {
 
 /** 標記或取消一個節點 */
 export const PATCH = guarded("taxonomy privacy PATCH", async (req: NextRequest) => {
-  const session = await requireSession();
-  if (!session) return unauthorized();
+  const session = await requireWriter();
+  if (!session) return readOnly();
 
   const body = await readJsonBody<{ target?: PrivacyTarget; id?: string; isPrivate?: boolean }>(
     req,

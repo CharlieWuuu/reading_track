@@ -4,8 +4,8 @@ import {
   dataFailure,
   guarded,
   readJsonBody,
-  requireSession,
-  unauthorized,
+  readOnly,
+  requireWriter,
 } from "@/app/api/_lib/respond";
 
 type Context = { params: Promise<{ id: string }> };
@@ -25,8 +25,8 @@ export function createItemRoute<P>(config: ItemConfig<P>): ItemRoute {
   const { key, update, remove } = config;
 
   async function PATCH(req: NextRequest, { params }: Context): Promise<NextResponse> {
-    const session = await requireSession();
-    if (!session) return unauthorized();
+    const session = await requireWriter();
+    if (!session) return readOnly();
 
     const { id } = await params;
     const body = await readJsonBody<{ patch: P }>(req, `update ${key}`);
@@ -41,8 +41,8 @@ export function createItemRoute<P>(config: ItemConfig<P>): ItemRoute {
   }
 
   async function DELETE(_req: NextRequest, { params }: Context): Promise<NextResponse> {
-    const session = await requireSession();
-    if (!session) return unauthorized();
+    const session = await requireWriter();
+    if (!session) return readOnly();
 
     const { id } = await params;
     try {

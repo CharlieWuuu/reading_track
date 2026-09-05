@@ -1,15 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
+import { DEMO_EMAIL } from "@/config/demo";
 import { auth } from "@/lib/auth";
+import { findUserByEmail } from "@/lib/db/queries/users";
 
+/** demo 帳號的 uuid 查一次就好，同一個實例裡不會變 */
+let demoUserId: string | null = null;
+
+async function demoViewer() {
+  if (!DEMO_EMAIL) return null;
+  demoUserId ??= (await findUserByEmail(DEMO_EMAIL))?.id ?? null;
+  return demoUserId ? { user: { id: demoUserId }, demo: true as const } : null;
+}
+
+/**
+ * 讀取用。demo 站沒登入的訪客也算數，看到的是 demo 帳號的資料。
+ *
+ * userId 是每支查詢的依據，沒有它就當作沒登入——寧可要求重新登入，
+ * 也不要拿 undefined 去比對。
+ */
 export async function requireSession() {
   const session = await auth();
-  // userId 是每支查詢的依據，沒有它就當作沒登入——寧可要求重新登入，
-  // 也不要拿 undefined 去比對
-  if (!session?.user?.id) return null;
-  return session;
+  if (session?.user?.id) return session;
+  return demoViewer();
+}
+
+/** 寫入用。demo 訪客過不了這一關，真的登入才行 */
+export async function requireWriter() {
+  const session = await auth();
+  return session?.user?.id ? session : null;
 }
 
 export const unauthorized = () => NextResponse.json({ error: "請先登入" }, { status: 401 });
+
+/** demo 站的訪客按到寫入時的回應 */
+export const readOnly = () => NextResponse.json({ error: "展示版不能修改資料" }, { status: 403 });
 
 export const badRequest = (message: string) =>
   NextResponse.json({ error: message }, { status: 400 });

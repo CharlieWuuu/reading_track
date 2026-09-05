@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { readOnly, requireWriter } from "@/app/api/_lib/respond";
 import { bulkUpdateBooks } from "@/lib/db/mutations/books";
 import { listBooksWithMeta } from "@/lib/db/queries/books";
 import { fetchBookMetadata, mergeEnrichment, missingFields } from "@/lib/metadata";
@@ -18,10 +18,8 @@ const CONCURRENCY = 2;
 const WRITE_BUDGET_MS = 12000;
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "請先登入" }, { status: 401 });
-  }
+  const session = await requireWriter();
+  if (!session) return readOnly();
 
   const { after } = (await req.json()) as { after?: string };
 
