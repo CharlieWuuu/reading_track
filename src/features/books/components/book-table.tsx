@@ -140,7 +140,11 @@ export function BookTable() {
   }
 
   if (error) {
-    return <PageMessage tone="error">{error}</PageMessage>;
+    return (
+      <PageMessage tone="error" fill>
+        {error}
+      </PageMessage>
+    );
   }
 
   if (books.length === 0) {
@@ -149,7 +153,7 @@ export function BookTable() {
         {/* 0 本也要說出來：沒有標題列的話，看起來像篩選沒生效 */}
         <ListHeading label={heading} count={0} />
         {keyword && <KeywordFilter keyword={keyword} count={0} onClear={clearKeyword} />}
-        <PageMessage>
+        <PageMessage fill>
           {terms.length > 0
             ? "沒有符合的書"
             : keyword

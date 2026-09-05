@@ -34,8 +34,13 @@ export function WritingList({ timeline }: { timeline: (writings: Writing[]) => R
 
   if (!mounted) return null;
   if (isLoading) return <PageLoading />;
-  if (error) return <PageMessage tone="error">{error}</PageMessage>;
-  if (writings.length === 0) return <PageMessage>符合條件的書寫是空的</PageMessage>;
+  if (error)
+    return (
+      <PageMessage tone="error" fill>
+        {error}
+      </PageMessage>
+    );
+  if (writings.length === 0) return <PageMessage fill>符合條件的書寫是空的</PageMessage>;
 
   return (
     <PageBody>

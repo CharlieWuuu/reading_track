@@ -158,7 +158,7 @@ function ArticleTable({ articles }: { articles: Article[] }) {
 /** 文章清單。跟書籍一樣有表格與卡片兩種檢視，只是沒有封面可以看 */
 export function ReadingList({ articles, view }: { articles: Article[]; view: BookViewMode }) {
   if (articles.length === 0) {
-    return <PageMessage>還沒有記下任何文章</PageMessage>;
+    return <PageMessage fill>還沒有記下任何文章</PageMessage>;
   }
 
   if (view === "card") return <ArticleCards articles={articles} />;

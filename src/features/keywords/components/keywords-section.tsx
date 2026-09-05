@@ -50,7 +50,7 @@ export function KeywordsSection({ books, view }: { books: Book[]; view: KeywordV
 
   const entries = getKeywordEntries(books);
   if (entries.length === 0) {
-    return <PageMessage>還沒有任何關鍵字，先到書籍的「關鍵字」欄記幾個</PageMessage>;
+    return <PageMessage fill>還沒有任何關鍵字，先到書籍的「關鍵字」欄記幾個</PageMessage>;
   }
 
   return (

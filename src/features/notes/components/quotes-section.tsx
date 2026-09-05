@@ -19,7 +19,7 @@ export function QuotesSection({ books }: { books: Book[] }) {
   const records = getQuoteRecords(quotes, books);
 
   if (isLoading) return <PageLoading />;
-  if (records.length === 0) return <PageMessage>還沒有記下任何佳句</PageMessage>;
+  if (records.length === 0) return <PageMessage fill>還沒有記下任何佳句</PageMessage>;
 
   return (
     <div className={styles.list}>
