@@ -17,7 +17,16 @@ if (!url) throw new Error("DATABASE_URL 沒設");
  * 一個實例只要一條連線。postgres.js 預設開 10，乘上 serverless 的實例數就把
  * pooler 的額度吃光了——症狀是全站「讀取失敗」，錯誤訊息在伺服器端才看得到。
  */
-const sql = postgres(url, { prepare: false, max: 1 });
+const sql = postgres(url, {
+  prepare: false,
+  max: 1,
+  // serverless 上實例來來去去，連線不主動還就會一直累積，最後把 pooler 的名額
+  // 佔滿——症狀是每一支 API 都卡到 30 秒逾時（504），而不是明確的錯誤
+  idle_timeout: 20,
+  max_lifetime: 60 * 5,
+  // 連不上就快點失敗，不要拖到函式逾時；那時使用者只會看到一片空白
+  connect_timeout: 10,
+});
 
 export const db = drizzle(sql);
 
