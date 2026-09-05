@@ -5,18 +5,18 @@ import { Search, X } from "lucide-react";
 import { CONTROL_HEIGHT } from "@/components/ui/controls";
 
 const styles = {
-  box: `flex ${CONTROL_HEIGHT} min-w-0 flex-1 items-center gap-1.5 rounded-control border border-rule-strong px-2.5`,
-  collapsed: `flex ${CONTROL_HEIGHT} aspect-square shrink-0 items-center justify-center rounded-control text-gray-400 hover:bg-gray-100 hover:text-gray-900`,
+  box: `flex ${CONTROL_HEIGHT} min-w-0 flex-1 items-center gap-1.5`,
   input: "min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400",
   clear: "shrink-0 text-gray-400 hover:text-gray-900",
 };
 
 /**
- * 頁首那一列的搜尋框。平常收成一顆放大鏡，點了才展開。
+ * 頁首那一列的搜尋框，常駐並吃掉整列剩下的寬度。
  *
- * 中間有一版是常駐的（分頁收進選單後那一列空了），但一個永遠空著的輸入框
- * 佔掉整列還是太吵——搜尋是偶爾才用的動作，值得多按一下換畫面乾淨。
- * 有字的時候不收回去，不然看不出清單正被過濾。
+ * 有一版是收成放大鏡、點了才展開的，換掉了：少按一下比畫面乾淨值錢，
+ * 而且收起來時看不出這一頁能不能搜。旁邊的按鈕都 shrink-0，擠的是這一格。
+ *
+ * 不畫框：常駐之後那個框整列都在，比輸入框本身還搶眼。放大鏡已經說明這是搜尋。
  */
 export function SearchBar({
   value,
@@ -37,29 +37,11 @@ export function SearchBar({
   }, [text, value, onChange]);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const [open, setOpen] = useState(Boolean(value));
 
   function clear() {
     setText("");
     onChange("");
     inputRef.current?.focus();
-  }
-
-  if (!open && !text) {
-    return (
-      <button
-        type="button"
-        aria-label={placeholder}
-        onClick={() => {
-          setOpen(true);
-          // 這一輪還沒畫出 input，等下一輪再對焦
-          requestAnimationFrame(() => inputRef.current?.focus());
-        }}
-        className={styles.collapsed}
-      >
-        <Search size={16} strokeWidth={1.5} aria-hidden />
-      </button>
-    );
   }
 
   return (
@@ -70,7 +52,6 @@ export function SearchBar({
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => e.key === "Escape" && clear()}
-        onBlur={() => !text && setOpen(false)}
         placeholder={placeholder}
         aria-label={placeholder}
         className={styles.input}

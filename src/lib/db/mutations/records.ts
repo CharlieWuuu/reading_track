@@ -81,6 +81,44 @@ export async function replaceBookVocabulary(
   });
 }
 
+/**
+ * 單列新增。整批取代是以「哪本書」為單位的，沒有書就沒有那個單位——
+ * 抄到一句話不是從書上看到的，走這條進來，book_id 留空。
+ *
+ * 選了書但那個 readingId 查不到書時視為無書，不是丟錯：寧可留下這一筆。
+ */
+export async function addQuote(userId: string, readingId: string, item: QuoteRow): Promise<void> {
+  if (!item.text.trim()) return;
+  await db.insert(quotes).values({
+    id: item.id || crypto.randomUUID(),
+    userId,
+    bookId: await bookIdOf(userId, readingId),
+    text: item.text,
+    chapter: item.chapter,
+    note: item.note,
+  });
+}
+
+export async function addVocabulary(
+  userId: string,
+  readingId: string,
+  item: VocabularyRow,
+): Promise<void> {
+  if (!item.word.trim()) return;
+  await db.insert(vocabulary).values({
+    id: item.id || crypto.randomUUID(),
+    userId,
+    bookId: await bookIdOf(userId, readingId),
+    word: item.word,
+    pronunciation: item.pronunciation,
+    wordTranslation: item.wordTranslation,
+    sentence: item.sentence,
+    sentenceTranslation: item.sentenceTranslation,
+    chapter: item.chapter,
+    language: item.language,
+  });
+}
+
 /** 維基查回來的資料整批寫入；已經有的就更新，不動使用者自己填的名字 */
 export async function saveKeywordInfos(userId: string, infos: KeywordInfo[]): Promise<void> {
   for (const info of infos) {

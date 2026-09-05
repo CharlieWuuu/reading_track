@@ -28,6 +28,24 @@ export function useRecords() {
     fallbackData,
   });
 
+  /** 一列新增。不掛書就把 bookId 留空——整批取代那條路需要一個書當單位，這條不用 */
+  async function addRow(
+    kind: "vocabulary" | "quotes",
+    bookId: string,
+    row: VocabularyRow | QuoteRow,
+  ) {
+    const res = await fetch("/api/records", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kind, bookId, row }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error ?? "儲存失敗");
+    }
+    await mutate();
+  }
+
   /** 一本書的紀錄整批換掉，跟後端同一個約定 */
   async function saveBookRows(
     kind: "vocabulary" | "quotes",
@@ -53,6 +71,7 @@ export function useRecords() {
     // 已經有舊資料墊著就不算「載入中」，理由同 useBooks
     isLoading: isLoading && !data,
     error: error instanceof Error ? error.message : undefined,
+    addRow,
     saveBookRows,
     mutate,
   };

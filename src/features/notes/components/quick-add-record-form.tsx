@@ -48,10 +48,13 @@ const styles = {
  * 快速記一句／一個字，不用穿過整本書的表單。
  *
  * 存完留在原地並清空欄位、書留著——抄書通常一次抄好幾句，跳走等於每句都要重來。
+ *
+ * 書是選填：聽到一個字、路上看到一句話，來源不是書也留得下來。走單列新增而不是
+ * 整批取代，沒有書就沒有「一本書的列」這個單位可以取代。
  */
 export function QuickAddRecordForm({ kind, onSaved }: { kind: Kind; onSaved?: () => void }) {
   const { books } = useBooks();
-  const { quotes, vocabulary, saveBookRows } = useRecords();
+  const { addRow } = useRecords();
   const [book, setBook] = useState<Book | null>(null);
   const [form, setForm] = useState<Record<string, string>>({ ...EMPTY[kind] });
   const [saving, setSaving] = useState(false);
@@ -60,26 +63,20 @@ export function QuickAddRecordForm({ kind, onSaved }: { kind: Kind; onSaved?: ()
 
   const fields = FIELDS[kind];
   const required = fields[0].key;
-  const canSave = Boolean(book) && Boolean(form[required]?.trim()) && !saving;
+  const canSave = Boolean(form[required]?.trim()) && !saving;
 
   async function save() {
-    if (!book) return;
     setSaving(true);
     setError("");
     try {
-      // 整批取代是後端的約定，所以要把這本書現有的那幾列一起送回去
-      const existing = (kind === "quotes" ? quotes : vocabulary).filter(
-        (r) => r.bookId === book.id,
-      );
       const row = {
         id: crypto.randomUUID(),
-        bookId: book.id,
-        bookTitle: book.title,
+        bookId: book?.id ?? "",
+        bookTitle: book?.title ?? "",
         ...EMPTY[kind],
         ...form,
       };
-      await saveBookRows(kind, book.id, book.title, [...existing, row] as
-        QuoteRow[] | VocabularyRow[]);
+      await addRow(kind, row.bookId, row as QuoteRow | VocabularyRow);
       setForm({ ...EMPTY[kind] }); // 書留著，內容清掉
       setSaved((n) => n + 1);
       onSaved?.();
