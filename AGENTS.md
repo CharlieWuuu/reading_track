@@ -22,7 +22,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 # 程式風格
 
 - **FP 為核心** — 純函式優先，不改參數、不藏副作用
-- **I/O 集中在薄一層**（fetch、Sheet、localStorage），轉換抽成純函式進 `utils/`，才測得到
+- **I/O 集中在薄一層**（fetch、db、localStorage），轉換抽成純函式進 `utils/`，才測得到
 - map／filter／reduce，不要邊迴圈邊改外部變數；資料不可變
 - 不用 class 與繼承
 - **一個檔一件事** — 超過 150 行就問「是不是混了兩件事」，尤其 I/O 混著資料整形
@@ -51,7 +51,7 @@ src/
   stores/       zustand
   config/       協定常數
   types/        全域型別
-  lib/          包過的第三方（sheets、swrCache、scrapers/…）
+  lib/          包過的第三方（swrCache、scrapers/…）
 ```
 
 放哪：**兩個以上 feature 用 → 共用層；一個 feature 用 → 進該 feature**。`lib/` 只放第三方包裝。
@@ -69,6 +69,6 @@ eslint 用 `import/no-restricted-paths` 鎖邊界，跨 feature 例外列在 `AL
 
 # 產品原則
 
-- Google Sheet 是資料庫也是後台編輯器，**不要提遷移**。多值一行一筆，不塞 JSON
+- 資料在 Postgres（drizzle，`lib/db`）。多值一行一筆，不塞 JSON
 - 只收手動紀錄，不自動抓 commit 或運動 app
 - 私人項目擋的是「同事瞄一眼」，不是加密；過濾在伺服器端
