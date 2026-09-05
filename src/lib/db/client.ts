@@ -14,12 +14,16 @@ const url = process.env.DATABASE_URL;
 if (!url) throw new Error("DATABASE_URL 沒設");
 
 /**
- * 一個實例只要一條連線。postgres.js 預設開 10，乘上 serverless 的實例數就把
- * pooler 的額度吃光了——症狀是全站「讀取失敗」，錯誤訊息在伺服器端才看得到。
+ * 連線池大小。
+ *
+ * 預設的 10 乘上 serverless 的實例數會把 pooler 的額度吃光（症狀是全站
+ * 讀取失敗）；但收到 1 又太少——一個實例會同時處理多個請求，而書籍與文章
+ * 那兩支各自要發三個查詢，全部擠在同一條連線上排隊，排不完就 30 秒逾時。
+ * 兩個極端都試過了，3 是中間值：夠讓一支 route 的三個查詢並行，又不會失控。
  */
 const sql = postgres(url, {
   prepare: false,
-  max: 1,
+  max: 3,
   // serverless 上實例來來去去，連線不主動還就會一直累積，最後把 pooler 的名額
   // 佔滿——症狀是每一支 API 都卡到 30 秒逾時（504），而不是明確的錯誤
   idle_timeout: 20,
