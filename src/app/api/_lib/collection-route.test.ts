@@ -12,7 +12,6 @@ vi.mock("@/lib/db/queries/settings", () => ({
     stored: "",
     privateKinds: ["日記"],
     privateTypes: ["政治"],
-    privateKeywords: ["祕密"],
   })),
 }));
 
@@ -93,7 +92,7 @@ describe("GET", () => {
     expect(await res.json()).toEqual({ books: [{ id: "b1", domain: "文學" }] });
   });
 
-  it("掛了私人關鍵字的那筆也不會離開伺服器", async () => {
+  it("關鍵字不帶私人旗標，掛什麼字都照樣送出去", async () => {
     const { route } = build([
       { id: "b1", keywords: "東京" },
       { id: "b2", keywords: "東京\n祕密" },
@@ -101,7 +100,12 @@ describe("GET", () => {
 
     const res = await route.GET(new NextRequest(url()));
 
-    expect(await res.json()).toEqual({ books: [{ id: "b1", keywords: "東京" }] });
+    expect(await res.json()).toEqual({
+      books: [
+        { id: "b1", keywords: "東京" },
+        { id: "b2", keywords: "東京\n祕密" },
+      ],
+    });
   });
 
   it("書寫的類型標了私人的那筆也不會離開伺服器", async () => {

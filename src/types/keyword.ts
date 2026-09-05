@@ -39,10 +39,18 @@ export function parseSpan(value: string): { from: number | null; to: number | nu
   return { from, to };
 }
 
-/** 只切最外層的起訖破折號；西元前的負號長得一樣，所以負號前面要有數字才算分隔 */
+/**
+ * 只切最外層的起訖破折號；西元前的負號長得一樣，所以負號前面要有數字才算分隔。
+ *
+ * 不用 lookbehind：WebKit 要 iOS 16.4 以後才支援，舊版 Safari 連這個檔都
+ * 載不進去——整頁只剩一行 "The string did not match the expected pattern."。
+ * 改成連數字一起比對，再把破折號的位置算回去。
+ */
 function splitSpan(value: string): [string, string?] {
-  const index = value.search(/(?<=\d\s*)[－–—-]/);
-  if (index === -1) return [value];
+  const match = value.match(/\d\s*[－–—-]/);
+  if (!match || match.index === undefined) return [value];
+
+  const index = match.index + match[0].length - 1; // 破折號本身的位置
   return [value.slice(0, index), value.slice(index + 1)];
 }
 

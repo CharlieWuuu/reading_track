@@ -16,7 +16,7 @@ import { useEffect, useRef, useState } from "react";
 export function useEntryForm<E, F>(entry: E | undefined, toForm: (entry: E | undefined) => F) {
   const [form, setForm] = useState<F>(() => toForm(entry));
   const dirty = useRef(false);
-  const seen = useRef(JSON.stringify(entry ?? null));
+  const seen = useRef(entry ? JSON.stringify(entry) : "");
 
   // toForm 每次 render 都是新的函式，放進 ref 才不會讓 effect 每次都跑。
   // render 當中不能碰 ref，所以更新的動作也放在 effect 裡
@@ -26,7 +26,11 @@ export function useEntryForm<E, F>(entry: E | undefined, toForm: (entry: E | und
   });
 
   useEffect(() => {
-    const next = JSON.stringify(entry ?? null);
+    // entry 不見了不算「資料更新了」：清單暫時抓不到那一筆時把表單清成空白，
+    // 使用者會看到自己的內容憑空消失，接著連儲存都過不了驗證
+    if (!entry) return;
+
+    const next = JSON.stringify(entry);
     if (next === seen.current) return;
     seen.current = next;
     if (dirty.current) return;

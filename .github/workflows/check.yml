@@ -21,4 +21,8 @@ jobs:
       # Storybook 的測試跑在真的 chromium 裡，CI 上要自己裝
       - run: npx playwright install --with-deps chromium
 
+      # 測試不連資料庫，但 client.ts 在載入時就要求這個變數；postgres.js 拿到
+      # 字串不會馬上連線，所以擺一條假的就夠了
       - run: npm run check:all
+        env:
+          DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci
