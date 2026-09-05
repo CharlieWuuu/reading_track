@@ -35,6 +35,7 @@ export async function listArticles(userId: string): Promise<Article[]> {
     const type = article.typeId ? types.get(article.typeId) : undefined;
     return {
       id: article.id,
+      createdAt: article.createdAt.toISOString(),
       title: article.title,
       author: article.author,
       platform: article.platform,
