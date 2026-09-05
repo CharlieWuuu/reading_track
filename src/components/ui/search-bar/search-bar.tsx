@@ -5,7 +5,7 @@ import { Search, X } from "lucide-react";
 import { CONTROL_HEIGHT } from "@/components/ui/controls";
 
 const styles = {
-  box: `flex ${CONTROL_HEIGHT} min-w-0 flex-1 items-center gap-1.5 rounded-control border border-rule-strong px-2.5`,
+  box: `flex ${CONTROL_HEIGHT} min-w-0 flex-1 items-center gap-1.5`,
   input: "min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400",
   clear: "shrink-0 text-gray-400 hover:text-gray-900",
 };
@@ -15,6 +15,8 @@ const styles = {
  *
  * 有一版是收成放大鏡、點了才展開的，換掉了：少按一下比畫面乾淨值錢，
  * 而且收起來時看不出這一頁能不能搜。旁邊的按鈕都 shrink-0，擠的是這一格。
+ *
+ * 不畫框：常駐之後那個框整列都在，比輸入框本身還搶眼。放大鏡已經說明這是搜尋。
  */
 export function SearchBar({
   value,
