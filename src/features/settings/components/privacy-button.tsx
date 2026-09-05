@@ -34,6 +34,7 @@ export function PrivacyButton() {
   const [passcode, setPasscode] = useState("");
   const [current, setCurrent] = useState("");
   const [setting, setSetting] = useState(false);
+  const [noPasscode, setNoPasscode] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -45,6 +46,7 @@ export function PrivacyButton() {
     setCurrent("");
     setError("");
     setSetting(false);
+    setNoPasscode(false);
   }
 
   async function handleLock() {
@@ -68,6 +70,11 @@ export function PrivacyButton() {
       await mutate(() => true);
       close();
     } catch (err) {
+      // 這台資料庫還沒有密碼：切到設定模式，不要說「密碼不對」——那是假的
+      if ((err as { noPasscode?: boolean }).noPasscode) {
+        setNoPasscode(true);
+        setSetting(true);
+      }
       setError(err instanceof Error ? err.message : "解鎖失敗");
     } finally {
       setBusy(false);
@@ -90,6 +97,7 @@ export function PrivacyButton() {
       {open && (
         <Dialog title={setting ? "設定私人密碼" : "顯示私人項目"} onClose={close}>
           <form onSubmit={handleSubmit} className={styles.form}>
+            {noPasscode && <p className={styles.hint}>這台資料庫上還沒有密碼，先設一組。</p>}
             <p className={styles.hint}>
               {setting
                 ? "密碼的雜湊存在伺服器，換裝置也通用。它擋的是旁邊的人瞄一眼，不是加密。"

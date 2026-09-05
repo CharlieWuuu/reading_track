@@ -16,6 +16,12 @@ export async function submitPasscode(input: {
     body: JSON.stringify(input),
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error ?? "解鎖失敗");
+  if (!res.ok) {
+    // 409＝這台資料庫還沒有密碼。分開一種錯誤，畫面才切得到「設定」模式，
+    // 不用為了問「有沒有密碼」先打一支 GET
+    const error = new Error(data.error ?? "解鎖失敗") as Error & { noPasscode?: boolean };
+    error.noPasscode = res.status === 409;
+    throw error;
+  }
   return data;
 }

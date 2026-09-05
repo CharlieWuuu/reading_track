@@ -46,6 +46,10 @@ export async function POST(req: NextRequest) {
     const token = passcodeToToken(passcode);
 
     if (action === "verify") {
+      // 沒設過密碼卻來解鎖，說「密碼不對」是假的——那會讓人以為自己記錯了
+      if (!stored) {
+        return NextResponse.json({ error: "還沒設過密碼，請先設一組" }, { status: 409 });
+      }
       if (!isUnlocked(token, stored)) {
         return NextResponse.json({ error: "密碼不對" }, { status: 403 });
       }

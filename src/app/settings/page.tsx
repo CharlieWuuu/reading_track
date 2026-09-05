@@ -7,7 +7,6 @@ import { PageHeader } from "@/components/layout/page-header";
 import { SegmentedControl } from "@/components/ui/controls";
 import { SignInPrompt } from "@/components/ui/sign-in-prompt";
 import { EnrichButton } from "@/features/books/components/enrich-button";
-import { RereadLinker } from "@/features/books/components/reread-linker";
 import { AccountPanel } from "@/features/settings/components/account-panel";
 import { CategoryManager } from "@/features/settings/components/category-manager";
 import { MaintenancePanel } from "@/features/settings/components/maintenance-panel";
@@ -54,9 +53,7 @@ function Settings() {
           <div className="rounded-surface shrink-0 border bg-white p-4 md:min-h-0 md:flex-1 md:overflow-y-auto md:p-5">
             {tab === "categories" && <CategoryManager />}
             {tab === "privacy" && <PrivacyFlagsPanel />}
-            {tab === "maintenance" && (
-              <MaintenancePanel enrichSlot={<EnrichButton />} rereadSlot={<RereadLinker />} />
-            )}
+            {tab === "maintenance" && <MaintenancePanel enrichSlot={<EnrichButton />} />}
             {tab === "account" && <AccountPanel />}
           </div>
         </PageBody>
