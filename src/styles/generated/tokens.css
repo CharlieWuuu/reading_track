@@ -3,6 +3,31 @@
  */
 
 @theme static {
+  --color-neutral-100: #f5f5f6;
+  --color-neutral-200: #ededef; /** 細分隔線；報頭的實線用 900，兩者不同用途 */
+  --color-neutral-300: #d4d5d8;
+  --color-neutral-400: #a2a4a9;
+  --color-neutral-500: #6a6c70;
+  --color-neutral-600: #4a4c50;
+  --color-neutral-700: #2e3033;
+  --color-neutral-900: #17181a; /** 正文與報頭線。版型稿的中性色，比純黑淺一階 */
+  --color-cactus-100: #dde4da;
+  --color-cactus-300: #a9baa4;
+  --color-cactus-500: #6f8a68;
+  --color-cactus-700: #4f6b4a; /** 主重點色，取自靜野封面的仙人掌；白底對比 5.9:1 */
+  --color-cactus-900: #3b5237;
+  --color-dune-100: #f4ece1;
+  --color-dune-300: #e4d3bc;
+  --color-dune-500: #c08a4e; /** 白底只有 3.0:1，只做圖表與色塊，不拿來寫字 */
+  --color-dune-700: #8f6534;
+  --color-sky-100: #e6ecef;
+  --color-sky-300: #c3ced5;
+  --color-sky-500: #8fa3ae;
+  --color-sky-700: #5f7787;
+  --color-brick-100: #f7e4e1;
+  --color-brick-300: #e8b6b0;
+  --color-brick-500: #c0392b; /** 錯誤與未完成，沿用原本的磚紅 */
+  --color-brick-700: #a13023;
   --color-blue-100: #dce6f1;
   --color-blue-200: #cfe0ef;
   --color-blue-300: #b9cde2;
@@ -47,62 +72,89 @@
   --color-sand-700: #6f5b4c;
   --color-sand-800: #5c4a3d;
   --color-white: #ffffff;
-  --color-surface-sunken: var(--color-gray-50);
-  --color-ink: var(--color-gray-900);
-  --color-ink-muted: var(--color-gray-500);
-  --color-ink-faint: var(--color-gray-400);
-  --color-series-overflow: #9ca3af; /** 第 9 個以後合併成「其他」的那一格，不是第 9 個色；值同 Tailwind gray-400，但 recharts 要字面值 */
-  --color-tag-article-bg: var(--color-gray-100);
-  --color-tag-article-ink: var(--color-gray-500); /** 文章標籤是自由打的，沒有固定選項可配色，整組同一個中性色 */
-  --color-control-ink-secondary: var(--color-gray-600); /** 次要按鈕的字：比 ink-idle 深一階，它是可按的、不是沒選中的 */
-  --color-control-ink-faint-hover: var(--color-gray-700);
-  --color-control-ghost-hover: var(--color-gray-100);
-  --color-table-header-bg: var(--color-gray-100);
+  --color-series-overflow: #b9b6ae; /** 第 9 個以後合併成「其他」的那一格，不是第 9 個色；recharts 要字面值 */
   --color-map-label-bg: rgba(255, 255, 255, 0.9); /** 地名常駐在密集的點上，要半透明白底才讀得到 */
-  --color-map-label-ink: var(--color-gray-700);
-  --color-map-chrome-disabled: var(--color-gray-50);
-  --color-map-attribution-ink: var(--color-gray-400);
-  --color-map-attribution-link: var(--color-gray-500);
-  --radius-thumb: 2px; /** 書封、favicon、圖例色塊：小圖只要一點點就夠，再多會看起來像貼紙 */
-  --radius-control: 4px; /** 按鈕、輸入框、分頁列、標籤——頁首那一排全部同一階 */
-  --radius-surface: 8px; /** 卡片、面板、浮層這類成塊的東西 */
+  --font-serif: var(--font-noto-serif), Georgia, 'Songti TC', serif; /** 值用襯線：書名、單字、數字、站名 */
+  --font-sans: var(--font-noto-sans), 'PingFang TC', sans-serif; /** 標籤與介面文字 */
+  --text-site: 40px; /** 報頭站名 */
+  --text-lede: 34px; /** 頭條：一頁只有一個 */
+  --text-page: 30px; /** 頁名 */
+  --text-item: 17px; /** 主要條目 */
+  --text-item-sm: 15px; /** 次要條目、側欄條目 */
+  --text-note: 14px; /** 襯線摘要與引文 */
+  --text-ui: 13.5px; /** 導覽項目、按鈕 */
+  --text-byline: 12px; /** 作者行 */
+  --text-meta: 11px; /** 日期、計數 */
+  --text-label: 10.5px; /** 全大寫小標籤 */
+  --tracking-label: 0.16em; /** 全大寫小標籤 */
+  --tracking-section: 0.12em; /** 側欄分類標題 */
+  --tracking-tight: -0.02em; /** 站名與頭條 */
+  --stroke-hairline: 1px; /** 細線分隔 */
+  --stroke-solid: 1.4px; /** 小標籤下面那條實線、報頭第二條 */
+  --stroke-masthead: 3px; /** 報頭第一條 */
+  --radius-thumb: 1px; /** 書封、favicon、圖例色塊：報紙感要幾乎是直角 */
+  --radius-control: 0px; /** 按鈕、輸入框、分頁列、標籤——版面靠線分，圓角會讓它們看起來像貼紙 */
+  --radius-surface: 0px; /** 面板與浮層；細線分隔不用卡片框，所以也不需要圓角 */
   --color-surface: var(--color-white); /** 頁面底色 */
-  --color-surface-viz: var(--color-sand-50); /** 圖表畫布，比頁面底色暖一點才分得出圖與頁 */
-  --color-ink-viz: var(--color-sand-800); /** 深棕彩度太低會被讀成資料色，所以只當圖上的文字 */
-  --color-ink-viz-muted: var(--color-sand-700);
-  --color-ink-viz-faint: var(--color-sand-600);
-  --color-accent: var(--color-gold-700); /** 主色：主要動作鍵與選中的分頁。gold-600 配白字只有 3.61:1，差一階才過 4.5 */
-  --color-accent-hover: var(--color-gold-800);
+  --color-surface-sunken: var(--color-neutral-100);
+  --color-surface-viz: var(--color-neutral-100); /** 圖表畫布，比頁面底色深一階才分得出圖與頁 */
+  --color-surface-selected: var(--color-dune-300); /** 選取與大面積色塊；配色稿裡唯一拿來鋪底的暖色 */
+  --color-ink: var(--color-neutral-900);
+  --color-ink-secondary: var(--color-neutral-700); /** 摘要與內文；比正文淡一階，還是拿來讀的 */
+  --color-ink-muted: var(--color-neutral-500);
+  --color-ink-faint: var(--color-neutral-400); /** meta 與全大寫小標籤 */
+  --color-ink-viz: var(--color-neutral-900); /** 圖上的文字 */
+  --color-ink-viz-muted: var(--color-neutral-500);
+  --color-ink-viz-faint: var(--color-neutral-400);
+  --color-accent: var(--color-cactus-700); /** 主色：主要動作鍵、選中的分頁、在讀那顆點。白底 5.9:1 */
+  --color-accent-hover: var(--color-cactus-900);
   --color-accent-ink: var(--color-white); /** 壓在主色上的字 */
-  --color-rule: var(--color-sand-250); /** 框線與底色同一支色系才像一套；原本的冷灰配米白底會偏藍，且對白底 1.47:1 太搶 */
-  --color-rule-soft: var(--color-sand-200); /** 同一塊裡分列用；rule 是「這是兩個東西」，這一階是「同一件事的下一行」 */
-  --color-rule-strong: var(--color-sand-800); /** 強調框：卡片、搜尋列、次要按鈕。純黑改成深棕，跟其餘的框同色系 */
-  --color-grid: var(--color-sand-250); /** 圖表格線；米白太淺當不了資料色，當格線剛好 */
-  --color-series-1: var(--color-blue-600);
-  --color-status-want-bg: var(--color-sand-200);
-  --color-status-want-ink: var(--color-sand-800);
-  --color-status-reading-bg: var(--color-gold-600);
-  --color-status-reading-ink: var(--color-white);
-  --color-status-done-bg: var(--color-sand-100); /** 多數狀態給最淡的一階，同色系但幾乎不出聲 */
-  --color-status-done-ink: var(--color-sand-500);
-  --color-tag-domain-bg: var(--color-mint-100);
-  --color-tag-domain-ink: var(--color-mint-700);
-  --color-tag-domain-ring: var(--color-mint-300); /** 次領域用外框版：同色系＝同一件事的粗細兩層 */
-  --color-tag-platform-bg: var(--color-azure-100);
-  --color-tag-platform-ink: var(--color-azure-700);
-  --color-tag-type-ink: var(--color-coral-700);
-  --color-tag-type-ring: var(--color-coral-300);
-  --color-tag-language-bg: var(--color-gold-100);
-  --color-tag-language-ink: var(--color-gold-700);
-  --color-control-ink-idle: var(--color-ink-muted); /** 分頁列沒選中的那幾格 */
-  --color-control-ink-faint: var(--color-ink-faint);
-  --color-control-menu-hover: var(--color-surface-sunken);
-  --color-shell-rule: var(--color-accent); /** 外殼邊界（側欄、底部導覽）。用主色的金棕，它畫的是「這裡是外框不是內容」，跟卡片的框不同一回事 */
+  --color-rule: var(--color-neutral-200); /** 細線分隔，取代卡片框。1px */
+  --color-rule-soft: var(--color-neutral-100); /** 同一塊裡分列用；rule 是「這是兩個東西」，這一階是「同一件事的下一行」 */
+  --color-rule-strong: var(--color-neutral-900); /** 區段小標下面那條實線與報頭雙線。1.4px／3px */
+  --color-shell-rule: var(--color-neutral-900); /** 外殼邊界（側欄右緣、報頭）。跟區段實線同色，畫的是版面骨架 */
+  --color-grid: var(--color-neutral-200); /** 圖表格線；跟細分隔線同一階 */
+  --color-series-1: var(--color-cactus-700);
+  --color-series-2: var(--color-dune-500);
+  --color-series-3: var(--color-sky-500);
+  --color-series-track: var(--color-neutral-100); /** 長條圖後面那條空軌 */
+  --color-status-want-dot: var(--color-neutral-300); /** 狀態只靠一顆點的深淺：想讀最淡 */
+  --color-status-want-ink: var(--color-neutral-500);
+  --color-status-reading-ink: var(--color-neutral-900);
+  --color-status-done-dot: var(--color-cactus-300);
+  --color-status-done-ink: var(--color-neutral-500);
+  --color-tag-domain-bg: var(--color-dune-300); /** 主領域：唯一鋪底的標籤 */
+  --color-tag-domain-ink: var(--color-neutral-900);
+  --color-tag-domain-ring: var(--color-dune-500); /** 次領域改成底線版；同色系＝同一件事的粗細兩層 */
+  --color-tag-platform-bg: var(--color-neutral-100);
+  --color-tag-platform-ink: var(--color-neutral-600);
+  --color-tag-type-ink: var(--color-neutral-600);
+  --color-tag-type-ring: var(--color-neutral-300);
+  --color-tag-language-bg: var(--color-neutral-100);
+  --color-tag-language-ink: var(--color-neutral-600);
+  --color-tag-article-bg: var(--color-neutral-100);
+  --color-tag-article-ink: var(--color-neutral-500); /** 文章標籤是自由打的，沒有固定選項可配色，整組同一個中性色 */
+  --color-danger: var(--color-brick-500); /** 錯誤與未完成 */
+  --color-control-ink-secondary: var(--color-neutral-600); /** 次要按鈕的字：比 ink-idle 深一階，它是可按的、不是沒選中的 */
+  --color-control-ink-faint-hover: var(--color-neutral-700);
+  --color-control-ghost-hover: var(--color-neutral-100);
+  --color-table-header-bg: var(--color-neutral-100);
+  --color-map-label-ink: var(--color-neutral-700);
+  --color-map-chrome-disabled: var(--color-neutral-100);
+  --color-map-attribution-ink: var(--color-neutral-400);
+  --color-map-attribution-link: var(--color-neutral-500);
+  --color-status-want-bg: var(--color-surface);
+  --color-status-reading-dot: var(--color-accent); /** 在讀是唯一有彩度的一顆 */
+  --color-status-reading-bg: var(--color-surface);
+  --color-status-done-bg: var(--color-surface);
   --color-control-bg: var(--color-accent); /** 主要動作鍵與選中的分頁；改這裡全站一起變 */
   --color-control-bg-hover: var(--color-accent-hover);
   --color-control-ink: var(--color-accent-ink);
+  --color-control-ink-idle: var(--color-ink-muted); /** 分頁列沒選中的那幾格 */
+  --color-control-ink-faint: var(--color-ink-faint);
   --color-control-border: var(--color-rule);
   --color-control-menu-bg: var(--color-surface);
+  --color-control-menu-hover: var(--color-surface-sunken);
   --color-table-header-rule: var(--color-rule); /** 表頭下緣用 inset shadow 畫，sticky 時 border 會被捲掉。用一般的框線色，深棕壓在淺色表頭下面太重 */
   --color-map-chrome-border: var(--color-rule);
 }
