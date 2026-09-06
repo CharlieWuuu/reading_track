@@ -1,0 +1,55 @@
+import Link from "next/link";
+
+/**
+ * 全寬報頭。報紙的識別就是報頭本身：3px 與 1.4px 兩條線夾著襯線站名，
+ * 底下再一條 1.4px，兩端放小字。站名是全站唯一 40px 的字，主從關係從這裡開始。
+ */
+
+const styles = {
+  frame: "px-4 pt-5 md:px-11",
+  side: "flex-1 basis-0 text-meta text-ink-faint tabular-nums",
+  row: "flex items-baseline py-3",
+  title: "font-serif text-site leading-none font-semibold tracking-tight",
+  strip: "flex justify-between pt-[7px] text-meta text-ink-faint",
+  link: "hover:text-ink whitespace-nowrap",
+};
+
+/**
+ * 報頭左上的日期。伺服器與瀏覽器各算一次，跨午夜的那一瞬間會差一天，
+ * 但那只是報頭上的一行小字，不值得為它把整層變成 client-only。
+ */
+function IssueDate() {
+  const now = new Date();
+  return <span suppressHydrationWarning>{`${now.getMonth() + 1} 月 ${now.getDate()} 日`}</span>;
+}
+
+export function Masthead({ authSlot }: { authSlot: React.ReactNode }) {
+  return (
+    <div className={styles.frame}>
+      <div className="bg-rule-strong" style={{ height: "var(--stroke-masthead)" }} />
+      <div className="bg-rule-strong mt-[3px]" style={{ height: "var(--stroke-solid)" }} />
+
+      <div className={styles.row}>
+        <div className={styles.side}>
+          <IssueDate />
+        </div>
+        <div className="flex-1 basis-0 text-center whitespace-nowrap">
+          <Link href="/reading/books" className={styles.title}>
+            Archivum
+          </Link>
+        </div>
+        <div className={`${styles.side} flex items-center justify-end gap-3.5`}>
+          <Link href="/settings" className={styles.link}>
+            設定
+          </Link>
+          {authSlot}
+        </div>
+      </div>
+
+      <div className="bg-rule-strong" style={{ height: "var(--stroke-solid)" }} />
+      <div className={styles.strip}>
+        <span>讀了什麼 · 想了什麼</span>
+      </div>
+    </div>
+  );
+}
