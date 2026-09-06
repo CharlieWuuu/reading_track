@@ -4,30 +4,6 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { findOrCreateGoogleUser, findUserByEmail } from "@/lib/db/queries/users";
 
-async function refreshAccessToken(refreshToken: string) {
-  const res = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      client_id: process.env.GOOGLE_CLIENT_ID!,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-      grant_type: "refresh_token",
-      refresh_token: refreshToken,
-    }),
-  });
-
-  if (!res.ok) {
-    throw new Error("刷新 access token 失敗");
-  }
-
-  const data = await res.json();
-  return {
-    accessToken: data.access_token as string,
-    expiresAt: Math.floor(Date.now() / 1000) + (data.expires_in as number),
-    refreshToken: (data.refresh_token as string) ?? refreshToken,
-  };
-}
-
 export const { handlers, signIn, signOut, auth } = NextAuth({
   // 部署在 Vercel 時網域是平台給的，要信任 Host header 才能組出正確的 callback URL
   trustHost: true,
@@ -40,6 +16,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           // 只要登入用的三個範圍。紀錄改存自己的資料庫之後就不再碰使用者的檔案，
           // 留著 drive.file 等於要求一個用不到的權限
           scope: "openid email profile",
+          // 這兩個是為了拿 refresh token 才加的，而續期那套 09-06 拆掉了，
+          // 所以現在拿到的 refresh token 沒有人存也沒有人用。
+          // 沒有一起刪：改的是登入流程本身（回訪會不會再跳同意畫面），
+          // 跟「刪沒人呼叫的函式」不是同一種風險，要動就單獨動、單獨驗
           access_type: "offline",
           prompt: "consent",
         },
@@ -77,39 +57,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.userId = (await findUserByEmail(String(token.email)))?.id;
       }
 
-      if (account) {
-        token.accessToken = account.access_token;
-        token.refreshToken = account.refresh_token;
-        token.expiresAt = account.expires_at;
-        return token;
-      }
-
-      const expiresAt = token.expiresAt as number | undefined;
-      if (expiresAt && Date.now() / 1000 < expiresAt - 60) {
-        return token;
-      }
-
-      if (!token.refreshToken) {
-        token.error = "RefreshTokenMissing";
-        return token;
-      }
-
-      try {
-        const refreshed = await refreshAccessToken(token.refreshToken as string);
-        token.accessToken = refreshed.accessToken;
-        token.expiresAt = refreshed.expiresAt;
-        token.refreshToken = refreshed.refreshToken;
-        delete token.error;
-      } catch {
-        token.error = "RefreshAccessTokenError";
-      }
-
       return token;
     },
     async session({ session, token }) {
       session.user.id = token.userId as string;
-      session.accessToken = token.accessToken as string;
-      session.error = token.error as string | undefined;
       return session;
     },
   },

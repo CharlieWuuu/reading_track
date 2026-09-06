@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { Spinner } from "@/components/ui/spinner";
 import { settingsTabHref } from "@/config/routes";
@@ -11,12 +10,6 @@ import { useSidebarStore } from "@/stores/use-sidebar-store";
 export function AuthButton() {
   const { data: session, status } = useSession();
   const compact = useSidebarStore((s) => s.collapsed);
-
-  useEffect(() => {
-    if (session?.error === "RefreshAccessTokenError") {
-      signIn("google");
-    }
-  }, [session?.error]);
 
   if (status === "loading") {
     return <Spinner size={14} className="text-gray-400" />;
