@@ -105,6 +105,7 @@ export function makeQuote(overrides: Partial<QuoteRow> = {}): QuoteRow {
 export function makeWriting(overrides: Partial<Writing> = {}): Writing {
   return {
     id: nextId("writings"),
+    createdAt: "2026-01-01T00:00:00.000Z",
     date: "2026-08-10",
     title: "測試紀事",
     kind: "書籍",

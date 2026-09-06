@@ -18,6 +18,7 @@ const userId = await seedUser(db);
 function makeWriting(patch: Partial<Writing> = {}): Writing {
   return {
     id: crypto.randomUUID(),
+    createdAt: "2026-01-01T00:00:00.000Z",
     date: "2026-03-03",
     title: "一則書寫",
     kind: "反思",
