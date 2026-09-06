@@ -44,6 +44,8 @@ export function normalizeStatus(raw: string): ReadingStatus | null {
 
 export interface Book {
   id: string;
+  /** 記下這一列的時間（ISO）。日期只到日，同一天的先後只有它分得出來 */
+  createdAt: string;
   title: string;
   author: string;
   coverUrl: string;

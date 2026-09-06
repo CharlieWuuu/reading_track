@@ -26,6 +26,7 @@ export function resetIds() {
 export function makeBook(overrides: Partial<Book> = {}): Book {
   return {
     id: nextId("book"),
+    createdAt: "2026-01-01T00:00:00.000Z",
     title: "測試書名",
     author: "測試作者",
     coverUrl: "",
@@ -56,6 +57,7 @@ export function makeBook(overrides: Partial<Book> = {}): Book {
 export function makeArticle(overrides: Partial<Article> = {}): Article {
   return {
     id: nextId("article"),
+    createdAt: "2026-01-01T00:00:00.000Z",
     title: "測試文章",
     author: "",
     platform: "報導者",
@@ -103,6 +105,7 @@ export function makeQuote(overrides: Partial<QuoteRow> = {}): QuoteRow {
 export function makeWriting(overrides: Partial<Writing> = {}): Writing {
   return {
     id: nextId("writings"),
+    createdAt: "2026-01-01T00:00:00.000Z",
     date: "2026-08-10",
     title: "測試紀事",
     kind: "書籍",

@@ -9,6 +9,8 @@
  */
 export interface Writing {
   id: string;
+  /** 記下這一則的時間（ISO）。date 只到日，同一天的先後只有它分得出來 */
+  createdAt: string;
   /** 只有一個日期：這件事發生／我想到它的那天 */
   date: string | null;
   title: string;

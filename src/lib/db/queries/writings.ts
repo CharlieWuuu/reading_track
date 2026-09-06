@@ -54,6 +54,7 @@ export async function listWritings(userId: string): Promise<Writing[]> {
       : (writing.articleId ?? "");
     return {
       id: writing.id,
+      createdAt: writing.createdAt.toISOString(),
       date: writing.date,
       title: writing.title,
       kind: writing.bookId ? "書籍" : writing.articleId ? "文章" : (typeName ?? ""),

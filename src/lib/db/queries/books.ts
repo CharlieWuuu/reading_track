@@ -55,6 +55,7 @@ export async function listBooks(userId: string): Promise<Book[]> {
     const first = firstReadingOf.get(book.id);
     return {
       id: reading.id,
+      createdAt: reading.createdAt.toISOString(),
       title: book.title,
       author: book.author,
       coverUrl: reading.coverUrl,
