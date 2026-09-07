@@ -26,8 +26,12 @@ describe("resolveFormFields", () => {
     expect(fields.find((f) => f.key === "amount")?.label).toBe("字數");
   });
 
-  it("被改名的排在前面，其餘照欄位庫的順序", () => {
-    const keys = resolveFormFields([{ key: "amount", sortOrder: 0 }]).map((f) => f.key);
+  it("改名不動順序，標題還是第一個", () => {
+    expect(resolveFormFields(book.fields)[0].key).toBe("title");
+  });
+
+  it("明確給了順序才插隊", () => {
+    const keys = resolveFormFields([{ key: "amount", sortOrder: -1 }]).map((f) => f.key);
     expect(keys[0]).toBe("amount");
     expect(keys[1]).toBe("title");
   });

@@ -11,9 +11,6 @@ export type FieldOverride = { key: string; label?: string; hidden?: boolean; sor
 
 export type FormField = FieldDef & { label: string; sortOrder: number };
 
-/** 沒被覆寫提到的欄位排在後面，彼此照欄位庫的順序 */
-const BASE_ORDER = 1000;
-
 export function resolveFormFields(overrides: readonly FieldOverride[]): FormField[] {
   const byKey = new Map(overrides.filter((o) => fieldDef(o.key)).map((o) => [o.key, o]));
 
@@ -23,7 +20,7 @@ export function resolveFormFields(overrides: readonly FieldOverride[]): FormFiel
       return {
         ...def,
         label: over?.label || def.defaultLabel,
-        sortOrder: over?.sortOrder ?? BASE_ORDER + RECORD_FIELDS.indexOf(def),
+        sortOrder: over?.sortOrder ?? RECORD_FIELDS.indexOf(def),
       };
     })
     .sort((a, b) => a.sortOrder - b.sortOrder);
