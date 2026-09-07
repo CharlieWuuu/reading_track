@@ -4,11 +4,13 @@ import { attributes, bookTypes } from "./taxonomy";
 import { users } from "./users";
 
 /**
- * 作品，以及體驗它的每一次。兩層，跟 books／readings 同一個道理。
+ * 作品，以及讀了看了上了它的每一次。
  *
- * 二刷三刷不新增作品，只多一次 experiences——統計要數的是次數，書架上要看的是本數，
- * 合成一層就兩邊都算不準。repov 那類 app 一筆＝一次體驗、沒有作品層，所以重看
- * 就是再發一則，我們不走那條。
+ * 主體是紀錄——側欄那堆講的就是這個。works 是把重複的東西抽出去：一本書讀三次，
+ * 書名作者只存一份。二刷不新增作品，只多一筆紀錄。
+ *
+ * 統計要數的是次數，書架上要看的是本數，合成一層兩邊都算不準。repov 那類 app
+ * 一筆＝一次、沒有作品層，重看就是再發一則，我們不走那條。
  */
 
 /**
@@ -19,7 +21,7 @@ import { users } from "./users";
  * topic_id 指向 book_types——那張表是主題樹（文學、歷史），跟 kind 是兩個層級。
  * 欄位先在這裡正名為 topic，表名之後一起改，免得這步就動到舊查詢。
  */
-export const records = pgTable("records", {
+export const works = pgTable("works", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -36,22 +38,22 @@ export const records = pgTable("records", {
 });
 
 /**
- * 體驗一次。讀一次、看一次、上一次課。
+ * 一筆紀錄：讀了一次、看了一次、上了一次課。
  *
  * 份量與來源掛在這裡不掛作品：紙本與電子書是不同的一次，頁數與平台跟著那一次走。
  * amount_unit 存在這裡而不是類型上，因為有聲書就是分鐘、紙本就是頁，同一本書都可能。
  *
  * external_id 是外部線索不是身分——ISBN、影片編號、課程網址都塞這裡，只給匯入時
- * 去外面查資料用。比對與帶入一律走內部的 record_id，使用者從自己的紀錄挑一筆就二刷。
+ * 去外面查資料用。比對與帶入一律走內部的 work_id，使用者從自己的紀錄挑一筆就二刷。
  */
-export const experiences = pgTable("experiences", {
+export const records = pgTable("records", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   id: uuid("id").primaryKey().defaultRandom(),
-  recordId: uuid("record_id")
+  workId: uuid("work_id")
     .notNull()
-    .references(() => records.id, { onDelete: "cascade" }),
+    .references(() => works.id, { onDelete: "cascade" }),
   statusId: uuid("status_id")
     .notNull()
     .references(() => recordKindStatuses.id, { onDelete: "restrict" }),

@@ -17,10 +17,12 @@ export const recordKinds = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     id: uuid("id").primaryKey().defaultRandom(),
     name: text("name").notNull(),
+    /** 屬於側欄哪一堆：records／fragments／writings。三堆共用同一套類型機制 */
+    groupKey: text("group_key").notNull(),
     /** 側欄與篩選器的排列順序 */
     sortOrder: integer("sort_order").notNull().default(0),
   },
-  (t) => [unique().on(t.userId, t.name)],
+  (t) => [unique().on(t.userId, t.groupKey, t.name)], // 同一堆底下名字不重複
 );
 
 /**

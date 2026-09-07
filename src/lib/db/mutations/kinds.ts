@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
+import { DEFAULT_KINDS } from "@/config/default-kinds";
 import { RECORD_FIELDS } from "@/config/record-fields";
-import { DEFAULT_KINDS, KindSpec } from "@/config/record-kinds";
+import { KindSpec } from "@/config/record-kinds";
 import { db, type Tx } from "@/lib/db/client";
 import { recordKindFields, recordKinds, recordKindStatuses } from "@/lib/db/schema/kinds";
 
@@ -15,7 +16,7 @@ import { recordKindFields, recordKinds, recordKindStatuses } from "@/lib/db/sche
 async function insertKind(tx: Tx, userId: string, spec: KindSpec, sortOrder: number) {
   const [kind] = await tx
     .insert(recordKinds)
-    .values({ userId, name: spec.name, sortOrder })
+    .values({ userId, groupKey: spec.group, name: spec.name, sortOrder })
     .returning({ id: recordKinds.id });
 
   // 顯示順序照欄位庫，不照 spec 裡寫的先後——不然改過名的欄位會擠到標題前面

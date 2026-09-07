@@ -5,4 +5,4 @@ export * from "./writing";
 export * from "./fragments";
 export * from "./keyword-links";
 export * from "./kinds";
-export * from "./catalog";
+export * from "./works";

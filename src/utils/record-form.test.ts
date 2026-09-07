@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_KINDS } from "@/config/record-kinds";
+import { DEFAULT_KINDS } from "@/config/default-kinds";
+import { GROUP_LAYERS } from "@/config/record-kinds";
 import { resolveFormFields, splitByLayer } from "./record-form";
 
 const book = DEFAULT_KINDS.find((k) => k.key === "book")!;
@@ -44,9 +45,25 @@ describe("resolveFormFields", () => {
 
 describe("splitByLayer", () => {
   it("作品與那一次的欄位分開", () => {
-    const { record, experience } = splitByLayer(resolveFormFields(book.fields));
-    expect(record.map((f) => f.key)).toContain("title");
-    expect(experience.map((f) => f.key)).toContain("amount");
-    expect(record.map((f) => f.key)).not.toContain("amount");
+    const { work, record } = splitByLayer(resolveFormFields(book.fields));
+    expect(work.map((f) => f.key)).toContain("title");
+    expect(record.map((f) => f.key)).toContain("amount");
+    expect(work.map((f) => f.key)).not.toContain("amount");
+  });
+});
+
+describe("分堆", () => {
+  it("片段不吃紀錄的欄位", () => {
+    const quote = DEFAULT_KINDS.find((k) => k.key === "quote")!;
+    const keys = resolveFormFields(quote.fields, GROUP_LAYERS.fragments).map((f) => f.key);
+    expect(keys).toContain("body");
+    expect(keys).not.toContain("amount");
+    expect(keys).not.toContain("title");
+  });
+
+  it("紀錄不吃片段的欄位", () => {
+    const keys = resolveFormFields(book.fields, GROUP_LAYERS.records).map((f) => f.key);
+    expect(keys).toContain("amount");
+    expect(keys).not.toContain("wikiUrl");
   });
 });
