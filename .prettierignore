@@ -25,3 +25,6 @@ src/styles/generated/
 # drizzle 自己維護的狀態檔，格式交給它
 supabase/migrations/meta/
 supabase/.temp/
+
+# _model.py 產生的規格書，格式由產生器決定
+SPEC.md
