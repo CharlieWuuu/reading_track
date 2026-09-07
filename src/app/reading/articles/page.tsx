@@ -20,7 +20,9 @@ function ArticlesBody() {
   // 檢視方式跟書籍共用一組狀態：切分頁時看到的排列方式不會突然變
   const { view: savedView } = useBookViewStore();
   const urlView = searchParams.get("view");
-  const view = isBookViewMode(urlView) ? urlView : savedView;
+  const saved = isBookViewMode(urlView) ? urlView : savedView;
+  // 概覽是書籍專屬的畫法（要封面與月份分組），文章退回表格
+  const view = saved === "overview" ? "table" : saved;
 
   const terms = searchTerms(searchParams.get("q") ?? "");
   const found = articles.filter((a) =>
@@ -44,7 +46,7 @@ function ArticlesBody() {
 export default function ArticlesPage() {
   return (
     <Suspense fallback={null}>
-      <ReadingHeader views={<BookViewMenu cardLabel="卡片" />} />
+      <ReadingHeader views={<BookViewMenu cardLabel="卡片" modes={["table", "card"]} />} />
       <PageBody>
         <ArticlesBody />
       </PageBody>

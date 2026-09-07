@@ -23,6 +23,7 @@ import {
   statusHeading,
 } from "@/utils/book-filter";
 import { matchesSearch, searchTerms } from "@/utils/search";
+import { BookOverview } from "./book-overview";
 
 /** 目前篩選中的關鍵字。放在清單上方，因為它會改變下面看到的是什麼 */
 function KeywordFilter({
@@ -118,12 +119,13 @@ export function BookTable() {
     parseStatusFilter(searchParams.get("status")),
     terms.length > 0 || Boolean(keyword),
   );
-  const books = allBooks.filter(
+  // 概覽自己會把在讀、想讀、讀完排在同一頁，所以狀態篩選只套在其餘檢視上
+  const found = allBooks.filter(
     (b) =>
-      matchesStatus(b, status) &&
       (!keyword || splitLines(b.keywords).includes(keyword)) &&
       matchesSearch(terms, b.title, b.author, b.publisher, b.keywords, b.note),
   );
+  const books = found.filter((b) => matchesStatus(b, status));
   const clearKeyword = () => setParams({ keyword: null });
   // 搜尋與關鍵字反查會蓋掉狀態篩選，所以標題要照真正生效的條件寫
   const heading =
@@ -161,6 +163,10 @@ export function BookTable() {
         </PageMessage>
       </div>
     );
+  }
+
+  if (view === "overview") {
+    return <BookOverview books={found} href={(book) => detailHref(book.id)} />;
   }
 
   if (view === "card") {
