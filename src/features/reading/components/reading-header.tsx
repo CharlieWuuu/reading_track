@@ -17,8 +17,8 @@ import { useUrlParams } from "@/hooks/use-url-param";
  * 這裡不是 layout.tsx：五條是兄弟路由，中間沒有共同路段可以掛；
  * 而 /reading 那層的 layout 會連單筆頁也套上分頁列，那不是單筆頁要的。
  *
- * 五個分頁收成一顆「類型」選單而不是排成一列：手機放不下五格，擠出畫面
- * 就再也點不到了。省下來的寬度給搜尋框常駐。
+ * 五個分頁在手機上收成一顆「類型」選單而不是排成一列：手機放不下五格，擠出畫面
+ * 就再也點不到了。省下來的寬度給搜尋框常駐。桌機那顆不畫，側欄已經在說了。
  */
 
 const ICON = { size: 16, strokeWidth: 1.5 } as const;
@@ -59,16 +59,20 @@ export function ReadingHeader({ views, filters, newButton }: ReadingHeaderProps 
 
   return (
     <PageHeader
+      title={READING_TABS.find((tab) => tab.key === current)?.label}
       action={
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <SearchBar value={query} onChange={(next) => setParams({ q: next || null })} />
-          <SelectMenu
-            label="類型"
-            items={READING_TABS.map((tab) => ({ ...tab, Icon: TAB_ICONS[tab.key] }))}
-            value={current}
-            onChange={(next) => router.push(readingTabHref(next))}
-            iconOnly="mobile"
-          />
+          {/* 桌機的側欄已經在說現在看的是哪一種，這顆只留給手機 */}
+          <div className="md:hidden">
+            <SelectMenu
+              label="類型"
+              items={READING_TABS.map((tab) => ({ ...tab, Icon: TAB_ICONS[tab.key] }))}
+              value={current}
+              onChange={(next) => router.push(readingTabHref(next))}
+              iconOnly="mobile"
+            />
+          </div>
           {views}
           {filters}
           {/* 按鈕只放一個加號：旁邊的類型已經說了現在在看書籍還是文章 */}
