@@ -1,7 +1,7 @@
-import { eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { DEFAULT_KINDS } from "@/config/default-kinds";
 import { RECORD_FIELDS } from "@/config/record-fields";
-import { KindSpec } from "@/config/record-kinds";
+import { KindGroup, KindSpec, NEW_KIND_STATUSES } from "@/config/record-kinds";
 import { db, type Tx } from "@/lib/db/client";
 import { recordKindFields, recordKinds, recordKindStatuses } from "@/lib/db/schema/kinds";
 
@@ -57,5 +57,39 @@ export async function seedKinds(userId: string): Promise<number> {
       await insertKind(tx, userId, spec, index);
     }
     return DEFAULT_KINDS.length;
+  });
+}
+
+/**
+ * 自己新增一種。欄位不用給——欄位庫是共用的，標籤沒改就用預設的。
+ *
+ * 排在同一堆的最後面。狀態選項也給一組預設的，沒有的話那一堆的紀錄就填不了狀態。
+ */
+export async function addKind(userId: string, group: KindGroup, name: string): Promise<string> {
+  return db.transaction(async (tx) => {
+    const [last] = await tx
+      .select({ sortOrder: recordKinds.sortOrder })
+      .from(recordKinds)
+      .where(and(eq(recordKinds.userId, userId), eq(recordKinds.groupKey, group)))
+      .orderBy(desc(recordKinds.sortOrder))
+      .limit(1);
+
+    const [kind] = await tx
+      .insert(recordKinds)
+      .values({ userId, groupKey: group, name, sortOrder: (last?.sortOrder ?? -1) + 1 })
+      .returning({ id: recordKinds.id });
+
+    if (group === "records") {
+      await tx.insert(recordKindStatuses).values(
+        NEW_KIND_STATUSES.map((status, index) => ({
+          userId,
+          kindId: kind.id,
+          key: status.key,
+          label: status.label,
+          sortOrder: index,
+        })),
+      );
+    }
+    return kind.id;
   });
 }

@@ -35,3 +35,10 @@ export type KindSpec = {
   fields: FieldSpec[];
   statuses: StatusSpec[];
 };
+
+/** 自己新增一種紀錄時給的狀態。用最通用的說法，不夠貼切就自己改 */
+export const NEW_KIND_STATUSES: StatusSpec[] = [
+  { key: "want", label: "想看" },
+  { key: "reading", label: "進行中" },
+  { key: "done", label: "已完成" },
+];
