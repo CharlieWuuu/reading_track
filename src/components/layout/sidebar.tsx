@@ -1,110 +1,52 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { useSidebarStore } from "@/stores/use-sidebar-store";
-import { isNavActive, NAV_ITEMS, NavItem } from "./nav-items";
+import { activeNavKey, NAV_GROUPS, NavType } from "@/config/nav";
+
+/**
+ * 桌機側欄。四個分類各配一條實線小標，底下的類型一行一條細線分隔——
+ * 不畫框、不上底色，選中的那一列靠左邊一小段主色的直線表示。
+ */
 
 const styles = {
-  nav: "flex h-full shrink-0 flex-col border-r border-shell-rule bg-white",
-  brand: "flex items-center justify-center gap-1 border-b border-shell-rule px-3 py-4",
-  title: "truncate text-lg font-semibold tracking-tight",
-  list: "flex-1 space-y-1 overflow-y-auto",
-  link: "flex items-center gap-2 rounded-control px-3 py-2 text-sm",
-  linkCollapsed: "justify-center px-0",
-  linkActive: "bg-control-bg text-control-ink",
-  linkIdle: "text-gray-700 hover:bg-gray-100",
-  footer: "flex flex-col gap-2 border-t border-shell-rule",
-  tools: "flex items-center gap-1",
-  iconButton:
-    "flex h-8 w-8 shrink-0 items-center justify-center rounded-control text-gray-400 hover:bg-gray-100 hover:text-gray-900",
+  nav: "border-shell-rule h-full w-[188px] shrink-0 overflow-y-auto border-r pr-6",
+  group: "border-rule-strong border-b-2 pt-5 pb-1.5 first:pt-0",
+  groupLabel: "font-serif text-ui font-semibold tracking-section",
+  row: "border-rule flex items-center gap-2 border-b py-[7px]",
+  marker: "h-3.5 w-0.5 shrink-0",
+  label: "text-ui truncate",
+  labelActive: "font-serif text-item-sm text-ink font-semibold",
+  labelIdle: "text-ink-muted",
 };
 
-type CollapseButtonProps = {
-  collapsed: boolean;
-  onClick: () => void;
-};
-
-function CollapseButton({ collapsed, onClick }: CollapseButtonProps) {
-  const label = collapsed ? "展開側欄" : "收合側欄";
+function NavRow({ type, active }: { type: NavType; active: boolean }) {
   return (
-    <button onClick={onClick} aria-label={label} title={label} className={styles.iconButton}>
-      {collapsed ? (
-        <PanelLeftOpen size={18} strokeWidth={1.5} />
-      ) : (
-        <PanelLeftClose size={18} strokeWidth={1.5} />
-      )}
-    </button>
+    <Link href={type.href} aria-current={active ? "page" : undefined} className={styles.row}>
+      <span className={`${styles.marker} ${active ? "bg-accent" : ""}`} />
+      <span className={`${styles.label} ${active ? styles.labelActive : styles.labelIdle}`}>
+        {type.label}
+      </span>
+    </Link>
   );
 }
 
-type NavLinkProps = {
-  item: NavItem;
-  collapsed: boolean;
-  active: boolean;
-};
-
-function NavLink({ item, collapsed, active }: NavLinkProps) {
-  return (
-    <li>
-      <Link
-        href={item.href}
-        title={collapsed ? item.label : undefined}
-        className={`${styles.link} ${collapsed ? styles.linkCollapsed : ""} ${
-          active ? styles.linkActive : styles.linkIdle
-        }`}
-      >
-        <item.Icon active={active} />
-        {!collapsed && item.label}
-      </Link>
-    </li>
-  );
-}
-
-type SidebarProps = {
-  /** 帳號按鈕由 app 那層注入：側欄屬於共用層，不該認得 auth 這個 feature */
-  authSlot: React.ReactNode;
-};
-
-export function Sidebar({ authSlot }: SidebarProps) {
+export function Sidebar() {
   const pathname = usePathname();
-  const { collapsed, toggle } = useSidebarStore();
+  const current = activeNavKey(pathname);
 
   return (
-    <nav className={`${styles.nav} ${collapsed ? "w-16" : "w-48"}`}>
-      <div className={styles.brand}>
-        {collapsed ? (
-          <Image
-            src="/icon.svg"
-            alt="Archivum"
-            width={32}
-            height={32}
-            className="rounded-surface"
-          />
-        ) : (
-          <span className={styles.title}>Archivum</span>
-        )}
-      </div>
-
-      <ul className={`${styles.list} ${collapsed ? "p-2" : "p-4"}`}>
-        {NAV_ITEMS.map((item) => (
-          <NavLink
-            key={item.href}
-            item={item}
-            collapsed={collapsed}
-            active={isNavActive(item, pathname)}
-          />
-        ))}
-      </ul>
-
-      <div className={`${styles.footer} ${collapsed ? "items-center p-2" : "p-4"}`}>
-        <div className={`${styles.tools} ${collapsed ? "justify-center" : "justify-end"}`}>
-          <CollapseButton collapsed={collapsed} onClick={toggle} />
+    <nav className={styles.nav}>
+      {NAV_GROUPS.map((group) => (
+        <div key={group.key}>
+          <div className={styles.group}>
+            <span className={styles.groupLabel}>{group.label}</span>
+          </div>
+          {group.types.map((type) => (
+            <NavRow key={type.key} type={type} active={type.key === current} />
+          ))}
         </div>
-        {authSlot}
-      </div>
+      ))}
     </nav>
   );
 }

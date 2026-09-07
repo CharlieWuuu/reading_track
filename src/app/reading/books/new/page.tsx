@@ -21,6 +21,7 @@ function NewBook() {
       {/* 還在查詢資料時沒有表單可切，分頁列等填表那一步才出現 */}
       <PageHeader
         title="新增書籍"
+        size="compact"
         backHref={backHref}
         action={
           result ? (

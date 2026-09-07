@@ -28,7 +28,7 @@ function EditKeyword() {
 
   return (
     <>
-      <PageHeader title="編輯關鍵字" backHref={from} />
+      <PageHeader title="編輯關鍵字" size="compact" backHref={from} />
       <PageBody>
         <RecordGate loading={isLoading} error={error}>
           <KeywordForm

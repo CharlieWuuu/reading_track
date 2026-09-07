@@ -18,6 +18,7 @@ function EditArticle() {
     <>
       <PageHeader
         title="編輯文章"
+        size="compact"
         backHref="/reading/articles"
         action={article && <ArticleFormTabs />}
       />

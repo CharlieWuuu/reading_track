@@ -39,6 +39,7 @@ export function QuoteDetailView() {
     <>
       <PageHeader
         title={quote?.bookTitle ?? "佳句"}
+        size="compact"
         backHref="/reading/quotes"
         action={quote && <ActionButton href={quoteEditHref(quote.id)}>編輯</ActionButton>}
       />

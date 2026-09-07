@@ -130,7 +130,7 @@ export function BookDetailView() {
   if (isLoading || error || !book) {
     return (
       <>
-        <PageHeader title="書籍資訊" backHref={backHref} />
+        <PageHeader title="書籍資訊" size="compact" backHref={backHref} />
         {/* 訊息也走 PageBody：不然它只是頁首下面一個小方塊，跟載入中的位置對不齊 */}
         <PageBody>
           {isLoading ? (
@@ -159,6 +159,7 @@ export function BookDetailView() {
     <>
       <PageHeader
         title="書籍資訊"
+        size="compact"
         backHref={backHref}
         action={<ActionButton href={bookEditHref(book.id, back)}>編輯</ActionButton>}
       />

@@ -30,6 +30,7 @@ export function WritingDetailView() {
     <>
       <PageHeader
         title={writing?.title ?? "紀事"}
+        size="compact"
         backHref="/writing"
         action={writing && <ActionButton href={writingEditHref(writing.id)}>編輯</ActionButton>}
       />

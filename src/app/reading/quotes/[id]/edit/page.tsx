@@ -22,7 +22,7 @@ export default function EditQuotePage() {
 
   return (
     <>
-      <PageHeader title="編輯佳句" backHref="/reading/quotes" />
+      <PageHeader title="編輯佳句" size="compact" backHref="/reading/quotes" />
       <PageBody>
         <RecordGate
           loading={isLoading || loadingBooks}

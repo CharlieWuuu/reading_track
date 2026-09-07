@@ -34,6 +34,7 @@ export function ArticleDetailView() {
     <>
       <PageHeader
         title={article?.title ?? "文章"}
+        size="compact"
         backHref="/reading/articles"
         action={article && <ActionButton href={articleEditHref(article.id)}>編輯</ActionButton>}
       />
