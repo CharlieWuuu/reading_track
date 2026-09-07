@@ -6,18 +6,18 @@
 
 ## 想要的（照抄得動）
 
-| 圖 | 學什麼 | 網頁上能不能做 |
-|---|---|---|
-| `magazine-jingye-cover.png` | 直排標題、大留白、細線分隔、無彩＋一點自然色 | 直排只適合單一標題，不能整頁 |
-| `web-selfesteem-editorial.png` | 報紙分欄＋垂直細線、序號 1／2、超大標題壓小內文 | 桌機可以；手機分欄要塌成單欄 |
-| `web-wanderlust-brutalism.png` | 一格一格的方格線（不是卡片陰影）、01–04 編號、小型全大寫標籤 | 可以，線比框省空間 |
-| `app-annak-profile.png` | 手機上的雜誌感：全大寫小標籤＋一條線、大數字、無彩 | 最貼近本專案，直接可用 |
-| `print-tokyopaper-spread.png` | 報頭大、內文小、大圖壓版、目錄式編號 | 桌機最接近；手機要拆 |
-| `web-architecture-magazine.png` | 首字放大、細長襯線標題、橫向捲動 | 首字放大可以，橫捲不做 |
-| `web-fylla-article.png` | 標題大、右側細欄放 meta、章節標題小 | 詳情頁直接套 |
-| `web-eth-teaching.png` | 左欄分類、細線分隔、無底色 | 側欄版就是照它 |
-| `app-lighting-mono.png` | 單色、粗黑標題、圖表只用線 | 可以，但等寬字要慎選中文 fallback |
-| `web-smarthome-bento.png` | bento：大小格混排，一眼看完多種資料 | 可以，首頁與統計適合 |
+| 圖                              | 學什麼                                                       | 網頁上能不能做                    |
+| ------------------------------- | ------------------------------------------------------------ | --------------------------------- |
+| `magazine-jingye-cover.png`     | 直排標題、大留白、細線分隔、無彩＋一點自然色                 | 直排只適合單一標題，不能整頁      |
+| `web-selfesteem-editorial.png`  | 報紙分欄＋垂直細線、序號 1／2、超大標題壓小內文              | 桌機可以；手機分欄要塌成單欄      |
+| `web-wanderlust-brutalism.png`  | 一格一格的方格線（不是卡片陰影）、01–04 編號、小型全大寫標籤 | 可以，線比框省空間                |
+| `app-annak-profile.png`         | 手機上的雜誌感：全大寫小標籤＋一條線、大數字、無彩           | 最貼近本專案，直接可用            |
+| `print-tokyopaper-spread.png`   | 報頭大、內文小、大圖壓版、目錄式編號                         | 桌機最接近；手機要拆              |
+| `web-architecture-magazine.png` | 首字放大、細長襯線標題、橫向捲動                             | 首字放大可以，橫捲不做            |
+| `web-fylla-article.png`         | 標題大、右側細欄放 meta、章節標題小                          | 詳情頁直接套                      |
+| `web-eth-teaching.png`          | 左欄分類、細線分隔、無底色                                   | 側欄版就是照它                    |
+| `app-lighting-mono.png`         | 單色、粗黑標題、圖表只用線                                   | 可以，但等寬字要慎選中文 fallback |
+| `web-smarthome-bento.png`       | bento：大小格混排，一眼看完多種資料                          | 可以，首頁與統計適合              |
 
 ## Logo 參考（他要的手感）
 
