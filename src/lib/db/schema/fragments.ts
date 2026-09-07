@@ -3,7 +3,10 @@ import { books } from "./reading";
 import { users } from "./users";
 
 /**
- * 讀到的東西：佳句、單字。
+ * 片段：佳句、單字。從紀錄裡摘出來的東西。
+ *
+ * 檔名原本叫 records，跟 catalog.ts 那張「作品」的 records 撞名——同一個字兩個意思，
+ * 改用側欄上的說法。表名還是 quotes／vocabulary，沒有動到資料庫。
  *
  * book_id 可空——抄到一句話但不是從書上看到的，照樣留得下來。指向書而不是
  * 「哪一次讀」，重讀時記的句子看第一次那列時也該出現；要回推是第幾次讀，看 created_at。

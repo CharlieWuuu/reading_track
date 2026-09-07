@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
-import { vocabulary } from "@/lib/db/schema/records";
+import { vocabulary } from "@/lib/db/schema/fragments";
 import { makeBook, seedUser } from "@/lib/db/test/factories";
 import { EMPTY_VOCABULARY, VocabularyRow } from "@/types/record";
 
@@ -9,7 +9,7 @@ vi.mock("@/lib/db/client", async () => {
   return { db: await makeTestDb() };
 });
 
-const { addVocabulary } = await import("./records");
+const { addVocabulary } = await import("./fragments");
 const { addBookRow } = await import("./books");
 const { db } = await import("@/lib/db/client");
 const userId = await seedUser(db);

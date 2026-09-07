@@ -1,8 +1,8 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
+import { quotes, vocabulary } from "@/lib/db/schema/fragments";
 import { bookKeywords } from "@/lib/db/schema/keyword-links";
 import { readings } from "@/lib/db/schema/reading";
-import { quotes, vocabulary } from "@/lib/db/schema/records";
 import { keywords } from "@/lib/db/schema/taxonomy";
 import { KeywordInfo } from "@/types/keyword";
 import { QuoteRow, VocabularyRow } from "@/types/record";
