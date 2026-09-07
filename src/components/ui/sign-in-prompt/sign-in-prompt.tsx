@@ -9,7 +9,7 @@ export function SignInPrompt({ text = "請先登入" }: { text?: string }) {
   const [withPassword, setWithPassword] = useState(false);
 
   return (
-    <div className="rounded-surface flex w-full flex-col items-center gap-3 border bg-white p-8 text-center text-sm text-gray-500">
+    <div className="text-ui text-ink-muted flex w-full flex-col items-center gap-3 p-8 text-center">
       <span>{text}</span>
 
       {withPassword ? (
@@ -29,7 +29,7 @@ export function SignInPrompt({ text = "請先登入" }: { text?: string }) {
       <button
         type="button"
         onClick={() => setWithPassword((on) => !on)}
-        className="text-xs text-gray-400 underline"
+        className="text-meta text-ink-faint underline"
       >
         {withPassword ? "改用 Google 登入" : "用帳號密碼登入"}
       </button>

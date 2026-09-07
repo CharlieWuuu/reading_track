@@ -40,7 +40,7 @@ export function CredentialsForm() {
         autoComplete="current-password"
         className="rounded-control border px-3 py-1.5 text-sm"
       />
-      {error && <span className="text-sm text-red-600">{error}</span>}
+      {error && <span className="text-ui text-danger">{error}</span>}
       <button
         type="submit"
         disabled={pending || !email || !password}

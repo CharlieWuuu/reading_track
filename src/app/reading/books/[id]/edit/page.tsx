@@ -24,6 +24,7 @@ export default function EditBookPage() {
     <>
       <PageHeader
         title="編輯書籍"
+        size="compact"
         backHref={backHref}
         action={
           book && (

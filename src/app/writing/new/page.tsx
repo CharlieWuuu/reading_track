@@ -9,7 +9,12 @@ import { WritingFormTabs } from "@/features/writing/components/writing-form-tabs
 function NewWriting() {
   return (
     <>
-      <PageHeader title="新增書寫" backHref="/writing" action={<WritingFormTabs />} />
+      <PageHeader
+        title="新增書寫"
+        size="compact"
+        backHref="/writing"
+        action={<WritingFormTabs />}
+      />
       <PageBody>
         <div className="flex min-h-0 flex-1 flex-col">
           <WritingForm />

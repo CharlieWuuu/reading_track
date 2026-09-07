@@ -47,6 +47,7 @@ export function VocabularyDetailView() {
     <>
       <PageHeader
         title={name}
+        size="compact"
         backHref="/reading/vocabulary"
         action={entry && <ActionButton href={vocabularyEditHref(name)}>編輯</ActionButton>}
       />

@@ -28,7 +28,7 @@ export default function EditVocabularyPage() {
 
   return (
     <>
-      <PageHeader title={name} backHref="/reading/vocabulary" />
+      <PageHeader title={name} size="compact" backHref="/reading/vocabulary" />
       <PageBody>
         <RecordGate
           loading={isLoading || loadingBooks}
