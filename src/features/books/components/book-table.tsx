@@ -8,7 +8,7 @@ import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { BookCover } from "@/components/ui/book-cover";
 import { ListHeading } from "@/components/ui/list-heading";
-import { STATUS_STYLES, StatusBadge, TagList } from "@/components/ui/tag-badge";
+import { STATUS_DOTS, StatusBadge, TagList } from "@/components/ui/tag-badge";
 import { bookHref } from "@/config/routes";
 import { useBooks } from "@/hooks/use-books";
 import { useMounted } from "@/hooks/use-mounted";
@@ -60,15 +60,14 @@ function rowTone(endDate: string | null, thisYear: number): string {
   return distance % 2 === 1 ? "bg-gray-100 hover:bg-gray-200" : "bg-white hover:bg-gray-50";
 }
 
-/** 書封牆用的狀態標記：壓在封面左上角的小標籤，白邊讓它在任何封面上都看得見 */
+/** 書封牆用的狀態標記：壓在封面左上角的一顆點，白邊讓它在任何封面上都看得見 */
 function StatusDot({ status }: { status: ReadingStatus }) {
   if (status === "已讀完") return null;
   return (
     <span
-      className={`rounded-control absolute top-1 left-1 px-1 py-px text-[10px] leading-4 ring-2 ring-white ${STATUS_STYLES[status]}`}
-    >
-      {status}
-    </span>
+      aria-label={status}
+      className={`absolute top-1 left-1 size-2 rounded-full ring-2 ring-white ${STATUS_DOTS[status]}`}
+    />
   );
 }
 
@@ -83,8 +82,8 @@ function StatusDot({ status }: { status: ReadingStatus }) {
  * 用該狀態徽章的底色，色條與徽章才是同一件事的兩種畫法。
  */
 function accentColor(status: ReadingStatus): string | null {
-  if (status === "想讀") return TOKENS["status-want-bg"];
-  if (status === "閱讀中") return TOKENS["status-reading-bg"];
+  if (status === "想讀") return TOKENS["status-want-dot"];
+  if (status === "閱讀中") return TOKENS["status-reading-dot"];
   return null;
 }
 

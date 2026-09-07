@@ -670,20 +670,6 @@ export const TOKEN_MANIFEST: TokenEntry[] = [
     "description": "狀態只靠一顆點的深淺：想讀最淡"
   },
   {
-    "name": "color-status-want-bg",
-    "layer": "semantic",
-    "value": "#ffffff",
-    "alias": "surface",
-    "description": null
-  },
-  {
-    "name": "color-status-want-ink",
-    "layer": "semantic",
-    "value": "#6a6c70",
-    "alias": "neutral.500",
-    "description": null
-  },
-  {
     "name": "color-status-reading-dot",
     "layer": "semantic",
     "value": "#4f6b4a",
@@ -691,38 +677,10 @@ export const TOKEN_MANIFEST: TokenEntry[] = [
     "description": "在讀是唯一有彩度的一顆"
   },
   {
-    "name": "color-status-reading-bg",
-    "layer": "semantic",
-    "value": "#ffffff",
-    "alias": "surface",
-    "description": null
-  },
-  {
-    "name": "color-status-reading-ink",
-    "layer": "semantic",
-    "value": "#17181a",
-    "alias": "neutral.900",
-    "description": null
-  },
-  {
     "name": "color-status-done-dot",
     "layer": "semantic",
     "value": "#a9baa4",
     "alias": "cactus.300",
-    "description": null
-  },
-  {
-    "name": "color-status-done-bg",
-    "layer": "semantic",
-    "value": "#ffffff",
-    "alias": "surface",
-    "description": null
-  },
-  {
-    "name": "color-status-done-ink",
-    "layer": "semantic",
-    "value": "#6a6c70",
-    "alias": "neutral.500",
     "description": null
   },
   {

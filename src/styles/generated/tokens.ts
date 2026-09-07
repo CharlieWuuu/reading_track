@@ -95,14 +95,8 @@ export const TOKENS = {
   "series-track": "#f5f5f6", // 長條圖後面那條空軌
   "series-overflow": "#b9b6ae", // 第 9 個以後合併成「其他」的那一格，不是第 9 個色；recharts 要字面值
   "status-want-dot": "#d4d5d8", // 狀態只靠一顆點的深淺：想讀最淡
-  "status-want-bg": "#ffffff",
-  "status-want-ink": "#6a6c70",
   "status-reading-dot": "#4f6b4a", // 在讀是唯一有彩度的一顆
-  "status-reading-bg": "#ffffff",
-  "status-reading-ink": "#17181a",
   "status-done-dot": "#a9baa4",
-  "status-done-bg": "#ffffff",
-  "status-done-ink": "#6a6c70",
   "tag-domain-bg": "#e4d3bc", // 主領域：唯一鋪底的標籤
   "tag-domain-ink": "#17181a",
   "tag-domain-ring": "#c08a4e", // 次領域改成底線版；同色系＝同一件事的粗細兩層
