@@ -5,14 +5,13 @@
 :root {
   /* 全站僅提供淺色主題；宣告 color-scheme 可擋掉 iOS/Android 的自動深色反轉 */
   color-scheme: light;
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: var(--color-surface);
+  --foreground: var(--color-ink);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-noto-sans);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -50,7 +49,7 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-noto-sans), "PingFang TC", sans-serif;
+  font-family: var(--font-sans);
 }
 
 button:not(:disabled),

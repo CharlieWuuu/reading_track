@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Noto_Sans_TC } from "next/font/google";
+import { Geist_Mono, Noto_Sans_TC, Noto_Serif_TC } from "next/font/google";
 import "./globals.css";
 import { COMMIT_HOOK_INSTALLER } from "react-component-overlay";
 import { AppShell } from "@/components/layout/app-shell";
@@ -14,6 +14,13 @@ const notoSans = Noto_Sans_TC({
   variable: "--font-noto-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+});
+
+// 值用襯線：書名、單字、數字、站名。標籤與介面文字留給黑體
+const notoSerif = Noto_Serif_TC({
+  variable: "--font-noto-serif",
+  subsets: ["latin"],
+  weight: ["400", "600"],
 });
 
 const geistMono = Geist_Mono({
@@ -56,7 +63,7 @@ export default function RootLayout({
   return (
     <html
       lang="zh-Hant"
-      className={`${notoSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${notoSans.variable} ${notoSerif.variable} ${geistMono.variable} h-full antialiased`}
     >
       {/* render 計數的掛鉤要早於所有 bundle，所以直接寫在 head */}
       <head>

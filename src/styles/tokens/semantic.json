@@ -6,189 +6,216 @@
       "$description": "頁面底色"
     },
     "surface-sunken": {
-      "$value": "var(--color-gray-50)",
+      "$value": "{color.neutral.100}",
       "$type": "color"
     },
     "surface-viz": {
-      "$value": "{color.sand.50}",
+      "$value": "{color.neutral.100}",
       "$type": "color",
-      "$description": "圖表畫布，比頁面底色暖一點才分得出圖與頁"
+      "$description": "圖表畫布，比頁面底色深一階才分得出圖與頁"
+    },
+    "surface-selected": {
+      "$value": "{color.dune.300}",
+      "$type": "color",
+      "$description": "選取與大面積色塊；配色稿裡唯一拿來鋪底的暖色"
     },
     "ink": {
-      "$value": "var(--color-gray-900)",
+      "$value": "{color.neutral.900}",
       "$type": "color"
     },
+    "ink-secondary": {
+      "$value": "{color.neutral.700}",
+      "$type": "color",
+      "$description": "摘要與內文；比正文淡一階，還是拿來讀的"
+    },
     "ink-muted": {
-      "$value": "var(--color-gray-500)",
+      "$value": "{color.neutral.500}",
       "$type": "color"
     },
     "ink-faint": {
-      "$value": "var(--color-gray-400)",
-      "$type": "color"
+      "$value": "{color.neutral.400}",
+      "$type": "color",
+      "$description": "meta 與全大寫小標籤"
     },
     "ink-viz": {
-      "$value": "{color.sand.800}",
+      "$value": "{color.neutral.900}",
       "$type": "color",
-      "$description": "深棕彩度太低會被讀成資料色，所以只當圖上的文字"
+      "$description": "圖上的文字"
     },
     "ink-viz-muted": {
-      "$value": "{color.sand.700}",
+      "$value": "{color.neutral.500}",
       "$type": "color"
     },
     "ink-viz-faint": {
-      "$value": "{color.sand.600}",
+      "$value": "{color.neutral.400}",
       "$type": "color"
     },
     "accent": {
-      "$value": "{color.gold.700}",
+      "$value": "{color.cactus.700}",
       "$type": "color",
-      "$description": "主色：主要動作鍵與選中的分頁。gold-600 配白字只有 3.61:1，差一階才過 4.5"
+      "$description": "主色：主要動作鍵、選中的分頁、在讀那顆點。白底 5.9:1"
     },
-    "accent-hover": { "$value": "{color.gold.800}", "$type": "color" },
+    "accent-hover": { "$value": "{color.cactus.900}", "$type": "color" },
     "accent-ink": { "$value": "{color.white}", "$type": "color", "$description": "壓在主色上的字" },
     "rule": {
-      "$value": "{color.sand.250}",
+      "$value": "{color.neutral.200}",
       "$type": "color",
-      "$description": "框線與底色同一支色系才像一套；原本的冷灰配米白底會偏藍，且對白底 1.47:1 太搶"
+      "$description": "細線分隔，取代卡片框。1px"
     },
     "rule-soft": {
-      "$value": "{color.sand.200}",
+      "$value": "{color.neutral.100}",
       "$type": "color",
       "$description": "同一塊裡分列用；rule 是「這是兩個東西」，這一階是「同一件事的下一行」"
     },
     "rule-strong": {
-      "$value": "{color.sand.800}",
+      "$value": "{color.neutral.900}",
       "$type": "color",
-      "$description": "強調框：卡片、搜尋列、次要按鈕。純黑改成深棕，跟其餘的框同色系"
+      "$description": "區段小標下面那條實線與報頭雙線。1.4px／3px"
     },
     "shell-rule": {
-      "$value": "{color.accent}",
+      "$value": "{color.neutral.900}",
       "$type": "color",
-      "$description": "外殼邊界（側欄、底部導覽）。用主色的金棕，它畫的是「這裡是外框不是內容」，跟卡片的框不同一回事"
+      "$description": "外殼邊界（側欄右緣、報頭）。跟區段實線同色，畫的是版面骨架"
     },
     "grid": {
-      "$value": "{color.sand.250}",
+      "$value": "{color.neutral.200}",
       "$type": "color",
-      "$description": "圖表格線；米白太淺當不了資料色，當格線剛好"
+      "$description": "圖表格線；跟細分隔線同一階"
     },
     "series": {
-      "1": {
-        "$value": "{color.blue.600}",
-        "$type": "color"
+      "1": { "$value": "{color.cactus.700}", "$type": "color" },
+      "2": { "$value": "{color.dune.500}", "$type": "color" },
+      "3": { "$value": "{color.sky.500}", "$type": "color" },
+      "track": {
+        "$value": "{color.neutral.100}",
+        "$type": "color",
+        "$description": "長條圖後面那條空軌"
       },
       "overflow": {
-        "$value": "#9ca3af",
+        "$value": "#b9b6ae",
         "$type": "color",
-        "$description": "第 9 個以後合併成「其他」的那一格，不是第 9 個色；值同 Tailwind gray-400，但 recharts 要字面值"
+        "$description": "第 9 個以後合併成「其他」的那一格，不是第 9 個色；recharts 要字面值"
       }
     },
     "status": {
       "want": {
-        "bg": {
-          "$value": "{color.sand.200}",
-          "$type": "color"
+        "dot": {
+          "$value": "{color.neutral.300}",
+          "$type": "color",
+          "$description": "狀態只靠一顆點的深淺：想讀最淡"
         },
-        "ink": {
-          "$value": "{color.sand.800}",
-          "$type": "color"
-        }
+        "bg": { "$value": "{color.surface}", "$type": "color" },
+        "ink": { "$value": "{color.neutral.500}", "$type": "color" }
       },
       "reading": {
-        "bg": {
-          "$value": "{color.gold.600}",
-          "$type": "color"
+        "dot": {
+          "$value": "{color.accent}",
+          "$type": "color",
+          "$description": "在讀是唯一有彩度的一顆"
         },
-        "ink": {
-          "$value": "{color.white}",
-          "$type": "color"
-        }
+        "bg": { "$value": "{color.surface}", "$type": "color" },
+        "ink": { "$value": "{color.neutral.900}", "$type": "color" }
       },
       "done": {
-        "bg": {
-          "$value": "{color.sand.100}",
-          "$type": "color",
-          "$description": "多數狀態給最淡的一階，同色系但幾乎不出聲"
-        },
-        "ink": {
-          "$value": "{color.sand.500}",
-          "$type": "color"
-        }
+        "dot": { "$value": "{color.cactus.300}", "$type": "color" },
+        "bg": { "$value": "{color.surface}", "$type": "color" },
+        "ink": { "$value": "{color.neutral.500}", "$type": "color" }
       }
     },
     "tag": {
       "domain": {
         "bg": {
-          "$value": "{color.mint.100}",
-          "$type": "color"
-        },
-        "ink": {
-          "$value": "{color.mint.700}",
-          "$type": "color"
-        },
-        "ring": {
-          "$value": "{color.mint.300}",
+          "$value": "{color.dune.300}",
           "$type": "color",
-          "$description": "次領域用外框版：同色系＝同一件事的粗細兩層"
+          "$description": "主領域：唯一鋪底的標籤"
+        },
+        "ink": { "$value": "{color.neutral.900}", "$type": "color" },
+        "ring": {
+          "$value": "{color.dune.500}",
+          "$type": "color",
+          "$description": "次領域改成底線版；同色系＝同一件事的粗細兩層"
         }
       },
       "platform": {
-        "bg": {
-          "$value": "{color.azure.100}",
-          "$type": "color"
-        },
-        "ink": {
-          "$value": "{color.azure.700}",
-          "$type": "color"
-        }
+        "bg": { "$value": "{color.neutral.100}", "$type": "color" },
+        "ink": { "$value": "{color.neutral.600}", "$type": "color" }
       },
       "type": {
-        "ink": {
-          "$value": "{color.coral.700}",
-          "$type": "color"
-        },
-        "ring": {
-          "$value": "{color.coral.300}",
-          "$type": "color"
-        }
+        "ink": { "$value": "{color.neutral.600}", "$type": "color" },
+        "ring": { "$value": "{color.neutral.300}", "$type": "color" }
       },
       "language": {
-        "bg": {
-          "$value": "{color.gold.100}",
-          "$type": "color"
-        },
-        "ink": {
-          "$value": "{color.gold.700}",
-          "$type": "color"
-        }
+        "bg": { "$value": "{color.neutral.100}", "$type": "color" },
+        "ink": { "$value": "{color.neutral.600}", "$type": "color" }
       },
       "article": {
-        "bg": {
-          "$value": "var(--color-gray-100)",
-          "$type": "color"
-        },
+        "bg": { "$value": "{color.neutral.100}", "$type": "color" },
         "ink": {
-          "$value": "var(--color-gray-500)",
+          "$value": "{color.neutral.500}",
           "$type": "color",
           "$description": "文章標籤是自由打的，沒有固定選項可配色，整組同一個中性色"
         }
       }
+    },
+    "danger": {
+      "$value": "{color.brick.500}",
+      "$type": "color",
+      "$description": "錯誤與未完成"
     }
+  },
+  "font": {
+    "serif": {
+      "$value": "var(--font-noto-serif), Georgia, 'Songti TC', serif",
+      "$type": "fontFamily",
+      "$description": "值用襯線：書名、單字、數字、站名"
+    },
+    "sans": {
+      "$value": "var(--font-noto-sans), 'PingFang TC', sans-serif",
+      "$type": "fontFamily",
+      "$description": "標籤與介面文字"
+    }
+  },
+  "text": {
+    "site": { "$value": "40px", "$type": "dimension", "$description": "報頭站名" },
+    "lede": { "$value": "34px", "$type": "dimension", "$description": "頭條：一頁只有一個" },
+    "page": { "$value": "30px", "$type": "dimension", "$description": "頁名" },
+    "item": { "$value": "17px", "$type": "dimension", "$description": "主要條目" },
+    "item-sm": { "$value": "15px", "$type": "dimension", "$description": "次要條目、側欄條目" },
+    "note": { "$value": "14px", "$type": "dimension", "$description": "襯線摘要與引文" },
+    "ui": { "$value": "13.5px", "$type": "dimension", "$description": "導覽項目、按鈕" },
+    "byline": { "$value": "12px", "$type": "dimension", "$description": "作者行" },
+    "meta": { "$value": "11px", "$type": "dimension", "$description": "日期、計數" },
+    "label": { "$value": "10.5px", "$type": "dimension", "$description": "全大寫小標籤" }
+  },
+  "tracking": {
+    "label": { "$value": "0.16em", "$type": "dimension", "$description": "全大寫小標籤" },
+    "section": { "$value": "0.12em", "$type": "dimension", "$description": "側欄分類標題" },
+    "tight": { "$value": "-0.02em", "$type": "dimension", "$description": "站名與頭條" }
+  },
+  "stroke": {
+    "hairline": { "$value": "1px", "$type": "dimension", "$description": "細線分隔" },
+    "solid": {
+      "$value": "1.4px",
+      "$type": "dimension",
+      "$description": "小標籤下面那條實線、報頭第二條"
+    },
+    "masthead": { "$value": "3px", "$type": "dimension", "$description": "報頭第一條" }
   },
   "radius": {
     "thumb": {
-      "$value": "2px",
+      "$value": "1px",
       "$type": "dimension",
-      "$description": "書封、favicon、圖例色塊：小圖只要一點點就夠，再多會看起來像貼紙"
+      "$description": "書封、favicon、圖例色塊：報紙感要幾乎是直角"
     },
     "control": {
-      "$value": "4px",
+      "$value": "0px",
       "$type": "dimension",
-      "$description": "按鈕、輸入框、分頁列、標籤——頁首那一排全部同一階"
+      "$description": "按鈕、輸入框、分頁列、標籤——版面靠線分，圓角會讓它們看起來像貼紙"
     },
     "surface": {
-      "$value": "8px",
+      "$value": "0px",
       "$type": "dimension",
-      "$description": "卡片、面板、浮層這類成塊的東西"
+      "$description": "面板與浮層；細線分隔不用卡片框，所以也不需要圓角"
     }
   }
 }

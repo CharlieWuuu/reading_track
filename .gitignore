@@ -41,7 +41,9 @@ yarn-error.log*
 .claude/
 
 # 開發紀錄、待辦、記憶，只留本機
-/docs/
+/docs/*
+# 視覺參考圖例外，要進版控
+!/docs/refs/
 
 # typescript
 *.tsbuildinfo
