@@ -54,3 +54,6 @@ storybook-static
 
 # eslint cache
 .eslintcache
+
+# 設計稿工作檔：只活在本機，不進版控
+docs/design/

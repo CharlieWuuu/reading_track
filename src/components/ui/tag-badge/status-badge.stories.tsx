@@ -14,7 +14,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-/** 三個狀態是同色相的三階，代表進度而不是三種分類 */
+/** 三顆點是同色相的三階，代表進度而不是三種分類 */
 export const AllStatuses: Story = {
   render: () => (
     <div className="flex gap-2">

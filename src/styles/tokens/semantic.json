@@ -55,8 +55,15 @@
       "$type": "color",
       "$description": "主色：主要動作鍵、選中的分頁、在讀那顆點。白底 5.9:1"
     },
-    "accent-hover": { "$value": "{color.cactus.900}", "$type": "color" },
-    "accent-ink": { "$value": "{color.white}", "$type": "color", "$description": "壓在主色上的字" },
+    "accent-hover": {
+      "$value": "{color.cactus.900}",
+      "$type": "color"
+    },
+    "accent-ink": {
+      "$value": "{color.white}",
+      "$type": "color",
+      "$description": "壓在主色上的字"
+    },
     "rule": {
       "$value": "{color.neutral.200}",
       "$type": "color",
@@ -83,9 +90,18 @@
       "$description": "圖表格線；跟細分隔線同一階"
     },
     "series": {
-      "1": { "$value": "{color.cactus.700}", "$type": "color" },
-      "2": { "$value": "{color.dune.500}", "$type": "color" },
-      "3": { "$value": "{color.sky.500}", "$type": "color" },
+      "1": {
+        "$value": "{color.cactus.700}",
+        "$type": "color"
+      },
+      "2": {
+        "$value": "{color.dune.500}",
+        "$type": "color"
+      },
+      "3": {
+        "$value": "{color.sky.500}",
+        "$type": "color"
+      },
       "track": {
         "$value": "{color.neutral.100}",
         "$type": "color",
@@ -103,23 +119,20 @@
           "$value": "{color.neutral.300}",
           "$type": "color",
           "$description": "狀態只靠一顆點的深淺：想讀最淡"
-        },
-        "bg": { "$value": "{color.surface}", "$type": "color" },
-        "ink": { "$value": "{color.neutral.500}", "$type": "color" }
+        }
       },
       "reading": {
         "dot": {
           "$value": "{color.accent}",
           "$type": "color",
           "$description": "在讀是唯一有彩度的一顆"
-        },
-        "bg": { "$value": "{color.surface}", "$type": "color" },
-        "ink": { "$value": "{color.neutral.900}", "$type": "color" }
+        }
       },
       "done": {
-        "dot": { "$value": "{color.cactus.300}", "$type": "color" },
-        "bg": { "$value": "{color.surface}", "$type": "color" },
-        "ink": { "$value": "{color.neutral.500}", "$type": "color" }
+        "dot": {
+          "$value": "{color.cactus.300}",
+          "$type": "color"
+        }
       }
     },
     "tag": {
@@ -129,7 +142,10 @@
           "$type": "color",
           "$description": "主領域：唯一鋪底的標籤"
         },
-        "ink": { "$value": "{color.neutral.900}", "$type": "color" },
+        "ink": {
+          "$value": "{color.neutral.900}",
+          "$type": "color"
+        },
         "ring": {
           "$value": "{color.dune.500}",
           "$type": "color",
@@ -137,19 +153,40 @@
         }
       },
       "platform": {
-        "bg": { "$value": "{color.neutral.100}", "$type": "color" },
-        "ink": { "$value": "{color.neutral.600}", "$type": "color" }
+        "bg": {
+          "$value": "{color.neutral.100}",
+          "$type": "color"
+        },
+        "ink": {
+          "$value": "{color.neutral.600}",
+          "$type": "color"
+        }
       },
       "type": {
-        "ink": { "$value": "{color.neutral.600}", "$type": "color" },
-        "ring": { "$value": "{color.neutral.300}", "$type": "color" }
+        "ink": {
+          "$value": "{color.neutral.600}",
+          "$type": "color"
+        },
+        "ring": {
+          "$value": "{color.neutral.300}",
+          "$type": "color"
+        }
       },
       "language": {
-        "bg": { "$value": "{color.neutral.100}", "$type": "color" },
-        "ink": { "$value": "{color.neutral.600}", "$type": "color" }
+        "bg": {
+          "$value": "{color.neutral.100}",
+          "$type": "color"
+        },
+        "ink": {
+          "$value": "{color.neutral.600}",
+          "$type": "color"
+        }
       },
       "article": {
-        "bg": { "$value": "{color.neutral.100}", "$type": "color" },
+        "bg": {
+          "$value": "{color.neutral.100}",
+          "$type": "color"
+        },
         "ink": {
           "$value": "{color.neutral.500}",
           "$type": "color",
@@ -176,30 +213,90 @@
     }
   },
   "text": {
-    "site": { "$value": "40px", "$type": "dimension", "$description": "報頭站名" },
-    "lede": { "$value": "34px", "$type": "dimension", "$description": "頭條：一頁只有一個" },
-    "page": { "$value": "30px", "$type": "dimension", "$description": "頁名" },
-    "item": { "$value": "17px", "$type": "dimension", "$description": "主要條目" },
-    "item-sm": { "$value": "15px", "$type": "dimension", "$description": "次要條目、側欄條目" },
-    "note": { "$value": "14px", "$type": "dimension", "$description": "襯線摘要與引文" },
-    "ui": { "$value": "13.5px", "$type": "dimension", "$description": "導覽項目、按鈕" },
-    "byline": { "$value": "12px", "$type": "dimension", "$description": "作者行" },
-    "meta": { "$value": "11px", "$type": "dimension", "$description": "日期、計數" },
-    "label": { "$value": "10.5px", "$type": "dimension", "$description": "全大寫小標籤" }
+    "site": {
+      "$value": "40px",
+      "$type": "dimension",
+      "$description": "報頭站名"
+    },
+    "lede": {
+      "$value": "34px",
+      "$type": "dimension",
+      "$description": "頭條：一頁只有一個"
+    },
+    "page": {
+      "$value": "30px",
+      "$type": "dimension",
+      "$description": "頁名"
+    },
+    "item": {
+      "$value": "17px",
+      "$type": "dimension",
+      "$description": "主要條目"
+    },
+    "item-sm": {
+      "$value": "15px",
+      "$type": "dimension",
+      "$description": "次要條目、側欄條目"
+    },
+    "note": {
+      "$value": "14px",
+      "$type": "dimension",
+      "$description": "襯線摘要與引文"
+    },
+    "ui": {
+      "$value": "13.5px",
+      "$type": "dimension",
+      "$description": "導覽項目、按鈕"
+    },
+    "byline": {
+      "$value": "12px",
+      "$type": "dimension",
+      "$description": "作者行"
+    },
+    "meta": {
+      "$value": "11px",
+      "$type": "dimension",
+      "$description": "日期、計數"
+    },
+    "label": {
+      "$value": "10.5px",
+      "$type": "dimension",
+      "$description": "全大寫小標籤"
+    }
   },
   "tracking": {
-    "label": { "$value": "0.16em", "$type": "dimension", "$description": "全大寫小標籤" },
-    "section": { "$value": "0.12em", "$type": "dimension", "$description": "側欄分類標題" },
-    "tight": { "$value": "-0.02em", "$type": "dimension", "$description": "站名與頭條" }
+    "label": {
+      "$value": "0.16em",
+      "$type": "dimension",
+      "$description": "全大寫小標籤"
+    },
+    "section": {
+      "$value": "0.12em",
+      "$type": "dimension",
+      "$description": "側欄分類標題"
+    },
+    "tight": {
+      "$value": "-0.02em",
+      "$type": "dimension",
+      "$description": "站名與頭條"
+    }
   },
   "stroke": {
-    "hairline": { "$value": "1px", "$type": "dimension", "$description": "細線分隔" },
+    "hairline": {
+      "$value": "1px",
+      "$type": "dimension",
+      "$description": "細線分隔"
+    },
     "solid": {
       "$value": "1.4px",
       "$type": "dimension",
       "$description": "小標籤下面那條實線、報頭第二條"
     },
-    "masthead": { "$value": "3px", "$type": "dimension", "$description": "報頭第一條" }
+    "masthead": {
+      "$value": "3px",
+      "$type": "dimension",
+      "$description": "報頭第一條"
+    }
   },
   "radius": {
     "thumb": {

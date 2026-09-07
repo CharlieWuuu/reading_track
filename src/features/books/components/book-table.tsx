@@ -8,7 +8,7 @@ import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { BookCover } from "@/components/ui/book-cover";
 import { ListHeading } from "@/components/ui/list-heading";
-import { STATUS_STYLES, StatusBadge, TagList } from "@/components/ui/tag-badge";
+import { STATUS_DOTS, StatusBadge, TagList } from "@/components/ui/tag-badge";
 import { bookHref } from "@/config/routes";
 import { useBooks } from "@/hooks/use-books";
 import { useMounted } from "@/hooks/use-mounted";
@@ -23,6 +23,7 @@ import {
   statusHeading,
 } from "@/utils/book-filter";
 import { matchesSearch, searchTerms } from "@/utils/search";
+import { BookOverview } from "./book-overview";
 
 /** 目前篩選中的關鍵字。放在清單上方，因為它會改變下面看到的是什麼 */
 function KeywordFilter({
@@ -60,15 +61,14 @@ function rowTone(endDate: string | null, thisYear: number): string {
   return distance % 2 === 1 ? "bg-gray-100 hover:bg-gray-200" : "bg-white hover:bg-gray-50";
 }
 
-/** 書封牆用的狀態標記：壓在封面左上角的小標籤，白邊讓它在任何封面上都看得見 */
+/** 書封牆用的狀態標記：壓在封面左上角的一顆點，白邊讓它在任何封面上都看得見 */
 function StatusDot({ status }: { status: ReadingStatus }) {
   if (status === "已讀完") return null;
   return (
     <span
-      className={`rounded-control absolute top-1 left-1 px-1 py-px text-[10px] leading-4 ring-2 ring-white ${STATUS_STYLES[status]}`}
-    >
-      {status}
-    </span>
+      aria-label={status}
+      className={`absolute top-1 left-1 size-2 rounded-full ring-2 ring-white ${STATUS_DOTS[status]}`}
+    />
   );
 }
 
@@ -83,8 +83,8 @@ function StatusDot({ status }: { status: ReadingStatus }) {
  * 用該狀態徽章的底色，色條與徽章才是同一件事的兩種畫法。
  */
 function accentColor(status: ReadingStatus): string | null {
-  if (status === "想讀") return TOKENS["status-want-bg"];
-  if (status === "閱讀中") return TOKENS["status-reading-bg"];
+  if (status === "想讀") return TOKENS["status-want-dot"];
+  if (status === "閱讀中") return TOKENS["status-reading-dot"];
   return null;
 }
 
@@ -119,12 +119,13 @@ export function BookTable() {
     parseStatusFilter(searchParams.get("status")),
     terms.length > 0 || Boolean(keyword),
   );
-  const books = allBooks.filter(
+  // 概覽自己會把在讀、想讀、讀完排在同一頁，所以狀態篩選只套在其餘檢視上
+  const found = allBooks.filter(
     (b) =>
-      matchesStatus(b, status) &&
       (!keyword || splitLines(b.keywords).includes(keyword)) &&
       matchesSearch(terms, b.title, b.author, b.publisher, b.keywords, b.note),
   );
+  const books = found.filter((b) => matchesStatus(b, status));
   const clearKeyword = () => setParams({ keyword: null });
   // 搜尋與關鍵字反查會蓋掉狀態篩選，所以標題要照真正生效的條件寫
   const heading =
@@ -162,6 +163,10 @@ export function BookTable() {
         </PageMessage>
       </div>
     );
+  }
+
+  if (view === "overview") {
+    return <BookOverview books={found} href={(book) => detailHref(book.id)} />;
   }
 
   if (view === "card") {
