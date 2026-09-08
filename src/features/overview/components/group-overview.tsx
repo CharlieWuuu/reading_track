@@ -29,7 +29,8 @@ const styles = {
   headline: "border-rule-strong flex gap-8 border-b-2 pb-5",
   headlineTitle: "font-serif text-lede leading-tight font-semibold tracking-tight",
   byline: "text-byline text-ink-muted",
-  monthGrid: "grid grid-cols-1 gap-x-8 md:grid-cols-2 xl:grid-cols-3",
+  // 欄數跟著寬度長，每欄寬度才不會沒有上限一直被拉開
+  monthGrid: "grid grid-cols-1 gap-x-8 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4",
   month: "border-rule-strong border-b-2 pt-4 pb-1.5",
   monthLabel: "font-serif text-item-sm font-semibold tracking-wide",
   item: "border-rule border-b py-3", // 一格一條下緣線：橫著排時每一列收在同一條線上
