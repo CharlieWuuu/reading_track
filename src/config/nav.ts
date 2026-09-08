@@ -1,3 +1,4 @@
+import { KindGroup } from "./record-kinds";
 import { statsHref } from "./stats-views";
 import { ReadingTab, readingTabHref } from "./tabs";
 
@@ -19,6 +20,8 @@ export type NavType = {
 export type NavGroup = {
   key: string;
   label: string;
+  /** 對到資料庫那一堆。沒有的就沒有「新增類型」——統計是回頭看，不新增東西 */
+  kindGroup?: KindGroup;
   types: NavType[];
 };
 
@@ -33,11 +36,13 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     key: "records",
     label: "紀錄",
+    kindGroup: "records",
     types: [readingType("books", "書籍"), readingType("articles", "文章")],
   },
   {
     key: "fragments",
     label: "片段",
+    kindGroup: "fragments",
     types: [
       readingType("quotes", "佳句"),
       readingType("vocabulary", "單字"),
@@ -47,6 +52,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     key: "columns",
     label: "專欄",
+    kindGroup: "writings",
     types: [{ key: "writing", label: "書寫", href: "/writing", match: "/writing" }],
   },
   {

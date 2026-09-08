@@ -1,4 +1,5 @@
 import { asc, eq } from "drizzle-orm";
+import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
 import { recordKindFields, recordKinds, recordKindStatuses } from "@/lib/db/schema/kinds";
 import { FieldOverride } from "@/utils/record-form";
@@ -15,6 +16,8 @@ export type KindStatus = { id: string; key: string; label: string };
 export type Kind = {
   id: string;
   name: string;
+  /** 屬於側欄哪一堆 */
+  group: KindGroup;
   sortOrder: number;
   /** 交給 resolveFormFields，決定欄位在這個類型叫什麼 */
   fields: FieldOverride[];
@@ -52,6 +55,7 @@ export async function listKinds(userId: string): Promise<Kind[]> {
   return kinds.map((kind) => ({
     id: kind.id,
     name: kind.name,
+    group: kind.groupKey as KindGroup,
     sortOrder: kind.sortOrder,
     fields: (fieldsByKind.get(kind.id) ?? []).map((f) => ({
       key: f.fieldKey,
