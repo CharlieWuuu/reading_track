@@ -1,46 +1,7 @@
 import { date, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { recordKinds } from "./kinds";
-import { books } from "./reading";
 import { users } from "./users";
 import { works } from "./works";
-
-/**
- * 片段：佳句、單字。從紀錄裡摘出來的東西。
- *
- * 底下的 fragments 是新的一張，三種片段共用；quotes 與 vocabulary 是舊表，
- * 資料搬完就退場，在那之前兩套並存。
- *
- * book_id 可空——抄到一句話但不是從書上看到的，照樣留得下來。指向書而不是
- * 「哪一次讀」，重讀時記的句子看第一次那列時也該出現；要回推是第幾次讀，看 created_at。
- */
-
-export const quotes = pgTable("quotes", {
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  id: uuid("id").primaryKey().defaultRandom(),
-  bookId: uuid("book_id").references(() => books.id, { onDelete: "set null" }),
-  text: text("text").notNull(),
-  chapter: text("chapter").notNull().default(""),
-  note: text("note").notNull().default(""), // 這一句的心得，跟整本書的分開
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const vocabulary = pgTable("vocabulary", {
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  id: uuid("id").primaryKey().defaultRandom(),
-  bookId: uuid("book_id").references(() => books.id, { onDelete: "set null" }),
-  word: text("word").notNull(),
-  pronunciation: text("pronunciation").notNull().default(""),
-  wordTranslation: text("word_translation").notNull().default(""),
-  sentence: text("sentence").notNull().default(""),
-  sentenceTranslation: text("sentence_translation").notNull().default(""),
-  chapter: text("chapter").notNull().default(""),
-  language: text("language").notNull().default(""),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
 
 /**
  * 新的片段表。佳句、單字、關鍵字都是這張表的一列，靠 kind_id 分。

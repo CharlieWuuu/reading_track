@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { bookTypes } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { makeBook, seedUser } from "@/lib/db/test/factories";
+import { kindIdByName } from "./kind-lookup";
 
 // mutations 從模組層拿 db，換成記憶體裡的那份才測得到
 vi.mock("@/lib/db/client", async () => {
@@ -96,18 +97,21 @@ describe("deleteBookRow", () => {
 
 describe("交易", () => {
   it("中途失敗不留半套資料", async () => {
-    const { books: booksTable } = await import("@/lib/db/schema/reading");
-    const before = (await db.select().from(booksTable)).length;
+    const before = (await db.select().from(works)).length;
 
     await expect(
       db.transaction(async (tx) => {
-        await tx
-          .insert(booksTable)
-          .values({ userId, title: "會被回滾的書", author: "", language: "" });
+        await tx.insert(works).values({
+          userId,
+          kindId: await kindIdByName(tx, userId, "書籍"),
+          title: "會被回滾的書",
+          creator: "",
+          language: "",
+        });
         throw new Error("故意失敗");
       }),
     ).rejects.toThrow("故意失敗");
 
-    expect(await db.select().from(booksTable)).toHaveLength(before);
+    expect(await db.select().from(works)).toHaveLength(before);
   });
 });
