@@ -6,3 +6,4 @@ export * from "./keyword-links";
 export * from "./kinds";
 export * from "./works";
 export * from "./external-links";
+export * from "./internal-links";
