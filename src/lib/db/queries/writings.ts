@@ -1,20 +1,28 @@
-import { asc, eq } from "drizzle-orm";
-import { PRIVATE_MARK } from "@/config/privacy";
+import { and, asc, eq } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db/client";
+import { fragments } from "@/lib/db/schema/fragments";
 import { writingKeywords } from "@/lib/db/schema/keyword-links";
-import { articles, books } from "@/lib/db/schema/reading";
-import { writingTypes } from "@/lib/db/schema/taxonomy";
-import { metrics, writings } from "@/lib/db/schema/writing";
+import { recordKinds } from "@/lib/db/schema/kinds";
+import { works } from "@/lib/db/schema/works";
+import { metrics } from "@/lib/db/schema/writing";
 import { Metric } from "@/types/metric";
 import { Writing } from "@/types/writing";
 import { firstReadingIdByBookId } from "./books";
 
 /**
- * 書寫讀回舊形狀。
+ * 書寫讀回舊形狀。資料在 fragments 表裡，跟片段同一張——形狀一樣（一層、
+ * 可空的出處），差別只在類型屬於哪一堆。
  *
  * 舊的「類型」欄混了兩件事：有出處時它記的是出處（書籍／文章），沒出處時記的
- * 才是真正的類型。資料庫把兩者分開存了，這裡再合回去，畫面才不用改。
+ * 才是真正的類型。這裡再合回去，畫面不用改。
+ *
+ * metrics 還掛在舊的 writings 表上，所以那張表暫時留著——編號一樣，之後把
+ * 外鍵改指 fragments 再刪。
  */
+
+/** 出處的類型：這一則掛在書上還是文章上，舊形狀的 kind 欄要它 */
+const sourceKind = alias(recordKinds, "source_kind");
 
 async function keywordsByWriting(userId: string): Promise<Map<string, string[]>> {
   const rows = await db
@@ -34,36 +42,34 @@ export async function listWritings(userId: string): Promise<Writing[]> {
     firstReadingIdByBookId(userId),
     db
       .select({
-        writing: writings,
-        typeName: writingTypes.name,
-        bookTitle: books.title,
-        articleTitle: articles.title,
+        fragment: fragments,
+        kindName: recordKinds.name,
+        workTitle: works.title,
+        workKind: sourceKind.name,
       })
-      .from(writings)
-      .leftJoin(writingTypes, eq(writingTypes.id, writings.typeId))
-      .leftJoin(books, eq(books.id, writings.bookId))
-      .leftJoin(articles, eq(articles.id, writings.articleId))
-      .where(eq(writings.userId, userId))
-      .orderBy(asc(writings.createdAt)),
+      .from(fragments)
+      .innerJoin(recordKinds, eq(recordKinds.id, fragments.kindId))
+      .leftJoin(works, eq(works.id, fragments.workId))
+      .leftJoin(sourceKind, eq(sourceKind.id, works.kindId))
+      .where(and(eq(fragments.userId, userId), eq(recordKinds.groupKey, "writings")))
+      .orderBy(asc(fragments.createdAt)),
   ]);
 
-  return rows.map(({ writing, typeName, bookTitle, articleTitle }) => {
+  return rows.map(({ fragment, kindName, workTitle, workKind }) => {
     // 畫面上的書籍編號是「某一次讀」，所以指回第一次讀的那個
-    const sourceId = writing.bookId
-      ? (firstReading.get(writing.bookId) ?? "")
-      : (writing.articleId ?? "");
+    const sourceId = fragment.workId ? (firstReading.get(fragment.workId) ?? fragment.workId) : "";
     return {
-      id: writing.id,
-      createdAt: writing.createdAt.toISOString(),
-      date: writing.date,
-      title: writing.title,
-      kind: writing.bookId ? "書籍" : writing.articleId ? "文章" : (typeName ?? ""),
-      keywords: (keywords.get(writing.id) ?? []).join("\n"),
-      note: writing.note,
-      link: writing.link,
-      sourceTitle: bookTitle ?? articleTitle ?? "",
+      id: fragment.id,
+      createdAt: fragment.createdAt.toISOString(),
+      date: fragment.date,
+      title: fragment.name,
+      kind: workKind ?? kindName,
+      keywords: (keywords.get(fragment.id) ?? []).join("\n"),
+      note: fragment.body,
+      link: fragment.wikiUrl,
+      sourceTitle: workTitle ?? "",
       sourceId,
-      private: writing.isPrivate ? PRIVATE_MARK : "",
+      private: "", // 片段不帶私人旗標，藏東西一律從主題與類型下手
     };
   });
 }

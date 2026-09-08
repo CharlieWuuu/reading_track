@@ -1,5 +1,5 @@
-import { saveKeywordInfos } from "@/lib/db/mutations/records";
-import { listKeywords as listKeywordInfos } from "@/lib/db/queries/records";
+import { saveKeywordInfos } from "@/lib/db/mutations/fragments";
+import { listKeywords as listKeywordInfos } from "@/lib/db/queries/fragments";
 import { lookupKeyword } from "@/lib/keywords/wikipedia";
 import { KeywordInfo } from "@/types/keyword";
 

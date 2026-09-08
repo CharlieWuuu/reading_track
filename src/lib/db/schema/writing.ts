@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { boolean, check, date, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { fragments } from "./fragments";
 import { articles, books } from "./reading";
 import { writingTypes } from "./taxonomy";
 import { users } from "./users";
@@ -37,7 +38,7 @@ export const metrics = pgTable("metrics", {
   id: uuid("id").primaryKey().defaultRandom(),
   writingId: uuid("writing_id")
     .notNull()
-    .references(() => writings.id, { onDelete: "cascade" }),
+    .references(() => fragments.id, { onDelete: "cascade" }), // 專欄搬進 fragments 了，編號沒變
   date: date("date").notNull(),
   platform: text("platform").notNull().default(""),
   views: integer("views"),

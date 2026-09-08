@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
-import { writingTypes } from "@/lib/db/schema/taxonomy";
-import { writings } from "@/lib/db/schema/writing";
+import { fragments } from "@/lib/db/schema/fragments";
+import { recordKinds } from "@/lib/db/schema/kinds";
 import { makeBook, seedUser } from "@/lib/db/test/factories";
 import type { Writing } from "@/types/writing";
 
@@ -33,30 +33,37 @@ function makeWriting(patch: Partial<Writing> = {}): Writing {
 }
 
 describe("addWritingRow", () => {
-  it("類型沒有就長一個出來", async () => {
-    await addWritingRow(userId, makeWriting({ kind: "週計劃" }));
+  /** 類型是使用者在建立頁上決定的，寫入時不替他長一個出來——認不得就落到日記 */
+  it("認不得的類型落到日記，不長出新類型", async () => {
+    const writing = makeWriting({ kind: "週計劃" });
+    await addWritingRow(userId, writing);
 
-    const rows = await db.select().from(writingTypes).where(eq(writingTypes.name, "週計劃"));
-    expect(rows).toHaveLength(1);
+    const [row] = await db.select().from(fragments).where(eq(fragments.id, writing.id));
+    const [kind] = await db.select().from(recordKinds).where(eq(recordKinds.id, row.kindId));
+    expect(kind.name).toBe("日記");
+
+    const invented = await db.select().from(recordKinds).where(eq(recordKinds.name, "週計劃"));
+    expect(invented).toHaveLength(0);
   });
 
-  it("「書籍」「文章」不是類型，是在說它有出處——不該長成一個類型", async () => {
-    await addWritingRow(userId, makeWriting({ kind: "書籍" }));
+  it("「書籍」「文章」不是類型，是在說它有出處", async () => {
+    const writing = makeWriting({ kind: "書籍" });
+    await addWritingRow(userId, writing);
 
-    const rows = await db.select().from(writingTypes).where(eq(writingTypes.name, "書籍"));
-    expect(rows).toHaveLength(0);
+    const [row] = await db.select().from(fragments).where(eq(fragments.id, writing.id));
+    const [kind] = await db.select().from(recordKinds).where(eq(recordKinds.id, row.kindId));
+    expect(kind.name).toBe("日記");
   });
 
-  it("sourceId 指到某一次閱讀時，掛回它屬於的那本書", async () => {
+  it("sourceId 指到某一次閱讀時，掛回它屬於的那個作品", async () => {
     const reading = crypto.randomUUID();
     await addBookRow(userId, makeBook({ id: reading, title: "來源書" }));
 
     const writing = makeWriting({ sourceId: reading });
     await addWritingRow(userId, writing);
 
-    const [row] = await db.select().from(writings).where(eq(writings.id, writing.id));
-    expect(row.bookId).toBeTruthy();
-    expect(row.articleId).toBeNull();
+    const [row] = await db.select().from(fragments).where(eq(fragments.id, writing.id));
+    expect(row.workId).toBeTruthy();
   });
 });
 
@@ -67,7 +74,7 @@ describe("updateWritingRow", () => {
 
     await updateWritingRow(userId, writing.id, { date: "" });
 
-    const [row] = await db.select().from(writings).where(eq(writings.id, writing.id));
+    const [row] = await db.select().from(fragments).where(eq(fragments.id, writing.id));
     expect(row.date).toBeNull();
   });
 });

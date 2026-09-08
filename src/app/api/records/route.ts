@@ -5,9 +5,9 @@ import {
   addVocabulary,
   replaceBookQuotes,
   replaceBookVocabulary,
-} from "@/lib/db/mutations/records";
+} from "@/lib/db/mutations/fragments";
 import { listBooks } from "@/lib/db/queries/books";
-import { listQuoteRows, listVocabularyRows } from "@/lib/db/queries/records";
+import { listQuoteRows, listVocabularyRows } from "@/lib/db/queries/fragments";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { isPrivate, requestPrivacy } from "@/utils/privacy";
 

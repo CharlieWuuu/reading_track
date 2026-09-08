@@ -9,8 +9,8 @@ import {
   requireWriter,
   unauthorized,
 } from "@/app/api/_lib/respond";
-import { deleteKeyword, renameKeyword, replaceKeywordInfo } from "@/lib/db/mutations/records";
-import { listKeywords } from "@/lib/db/queries/records";
+import { deleteKeyword, renameKeyword, replaceKeywordInfo } from "@/lib/db/mutations/fragments";
+import { listKeywords } from "@/lib/db/queries/fragments";
 import { enrichKeywords } from "@/lib/keywords/enrich";
 import { KeywordInfo } from "@/types/keyword";
 

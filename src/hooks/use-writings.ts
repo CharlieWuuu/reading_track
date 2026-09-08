@@ -11,10 +11,15 @@ import { Writing } from "@/types/writing";
  *
  * 本來這一段是靠 sort 穩定性加上查詢的 asc(createdAt) 湊出來的，
  * 改查詢就會安靜地翻掉，所以寫明。
+ *
+ * createdAt 用 ?? 墊過：本機快取可能是加這一欄之前存的。書籍與文章在
+ * record-order.ts 修過同一件事，這支當時漏了。
  */
 function sortWriting(writings: Writing[]): Writing[] {
   return [...writings].sort(
-    (a, b) => (b.date ?? "").localeCompare(a.date ?? "") || a.createdAt.localeCompare(b.createdAt),
+    (a, b) =>
+      (b.date ?? "").localeCompare(a.date ?? "") ||
+      (a.createdAt ?? "").localeCompare(b.createdAt ?? ""),
   );
 }
 

@@ -1,5 +1,5 @@
 {
-  "id": "5e3be9be-6086-413a-83af-1394b6e93e27",
+  "id": "8af5a91d-b5f7-43ff-8dd9-a9187e617f54",
   "prevId": "17fc509d-c094-4d10-9751-72289444ab4e",
   "version": "7",
   "dialect": "postgresql",
@@ -997,6 +997,175 @@
       },
       "isRLSEnabled": false
     },
+    "public.fragments": {
+      "name": "fragments",
+      "schema": "",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kind_id": {
+          "name": "kind_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "work_id": {
+          "name": "work_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "locator": {
+          "name": "locator",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "pronunciation": {
+          "name": "pronunciation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "translation": {
+          "name": "translation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "context": {
+          "name": "context",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "context_translation": {
+          "name": "context_translation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "topics": {
+          "name": "topics",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "span": {
+          "name": "span",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "coordinates": {
+          "name": "coordinates",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "wiki_url": {
+          "name": "wiki_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "fragments_user_id_users_id_fk": {
+          "name": "fragments_user_id_users_id_fk",
+          "tableFrom": "fragments",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "fragments_kind_id_record_kinds_id_fk": {
+          "name": "fragments_kind_id_record_kinds_id_fk",
+          "tableFrom": "fragments",
+          "tableTo": "record_kinds",
+          "columnsFrom": [
+            "kind_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "fragments_work_id_works_id_fk": {
+          "name": "fragments_work_id_works_id_fk",
+          "tableFrom": "fragments",
+          "tableTo": "works",
+          "columnsFrom": [
+            "work_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.quotes": {
       "name": "quotes",
       "schema": "",
@@ -1644,6 +1813,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "group_key": {
+          "name": "group_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "sort_order": {
           "name": "sort_order",
           "type": "integer",
@@ -1670,11 +1845,12 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "record_kinds_user_id_name_unique": {
-          "name": "record_kinds_user_id_name_unique",
+        "record_kinds_user_id_group_key_name_unique": {
+          "name": "record_kinds_user_id_group_key_name_unique",
           "nullsNotDistinct": false,
           "columns": [
             "user_id",
+            "group_key",
             "name"
           ]
         }
@@ -1683,8 +1859,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.experiences": {
-      "name": "experiences",
+    "public.records": {
+      "name": "records",
       "schema": "",
       "columns": {
         "user_id": {
@@ -1700,8 +1876,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "record_id": {
-          "name": "record_id",
+        "work_id": {
+          "name": "work_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -1782,9 +1958,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "experiences_user_id_users_id_fk": {
-          "name": "experiences_user_id_users_id_fk",
-          "tableFrom": "experiences",
+        "records_user_id_users_id_fk": {
+          "name": "records_user_id_users_id_fk",
+          "tableFrom": "records",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
@@ -1795,12 +1971,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "experiences_record_id_records_id_fk": {
-          "name": "experiences_record_id_records_id_fk",
-          "tableFrom": "experiences",
-          "tableTo": "records",
+        "records_work_id_works_id_fk": {
+          "name": "records_work_id_works_id_fk",
+          "tableFrom": "records",
+          "tableTo": "works",
           "columnsFrom": [
-            "record_id"
+            "work_id"
           ],
           "columnsTo": [
             "id"
@@ -1808,9 +1984,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "experiences_status_id_record_kind_statuses_id_fk": {
-          "name": "experiences_status_id_record_kind_statuses_id_fk",
-          "tableFrom": "experiences",
+        "records_status_id_record_kind_statuses_id_fk": {
+          "name": "records_status_id_record_kind_statuses_id_fk",
+          "tableFrom": "records",
           "tableTo": "record_kind_statuses",
           "columnsFrom": [
             "status_id"
@@ -1828,8 +2004,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.records": {
-      "name": "records",
+    "public.works": {
+      "name": "works",
       "schema": "",
       "columns": {
         "user_id": {
@@ -1893,9 +2069,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "records_user_id_users_id_fk": {
-          "name": "records_user_id_users_id_fk",
-          "tableFrom": "records",
+        "works_user_id_users_id_fk": {
+          "name": "works_user_id_users_id_fk",
+          "tableFrom": "works",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
@@ -1906,9 +2082,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "records_kind_id_record_kinds_id_fk": {
-          "name": "records_kind_id_record_kinds_id_fk",
-          "tableFrom": "records",
+        "works_kind_id_record_kinds_id_fk": {
+          "name": "works_kind_id_record_kinds_id_fk",
+          "tableFrom": "works",
           "tableTo": "record_kinds",
           "columnsFrom": [
             "kind_id"
@@ -1919,9 +2095,9 @@
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
-        "records_topic_id_book_types_id_fk": {
-          "name": "records_topic_id_book_types_id_fk",
-          "tableFrom": "records",
+        "works_topic_id_book_types_id_fk": {
+          "name": "works_topic_id_book_types_id_fk",
+          "tableFrom": "works",
           "tableTo": "book_types",
           "columnsFrom": [
             "topic_id"
@@ -1932,9 +2108,9 @@
           "onDelete": "set null",
           "onUpdate": "no action"
         },
-        "records_attribute_id_attributes_id_fk": {
-          "name": "records_attribute_id_attributes_id_fk",
-          "tableFrom": "records",
+        "works_attribute_id_attributes_id_fk": {
+          "name": "works_attribute_id_attributes_id_fk",
+          "tableFrom": "works",
           "tableTo": "attributes",
           "columnsFrom": [
             "attribute_id"
