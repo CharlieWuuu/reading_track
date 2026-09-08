@@ -46,7 +46,13 @@ function NavRow({ type, active }: { type: NavType; active: boolean }) {
 function GroupHeading({ group, onAdd }: { group: NavGroup; onAdd: () => void }) {
   return (
     <div className={styles.group}>
-      <span className={styles.groupLabel}>{group.label}</span>
+      {group.href ? (
+        <Link href={group.href} className={styles.groupLabel}>
+          {group.label}
+        </Link>
+      ) : (
+        <span className={styles.groupLabel}>{group.label}</span>
+      )}
       {group.kindGroup && (
         <button
           type="button"
