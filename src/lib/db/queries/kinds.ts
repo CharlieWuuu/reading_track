@@ -3,18 +3,16 @@ import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
 import { fields as fieldsTable } from "@/lib/db/schema/fields";
 import { fragments } from "@/lib/db/schema/fragments";
-import { kinds as kindsTable, kindStatuses, mapKindField } from "@/lib/db/schema/kinds";
+import { kinds as kindsTable, mapKindField } from "@/lib/db/schema/kinds";
 import { works } from "@/lib/db/schema/works";
 import { ModuleOverride } from "@/utils/record-form";
 
 /**
- * 類型連同它的欄位別名與狀態選項。
+ * 類型連同它的欄位別名。
  *
- * 一次撈三張表再在記憶體裡兜起來，不是每個類型各查一次——類型數量是個位數，
+ * 一次撈兩張表再在記憶體裡兜起來，不是每個類型各查一次——類型數量是個位數，
  * 但表單每開一次就要全部，N+1 沒有意義。
  */
-
-export type KindStatus = { id: string; key: string; label: string };
 
 export type Kind = {
   id: string;
@@ -27,7 +25,6 @@ export type Kind = {
   count: number;
   /** 勾了哪些模組，以及它們在這個類型叫什麼。交給 resolveFormModules */
   modules: ModuleOverride[];
-  statuses: KindStatus[];
 };
 
 const groupBy = <T extends { kindId: string }>(rows: T[]): Map<string, T[]> =>
@@ -59,7 +56,7 @@ async function countsByKind(userId: string): Promise<Map<string, number>> {
 }
 
 export async function listKinds(userId: string): Promise<Kind[]> {
-  const [kinds, fieldLinks, statuses, counts] = await Promise.all([
+  const [kinds, fieldLinks, counts] = await Promise.all([
     db
       .select()
       .from(kindsTable)
@@ -77,16 +74,10 @@ export async function listKinds(userId: string): Promise<Kind[]> {
       .innerJoin(fieldsTable, eq(fieldsTable.id, mapKindField.fieldId))
       .where(eq(mapKindField.userId, userId))
       .orderBy(asc(mapKindField.sortOrder)),
-    db
-      .select()
-      .from(kindStatuses)
-      .where(eq(kindStatuses.userId, userId))
-      .orderBy(asc(kindStatuses.sortOrder)),
     countsByKind(userId),
   ]);
 
   const fieldsByKind = groupBy(fieldLinks);
-  const statusesByKind = groupBy(statuses);
 
   return kinds.map((kind) => ({
     id: kind.id,
@@ -98,11 +89,6 @@ export async function listKinds(userId: string): Promise<Kind[]> {
     modules: (fieldsByKind.get(kind.id) ?? [])
       .filter((f) => f.isVisible)
       .map((f) => ({ key: f.fieldKey, label: f.label, sortOrder: f.sortOrder })),
-    statuses: (statusesByKind.get(kind.id) ?? []).map((s) => ({
-      id: s.id,
-      key: s.key,
-      label: s.label,
-    })),
   }));
 }
 

@@ -3,7 +3,7 @@ import { db } from "@/lib/db/client";
 import { seedKinds } from "@/lib/db/mutations/kinds";
 import { fragments } from "@/lib/db/schema/fragments";
 import { mapBookKeyword, mapWritingKeyword } from "@/lib/db/schema/keyword-links";
-import { kinds, kindStatuses } from "@/lib/db/schema/kinds";
+import { kinds } from "@/lib/db/schema/kinds";
 import { bookAttributes, keywords, topics } from "@/lib/db/schema/taxonomy";
 import { users } from "@/lib/db/schema/users";
 import { records, works } from "@/lib/db/schema/works";
@@ -193,20 +193,7 @@ export async function seedDemo(email: string): Promise<string> {
         .where(and(eq(kinds.userId, userId), eq(kinds.name, name)))
     )[0].id;
 
-  const statusId = async (kind: string, label: string) =>
-    (
-      await db
-        .select({ id: kindStatuses.id, label: kindStatuses.label })
-        .from(kindStatuses)
-        .where(eq(kindStatuses.kindId, await kindId(kind)))
-    ).find((row) => row.label === label)!.id;
-
   const bookKindId = await kindId("書籍");
-  const statusIds = {
-    已讀完: await statusId("書籍", "已讀完"),
-    閱讀中: await statusId("書籍", "閱讀中"),
-    想讀: await statusId("書籍", "想讀"),
-  };
   const quoteKindId = await kindId("佳句");
   const vocabularyKindId = await kindId("單字");
   const keywordKindId = await kindId("關鍵字");
@@ -273,7 +260,6 @@ export async function seedDemo(email: string): Promise<string> {
       .values({
         userId,
         workId: book.id,
-        statusId: statusIds[status],
         startDate: status === "想讀" ? null : daysAgo(400 - i * 12),
         endDate: status === "已讀完" ? daysAgo(380 - i * 12) : null,
         amount: 200 + ((i * 37) % 300),
@@ -292,7 +278,6 @@ export async function seedDemo(email: string): Promise<string> {
     await db.insert(records).values({
       userId,
       workId: bookIds[i],
-      statusId: statusIds["已讀完"],
       startDate: daysAgo(90),
       endDate: daysAgo(60),
     });

@@ -2,10 +2,10 @@ import { and, asc, eq, isNull } from "drizzle-orm";
 import { PRIVATE_MARK } from "@/config/privacy";
 import { db } from "@/lib/db/client";
 import { mapBookKeyword } from "@/lib/db/schema/keyword-links";
-import { kinds, kindStatuses } from "@/lib/db/schema/kinds";
+import { kinds } from "@/lib/db/schema/kinds";
 import { bookAttributes } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
-import { Book, inferStatus, normalizeStatus } from "@/types/book";
+import { Book, inferStatus } from "@/types/book";
 import { sourceUrlOfRecords } from "./external-links";
 import { typePaths } from "./taxonomy";
 
@@ -41,13 +41,11 @@ export async function listBooks(userId: string): Promise<Book[]> {
       .select({
         record: records,
         work: works,
-        status: kindStatuses.label,
         attribute: bookAttributes.name,
       })
       .from(records)
       .innerJoin(works, eq(works.id, records.workId))
       .innerJoin(kinds, eq(kinds.id, works.kindId))
-      .innerJoin(kindStatuses, eq(kindStatuses.id, records.statusId))
       .leftJoin(bookAttributes, eq(bookAttributes.id, works.attributeId))
       .where(and(eq(records.userId, userId), eq(kinds.name, BOOK_KIND)))
       .orderBy(asc(records.createdAt)),
@@ -63,7 +61,7 @@ export async function listBooks(userId: string): Promise<Book[]> {
     if (!firstRecordOf.has(work.id)) firstRecordOf.set(work.id, record.id);
   }
 
-  return rows.map(({ record, work, status, attribute }) => {
+  return rows.map(({ record, work, attribute }) => {
     const type = work.topicId ? types.get(work.topicId) : undefined;
     const first = firstRecordOf.get(work.id);
     return {
@@ -76,7 +74,7 @@ export async function listBooks(userId: string): Promise<Book[]> {
       isbn: work.externalId,
       platform: "", // 出版社與平台合成一欄了，舊形狀留著空的
       sourceUrl: sourceUrls.get(record.id) ?? "",
-      status: normalizeStatus(status) ?? inferStatus(record.startDate, record.endDate),
+      status: inferStatus(record.startDate, record.endDate),
       startDate: record.startDate,
       endDate: record.endDate,
       domain: type?.domain ?? "",

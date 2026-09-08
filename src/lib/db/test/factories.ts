@@ -1,10 +1,9 @@
 import { and, eq } from "drizzle-orm";
 import { KIND_TEMPLATES, STARTER_KEYS } from "@/config/kind-templates";
 import { moduleDef } from "@/config/modules";
-import { NEW_KIND_STATUSES } from "@/config/record-kinds";
 import type { db as Db } from "@/lib/db/client";
 import { fields } from "@/lib/db/schema/fields";
-import { kinds, kindStatuses, mapKindField } from "@/lib/db/schema/kinds";
+import { kinds, mapKindField } from "@/lib/db/schema/kinds";
 import { users } from "@/lib/db/schema/users";
 import type { Book } from "@/types/book";
 
@@ -88,17 +87,5 @@ async function seedKindsInto(db: typeof Db, userId: string): Promise<void> {
       }),
     );
     await db.insert(mapKindField).values(fieldRows);
-
-    if (template.group === "records" && template.modules.includes("progress")) {
-      await db.insert(kindStatuses).values(
-        (template.statuses ?? NEW_KIND_STATUSES).map((status, index) => ({
-          userId,
-          kindId: kind.id,
-          key: status.key,
-          label: status.label,
-          sortOrder: index,
-        })),
-      );
-    }
   }
 }

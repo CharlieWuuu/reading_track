@@ -56,25 +56,3 @@ export const mapKindField = pgTable(
   },
   (t) => [unique().on(t.kindId, t.fieldKey)], // 一個欄位在一個類型只講一次
 );
-
-/**
- * 狀態的選項。讀完、看完、上完、聽完——講的是同一件事，字不一樣。
- *
- * 一列一筆而不是塞一個陣列欄位：狀態要能排序、能當篩選器的來源。
- */
-export const kindStatuses = pgTable(
-  "kind_statuses",
-  {
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    id: uuid("id").primaryKey().defaultRandom(),
-    kindId: uuid("kind_id")
-      .notNull()
-      .references(() => kinds.id, { onDelete: "cascade" }),
-    key: text("key").notNull(), // 跨類型比對用的機器名：reading／done／wishlist
-    label: text("label").notNull(), // 這個類型講出來的字
-    sortOrder: integer("sort_order").notNull().default(0),
-  },
-  (t) => [unique().on(t.kindId, t.key)],
-);

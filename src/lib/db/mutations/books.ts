@@ -6,7 +6,7 @@ import { keywords } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { Book, splitLines } from "@/types/book";
 import { setRecordSourceUrl } from "./external-links";
-import { kindIdByName, statusIdByLabel } from "./kind-lookup";
+import { kindIdByName } from "./kind-lookup";
 import { attributeIdFor, typeIdFor } from "./taxonomy";
 import { toDate, toInt } from "./values";
 
@@ -46,10 +46,8 @@ async function setBookKeywords(
   }
 }
 
-async function recordValues(tx: Tx, userId: string, book: Book) {
-  const kindId = await kindIdByName(tx, userId, BOOK_KIND);
+function recordValues(book: Book) {
   return {
-    statusId: await statusIdByLabel(tx, kindId, book.status),
     startDate: toDate(book.startDate),
     endDate: toDate(book.endDate),
     amount: toInt(book.pageCount),
@@ -92,7 +90,7 @@ export async function addBookRow(userId: string, book: Book): Promise<void> {
 
     const [record] = await tx
       .insert(records)
-      .values({ id: book.id, userId, workId, ...(await recordValues(tx, userId, book)) })
+      .values({ id: book.id, userId, workId, ...recordValues(book) })
       .returning({ id: records.id });
     await setRecordSourceUrl(tx, userId, record.id, book.sourceUrl);
     await setBookKeywords(tx, userId, workId, names);
@@ -137,10 +135,6 @@ export async function updateBookRow(
     }
     if (patch.type !== undefined)
       workPatch.attributeId = await attributeIdFor(tx, userId, patch.type);
-    if (patch.status !== undefined) {
-      const kindId = await kindIdByName(tx, userId, BOOK_KIND);
-      recordPatch.statusId = await statusIdByLabel(tx, kindId, patch.status);
-    }
 
     if (Object.keys(workPatch).length)
       await tx.update(works).set(workPatch).where(eq(works.id, target.workId));

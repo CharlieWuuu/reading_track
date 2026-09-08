@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { fieldsOfModules } from "@/config/modules";
 import { db } from "@/lib/db/client";
-import { kindStatuses, mapKindField } from "@/lib/db/schema/kinds";
+import { mapKindField } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
 import { setRecordSourceUrl } from "./external-links";
 import { toDate, toInt } from "./values";
@@ -35,13 +35,6 @@ export async function addRecord(
   const allowed = await allowedFields(userId, kindId);
 
   return db.transaction(async (tx) => {
-    const [status] = await tx
-      .select({ id: kindStatuses.id })
-      .from(kindStatuses)
-      .where(eq(kindStatuses.kindId, kindId))
-      .orderBy(kindStatuses.sortOrder);
-    if (!status) throw new Error("這個類型沒有狀態，不能新增紀錄");
-
     const [work] = await tx
       .insert(works)
       .values({
@@ -62,7 +55,6 @@ export async function addRecord(
       .values({
         userId,
         workId: work.id,
-        statusId: status.id,
         startDate: toDate(pick(values, allowed, "startDate")),
         endDate: toDate(pick(values, allowed, "endDate")),
         amount,

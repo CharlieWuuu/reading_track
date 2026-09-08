@@ -1,10 +1,10 @@
 import { and, desc, eq } from "drizzle-orm";
 import { KIND_TEMPLATES, KindTemplate, STARTER_KEYS } from "@/config/kind-templates";
 import { moduleDef } from "@/config/modules";
-import { KindGroup, NEW_KIND_STATUSES } from "@/config/record-kinds";
+import { KindGroup } from "@/config/record-kinds";
 import { db, type Tx } from "@/lib/db/client";
 import { fields } from "@/lib/db/schema/fields";
-import { kinds, kindStatuses, mapKindField } from "@/lib/db/schema/kinds";
+import { kinds, mapKindField } from "@/lib/db/schema/kinds";
 
 /**
  * 類型的寫入。
@@ -20,8 +20,6 @@ export type NewKind = {
   amountUnit: string;
   /** 模組在這個類型叫什麼 */
   labels?: Record<string, string>;
-  /** 狀態的說法。沒給就用通用那組 */
-  statuses?: { key: string; label: string }[];
 };
 
 /**
@@ -73,19 +71,6 @@ async function insertKind(
     await tx.insert(mapKindField).values(rows);
   }
 
-  // 只有紀錄那一堆有進度：一句佳句摘下來就是摘下來了，沒有「在讀」
-  if (group === "records" && modules.includes("progress")) {
-    await tx.insert(kindStatuses).values(
-      (kind.statuses ?? NEW_KIND_STATUSES).map((status, index) => ({
-        userId,
-        kindId: created.id,
-        key: status.key,
-        label: status.label,
-        sortOrder: index,
-      })),
-    );
-  }
-
   return created.id;
 }
 
@@ -94,7 +79,6 @@ const fromTemplate = (template: KindTemplate): NewKind => ({
   modules: [...template.modules],
   amountUnit: template.amountUnit,
   labels: template.labels,
-  statuses: template.statuses,
 });
 
 /** 排在同一堆的最後面 */

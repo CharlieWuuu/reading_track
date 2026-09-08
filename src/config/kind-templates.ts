@@ -1,5 +1,5 @@
 import { ModuleKey } from "./modules";
-import { KindGroup, StatusSpec } from "./record-kinds";
+import { KindGroup } from "./record-kinds";
 
 /**
  * 類型範本。**常駐**，不是一次性的初始資料。
@@ -17,20 +17,11 @@ export type KindTemplate = {
   /** 量的單位，統計讀它自己長句子 */
   amountUnit: string;
   modules: ModuleKey[];
-  /** 狀態的說法。key 一樣才能跨類型合著算，label 各類型自己講 */
-  statuses?: StatusSpec[];
   /** 模組在這個類型叫什麼。沒寫就用模組庫的預設名 */
   labels?: Partial<Record<ModuleKey, string>>;
 };
 
 const RECORD_BASE: ModuleKey[] = ["title", "creator", "link", "progress", "keywords", "private"];
-
-/** 讀完、看完、上完講的是同一件事，key 一樣才能跨類型合著算 */
-const statuses = (want: string, doing: string, done: string): StatusSpec[] => [
-  { key: "want", label: want },
-  { key: "reading", label: doing },
-  { key: "done", label: done },
-];
 
 export const KIND_TEMPLATES: KindTemplate[] = [
   {
@@ -39,7 +30,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     name: "書籍",
     amountUnit: "頁",
     modules: [...RECORD_BASE, "cover", "amount"],
-    statuses: statuses("想讀", "閱讀中", "已讀完"),
     labels: { creator: "作者", amount: "頁數" },
   },
   {
@@ -48,7 +38,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     name: "文章",
     amountUnit: "字",
     modules: [...RECORD_BASE, "date", "amount"],
-    statuses: statuses("想讀", "閱讀中", "已讀完"),
     labels: { creator: "作者", amount: "字數" },
   },
   {
@@ -57,7 +46,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     name: "電影",
     amountUnit: "分鐘",
     modules: [...RECORD_BASE, "cover", "date", "amount"],
-    statuses: statuses("想看", "觀看中", "已看完"),
     labels: { creator: "導演", amount: "片長" },
   },
   {
@@ -66,7 +54,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     name: "Podcast",
     amountUnit: "分鐘",
     modules: [...RECORD_BASE, "date", "amount"],
-    statuses: statuses("想聽", "收聽中", "已聽完"),
     labels: { creator: "主持人", amount: "時長" },
   },
   {
@@ -75,7 +62,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     name: "YouTube",
     amountUnit: "分鐘",
     modules: [...RECORD_BASE, "cover", "date", "amount"],
-    statuses: statuses("想看", "觀看中", "已看完"),
     labels: { creator: "頻道", amount: "片長" },
   },
   {
@@ -84,7 +70,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     name: "展覽",
     amountUnit: "小時",
     modules: [...RECORD_BASE, "cover", "date"],
-    statuses: statuses("想去", "進行中", "去過了"),
     labels: { creator: "策展人", link: "官網" },
   },
   {
@@ -93,7 +78,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     name: "線上課程",
     amountUnit: "小時",
     modules: [...RECORD_BASE, "date", "amount"],
-    statuses: statuses("想上", "上課中", "已上完"),
     labels: { creator: "講師", amount: "時數" },
   },
   {

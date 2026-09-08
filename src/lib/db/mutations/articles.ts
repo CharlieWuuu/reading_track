@@ -7,7 +7,7 @@ import { records, works } from "@/lib/db/schema/works";
 import { Article } from "@/types/article";
 import { splitLines } from "@/types/book";
 import { setRecordSourceUrl } from "./external-links";
-import { kindIdByName, statusIdByLabel } from "./kind-lookup";
+import { kindIdByName } from "./kind-lookup";
 import { attributeIdFor, typeIdFor } from "./taxonomy";
 import { toDate } from "./values";
 
@@ -42,8 +42,6 @@ async function setKeywords(
       .values(names.map((keyword) => ({ userId, articleId, keyword })));
 }
 
-const statusLabel = (endDate: string | null | undefined) => (endDate ? "已讀完" : "想讀");
-
 export async function addArticleRow(userId: string, article: Article): Promise<void> {
   await db.transaction(async (tx) => {
     const kindId = await kindIdByName(tx, userId, ARTICLE_KIND);
@@ -63,7 +61,6 @@ export async function addArticleRow(userId: string, article: Article): Promise<v
       id: article.id,
       userId,
       workId: article.id,
-      statusId: await statusIdByLabel(tx, kindId, statusLabel(article.endDate)),
       endDate: toDate(article.endDate),
       isPrivate: article.private === PRIVATE_MARK,
     });
@@ -94,11 +91,6 @@ export async function updateArticleRow(
     }
     if (patch.type !== undefined)
       workPatch.attributeId = await attributeIdFor(tx, userId, patch.type);
-    // 完成日改了，狀態跟著改——舊形狀沒有狀態欄，這是唯一的來源
-    if (patch.endDate !== undefined) {
-      const kindId = await kindIdByName(tx, userId, ARTICLE_KIND);
-      recordPatch.statusId = await statusIdByLabel(tx, kindId, statusLabel(patch.endDate));
-    }
 
     if (Object.keys(workPatch).length)
       await tx

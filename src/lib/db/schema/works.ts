@@ -1,5 +1,5 @@
 import { boolean, date, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { kinds, kindStatuses } from "./kinds";
+import { kinds } from "./kinds";
 import { bookAttributes, topics } from "./taxonomy";
 import { users } from "./users";
 
@@ -52,6 +52,10 @@ export const works = pgTable("works", {
  * amount 的單位不存在這裡，跟著 work.kind_id 查 kinds.amount_unit——
  * 同一個類型（書）永遠同一個單位（頁），不讓單筆紀錄自己例外。
  *
+ * 沒有 status 欄：想讀／閱讀中／已讀完純粹從 start_date／end_date 推論——
+ * 都沒填是想讀，有 start 沒 end 是閱讀中，有 end 是已讀完。三態固定，
+ * 不再讓每個類型自訂說法。
+ *
  * 外部連結（讀墨頁面、原始網址）不在這裡，走 external_links——那張表六種類型共用，
  * 一筆可以有多個連結。
  */
@@ -63,9 +67,6 @@ export const records = pgTable("records", {
   workId: uuid("work_id")
     .notNull()
     .references(() => works.id, { onDelete: "cascade" }),
-  statusId: uuid("status_id")
-    .notNull()
-    .references(() => kindStatuses.id, { onDelete: "restrict" }),
   startDate: date("start_date"),
   endDate: date("end_date"),
   amount: integer("amount"), // 頁數／分鐘／集數，單位跟著類型查
