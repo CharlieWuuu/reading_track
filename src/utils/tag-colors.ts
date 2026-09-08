@@ -102,16 +102,16 @@ export function tagColorClass(tag: string, order: string[], outline = false): st
 }
 
 /**
- * 封面帶的底色，跟標籤同一組色相輪替、只留底色不留字色——
- * 底色上要疊的是生成塊本身的字，不是這個 class 管的。
+ * 封面帶的底色，跟標籤同一組色相輪替，但多配一個漸層——下深上淺，
+ * 跟書背陰影同一個光源方向。深淺是同色相的 300／100 兩階，不是另外調的顏色。
  */
 const COVER_TINTS = [
-  "bg-blue-100",
-  "bg-coral-100",
-  "bg-mint-100",
-  "bg-gold-100",
-  "bg-azure-100",
-  "bg-sand-200",
+  "bg-gradient-to-t from-blue-300 to-blue-100",
+  "bg-gradient-to-t from-coral-300 to-coral-100",
+  "bg-gradient-to-t from-mint-300 to-mint-100",
+  "bg-gradient-to-t from-gold-300 to-gold-100",
+  "bg-gradient-to-t from-azure-300 to-azure-100",
+  "bg-gradient-to-t from-sand-300 to-sand-200",
 ];
 
 export function coverTintClass(seed: string): string {
