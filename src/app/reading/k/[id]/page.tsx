@@ -1,10 +1,13 @@
 "use client";
 
 import { use } from "react";
+import { Plus } from "lucide-react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
+import { ActionButton } from "@/components/ui/controls";
+import { kindHref } from "@/config/kind-routes";
 import { useKindRecords } from "@/hooks/use-kind-records";
 import { useKinds } from "@/hooks/use-kinds";
 
@@ -21,7 +24,14 @@ export default function KindPage({ params }: { params: Promise<{ id: string }> }
 
   return (
     <>
-      <PageHeader title={kind?.name ?? ""} />
+      <PageHeader
+        title={kind?.name ?? ""}
+        action={
+          <ActionButton href={`${kindHref(id)}/new`} label={`新增${kind?.name ?? ""}`}>
+            <Plus size={16} strokeWidth={2} aria-hidden />
+          </ActionButton>
+        }
+      />
       <PageBody>
         {error ? (
           <PageMessage tone="error">{error}</PageMessage>

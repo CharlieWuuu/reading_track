@@ -1,4 +1,4 @@
-import { asc, count, eq } from "drizzle-orm";
+import { and, asc, count, eq } from "drizzle-orm";
 import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
 import { fragments } from "@/lib/db/schema/fragments";
@@ -96,4 +96,13 @@ export async function listKinds(userId: string): Promise<Kind[]> {
       label: s.label,
     })),
   }));
+}
+
+/** 這個類型屬於哪一堆。寫入時要靠它決定進哪張表 */
+export async function kindGroupOf(userId: string, kindId: string): Promise<KindGroup | null> {
+  const [row] = await db
+    .select({ group: recordKinds.groupKey })
+    .from(recordKinds)
+    .where(and(eq(recordKinds.userId, userId), eq(recordKinds.id, kindId)));
+  return (row?.group as KindGroup) ?? null;
 }

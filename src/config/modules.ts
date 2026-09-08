@@ -18,7 +18,8 @@ export type ModuleDef = {
 };
 
 export const MODULES = [
-  { key: "title", label: "標題", hint: "一行字，清單上顯示的那個", fields: ["title", "name"] },
+  // 紀錄存在 works.title，片段存在 fragments.name——同一個模組，兩張表的欄名不同
+  { key: "title", label: "標題", hint: "一行字，清單上顯示的那個", fields: ["title"] },
   { key: "creator", label: "作者／來源人", hint: "誰講的、誰寫的", fields: ["creator"] },
   { key: "longText", label: "長文", hint: "多段落，支援分欄", fields: ["body"] },
   { key: "oneLine", label: "一句話", hint: "單段，不折行的短內容", fields: ["body"] },
@@ -45,7 +46,12 @@ const BY_KEY = new Map<string, ModuleDef>(MODULES.map((m) => [m.key, m]));
 
 export const moduleDef = (key: string): ModuleDef | undefined => BY_KEY.get(key);
 
-/** 一組模組展開成資料表欄位。同一欄被兩個模組指到只留一次 */
+/**
+ * 一組模組展開成資料表欄位。同一欄被兩個模組指到只留一次。
+ *
+ * 片段那張表沒有 title 欄，它的標題叫 name——寫入那一層自己換，畫面只認 title，
+ * 不然同一個模組要在表單上畫兩格。
+ */
 export const fieldsOfModules = (keys: readonly string[]): FieldKey[] => [
   ...new Set(keys.flatMap((key) => moduleDef(key)?.fields ?? [])),
 ];
