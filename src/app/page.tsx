@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PageBody } from "@/components/layout/page-body";
-import { Landing } from "@/features/home/components/landing";
+import { HomeView } from "@/features/home/components/home-view";
 
 export const metadata: Metadata = {
   title: "Archivum — 抓住思緒的碎片",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <PageBody>
-      <Landing />
+      <HomeView />
     </PageBody>
   );
 }
