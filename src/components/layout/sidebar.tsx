@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 import { Plus } from "lucide-react";
 import { isBuiltIn, kindHref, kindIdFromPath } from "@/config/kind-routes";
 import { activeNavKey, NAV_GROUPS, NavGroup, NavType } from "@/config/nav";
 import { useKinds } from "@/hooks/use-kinds";
-import { AddKindDialog } from "./add-kind-dialog";
 
 /**
  * 桌機側欄。四個分類各配一條實線小標，底下的類型一行一條細線分隔——
@@ -43,7 +41,7 @@ function NavRow({ type, active }: { type: NavType; active: boolean }) {
   );
 }
 
-function GroupHeading({ group, onAdd }: { group: NavGroup; onAdd: () => void }) {
+function GroupHeading({ group }: { group: NavGroup }) {
   return (
     <div className={styles.group}>
       {group.href ? (
@@ -54,14 +52,13 @@ function GroupHeading({ group, onAdd }: { group: NavGroup; onAdd: () => void }) 
         <span className={styles.groupLabel}>{group.label}</span>
       )}
       {group.kindGroup && (
-        <button
-          type="button"
-          onClick={onAdd}
+        <Link
+          href={`/kinds/new?group=${group.kindGroup}`}
           aria-label={`${group.label}／新增類型`}
           className={styles.add}
         >
           <Plus size={14} strokeWidth={1.5} />
-        </button>
+        </Link>
       )}
     </div>
   );
@@ -71,7 +68,6 @@ export function Sidebar() {
   const pathname = usePathname();
   const current = activeNavKey(pathname) ?? kindIdFromPath(pathname);
   const { kinds } = useKinds();
-  const [adding, setAdding] = useState<NavGroup>();
 
   /** 資料庫裡有、側欄還沒寫死的那些，補在該堆後面 */
   const extraTypes = (group: NavGroup): NavType[] =>
@@ -88,20 +84,12 @@ export function Sidebar() {
     <nav className={styles.nav}>
       {NAV_GROUPS.map((group) => (
         <div key={group.key}>
-          <GroupHeading group={group} onAdd={() => setAdding(group)} />
+          <GroupHeading group={group} />
           {[...group.types, ...extraTypes(group)].map((type) => (
             <NavRow key={type.key} type={type} active={type.key === current} />
           ))}
         </div>
       ))}
-
-      {adding?.kindGroup && (
-        <AddKindDialog
-          group={adding.kindGroup}
-          groupLabel={adding.label}
-          onClose={() => setAdding(undefined)}
-        />
-      )}
     </nav>
   );
 }

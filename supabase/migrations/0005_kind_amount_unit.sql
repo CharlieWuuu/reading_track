@@ -1,0 +1,1 @@
+ALTER TABLE "record_kinds" ADD COLUMN "amount_unit" text DEFAULT '' NOT NULL;

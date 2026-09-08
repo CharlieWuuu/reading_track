@@ -19,6 +19,8 @@ export const recordKinds = pgTable(
     name: text("name").notNull(),
     /** 屬於側欄哪一堆：records／fragments／writings。三堆共用同一套類型機制 */
     groupKey: text("group_key").notNull(),
+    /** 量的單位：頁、分鐘、字。統計讀「量＋單位」自己長句子，加類型不用改統計 */
+    amountUnit: text("amount_unit").notNull().default(""),
     /** 側欄與篩選器的排列順序 */
     sortOrder: integer("sort_order").notNull().default(0),
   },

@@ -36,6 +36,13 @@
       "when": 1788806102268,
       "tag": "0004_records_table",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788844726094,
+      "tag": "0005_kind_amount_unit",
+      "breakpoints": true
     }
   ]
 }

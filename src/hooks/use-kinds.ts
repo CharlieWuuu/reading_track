@@ -4,6 +4,8 @@ import useSWR from "swr";
 import { KindGroup } from "@/config/record-kinds";
 import { Kind } from "@/lib/db/queries/kinds";
 
+export type NewKindInput = { name: string; modules: string[]; amountUnit: string };
+
 /**
  * 三堆的類型。不走 useCollection——那支綁著私人解鎖權杖與排序，
  * 類型沒有私人的問題，排序也在伺服器端就排好了。
@@ -19,11 +21,11 @@ async function fetcher(url: string): Promise<{ kinds: Kind[] }> {
 export function useKinds() {
   const { data, error, isLoading, mutate } = useSWR("/api/kinds", fetcher);
 
-  async function addKind(group: KindGroup, name: string) {
+  async function addKind(group: KindGroup, kind: NewKindInput) {
     const res = await fetch("/api/kinds", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ group, name }),
+      body: JSON.stringify({ group, ...kind }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error ?? "新增類型失敗");

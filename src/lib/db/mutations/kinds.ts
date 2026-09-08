@@ -16,7 +16,13 @@ import { recordKindFields, recordKinds, recordKindStatuses } from "@/lib/db/sche
 async function insertKind(tx: Tx, userId: string, spec: KindSpec, sortOrder: number) {
   const [kind] = await tx
     .insert(recordKinds)
-    .values({ userId, groupKey: spec.group, name: spec.name, sortOrder })
+    .values({
+      userId,
+      groupKey: spec.group,
+      name: spec.name,
+      amountUnit: spec.amountUnit,
+      sortOrder,
+    })
     .returning({ id: recordKinds.id });
 
   // 顯示順序照欄位庫，不照 spec 裡寫的先後——不然改過名的欄位會擠到標題前面
@@ -85,7 +91,16 @@ export async function seedKinds(userId: string): Promise<number> {
  *
  * 排在同一堆的最後面。狀態選項也給一組預設的，沒有的話那一堆的紀錄就填不了狀態。
  */
-export async function addKind(userId: string, group: KindGroup, name: string): Promise<string> {
+export type NewKind = {
+  name: string;
+  /** 勾了哪些模組。空的就是全部給預設值 */
+  modules?: string[];
+  /** 量的單位：頁、分鐘、字 */
+  amountUnit?: string;
+};
+
+export async function addKind(userId: string, group: KindGroup, kind: NewKind): Promise<string> {
+  const { name, modules = [], amountUnit = "" } = kind;
   return db.transaction(async (tx) => {
     const [last] = await tx
       .select({ sortOrder: recordKinds.sortOrder })
@@ -94,22 +109,41 @@ export async function addKind(userId: string, group: KindGroup, name: string): P
       .orderBy(desc(recordKinds.sortOrder))
       .limit(1);
 
-    const [kind] = await tx
+    const [created] = await tx
       .insert(recordKinds)
-      .values({ userId, groupKey: group, name, sortOrder: (last?.sortOrder ?? -1) + 1 })
+      .values({
+        userId,
+        groupKey: group,
+        name,
+        amountUnit,
+        sortOrder: (last?.sortOrder ?? -1) + 1,
+      })
       .returning({ id: recordKinds.id });
+
+    if (modules.length > 0) {
+      await tx.insert(recordKindFields).values(
+        modules.map((key, index) => ({
+          userId,
+          kindId: created.id,
+          fieldKey: key,
+          label: "",
+          isVisible: true,
+          sortOrder: index,
+        })),
+      );
+    }
 
     if (group === "records") {
       await tx.insert(recordKindStatuses).values(
         NEW_KIND_STATUSES.map((status, index) => ({
           userId,
-          kindId: kind.id,
+          kindId: created.id,
           key: status.key,
           label: status.label,
           sortOrder: index,
         })),
       );
     }
-    return kind.id;
+    return created.id;
   });
 }
