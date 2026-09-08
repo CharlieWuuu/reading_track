@@ -283,9 +283,7 @@ export async function seedDemo(email: string): Promise<string> {
     });
   }
 
-  // 掛了出處的是心得，沒掛的是日記——這正是專欄那一堆的分法
-  const reflectionKindId = await kindId("心得");
-  const diaryKindId = await kindId("日記");
+  const writingKindId = await kindId("書寫");
 
   for (const [i, entry] of WRITINGS.entries()) {
     const [title, , bookIndex, , names] = entry;
@@ -293,7 +291,7 @@ export async function seedDemo(email: string): Promise<string> {
       .insert(writings)
       .values({
         userId,
-        kindId: bookIndex === null ? diaryKindId : reflectionKindId,
+        kindId: writingKindId,
         workId: bookIndex === null ? null : bookIds[bookIndex],
         name: title,
         body: NOTES[title] ?? "",

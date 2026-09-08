@@ -105,16 +105,9 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     labels: { title: "詞條", gloss: "一句話說明", longText: "維基摘要" },
   },
   {
-    key: "diary",
+    key: "writing",
     group: "writings",
-    name: "日記",
-    amountUnit: "字",
-    modules: ["title", "longText", "date", "keywords", "amount", "private"],
-  },
-  {
-    key: "reflection",
-    group: "writings",
-    name: "心得",
+    name: "書寫",
     amountUnit: "字",
     modules: ["title", "longText", "source", "date", "keywords", "amount", "private"],
   },
@@ -141,8 +134,7 @@ export const STARTER_KEYS = new Set([
   "quote",
   "vocabulary",
   "keyword",
-  "diary",
-  "reflection",
+  "writing",
 ]);
 
 export const templatesOf = (group: KindGroup): KindTemplate[] =>

@@ -33,14 +33,14 @@ function makeWriting(patch: Partial<Writing> = {}): Writing {
 }
 
 describe("addWritingRow", () => {
-  /** 類型是使用者在建立頁上決定的，寫入時不替他長一個出來——認不得就落到日記 */
-  it("認不得的類型落到日記，不長出新類型", async () => {
+  /** 類型是使用者在建立頁上決定的，寫入時不替他長一個出來——認不得就落到書寫 */
+  it("認不得的類型落到書寫，不長出新類型", async () => {
     const writing = makeWriting({ kind: "週計劃" });
     await addWritingRow(userId, writing);
 
     const [row] = await db.select().from(writings).where(eq(writings.id, writing.id));
     const [kind] = await db.select().from(kinds).where(eq(kinds.id, row.kindId));
-    expect(kind.name).toBe("日記");
+    expect(kind.name).toBe("書寫");
 
     const invented = await db.select().from(kinds).where(eq(kinds.name, "週計劃"));
     expect(invented).toHaveLength(0);
@@ -52,7 +52,7 @@ describe("addWritingRow", () => {
 
     const [row] = await db.select().from(writings).where(eq(writings.id, writing.id));
     const [kind] = await db.select().from(kinds).where(eq(kinds.id, row.kindId));
-    expect(kind.name).toBe("日記");
+    expect(kind.name).toBe("書寫");
   });
 
   it("sourceId 指到某一次閱讀時，掛回它屬於的那個作品", async () => {

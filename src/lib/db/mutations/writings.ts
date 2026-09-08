@@ -17,12 +17,12 @@ import { toDate } from "./values";
  * work_id 記；其餘的值才是真的類型。sourceId 進來的是「某一次讀」的編號，
  * 要換成它屬於哪個作品。
  *
- * 類型認不得就落到「日記」——不在寫入時替使用者長出新類型，那是他在建立頁上
+ * 類型認不得就落到「書寫」——不在寫入時替使用者長出新類型，那是他在建立頁上
  * 決定的事。
  */
 
 const SOURCE_KINDS = ["書籍", "文章"];
-const FALLBACK_KIND = "日記";
+const FALLBACK_KIND = "書寫";
 
 async function kindIdFor(tx: Tx, userId: string, kind: string): Promise<string> {
   const name = kind.trim();
