@@ -4,7 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { isBuiltIn, kindHref, kindIdFromPath } from "@/config/kind-routes";
 import { activeNavKey, NAV_GROUPS, NavGroup, NavType } from "@/config/nav";
+import { useKinds } from "@/hooks/use-kinds";
 import { AddKindDialog } from "./add-kind-dialog";
 
 /**
@@ -12,6 +14,9 @@ import { AddKindDialog } from "./add-kind-dialog";
  * 不畫框、不上底色，選中的那一列靠左邊一小段主色的直線表示。
  *
  * 分類標題右邊的 + 是新增類型。統計沒有——那一堆是回頭看，不新增東西。
+ *
+ * 類型有兩個來源：寫死的那幾條有專屬頁面（書籍有封面牆、關鍵字有維基欄位），
+ * 自己新增的從資料庫來、走通用頁。等舊表搬完就只剩後者。
  */
 
 const styles = {
@@ -58,15 +63,27 @@ function GroupHeading({ group, onAdd }: { group: NavGroup; onAdd: () => void }) 
 
 export function Sidebar() {
   const pathname = usePathname();
-  const current = activeNavKey(pathname);
+  const current = activeNavKey(pathname) ?? kindIdFromPath(pathname);
+  const { kinds } = useKinds();
   const [adding, setAdding] = useState<NavGroup>();
+
+  /** 資料庫裡有、側欄還沒寫死的那些，補在該堆後面 */
+  const extraTypes = (group: NavGroup): NavType[] =>
+    kinds
+      .filter((kind) => kind.group === group.kindGroup && !isBuiltIn(group, kind.name))
+      .map((kind) => ({
+        key: kind.id,
+        label: kind.name,
+        href: kindHref(kind.id),
+        match: kindHref(kind.id),
+      }));
 
   return (
     <nav className={styles.nav}>
       {NAV_GROUPS.map((group) => (
         <div key={group.key}>
           <GroupHeading group={group} onAdd={() => setAdding(group)} />
-          {group.types.map((type) => (
+          {[...group.types, ...extraTypes(group)].map((type) => (
             <NavRow key={type.key} type={type} active={type.key === current} />
           ))}
         </div>
