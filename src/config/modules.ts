@@ -30,7 +30,7 @@ export const MODULES = [
   { key: "link", label: "外部連結", hint: "原始頁面，要有外開圖示", fields: ["sourceUrl"] },
   {
     key: "progress",
-    label: "進度與狀態",
+    label: "狀態",
     hint: "想／在／完，含日期區間",
     fields: ["startDate", "endDate"],
   },
