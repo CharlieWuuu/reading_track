@@ -1,78 +1,76 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { quotes, vocabulary } from "@/lib/db/schema/fragments";
-import { books } from "@/lib/db/schema/reading";
-import { keywords } from "@/lib/db/schema/taxonomy";
+import { fragments } from "@/lib/db/schema/fragments";
+import { recordKinds } from "@/lib/db/schema/kinds";
+import { works } from "@/lib/db/schema/works";
 import { KeywordInfo } from "@/types/keyword";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { firstReadingIdByBookId } from "./books";
 
 /**
- * 佳句與單字讀回舊形狀。
+ * 佳句、單字、關鍵字讀回舊形狀。三種都在 fragments 表裡，靠類型分。
  *
- * 資料庫裡它們指向「書」，畫面上的書籍編號卻是「某一次讀」——所以出去之前
- * 換成第一次讀的那個編號。book_id 是空的（不是從書上看到的）就留空，
+ * 資料庫裡它們指向「作品」，畫面上的書籍編號卻是「某一次讀」——所以出去之前
+ * 換成第一次讀的那個編號。work_id 是空的（不是從書上看到的）就留空，
  * 那種列在畫面上是沒有主人的紀錄。
  */
+
+const rowsOfKind = (userId: string, kindName: string) =>
+  db
+    .select({ fragment: fragments, workTitle: works.title })
+    .from(fragments)
+    .innerJoin(recordKinds, eq(recordKinds.id, fragments.kindId))
+    .leftJoin(works, eq(works.id, fragments.workId))
+    .where(and(eq(fragments.userId, userId), eq(recordKinds.name, kindName)))
+    .orderBy(asc(fragments.createdAt));
 
 export async function listQuoteRows(userId: string): Promise<QuoteRow[]> {
   const [firstReading, rows] = await Promise.all([
     firstReadingIdByBookId(userId),
-    db
-      .select({ quote: quotes, bookTitle: books.title })
-      .from(quotes)
-      .leftJoin(books, eq(books.id, quotes.bookId))
-      .where(eq(quotes.userId, userId))
-      .orderBy(asc(quotes.createdAt)),
+    rowsOfKind(userId, "佳句"),
   ]);
 
-  return rows.map(({ quote, bookTitle }) => ({
-    id: quote.id,
-    bookId: quote.bookId ? (firstReading.get(quote.bookId) ?? "") : "",
-    bookTitle: bookTitle ?? "",
-    text: quote.text,
-    chapter: quote.chapter,
-    note: quote.note,
+  return rows.map(({ fragment, workTitle }) => ({
+    id: fragment.id,
+    bookId: fragment.workId ? (firstReading.get(fragment.workId) ?? "") : "",
+    bookTitle: workTitle ?? "",
+    text: fragment.body,
+    chapter: fragment.locator,
+    note: fragment.note,
   }));
 }
 
 export async function listVocabularyRows(userId: string): Promise<VocabularyRow[]> {
   const [firstReading, rows] = await Promise.all([
     firstReadingIdByBookId(userId),
-    db
-      .select({ word: vocabulary, bookTitle: books.title })
-      .from(vocabulary)
-      .leftJoin(books, eq(books.id, vocabulary.bookId))
-      .where(eq(vocabulary.userId, userId))
-      .orderBy(asc(vocabulary.createdAt)),
+    rowsOfKind(userId, "單字"),
   ]);
 
-  return rows.map(({ word, bookTitle }) => ({
-    id: word.id,
-    bookId: word.bookId ? (firstReading.get(word.bookId) ?? "") : "",
-    bookTitle: bookTitle ?? "",
-    word: word.word,
-    pronunciation: word.pronunciation,
-    wordTranslation: word.wordTranslation,
-    sentence: word.sentence,
-    sentenceTranslation: word.sentenceTranslation,
-    chapter: word.chapter,
-    language: word.language,
+  return rows.map(({ fragment, workTitle }) => ({
+    id: fragment.id,
+    bookId: fragment.workId ? (firstReading.get(fragment.workId) ?? "") : "",
+    bookTitle: workTitle ?? "",
+    word: fragment.name,
+    pronunciation: fragment.pronunciation,
+    wordTranslation: fragment.translation,
+    sentence: fragment.context,
+    sentenceTranslation: fragment.contextTranslation,
+    chapter: fragment.locator,
+    language: "", // 語言在作品那一層，單字自己不帶
   }));
 }
 
+/** 關鍵字的舊形狀以名字當身分，新表有自己的編號，出去之前還原成名字 */
 export async function listKeywords(userId: string): Promise<KeywordInfo[]> {
-  const rows = await db
-    .select()
-    .from(keywords)
-    .where(eq(keywords.userId, userId))
-    .orderBy(asc(keywords.name));
-  return rows.map((k) => ({
-    name: k.name,
-    topics: k.topics,
-    coordinates: k.coordinates,
-    span: k.span,
-    wikiUrl: k.wikiUrl,
-    summary: k.summary,
-  }));
+  const rows = await rowsOfKind(userId, "關鍵字");
+  return rows
+    .map(({ fragment }) => ({
+      name: fragment.name,
+      topics: fragment.topics,
+      coordinates: fragment.coordinates,
+      span: fragment.span,
+      wikiUrl: fragment.wikiUrl,
+      summary: fragment.body,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 }

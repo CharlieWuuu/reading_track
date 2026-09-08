@@ -73,7 +73,7 @@ export const recordItem = (row: RecordRow): OverviewItem => ({
  * 一句佳句沒有標題，硬留白會讓整排清單只剩出處看得見。
  */
 export const fragmentItem = (row: FragmentRow): OverviewItem => {
-  const day = row.createdAt.slice(0, 10);
+  const day = row.date ?? row.createdAt.slice(0, 10);
   return {
     id: row.id,
     title: row.name || row.body.slice(0, 40),

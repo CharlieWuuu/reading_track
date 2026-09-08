@@ -43,6 +43,13 @@
       "when": 1788844726094,
       "tag": "0005_kind_amount_unit",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788845697834,
+      "tag": "0006_fragment_date",
+      "breakpoints": true
     }
   ]
 }

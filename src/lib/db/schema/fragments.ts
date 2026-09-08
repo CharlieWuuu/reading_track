@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { date, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { recordKinds } from "./kinds";
 import { books } from "./reading";
 import { users } from "./users";
@@ -65,6 +65,8 @@ export const fragments = pgTable("fragments", {
     .notNull()
     .references(() => recordKinds.id, { onDelete: "restrict" }),
   workId: uuid("work_id").references(() => works.id, { onDelete: "set null" }),
+  /** 這件事發生在哪一天。記下的時間看 created_at，兩者不是同一件事 */
+  date: date("date"),
   name: text("name").notNull().default(""), // 單字、詞條；佳句沒有名字
   body: text("body").notNull().default(""), // 原文、維基摘要
   locator: text("locator").notNull().default(""), // 章節、頁碼

@@ -243,6 +243,7 @@ async function migrateWritings(userId: string): Promise<number> {
         userId,
         kindId: kindIds.get(type ?? "") ?? fallback,
         workId: writing.bookId ?? writing.articleId,
+        date: writing.date,
         name: writing.title,
         body: writing.note,
         wikiUrl: writing.link,

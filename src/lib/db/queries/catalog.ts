@@ -100,6 +100,7 @@ export type FragmentRow = {
   body: string;
   locator: string;
   note: string;
+  date: string | null;
   createdAt: string;
 };
 
@@ -130,6 +131,7 @@ export async function listFragmentsByGroup(
     body: fragment.body,
     locator: fragment.locator,
     note: fragment.note,
+    date: fragment.date,
     createdAt: fragment.createdAt.toISOString(),
   }));
 }
