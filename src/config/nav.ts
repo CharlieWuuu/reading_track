@@ -53,10 +53,10 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    key: "columns",
+    key: "writings",
     label: "專欄",
     kindGroup: "writings",
-    href: "/columns",
+    href: "/writings",
     types: [{ key: "writing", label: "書寫", href: "/writing", match: "/writing" }],
   },
 ];
