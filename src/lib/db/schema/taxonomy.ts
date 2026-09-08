@@ -42,7 +42,7 @@ export const bookAttributes = pgTable(
  * 放資料庫而不是環境變數，是因為使用者要能在畫面上改密碼——環境變數改不了。
  */
 export const settings = pgTable(
-  "settings",
+  "setting_privacy_pwd",
   {
     userId: uuid("user_id")
       .notNull()
