@@ -100,3 +100,20 @@ export function tagColorClass(tag: string, order: string[], outline = false): st
   const index = order.indexOf(tag);
   return palette[(index >= 0 ? index : hash(tag)) % palette.length];
 }
+
+/**
+ * 封面帶的底色，跟標籤同一組色相輪替，但多配一個漸層——下深上淺，
+ * 跟書背陰影同一個光源方向。深淺是同色相的 300／100 兩階，不是另外調的顏色。
+ */
+const COVER_TINTS = [
+  "bg-gradient-to-t from-blue-300 to-blue-100",
+  "bg-gradient-to-t from-coral-300 to-coral-100",
+  "bg-gradient-to-t from-mint-300 to-mint-100",
+  "bg-gradient-to-t from-gold-300 to-gold-100",
+  "bg-gradient-to-t from-azure-300 to-azure-100",
+  "bg-gradient-to-t from-sand-300 to-sand-200",
+];
+
+export function coverTintClass(seed: string): string {
+  return COVER_TINTS[hash(seed) % COVER_TINTS.length];
+}

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { BookCover } from "@/components/ui/book-cover";
+import { CoverBand, CoverBandSize } from "@/components/ui/cover-band/cover-band";
 import { byMonth, OverviewItem, pickHeadline } from "@/utils/overview";
 
 /**
@@ -20,7 +21,9 @@ import { byMonth, OverviewItem, pickHeadline } from "@/utils/overview";
 const styles = {
   frame: "flex min-w-0 flex-1 gap-8",
   main: "flex min-w-0 flex-1 flex-col",
-  rail: "border-rule-strong hidden w-52 shrink-0 border-l pl-6 lg:block",
+  // sticky 貼在 PageBody（唯一的捲動容器）頂端：中間月份格線捲動時，
+  // 窄欄這邊「進行中」「想讀」是穩定的清單，跟著頁面一起捲走沒有理由
+  rail: "border-rule-strong hidden w-64 shrink-0 self-start border-l pl-6 lg:sticky lg:top-0 lg:block",
   railHead: "border-rule-strong flex items-baseline justify-between border-b pb-2",
   label: "text-label text-ink-faint tracking-label",
   labelInk: "text-label text-ink tracking-label",
@@ -28,7 +31,8 @@ const styles = {
   headline: "border-rule-strong flex gap-8 border-b-2 pb-5",
   headlineTitle: "font-serif text-lede leading-tight font-semibold tracking-tight",
   byline: "text-byline text-ink-muted",
-  monthGrid: "grid grid-cols-1 gap-x-8 md:grid-cols-2 xl:grid-cols-3",
+  // 欄數跟著寬度長，每欄寬度才不會沒有上限一直被拉開
+  monthGrid: "grid grid-cols-1 gap-x-8 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4",
   month: "border-rule-strong border-b-2 pt-4 pb-1.5",
   monthLabel: "font-serif text-item-sm font-semibold tracking-wide",
   item: "border-rule border-b py-3", // 一格一條下緣線：橫著排時每一列收在同一條線上
@@ -44,7 +48,7 @@ const joinMeta = (parts: (string | false | null | undefined)[]) =>
 function Headline({ item, label }: { item: OverviewItem; label: string }) {
   return (
     <div className={styles.headline}>
-      {item.coverUrl !== undefined && (
+      {item.coverUrl && (
         <div className="w-[118px] shrink-0">
           <BookCover url={item.coverUrl} title={item.title} size="full" />
         </div>
@@ -102,6 +106,8 @@ export type GroupOverviewProps = {
   headlineLabel: string;
   activeLabel: string;
   pendingLabel: string;
+  /** 封面帶份量跟著主角走：紀錄類（有圖）用 lg，片段與專欄（主角是文字）用 sm */
+  coverSize?: CoverBandSize;
 };
 
 export function GroupOverview({
@@ -111,6 +117,7 @@ export function GroupOverview({
   headlineLabel,
   activeLabel,
   pendingLabel,
+  coverSize = "sm",
 }: GroupOverviewProps) {
   const headline = pickHeadline(active);
   const rest = active.filter((item) => item.id !== headline?.id);
@@ -129,22 +136,20 @@ export function GroupOverview({
               <div className={styles.monthGrid}>
                 {group.items.map((item) => (
                   <div key={item.id} className={styles.item}>
-                    <div className="flex gap-3">
-                      {item.coverUrl !== undefined && (
-                        <div className="w-10 shrink-0">
-                          <BookCover url={item.coverUrl} title={item.title} size="full" />
-                        </div>
-                      )}
-                      <div className="min-w-0">
-                        <Link href={item.href} className={styles.itemTitle}>
-                          {item.title}
-                        </Link>
-                        <div className={`${styles.byline} pt-0.5`}>{item.byline}</div>
-                        <div className={`${styles.meta} pt-1.5`}>
-                          {joinMeta([item.endDate, item.kindLabel])}
-                        </div>
-                      </div>
+                    <div className="flex items-baseline justify-between pb-2">
+                      <span className={styles.meta}>{item.endDate}</span>
+                      {item.kindLabel && <span className={styles.label}>{item.kindLabel}</span>}
                     </div>
+                    <CoverBand
+                      coverUrl={item.coverUrl}
+                      seed={item.id}
+                      label={item.bandLabel}
+                      size={coverSize}
+                    />
+                    <Link href={item.href} className={`${styles.itemTitle} mt-3 block`}>
+                      {item.title}
+                    </Link>
+                    <div className={`${styles.byline} pt-1.5`}>{item.byline}</div>
                   </div>
                 ))}
               </div>
