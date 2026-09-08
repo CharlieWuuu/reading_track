@@ -1,105 +1,23 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { PageBody } from "@/components/layout/page-body";
+import { Landing } from "@/features/home/components/landing";
 
 export const metadata: Metadata = {
-  title: "Archivum — 記錄你讀過的書與文章",
-  description: "Archivum 是個人閱讀紀錄工具：書籍、文章、佳句、單字與心得記在同一個地方。",
+  title: "Archivum — 抓住思緒的碎片",
+  description: "最近讀了什麼？學到什麼？想到什麼？讓 Archivum 幫你轉成個人生活的週報。",
 };
 
-const STEPS = [
-  {
-    title: "用 Google 帳號登入",
-    body: "不需另外註冊，也不會存取你雲端硬碟裡的任何檔案。",
-  },
-  {
-    title: "新增書籍",
-    body: "輸入書名或貼上購書連結，例如「被討厭的勇氣」，書封、作者、出版社、頁數會自動查回來。",
-  },
-  {
-    title: "記下讀完的日期與心得",
-    body: "起訖日期、心得、佳句、單字都能一起記；統計只算已經讀完的項目。",
-  },
-];
-
-const FEATURES = [
-  "領域、屬性、平台的分類選項都可以自訂，屬性能複選。",
-  "統計看得到每季讀完幾本、領域分布、常讀的作者與出版社。",
-  "月曆可以回顧哪一天讀完哪一本書、那個月讀了哪些文章。",
-  "文章跟書籍記在同一頁，可以切表格或卡片兩種排列。",
-];
-
 /**
- * 首頁刻意不擋登入、也不轉址到 /books。
+ * 首頁刻意不擋登入、也不轉址到清單頁。
  *
  * Google 的 OAuth 驗證要求首頁能在未登入狀態下說明應用程式用途、
  * 顯示與同意畫面一致的名稱，並提供隱私權政策連結——轉址到登入牆會直接被退件。
- * 已安裝的 PWA 不受影響，manifest 的 start_url 指的是 /books。
+ * 已安裝的 PWA 不受影響，manifest 的 start_url 指的是清單頁。
  */
 export default function Home() {
   return (
     <PageBody>
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-10 py-10">
-        <header className="flex flex-col gap-4">
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Archivum</h1>
-          <p className="text-base leading-relaxed text-gray-700 sm:text-lg">
-            記錄你讀過的書與文章。同一本書讀第二次是新的一次紀錄，
-            佳句、單字與心得都聚在那本書底下。
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              href="/reading/books"
-              className="rounded-control bg-control-bg text-control-ink hover:bg-control-bg-hover px-4 py-2 text-sm font-medium"
-            >
-              開始使用
-            </Link>
-            <span className="text-xs text-gray-500">用 Google 帳號登入，不需另外註冊</span>
-          </div>
-        </header>
-
-        <section className="flex flex-col gap-4">
-          <h2 className="text-sm font-medium text-gray-900">怎麼用</h2>
-          <ol className="flex flex-col gap-3">
-            {STEPS.map((step, i) => (
-              <li key={step.title} className="rounded-surface flex gap-3 border bg-white p-4">
-                <span className="text-sm font-medium text-gray-400 tabular-nums">{i + 1}</span>
-                <div className="flex flex-col gap-1">
-                  <p className="text-sm font-medium">{step.title}</p>
-                  <p className="text-sm leading-relaxed text-gray-600">{step.body}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-gray-900">還可以做什麼</h2>
-          <ul className="flex list-disc flex-col gap-2 pl-5">
-            {FEATURES.map((text) => (
-              <li key={text} className="text-sm leading-relaxed text-gray-600">
-                {text}
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="rounded-surface flex flex-col gap-3 border border-dashed p-5">
-          <h2 className="text-sm font-medium text-gray-900">你的資料放在哪裡</h2>
-          <p className="text-sm leading-relaxed text-gray-700">
-            閱讀紀錄存在本服務的資料庫。Google 帳號只用來登入，
-            我們不讀取、也不需要你雲端硬碟裡的任何檔案。
-          </p>
-          <p className="text-sm leading-relaxed text-gray-700">
-            標記為「私人」的項目在伺服器端就被過濾掉，鎖著的時候那些資料不會傳到瀏覽器。
-          </p>
-        </section>
-
-        <footer className="flex flex-wrap items-center gap-2 border-t pt-4 text-sm">
-          <Link href="/privacy" className="underline">
-            隱私權政策
-          </Link>
-        </footer>
-      </div>
+      <Landing />
     </PageBody>
   );
 }
