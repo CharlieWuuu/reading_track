@@ -50,7 +50,7 @@ function Settings() {
         <SignInPrompt />
       ) : (
         <PageBody>
-          <div className="shrink-0 md:min-h-0 md:flex-1 md:overflow-y-auto">
+          <div className="border-rule-strong shrink-0 border-t pt-4 md:min-h-0 md:flex-1 md:overflow-y-auto">
             {tab === "categories" && <CategoryManager />}
             {tab === "privacy" && <PrivacyFlagsPanel />}
             {tab === "maintenance" && <MaintenancePanel enrichSlot={<EnrichButton />} />}

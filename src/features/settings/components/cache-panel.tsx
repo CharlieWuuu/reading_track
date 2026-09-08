@@ -28,8 +28,9 @@ export function CachePanel() {
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-xs text-gray-500">
-        本機快取 {mb(bytes)}，額度 {mb(CACHE_BUDGET_BYTES)}（{ratio}%）。
+      <h3 className="text-item-sm font-serif font-semibold tracking-wide">本機快取</h3>
+      <p className="text-meta text-ink-faint">
+        {mb(bytes)}，額度 {mb(CACHE_BUDGET_BYTES)}（{ratio}%）。
         超過額度時最大的那幾張表不落地，畫面照常，只是開啟時要等載入。
       </p>
       <button

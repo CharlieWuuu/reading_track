@@ -28,7 +28,7 @@ export default function ColumnsPage() {
           </div>
         }
       />
-      <PageBody>
+      <PageBody scroll={view === "table"}>
         {mounted && <FragmentsOverview group="writings" headlineLabel="最近寫的一則" view={view} />}
       </PageBody>
     </>

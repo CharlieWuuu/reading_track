@@ -32,9 +32,9 @@ export function PrivateToggle({
           aria-label="私人"
           checked={checked}
           onChange={(e) => onChange(e.target.checked ? PRIVATE_MARK : "")}
-          className="size-4"
+          className="accent-accent size-4"
         />
-        <span className="text-xs text-gray-400">沒解鎖就不顯示</span>
+        <span className="text-meta text-ink-faint">沒解鎖就不顯示</span>
       </label>
     </div>
   );

@@ -5,7 +5,7 @@
  * 不然兩個字的欄名跟框中間會空一段。四個中文字剛好塞得下。
  */
 export const FIELD_LABEL_CLASS =
-  "mb-1 flex items-center gap-1.5 text-sm font-medium md:mb-0 md:justify-end md:text-right";
+  "mb-1 flex items-center gap-1.5 text-label font-medium tracking-label text-ink-faint uppercase md:mb-0 md:justify-end md:text-right";
 
 /** 固定寬的那一欄；帶說明的標籤裝不下，那種就讓它照內容撐開 */
 const FIXED_WIDTH = "md:w-16 md:shrink-0";
@@ -21,7 +21,7 @@ export const FIELD_CONTROL_CLASS = "min-w-0 md:flex-1";
  * 聚焦時線變成主色，不靠外框也看得出游標在哪一欄。
  */
 export const FIELD_INPUT_CLASS =
-  "border-0 border-b border-rule bg-transparent px-0 py-1.5 focus:border-accent focus:outline-none";
+  "border-0 border-b border-rule bg-transparent px-0 py-1.5 focus:border-b-2 focus:border-accent focus:outline-none focus:py-[calc(0.375rem-1px)]";
 
 /** 標籤與輸入框的外框：手機版直排，md 以上並排 */
 export const FIELD_ROW_CLASS = "min-w-0 md:flex md:items-center md:gap-2";
@@ -37,7 +37,7 @@ export function FieldLabel({
   return (
     <label className={`${FIELD_LABEL_CLASS} ${hint ? "" : FIXED_WIDTH}`}>
       {label}
-      {hint && <span className="text-xs font-normal text-gray-400">{hint}</span>}
+      {hint && <span className="text-meta text-ink-faint tracking-normal normal-case">{hint}</span>}
     </label>
   );
 }

@@ -189,12 +189,12 @@ export function ArticleForm({ article }: { article?: Article }) {
                 type="button"
                 onClick={() => handleFetch()}
                 disabled={fetching}
-                className="rounded-control shrink-0 border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+                className="rounded-control border-control-border hover:bg-control-ghost-hover shrink-0 border px-3 py-2 text-sm font-medium disabled:opacity-50"
               >
                 {fetching ? "抓取中…" : "抓取資料"}
               </button>
             </div>
-            {fetchNote && <p className="col-span-2 -mt-1 text-xs text-gray-500">{fetchNote}</p>}
+            {fetchNote && <p className="text-meta text-ink-muted col-span-2 -mt-1">{fetchNote}</p>}
 
             {/* 平台是站台名（報導者），期刊論文就填期刊名；作者常常抓不到，允許空白 */}
             <CategorySelect
@@ -271,7 +271,7 @@ export function ArticleForm({ article }: { article?: Article }) {
           {isEdit && article ? (
             <RelatedWriting sourceIds={[article.id]} onWrite={() => openWriting(article.id)} />
           ) : (
-            <p className="rounded-control border border-dashed px-3 py-2 text-xs text-gray-400">
+            <p className="rounded-control border-rule text-meta text-ink-faint border border-dashed px-3 py-2">
               存好這篇文章之後就可以寫心得了
             </p>
           )}

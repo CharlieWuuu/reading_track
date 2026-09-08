@@ -14,9 +14,11 @@ import { byMonth, pickHeadline } from "@/utils/book-overview";
  */
 
 const styles = {
-  frame: "flex min-w-0 flex-1 gap-8",
-  main: "flex min-w-0 flex-1 flex-col",
-  rail: "border-rule-strong hidden w-52 shrink-0 border-l pl-6 lg:block",
+  frame: "flex min-h-0 min-w-0 flex-1 gap-8",
+  // 自己的捲動條：中間月份格線很長，右邊窄欄通常很短，兩邊各捲各的，
+  // 不要因為其中一邊比較長就把另一邊也拖走
+  main: "flex min-w-0 flex-1 flex-col overflow-y-auto",
+  rail: "border-rule-strong hidden w-52 shrink-0 overflow-y-auto border-l pl-6 lg:block",
   railHead: "border-rule-strong flex items-baseline justify-between border-b pb-2",
   label: "text-label text-ink-faint tracking-label",
   labelInk: "text-label text-ink tracking-label",

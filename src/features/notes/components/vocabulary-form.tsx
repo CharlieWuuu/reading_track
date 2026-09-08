@@ -9,23 +9,25 @@ import { VocabularyEncounter, VocabularyEntry } from "@/utils/stats/vocabulary-s
 
 const styles = {
   form: "flex flex-col gap-3",
-  group: "flex flex-col gap-2",
+  group: "border-rule-soft flex flex-col gap-2 border-b pb-3 last:border-b-0",
   head: "flex items-center gap-2",
-  title: "min-w-0 flex-1 truncate text-xs text-gray-500",
-  select: "shrink-0 rounded-control border px-2 py-1 text-xs",
+  title: "min-w-0 flex-1 truncate text-meta text-ink-muted",
+  select: "shrink-0 rounded-control border border-rule bg-transparent px-2 py-1 text-xs text-ink",
   remove:
-    "shrink-0 rounded-control px-2 py-1 text-[11px] text-gray-400 hover:bg-gray-100 hover:text-red-600",
-  removed: "flex items-center gap-2 text-[11px] text-gray-400 line-through",
-  undo: "ml-auto rounded-control px-2 py-0.5 text-[11px] text-gray-500 no-underline hover:bg-gray-100",
+    "shrink-0 rounded-control px-2 py-1 text-meta text-ink-faint hover:bg-control-ghost-hover hover:text-danger",
+  removed: "flex items-center gap-2 text-meta text-ink-faint line-through",
+  undo: "ml-auto rounded-control px-2 py-0.5 text-meta text-ink-muted no-underline hover:bg-control-ghost-hover",
   pair: "grid grid-cols-2 gap-2",
   field: "flex flex-col gap-1",
-  label: "text-sm font-medium",
-  input: "w-full rounded-control border px-3 py-1.5 text-sm",
-  sentence: "min-h-28 w-full resize-none rounded-control border px-3 py-1.5 text-sm",
+  label: "text-label font-medium tracking-label text-ink-faint uppercase",
+  input: "w-full rounded-control border border-rule bg-transparent px-3 py-1.5 text-sm text-ink",
+  sentence:
+    "min-h-28 w-full resize-none rounded-control border border-rule bg-transparent px-3 py-1.5 font-serif text-sm text-ink",
   actions: "flex items-center gap-2 pt-1",
   save: "rounded-control bg-control-bg text-control-ink px-4 py-2 text-sm font-medium hover:bg-control-bg-hover disabled:opacity-50",
-  cancel: "rounded-control border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50",
-  error: "text-xs text-red-600",
+  cancel:
+    "rounded-control border border-control-border px-4 py-2 text-sm font-medium text-control-ink-secondary hover:bg-control-ghost-hover",
+  error: "text-meta text-danger",
 };
 
 /** 一次要改的一筆紀錄，加上「這一列要不要留」 */

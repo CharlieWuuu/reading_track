@@ -11,25 +11,28 @@ const styles = {
   form: "flex min-h-0 flex-1 flex-col gap-3",
   row: "grid grid-cols-2 gap-3",
   field: "flex min-w-0 flex-col gap-1",
-  label: "flex items-center gap-1.5 text-sm font-medium",
-  hint: "text-xs font-normal text-gray-400",
+  label: "flex items-center gap-1.5 text-label font-medium tracking-label text-ink-faint uppercase",
+  hint: "text-meta font-normal tracking-normal text-ink-faint normal-case",
   // py-2 跟 OptionSelect 的觸發鈕一樣高，名稱與領域並排才不會一高一矮
-  input: "w-full rounded-control border px-3 py-2 text-sm",
+  input: "w-full rounded-control border border-rule bg-transparent px-3 py-2 text-sm text-ink",
   // 摘要是整頁最長的一欄，給它一個真的打得下去的高度
-  summary: "min-h-64 w-full flex-1 resize-none rounded-control border px-3 py-2 text-sm",
+  summary:
+    "min-h-64 w-full flex-1 resize-none rounded-control border border-rule bg-transparent px-3 py-2 font-serif text-sm text-ink",
   actions: "flex flex-wrap items-center gap-2 pt-1",
   lookup:
-    "rounded-control border px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50",
-  note: "text-xs text-gray-400",
+    "rounded-control border border-control-border px-3 py-2 text-sm font-medium text-control-ink-secondary hover:bg-control-ghost-hover disabled:opacity-50",
+  note: "text-meta text-ink-faint",
   save: "rounded-control bg-control-bg text-control-ink px-4 py-2 text-sm font-medium hover:bg-control-bg-hover disabled:opacity-50",
-  cancel: "rounded-control border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50",
-  error: "text-xs text-red-600",
+  cancel:
+    "rounded-control border border-control-border px-4 py-2 text-sm font-medium text-control-ink-secondary hover:bg-control-ghost-hover",
+  error: "text-meta text-danger",
   // 刪除靠最右邊，跟儲存隔開，不會順手按到
   danger: "ml-auto flex items-center gap-2 text-xs",
-  remove: "text-red-600 hover:underline disabled:opacity-50",
+  remove: "text-danger hover:underline disabled:opacity-50",
   confirm:
-    "rounded-control bg-red-600 px-3 py-1.5 font-medium text-white hover:bg-red-700 disabled:opacity-50",
-  cancelSmall: "rounded-control border px-3 py-1.5 text-gray-600 hover:bg-gray-50",
+    "rounded-control bg-danger px-3 py-1.5 font-medium text-white hover:opacity-90 disabled:opacity-50",
+  cancelSmall:
+    "rounded-control border border-control-border px-3 py-1.5 text-control-ink-secondary hover:bg-control-ghost-hover",
 };
 
 /** 名稱與領域同一列，座標自己一列；領域要配建議清單，不走這個迴圈 */

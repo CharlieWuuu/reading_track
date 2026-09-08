@@ -11,17 +11,19 @@ import { DataIssuesPanel } from "@/features/settings/components/data-issues-pane
  */
 export function MaintenancePanel({ enrichSlot }: { enrichSlot: React.ReactNode }) {
   return (
-    <div>
-      <p className="mb-3 text-xs text-gray-500">
-        從網路查書名、作者、書封等資料，補進沒填的欄位。 新增一批書之後跑一次就好。
-      </p>
-      {enrichSlot}
+    <div className="flex max-w-2xl flex-col gap-6">
+      <div>
+        <p className="text-meta text-ink-faint mb-3">
+          從網路查書名、作者、書封等資料，補進沒填的欄位。新增一批書之後跑一次就好。
+        </p>
+        {enrichSlot}
+      </div>
 
-      <div className="mt-6 border-t pt-4">
+      <div className="border-rule border-b pb-6">
         <DataIssuesPanel />
       </div>
 
-      <div className="mt-6 border-t pt-4">
+      <div>
         <CachePanel />
       </div>
     </div>

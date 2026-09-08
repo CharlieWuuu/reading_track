@@ -13,14 +13,14 @@ const LABELS: Record<keyof BookCategories, string> = {
 };
 
 const styles = {
-  wrap: "space-y-5",
-  hint: "text-xs text-gray-500",
-  group: "flex flex-col gap-1",
-  title: "text-sm font-medium",
+  wrap: "flex max-w-2xl flex-col gap-6",
+  hint: "text-meta text-ink-faint",
+  group: "border-rule flex flex-col gap-2 border-b pb-4 last:border-b-0 last:pb-0",
+  title: "font-serif text-item-sm font-semibold tracking-wide",
   list: "flex flex-wrap gap-1.5",
-  item: "flex items-baseline gap-1 rounded-control border px-2 py-1 text-xs text-gray-600",
-  count: "text-[10px] text-gray-400 tabular-nums",
-  empty: "text-xs text-gray-400",
+  item: "rounded-control border-rule flex items-baseline gap-1.5 border px-2 py-1 text-xs text-ink-muted",
+  count: "text-meta text-ink-faint tabular-nums",
+  empty: "text-meta text-ink-faint",
 };
 
 /**

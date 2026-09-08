@@ -53,12 +53,6 @@ export function AuthButton() {
         </Link>
       ))}
       <Link href={settingsTabHref("account")} className={styles.user}>
-        {user.image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={user.image} alt="" className="h-5 w-5 shrink-0 rounded-full" />
-        ) : (
-          <span className="bg-rule h-5 w-5 shrink-0 rounded-full" />
-        )}
         <span className="max-w-[8em] truncate">{label}</span>
       </Link>
     </>

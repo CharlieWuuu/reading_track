@@ -8,12 +8,12 @@ const styles = {
   // 頂到看不見——fixed 認的是版面視窗，鍵盤不會把它推上去
   backdrop: "fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 sm:p-6",
   panel:
-    "rounded-surface relative flex max-h-[85dvh] w-full max-w-2xl flex-col gap-3 border bg-white p-4 sm:p-5",
+    "rounded-surface relative flex max-h-[85dvh] w-full max-w-2xl flex-col gap-3 border border-rule bg-surface p-4 sm:p-5",
   // 標題右邊留出關閉鍵的位置；沒有標題時那一列根本不畫
-  title: "shrink-0 truncate pr-8 text-sm font-semibold",
+  title: "shrink-0 truncate pr-8 font-serif text-lg font-semibold text-ink",
   // 關閉鍵絕對定位在右上角：沒有標題的時候它不該自己佔掉一整列
   close:
-    "absolute top-3 right-3 rounded-control p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-900",
+    "absolute top-3 right-3 rounded-control p-1 text-ink-faint hover:bg-control-ghost-hover hover:text-ink",
   body: "flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto",
 };
 

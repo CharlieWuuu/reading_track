@@ -11,6 +11,10 @@ import { Sidebar } from "./sidebar";
  *
  * 沒登入就沒有導覽：側欄與底部列都指向讀不到的資料。報頭留著，
  * 站名與登入鍵在那裡。
+ *
+ * session 還在確認時，側欄與 children 一起不顯示——children 自己也會打 API，
+ * 各自的 loading 步調不一樣，先讓側欄出現、內容才跳出來會很跳動。
+ * 一起等，一起出現。
  */
 export function AppShell({
   children,
@@ -20,6 +24,7 @@ export function AppShell({
   authSlot: React.ReactNode;
 }) {
   const { status } = useSession();
+  const resolved = status !== "loading";
   const signedIn = status === "authenticated";
 
   return (
@@ -40,7 +45,7 @@ export function AppShell({
 
         {/* main 只負責版面與留白，捲動交給頁面裡的 PageBody，頁首才固定得住 */}
         <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-hidden p-4 md:gap-5 md:p-0">
-          {children}
+          {resolved && children}
         </main>
       </div>
 

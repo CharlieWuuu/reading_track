@@ -19,11 +19,11 @@ import { byMonth, OverviewItem, pickHeadline } from "@/utils/overview";
  */
 
 const styles = {
-  frame: "flex min-w-0 flex-1 gap-8",
-  main: "flex min-w-0 flex-1 flex-col",
-  // sticky 貼在 PageBody（唯一的捲動容器）頂端：中間月份格線捲動時，
-  // 窄欄這邊「進行中」「想讀」是穩定的清單，跟著頁面一起捲走沒有理由
-  rail: "border-rule-strong hidden w-64 shrink-0 self-start border-l pl-6 lg:sticky lg:top-0 lg:block",
+  frame: "flex min-h-0 min-w-0 flex-1 gap-8",
+  // 自己的捲動條：中間月份格線很長，右邊窄欄通常很短，兩邊各捲各的，
+  // 不要因為其中一邊比較長就把另一邊也拖走
+  main: "flex min-w-0 flex-1 flex-col overflow-y-auto",
+  rail: "border-rule-strong hidden w-64 shrink-0 overflow-y-auto border-l pl-6 lg:block",
   railHead: "border-rule-strong flex items-baseline justify-between border-b pb-2",
   label: "text-label text-ink-faint tracking-label",
   labelInk: "text-label text-ink tracking-label",

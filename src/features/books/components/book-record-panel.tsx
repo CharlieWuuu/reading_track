@@ -11,9 +11,10 @@ const styles = {
   row: "flex min-h-0 flex-col gap-3 sm:flex-row",
   // 兩邊都是 w-1/2：內容長短不一樣，不加 min-w-0 的話長的那邊會把短的擠掉
   half: "flex min-h-0 w-full min-w-0 flex-col gap-1 sm:w-1/2",
-  label: "flex shrink-0 items-center gap-1.5 text-sm font-medium",
-  icon: "shrink-0 text-gray-400",
-  hint: "rounded-control border border-dashed px-3 py-2 text-xs text-gray-400",
+  label:
+    "flex shrink-0 items-center gap-1.5 text-label font-medium tracking-label text-ink-faint uppercase",
+  icon: "shrink-0 text-ink-faint",
+  hint: "rounded-control border-rule border border-dashed px-3 py-2 text-meta text-ink-faint",
 };
 
 /** 從這本書留下來的東西：佳句、單字、書寫、相關文章 */

@@ -8,7 +8,7 @@ import { PrivateToggle } from "@/components/ui/private-toggle";
 /** 一頁裡的分組小標：一行小字加一條線，跟詳細頁的章節標題同一個長相 */
 function GroupTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="border-rule-soft shrink-0 border-b pb-1.5 text-sm font-semibold text-gray-900">
+    <h3 className="border-rule-strong text-label tracking-label text-ink shrink-0 border-b pb-1.5 font-semibold uppercase">
       {children}
     </h3>
   );

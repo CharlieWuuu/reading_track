@@ -259,14 +259,14 @@ export function WritingForm({ entry }: { entry?: Writing }) {
                   type="button"
                   onClick={handleFetchStats}
                   disabled={fetchingStats}
-                  className="rounded-control shrink-0 border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+                  className="rounded-control border-control-border hover:bg-control-ghost-hover shrink-0 border px-3 py-2 text-sm font-medium disabled:opacity-50"
                 >
                   {fetchingStats ? "抓取中…" : "抓取數據"}
                 </button>
               )}
             </div>
             {(statsNote || latest) && (
-              <p className="col-span-2 -mt-1 text-xs text-gray-500 sm:col-span-3">
+              <p className="text-meta text-ink-muted col-span-2 -mt-1 sm:col-span-3">
                 {statsNote ||
                   (latest &&
                     `${latest.platform}：${latest.views} 次瀏覽${

@@ -28,7 +28,7 @@ export default function RecordsPage() {
           </div>
         }
       />
-      <PageBody>{mounted && <RecordsOverview view={view} />}</PageBody>
+      <PageBody scroll={view === "table"}>{mounted && <RecordsOverview view={view} />}</PageBody>
     </>
   );
 }

@@ -4,16 +4,18 @@ import { useState } from "react";
 
 const styles = {
   wrap: "flex shrink-0 flex-col gap-2",
-  error: "text-xs text-red-600",
+  error: "text-meta text-danger",
   row: "flex flex-wrap items-center gap-2",
   save: "rounded-control bg-control-bg text-control-ink px-4 py-2 text-sm font-medium hover:bg-control-bg-hover disabled:opacity-50",
-  cancel: "rounded-control border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50",
+  cancel:
+    "rounded-control border border-control-border px-4 py-2 text-sm font-medium text-control-ink-secondary hover:bg-control-ghost-hover",
   // 刪除一律靠最右邊，跟儲存隔開，不會順手按到
   danger: "ml-auto flex items-center gap-2 text-xs",
-  remove: "text-red-600 hover:underline disabled:opacity-50",
+  remove: "text-danger hover:underline disabled:opacity-50",
   confirm:
-    "rounded-control bg-red-600 px-3 py-1.5 font-medium text-white hover:bg-red-700 disabled:opacity-50",
-  confirmCancel: "rounded-control border px-3 py-1.5 text-gray-600 hover:bg-gray-50",
+    "rounded-control bg-danger px-3 py-1.5 font-medium text-white hover:opacity-90 disabled:opacity-50",
+  confirmCancel:
+    "rounded-control border border-control-border px-3 py-1.5 text-control-ink-secondary hover:bg-control-ghost-hover",
 };
 
 type FormActionsProps = {
@@ -77,7 +79,7 @@ export function FormActions({
         {onDelete &&
           (confirming ? (
             <div className={styles.danger}>
-              <span className="text-gray-500">{confirmLabel}</span>
+              <span className="text-ink-muted">{confirmLabel}</span>
               <button type="button" onClick={onDelete} disabled={saving} className={styles.confirm}>
                 刪除
               </button>

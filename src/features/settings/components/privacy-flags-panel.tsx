@@ -10,18 +10,18 @@ type Target = "type" | "writingType";
 type Flip = (target: Target, node: PrivacyFlagNode) => void;
 
 const styles = {
-  wrap: "space-y-5",
-  unlock: "flex flex-wrap items-center gap-3 border-rule-soft border-b pb-4",
-  hint: "text-xs text-gray-500",
-  group: "flex flex-col gap-1.5",
-  title: "text-sm font-medium",
+  wrap: "flex max-w-2xl flex-col gap-6",
+  unlock: "border-rule flex flex-wrap items-center gap-3 border-b pb-4",
+  hint: "text-meta text-ink-faint",
+  group: "border-rule flex flex-col gap-2 border-b pb-4 last:border-b-0 last:pb-0",
+  title: "font-serif text-item-sm font-semibold tracking-wide",
   row: "flex flex-wrap gap-1.5",
   children: "ml-4 flex flex-wrap gap-1.5",
-  empty: "text-xs text-gray-400",
-  error: "text-xs text-red-600",
+  empty: "text-meta text-ink-faint",
+  error: "text-meta text-red-600",
   chip: "rounded-control flex items-center gap-1 border px-2 py-1 text-xs disabled:opacity-40",
   on: "border-accent text-accent",
-  off: "text-gray-600",
+  off: "border-rule text-ink-muted",
 };
 
 function Chip({

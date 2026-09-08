@@ -7,16 +7,17 @@ import { QuoteRecord } from "@/utils/stats/vocabulary-stats";
 const styles = {
   form: "flex flex-col gap-3",
   field: "flex flex-col gap-1",
-  label: "flex items-baseline gap-2 text-sm font-medium",
-  source: "text-[11px] text-gray-400",
-  input: "w-full rounded-control border px-3 py-1.5 text-sm",
-  text: "min-h-40 w-full resize-none rounded-control border px-3 py-1.5 text-sm",
+  label: "flex items-baseline gap-2 text-label font-medium tracking-label text-ink-faint uppercase",
+  source: "text-meta text-ink-faint",
+  input: "w-full rounded-control border border-rule bg-transparent px-3 py-1.5 text-sm text-ink",
+  text: "min-h-40 w-full resize-none rounded-control border border-rule bg-transparent px-3 py-1.5 font-serif text-sm text-ink",
   actions: "flex items-center gap-2 pt-1",
   save: "rounded-control bg-control-bg text-control-ink px-4 py-2 text-sm font-medium hover:bg-control-bg-hover disabled:opacity-50",
-  cancel: "rounded-control border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50",
+  cancel:
+    "rounded-control border border-control-border px-4 py-2 text-sm font-medium text-control-ink-secondary hover:bg-control-ghost-hover",
   remove:
-    "ml-auto rounded-control px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 hover:text-red-600",
-  error: "text-xs text-red-600",
+    "ml-auto rounded-control px-3 py-2 text-sm text-ink-muted hover:bg-control-ghost-hover hover:text-danger",
+  error: "text-meta text-danger",
 };
 
 type QuoteFormProps = {

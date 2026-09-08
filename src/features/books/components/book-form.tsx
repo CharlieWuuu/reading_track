@@ -192,7 +192,7 @@ export function BookForm({
       className="flex flex-col gap-6 md:h-full md:min-h-0"
     >
       {notice && (
-        <p className="rounded-control shrink-0 border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+        <p className="rounded-control border-rule bg-surface-sunken text-ink-secondary shrink-0 border px-3 py-2 text-xs">
           {notice}
         </p>
       )}
