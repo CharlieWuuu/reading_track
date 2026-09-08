@@ -10,8 +10,6 @@ const styles = {
   side: "flex-1 basis-0 text-meta text-ink-faint tabular-nums",
   row: "flex items-baseline py-3",
   title: "font-serif text-site leading-none font-semibold tracking-tight",
-  strip: "flex justify-between pt-[7px] text-meta text-ink-faint",
-  link: "hover:text-ink whitespace-nowrap",
 };
 
 /**
@@ -34,22 +32,14 @@ export function Masthead({ authSlot }: { authSlot: React.ReactNode }) {
           <IssueDate />
         </div>
         <div className="flex-1 basis-0 text-center whitespace-nowrap">
-          <Link href="/reading/books" className={styles.title}>
+          <Link href="/" className={styles.title}>
             Archivum
           </Link>
         </div>
-        <div className={`${styles.side} flex items-center justify-end gap-3.5`}>
-          <Link href="/settings" className={styles.link}>
-            設定
-          </Link>
-          {authSlot}
-        </div>
+        <div className={`${styles.side} flex items-center justify-end gap-3.5`}>{authSlot}</div>
       </div>
 
       <div className="bg-rule-strong" style={{ height: "var(--stroke-solid)" }} />
-      <div className={styles.strip}>
-        <span>讀了什麼 · 想了什麼</span>
-      </div>
     </div>
   );
 }

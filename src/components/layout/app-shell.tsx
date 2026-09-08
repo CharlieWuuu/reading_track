@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { BottomNav } from "./bottom-nav";
 import { Masthead } from "./masthead";
 import { Sidebar } from "./sidebar";
@@ -7,6 +8,9 @@ import { Sidebar } from "./sidebar";
 /**
  * 桌機是「全寬報頭 ＋ 側欄」：報頭橫跨整個寬度，側欄與內容排在它底下。
  * 手機還是底部導覽，報頭不出現——那一版另外收。
+ *
+ * 沒登入就沒有導覽：側欄與底部列都指向讀不到的資料。報頭留著，
+ * 站名與登入鍵在那裡。
  */
 export function AppShell({
   children,
@@ -15,6 +19,9 @@ export function AppShell({
   children: React.ReactNode;
   authSlot: React.ReactNode;
 }) {
+  const { status } = useSession();
+  const signedIn = status === "authenticated";
+
   return (
     <div className="flex h-full w-full flex-col">
       {/* 瀏海／狀態列的高度，只有手機需要 */}
@@ -25,9 +32,11 @@ export function AppShell({
       </div>
 
       <div className="flex min-h-0 flex-1 md:gap-8 md:px-11 md:pt-5">
-        <div className="hidden md:block md:self-stretch">
-          <Sidebar />
-        </div>
+        {signedIn && (
+          <div className="hidden md:block md:self-stretch">
+            <Sidebar />
+          </div>
+        )}
 
         {/* main 只負責版面與留白，捲動交給頁面裡的 PageBody，頁首才固定得住 */}
         <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-hidden p-4 md:gap-5 md:p-0">
@@ -35,7 +44,7 @@ export function AppShell({
         </main>
       </div>
 
-      <BottomNav />
+      {signedIn && <BottomNav />}
     </div>
   );
 }

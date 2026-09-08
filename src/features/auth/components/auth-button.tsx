@@ -4,46 +4,51 @@ import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
 import { Spinner } from "@/components/ui/spinner";
 import { settingsTabHref } from "@/config/routes";
-import { useSidebarStore } from "@/stores/use-sidebar-store";
 
-/** 側欄收合時只顯示頭像；收合狀態直接讀 store，免得要跨 server/client 邊界傳 */
+/**
+ * 報頭右上角。登入後是「設定 ＋ 頭像」，沒登入只有一顆登入鍵——
+ * 設定頁沒有資料可設，登入前不出現。
+ */
 export function AuthButton() {
   const { data: session, status } = useSession();
-  const compact = useSidebarStore((s) => s.collapsed);
 
   if (status === "loading") {
-    return <Spinner size={14} className="text-gray-400" />;
+    return <Spinner size={14} className="text-ink-faint" />;
   }
 
-  if (session?.user) {
+  if (!session?.user) {
     return (
-      <Link
-        href={settingsTabHref("account")}
-        className="rounded-control flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-gray-100"
+      <button
+        type="button"
+        onClick={() => signIn("google")}
+        className="bg-control-bg text-control-ink hover:bg-control-bg-hover text-ui px-3 py-1.5 font-medium"
       >
-        {session.user.image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={session.user.image} alt="" className="h-8 w-8 shrink-0 rounded-full" />
-        ) : (
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs text-gray-600">
-            {(session.user.name ?? session.user.email ?? "?").slice(0, 1)}
-          </div>
-        )}
-        {!compact && (
-          <span className="truncate text-gray-700">{session.user.name ?? session.user.email}</span>
-        )}
-      </Link>
+        用 Google 登入
+      </button>
     );
   }
 
+  const label = session.user.name ?? session.user.email ?? "?";
+
   return (
-    <button
-      onClick={() => signIn("google")}
-      className={`rounded-control bg-control-bg text-control-ink hover:bg-control-bg-hover px-3 py-1.5 text-sm font-medium ${
-        compact ? "text-xs whitespace-nowrap" : "w-full"
-      }`}
-    >
-      {compact ? "登入" : "使用 Google 登入"}
-    </button>
+    <>
+      <Link href="/settings" className="hover:text-ink whitespace-nowrap">
+        設定
+      </Link>
+      <Link
+        href={settingsTabHref("account")}
+        className="hover:text-ink flex items-center gap-2 whitespace-nowrap"
+      >
+        {session.user.image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={session.user.image} alt="" className="h-6 w-6 shrink-0 rounded-full" />
+        ) : (
+          <span className="bg-rule text-ink-muted flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+            {label.slice(0, 1)}
+          </span>
+        )}
+        <span className="max-w-[8em] truncate">{label}</span>
+      </Link>
+    </>
   );
 }
