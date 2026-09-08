@@ -15,7 +15,7 @@ import { users } from "./users";
  * 注意跟 topics 不是同一層：那張是主題樹（文學、歷史），這張是「這是哪一種東西」。
  */
 export const kinds = pgTable(
-  "kinds",
+  "setting_kinds",
   {
     userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
     id: uuid("id").primaryKey().defaultRandom(),
@@ -40,7 +40,7 @@ export const kinds = pgTable(
  * 名字本身走 field_id 指到 fields，不在這裡重複存字串。
  */
 export const mapKindField = pgTable(
-  "map_kind_field",
+  "setting_map_kind_field",
   {
     userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
     id: uuid("id").primaryKey().defaultRandom(),

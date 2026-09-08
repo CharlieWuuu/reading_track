@@ -8,7 +8,7 @@ import { users } from "./users";
  * 現在寫入時還是每次都帶著呼叫者的 user_id，真的把預設值收斂成 NULL 是之後的事。
  */
 export const fields = pgTable(
-  "fields",
+  "setting_fields",
   {
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),

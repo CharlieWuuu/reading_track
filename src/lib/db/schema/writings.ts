@@ -11,7 +11,7 @@ import { works } from "./works";
  * 外部連結（發布網址）走 external_links，source_type 沿用 'fragment'——
  * 這張表是從 fragments 搬出來的，既有連結資料不用跟著搬。
  */
-export const writings = pgTable("writings", {
+export const writings = pgTable("domain_writings", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),

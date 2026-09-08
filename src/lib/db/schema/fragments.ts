@@ -20,7 +20,7 @@ import { works } from "./works";
  * 連結（關鍵字的維基連結、書寫的發布連結）不在這裡，走 external_links——
  * 跟紀錄共用同一張表，一筆可以有多個連結。
  */
-export const fragments = pgTable("fragments", {
+export const fragments = pgTable("domain_fragments", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),

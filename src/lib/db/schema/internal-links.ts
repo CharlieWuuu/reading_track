@@ -8,7 +8,7 @@ import { users } from "./users";
  * 沒有外鍵：a_id／b_id 可能指向四張表的任一張，一個欄位沒辦法同時外鍵四張表。
  * 查詢時用 a_id = X OR b_id = X 撈出所有跟 X 有關的列，對方是哪一種再自己查。
  */
-export const internalLinks = pgTable("internal_links", {
+export const internalLinks = pgTable("links_internal", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),

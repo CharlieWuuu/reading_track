@@ -26,7 +26,7 @@ import { users } from "./users";
  * external_id 是外部線索不是身分——ISBN、影片編號、課程網址都塞這裡，只給匯入時
  * 去外面查資料用。比對與帶入一律走內部的 work_id，使用者從自己的紀錄挑一筆就二刷。
  */
-export const works = pgTable("works", {
+export const works = pgTable("domain_works", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -59,7 +59,7 @@ export const works = pgTable("works", {
  * 外部連結（讀墨頁面、原始網址）不在這裡，走 external_links——那張表六種類型共用，
  * 一筆可以有多個連結。
  */
-export const records = pgTable("records", {
+export const records = pgTable("domain_records", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),

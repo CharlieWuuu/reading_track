@@ -13,7 +13,7 @@ import { users } from "./users";
  * 主題樹。書、文章、書寫共用同一套分類——子類型就是子節點，深度不限兩層，
  * 書寫沒有子類型，掛在頂層節點就好。
  */
-export const topics = pgTable("topics", {
+export const topics = pgTable("domain_topics", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -25,7 +25,7 @@ export const topics = pgTable("topics", {
 
 /** 散文、圖文。講形式，書與文章共用，書寫沒有 */
 export const bookAttributes = pgTable(
-  "book_attributes",
+  "domain_work_attributes",
   {
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id")

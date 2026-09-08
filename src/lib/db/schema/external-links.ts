@@ -12,7 +12,7 @@ import { users } from "./users";
  * 一筆資料可以有多個連結：一本書除了讀墨頁面，可能還有作者訪談的連結。
  * label 選填，用來說這個連結是什麼——沒填就照網址本身顯示。
  */
-export const externalLinks = pgTable("external_links", {
+export const externalLinks = pgTable("links_external", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
