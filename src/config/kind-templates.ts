@@ -101,8 +101,8 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "fragments",
     name: "佳句",
     amountUnit: "",
-    modules: ["oneLine", "source", "locator", "date", "keywords", "private"],
-    labels: { oneLine: "原文" },
+    modules: ["title", "source", "locator", "date", "keywords", "private"],
+    labels: { title: "原文" },
   },
   {
     key: "vocabulary",

@@ -68,8 +68,7 @@ export async function replaceBookQuotes(
         userId,
         kindId,
         workId,
-        name: item.text, // 標題併自句子：佳句本文同時當標題
-        body: item.text.trim() ? item.text : item.note, // 內文併自心得：本文空才退回心得
+        name: item.text,
         locator: item.chapter,
         note: item.note,
       })),
@@ -119,8 +118,7 @@ export async function addQuote(userId: string, readingId: string, item: QuoteRow
       userId,
       kindId: await kindIdByName(tx, userId, "佳句"),
       workId,
-      name: item.text, // 標題併自句子：佳句本文同時當標題
-      body: item.text.trim() ? item.text : item.note, // 內文併自心得：本文空才退回心得
+      name: item.text,
       locator: item.chapter,
       note: item.note,
     });
