@@ -31,7 +31,8 @@ export const fragments = pgTable("fragments", {
   workId: uuid("work_id").references(() => works.id, { onDelete: "set null" }),
   /** 這件事發生在哪一天。記下的時間看 created_at，兩者不是同一件事 */
   date: date("date"),
-  name: text("name").notNull().default(""), // 單字、詞條、佳句本文
+  name: text("name").notNull().default(""), // 單字、詞條
+  phrase: text("phrase").notNull().default(""), // 佳句本文
   body: text("body").notNull().default(""), // 原文、維基摘要
   locator: text("locator").notNull().default(""), // 章節、頁碼
   pronunciation: text("pronunciation").notNull().default(""),

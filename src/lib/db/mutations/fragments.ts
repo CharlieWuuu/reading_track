@@ -68,7 +68,7 @@ export async function replaceBookQuotes(
         userId,
         kindId,
         workId,
-        name: item.text,
+        phrase: item.text,
         locator: item.chapter,
         note: item.note,
       })),
@@ -118,7 +118,7 @@ export async function addQuote(userId: string, readingId: string, item: QuoteRow
       userId,
       kindId: await kindIdByName(tx, userId, "佳句"),
       workId,
-      name: item.text,
+      phrase: item.text,
       locator: item.chapter,
       note: item.note,
     });

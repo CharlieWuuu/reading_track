@@ -35,7 +35,7 @@ export async function listQuoteRows(userId: string): Promise<QuoteRow[]> {
     id: fragment.id,
     bookId: fragment.workId ? (firstReading.get(fragment.workId) ?? "") : "",
     bookTitle: workTitle ?? "",
-    text: fragment.name,
+    text: fragment.phrase,
     chapter: fragment.locator,
     note: fragment.note,
   }));
