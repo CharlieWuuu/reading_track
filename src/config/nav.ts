@@ -1,5 +1,4 @@
 import { KindGroup } from "./record-kinds";
-import { statsHref } from "./stats-views";
 import { ReadingTab, readingTabHref } from "./tabs";
 
 /**
@@ -60,24 +59,20 @@ export const NAV_GROUPS: NavGroup[] = [
     href: "/columns",
     types: [{ key: "writing", label: "書寫", href: "/writing", match: "/writing" }],
   },
-  {
-    key: "stats",
-    label: "統計",
-    types: [
-      { key: "overview", label: "總覽", href: "/stats", match: "/stats" },
-      {
-        key: "calendar",
-        label: "月曆",
-        href: statsHref("books", "calendar"),
-        match: "/stats/books",
-      },
-    ],
-  },
+];
+
+/**
+ * 側欄底部的工具區。統計與設定不是內容類型，不跟三堆並列——
+ * 統計是副產品，設定是後台。
+ */
+export const TOOL_ITEMS: NavType[] = [
+  { key: "stats", label: "統計", href: "/stats", match: "/stats" },
+  { key: "settings", label: "設定", href: "/settings", match: "/settings" },
 ];
 
 /** 月曆與總覽共用 /stats 開頭，所以要比對得夠細——長的那條先贏 */
 export function activeNavKey(pathname: string): string | null {
-  const all = NAV_GROUPS.flatMap((group) => group.types);
+  const all = [...NAV_GROUPS.flatMap((group) => group.types), ...TOOL_ITEMS];
   const hit = all
     .filter((type) => pathname === type.match || pathname.startsWith(`${type.match}/`))
     .sort((a, b) => b.match.length - a.match.length)[0];
