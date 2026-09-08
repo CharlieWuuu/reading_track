@@ -8,14 +8,16 @@ import { users } from "./users";
  * 舊的作法是類型＝表名，所以多一種就要開表、寫 query、寫頁面，側欄那幾列才會寫死。
  * 這裡把類型降成資料，使用者自己新增一種也走同一條路，沒有二等公民。
  *
+ * user_id 可空：NULL 代表系統預設的類型，不是哪個使用者自己建的。
+ * 目前每個使用者開帳號時還是各自 seed 一份帶 user_id 的，這個欄位先放寬，
+ * 真的共用一份預設列是之後的事。
+ *
  * 注意跟 topics 不是同一層：那張是主題樹（文學、歷史），這張是「這是哪一種東西」。
  */
 export const kinds = pgTable(
   "kinds",
   {
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
     id: uuid("id").primaryKey().defaultRandom(),
     name: text("name").notNull(),
     /** 屬於側欄哪一堆：records／fragments／writings。三堆共用同一套類型機制 */
