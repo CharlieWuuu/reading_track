@@ -5,7 +5,7 @@ import { fragments } from "@/lib/db/schema/fragments";
 import { writingKeywords } from "@/lib/db/schema/keyword-links";
 import { recordKinds } from "@/lib/db/schema/kinds";
 import { works } from "@/lib/db/schema/works";
-import { metrics, writings } from "@/lib/db/schema/writing";
+import { metrics } from "@/lib/db/schema/writing";
 import { Metric } from "@/types/metric";
 import { Writing } from "@/types/writing";
 import { firstReadingIdByBookId } from "./books";

@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
 import { articleKeywords } from "@/lib/db/schema/keyword-links";
 import { keywords } from "@/lib/db/schema/taxonomy";
-import { records, works } from "@/lib/db/schema/works";
+import { records } from "@/lib/db/schema/works";
 import { seedUser } from "@/lib/db/test/factories";
 import type { Article } from "@/types/article";
 
