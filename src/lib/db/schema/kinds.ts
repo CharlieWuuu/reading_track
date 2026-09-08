@@ -42,9 +42,7 @@ export const kinds = pgTable(
 export const mapKindField = pgTable(
   "map_kind_field",
   {
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
     id: uuid("id").primaryKey().defaultRandom(),
     kindId: uuid("kind_id")
       .notNull()

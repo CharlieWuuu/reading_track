@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull, or } from "drizzle-orm";
 import { fieldsOfModules } from "@/config/modules";
 import { db } from "@/lib/db/client";
 import { mapKindField } from "@/lib/db/schema/kinds";
@@ -19,7 +19,12 @@ export async function allowedFields(userId: string, kindId: string): Promise<Set
   const rows = await db
     .select({ key: mapKindField.fieldKey })
     .from(mapKindField)
-    .where(and(eq(mapKindField.userId, userId), eq(mapKindField.kindId, kindId)));
+    .where(
+      and(
+        or(eq(mapKindField.userId, userId), isNull(mapKindField.userId)),
+        eq(mapKindField.kindId, kindId),
+      ),
+    );
   return new Set(fieldsOfModules(rows.map((row) => row.key)));
 }
 

@@ -1,4 +1,4 @@
-import { and, asc, count, eq } from "drizzle-orm";
+import { and, asc, count, eq, isNull, or } from "drizzle-orm";
 import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
 import { fields as fieldsTable } from "@/lib/db/schema/fields";
@@ -60,7 +60,7 @@ export async function listKinds(userId: string): Promise<Kind[]> {
     db
       .select()
       .from(kindsTable)
-      .where(eq(kindsTable.userId, userId))
+      .where(or(eq(kindsTable.userId, userId), isNull(kindsTable.userId)))
       .orderBy(asc(kindsTable.sortOrder), asc(kindsTable.name)),
     db
       .select({
@@ -72,7 +72,7 @@ export async function listKinds(userId: string): Promise<Kind[]> {
       })
       .from(mapKindField)
       .innerJoin(fieldsTable, eq(fieldsTable.id, mapKindField.fieldId))
-      .where(eq(mapKindField.userId, userId))
+      .where(or(eq(mapKindField.userId, userId), isNull(mapKindField.userId)))
       .orderBy(asc(mapKindField.sortOrder)),
     countsByKind(userId),
   ]);
@@ -97,6 +97,8 @@ export async function kindGroupOf(userId: string, kindId: string): Promise<KindG
   const [row] = await db
     .select({ group: kindsTable.groupKey })
     .from(kindsTable)
-    .where(and(eq(kindsTable.userId, userId), eq(kindsTable.id, kindId)));
+    .where(
+      and(or(eq(kindsTable.userId, userId), isNull(kindsTable.userId)), eq(kindsTable.id, kindId)),
+    );
   return (row?.group as KindGroup) ?? null;
 }

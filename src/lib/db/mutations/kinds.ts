@@ -1,5 +1,5 @@
-import { and, desc, eq } from "drizzle-orm";
-import { KIND_TEMPLATES, KindTemplate, STARTER_KEYS } from "@/config/kind-templates";
+import { and, desc, eq, isNull, or } from "drizzle-orm";
+import { KindTemplate } from "@/config/kind-templates";
 import { moduleDef } from "@/config/modules";
 import { KindGroup } from "@/config/record-kinds";
 import { db, type Tx } from "@/lib/db/client";
@@ -81,12 +81,12 @@ const fromTemplate = (template: KindTemplate): NewKind => ({
   labels: template.labels,
 });
 
-/** 排在同一堆的最後面 */
+/** 排在同一堆的最後面，含系統預設的類型一起排 */
 async function nextSortOrder(tx: Tx, userId: string, group: KindGroup): Promise<number> {
   const [last] = await tx
     .select({ sortOrder: kinds.sortOrder })
     .from(kinds)
-    .where(and(eq(kinds.userId, userId), eq(kinds.groupKey, group)))
+    .where(and(or(eq(kinds.userId, userId), isNull(kinds.userId)), eq(kinds.groupKey, group)))
     .orderBy(desc(kinds.sortOrder))
     .limit(1);
   return (last?.sortOrder ?? -1) + 1;
@@ -104,26 +104,10 @@ export async function addKindFromTemplate(userId: string, template: KindTemplate
 }
 
 /**
- * 開帳號時先給的那幾種。判斷條件是「這個人有沒有任何類型」而不是逐一比對名字——
- * 刪掉「電影」下次登入就不該長回來。
+ * 開帳號時先給的那幾種。書籍、文章、佳句、單字、關鍵字、書寫這六種現在是
+ * 系統共用的（user_id 是 NULL），全體使用者本來就看得到，不用再各自建一份——
+ * 所以這支現在什麼都不用做，留著只是呼叫端還在用，回傳 0 代表沒新增任何東西。
  */
-export async function seedKinds(userId: string): Promise<number> {
-  return db.transaction(async (tx) => {
-    const [existing] = await tx
-      .select({ id: kinds.id })
-      .from(kinds)
-      .where(eq(kinds.userId, userId))
-      .limit(1);
-    if (existing) return 0;
-
-    const starters = KIND_TEMPLATES.filter((template) => STARTER_KEYS.has(template.key));
-    const counters = new Map<KindGroup, number>();
-
-    for (const template of starters) {
-      const order = counters.get(template.group) ?? 0;
-      counters.set(template.group, order + 1);
-      await insertKind(tx, userId, template.group, fromTemplate(template), order);
-    }
-    return starters.length;
-  });
+export async function seedKinds(_userId: string): Promise<number> {
+  return 0;
 }
