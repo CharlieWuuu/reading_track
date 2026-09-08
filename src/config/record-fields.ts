@@ -7,8 +7,9 @@
  * key 對到資料表的欄位名，改名要兩邊一起改；layer 決定它存在哪一張表。
  */
 
-/** work：作品共用的；record：這一次的；fragment：摘出來的東西 */
-export type FieldLayer = "work" | "record" | "fragment";
+/** work：作品共用的；record：這一次的；fragment：摘出來的東西；
+ * externalLink：外部連結，走 external_links，不在任何一張本體表上 */
+export type FieldLayer = "work" | "record" | "fragment" | "externalLink";
 
 export type FieldType =
   "text" | "longText" | "date" | "number" | "url" | "flag" | "topic" | "attribute";
@@ -31,10 +32,10 @@ export const RECORD_FIELDS = [
   { key: "startDate", layer: "record", type: "date", defaultLabel: "開始" },
   { key: "endDate", layer: "record", type: "date", defaultLabel: "結束" },
   { key: "amount", layer: "record", type: "number", defaultLabel: "份量" },
-  { key: "source", layer: "record", type: "text", defaultLabel: "來源" },
-  { key: "sourceUrl", layer: "record", type: "url", defaultLabel: "連結" },
-  { key: "externalId", layer: "record", type: "text", defaultLabel: "外部編號" },
-  { key: "coverUrl", layer: "record", type: "url", defaultLabel: "封面" },
+  { key: "source", layer: "work", type: "text", defaultLabel: "來源" },
+  { key: "sourceUrl", layer: "externalLink", type: "url", defaultLabel: "連結" },
+  { key: "externalId", layer: "work", type: "text", defaultLabel: "外部編號" },
+  { key: "coverUrl", layer: "work", type: "url", defaultLabel: "封面" },
   { key: "isPrivate", layer: "record", type: "flag", defaultLabel: "私人" },
   // 片段：佳句、單字、關鍵字共用這幾欄，用不到的類型設成不顯示
   { key: "name", layer: "fragment", type: "text", defaultLabel: "名稱" },
@@ -47,7 +48,7 @@ export const RECORD_FIELDS = [
   { key: "topics", layer: "fragment", type: "text", defaultLabel: "維基主題" },
   { key: "span", layer: "fragment", type: "text", defaultLabel: "起訖" },
   { key: "coordinates", layer: "fragment", type: "text", defaultLabel: "座標" },
-  { key: "wikiUrl", layer: "fragment", type: "url", defaultLabel: "維基連結" },
+  { key: "wikiUrl", layer: "externalLink", type: "url", defaultLabel: "維基連結" },
   { key: "note", layer: "fragment", type: "longText", defaultLabel: "心得" },
 ] as const satisfies readonly FieldDef[];
 

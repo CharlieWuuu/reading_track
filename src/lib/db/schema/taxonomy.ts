@@ -35,8 +35,8 @@ export const writingTypes = pgTable(
 );
 
 /** 散文、圖文。講形式，書與文章共用，書寫沒有 */
-export const attributes = pgTable(
-  "attributes",
+export const bookAttributes = pgTable(
+  "book_attributes",
   {
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id")

@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
 import { fragments } from "@/lib/db/schema/fragments";
-import { recordKinds } from "@/lib/db/schema/kinds";
+import { kinds } from "@/lib/db/schema/kinds";
 import { makeBook, seedUser } from "@/lib/db/test/factories";
 import type { Writing } from "@/types/writing";
 
@@ -39,10 +39,10 @@ describe("addWritingRow", () => {
     await addWritingRow(userId, writing);
 
     const [row] = await db.select().from(fragments).where(eq(fragments.id, writing.id));
-    const [kind] = await db.select().from(recordKinds).where(eq(recordKinds.id, row.kindId));
+    const [kind] = await db.select().from(kinds).where(eq(kinds.id, row.kindId));
     expect(kind.name).toBe("日記");
 
-    const invented = await db.select().from(recordKinds).where(eq(recordKinds.name, "週計劃"));
+    const invented = await db.select().from(kinds).where(eq(kinds.name, "週計劃"));
     expect(invented).toHaveLength(0);
   });
 
@@ -51,7 +51,7 @@ describe("addWritingRow", () => {
     await addWritingRow(userId, writing);
 
     const [row] = await db.select().from(fragments).where(eq(fragments.id, writing.id));
-    const [kind] = await db.select().from(recordKinds).where(eq(recordKinds.id, row.kindId));
+    const [kind] = await db.select().from(kinds).where(eq(kinds.id, row.kindId));
     expect(kind.name).toBe("日記");
   });
 

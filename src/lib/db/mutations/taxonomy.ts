@@ -1,6 +1,6 @@
 import { and, eq, isNull } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db/client";
-import { attributes, bookTypes, writingTypes } from "@/lib/db/schema/taxonomy";
+import { bookAttributes, bookTypes, writingTypes } from "@/lib/db/schema/taxonomy";
 import { splitLines } from "@/types/book";
 
 /**
@@ -60,10 +60,10 @@ export async function attributeIdFor(
   if (!name) return null;
 
   const [row] = await tx
-    .insert(attributes)
+    .insert(bookAttributes)
     .values({ userId, name })
-    .onConflictDoUpdate({ target: [attributes.userId, attributes.name], set: { name } })
-    .returning({ id: attributes.id });
+    .onConflictDoUpdate({ target: [bookAttributes.userId, bookAttributes.name], set: { name } })
+    .returning({ id: bookAttributes.id });
   return row.id;
 }
 

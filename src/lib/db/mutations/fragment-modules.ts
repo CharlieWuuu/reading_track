@@ -2,12 +2,13 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { fragments } from "@/lib/db/schema/fragments";
 import { allowedFields, FieldValues, pick } from "./catalog";
+import { setFragmentSourceUrl } from "./external-links";
 import { toDate } from "./values";
 
 /**
  * 片段與專欄照模組寫入。兩者同一張表，差別只在類型屬於哪一堆。
  *
- * 欄位名跟紀錄那邊不一樣（標題叫 name、連結叫 wiki_url），換算只在這一層做——
+ * 欄位名跟紀錄那邊不一樣（標題叫 name、連結走 external_links），換算只在這一層做——
  * 模組那層一律用 title、sourceUrl。
  */
 
@@ -19,24 +20,27 @@ export async function addFragment(
 ): Promise<string> {
   const allowed = await allowedFields(userId, kindId);
 
-  const [row] = await db
-    .insert(fragments)
-    .values({
-      userId,
-      kindId,
-      // 片段的標題欄叫 name，模組那層一律用 title
-      name: pick(values, allowed, "title") || pick(values, allowed, "name"),
-      body: pick(values, allowed, "body"),
-      locator: pick(values, allowed, "locator"),
-      translation: pick(values, allowed, "translation"),
-      context: pick(values, allowed, "context"),
-      contextTranslation: pick(values, allowed, "contextTranslation"),
-      date: toDate(pick(values, allowed, "endDate")),
-      wikiUrl: pick(values, allowed, "sourceUrl"),
-    })
-    .returning({ id: fragments.id });
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .insert(fragments)
+      .values({
+        userId,
+        kindId,
+        // 片段的標題欄叫 name，模組那層一律用 title
+        name: pick(values, allowed, "title") || pick(values, allowed, "name"),
+        body: pick(values, allowed, "body"),
+        locator: pick(values, allowed, "locator"),
+        translation: pick(values, allowed, "translation"),
+        context: pick(values, allowed, "context"),
+        contextTranslation: pick(values, allowed, "contextTranslation"),
+        date: toDate(pick(values, allowed, "endDate")),
+      })
+      .returning({ id: fragments.id });
 
-  return row.id;
+    await setFragmentSourceUrl(tx, userId, row.id, pick(values, allowed, "sourceUrl"));
+
+    return row.id;
+  });
 }
 
 export async function updateFragment(
@@ -61,15 +65,21 @@ export async function updateFragment(
   if (has("context")) patch.context = values.context;
   if (has("contextTranslation")) patch.contextTranslation = values.contextTranslation;
   if (has("endDate")) patch.date = toDate(values.endDate);
-  if (has("sourceUrl")) patch.wikiUrl = values.sourceUrl;
 
-  if (Object.keys(patch).length)
-    await db
-      .update(fragments)
-      .set(patch)
-      .where(and(eq(fragments.userId, userId), eq(fragments.id, id)));
+  await db.transaction(async (tx) => {
+    if (Object.keys(patch).length)
+      await tx
+        .update(fragments)
+        .set(patch)
+        .where(and(eq(fragments.userId, userId), eq(fragments.id, id)));
+    if (has("sourceUrl")) await setFragmentSourceUrl(tx, userId, id, values.sourceUrl);
+  });
 }
 
 export async function deleteFragment(userId: string, id: string): Promise<void> {
-  await db.delete(fragments).where(and(eq(fragments.userId, userId), eq(fragments.id, id)));
+  await db.transaction(async (tx) => {
+    await tx.delete(fragments).where(and(eq(fragments.userId, userId), eq(fragments.id, id)));
+    // external_links 的 source_id 不是外鍵（要同時指兩張表），fragment 刪掉不會自動 cascade
+    await setFragmentSourceUrl(tx, userId, id, "");
+  });
 }

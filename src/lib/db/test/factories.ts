@@ -1,7 +1,7 @@
 import { KIND_TEMPLATES, STARTER_KEYS } from "@/config/kind-templates";
 import { NEW_KIND_STATUSES } from "@/config/record-kinds";
 import type { db as Db } from "@/lib/db/client";
-import { recordKindFields, recordKinds, recordKindStatuses } from "@/lib/db/schema/kinds";
+import { kindFields, kinds, kindStatuses } from "@/lib/db/schema/kinds";
 import { users } from "@/lib/db/schema/users";
 import type { Book } from "@/types/book";
 
@@ -59,7 +59,7 @@ async function seedKindsInto(db: typeof Db, userId: string): Promise<void> {
     orders.set(template.group, sortOrder + 1);
 
     const [kind] = await db
-      .insert(recordKinds)
+      .insert(kinds)
       .values({
         userId,
         groupKey: template.group,
@@ -67,9 +67,9 @@ async function seedKindsInto(db: typeof Db, userId: string): Promise<void> {
         amountUnit: template.amountUnit,
         sortOrder,
       })
-      .returning({ id: recordKinds.id });
+      .returning({ id: kinds.id });
 
-    await db.insert(recordKindFields).values(
+    await db.insert(kindFields).values(
       template.modules.map((key, index) => ({
         userId,
         kindId: kind.id,
@@ -80,7 +80,7 @@ async function seedKindsInto(db: typeof Db, userId: string): Promise<void> {
     );
 
     if (template.group === "records" && template.modules.includes("progress")) {
-      await db.insert(recordKindStatuses).values(
+      await db.insert(kindStatuses).values(
         (template.statuses ?? NEW_KIND_STATUSES).map((status, index) => ({
           userId,
           kindId: kind.id,

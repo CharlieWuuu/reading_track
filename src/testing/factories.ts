@@ -86,6 +86,7 @@ export function makeVocabulary(overrides: Partial<VocabularyRow> = {}): Vocabula
     sentenceTranslation: "",
     chapter: "",
     language: "", // 空字串代表跟著書走
+    createdAt: "",
     ...overrides,
   };
 }

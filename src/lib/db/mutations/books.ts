@@ -5,6 +5,7 @@ import { bookKeywords } from "@/lib/db/schema/keyword-links";
 import { keywords } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { Book, splitLines } from "@/types/book";
+import { setRecordSourceUrl } from "./external-links";
 import { kindIdByName, statusIdByLabel } from "./kind-lookup";
 import { attributeIdFor, typeIdFor } from "./taxonomy";
 import { toDate, toInt } from "./values";
@@ -51,12 +52,7 @@ async function recordValues(tx: Tx, userId: string, book: Book) {
     statusId: await statusIdByLabel(tx, kindId, book.status),
     startDate: toDate(book.startDate),
     endDate: toDate(book.endDate),
-    externalId: book.isbn,
-    source: book.publisher || book.platform,
-    sourceUrl: book.sourceUrl,
-    coverUrl: book.coverUrl,
     amount: toInt(book.pageCount),
-    amountUnit: book.pageCount ? "頁" : "",
     isPrivate: book.private === PRIVATE_MARK,
   };
 }
@@ -85,15 +81,20 @@ export async function addBookRow(userId: string, book: Book): Promise<void> {
             title: book.title,
             creator: book.author,
             language: book.language,
+            source: book.publisher || book.platform,
+            externalId: book.isbn,
+            coverUrl: book.coverUrl,
             topicId: await typeIdFor(tx, userId, book.domain, book.subDomain),
             attributeId: await attributeIdFor(tx, userId, book.type),
           })
           .returning({ id: works.id })
       )[0].id;
 
-    await tx
+    const [record] = await tx
       .insert(records)
-      .values({ id: book.id, userId, workId, ...(await recordValues(tx, userId, book)) });
+      .values({ id: book.id, userId, workId, ...(await recordValues(tx, userId, book)) })
+      .returning({ id: records.id });
+    await setRecordSourceUrl(tx, userId, record.id, book.sourceUrl);
     await setBookKeywords(tx, userId, workId, names);
   });
 }
@@ -117,20 +118,16 @@ export async function updateBookRow(
   if (patch.title !== undefined) workPatch.title = patch.title;
   if (patch.author !== undefined) workPatch.creator = patch.author;
   if (patch.language !== undefined) workPatch.language = patch.language;
+  if (patch.isbn !== undefined) workPatch.externalId = patch.isbn;
+  if (patch.coverUrl !== undefined) workPatch.coverUrl = patch.coverUrl;
+  // 出版社與平台合成一欄，兩個都給就以出版社為準
+  if (patch.publisher !== undefined) workPatch.source = patch.publisher;
+  else if (patch.platform !== undefined) workPatch.source = patch.platform;
 
   const recordPatch: Record<string, unknown> = {};
   if (patch.startDate !== undefined) recordPatch.startDate = toDate(patch.startDate);
   if (patch.endDate !== undefined) recordPatch.endDate = toDate(patch.endDate);
-  if (patch.isbn !== undefined) recordPatch.externalId = patch.isbn;
-  if (patch.sourceUrl !== undefined) recordPatch.sourceUrl = patch.sourceUrl;
-  if (patch.coverUrl !== undefined) recordPatch.coverUrl = patch.coverUrl;
-  // 出版社與平台合成一欄，兩個都給就以出版社為準
-  if (patch.publisher !== undefined) recordPatch.source = patch.publisher;
-  else if (patch.platform !== undefined) recordPatch.source = patch.platform;
-  if (patch.pageCount !== undefined) {
-    recordPatch.amount = toInt(patch.pageCount);
-    recordPatch.amountUnit = patch.pageCount ? "頁" : "";
-  }
+  if (patch.pageCount !== undefined) recordPatch.amount = toInt(patch.pageCount);
   if (patch.private !== undefined) recordPatch.isPrivate = patch.private === PRIVATE_MARK;
 
   await db.transaction(async (tx) => {
@@ -149,6 +146,7 @@ export async function updateBookRow(
       await tx.update(works).set(workPatch).where(eq(works.id, target.workId));
     if (Object.keys(recordPatch).length)
       await tx.update(records).set(recordPatch).where(eq(records.id, id));
+    if (patch.sourceUrl !== undefined) await setRecordSourceUrl(tx, userId, id, patch.sourceUrl);
     if (patch.keywords !== undefined)
       await setBookKeywords(tx, userId, target.workId, splitLines(patch.keywords));
   });

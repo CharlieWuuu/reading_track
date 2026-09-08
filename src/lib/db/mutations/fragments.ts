@@ -6,6 +6,7 @@ import { keywords } from "@/lib/db/schema/taxonomy";
 import { records } from "@/lib/db/schema/works";
 import { KeywordInfo } from "@/types/keyword";
 import { QuoteRow, VocabularyRow } from "@/types/record";
+import { setFragmentSourceUrl } from "./external-links";
 import { kindIdByName } from "./kind-lookup";
 
 /**
@@ -67,7 +68,8 @@ export async function replaceBookQuotes(
         userId,
         kindId,
         workId,
-        body: item.text,
+        name: item.text, // 標題併自句子：佳句本文同時當標題
+        body: item.text.trim() ? item.text : item.note, // 內文併自心得：本文空才退回心得
         locator: item.chapter,
         note: item.note,
       })),
@@ -117,7 +119,8 @@ export async function addQuote(userId: string, readingId: string, item: QuoteRow
       userId,
       kindId: await kindIdByName(tx, userId, "佳句"),
       workId,
-      body: item.text,
+      name: item.text, // 標題併自句子：佳句本文同時當標題
+      body: item.text.trim() ? item.text : item.note, // 內文併自心得：本文空才退回心得
       locator: item.chapter,
       note: item.note,
     });
@@ -166,7 +169,6 @@ export async function saveKeywordInfos(userId: string, infos: KeywordInfo[]): Pr
         topics: info.topics,
         coordinates: info.coordinates,
         span: info.span,
-        wikiUrl: info.wikiUrl,
       };
       const [existing] = await tx
         .select({ id: fragments.id })
@@ -179,8 +181,17 @@ export async function saveKeywordInfos(userId: string, infos: KeywordInfo[]): Pr
           ),
         );
 
-      if (existing) await tx.update(fragments).set(values).where(eq(fragments.id, existing.id));
-      else await tx.insert(fragments).values({ userId, kindId, name: info.name, ...values });
+      const fragmentId = existing
+        ? existing.id
+        : (
+            await tx
+              .insert(fragments)
+              .values({ userId, kindId, name: info.name, ...values })
+              .returning({ id: fragments.id })
+          )[0].id;
+      if (existing) await tx.update(fragments).set(values).where(eq(fragments.id, fragmentId));
+
+      await setFragmentSourceUrl(tx, userId, fragmentId, info.wikiUrl);
     }
   });
 }
@@ -218,11 +229,19 @@ export async function renameKeyword(userId: string, from: string, to: string): P
       const rows = affected.map((r) => ({ userId, bookId: r.bookId, keyword: to }));
       if (rows.length) await tx.insert(bookKeywords).values(rows).onConflictDoNothing();
       await tx.delete(keywords).where(and(eq(keywords.userId, userId), eq(keywords.name, from)));
+      const [old] = await tx
+        .select({ id: fragments.id })
+        .from(fragments)
+        .where(
+          and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.name, from)),
+        );
       await tx
         .delete(fragments)
         .where(
           and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.name, from)),
         );
+      // external_links 的 source_id 不是外鍵（要同時指兩張表），fragment 刪掉不會自動 cascade
+      if (old) await setFragmentSourceUrl(tx, userId, old.id, "");
     } else {
       await tx
         .update(keywords)
@@ -250,11 +269,18 @@ export async function deleteKeyword(userId: string, name: string): Promise<numbe
   await db.transaction(async (tx) => {
     const kindId = await kindIdByName(tx, userId, "關鍵字");
     await tx.delete(keywords).where(and(eq(keywords.userId, userId), eq(keywords.name, name)));
+    const [old] = await tx
+      .select({ id: fragments.id })
+      .from(fragments)
+      .where(
+        and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.name, name)),
+      );
     await tx
       .delete(fragments)
       .where(
         and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.name, name)),
       );
+    if (old) await setFragmentSourceUrl(tx, userId, old.id, "");
   });
 
   return affected.length;

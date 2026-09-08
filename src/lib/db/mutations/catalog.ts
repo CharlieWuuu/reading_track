@@ -1,8 +1,9 @@
 import { and, eq } from "drizzle-orm";
 import { fieldsOfModules } from "@/config/modules";
 import { db } from "@/lib/db/client";
-import { recordKindFields, recordKinds, recordKindStatuses } from "@/lib/db/schema/kinds";
+import { kindFields, kindStatuses } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
+import { setRecordSourceUrl } from "./external-links";
 import { toDate, toInt } from "./values";
 
 /**
@@ -16,9 +17,9 @@ export type FieldValues = Record<string, string>;
 
 export async function allowedFields(userId: string, kindId: string): Promise<Set<string>> {
   const rows = await db
-    .select({ key: recordKindFields.fieldKey })
-    .from(recordKindFields)
-    .where(and(eq(recordKindFields.userId, userId), eq(recordKindFields.kindId, kindId)));
+    .select({ key: kindFields.fieldKey })
+    .from(kindFields)
+    .where(and(eq(kindFields.userId, userId), eq(kindFields.kindId, kindId)));
   return new Set(fieldsOfModules(rows.map((row) => row.key)));
 }
 
@@ -34,17 +35,11 @@ export async function addRecord(
   const allowed = await allowedFields(userId, kindId);
 
   return db.transaction(async (tx) => {
-    const [kind] = await tx
-      .select({ amountUnit: recordKinds.amountUnit })
-      .from(recordKinds)
-      .where(and(eq(recordKinds.userId, userId), eq(recordKinds.id, kindId)));
-    if (!kind) throw new Error("找不到這個類型");
-
     const [status] = await tx
-      .select({ id: recordKindStatuses.id })
-      .from(recordKindStatuses)
-      .where(eq(recordKindStatuses.kindId, kindId))
-      .orderBy(recordKindStatuses.sortOrder);
+      .select({ id: kindStatuses.id })
+      .from(kindStatuses)
+      .where(eq(kindStatuses.kindId, kindId))
+      .orderBy(kindStatuses.sortOrder);
     if (!status) throw new Error("這個類型沒有狀態，不能新增紀錄");
 
     const [work] = await tx
@@ -55,6 +50,9 @@ export async function addRecord(
         title: pick(values, allowed, "title"),
         creator: pick(values, allowed, "creator"),
         language: pick(values, allowed, "language"),
+        source: pick(values, allowed, "source"),
+        externalId: pick(values, allowed, "externalId"),
+        coverUrl: pick(values, allowed, "coverUrl"),
       })
       .returning({ id: works.id });
 
@@ -68,13 +66,11 @@ export async function addRecord(
         startDate: toDate(pick(values, allowed, "startDate")),
         endDate: toDate(pick(values, allowed, "endDate")),
         amount,
-        amountUnit: amount === null ? "" : kind.amountUnit,
-        source: pick(values, allowed, "source"),
-        sourceUrl: pick(values, allowed, "sourceUrl"),
-        coverUrl: pick(values, allowed, "coverUrl"),
         isPrivate: pick(values, allowed, "isPrivate") === "是",
       })
       .returning({ id: records.id });
+
+    await setRecordSourceUrl(tx, userId, record.id, pick(values, allowed, "sourceUrl"));
 
     return record.id;
   });
@@ -96,13 +92,13 @@ export async function updateRecord(userId: string, id: string, values: FieldValu
   if (has("title")) workPatch.title = values.title;
   if (has("creator")) workPatch.creator = values.creator;
   if (has("language")) workPatch.language = values.language;
+  if (has("source")) workPatch.source = values.source;
+  if (has("externalId")) workPatch.externalId = values.externalId;
+  if (has("coverUrl")) workPatch.coverUrl = values.coverUrl;
 
   const recordPatch: Record<string, unknown> = {};
   if (has("startDate")) recordPatch.startDate = toDate(values.startDate);
   if (has("endDate")) recordPatch.endDate = toDate(values.endDate);
-  if (has("source")) recordPatch.source = values.source;
-  if (has("sourceUrl")) recordPatch.sourceUrl = values.sourceUrl;
-  if (has("coverUrl")) recordPatch.coverUrl = values.coverUrl;
   if (has("isPrivate")) recordPatch.isPrivate = values.isPrivate === "是";
   if (has("amount")) recordPatch.amount = toInt(values.amount);
 
@@ -111,6 +107,7 @@ export async function updateRecord(userId: string, id: string, values: FieldValu
       await tx.update(works).set(workPatch).where(eq(works.id, target.workId));
     if (Object.keys(recordPatch).length)
       await tx.update(records).set(recordPatch).where(eq(records.id, id));
+    if (has("sourceUrl")) await setRecordSourceUrl(tx, userId, id, values.sourceUrl);
   });
 }
 

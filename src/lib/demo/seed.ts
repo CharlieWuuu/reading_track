@@ -3,8 +3,8 @@ import { db } from "@/lib/db/client";
 import { seedKinds } from "@/lib/db/mutations/kinds";
 import { fragments } from "@/lib/db/schema/fragments";
 import { bookKeywords, writingKeywords } from "@/lib/db/schema/keyword-links";
-import { recordKinds, recordKindStatuses } from "@/lib/db/schema/kinds";
-import { attributes, bookTypes, keywords } from "@/lib/db/schema/taxonomy";
+import { kinds, kindStatuses } from "@/lib/db/schema/kinds";
+import { bookAttributes, bookTypes, keywords } from "@/lib/db/schema/taxonomy";
 import { users } from "@/lib/db/schema/users";
 import { records, works } from "@/lib/db/schema/works";
 import { metrics } from "@/lib/db/schema/writing";
@@ -180,7 +180,7 @@ export async function seedDemo(email: string): Promise<string> {
   const userId = user.id;
 
   // 重跑要一致，先清掉這個帳號名下的東西（外鍵 cascade 會帶走關聯與子表）
-  for (const table of [fragments, works, keywords, bookTypes, attributes, recordKinds]) {
+  for (const table of [fragments, works, keywords, bookTypes, bookAttributes, kinds]) {
     await db.delete(table).where(eq(table.userId, userId));
   }
   await seedKinds(userId); // 類型是資料，demo 帳號也要有
@@ -188,17 +188,17 @@ export async function seedDemo(email: string): Promise<string> {
   const kindId = async (name: string) =>
     (
       await db
-        .select({ id: recordKinds.id })
-        .from(recordKinds)
-        .where(and(eq(recordKinds.userId, userId), eq(recordKinds.name, name)))
+        .select({ id: kinds.id })
+        .from(kinds)
+        .where(and(eq(kinds.userId, userId), eq(kinds.name, name)))
     )[0].id;
 
   const statusId = async (kind: string, label: string) =>
     (
       await db
-        .select({ id: recordKindStatuses.id, label: recordKindStatuses.label })
-        .from(recordKindStatuses)
-        .where(eq(recordKindStatuses.kindId, await kindId(kind)))
+        .select({ id: kindStatuses.id, label: kindStatuses.label })
+        .from(kindStatuses)
+        .where(eq(kindStatuses.kindId, await kindId(kind)))
     ).find((row) => row.label === label)!.id;
 
   const bookKindId = await kindId("書籍");
@@ -230,9 +230,9 @@ export async function seedDemo(email: string): Promise<string> {
   const attributeId = new Map<string, string>();
   for (const name of ATTRIBUTES) {
     const [row] = await db
-      .insert(attributes)
+      .insert(bookAttributes)
       .values({ userId, name })
-      .returning({ id: attributes.id });
+      .returning({ id: bookAttributes.id });
     attributeId.set(name, row.id);
   }
 
@@ -259,6 +259,7 @@ export async function seedDemo(email: string): Promise<string> {
         title,
         creator: author,
         language: "中文",
+        source: publisher,
         topicId: typeId.get(subDomain ? `${domain}/${subDomain}` : domain) ?? null,
         attributeId: attributeId.get(attribute) ?? null,
       })
@@ -275,9 +276,7 @@ export async function seedDemo(email: string): Promise<string> {
         statusId: statusIds[status],
         startDate: status === "想讀" ? null : daysAgo(400 - i * 12),
         endDate: status === "已讀完" ? daysAgo(380 - i * 12) : null,
-        source: publisher,
         amount: 200 + ((i * 37) % 300),
-        amountUnit: "頁",
       })
       .returning({ id: records.id });
     readingIds.push(reading.id);
@@ -296,7 +295,6 @@ export async function seedDemo(email: string): Promise<string> {
       statusId: statusIds["已讀完"],
       startDate: daysAgo(90),
       endDate: daysAgo(60),
-      source: BOOKS[i][2],
     });
   }
 

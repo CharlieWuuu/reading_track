@@ -1,5 +1,5 @@
 import { date, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { recordKinds } from "./kinds";
+import { kinds } from "./kinds";
 import { users } from "./users";
 import { works } from "./works";
 
@@ -16,6 +16,9 @@ import { works } from "./works";
  *
  * 不帶私人旗標，跟舊的關鍵字主檔同一個理由：「馬克思」本身不敏感，敏感的是那本書
  * 屬於哪個領域。藏東西一律從主題與類型下手。
+ *
+ * 連結（關鍵字的維基連結、書寫的發布連結）不在這裡，走 external_links——
+ * 跟紀錄共用同一張表，一筆可以有多個連結。
  */
 export const fragments = pgTable("fragments", {
   userId: uuid("user_id")
@@ -24,11 +27,11 @@ export const fragments = pgTable("fragments", {
   id: uuid("id").primaryKey().defaultRandom(),
   kindId: uuid("kind_id")
     .notNull()
-    .references(() => recordKinds.id, { onDelete: "restrict" }),
+    .references(() => kinds.id, { onDelete: "restrict" }),
   workId: uuid("work_id").references(() => works.id, { onDelete: "set null" }),
   /** 這件事發生在哪一天。記下的時間看 created_at，兩者不是同一件事 */
   date: date("date"),
-  name: text("name").notNull().default(""), // 單字、詞條；佳句沒有名字
+  name: text("name").notNull().default(""), // 單字、詞條、佳句本文
   body: text("body").notNull().default(""), // 原文、維基摘要
   locator: text("locator").notNull().default(""), // 章節、頁碼
   pronunciation: text("pronunciation").notNull().default(""),
@@ -38,7 +41,6 @@ export const fragments = pgTable("fragments", {
   topics: text("topics").notNull().default(""), // 維基主題，多個以頓號相接
   span: text("span").notNull().default(""), // 生卒或起訖
   coordinates: text("coordinates").notNull().default(""), // "25.033,121.565"
-  wikiUrl: text("wiki_url").notNull().default(""),
   note: text("note").notNull().default(""), // 這一則的心得
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

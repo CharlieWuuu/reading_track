@@ -3,7 +3,7 @@ import { KIND_TEMPLATES, KindTemplate, STARTER_KEYS } from "@/config/kind-templa
 import { moduleDef } from "@/config/modules";
 import { KindGroup, NEW_KIND_STATUSES } from "@/config/record-kinds";
 import { db, type Tx } from "@/lib/db/client";
-import { recordKindFields, recordKinds, recordKindStatuses } from "@/lib/db/schema/kinds";
+import { kindFields, kinds, kindStatuses } from "@/lib/db/schema/kinds";
 
 /**
  * 類型的寫入。
@@ -31,7 +31,7 @@ async function insertKind(
   sortOrder: number,
 ): Promise<string> {
   const [created] = await tx
-    .insert(recordKinds)
+    .insert(kinds)
     .values({
       userId,
       groupKey: group,
@@ -39,12 +39,12 @@ async function insertKind(
       amountUnit: kind.amountUnit,
       sortOrder,
     })
-    .returning({ id: recordKinds.id });
+    .returning({ id: kinds.id });
 
   // 認不得的模組丟掉：客戶端不能往資料庫塞任意字串
   const modules = kind.modules.filter((key) => moduleDef(key));
   if (modules.length > 0) {
-    await tx.insert(recordKindFields).values(
+    await tx.insert(kindFields).values(
       modules.map((key, index) => ({
         userId,
         kindId: created.id,
@@ -58,7 +58,7 @@ async function insertKind(
 
   // 只有紀錄那一堆有進度：一句佳句摘下來就是摘下來了，沒有「在讀」
   if (group === "records" && modules.includes("progress")) {
-    await tx.insert(recordKindStatuses).values(
+    await tx.insert(kindStatuses).values(
       (kind.statuses ?? NEW_KIND_STATUSES).map((status, index) => ({
         userId,
         kindId: created.id,
@@ -83,10 +83,10 @@ const fromTemplate = (template: KindTemplate): NewKind => ({
 /** 排在同一堆的最後面 */
 async function nextSortOrder(tx: Tx, userId: string, group: KindGroup): Promise<number> {
   const [last] = await tx
-    .select({ sortOrder: recordKinds.sortOrder })
-    .from(recordKinds)
-    .where(and(eq(recordKinds.userId, userId), eq(recordKinds.groupKey, group)))
-    .orderBy(desc(recordKinds.sortOrder))
+    .select({ sortOrder: kinds.sortOrder })
+    .from(kinds)
+    .where(and(eq(kinds.userId, userId), eq(kinds.groupKey, group)))
+    .orderBy(desc(kinds.sortOrder))
     .limit(1);
   return (last?.sortOrder ?? -1) + 1;
 }
@@ -109,9 +109,9 @@ export async function addKindFromTemplate(userId: string, template: KindTemplate
 export async function seedKinds(userId: string): Promise<number> {
   return db.transaction(async (tx) => {
     const [existing] = await tx
-      .select({ id: recordKinds.id })
-      .from(recordKinds)
-      .where(eq(recordKinds.userId, userId))
+      .select({ id: kinds.id })
+      .from(kinds)
+      .where(eq(kinds.userId, userId))
       .limit(1);
     if (existing) return 0;
 

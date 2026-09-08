@@ -2,7 +2,7 @@ import { and, asc, count, eq } from "drizzle-orm";
 import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
 import { fragments } from "@/lib/db/schema/fragments";
-import { recordKindFields, recordKinds, recordKindStatuses } from "@/lib/db/schema/kinds";
+import { kindFields, kinds as kindsTable, kindStatuses } from "@/lib/db/schema/kinds";
 import { works } from "@/lib/db/schema/works";
 import { ModuleOverride } from "@/utils/record-form";
 
@@ -61,19 +61,19 @@ export async function listKinds(userId: string): Promise<Kind[]> {
   const [kinds, fields, statuses, counts] = await Promise.all([
     db
       .select()
-      .from(recordKinds)
-      .where(eq(recordKinds.userId, userId))
-      .orderBy(asc(recordKinds.sortOrder), asc(recordKinds.name)),
+      .from(kindsTable)
+      .where(eq(kindsTable.userId, userId))
+      .orderBy(asc(kindsTable.sortOrder), asc(kindsTable.name)),
     db
       .select()
-      .from(recordKindFields)
-      .where(eq(recordKindFields.userId, userId))
-      .orderBy(asc(recordKindFields.sortOrder)),
+      .from(kindFields)
+      .where(eq(kindFields.userId, userId))
+      .orderBy(asc(kindFields.sortOrder)),
     db
       .select()
-      .from(recordKindStatuses)
-      .where(eq(recordKindStatuses.userId, userId))
-      .orderBy(asc(recordKindStatuses.sortOrder)),
+      .from(kindStatuses)
+      .where(eq(kindStatuses.userId, userId))
+      .orderBy(asc(kindStatuses.sortOrder)),
     countsByKind(userId),
   ]);
 
@@ -101,8 +101,8 @@ export async function listKinds(userId: string): Promise<Kind[]> {
 /** 這個類型屬於哪一堆。寫入時要靠它決定進哪張表 */
 export async function kindGroupOf(userId: string, kindId: string): Promise<KindGroup | null> {
   const [row] = await db
-    .select({ group: recordKinds.groupKey })
-    .from(recordKinds)
-    .where(and(eq(recordKinds.userId, userId), eq(recordKinds.id, kindId)));
+    .select({ group: kindsTable.groupKey })
+    .from(kindsTable)
+    .where(and(eq(kindsTable.userId, userId), eq(kindsTable.id, kindId)));
   return (row?.group as KindGroup) ?? null;
 }

@@ -2,10 +2,11 @@ import { and, asc, eq, isNull } from "drizzle-orm";
 import { PRIVATE_MARK } from "@/config/privacy";
 import { db } from "@/lib/db/client";
 import { bookKeywords } from "@/lib/db/schema/keyword-links";
-import { recordKinds, recordKindStatuses } from "@/lib/db/schema/kinds";
-import { attributes } from "@/lib/db/schema/taxonomy";
+import { kinds, kindStatuses } from "@/lib/db/schema/kinds";
+import { bookAttributes } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { Book, inferStatus, normalizeStatus } from "@/types/book";
+import { sourceUrlOfRecords } from "./external-links";
 import { typePaths } from "./taxonomy";
 
 /**
@@ -40,17 +41,21 @@ export async function listBooks(userId: string): Promise<Book[]> {
       .select({
         record: records,
         work: works,
-        status: recordKindStatuses.label,
-        attribute: attributes.name,
+        status: kindStatuses.label,
+        attribute: bookAttributes.name,
       })
       .from(records)
       .innerJoin(works, eq(works.id, records.workId))
-      .innerJoin(recordKinds, eq(recordKinds.id, works.kindId))
-      .innerJoin(recordKindStatuses, eq(recordKindStatuses.id, records.statusId))
-      .leftJoin(attributes, eq(attributes.id, works.attributeId))
-      .where(and(eq(records.userId, userId), eq(recordKinds.name, BOOK_KIND)))
+      .innerJoin(kinds, eq(kinds.id, works.kindId))
+      .innerJoin(kindStatuses, eq(kindStatuses.id, records.statusId))
+      .leftJoin(bookAttributes, eq(bookAttributes.id, works.attributeId))
+      .where(and(eq(records.userId, userId), eq(kinds.name, BOOK_KIND)))
       .orderBy(asc(records.createdAt)),
   ]);
+  const sourceUrls = await sourceUrlOfRecords(
+    userId,
+    rows.map(({ record }) => record.id),
+  );
 
   /** 同一本書的第一次閱讀。舊形狀的 originId 指的就是它 */
   const firstRecordOf = new Map<string, string>();
@@ -66,11 +71,11 @@ export async function listBooks(userId: string): Promise<Book[]> {
       createdAt: record.createdAt.toISOString(),
       title: work.title,
       author: work.creator,
-      coverUrl: record.coverUrl,
-      publisher: record.source,
-      isbn: record.externalId,
+      coverUrl: work.coverUrl,
+      publisher: work.source,
+      isbn: work.externalId,
       platform: "", // 出版社與平台合成一欄了，舊形狀留著空的
-      sourceUrl: record.sourceUrl,
+      sourceUrl: sourceUrls.get(record.id) ?? "",
       status: normalizeStatus(status) ?? inferStatus(record.startDate, record.endDate),
       startDate: record.startDate,
       endDate: record.endDate,

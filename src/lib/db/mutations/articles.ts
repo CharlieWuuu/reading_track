@@ -6,6 +6,7 @@ import { keywords } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { Article } from "@/types/article";
 import { splitLines } from "@/types/book";
+import { setRecordSourceUrl } from "./external-links";
 import { kindIdByName, statusIdByLabel } from "./kind-lookup";
 import { attributeIdFor, typeIdFor } from "./taxonomy";
 import { toDate } from "./values";
@@ -54,6 +55,7 @@ export async function addArticleRow(userId: string, article: Article): Promise<v
       title: article.title,
       creator: article.author,
       language: article.language,
+      source: article.platform,
       topicId: await typeIdFor(tx, userId, article.domain, article.subDomain),
       attributeId: await attributeIdFor(tx, userId, article.type),
     });
@@ -63,10 +65,9 @@ export async function addArticleRow(userId: string, article: Article): Promise<v
       workId: article.id,
       statusId: await statusIdByLabel(tx, kindId, statusLabel(article.endDate)),
       endDate: toDate(article.endDate),
-      source: article.platform,
-      sourceUrl: article.sourceUrl,
       isPrivate: article.private === PRIVATE_MARK,
     });
+    await setRecordSourceUrl(tx, userId, article.id, article.sourceUrl);
     await setKeywords(tx, userId, article.id, splitLines(article.keywords));
   });
 }
@@ -80,10 +81,9 @@ export async function updateArticleRow(
   if (patch.title !== undefined) workPatch.title = patch.title;
   if (patch.author !== undefined) workPatch.creator = patch.author;
   if (patch.language !== undefined) workPatch.language = patch.language;
+  if (patch.platform !== undefined) workPatch.source = patch.platform;
 
   const recordPatch: Record<string, unknown> = {};
-  if (patch.platform !== undefined) recordPatch.source = patch.platform;
-  if (patch.sourceUrl !== undefined) recordPatch.sourceUrl = patch.sourceUrl;
   if (patch.endDate !== undefined) recordPatch.endDate = toDate(patch.endDate);
   if (patch.private !== undefined) recordPatch.isPrivate = patch.private === PRIVATE_MARK;
 
@@ -110,6 +110,7 @@ export async function updateArticleRow(
         .update(records)
         .set(recordPatch)
         .where(and(eq(records.userId, userId), eq(records.id, id)));
+    if (patch.sourceUrl !== undefined) await setRecordSourceUrl(tx, userId, id, patch.sourceUrl);
     if (patch.keywords !== undefined) await setKeywords(tx, userId, id, splitLines(patch.keywords));
   });
 }

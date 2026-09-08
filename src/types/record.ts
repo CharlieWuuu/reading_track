@@ -18,6 +18,7 @@ export interface VocabularyRow {
   chapter: string;
   /** 空字串代表跟著書的語言走 */
   language: string;
+  createdAt: string;
 }
 
 export interface QuoteRow {
@@ -38,6 +39,7 @@ export const EMPTY_VOCABULARY: Omit<VocabularyRow, "id" | "bookId" | "bookTitle"
   sentenceTranslation: "",
   chapter: "",
   language: "",
+  createdAt: "",
 };
 
 export const EMPTY_QUOTE: Omit<QuoteRow, "id" | "bookId" | "bookTitle"> = {

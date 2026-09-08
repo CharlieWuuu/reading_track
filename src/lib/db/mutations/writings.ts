@@ -8,6 +8,7 @@ import { metrics } from "@/lib/db/schema/writing";
 import { splitLines } from "@/types/book";
 import { Metric } from "@/types/metric";
 import { Writing } from "@/types/writing";
+import { setFragmentSourceUrl } from "./external-links";
 import { kindIdByName } from "./kind-lookup";
 import { toDate } from "./values";
 
@@ -84,8 +85,8 @@ export async function addWritingRow(userId: string, writing: Writing): Promise<v
       name: writing.title,
       body: writing.note,
       date: toDate(writing.date),
-      wikiUrl: writing.link,
     });
+    await setFragmentSourceUrl(tx, userId, writing.id, writing.link);
     await setKeywords(tx, userId, writing.id, splitLines(writing.keywords));
   });
 }
@@ -103,7 +104,6 @@ export async function updateWritingRow(
   if (patch.title !== undefined) values.name = patch.title;
   if (patch.note !== undefined) values.body = patch.note;
   if (patch.date !== undefined) values.date = toDate(patch.date);
-  if (patch.link !== undefined) values.wikiUrl = patch.link;
   if (patch.sourceId !== undefined) values.workId = await workIdFor(userId, patch.sourceId);
 
   await db.transaction(async (tx) => {
@@ -114,12 +114,17 @@ export async function updateWritingRow(
         .update(fragments)
         .set(values)
         .where(and(eq(fragments.userId, userId), eq(fragments.id, id)));
+    if (patch.link !== undefined) await setFragmentSourceUrl(tx, userId, id, patch.link);
     if (patch.keywords !== undefined) await setKeywords(tx, userId, id, splitLines(patch.keywords));
   });
 }
 
 export async function deleteWritingRow(userId: string, id: string): Promise<void> {
-  await db.delete(fragments).where(and(eq(fragments.userId, userId), eq(fragments.id, id)));
+  await db.transaction(async (tx) => {
+    await tx.delete(fragments).where(and(eq(fragments.userId, userId), eq(fragments.id, id)));
+    // external_links 的 source_id 不是外鍵（要同時指兩張表），fragment 刪掉不會自動 cascade
+    await setFragmentSourceUrl(tx, userId, id, "");
+  });
 }
 
 /** 每次量測都是新的一列，不覆蓋舊的——累積起來就是成長曲線 */

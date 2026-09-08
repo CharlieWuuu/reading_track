@@ -9,8 +9,8 @@ import { users } from "./users";
  *
  * 注意跟 book_types 不是同一層：那張是主題樹（文學、歷史），這張是「這是哪一種東西」。
  */
-export const recordKinds = pgTable(
-  "record_kinds",
+export const kinds = pgTable(
+  "kinds",
   {
     userId: uuid("user_id")
       .notNull()
@@ -35,8 +35,8 @@ export const recordKinds = pgTable(
  *
  * field_key 對到 records／experiences 上真正的欄位，合法值由 config 那層管。
  */
-export const recordKindFields = pgTable(
-  "record_kind_fields",
+export const kindFields = pgTable(
+  "kind_fields",
   {
     userId: uuid("user_id")
       .notNull()
@@ -44,7 +44,7 @@ export const recordKindFields = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     kindId: uuid("kind_id")
       .notNull()
-      .references(() => recordKinds.id, { onDelete: "cascade" }),
+      .references(() => kinds.id, { onDelete: "cascade" }),
     fieldKey: text("field_key").notNull(),
     label: text("label").notNull(), // 「頁數」「片長」「時數」
     isVisible: boolean("is_visible").notNull().default(true),
@@ -58,8 +58,8 @@ export const recordKindFields = pgTable(
  *
  * 一列一筆而不是塞一個陣列欄位：狀態要能排序、能當篩選器的來源。
  */
-export const recordKindStatuses = pgTable(
-  "record_kind_statuses",
+export const kindStatuses = pgTable(
+  "kind_statuses",
   {
     userId: uuid("user_id")
       .notNull()
@@ -67,7 +67,7 @@ export const recordKindStatuses = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     kindId: uuid("kind_id")
       .notNull()
-      .references(() => recordKinds.id, { onDelete: "cascade" }),
+      .references(() => kinds.id, { onDelete: "cascade" }),
     key: text("key").notNull(), // 跨類型比對用的機器名：reading／done／wishlist
     label: text("label").notNull(), // 這個類型講出來的字
     sortOrder: integer("sort_order").notNull().default(0),

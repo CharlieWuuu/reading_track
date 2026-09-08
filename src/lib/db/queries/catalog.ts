@@ -2,8 +2,9 @@ import { and, asc, desc, eq } from "drizzle-orm";
 import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
 import { fragments } from "@/lib/db/schema/fragments";
-import { recordKinds, recordKindStatuses } from "@/lib/db/schema/kinds";
+import { kinds, kindStatuses } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
+import { sourceUrlOfFragment, sourceUrlOfRecord } from "./external-links";
 
 /**
  * 某一種類型底下的紀錄。一列一次——同一個作品讀兩次就是兩列。
@@ -33,11 +34,11 @@ export type RecordRow = {
 /** kindId 不給就是整堆都要——概覽頁要把書籍與文章混在一起排 */
 export async function listRecordsByKind(userId: string, kindId?: string): Promise<RecordRow[]> {
   const rows = await db
-    .select({ record: records, work: works, status: recordKindStatuses, kind: recordKinds })
+    .select({ record: records, work: works, status: kindStatuses, kind: kinds })
     .from(records)
     .innerJoin(works, eq(works.id, records.workId))
-    .innerJoin(recordKindStatuses, eq(recordKindStatuses.id, records.statusId))
-    .innerJoin(recordKinds, eq(recordKinds.id, works.kindId))
+    .innerJoin(kindStatuses, eq(kindStatuses.id, records.statusId))
+    .innerJoin(kinds, eq(kinds.id, works.kindId))
     .where(and(eq(records.userId, userId), kindId ? eq(works.kindId, kindId) : undefined))
     .orderBy(asc(records.createdAt));
 
@@ -53,9 +54,9 @@ export async function listRecordsByKind(userId: string, kindId?: string): Promis
     startDate: record.startDate,
     endDate: record.endDate,
     amount: record.amount,
-    amountUnit: record.amountUnit,
-    source: record.source,
-    coverUrl: record.coverUrl,
+    amountUnit: kind.amountUnit,
+    source: work.source,
+    coverUrl: work.coverUrl,
     isPrivate: record.isPrivate,
   }));
 }
@@ -63,12 +64,12 @@ export async function listRecordsByKind(userId: string, kindId?: string): Promis
 /** 整堆的紀錄。概覽頁要把同一堆底下所有類型混在一起排 */
 export async function listRecordsByGroup(userId: string, group: KindGroup): Promise<RecordRow[]> {
   const rows = await db
-    .select({ record: records, work: works, status: recordKindStatuses, kind: recordKinds })
+    .select({ record: records, work: works, status: kindStatuses, kind: kinds })
     .from(records)
     .innerJoin(works, eq(works.id, records.workId))
-    .innerJoin(recordKindStatuses, eq(recordKindStatuses.id, records.statusId))
-    .innerJoin(recordKinds, eq(recordKinds.id, works.kindId))
-    .where(and(eq(records.userId, userId), eq(recordKinds.groupKey, group)))
+    .innerJoin(kindStatuses, eq(kindStatuses.id, records.statusId))
+    .innerJoin(kinds, eq(kinds.id, works.kindId))
+    .where(and(eq(records.userId, userId), eq(kinds.groupKey, group)))
     .orderBy(asc(records.createdAt));
 
   return rows.map(({ record, work, status, kind }) => ({
@@ -83,9 +84,9 @@ export async function listRecordsByGroup(userId: string, group: KindGroup): Prom
     startDate: record.startDate,
     endDate: record.endDate,
     amount: record.amount,
-    amountUnit: record.amountUnit,
-    source: record.source,
-    coverUrl: record.coverUrl,
+    amountUnit: kind.amountUnit,
+    source: work.source,
+    coverUrl: work.coverUrl,
     isPrivate: record.isPrivate,
   }));
 }
@@ -114,11 +115,11 @@ export async function listFragmentsByGroup(
   group: KindGroup,
 ): Promise<FragmentRow[]> {
   const rows = await db
-    .select({ fragment: fragments, kind: recordKinds, workTitle: works.title })
+    .select({ fragment: fragments, kind: kinds, workTitle: works.title })
     .from(fragments)
-    .innerJoin(recordKinds, eq(recordKinds.id, fragments.kindId))
+    .innerJoin(kinds, eq(kinds.id, fragments.kindId))
     .leftJoin(works, eq(works.id, fragments.workId))
-    .where(and(eq(fragments.userId, userId), eq(recordKinds.groupKey, group)))
+    .where(and(eq(fragments.userId, userId), eq(kinds.groupKey, group)))
     .orderBy(desc(fragments.createdAt));
 
   return rows.map(({ fragment, kind, workTitle }) => ({
@@ -163,9 +164,10 @@ export async function getRecordValues(
       startDate: record.startDate ?? "",
       endDate: record.endDate ?? "",
       amount: record.amount?.toString() ?? "",
-      source: record.source,
-      sourceUrl: record.sourceUrl,
-      coverUrl: record.coverUrl,
+      source: work.source,
+      externalId: work.externalId,
+      sourceUrl: await sourceUrlOfRecord(userId, id),
+      coverUrl: work.coverUrl,
       isPrivate: record.isPrivate ? "是" : "",
     },
   };
@@ -192,7 +194,7 @@ export async function getFragmentValues(
       context: row.context,
       contextTranslation: row.contextTranslation,
       endDate: row.date ?? "",
-      sourceUrl: row.wikiUrl,
+      sourceUrl: await sourceUrlOfFragment(userId, id),
     },
   };
 }

@@ -1,7 +1,7 @@
 import { FieldKey, FieldLayer } from "./record-fields";
 
 /**
- * 預設的類型。這些不是寫死的分類，是新使用者開帳號時灌進 record_kinds 的種子——
+ * 預設的類型。這些不是寫死的分類，是新使用者開帳號時灌進 kinds 的種子——
  * 灌完就是一般的資料，改名、改欄位標籤、刪掉都行。想不到的類型自己新增。
  *
  * 每一種只講三件事：欄位叫什麼名字、看不看得到、份量的單位是什麼。
@@ -14,11 +14,12 @@ export type FieldSpec = {
   hidden?: boolean;
 };
 
-/** 哪一堆吃欄位庫的哪幾層。紀錄有作品那一層，片段沒有——一句話不會被讀第二次 */
+/** 哪一堆吃欄位庫的哪幾層。紀錄有作品那一層，片段沒有——一句話不會被讀第二次。
+ * 外部連結（externalLink）走 external_links，三堆都能用 */
 export const GROUP_LAYERS: Record<KindGroup, FieldLayer[]> = {
-  records: ["work", "record"],
-  fragments: ["fragment"],
-  writings: ["fragment"],
+  records: ["work", "record", "externalLink"],
+  fragments: ["fragment", "externalLink"],
+  writings: ["fragment", "externalLink"],
 };
 
 export type StatusSpec = { key: string; label: string };
