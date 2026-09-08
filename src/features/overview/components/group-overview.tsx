@@ -21,7 +21,7 @@ import { byMonth, OverviewItem, pickHeadline } from "@/utils/overview";
 const styles = {
   frame: "flex min-w-0 flex-1 gap-8",
   main: "flex min-w-0 flex-1 flex-col",
-  rail: "border-rule-strong hidden w-52 shrink-0 border-l pl-6 lg:block",
+  rail: "border-rule-strong hidden w-64 shrink-0 border-l pl-6 lg:block",
   railHead: "border-rule-strong flex items-baseline justify-between border-b pb-2",
   label: "text-label text-ink-faint tracking-label",
   labelInk: "text-label text-ink tracking-label",
