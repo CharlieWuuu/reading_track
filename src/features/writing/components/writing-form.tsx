@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { CategorySelect } from "@/components/ui/category-select";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
@@ -9,12 +8,9 @@ import { compactLines } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
 import { keywordEditHref, writingEditHref } from "@/config/routes";
-import { saveMetric } from "@/features/writing/api/save-metric";
-import { scrapeWritingStats } from "@/features/writing/api/scrape-stats";
 import { SourcePicker } from "@/features/writing/components/source-picker";
 import { useWritingsFormTab } from "@/features/writing/components/writing-form-tabs";
 import { useEntryForm } from "@/hooks/use-entry-form";
-import { useMetrics } from "@/hooks/use-metrics";
 import { useRecordForm } from "@/hooks/use-record-form";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useWritings } from "@/hooks/use-writings";
@@ -91,10 +87,6 @@ export function WritingForm({ entry }: { entry?: Writing }) {
   };
   // 背景重抓回來的資料要蓋掉畫面上的舊快取——但只在使用者還沒動過的時候
   const { form, set, update } = useEntryForm(entry, (e) => toForm(e, prefill));
-  const [fetchingStats, setFetchingStats] = useState(false);
-  const [statsNote, setStatsNote] = useState("");
-  const { latestByWriting, mutate: mutateMetrics } = useMetrics();
-  const latest = entry ? latestByWriting.get(entry.id) : undefined;
 
   const {
     submitting,
@@ -121,45 +113,6 @@ export function WritingForm({ entry }: { entry?: Writing }) {
       return;
     }
     openRecordThen((back) => router.push(keywordEditHref(name, back)), from);
-  }
-
-  /**
-   * 量一次現在有多少人看，append 成新的一列——不覆蓋舊的，累積起來就是成長曲線。
-   * 要有紀事編號才掛得上去，所以只有存過的那則才抓得動。
-   */
-  async function handleFetchStats() {
-    if (!entry) return;
-    const url = form.link.trim();
-    if (!url) {
-      setStatsNote("請先填來源網址");
-      return;
-    }
-
-    setFetchingStats(true);
-    setStatsNote("");
-    try {
-      const stats = await scrapeWritingStats(url);
-
-      const metric = {
-        id: crypto.randomUUID(),
-        date: now(),
-        writingId: entry.id,
-        title: form.title || stats.title || "",
-        platform: stats.platform,
-        views: stats.views,
-        reads: stats.reads,
-      };
-      await saveMetric(metric);
-
-      await mutateMetrics();
-      setStatsNote(
-        `${stats.platform}：${stats.views} 次瀏覽${stats.reads ? `、${stats.reads} 次閱讀` : ""}`,
-      );
-    } catch (err) {
-      setStatsNote(err instanceof Error ? err.message : "抓取失敗");
-    } finally {
-      setFetchingStats(false);
-    }
   }
 
   return (
@@ -243,37 +196,15 @@ export function WritingForm({ entry }: { entry?: Writing }) {
             </div>
 
             {/* 這則放在哪裡：發表的網址，或「紙本日記 8/17」這種純文字 */}
-            <div className="col-span-2 flex items-end gap-2 sm:col-span-3">
-              <div className="min-w-0 flex-1">
-                <Field
-                  label="來源"
-                  hint="來源：網址，或「紙本日記 8/17」"
-                  value={form.link}
-                  onChange={(v) => set("link", v)}
-                  hideLabel
-                />
-              </div>
-              {/* 量測要掛在編號上，所以存過的那則才抓得動 */}
-              {isEdit && (
-                <button
-                  type="button"
-                  onClick={handleFetchStats}
-                  disabled={fetchingStats}
-                  className="rounded-control border-control-border hover:bg-control-ghost-hover shrink-0 border px-3 py-2 text-sm font-medium disabled:opacity-50"
-                >
-                  {fetchingStats ? "抓取中…" : "抓取數據"}
-                </button>
-              )}
+            <div className="col-span-2 sm:col-span-3">
+              <Field
+                label="來源"
+                hint="來源：網址，或「紙本日記 8/17」"
+                value={form.link}
+                onChange={(v) => set("link", v)}
+                hideLabel
+              />
             </div>
-            {(statsNote || latest) && (
-              <p className="text-meta text-ink-muted col-span-2 -mt-1 sm:col-span-3">
-                {statsNote ||
-                  (latest &&
-                    `${latest.platform}：${latest.views} 次瀏覽${
-                      latest.reads ? `、${latest.reads} 次閱讀` : ""
-                    }（${latest.date}）`)}
-              </p>
-            )}
           </div>
         </TabPanel>
       </div>

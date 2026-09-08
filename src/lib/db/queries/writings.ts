@@ -5,8 +5,6 @@ import { fragments } from "@/lib/db/schema/fragments";
 import { writingKeywords } from "@/lib/db/schema/keyword-links";
 import { kinds } from "@/lib/db/schema/kinds";
 import { works } from "@/lib/db/schema/works";
-import { metrics } from "@/lib/db/schema/writing";
-import { Metric } from "@/types/metric";
 import { Writing } from "@/types/writing";
 import { firstReadingIdByBookId } from "./books";
 import { sourceUrlOfFragments } from "./external-links";
@@ -17,9 +15,6 @@ import { sourceUrlOfFragments } from "./external-links";
  *
  * 舊的「類型」欄混了兩件事：有出處時它記的是出處（書籍／文章），沒出處時記的
  * 才是真正的類型。這裡再合回去，畫面不用改。
- *
- * metrics 還掛在舊的 writings 表上，所以那張表暫時留著——編號一樣，之後把
- * 外鍵改指 fragments 再刪。
  */
 
 /** 出處的類型：這一則掛在書上還是文章上，舊形狀的 kind 欄要它 */
@@ -78,21 +73,4 @@ export async function listWritings(userId: string): Promise<Writing[]> {
       private: "", // 片段不帶私人旗標，藏東西一律從主題與類型下手
     };
   });
-}
-
-export async function listMetrics(userId: string): Promise<Metric[]> {
-  const rows = await db
-    .select()
-    .from(metrics)
-    .where(eq(metrics.userId, userId))
-    .orderBy(asc(metrics.date));
-  return rows.map((m) => ({
-    id: m.id,
-    date: m.date,
-    writingId: m.writingId,
-    title: "", // 舊欄位，畫面靠 writingId 自己 join 得到標題
-    platform: m.platform,
-    views: m.views?.toString() ?? "",
-    reads: m.reads?.toString() ?? "",
-  }));
 }

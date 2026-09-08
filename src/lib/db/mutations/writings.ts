@@ -4,9 +4,7 @@ import { fragments } from "@/lib/db/schema/fragments";
 import { writingKeywords } from "@/lib/db/schema/keyword-links";
 import { keywords } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
-import { metrics } from "@/lib/db/schema/writing";
 import { splitLines } from "@/types/book";
-import { Metric } from "@/types/metric";
 import { Writing } from "@/types/writing";
 import { setFragmentSourceUrl } from "./external-links";
 import { kindIdByName } from "./kind-lookup";
@@ -124,18 +122,5 @@ export async function deleteWritingRow(userId: string, id: string): Promise<void
     await tx.delete(fragments).where(and(eq(fragments.userId, userId), eq(fragments.id, id)));
     // external_links 的 source_id 不是外鍵（要同時指兩張表），fragment 刪掉不會自動 cascade
     await setFragmentSourceUrl(tx, userId, id, "");
-  });
-}
-
-/** 每次量測都是新的一列，不覆蓋舊的——累積起來就是成長曲線 */
-export async function addMetricRow(userId: string, metric: Metric): Promise<void> {
-  await db.insert(metrics).values({
-    id: metric.id,
-    userId,
-    writingId: metric.writingId,
-    date: metric.date,
-    platform: metric.platform,
-    views: Number(metric.views) || null,
-    reads: Number(metric.reads) || null,
   });
 }
