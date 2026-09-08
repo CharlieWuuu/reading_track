@@ -2,12 +2,24 @@ import { and, eq } from "drizzle-orm";
 import { PRIVATE_MARK } from "@/config/privacy";
 import { db, type Tx } from "@/lib/db/client";
 import { articleKeywords } from "@/lib/db/schema/keyword-links";
-import { articles } from "@/lib/db/schema/reading";
 import { keywords } from "@/lib/db/schema/taxonomy";
+import { records, works } from "@/lib/db/schema/works";
 import { Article } from "@/types/article";
 import { splitLines } from "@/types/book";
+import { kindIdByName, statusIdByLabel } from "./kind-lookup";
 import { attributeIdFor, typeIdFor } from "./taxonomy";
 import { toDate } from "./values";
+
+/**
+ * 舊的 Article 形狀寫回 works／records。
+ *
+ * 文章沒有重讀，所以作品與紀錄一對一，兩者共用同一個編號——關聯表指的是作品，
+ * 網址指的是紀錄，編號一樣就不用換算。
+ *
+ * 有完成日就是讀完了，沒有就是想讀：舊形狀沒有狀態欄，狀態由日期推出來。
+ */
+
+const ARTICLE_KIND = "文章";
 
 async function setKeywords(
   tx: Tx,
@@ -29,19 +41,30 @@ async function setKeywords(
       .values(names.map((keyword) => ({ userId, articleId, keyword })));
 }
 
+const statusLabel = (endDate: string | null | undefined) => (endDate ? "已讀完" : "想讀");
+
 export async function addArticleRow(userId: string, article: Article): Promise<void> {
   await db.transaction(async (tx) => {
-    await tx.insert(articles).values({
+    const kindId = await kindIdByName(tx, userId, ARTICLE_KIND);
+
+    await tx.insert(works).values({
       id: article.id,
       userId,
+      kindId,
       title: article.title,
-      author: article.author,
-      platform: article.platform,
-      sourceUrl: article.sourceUrl,
-      endDate: toDate(article.endDate),
+      creator: article.author,
       language: article.language,
-      typeId: await typeIdFor(tx, userId, article.domain, article.subDomain),
+      topicId: await typeIdFor(tx, userId, article.domain, article.subDomain),
       attributeId: await attributeIdFor(tx, userId, article.type),
+    });
+    await tx.insert(records).values({
+      id: article.id,
+      userId,
+      workId: article.id,
+      statusId: await statusIdByLabel(tx, kindId, statusLabel(article.endDate)),
+      endDate: toDate(article.endDate),
+      source: article.platform,
+      sourceUrl: article.sourceUrl,
       isPrivate: article.private === PRIVATE_MARK,
     });
     await setKeywords(tx, userId, article.id, splitLines(article.keywords));
@@ -53,29 +76,45 @@ export async function updateArticleRow(
   id: string,
   patch: Partial<Article>,
 ): Promise<void> {
-  const values: Record<string, unknown> = {};
-  for (const field of ["title", "author", "platform", "sourceUrl", "language"] as const) {
-    if (patch[field] !== undefined) values[field] = patch[field];
-  }
-  if (patch.endDate !== undefined) values.endDate = toDate(patch.endDate);
-  if (patch.private !== undefined) values.isPrivate = patch.private === PRIVATE_MARK;
+  const workPatch: Record<string, unknown> = {};
+  if (patch.title !== undefined) workPatch.title = patch.title;
+  if (patch.author !== undefined) workPatch.creator = patch.author;
+  if (patch.language !== undefined) workPatch.language = patch.language;
+
+  const recordPatch: Record<string, unknown> = {};
+  if (patch.platform !== undefined) recordPatch.source = patch.platform;
+  if (patch.sourceUrl !== undefined) recordPatch.sourceUrl = patch.sourceUrl;
+  if (patch.endDate !== undefined) recordPatch.endDate = toDate(patch.endDate);
+  if (patch.private !== undefined) recordPatch.isPrivate = patch.private === PRIVATE_MARK;
 
   await db.transaction(async (tx) => {
     // 分類是 upsert，也就是寫入；跟主體同一個交易才會一起回滾
     if (patch.domain !== undefined || patch.subDomain !== undefined) {
-      values.typeId = await typeIdFor(tx, userId, patch.domain ?? "", patch.subDomain ?? "");
+      workPatch.topicId = await typeIdFor(tx, userId, patch.domain ?? "", patch.subDomain ?? "");
     }
-    if (patch.type !== undefined) values.attributeId = await attributeIdFor(tx, userId, patch.type);
+    if (patch.type !== undefined)
+      workPatch.attributeId = await attributeIdFor(tx, userId, patch.type);
+    // 完成日改了，狀態跟著改——舊形狀沒有狀態欄，這是唯一的來源
+    if (patch.endDate !== undefined) {
+      const kindId = await kindIdByName(tx, userId, ARTICLE_KIND);
+      recordPatch.statusId = await statusIdByLabel(tx, kindId, statusLabel(patch.endDate));
+    }
 
-    if (Object.keys(values).length)
+    if (Object.keys(workPatch).length)
       await tx
-        .update(articles)
-        .set(values)
-        .where(and(eq(articles.userId, userId), eq(articles.id, id)));
+        .update(works)
+        .set(workPatch)
+        .where(and(eq(works.userId, userId), eq(works.id, id)));
+    if (Object.keys(recordPatch).length)
+      await tx
+        .update(records)
+        .set(recordPatch)
+        .where(and(eq(records.userId, userId), eq(records.id, id)));
     if (patch.keywords !== undefined) await setKeywords(tx, userId, id, splitLines(patch.keywords));
   });
 }
 
+/** 作品跟著走：文章一對一，留下空殼沒有意義 */
 export async function deleteArticleRow(userId: string, id: string): Promise<void> {
-  await db.delete(articles).where(and(eq(articles.userId, userId), eq(articles.id, id)));
+  await db.delete(works).where(and(eq(works.userId, userId), eq(works.id, id)));
 }

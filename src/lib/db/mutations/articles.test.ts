@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
 import { articleKeywords } from "@/lib/db/schema/keyword-links";
-import { articles } from "@/lib/db/schema/reading";
 import { keywords } from "@/lib/db/schema/taxonomy";
+import { records, works } from "@/lib/db/schema/works";
 import { seedUser } from "@/lib/db/test/factories";
 import type { Article } from "@/types/article";
 
@@ -38,7 +38,7 @@ describe("addArticleRow", () => {
     const article = makeArticle({ endDate: "" });
     await addArticleRow(userId, article);
 
-    const [row] = await db.select().from(articles).where(eq(articles.id, article.id));
+    const [row] = await db.select().from(records).where(eq(records.id, article.id));
     expect(row.endDate).toBeNull();
   });
 
@@ -77,7 +77,7 @@ describe("updateArticleRow", () => {
 
     await updateArticleRow(userId, article.id, { endDate: "" });
 
-    const [row] = await db.select().from(articles).where(eq(articles.id, article.id));
+    const [row] = await db.select().from(records).where(eq(records.id, article.id));
     expect(row.endDate).toBeNull();
   });
 });
@@ -89,7 +89,7 @@ describe("deleteArticleRow", () => {
 
     await deleteArticleRow(userId, article.id);
 
-    expect(await db.select().from(articles).where(eq(articles.id, article.id))).toHaveLength(0);
+    expect(await db.select().from(records).where(eq(records.id, article.id))).toHaveLength(0);
     expect(
       await db.select().from(articleKeywords).where(eq(articleKeywords.articleId, article.id)),
     ).toHaveLength(0);

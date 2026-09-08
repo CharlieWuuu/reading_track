@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
-import { books, readings } from "@/lib/db/schema/reading";
 import { bookTypes } from "@/lib/db/schema/taxonomy";
+import { records, works } from "@/lib/db/schema/works";
 import { makeBook, seedUser } from "@/lib/db/test/factories";
 
 // mutations 從模組層拿 db，換成記憶體裡的那份才測得到
@@ -15,14 +15,14 @@ const { db } = await import("@/lib/db/client");
 const userId = await seedUser(db);
 
 describe("addBookRow", () => {
-  it("一次閱讀寫成 books 加 readings 兩列", async () => {
+  it("一次閱讀寫成 works 加 records 兩列", async () => {
     const book = makeBook();
     await addBookRow(userId, book);
 
-    const reading = await db.select().from(readings).where(eq(readings.id, book.id));
+    const reading = await db.select().from(records).where(eq(records.id, book.id));
     expect(reading).toHaveLength(1);
 
-    const row = await db.select().from(books).where(eq(books.id, reading[0].bookId));
+    const row = await db.select().from(works).where(eq(works.id, reading[0].workId));
     expect(row[0].title).toBe("資本論");
   });
 
@@ -30,7 +30,7 @@ describe("addBookRow", () => {
     const book = makeBook({ startDate: "", endDate: "" });
     await addBookRow(userId, book);
 
-    const [row] = await db.select().from(readings).where(eq(readings.id, book.id));
+    const [row] = await db.select().from(records).where(eq(records.id, book.id));
     expect(row.startDate).toBeNull();
     expect(row.endDate).toBeNull();
   });
@@ -44,16 +44,16 @@ describe("addBookRow", () => {
     expect(child.parentId).toBe(parent.id);
   });
 
-  it("originId 指到既有的那次閱讀，就掛在同一本書底下", async () => {
+  it("originId 指到既有的那次閱讀，就掛在同一個作品底下", async () => {
     const first = makeBook({ title: "重讀的書" });
     await addBookRow(userId, first);
     const second = makeBook({ title: "重讀的書", originId: first.id });
     await addBookRow(userId, second);
 
-    const rows = await db.select().from(readings);
+    const rows = await db.select().from(records);
     const ids = rows.filter((r) => [first.id, second.id].includes(r.id));
     expect(ids).toHaveLength(2);
-    expect(ids[0].bookId).toBe(ids[1].bookId);
+    expect(ids[0].workId).toBe(ids[1].workId);
   });
 });
 
@@ -64,8 +64,8 @@ describe("updateBookRow", () => {
 
     await updateBookRow(userId, book.id, { title: "新書名", endDate: "2026-01-01" });
 
-    const [reading] = await db.select().from(readings).where(eq(readings.id, book.id));
-    const [row] = await db.select().from(books).where(eq(books.id, reading.bookId));
+    const [reading] = await db.select().from(records).where(eq(records.id, book.id));
+    const [row] = await db.select().from(works).where(eq(works.id, reading.workId));
     expect(row.title).toBe("新書名");
     expect(reading.endDate).toBe("2026-01-01");
   });
@@ -76,21 +76,21 @@ describe("updateBookRow", () => {
 
     await updateBookRow(userId, book.id, { endDate: "" });
 
-    const [reading] = await db.select().from(readings).where(eq(readings.id, book.id));
+    const [reading] = await db.select().from(records).where(eq(records.id, book.id));
     expect(reading.endDate).toBeNull();
   });
 });
 
 describe("deleteBookRow", () => {
-  it("刪掉最後一次閱讀時，那本書也跟著走，不留空殼", async () => {
+  it("刪掉最後一次紀錄時，那個作品也跟著走，不留空殼", async () => {
     const book = makeBook({ title: "只讀過一次" });
     await addBookRow(userId, book);
-    const [reading] = await db.select().from(readings).where(eq(readings.id, book.id));
+    const [reading] = await db.select().from(records).where(eq(records.id, book.id));
 
     await deleteBookRow(userId, book.id);
 
-    expect(await db.select().from(readings).where(eq(readings.id, book.id))).toHaveLength(0);
-    expect(await db.select().from(books).where(eq(books.id, reading.bookId))).toHaveLength(0);
+    expect(await db.select().from(records).where(eq(records.id, book.id))).toHaveLength(0);
+    expect(await db.select().from(works).where(eq(works.id, reading.workId))).toHaveLength(0);
   });
 });
 
