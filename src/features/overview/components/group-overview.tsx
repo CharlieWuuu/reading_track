@@ -7,7 +7,10 @@ import { byMonth, OverviewItem, pickHeadline } from "@/utils/overview";
 /**
  * 一堆東西的概覽：一頁只有一個主角。
  *
- * 最近開始的那一件放成頭條，其餘進行中與待辦收進右邊的窄欄，完成的照月份排成三欄。
+ * 最近開始的那一件放成頭條，其餘進行中與待辦收進右邊的窄欄，完成的照月份分段。
+ *
+ * 月份是刻度，橫跨整個寬度；同一個月的條目在它底下橫著填成三欄。
+ * 用 CSS columns 會直著填——2019 到 2026 的資料排出來是左欄 2026、中欄 2024，讀不下去。
  * 分隔全部用線，不用卡片框——這是報紙的做法，同樣的資訊量佔的空間比卡片少一半。
  *
  * 版面沿用書單概覽那一套，差別是收 OverviewItem 而不是 Book：紀錄那頁要把書籍、
@@ -25,10 +28,10 @@ const styles = {
   headline: "border-rule-strong flex gap-8 border-b-2 pb-5",
   headlineTitle: "font-serif text-lede leading-tight font-semibold tracking-tight",
   byline: "text-byline text-ink-muted",
-  columns: "columns-1 gap-8 pt-1 md:columns-2 xl:columns-3 [&>*]:break-inside-avoid",
-  month: "border-rule-strong break-after-avoid border-b-2 pt-4 pb-1.5",
+  monthGrid: "grid grid-cols-1 gap-x-8 md:grid-cols-2 xl:grid-cols-3",
+  month: "border-rule-strong border-b-2 pt-4 pb-1.5",
   monthLabel: "font-serif text-item-sm font-semibold tracking-wide",
-  item: "border-rule border-t py-3 first:border-t-0",
+  item: "border-rule border-b py-3", // 一格一條下緣線：橫著排時每一列收在同一條線上
   itemTitle: "font-serif text-item leading-snug font-semibold tracking-tight",
   railItem: "border-rule border-b py-[7px]",
   railTitle: "font-serif text-item-sm leading-snug font-semibold",
@@ -117,32 +120,34 @@ export function GroupOverview({
       <div className={styles.main}>
         {headline && <Headline item={headline} label={headlineLabel} />}
 
-        <div className={styles.columns}>
+        <div>
           {byMonth(done).map((group) => (
             <div key={group.label}>
               <div className={styles.month}>
                 <span className={styles.monthLabel}>{group.label}</span>
               </div>
-              {group.items.map((item) => (
-                <div key={item.id} className={styles.item}>
-                  <div className="flex gap-3">
-                    {item.coverUrl !== undefined && (
-                      <div className="w-10 shrink-0">
-                        <BookCover url={item.coverUrl} title={item.title} size="full" />
-                      </div>
-                    )}
-                    <div className="min-w-0">
-                      <Link href={item.href} className={styles.itemTitle}>
-                        {item.title}
-                      </Link>
-                      <div className={`${styles.byline} pt-0.5`}>{item.byline}</div>
-                      <div className={`${styles.meta} pt-1.5`}>
-                        {joinMeta([item.endDate, item.kindLabel])}
+              <div className={styles.monthGrid}>
+                {group.items.map((item) => (
+                  <div key={item.id} className={styles.item}>
+                    <div className="flex gap-3">
+                      {item.coverUrl !== undefined && (
+                        <div className="w-10 shrink-0">
+                          <BookCover url={item.coverUrl} title={item.title} size="full" />
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <Link href={item.href} className={styles.itemTitle}>
+                          {item.title}
+                        </Link>
+                        <div className={`${styles.byline} pt-0.5`}>{item.byline}</div>
+                        <div className={`${styles.meta} pt-1.5`}>
+                          {joinMeta([item.endDate, item.kindLabel])}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           ))}
         </div>
