@@ -110,7 +110,7 @@ export function Dashboard() {
           title="最近的專欄"
           total={writings.fragments.length}
           items={recentBy(writings.fragments, fragmentDate, 3).map(fragmentItem)}
-          href="/columns"
+          href="/writings"
         />
       </div>
     </div>

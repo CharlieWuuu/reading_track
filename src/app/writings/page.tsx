@@ -10,7 +10,7 @@ import { useUrlParams } from "@/hooks/use-url-param";
 import { isGroupViewMode, useGroupViewStore } from "@/stores/use-group-view-store";
 
 /** 側欄點「專欄」進來的那一頁。日記、心得、論述、每日計畫混在同一份清單裡 */
-export default function ColumnsPage() {
+export default function WritingsPage() {
   const mounted = useMounted();
   const { searchParams } = useUrlParams();
   const { view: savedView } = useGroupViewStore();
