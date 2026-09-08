@@ -1,12 +1,12 @@
 import { and, eq } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db/client";
-import { mapWritingKeyword } from "@/lib/db/schema/keyword-links";
-import { keywords } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
 import { splitLines } from "@/types/book";
 import { Writing } from "@/types/writing";
 import { setFragmentSourceUrl } from "./external-links";
+import { setKeywordLinks } from "./fragments";
+import { unlinkAll } from "./internal-links";
 import { kindIdByName } from "./kind-lookup";
 import { toDate } from "./values";
 
@@ -52,26 +52,6 @@ async function workIdFor(userId: string, sourceId: string): Promise<string | nul
   return work?.id ?? null;
 }
 
-async function setKeywords(
-  tx: Tx,
-  userId: string,
-  writingId: string,
-  names: string[],
-): Promise<void> {
-  if (names.length)
-    await tx
-      .insert(keywords)
-      .values(names.map((name) => ({ userId, name })))
-      .onConflictDoNothing();
-  await tx
-    .delete(mapWritingKeyword)
-    .where(and(eq(mapWritingKeyword.userId, userId), eq(mapWritingKeyword.writingId, writingId)));
-  if (names.length)
-    await tx
-      .insert(mapWritingKeyword)
-      .values(names.map((keyword) => ({ userId, writingId, keyword })));
-}
-
 export async function addWritingRow(userId: string, writing: Writing): Promise<void> {
   const workId = await workIdFor(userId, writing.sourceId);
   await db.transaction(async (tx) => {
@@ -85,7 +65,7 @@ export async function addWritingRow(userId: string, writing: Writing): Promise<v
       date: toDate(writing.date),
     });
     await setFragmentSourceUrl(tx, userId, writing.id, writing.link);
-    await setKeywords(tx, userId, writing.id, splitLines(writing.keywords));
+    await setKeywordLinks(tx, userId, writing.id, splitLines(writing.keywords));
   });
 }
 
@@ -113,7 +93,8 @@ export async function updateWritingRow(
         .set(values)
         .where(and(eq(writings.userId, userId), eq(writings.id, id)));
     if (patch.link !== undefined) await setFragmentSourceUrl(tx, userId, id, patch.link);
-    if (patch.keywords !== undefined) await setKeywords(tx, userId, id, splitLines(patch.keywords));
+    if (patch.keywords !== undefined)
+      await setKeywordLinks(tx, userId, id, splitLines(patch.keywords));
   });
 }
 
@@ -122,5 +103,6 @@ export async function deleteWritingRow(userId: string, id: string): Promise<void
     await tx.delete(writings).where(and(eq(writings.userId, userId), eq(writings.id, id)));
     // external_links 的 source_id 不是外鍵（要同時指兩張表），writing 刪掉不會自動 cascade
     await setFragmentSourceUrl(tx, userId, id, "");
+    await unlinkAll(tx, userId, id);
   });
 }

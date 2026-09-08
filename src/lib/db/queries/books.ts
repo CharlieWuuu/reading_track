@@ -1,12 +1,12 @@
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { PRIVATE_MARK } from "@/config/privacy";
 import { db } from "@/lib/db/client";
-import { mapBookKeyword } from "@/lib/db/schema/keyword-links";
 import { kinds } from "@/lib/db/schema/kinds";
 import { bookAttributes } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { Book, inferStatus } from "@/types/book";
 import { sourceUrlOfRecords } from "./external-links";
+import { keywordNamesByOwner } from "./internal-links";
 import { typePaths } from "./taxonomy";
 
 /**
@@ -16,27 +16,14 @@ import { typePaths } from "./taxonomy";
  * 換資料來源這件事不牽動任何頁面——等畫面改完再把這一層拆掉。
  *
  * 編號沿用搬遷前的：record.id 就是舊的 reading.id，work.id 就是舊的 book.id，
- * 所以關聯表（book_keywords）與舊網址都還對得上。
+ * 所以外部連結與舊網址都還對得上。
  */
 
 const BOOK_KIND = "書籍";
 
-async function keywordsByWork(userId: string): Promise<Map<string, string[]>> {
-  const rows = await db
-    .select({ bookId: mapBookKeyword.bookId, keyword: mapBookKeyword.keyword })
-    .from(mapBookKeyword)
-    .where(eq(mapBookKeyword.userId, userId))
-    .orderBy(asc(mapBookKeyword.keyword));
-
-  const map = new Map<string, string[]>();
-  for (const row of rows) map.set(row.bookId, [...(map.get(row.bookId) ?? []), row.keyword]);
-  return map;
-}
-
 export async function listBooks(userId: string): Promise<Book[]> {
-  const [types, keywords, rows] = await Promise.all([
+  const [types, rows] = await Promise.all([
     typePaths(userId),
-    keywordsByWork(userId),
     db
       .select({
         record: records,
@@ -50,6 +37,10 @@ export async function listBooks(userId: string): Promise<Book[]> {
       .where(and(eq(records.userId, userId), eq(kinds.name, BOOK_KIND)))
       .orderBy(asc(records.createdAt)),
   ]);
+  const keywords = await keywordNamesByOwner(
+    userId,
+    rows.map(({ work }) => work.id),
+  );
   const sourceUrls = await sourceUrlOfRecords(
     userId,
     rows.map(({ record }) => record.id),
@@ -86,7 +77,7 @@ export async function listBooks(userId: string): Promise<Book[]> {
       note: "", // 心得早就搬去書寫了，這欄留著只為了型別相容
       quotes: "",
       vocabulary: "",
-      keywords: (keywords.get(work.id) ?? []).join("\n"),
+      keywords: keywords.get(work.id) ?? "",
       private: record.isPrivate ? PRIVATE_MARK : "",
       relatedArticles: "",
       // 第一次讀的那列 originId 是空的，其餘指回它——跟 Sheet 時代的約定一樣

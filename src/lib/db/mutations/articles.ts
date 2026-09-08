@@ -1,12 +1,12 @@
 import { and, eq } from "drizzle-orm";
 import { PRIVATE_MARK } from "@/config/privacy";
-import { db, type Tx } from "@/lib/db/client";
-import { mapArticleKeyword } from "@/lib/db/schema/keyword-links";
-import { keywords } from "@/lib/db/schema/taxonomy";
+import { db } from "@/lib/db/client";
 import { records, works } from "@/lib/db/schema/works";
 import { Article } from "@/types/article";
 import { splitLines } from "@/types/book";
 import { setRecordSourceUrl } from "./external-links";
+import { setKeywordLinks } from "./fragments";
+import { unlinkAll } from "./internal-links";
 import { kindIdByName } from "./kind-lookup";
 import { attributeIdFor, typeIdFor } from "./taxonomy";
 import { toDate } from "./values";
@@ -21,26 +21,6 @@ import { toDate } from "./values";
  */
 
 const ARTICLE_KIND = "文章";
-
-async function setKeywords(
-  tx: Tx,
-  userId: string,
-  articleId: string,
-  names: string[],
-): Promise<void> {
-  if (names.length)
-    await tx
-      .insert(keywords)
-      .values(names.map((name) => ({ userId, name })))
-      .onConflictDoNothing();
-  await tx
-    .delete(mapArticleKeyword)
-    .where(and(eq(mapArticleKeyword.userId, userId), eq(mapArticleKeyword.articleId, articleId)));
-  if (names.length)
-    await tx
-      .insert(mapArticleKeyword)
-      .values(names.map((keyword) => ({ userId, articleId, keyword })));
-}
 
 export async function addArticleRow(userId: string, article: Article): Promise<void> {
   await db.transaction(async (tx) => {
@@ -65,7 +45,7 @@ export async function addArticleRow(userId: string, article: Article): Promise<v
       isPrivate: article.private === PRIVATE_MARK,
     });
     await setRecordSourceUrl(tx, userId, article.id, article.sourceUrl);
-    await setKeywords(tx, userId, article.id, splitLines(article.keywords));
+    await setKeywordLinks(tx, userId, article.id, splitLines(article.keywords));
   });
 }
 
@@ -103,11 +83,15 @@ export async function updateArticleRow(
         .set(recordPatch)
         .where(and(eq(records.userId, userId), eq(records.id, id)));
     if (patch.sourceUrl !== undefined) await setRecordSourceUrl(tx, userId, id, patch.sourceUrl);
-    if (patch.keywords !== undefined) await setKeywords(tx, userId, id, splitLines(patch.keywords));
+    if (patch.keywords !== undefined)
+      await setKeywordLinks(tx, userId, id, splitLines(patch.keywords));
   });
 }
 
 /** 作品跟著走：文章一對一，留下空殼沒有意義 */
 export async function deleteArticleRow(userId: string, id: string): Promise<void> {
-  await db.delete(works).where(and(eq(works.userId, userId), eq(works.id, id)));
+  await db.transaction(async (tx) => {
+    await tx.delete(works).where(and(eq(works.userId, userId), eq(works.id, id)));
+    await unlinkAll(tx, userId, id);
+  });
 }

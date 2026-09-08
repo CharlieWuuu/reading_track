@@ -37,28 +37,6 @@ export const bookAttributes = pgTable(
 );
 
 /**
- * 專有名詞。名字就是身分，關聯表用 on update cascade 接改名。
- *
- * 不帶私人旗標：關鍵字是人名、地名、事件，「馬克思」本身不敏感，
- * 敏感的是那本書屬於哪個領域——藏東西一律從領域與類型下手。
- */
-export const keywords = pgTable(
-  "keywords",
-  {
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    name: text("name").notNull(),
-    topics: text("topics").notNull().default(""), // 維基主題，多個以頓號相接
-    coordinates: text("coordinates").notNull().default(""), // "25.033,121.565"
-    span: text("span").notNull().default(""), // 生卒或起訖
-    wikiUrl: text("wiki_url").notNull().default(""),
-    summary: text("summary").notNull().default(""),
-  },
-  (t) => [primaryKey({ columns: [t.userId, t.name] })],
-);
-
-/**
  * app 層的小設定。目前只有私人項目的密碼雜湊。
  *
  * 放資料庫而不是環境變數，是因為使用者要能在畫面上改密碼——環境變數改不了。

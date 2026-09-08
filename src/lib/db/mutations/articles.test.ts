@@ -1,7 +1,7 @@
-import { eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
-import { mapArticleKeyword } from "@/lib/db/schema/keyword-links";
-import { keywords } from "@/lib/db/schema/taxonomy";
+import { fragments } from "@/lib/db/schema/fragments";
+import { internalLinks } from "@/lib/db/schema/internal-links";
 import { records } from "@/lib/db/schema/works";
 import { seedUser } from "@/lib/db/test/factories";
 import type { Article } from "@/types/article";
@@ -33,6 +33,26 @@ function makeArticle(patch: Partial<Article> = {}): Article {
   } as Article;
 }
 
+async function linkedKeywordNames(ownerId: string): Promise<string[]> {
+  const links = await db
+    .select()
+    .from(internalLinks)
+    .where(
+      and(
+        eq(internalLinks.userId, userId),
+        or(eq(internalLinks.aId, ownerId), eq(internalLinks.bId, ownerId)),
+      ),
+    );
+  const otherIds = links.map((l) => (l.aId === ownerId ? l.bId : l.aId));
+  if (!otherIds.length) return [];
+
+  const rows = await db.select().from(fragments).where(eq(fragments.userId, userId));
+  return rows
+    .filter((f) => otherIds.includes(f.id))
+    .map((f) => f.name)
+    .sort();
+}
+
 describe("addArticleRow", () => {
   it("沒填日期存得進去", async () => {
     const article = makeArticle({ endDate: "" });
@@ -42,33 +62,22 @@ describe("addArticleRow", () => {
     expect(row.endDate).toBeNull();
   });
 
-  it("關鍵字同時進主檔與關聯表", async () => {
+  it("關鍵字自動變成片段並連結起來", async () => {
     const article = makeArticle({ keywords: "馬克思\n資本論" });
     await addArticleRow(userId, article);
 
-    const linked = await db
-      .select()
-      .from(mapArticleKeyword)
-      .where(eq(mapArticleKeyword.articleId, article.id));
-    expect(linked.map((r) => r.keyword).sort()).toEqual(["資本論", "馬克思"].sort());
-
-    const master = await db.select().from(keywords).where(eq(keywords.name, "馬克思"));
-    expect(master).toHaveLength(1);
+    expect(await linkedKeywordNames(article.id)).toEqual(["馬克思", "資本論"].sort());
   });
 });
 
 describe("updateArticleRow", () => {
-  it("換一組關鍵字，舊的關聯要清掉", async () => {
+  it("換一組關鍵字，舊的連結要清掉", async () => {
     const article = makeArticle({ keywords: "舊字" });
     await addArticleRow(userId, article);
 
     await updateArticleRow(userId, article.id, { keywords: "新字" });
 
-    const linked = await db
-      .select()
-      .from(mapArticleKeyword)
-      .where(eq(mapArticleKeyword.articleId, article.id));
-    expect(linked.map((r) => r.keyword)).toEqual(["新字"]);
+    expect(await linkedKeywordNames(article.id)).toEqual(["新字"]);
   });
 
   it("日期清空存回 null", async () => {
@@ -83,15 +92,13 @@ describe("updateArticleRow", () => {
 });
 
 describe("deleteArticleRow", () => {
-  it("刪掉文章，關聯靠 cascade 一起走", async () => {
+  it("刪掉文章，連結一起清掉", async () => {
     const article = makeArticle({ keywords: "會被連帶刪掉的字" });
     await addArticleRow(userId, article);
 
     await deleteArticleRow(userId, article.id);
 
     expect(await db.select().from(records).where(eq(records.id, article.id))).toHaveLength(0);
-    expect(
-      await db.select().from(mapArticleKeyword).where(eq(mapArticleKeyword.articleId, article.id)),
-    ).toHaveLength(0);
+    expect(await linkedKeywordNames(article.id)).toHaveLength(0);
   });
 });

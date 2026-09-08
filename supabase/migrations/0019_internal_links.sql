@@ -2,7 +2,7 @@
 -- 沒有外鍵——一個欄位沒辦法同時外鍵四張表，查詢靠 a_id/b_id 兩邊都建索引。
 CREATE TABLE "internal_links" (
 	"user_id" uuid NOT NULL,
-	"id" uuid PRIMARY KEY NOT NULL,
+	"id" uuid PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
 	"a_id" uuid NOT NULL,
 	"b_id" uuid NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL

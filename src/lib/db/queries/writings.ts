@@ -1,13 +1,13 @@
 import { asc, eq } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db/client";
-import { mapWritingKeyword } from "@/lib/db/schema/keyword-links";
 import { kinds } from "@/lib/db/schema/kinds";
 import { works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
 import { Writing } from "@/types/writing";
 import { firstReadingIdByBookId } from "./books";
 import { sourceUrlOfFragments } from "./external-links";
+import { keywordNamesByOwner } from "./internal-links";
 
 /**
  * 書寫讀回舊形狀，畫面不用改。
@@ -19,21 +19,8 @@ import { sourceUrlOfFragments } from "./external-links";
 /** 出處的類型：這一則掛在書上還是文章上，舊形狀的 kind 欄要它 */
 const sourceKind = alias(kinds, "source_kind");
 
-async function keywordsByWriting(userId: string): Promise<Map<string, string[]>> {
-  const rows = await db
-    .select({ writingId: mapWritingKeyword.writingId, keyword: mapWritingKeyword.keyword })
-    .from(mapWritingKeyword)
-    .where(eq(mapWritingKeyword.userId, userId))
-    .orderBy(asc(mapWritingKeyword.keyword));
-
-  const map = new Map<string, string[]>();
-  for (const row of rows) map.set(row.writingId, [...(map.get(row.writingId) ?? []), row.keyword]);
-  return map;
-}
-
 export async function listWritings(userId: string): Promise<Writing[]> {
-  const [keywords, firstReading, rows] = await Promise.all([
-    keywordsByWriting(userId),
+  const [firstReading, rows] = await Promise.all([
     firstReadingIdByBookId(userId),
     db
       .select({
@@ -50,10 +37,16 @@ export async function listWritings(userId: string): Promise<Writing[]> {
       .orderBy(asc(writings.createdAt)),
   ]);
 
-  const links = await sourceUrlOfFragments(
-    userId,
-    rows.map(({ writing }) => writing.id),
-  );
+  const [links, keywords] = await Promise.all([
+    sourceUrlOfFragments(
+      userId,
+      rows.map(({ writing }) => writing.id),
+    ),
+    keywordNamesByOwner(
+      userId,
+      rows.map(({ writing }) => writing.id),
+    ),
+  ]);
 
   return rows.map(({ writing, kindName, workTitle, workKind }) => {
     // 畫面上的書籍編號是「某一次讀」，所以指回第一次讀的那個
@@ -64,7 +57,7 @@ export async function listWritings(userId: string): Promise<Writing[]> {
       date: writing.date,
       title: writing.name,
       kind: workKind ?? kindName,
-      keywords: (keywords.get(writing.id) ?? []).join("\n"),
+      keywords: keywords.get(writing.id) ?? "",
       note: writing.body,
       link: links.get(writing.id) ?? "",
       sourceTitle: workTitle ?? "",

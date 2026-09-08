@@ -2,9 +2,9 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { seedKinds } from "@/lib/db/mutations/kinds";
 import { fragments } from "@/lib/db/schema/fragments";
-import { mapBookKeyword, mapWritingKeyword } from "@/lib/db/schema/keyword-links";
+import { internalLinks } from "@/lib/db/schema/internal-links";
 import { kinds } from "@/lib/db/schema/kinds";
-import { bookAttributes, keywords, topics } from "@/lib/db/schema/taxonomy";
+import { bookAttributes, topics } from "@/lib/db/schema/taxonomy";
 import { users } from "@/lib/db/schema/users";
 import { records, works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
@@ -180,7 +180,7 @@ export async function seedDemo(email: string): Promise<string> {
   const userId = user.id;
 
   // 重跑要一致，先清掉這個帳號名下的東西（外鍵 cascade 會帶走關聯與子表）
-  for (const table of [fragments, writings, works, keywords, topics, bookAttributes, kinds]) {
+  for (const table of [internalLinks, fragments, writings, works, topics, bookAttributes, kinds]) {
     await db.delete(table).where(eq(table.userId, userId));
   }
   await seedKinds(userId); // 類型是資料，demo 帳號也要有
@@ -225,12 +225,13 @@ export async function seedDemo(email: string): Promise<string> {
 
   const allKeywords = new Set(BOOKS.flatMap((b) => b[6] as readonly string[]));
   for (const w of WRITINGS) for (const k of w[4] as readonly string[]) allKeywords.add(k);
+  const keywordFragmentId = new Map<string, string>();
   if (allKeywords.size) {
-    // 兩邊都要：主檔給關聯表的外鍵用，片段才是關鍵字本身
-    await db.insert(keywords).values([...allKeywords].map((name) => ({ userId, name })));
-    await db
+    const rows = await db
       .insert(fragments)
-      .values([...allKeywords].map((name) => ({ userId, kindId: keywordKindId, name })));
+      .values([...allKeywords].map((name) => ({ userId, kindId: keywordKindId, name })))
+      .returning({ id: fragments.id, name: fragments.name });
+    for (const row of rows) keywordFragmentId.set(row.name, row.id);
   }
 
   const bookIds: string[] = [];
@@ -268,9 +269,13 @@ export async function seedDemo(email: string): Promise<string> {
     readingIds.push(reading.id);
 
     if (names.length)
-      await db
-        .insert(mapBookKeyword)
-        .values(names.map((keyword) => ({ userId, bookId: book.id, keyword })));
+      await db.insert(internalLinks).values(
+        names.map((name) => ({
+          userId,
+          aId: book.id,
+          bId: keywordFragmentId.get(name)!,
+        })),
+      );
   }
 
   // 兩本重讀：同一個作品底下再加一次紀錄
@@ -300,9 +305,13 @@ export async function seedDemo(email: string): Promise<string> {
       .returning({ id: writings.id });
 
     if (names.length)
-      await db
-        .insert(mapWritingKeyword)
-        .values(names.map((keyword) => ({ userId, writingId: writing.id, keyword })));
+      await db.insert(internalLinks).values(
+        names.map((name) => ({
+          userId,
+          aId: writing.id,
+          bId: keywordFragmentId.get(name)!,
+        })),
+      );
   }
 
   await db.insert(fragments).values(
@@ -310,7 +319,7 @@ export async function seedDemo(email: string): Promise<string> {
       userId,
       kindId: quoteKindId,
       workId: bookIds[bookIndex],
-      body: text,
+      phrase: text,
       locator: chapter,
     })),
   );
