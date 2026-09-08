@@ -1,6 +1,6 @@
 # 視覺參考
 
-設計稿（canvas）：https://claude.ai/code/artifact/bd10df68-9cf6-424f-a60f-561ae11e4f18
+設計稿（canvas）：https://claude.ai/code/artifact/ebe129b0-48ce-45c6-a765-562a117a06ef
 
 外部作品，只當參考，別散出去。新圖丟這個資料夾，檔名照 `類型-來源-主題.png`。
 

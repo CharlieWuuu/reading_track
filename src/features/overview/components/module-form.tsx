@@ -51,32 +51,48 @@ function ModuleFields({
   );
 }
 
-export function ModuleForm({ kind }: { kind: Kind }) {
+/** 給了 recordId 就是編輯，沒給就是新增。兩者畫出來的欄位完全一樣 */
+export function ModuleForm({
+  kind,
+  recordId,
+  initial,
+}: {
+  kind: Kind;
+  recordId?: string;
+  initial?: Record<string, string>;
+}) {
   const router = useRouter();
-  const [values, setValues] = useState<Record<string, string>>({});
+  const [values, setValues] = useState<Record<string, string>>(initial ?? {});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
 
   const modules = resolveFormModules(kind.modules);
   const set = (key: string, value: string) => setValues((v) => ({ ...v, [key]: value }));
 
-  async function save() {
+  async function send(url: string, method: string, body: object, fallback: string) {
     setSaving(true);
     setError(undefined);
     try {
-      const res = await fetch(`/api/kinds/${kind.id}/records`, {
-        method: "POST",
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ values }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "新增失敗");
+      if (!res.ok) throw new Error(data.error ?? fallback);
       router.back();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "新增失敗");
+      setError(err instanceof Error ? err.message : fallback);
       setSaving(false);
     }
   }
+
+  const save = () =>
+    recordId
+      ? send(`/api/catalog/${recordId}`, "PATCH", { values }, "儲存失敗")
+      : send(`/api/kinds/${kind.id}/records`, "POST", { values }, "新增失敗");
+
+  const remove = () => send(`/api/catalog/${recordId}`, "DELETE", {}, "刪除失敗");
 
   return (
     <form
@@ -89,7 +105,12 @@ export function ModuleForm({ kind }: { kind: Kind }) {
       {modules.map((module) => (
         <ModuleFields key={module.key} module={module} values={values} onChange={set} />
       ))}
-      <FormActions saving={saving} onCancel={() => router.back()} error={error} />
+      <FormActions
+        saving={saving}
+        onCancel={() => router.back()}
+        onDelete={recordId ? remove : undefined}
+        error={error}
+      />
     </form>
   );
 }

@@ -135,3 +135,64 @@ export async function listFragmentsByGroup(
     createdAt: fragment.createdAt.toISOString(),
   }));
 }
+
+/**
+ * 單筆紀錄，回傳成「欄位 → 值」給表單用。
+ *
+ * 表單認的是欄位不是資料表，所以這裡把兩張表攤平成一份值——哪些畫出來由模組決定，
+ * 這一層不管。
+ */
+export async function getRecordValues(
+  userId: string,
+  id: string,
+): Promise<{ kindId: string; values: Record<string, string> } | null> {
+  const [row] = await db
+    .select({ record: records, work: works })
+    .from(records)
+    .innerJoin(works, eq(works.id, records.workId))
+    .where(and(eq(records.userId, userId), eq(records.id, id)));
+  if (!row) return null;
+
+  const { record, work } = row;
+  return {
+    kindId: work.kindId,
+    values: {
+      title: work.title,
+      creator: work.creator,
+      language: work.language,
+      startDate: record.startDate ?? "",
+      endDate: record.endDate ?? "",
+      amount: record.amount?.toString() ?? "",
+      source: record.source,
+      sourceUrl: record.sourceUrl,
+      coverUrl: record.coverUrl,
+      isPrivate: record.isPrivate ? "是" : "",
+    },
+  };
+}
+
+/** 片段與專欄的單筆。欄位名跟紀錄那邊不一樣，攤平時一起對回模組認得的鍵 */
+export async function getFragmentValues(
+  userId: string,
+  id: string,
+): Promise<{ kindId: string; values: Record<string, string> } | null> {
+  const [row] = await db
+    .select()
+    .from(fragments)
+    .where(and(eq(fragments.userId, userId), eq(fragments.id, id)));
+  if (!row) return null;
+
+  return {
+    kindId: row.kindId,
+    values: {
+      title: row.name,
+      body: row.body,
+      locator: row.locator,
+      translation: row.translation,
+      context: row.context,
+      contextTranslation: row.contextTranslation,
+      endDate: row.date ?? "",
+      sourceUrl: row.wikiUrl,
+    },
+  };
+}

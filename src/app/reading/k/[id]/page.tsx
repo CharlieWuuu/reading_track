@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { use } from "react";
 import { Plus } from "lucide-react";
 import { PageBody } from "@/components/layout/page-body";
@@ -41,7 +42,9 @@ export default function KindPage({ params }: { params: Promise<{ id: string }> }
           <ul className="flex flex-col">
             {records.map((record) => (
               <li key={record.id} className="border-rule border-b py-2">
-                <span className="text-item-sm">{record.title}</span>
+                <Link href={`${kindHref(id)}/${record.id}`} className="text-item-sm">
+                  {record.title}
+                </Link>
                 {record.creator && (
                   <span className="text-ink-muted text-ui ml-2">{record.creator}</span>
                 )}

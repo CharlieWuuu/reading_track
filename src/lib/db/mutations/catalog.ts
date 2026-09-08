@@ -1,7 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { fieldsOfModules } from "@/config/modules";
 import { db } from "@/lib/db/client";
-import { fragments } from "@/lib/db/schema/fragments";
 import { recordKindFields, recordKinds, recordKindStatuses } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
 import { toDate, toInt } from "./values";
@@ -15,7 +14,7 @@ import { toDate, toInt } from "./values";
 
 export type FieldValues = Record<string, string>;
 
-async function allowedFields(userId: string, kindId: string): Promise<Set<string>> {
+export async function allowedFields(userId: string, kindId: string): Promise<Set<string>> {
   const rows = await db
     .select({ key: recordKindFields.fieldKey })
     .from(recordKindFields)
@@ -23,7 +22,7 @@ async function allowedFields(userId: string, kindId: string): Promise<Set<string
   return new Set(fieldsOfModules(rows.map((row) => row.key)));
 }
 
-const pick = (values: FieldValues, allowed: Set<string>, key: string) =>
+export const pick = (values: FieldValues, allowed: Set<string>, key: string) =>
   allowed.has(key) ? (values[key] ?? "") : "";
 
 /** 新增一筆紀錄。作品與紀錄一起開——先有一次紀錄才有作品，反過來是空殼 */
@@ -81,30 +80,54 @@ export async function addRecord(
   });
 }
 
-/** 新增一則片段或專欄。兩者同一張表，差別只在類型屬於哪一堆 */
-export async function addFragment(
-  userId: string,
-  kindId: string,
-  values: FieldValues,
-): Promise<string> {
-  const allowed = await allowedFields(userId, kindId);
+/** 改一筆紀錄。只動勾了的欄位，作品層與紀錄層分開更新 */
+export async function updateRecord(userId: string, id: string, values: FieldValues): Promise<void> {
+  const [target] = await db
+    .select({ workId: records.workId, kindId: works.kindId })
+    .from(records)
+    .innerJoin(works, eq(works.id, records.workId))
+    .where(and(eq(records.userId, userId), eq(records.id, id)));
+  if (!target) throw new Error("找不到這一筆");
 
-  const [row] = await db
-    .insert(fragments)
-    .values({
-      userId,
-      kindId,
-      // 片段的標題欄叫 name，模組那層一律用 title
-      name: pick(values, allowed, "title") || pick(values, allowed, "name"),
-      body: pick(values, allowed, "body"),
-      locator: pick(values, allowed, "locator"),
-      translation: pick(values, allowed, "translation"),
-      context: pick(values, allowed, "context"),
-      contextTranslation: pick(values, allowed, "contextTranslation"),
-      date: toDate(pick(values, allowed, "endDate")),
-      wikiUrl: pick(values, allowed, "sourceUrl"),
-    })
-    .returning({ id: fragments.id });
+  const allowed = await allowedFields(userId, target.kindId);
+  const has = (key: string) => allowed.has(key) && values[key] !== undefined;
 
-  return row.id;
+  const workPatch: Record<string, unknown> = {};
+  if (has("title")) workPatch.title = values.title;
+  if (has("creator")) workPatch.creator = values.creator;
+  if (has("language")) workPatch.language = values.language;
+
+  const recordPatch: Record<string, unknown> = {};
+  if (has("startDate")) recordPatch.startDate = toDate(values.startDate);
+  if (has("endDate")) recordPatch.endDate = toDate(values.endDate);
+  if (has("source")) recordPatch.source = values.source;
+  if (has("sourceUrl")) recordPatch.sourceUrl = values.sourceUrl;
+  if (has("coverUrl")) recordPatch.coverUrl = values.coverUrl;
+  if (has("isPrivate")) recordPatch.isPrivate = values.isPrivate === "是";
+  if (has("amount")) recordPatch.amount = toInt(values.amount);
+
+  await db.transaction(async (tx) => {
+    if (Object.keys(workPatch).length)
+      await tx.update(works).set(workPatch).where(eq(works.id, target.workId));
+    if (Object.keys(recordPatch).length)
+      await tx.update(records).set(recordPatch).where(eq(records.id, id));
+  });
+}
+
+/** 刪掉最後一筆紀錄時，那個作品也沒有存在的意義了 */
+export async function deleteRecord(userId: string, id: string): Promise<void> {
+  const [target] = await db
+    .select({ workId: records.workId })
+    .from(records)
+    .where(and(eq(records.userId, userId), eq(records.id, id)));
+  if (!target) return;
+
+  await db.transaction(async (tx) => {
+    await tx.delete(records).where(and(eq(records.userId, userId), eq(records.id, id)));
+    const rest = await tx
+      .select({ id: records.id })
+      .from(records)
+      .where(eq(records.workId, target.workId));
+    if (rest.length === 0) await tx.delete(works).where(eq(works.id, target.workId));
+  });
 }

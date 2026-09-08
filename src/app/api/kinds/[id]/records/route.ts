@@ -9,7 +9,8 @@ import {
   requireWriter,
   unauthorized,
 } from "@/app/api/_lib/respond";
-import { addFragment, addRecord } from "@/lib/db/mutations/catalog";
+import { addRecord } from "@/lib/db/mutations/catalog";
+import { addFragment } from "@/lib/db/mutations/fragment-modules";
 import { listRecordsByKind } from "@/lib/db/queries/catalog";
 import { kindGroupOf } from "@/lib/db/queries/kinds";
 

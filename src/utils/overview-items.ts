@@ -61,7 +61,7 @@ export const recordItem = (row: RecordRow): OverviewItem => ({
   title: row.title,
   byline: joinByline([row.creator, row.source, row.amount && `${row.amount} ${row.amountUnit}`]),
   // 編號沿用舊表，所以舊的詳細頁直接接得上；電影那類還沒有詳細頁，退回類型清單
-  href: DETAIL_HREF[row.kindName]?.(row.id) ?? `/reading/k/${row.kindId}`,
+  href: DETAIL_HREF[row.kindName]?.(row.id) ?? `/reading/k/${row.kindId}/${row.id}`,
   coverUrl: row.coverUrl || undefined,
   startDate: row.startDate,
   endDate: row.endDate && `${row.endDate} 完成`,
