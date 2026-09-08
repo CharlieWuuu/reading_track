@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { isBuiltIn, kindHref, kindIdFromPath, newHref } from "@/config/kind-routes";
+import { isBuiltIn, kindHref, kindIdFromPath } from "@/config/kind-routes";
 import { activeNavKey, NAV_GROUPS, NavGroup, NavType } from "@/config/nav";
 import { useKinds } from "@/hooks/use-kinds";
 
@@ -10,8 +10,7 @@ import { useKinds } from "@/hooks/use-kinds";
  * 桌機側欄。四個分類各配一條實線小標，底下的類型一行一條細線分隔——
  * 不畫框、不上底色，選中的那一列靠字本身放大變粗表示。
  *
- * 新增類型的入口跟著目前選中的分類走，列在該分類最後一列下方，
- * 文字帶著類型名字（「＋ 新增書籍」）——不是每個分類都放一顆通用的 +。
+ * 新增的入口在該類型頁面自己的 page header 上，側欄不重複放一個。
  *
  * 類型有兩個來源：寫死的那幾條有專屬頁面（書籍有封面牆、關鍵字有維基欄位），
  * 自己新增的從資料庫來、走通用頁。等舊表搬完就只剩後者。
@@ -21,14 +20,13 @@ import { useKinds } from "@/hooks/use-kinds";
 
 const styles = {
   nav: "border-shell-rule flex h-full w-[188px] shrink-0 flex-col overflow-y-auto border-r pr-6",
-  group: "border-rule-strong border-b-2 pt-8 pb-1.5 first:pt-0",
+  group: "border-rule-strong border-b-2 pt-12 pb-1.5 first:pt-0",
   groupLabel: "font-serif text-ui font-semibold tracking-section",
   row: "border-rule-soft flex items-baseline border-b py-[7px] pl-3",
   count: "text-meta text-ink-faint ml-auto pl-2 tabular-nums",
   label: "text-ui truncate",
   labelActive: "font-serif text-item-sm text-ink font-semibold",
   labelIdle: "text-ink-muted",
-  add: "text-accent text-ui block pt-5 pl-3",
 };
 
 function NavRow({ type, active, count }: { type: NavType; active: boolean; count?: number }) {
@@ -85,8 +83,6 @@ export function Sidebar() {
     <nav className={styles.nav}>
       {NAV_GROUPS.map((group) => {
         const types = [...group.types, ...extraTypes(group)];
-        const activeType = types.find((type) => type.key === current);
-        const addHref = activeType && newHref(activeType.label);
 
         return (
           <div key={group.key}>
@@ -99,11 +95,6 @@ export function Sidebar() {
                 count={countOf(type.label)}
               />
             ))}
-            {addHref && (
-              <Link href={addHref} className={styles.add}>
-                ＋ 新增{activeType.label}
-              </Link>
-            )}
           </div>
         );
       })}
