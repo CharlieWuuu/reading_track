@@ -31,8 +31,7 @@ const NEW_HREF: Record<string, string> = {
   文章: "/reading/articles/new",
   佳句: "/reading/quotes",
   單字: "/reading/vocabulary",
-  日記: "/writing/new",
-  心得: "/writing/new",
+  書寫: "/writing/new",
   論述: "/writing/new",
   每日計畫: "/writing/new",
 };

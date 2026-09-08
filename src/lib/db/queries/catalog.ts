@@ -6,6 +6,7 @@ import { kinds } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
 import { inferStatusKey } from "@/types/book";
 import { sourceUrlOfFragment, sourceUrlOfRecord } from "./external-links";
+import { listWritings } from "./writings";
 
 /**
  * 某一種類型底下的紀錄。一列一次——同一個作品讀兩次就是兩列。
@@ -97,14 +98,11 @@ export type FragmentRow = {
 };
 
 /**
- * 一堆片段（或專欄）。兩者形狀一樣，都在 fragments 表裡，靠類型屬於哪一堆分。
+ * 一堆片段。片段（佳句、單字、關鍵字）都在 fragments 表裡，靠類型屬於哪一堆分。
  *
  * 出處的標題一起帶出來——概覽上「這句話出自哪本書」比片段本身還重要。
  */
-export async function listFragmentsByGroup(
-  userId: string,
-  group: KindGroup,
-): Promise<FragmentRow[]> {
+async function listFragmentsOnly(userId: string, group: KindGroup): Promise<FragmentRow[]> {
   const rows = await db
     .select({ fragment: fragments, kind: kinds, workTitle: works.title })
     .from(fragments)
@@ -126,6 +124,34 @@ export async function listFragmentsByGroup(
     date: fragment.date,
     createdAt: fragment.createdAt.toISOString(),
   }));
+}
+
+/** 書寫獨立成表了，不在 fragments 裡——概覽頁要的形狀一樣，這裡轉一次 */
+async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
+  const rows = await listWritings(userId);
+  return rows
+    .map((writing) => ({
+      id: writing.id,
+      kindId: writing.id, // 書寫沒有共用的 kindId 可用，退回類型清單時就給自己的編號
+      kindName: writing.kind,
+      workId: writing.sourceId || null,
+      workTitle: writing.sourceTitle,
+      name: writing.title,
+      body: writing.note,
+      locator: "",
+      note: writing.note,
+      date: writing.date,
+      createdAt: writing.createdAt,
+    }))
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export async function listFragmentsByGroup(
+  userId: string,
+  group: KindGroup,
+): Promise<FragmentRow[]> {
+  if (group === "writings") return listWritingsAsFragments(userId);
+  return listFragmentsOnly(userId, group);
 }
 
 /**

@@ -92,8 +92,5 @@ export const fragmentItem = (row: FragmentRow): OverviewItem => {
 const FRAGMENT_HREF: Record<string, (row: FragmentRow) => string> = {
   佳句: (row) => `/reading/quotes/${row.id}`,
   單字: (row) => `/reading/vocabulary/${encodeURIComponent(row.name)}`,
-  日記: (row) => `/writing/${row.id}`,
-  心得: (row) => `/writing/${row.id}`,
-  論述: (row) => `/writing/${row.id}`,
-  每日計畫: (row) => `/writing/${row.id}`,
+  書寫: (row) => `/writing/${row.id}`,
 };
