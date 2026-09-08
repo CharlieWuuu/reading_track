@@ -25,7 +25,7 @@ function markedPrivate(row: PrivateRow): boolean {
   return TRUTHY.has((row.private ?? "").trim().toLowerCase());
 }
 
-/** 書寫的類型在 kind，書籍與文章的在 domain／subDomain */
+/** 書寫的類型在 kind，書籍與文章的在 domain／subDomain——都對同一份主題清單比對 */
 export type PrivateRow = {
   private?: string;
   kind?: string;
@@ -33,21 +33,20 @@ export type PrivateRow = {
   subDomain?: string;
 };
 
-/** 哪些名字整批算私人。旗標掛在類型自己身上，不是一份要維護的清單 */
+/** 哪些名字整批算私人。旗標掛在主題自己身上，不是一份要維護的清單 */
 export type PrivateOptions = {
-  kinds: ReadonlySet<string>; // 書寫的類型
-  types: ReadonlySet<string>; // 書籍與文章的領域樹，含被標記者的所有子孫
+  types: ReadonlySet<string>; // 主題樹，含被標記者的所有子孫
 };
 
-const NO_OPTIONS: PrivateOptions = { kinds: new Set(), types: new Set() };
+const NO_OPTIONS: PrivateOptions = { types: new Set() };
 
 /**
  * 兩條路都算私人，是「或」不是擇一：
  *
  * - 這一列自己標了私人
- * - 它的領域或類型標了私人（標「政治」，底下的次領域一起藏）
+ * - 它的主題標了私人（標「政治」，底下的次主題一起藏）
  *
- * 標記掛在領域與類型身上而不回寫個別列：不然會有兩個真實來源，之後取消標記，
+ * 標記掛在主題身上而不回寫個別列：不然會有兩個真實來源，之後取消標記，
  * 那些列還留著「是」。旗標是唯一來源，取消即生效。
  *
  * 關鍵字不帶這個旗標——關鍵字是專有名詞（人名、地名、事件），
@@ -55,7 +54,7 @@ const NO_OPTIONS: PrivateOptions = { kinds: new Set(), types: new Set() };
  */
 export function isPrivate(row: PrivateRow, options: PrivateOptions = NO_OPTIONS): boolean {
   if (markedPrivate(row)) return true;
-  if (inList(row.kind, options.kinds)) return true;
+  if (inList(row.kind, options.types)) return true;
   return inList(row.domain, options.types) || inList(row.subDomain, options.types);
 }
 
@@ -108,17 +107,11 @@ export async function requestPrivacy(
 ): Promise<RequestPrivacy> {
   const { readPrivacySettings } = await import("@/lib/db/queries/settings");
   const { PRIVACY_SETTING_KEY } = await import("@/config/privacy");
-  const { stored, privateKinds, privateTypes } = await readPrivacySettings(
-    userId,
-    PRIVACY_SETTING_KEY,
-  );
+  const { stored, privateTypes } = await readPrivacySettings(userId, PRIVACY_SETTING_KEY);
   const token = req.nextUrl.searchParams.get("unlock");
 
   return {
     unlocked: isUnlocked(token, stored),
-    options: {
-      kinds: new Set(privateKinds),
-      types: new Set(privateTypes),
-    },
+    options: { types: new Set(privateTypes) },
   };
 }

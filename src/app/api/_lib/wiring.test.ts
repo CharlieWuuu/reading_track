@@ -43,9 +43,7 @@ vi.mock("@/lib/db/mutations/writings", () => ({
 vi.mock("@/lib/db/queries/settings", () => ({
   readPrivacySettings: vi.fn(async () => ({
     stored: "",
-    privateKinds: [],
     privateTypes: [],
-    privateKeywords: [],
   })),
 }));
 

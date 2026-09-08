@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { bookTypes, settings, writingTypes } from "@/lib/db/schema/taxonomy";
+import { settings, topics } from "@/lib/db/schema/taxonomy";
 
 /**
  * 設定與私人清單。
@@ -29,17 +29,17 @@ export async function writeSetting(userId: string, key: string, value: string): 
     .onConflictDoUpdate({ target: [settings.userId, settings.key], set: { value } });
 }
 
-/** 標了私人的類型，連同它底下的子類型——標「政治」就等於標了它的每一個分支 */
+/** 標了私人的主題，連同它底下的子節點——標「政治」就等於標了它的每一個分支 */
 async function privateTypeNames(userId: string): Promise<string[]> {
   const rows = await db
     .select({
-      id: bookTypes.id,
-      name: bookTypes.name,
-      parentId: bookTypes.parentId,
-      isPrivate: bookTypes.isPrivate,
+      id: topics.id,
+      name: topics.name,
+      parentId: topics.parentId,
+      isPrivate: topics.isPrivate,
     })
-    .from(bookTypes)
-    .where(eq(bookTypes.userId, userId));
+    .from(topics)
+    .where(eq(topics.userId, userId));
 
   const byParent = new Map<string, typeof rows>();
   for (const row of rows) {
@@ -58,7 +58,6 @@ async function privateTypeNames(userId: string): Promise<string[]> {
 
 export interface PrivacySettings {
   stored: string;
-  privateKinds: string[];
   privateTypes: string[];
 }
 
@@ -66,19 +65,10 @@ export async function readPrivacySettings(
   userId: string,
   passcodeKey: string,
 ): Promise<PrivacySettings> {
-  const [stored, types, kinds] = await Promise.all([
+  const [stored, types] = await Promise.all([
     readSetting(userId, passcodeKey),
     privateTypeNames(userId),
-    db
-      .select({ name: writingTypes.name })
-      .from(writingTypes)
-      .where(and(eq(writingTypes.userId, userId), eq(writingTypes.isPrivate, true))),
   ]);
 
-  return {
-    stored,
-    // 書寫看類型，書籍與文章看類型樹；欄名不同，兩份清單各自對應
-    privateKinds: kinds.map((k) => k.name),
-    privateTypes: types,
-  };
+  return { stored, privateTypes: types };
 }

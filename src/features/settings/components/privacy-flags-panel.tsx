@@ -6,8 +6,7 @@ import { usePrivacyFlags } from "@/features/settings/api";
 import { PrivacyButton } from "@/features/settings/components/privacy-button";
 import type { PrivacyFlagNode } from "@/lib/db/queries/taxonomy";
 
-type Target = "type" | "writingType";
-type Flip = (target: Target, node: PrivacyFlagNode) => void;
+type Flip = (node: PrivacyFlagNode) => void;
 
 const styles = {
   wrap: "flex max-w-2xl flex-col gap-6",
@@ -24,21 +23,11 @@ const styles = {
   off: "border-rule text-ink-muted",
 };
 
-function Chip({
-  target,
-  node,
-  busy,
-  onFlip,
-}: {
-  target: Target;
-  node: PrivacyFlagNode;
-  busy: boolean;
-  onFlip: Flip;
-}) {
+function Chip({ node, busy, onFlip }: { node: PrivacyFlagNode; busy: boolean; onFlip: Flip }) {
   return (
     <button
       type="button"
-      onClick={() => onFlip(target, node)}
+      onClick={() => onFlip(node)}
       disabled={busy}
       aria-pressed={node.isPrivate}
       className={`${styles.chip} ${node.isPrivate ? styles.on : styles.off}`}
@@ -55,13 +44,11 @@ function Chip({
 
 function Group({
   title,
-  target,
   nodes,
   busyId,
   onFlip,
 }: {
   title: string;
-  target: Target;
   nodes: PrivacyFlagNode[];
   busyId: string;
   onFlip: Flip;
@@ -75,18 +62,12 @@ function Group({
         nodes.map((node) => (
           <div key={node.id} className={styles.group}>
             <div className={styles.row}>
-              <Chip target={target} node={node} busy={busyId === node.id} onFlip={onFlip} />
+              <Chip node={node} busy={busyId === node.id} onFlip={onFlip} />
             </div>
             {node.children.length > 0 && (
               <div className={styles.children}>
                 {node.children.map((child) => (
-                  <Chip
-                    key={child.id}
-                    target={target}
-                    node={child}
-                    busy={busyId === child.id}
-                    onFlip={onFlip}
-                  />
+                  <Chip key={child.id} node={child} busy={busyId === child.id} onFlip={onFlip} />
                 ))}
               </div>
             )}
@@ -108,11 +89,11 @@ export function PrivacyFlagsPanel() {
   const [busyId, setBusyId] = useState("");
   const [failed, setFailed] = useState("");
 
-  const flip: Flip = async (target, node) => {
+  const flip: Flip = async (node) => {
     setBusyId(node.id);
     setFailed("");
     try {
-      await toggle(target, node.id, !node.isPrivate);
+      await toggle(node.id, !node.isPrivate);
     } catch (err) {
       setFailed(err instanceof Error ? err.message : "寫入失敗");
     } finally {
@@ -138,22 +119,7 @@ export function PrivacyFlagsPanel() {
       </p>
       {failed && <p className={styles.error}>{failed}</p>}
 
-      {/* 書與文章叫領域／次領域，書寫才叫類型——刻意不統一，
-          三個東西都叫「類型」的話畫面上分不出在講哪一個 */}
-      <Group
-        title="領域（書與文章）"
-        target="type"
-        nodes={flags.types}
-        busyId={busyId}
-        onFlip={flip}
-      />
-      <Group
-        title="類型（書寫）"
-        target="writingType"
-        nodes={flags.writingTypes}
-        busyId={busyId}
-        onFlip={flip}
-      />
+      <Group title="主題" nodes={flags.types} busyId={busyId} onFlip={flip} />
     </div>
   );
 }

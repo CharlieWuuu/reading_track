@@ -12,8 +12,7 @@ vi.mock("@/lib/auth", () => ({
 vi.mock("@/lib/db/queries/settings", () => ({
   readPrivacySettings: vi.fn(async () => ({
     stored: "",
-    privateKinds: ["日記"],
-    privateTypes: ["政治"],
+    privateTypes: ["政治", "日記"],
   })),
 }));
 

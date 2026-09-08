@@ -81,9 +81,8 @@ async function seedKindsInto(db: typeof Db, userId: string): Promise<void> {
           .where(and(eq(fields.fieldKey, key), eq(fields.label, label)));
         const fieldId =
           existing?.id ??
-          (
-            await db.insert(fields).values({ fieldKey: key, label }).returning({ id: fields.id })
-          )[0].id;
+          (await db.insert(fields).values({ fieldKey: key, label }).returning({ id: fields.id }))[0]
+            .id;
 
         return { userId, kindId: kind.id, fieldKey: key, fieldId, sortOrder: index };
       }),

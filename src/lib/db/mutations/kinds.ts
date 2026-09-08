@@ -35,10 +35,7 @@ async function fieldIdFor(tx: Tx, fieldKey: string, label: string): Promise<stri
     .where(and(eq(fields.fieldKey, fieldKey), eq(fields.label, label)));
   if (existing) return existing.id;
 
-  const [row] = await tx
-    .insert(fields)
-    .values({ fieldKey, label })
-    .returning({ id: fields.id });
+  const [row] = await tx.insert(fields).values({ fieldKey, label }).returning({ id: fields.id });
   return row.id;
 }
 

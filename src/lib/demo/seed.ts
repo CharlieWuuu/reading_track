@@ -4,7 +4,7 @@ import { seedKinds } from "@/lib/db/mutations/kinds";
 import { fragments } from "@/lib/db/schema/fragments";
 import { mapBookKeyword, mapWritingKeyword } from "@/lib/db/schema/keyword-links";
 import { kinds, kindStatuses } from "@/lib/db/schema/kinds";
-import { bookAttributes, bookTypes, keywords } from "@/lib/db/schema/taxonomy";
+import { bookAttributes, keywords, topics } from "@/lib/db/schema/taxonomy";
 import { users } from "@/lib/db/schema/users";
 import { records, works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
@@ -180,7 +180,7 @@ export async function seedDemo(email: string): Promise<string> {
   const userId = user.id;
 
   // 重跑要一致，先清掉這個帳號名下的東西（外鍵 cascade 會帶走關聯與子表）
-  for (const table of [fragments, writings, works, keywords, bookTypes, bookAttributes, kinds]) {
+  for (const table of [fragments, writings, works, keywords, topics, bookAttributes, kinds]) {
     await db.delete(table).where(eq(table.userId, userId));
   }
   await seedKinds(userId); // 類型是資料，demo 帳號也要有
@@ -214,15 +214,15 @@ export async function seedDemo(email: string): Promise<string> {
   const typeId = new Map<string, string>();
   for (const [parent, children] of Object.entries(TYPES)) {
     const [row] = await db
-      .insert(bookTypes)
+      .insert(topics)
       .values({ userId, name: parent })
-      .returning({ id: bookTypes.id });
+      .returning({ id: topics.id });
     typeId.set(parent, row.id);
     for (const child of children) {
       const [c] = await db
-        .insert(bookTypes)
+        .insert(topics)
         .values({ userId, name: child, parentId: row.id })
-        .returning({ id: bookTypes.id });
+        .returning({ id: topics.id });
       typeId.set(`${parent}/${child}`, c.id);
     }
   }
