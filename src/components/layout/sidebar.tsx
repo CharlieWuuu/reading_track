@@ -9,7 +9,7 @@ import { useKinds } from "@/hooks/use-kinds";
 
 /**
  * 桌機側欄。四個分類各配一條實線小標，底下的類型一行一條細線分隔——
- * 不畫框、不上底色，選中的那一列靠左邊一小段主色的直線表示。
+ * 不畫框、不上底色，選中的那一列靠字本身的主色表示。
  *
  * 分類標題右邊的 + 是新增類型。統計沒有——那一堆是回頭看，不新增東西。
  *
@@ -23,17 +23,15 @@ const styles = {
   groupLabel: "font-serif text-ui font-semibold tracking-section",
   // 淡到不搶戲，滑過去才變深——它不是主要動作，是「還可以做這件事」
   add: "text-ink-faint hover:text-ink ml-auto shrink-0 p-0.5",
-  row: "border-rule flex items-center gap-2 border-b py-[7px]",
-  marker: "h-3.5 w-0.5 shrink-0",
+  row: "border-rule flex items-center border-b py-[7px]",
   label: "text-ui truncate",
-  labelActive: "font-serif text-item-sm text-ink font-semibold",
+  labelActive: "font-serif text-item-sm text-accent font-semibold",
   labelIdle: "text-ink-muted",
 };
 
 function NavRow({ type, active }: { type: NavType; active: boolean }) {
   return (
     <Link href={type.href} aria-current={active ? "page" : undefined} className={styles.row}>
-      <span className={`${styles.marker} ${active ? "bg-accent" : ""}`} />
       <span className={`${styles.label} ${active ? styles.labelActive : styles.labelIdle}`}>
         {type.label}
       </span>
