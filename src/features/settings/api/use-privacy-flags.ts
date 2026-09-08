@@ -12,7 +12,7 @@ async function fetcher(url: string): Promise<PrivacyFlags> {
   return data;
 }
 
-const EMPTY: PrivacyFlags = { types: [], writingTypes: [] };
+const EMPTY: PrivacyFlags = { types: [] };
 
 /**
  * 私人旗標的讀寫。
@@ -23,15 +23,11 @@ const EMPTY: PrivacyFlags = { types: [], writingTypes: [] };
 export function usePrivacyFlags() {
   const { data, error, isLoading, mutate } = useSWR(KEY, fetcher);
 
-  async function toggle(
-    target: "type" | "writingType",
-    id: string,
-    isPrivate: boolean,
-  ): Promise<void> {
+  async function toggle(id: string, isPrivate: boolean): Promise<void> {
     const res = await fetch(KEY, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ target, id, isPrivate }),
+      body: JSON.stringify({ id, isPrivate }),
     });
     if (!res.ok) {
       const body = await res.json();

@@ -37,6 +37,15 @@ export function inferStatus(startDate: string | null, endDate: string | null): R
   return "想讀";
 }
 
+/** 跨類型比對用的機器名版本：want／reading／done，不看類型自己的說法 */
+export type StatusKey = "want" | "reading" | "done";
+
+export function inferStatusKey(startDate: string | null, endDate: string | null): StatusKey {
+  if (endDate) return "done";
+  if (startDate) return "reading";
+  return "want";
+}
+
 export function normalizeStatus(raw: string): ReadingStatus | null {
   const value = raw.trim();
   return READING_STATUSES.find((s) => s === value) ?? null;

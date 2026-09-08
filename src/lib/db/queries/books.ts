@@ -1,12 +1,12 @@
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { PRIVATE_MARK } from "@/config/privacy";
 import { db } from "@/lib/db/client";
-import { bookKeywords } from "@/lib/db/schema/keyword-links";
-import { kinds, kindStatuses } from "@/lib/db/schema/kinds";
+import { kinds } from "@/lib/db/schema/kinds";
 import { bookAttributes } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
-import { Book, inferStatus, normalizeStatus } from "@/types/book";
+import { Book, inferStatus } from "@/types/book";
 import { sourceUrlOfRecords } from "./external-links";
+import { keywordNamesByOwner } from "./internal-links";
 import { typePaths } from "./taxonomy";
 
 /**
@@ -16,42 +16,31 @@ import { typePaths } from "./taxonomy";
  * 換資料來源這件事不牽動任何頁面——等畫面改完再把這一層拆掉。
  *
  * 編號沿用搬遷前的：record.id 就是舊的 reading.id，work.id 就是舊的 book.id，
- * 所以關聯表（book_keywords）與舊網址都還對得上。
+ * 所以外部連結與舊網址都還對得上。
  */
 
 const BOOK_KIND = "書籍";
 
-async function keywordsByWork(userId: string): Promise<Map<string, string[]>> {
-  const rows = await db
-    .select({ bookId: bookKeywords.bookId, keyword: bookKeywords.keyword })
-    .from(bookKeywords)
-    .where(eq(bookKeywords.userId, userId))
-    .orderBy(asc(bookKeywords.keyword));
-
-  const map = new Map<string, string[]>();
-  for (const row of rows) map.set(row.bookId, [...(map.get(row.bookId) ?? []), row.keyword]);
-  return map;
-}
-
 export async function listBooks(userId: string): Promise<Book[]> {
-  const [types, keywords, rows] = await Promise.all([
+  const [types, rows] = await Promise.all([
     typePaths(userId),
-    keywordsByWork(userId),
     db
       .select({
         record: records,
         work: works,
-        status: kindStatuses.label,
         attribute: bookAttributes.name,
       })
       .from(records)
       .innerJoin(works, eq(works.id, records.workId))
       .innerJoin(kinds, eq(kinds.id, works.kindId))
-      .innerJoin(kindStatuses, eq(kindStatuses.id, records.statusId))
       .leftJoin(bookAttributes, eq(bookAttributes.id, works.attributeId))
       .where(and(eq(records.userId, userId), eq(kinds.name, BOOK_KIND)))
       .orderBy(asc(records.createdAt)),
   ]);
+  const keywords = await keywordNamesByOwner(
+    userId,
+    rows.map(({ work }) => work.id),
+  );
   const sourceUrls = await sourceUrlOfRecords(
     userId,
     rows.map(({ record }) => record.id),
@@ -63,7 +52,7 @@ export async function listBooks(userId: string): Promise<Book[]> {
     if (!firstRecordOf.has(work.id)) firstRecordOf.set(work.id, record.id);
   }
 
-  return rows.map(({ record, work, status, attribute }) => {
+  return rows.map(({ record, work, attribute }) => {
     const type = work.topicId ? types.get(work.topicId) : undefined;
     const first = firstRecordOf.get(work.id);
     return {
@@ -76,7 +65,7 @@ export async function listBooks(userId: string): Promise<Book[]> {
       isbn: work.externalId,
       platform: "", // 出版社與平台合成一欄了，舊形狀留著空的
       sourceUrl: sourceUrls.get(record.id) ?? "",
-      status: normalizeStatus(status) ?? inferStatus(record.startDate, record.endDate),
+      status: inferStatus(record.startDate, record.endDate),
       startDate: record.startDate,
       endDate: record.endDate,
       domain: type?.domain ?? "",
@@ -88,7 +77,7 @@ export async function listBooks(userId: string): Promise<Book[]> {
       note: "", // 心得早就搬去書寫了，這欄留著只為了型別相容
       quotes: "",
       vocabulary: "",
-      keywords: (keywords.get(work.id) ?? []).join("\n"),
+      keywords: keywords.get(work.id) ?? "",
       private: record.isPrivate ? PRIVATE_MARK : "",
       relatedArticles: "",
       // 第一次讀的那列 originId 是空的，其餘指回它——跟 Sheet 時代的約定一樣

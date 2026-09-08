@@ -22,8 +22,6 @@ export const GROUP_LAYERS: Record<KindGroup, FieldLayer[]> = {
   writings: ["fragment", "externalLink"],
 };
 
-export type StatusSpec = { key: string; label: string };
-
 /** 側欄那三堆。同一套類型機制，資料落在三張形狀不同的表 */
 export type KindGroup = "records" | "fragments" | "writings";
 
@@ -34,12 +32,4 @@ export type KindSpec = {
   /** 份量的單位，跟著那一次走——有聲書是分鐘，紙本是頁。片段與專欄用不到 */
   amountUnit: string;
   fields: FieldSpec[];
-  statuses: StatusSpec[];
 };
-
-/** 自己新增一種紀錄時給的狀態。用最通用的說法，不夠貼切就自己改 */
-export const NEW_KIND_STATUSES: StatusSpec[] = [
-  { key: "want", label: "想看" },
-  { key: "reading", label: "進行中" },
-  { key: "done", label: "已完成" },
-];

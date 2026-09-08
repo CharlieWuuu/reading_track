@@ -1,12 +1,12 @@
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { PRIVATE_MARK } from "@/config/privacy";
-import { db, type Tx } from "@/lib/db/client";
-import { bookKeywords } from "@/lib/db/schema/keyword-links";
-import { keywords } from "@/lib/db/schema/taxonomy";
+import { db } from "@/lib/db/client";
 import { records, works } from "@/lib/db/schema/works";
 import { Book, splitLines } from "@/types/book";
 import { setRecordSourceUrl } from "./external-links";
-import { kindIdByName, statusIdByLabel } from "./kind-lookup";
+import { setKeywordLinks } from "./fragments";
+import { unlinkAll } from "./internal-links";
+import { kindIdByName } from "./kind-lookup";
 import { attributeIdFor, typeIdFor } from "./taxonomy";
 import { toDate, toInt } from "./values";
 
@@ -22,34 +22,8 @@ import { toDate, toInt } from "./values";
 
 const BOOK_KIND = "書籍";
 
-/** 關鍵字主檔沒有的字先補一列，關聯表才插得進去 */
-async function ensureKeywords(tx: Tx, userId: string, names: string[]): Promise<void> {
-  if (!names.length) return;
-  await tx
-    .insert(keywords)
-    .values(names.map((name) => ({ userId, name })))
-    .onConflictDoNothing();
-}
-
-async function setBookKeywords(
-  tx: Tx,
-  userId: string,
-  bookId: string,
-  names: string[],
-): Promise<void> {
-  await ensureKeywords(tx, userId, names);
-  await tx
-    .delete(bookKeywords)
-    .where(and(eq(bookKeywords.userId, userId), eq(bookKeywords.bookId, bookId)));
-  if (names.length) {
-    await tx.insert(bookKeywords).values(names.map((keyword) => ({ userId, bookId, keyword })));
-  }
-}
-
-async function recordValues(tx: Tx, userId: string, book: Book) {
-  const kindId = await kindIdByName(tx, userId, BOOK_KIND);
+function recordValues(book: Book) {
   return {
-    statusId: await statusIdByLabel(tx, kindId, book.status),
     startDate: toDate(book.startDate),
     endDate: toDate(book.endDate),
     amount: toInt(book.pageCount),
@@ -92,10 +66,10 @@ export async function addBookRow(userId: string, book: Book): Promise<void> {
 
     const [record] = await tx
       .insert(records)
-      .values({ id: book.id, userId, workId, ...(await recordValues(tx, userId, book)) })
+      .values({ id: book.id, userId, workId, ...recordValues(book) })
       .returning({ id: records.id });
     await setRecordSourceUrl(tx, userId, record.id, book.sourceUrl);
-    await setBookKeywords(tx, userId, workId, names);
+    await setKeywordLinks(tx, userId, workId, names);
   });
 }
 
@@ -137,10 +111,6 @@ export async function updateBookRow(
     }
     if (patch.type !== undefined)
       workPatch.attributeId = await attributeIdFor(tx, userId, patch.type);
-    if (patch.status !== undefined) {
-      const kindId = await kindIdByName(tx, userId, BOOK_KIND);
-      recordPatch.statusId = await statusIdByLabel(tx, kindId, patch.status);
-    }
 
     if (Object.keys(workPatch).length)
       await tx.update(works).set(workPatch).where(eq(works.id, target.workId));
@@ -148,7 +118,7 @@ export async function updateBookRow(
       await tx.update(records).set(recordPatch).where(eq(records.id, id));
     if (patch.sourceUrl !== undefined) await setRecordSourceUrl(tx, userId, id, patch.sourceUrl);
     if (patch.keywords !== undefined)
-      await setBookKeywords(tx, userId, target.workId, splitLines(patch.keywords));
+      await setKeywordLinks(tx, userId, target.workId, splitLines(patch.keywords));
   });
 }
 
@@ -166,28 +136,10 @@ export async function deleteBookRow(userId: string, id: string): Promise<void> {
       .select({ count: sql<number>`count(*)::int` })
       .from(records)
       .where(eq(records.workId, target.workId));
-    if (count === 0) await tx.delete(works).where(eq(works.id, target.workId));
-  });
-}
-
-/** 關鍵字改名或合併時，把掛在舊名字上的書換過去 */
-export async function renameBookKeyword(userId: string, from: string, to: string): Promise<void> {
-  const rows = await db
-    .select({ bookId: bookKeywords.bookId })
-    .from(bookKeywords)
-    .where(and(eq(bookKeywords.userId, userId), eq(bookKeywords.keyword, from)));
-  if (!rows.length) return;
-
-  await db.transaction(async (tx) => {
-    await ensureKeywords(tx, userId, [to]);
-    await tx
-      .delete(bookKeywords)
-      .where(and(eq(bookKeywords.userId, userId), eq(bookKeywords.keyword, from)));
-    // 合併到已經存在的名字時，那本書可能兩個都掛著，onConflictDoNothing 擋掉重複
-    await tx
-      .insert(bookKeywords)
-      .values(rows.map((r) => ({ userId, bookId: r.bookId, keyword: to })))
-      .onConflictDoNothing();
+    if (count === 0) {
+      await tx.delete(works).where(eq(works.id, target.workId));
+      await unlinkAll(tx, userId, target.workId);
+    }
   });
 }
 

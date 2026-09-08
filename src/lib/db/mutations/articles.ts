@@ -1,13 +1,13 @@
 import { and, eq } from "drizzle-orm";
 import { PRIVATE_MARK } from "@/config/privacy";
-import { db, type Tx } from "@/lib/db/client";
-import { articleKeywords } from "@/lib/db/schema/keyword-links";
-import { keywords } from "@/lib/db/schema/taxonomy";
+import { db } from "@/lib/db/client";
 import { records, works } from "@/lib/db/schema/works";
 import { Article } from "@/types/article";
 import { splitLines } from "@/types/book";
 import { setRecordSourceUrl } from "./external-links";
-import { kindIdByName, statusIdByLabel } from "./kind-lookup";
+import { setKeywordLinks } from "./fragments";
+import { unlinkAll } from "./internal-links";
+import { kindIdByName } from "./kind-lookup";
 import { attributeIdFor, typeIdFor } from "./taxonomy";
 import { toDate } from "./values";
 
@@ -21,28 +21,6 @@ import { toDate } from "./values";
  */
 
 const ARTICLE_KIND = "文章";
-
-async function setKeywords(
-  tx: Tx,
-  userId: string,
-  articleId: string,
-  names: string[],
-): Promise<void> {
-  if (names.length)
-    await tx
-      .insert(keywords)
-      .values(names.map((name) => ({ userId, name })))
-      .onConflictDoNothing();
-  await tx
-    .delete(articleKeywords)
-    .where(and(eq(articleKeywords.userId, userId), eq(articleKeywords.articleId, articleId)));
-  if (names.length)
-    await tx
-      .insert(articleKeywords)
-      .values(names.map((keyword) => ({ userId, articleId, keyword })));
-}
-
-const statusLabel = (endDate: string | null | undefined) => (endDate ? "已讀完" : "想讀");
 
 export async function addArticleRow(userId: string, article: Article): Promise<void> {
   await db.transaction(async (tx) => {
@@ -63,12 +41,11 @@ export async function addArticleRow(userId: string, article: Article): Promise<v
       id: article.id,
       userId,
       workId: article.id,
-      statusId: await statusIdByLabel(tx, kindId, statusLabel(article.endDate)),
       endDate: toDate(article.endDate),
       isPrivate: article.private === PRIVATE_MARK,
     });
     await setRecordSourceUrl(tx, userId, article.id, article.sourceUrl);
-    await setKeywords(tx, userId, article.id, splitLines(article.keywords));
+    await setKeywordLinks(tx, userId, article.id, splitLines(article.keywords));
   });
 }
 
@@ -94,11 +71,6 @@ export async function updateArticleRow(
     }
     if (patch.type !== undefined)
       workPatch.attributeId = await attributeIdFor(tx, userId, patch.type);
-    // 完成日改了，狀態跟著改——舊形狀沒有狀態欄，這是唯一的來源
-    if (patch.endDate !== undefined) {
-      const kindId = await kindIdByName(tx, userId, ARTICLE_KIND);
-      recordPatch.statusId = await statusIdByLabel(tx, kindId, statusLabel(patch.endDate));
-    }
 
     if (Object.keys(workPatch).length)
       await tx
@@ -111,11 +83,15 @@ export async function updateArticleRow(
         .set(recordPatch)
         .where(and(eq(records.userId, userId), eq(records.id, id)));
     if (patch.sourceUrl !== undefined) await setRecordSourceUrl(tx, userId, id, patch.sourceUrl);
-    if (patch.keywords !== undefined) await setKeywords(tx, userId, id, splitLines(patch.keywords));
+    if (patch.keywords !== undefined)
+      await setKeywordLinks(tx, userId, id, splitLines(patch.keywords));
   });
 }
 
 /** 作品跟著走：文章一對一，留下空殼沒有意義 */
 export async function deleteArticleRow(userId: string, id: string): Promise<void> {
-  await db.delete(works).where(and(eq(works.userId, userId), eq(works.id, id)));
+  await db.transaction(async (tx) => {
+    await tx.delete(works).where(and(eq(works.userId, userId), eq(works.id, id)));
+    await unlinkAll(tx, userId, id);
+  });
 }

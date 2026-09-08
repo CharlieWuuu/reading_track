@@ -9,34 +9,23 @@ import { users } from "./users";
  * 關鍵字講的是專有名詞，兩者都不是「這本書關於什麼」。
  */
 
-/** 書與文章的類型樹。子類型就是子節點，深度不限兩層 */
-export const bookTypes = pgTable("book_types", {
+/**
+ * 主題樹。書、文章、書寫共用同一套分類——子類型就是子節點，深度不限兩層，
+ * 書寫沒有子類型，掛在頂層節點就好。
+ */
+export const topics = pgTable("domain_topics", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   id: uuid("id").primaryKey().defaultRandom(),
-  parentId: uuid("parent_id").references((): AnyPgColumn => bookTypes.id, { onDelete: "cascade" }), // 刪掉一個類型，底下的子類型跟著走
+  parentId: uuid("parent_id").references((): AnyPgColumn => topics.id, { onDelete: "cascade" }), // 刪掉一個類型，底下的子類型跟著走
   name: text("name").notNull(),
   isPrivate: boolean("is_private").notNull().default(false),
 });
 
-/** 書寫的類型。平的一層，沒有子類型 */
-export const writingTypes = pgTable(
-  "writing_types",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    name: text("name").notNull(),
-    isPrivate: boolean("is_private").notNull().default(false),
-  },
-  (t) => [unique().on(t.userId, t.name)], // 名字只在同一個人底下唯一
-);
-
 /** 散文、圖文。講形式，書與文章共用，書寫沒有 */
 export const bookAttributes = pgTable(
-  "book_attributes",
+  "domain_work_attributes",
   {
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id")
@@ -45,28 +34,6 @@ export const bookAttributes = pgTable(
     name: text("name").notNull(),
   },
   (t) => [unique().on(t.userId, t.name)],
-);
-
-/**
- * 專有名詞。名字就是身分，關聯表用 on update cascade 接改名。
- *
- * 不帶私人旗標：關鍵字是人名、地名、事件，「馬克思」本身不敏感，
- * 敏感的是那本書屬於哪個領域——藏東西一律從領域與類型下手。
- */
-export const keywords = pgTable(
-  "keywords",
-  {
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    name: text("name").notNull(),
-    topics: text("topics").notNull().default(""), // 維基主題，多個以頓號相接
-    coordinates: text("coordinates").notNull().default(""), // "25.033,121.565"
-    span: text("span").notNull().default(""), // 生卒或起訖
-    wikiUrl: text("wiki_url").notNull().default(""),
-    summary: text("summary").notNull().default(""),
-  },
-  (t) => [primaryKey({ columns: [t.userId, t.name] })],
 );
 
 /**

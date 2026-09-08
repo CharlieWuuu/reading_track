@@ -1,12 +1,12 @@
 import { and, eq } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db/client";
+import { linkedIdsOf } from "@/lib/db/queries/internal-links";
 import { fragments } from "@/lib/db/schema/fragments";
-import { bookKeywords } from "@/lib/db/schema/keyword-links";
-import { keywords } from "@/lib/db/schema/taxonomy";
 import { records } from "@/lib/db/schema/works";
 import { KeywordInfo } from "@/types/keyword";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { setFragmentSourceUrl } from "./external-links";
+import { link, setLinks, unlinkAll } from "./internal-links";
 import { kindIdByName } from "./kind-lookup";
 
 /**
@@ -15,8 +15,8 @@ import { kindIdByName } from "./kind-lookup";
  * 畫面送進來的 bookId 是「某一次讀」的編號，資料庫記的是「哪個作品」——
  * 換算在這一層做完，呼叫端不用知道有這回事。
  *
- * 關鍵字有兩個身分：片段（維基資料在 fragments）與關聯表的主檔（keywords 那張，
- * 三張 *_keywords 的外鍵指著它）。主檔因為外鍵拿不掉，所以只留名字，寫入時兩邊都維護。
+ * 關鍵字就是一則 fragment（kind 是「關鍵字」），沒有另外的主檔。
+ * 誰連到哪個關鍵字走 internal_links，不分書／文章／書寫。
  */
 
 async function workIdOf(userId: string, readingId: string): Promise<string | null> {
@@ -68,8 +68,7 @@ export async function replaceBookQuotes(
         userId,
         kindId,
         workId,
-        name: item.text, // 標題併自句子：佳句本文同時當標題
-        body: item.text.trim() ? item.text : item.note, // 內文併自心得：本文空才退回心得
+        phrase: item.text,
         locator: item.chapter,
         note: item.note,
       })),
@@ -119,8 +118,7 @@ export async function addQuote(userId: string, readingId: string, item: QuoteRow
       userId,
       kindId: await kindIdByName(tx, userId, "佳句"),
       workId,
-      name: item.text, // 標題併自句子：佳句本文同時當標題
-      body: item.text.trim() ? item.text : item.note, // 內文併自心得：本文空才退回心得
+      phrase: item.text,
       locator: item.chapter,
       note: item.note,
     });
@@ -151,9 +149,36 @@ export async function addVocabulary(
   });
 }
 
-/** 主檔只留名字，關聯表的外鍵靠它 */
-async function ensureKeywordName(tx: Tx, userId: string, name: string): Promise<void> {
-  await tx.insert(keywords).values({ userId, name }).onConflictDoNothing();
+/** 關鍵字片段，查不到就自己長一個出來——名字是唯一的身分 */
+export async function keywordFragmentId(tx: Tx, userId: string, name: string): Promise<string> {
+  const kindId = await kindIdByName(tx, userId, "關鍵字");
+  const [existing] = await tx
+    .select({ id: fragments.id })
+    .from(fragments)
+    .where(
+      and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.name, name)),
+    );
+  if (existing) return existing.id;
+
+  const [row] = await tx
+    .insert(fragments)
+    .values({ userId, kindId, name })
+    .returning({ id: fragments.id });
+  return row.id;
+}
+
+/**
+ * 某一筆資料（書、文章、書寫……）身上的關鍵字整批換掉。
+ * 名字自動變成關鍵字片段（沒有就新建），再用 internal_links 連起來。
+ */
+export async function setKeywordLinks(
+  tx: Tx,
+  userId: string,
+  ownerId: string,
+  names: string[],
+): Promise<void> {
+  const ids = await Promise.all(names.map((name) => keywordFragmentId(tx, userId, name)));
+  await setLinks(tx, userId, ownerId, ids);
 }
 
 /** 維基查回來的資料整批寫入；已經有的就更新，不動使用者自己填的名字 */
@@ -162,8 +187,6 @@ export async function saveKeywordInfos(userId: string, infos: KeywordInfo[]): Pr
     const kindId = await kindIdByName(tx, userId, "關鍵字");
 
     for (const info of infos) {
-      await ensureKeywordName(tx, userId, info.name);
-
       const values = {
         body: info.summary,
         topics: info.topics,
@@ -202,86 +225,64 @@ export async function replaceKeywordInfo(userId: string, info: KeywordInfo): Pro
 }
 
 /**
- * 關鍵字改名。主檔的名字是主鍵、加了 on update cascade，所以三張關聯表自動跟著改；
- * 片段那一列要自己改，它的身分是編號不是名字。
+ * 關鍵字改名。片段的名字就是身分，改名字＝改那一列的 name。
  *
- * 改成一個已經存在的名字等於合併：先把兩邊都掛著的關聯拆掉，再讓資料庫去改名。
- * 回傳動到幾本書。
+ * 改成一個已經存在的名字等於合併：新名字那則留著，舊名字那則的連結轉過去，
+ * 舊的片段刪掉。回傳動到幾條連結。
  */
 export async function renameKeyword(userId: string, from: string, to: string): Promise<number> {
   if (!from || !to || from === to) return 0;
 
-  const affected = await db
-    .select({ bookId: bookKeywords.bookId })
-    .from(bookKeywords)
-    .where(and(eq(bookKeywords.userId, userId), eq(bookKeywords.keyword, from)));
-
-  const [existing] = await db
-    .select({ name: keywords.name })
-    .from(keywords)
-    .where(and(eq(keywords.userId, userId), eq(keywords.name, to)));
-
-  await db.transaction(async (tx) => {
+  return db.transaction(async (tx) => {
     const kindId = await kindIdByName(tx, userId, "關鍵字");
+    const [oldFragment] = await tx
+      .select({ id: fragments.id })
+      .from(fragments)
+      .where(
+        and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.name, from)),
+      );
+    if (!oldFragment) return 0;
+
+    const affected = await linkedIdsOf(userId, oldFragment.id);
+
+    const [existing] = await tx
+      .select({ id: fragments.id })
+      .from(fragments)
+      .where(
+        and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.name, to)),
+      );
 
     if (existing) {
-      // 合併：舊名字的關聯改指新名字，重複的丟掉，然後刪掉舊的主檔與片段
-      const rows = affected.map((r) => ({ userId, bookId: r.bookId, keyword: to }));
-      if (rows.length) await tx.insert(bookKeywords).values(rows).onConflictDoNothing();
-      await tx.delete(keywords).where(and(eq(keywords.userId, userId), eq(keywords.name, from)));
-      const [old] = await tx
-        .select({ id: fragments.id })
-        .from(fragments)
-        .where(
-          and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.name, from)),
-        );
-      await tx
-        .delete(fragments)
-        .where(
-          and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.name, from)),
-        );
-      // external_links 的 source_id 不是外鍵（要同時指兩張表），fragment 刪掉不會自動 cascade
-      if (old) await setFragmentSourceUrl(tx, userId, old.id, "");
+      for (const ownerId of affected) await link(tx, userId, ownerId, existing.id);
+      await unlinkAll(tx, userId, oldFragment.id);
+      await tx.delete(fragments).where(eq(fragments.id, oldFragment.id));
+      await setFragmentSourceUrl(tx, userId, oldFragment.id, "");
     } else {
-      await tx
-        .update(keywords)
-        .set({ name: to })
-        .where(and(eq(keywords.userId, userId), eq(keywords.name, from)));
-      await tx
-        .update(fragments)
-        .set({ name: to })
-        .where(
-          and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.name, from)),
-        );
+      await tx.update(fragments).set({ name: to }).where(eq(fragments.id, oldFragment.id));
     }
-  });
 
-  return affected.length;
+    return affected.length;
+  });
 }
 
-/** 刪掉主檔那一列，關聯表靠 on delete cascade 一起清掉。回傳動到幾本書 */
+/** 刪掉這則關鍵字片段，連結靠 unlinkAll 一起清掉。回傳動到幾條連結 */
 export async function deleteKeyword(userId: string, name: string): Promise<number> {
-  const affected = await db
-    .select({ bookId: bookKeywords.bookId })
-    .from(bookKeywords)
-    .where(and(eq(bookKeywords.userId, userId), eq(bookKeywords.keyword, name)));
-
-  await db.transaction(async (tx) => {
+  return db.transaction(async (tx) => {
     const kindId = await kindIdByName(tx, userId, "關鍵字");
-    await tx.delete(keywords).where(and(eq(keywords.userId, userId), eq(keywords.name, name)));
     const [old] = await tx
       .select({ id: fragments.id })
       .from(fragments)
       .where(
         and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.name, name)),
       );
-    await tx
-      .delete(fragments)
-      .where(
-        and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.name, name)),
-      );
-    if (old) await setFragmentSourceUrl(tx, userId, old.id, "");
-  });
+    if (!old) return 0;
 
-  return affected.length;
+    const affected = await linkedIdsOf(userId, old.id);
+
+    await unlinkAll(tx, userId, old.id);
+    await tx.delete(fragments).where(eq(fragments.id, old.id));
+    await setFragmentSourceUrl(tx, userId, old.id, "");
+
+    return affected.length;
+  });
 }

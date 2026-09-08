@@ -1,6 +1,6 @@
 import { and, eq, isNull } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db/client";
-import { bookAttributes, bookTypes, writingTypes } from "@/lib/db/schema/taxonomy";
+import { bookAttributes, topics } from "@/lib/db/schema/taxonomy";
 import { splitLines } from "@/types/book";
 
 /**
@@ -17,21 +17,21 @@ async function upsertType(
   parentId: string | null,
 ): Promise<string> {
   const [existing] = await tx
-    .select({ id: bookTypes.id })
-    .from(bookTypes)
+    .select({ id: topics.id })
+    .from(topics)
     .where(
       and(
-        eq(bookTypes.userId, userId),
-        eq(bookTypes.name, name),
-        parentId ? eq(bookTypes.parentId, parentId) : isNull(bookTypes.parentId),
+        eq(topics.userId, userId),
+        eq(topics.name, name),
+        parentId ? eq(topics.parentId, parentId) : isNull(topics.parentId),
       ),
     );
   if (existing) return existing.id;
 
   const [row] = await tx
-    .insert(bookTypes)
+    .insert(topics)
     .values({ userId, name, parentId })
-    .returning({ id: bookTypes.id });
+    .returning({ id: topics.id });
   return row.id;
 }
 
@@ -68,30 +68,20 @@ export async function attributeIdFor(
 }
 
 /**
- * 標記／取消私人。兩種各有一張表，但畫面上是同一件事，所以收成一支。
+ * 標記／取消私人。
  *
  * 不進交易：一次只改一列，而且它不牽動別的表——類型底下的子類型會跟著藏，
  * 那是讀取時沿樹走出來的（見 queries/settings 的 privateTypeNames），
  * 不是把旗標抄下去。
  */
-export type PrivacyTarget = "type" | "writingType";
-
 export async function setPrivacyFlag(
   userId: string,
-  target: PrivacyTarget,
   id: string,
   isPrivate: boolean,
 ): Promise<void> {
   // 帶 userId 的 where：別人的節點編號猜到了也改不動
-  if (target === "type") {
-    await db
-      .update(bookTypes)
-      .set({ isPrivate })
-      .where(and(eq(bookTypes.userId, userId), eq(bookTypes.id, id)));
-    return;
-  }
   await db
-    .update(writingTypes)
+    .update(topics)
     .set({ isPrivate })
-    .where(and(eq(writingTypes.userId, userId), eq(writingTypes.id, id)));
+    .where(and(eq(topics.userId, userId), eq(topics.id, id)));
 }

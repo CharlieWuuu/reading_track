@@ -1,6 +1,6 @@
 import { boolean, date, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { kinds, kindStatuses } from "./kinds";
-import { bookAttributes, bookTypes } from "./taxonomy";
+import { kinds } from "./kinds";
+import { bookAttributes, topics } from "./taxonomy";
 import { users } from "./users";
 
 /**
@@ -18,8 +18,7 @@ import { users } from "./users";
  *
  * 欄位是共用的：創作者就是作者／導演／講師／主持人，叫什麼名字交給 kind_fields。
  *
- * topic_id 指向 book_types——那張表是主題樹（文學、歷史），跟 kind 是兩個層級。
- * 欄位先在這裡正名為 topic，表名之後一起改，免得這步就動到舊查詢。
+ * topic_id 指向 topics——那張表是主題樹（文學、歷史），跟 kind 是兩個層級。
  *
  * source／external_id／cover_url 掛在這裡不掛紀錄：同一本書不管讀幾次，
  * 出版社、ISBN、封面都固定，不是「這一次讀」才有的屬性。
@@ -27,7 +26,7 @@ import { users } from "./users";
  * external_id 是外部線索不是身分——ISBN、影片編號、課程網址都塞這裡，只給匯入時
  * 去外面查資料用。比對與帶入一律走內部的 work_id，使用者從自己的紀錄挑一筆就二刷。
  */
-export const works = pgTable("works", {
+export const works = pgTable("domain_works", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -37,7 +36,7 @@ export const works = pgTable("works", {
     .references(() => kinds.id, { onDelete: "restrict" }), // 還有作品掛著就不准刪類型
   title: text("title").notNull(),
   creator: text("creator").notNull().default(""),
-  topicId: uuid("topic_id").references(() => bookTypes.id, { onDelete: "set null" }),
+  topicId: uuid("topic_id").references(() => topics.id, { onDelete: "set null" }),
   attributeId: uuid("attribute_id").references(() => bookAttributes.id, { onDelete: "set null" }),
   language: text("language").notNull().default(""),
   source: text("source").notNull().default(""), // 出版社／頻道／平台
@@ -53,10 +52,14 @@ export const works = pgTable("works", {
  * amount 的單位不存在這裡，跟著 work.kind_id 查 kinds.amount_unit——
  * 同一個類型（書）永遠同一個單位（頁），不讓單筆紀錄自己例外。
  *
+ * 沒有 status 欄：想讀／閱讀中／已讀完純粹從 start_date／end_date 推論——
+ * 都沒填是想讀，有 start 沒 end 是閱讀中，有 end 是已讀完。三態固定，
+ * 不再讓每個類型自訂說法。
+ *
  * 外部連結（讀墨頁面、原始網址）不在這裡，走 external_links——那張表六種類型共用，
  * 一筆可以有多個連結。
  */
-export const records = pgTable("records", {
+export const records = pgTable("domain_records", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -64,9 +67,6 @@ export const records = pgTable("records", {
   workId: uuid("work_id")
     .notNull()
     .references(() => works.id, { onDelete: "cascade" }),
-  statusId: uuid("status_id")
-    .notNull()
-    .references(() => kindStatuses.id, { onDelete: "restrict" }),
   startDate: date("start_date"),
   endDate: date("end_date"),
   amount: integer("amount"), // 頁數／分鐘／集數，單位跟著類型查

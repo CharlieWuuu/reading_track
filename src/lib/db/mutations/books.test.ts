@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
-import { bookTypes } from "@/lib/db/schema/taxonomy";
+import { topics } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { makeBook, seedUser } from "@/lib/db/test/factories";
 import { kindIdByName } from "./kind-lookup";
@@ -39,8 +39,8 @@ describe("addBookRow", () => {
   it("領域與次領域長成父子兩個節點", async () => {
     await addBookRow(userId, makeBook({ domain: "文學", subDomain: "日本文學" }));
 
-    const [parent] = await db.select().from(bookTypes).where(eq(bookTypes.name, "文學"));
-    const [child] = await db.select().from(bookTypes).where(eq(bookTypes.name, "日本文學"));
+    const [parent] = await db.select().from(topics).where(eq(topics.name, "文學"));
+    const [child] = await db.select().from(topics).where(eq(topics.name, "日本文學"));
     expect(parent.parentId).toBeNull();
     expect(child.parentId).toBe(parent.id);
   });

@@ -1,7 +1,7 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull, or } from "drizzle-orm";
 import { fieldsOfModules } from "@/config/modules";
 import { db } from "@/lib/db/client";
-import { kindFields, kindStatuses } from "@/lib/db/schema/kinds";
+import { mapKindField } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
 import { setRecordSourceUrl } from "./external-links";
 import { toDate, toInt } from "./values";
@@ -17,9 +17,14 @@ export type FieldValues = Record<string, string>;
 
 export async function allowedFields(userId: string, kindId: string): Promise<Set<string>> {
   const rows = await db
-    .select({ key: kindFields.fieldKey })
-    .from(kindFields)
-    .where(and(eq(kindFields.userId, userId), eq(kindFields.kindId, kindId)));
+    .select({ key: mapKindField.fieldKey })
+    .from(mapKindField)
+    .where(
+      and(
+        or(eq(mapKindField.userId, userId), isNull(mapKindField.userId)),
+        eq(mapKindField.kindId, kindId),
+      ),
+    );
   return new Set(fieldsOfModules(rows.map((row) => row.key)));
 }
 
@@ -35,13 +40,6 @@ export async function addRecord(
   const allowed = await allowedFields(userId, kindId);
 
   return db.transaction(async (tx) => {
-    const [status] = await tx
-      .select({ id: kindStatuses.id })
-      .from(kindStatuses)
-      .where(eq(kindStatuses.kindId, kindId))
-      .orderBy(kindStatuses.sortOrder);
-    if (!status) throw new Error("這個類型沒有狀態，不能新增紀錄");
-
     const [work] = await tx
       .insert(works)
       .values({
@@ -62,7 +60,6 @@ export async function addRecord(
       .values({
         userId,
         workId: work.id,
-        statusId: status.id,
         startDate: toDate(pick(values, allowed, "startDate")),
         endDate: toDate(pick(values, allowed, "endDate")),
         amount,

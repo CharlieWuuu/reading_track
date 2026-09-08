@@ -2,11 +2,12 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { seedKinds } from "@/lib/db/mutations/kinds";
 import { fragments } from "@/lib/db/schema/fragments";
-import { bookKeywords, writingKeywords } from "@/lib/db/schema/keyword-links";
-import { kinds, kindStatuses } from "@/lib/db/schema/kinds";
-import { bookAttributes, bookTypes, keywords } from "@/lib/db/schema/taxonomy";
+import { internalLinks } from "@/lib/db/schema/internal-links";
+import { kinds } from "@/lib/db/schema/kinds";
+import { bookAttributes, topics } from "@/lib/db/schema/taxonomy";
 import { users } from "@/lib/db/schema/users";
 import { records, works } from "@/lib/db/schema/works";
+import { writings } from "@/lib/db/schema/writings";
 
 /**
  * demo 帳號的假資料。書名作者是真的，日期、心得、關鍵字都是編的。
@@ -179,7 +180,7 @@ export async function seedDemo(email: string): Promise<string> {
   const userId = user.id;
 
   // 重跑要一致，先清掉這個帳號名下的東西（外鍵 cascade 會帶走關聯與子表）
-  for (const table of [fragments, works, keywords, bookTypes, bookAttributes, kinds]) {
+  for (const table of [internalLinks, fragments, writings, works, topics, bookAttributes, kinds]) {
     await db.delete(table).where(eq(table.userId, userId));
   }
   await seedKinds(userId); // 類型是資料，demo 帳號也要有
@@ -192,20 +193,7 @@ export async function seedDemo(email: string): Promise<string> {
         .where(and(eq(kinds.userId, userId), eq(kinds.name, name)))
     )[0].id;
 
-  const statusId = async (kind: string, label: string) =>
-    (
-      await db
-        .select({ id: kindStatuses.id, label: kindStatuses.label })
-        .from(kindStatuses)
-        .where(eq(kindStatuses.kindId, await kindId(kind)))
-    ).find((row) => row.label === label)!.id;
-
   const bookKindId = await kindId("書籍");
-  const statusIds = {
-    已讀完: await statusId("書籍", "已讀完"),
-    閱讀中: await statusId("書籍", "閱讀中"),
-    想讀: await statusId("書籍", "想讀"),
-  };
   const quoteKindId = await kindId("佳句");
   const vocabularyKindId = await kindId("單字");
   const keywordKindId = await kindId("關鍵字");
@@ -213,15 +201,15 @@ export async function seedDemo(email: string): Promise<string> {
   const typeId = new Map<string, string>();
   for (const [parent, children] of Object.entries(TYPES)) {
     const [row] = await db
-      .insert(bookTypes)
+      .insert(topics)
       .values({ userId, name: parent })
-      .returning({ id: bookTypes.id });
+      .returning({ id: topics.id });
     typeId.set(parent, row.id);
     for (const child of children) {
       const [c] = await db
-        .insert(bookTypes)
+        .insert(topics)
         .values({ userId, name: child, parentId: row.id })
-        .returning({ id: bookTypes.id });
+        .returning({ id: topics.id });
       typeId.set(`${parent}/${child}`, c.id);
     }
   }
@@ -237,12 +225,13 @@ export async function seedDemo(email: string): Promise<string> {
 
   const allKeywords = new Set(BOOKS.flatMap((b) => b[6] as readonly string[]));
   for (const w of WRITINGS) for (const k of w[4] as readonly string[]) allKeywords.add(k);
+  const keywordFragmentId = new Map<string, string>();
   if (allKeywords.size) {
-    // 兩邊都要：主檔給關聯表的外鍵用，片段才是關鍵字本身
-    await db.insert(keywords).values([...allKeywords].map((name) => ({ userId, name })));
-    await db
+    const rows = await db
       .insert(fragments)
-      .values([...allKeywords].map((name) => ({ userId, kindId: keywordKindId, name })));
+      .values([...allKeywords].map((name) => ({ userId, kindId: keywordKindId, name })))
+      .returning({ id: fragments.id, name: fragments.name });
+    for (const row of rows) keywordFragmentId.set(row.name, row.id);
   }
 
   const bookIds: string[] = [];
@@ -272,7 +261,6 @@ export async function seedDemo(email: string): Promise<string> {
       .values({
         userId,
         workId: book.id,
-        statusId: statusIds[status],
         startDate: status === "想讀" ? null : daysAgo(400 - i * 12),
         endDate: status === "已讀完" ? daysAgo(380 - i * 12) : null,
         amount: 200 + ((i * 37) % 300),
@@ -281,9 +269,13 @@ export async function seedDemo(email: string): Promise<string> {
     readingIds.push(reading.id);
 
     if (names.length)
-      await db
-        .insert(bookKeywords)
-        .values(names.map((keyword) => ({ userId, bookId: book.id, keyword })));
+      await db.insert(internalLinks).values(
+        names.map((name) => ({
+          userId,
+          aId: book.id,
+          bId: keywordFragmentId.get(name)!,
+        })),
+      );
   }
 
   // 兩本重讀：同一個作品底下再加一次紀錄
@@ -291,34 +283,35 @@ export async function seedDemo(email: string): Promise<string> {
     await db.insert(records).values({
       userId,
       workId: bookIds[i],
-      statusId: statusIds["已讀完"],
       startDate: daysAgo(90),
       endDate: daysAgo(60),
     });
   }
 
-  // 掛了出處的是心得，沒掛的是日記——這正是專欄那一堆的分法
-  const reflectionKindId = await kindId("心得");
-  const diaryKindId = await kindId("日記");
+  const writingKindId = await kindId("書寫");
 
   for (const [i, entry] of WRITINGS.entries()) {
     const [title, , bookIndex, , names] = entry;
     const [writing] = await db
-      .insert(fragments)
+      .insert(writings)
       .values({
         userId,
-        kindId: bookIndex === null ? diaryKindId : reflectionKindId,
+        kindId: writingKindId,
         workId: bookIndex === null ? null : bookIds[bookIndex],
         name: title,
         body: NOTES[title] ?? "",
         date: daysAgo(300 - i * 25),
       })
-      .returning({ id: fragments.id });
+      .returning({ id: writings.id });
 
     if (names.length)
-      await db
-        .insert(writingKeywords)
-        .values(names.map((keyword) => ({ userId, writingId: writing.id, keyword })));
+      await db.insert(internalLinks).values(
+        names.map((name) => ({
+          userId,
+          aId: writing.id,
+          bId: keywordFragmentId.get(name)!,
+        })),
+      );
   }
 
   await db.insert(fragments).values(
@@ -326,7 +319,7 @@ export async function seedDemo(email: string): Promise<string> {
       userId,
       kindId: quoteKindId,
       workId: bookIds[bookIndex],
-      body: text,
+      phrase: text,
       locator: chapter,
     })),
   );

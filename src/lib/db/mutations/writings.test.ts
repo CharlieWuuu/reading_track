@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
-import { fragments } from "@/lib/db/schema/fragments";
 import { kinds } from "@/lib/db/schema/kinds";
+import { writings } from "@/lib/db/schema/writings";
 import { makeBook, seedUser } from "@/lib/db/test/factories";
 import type { Writing } from "@/types/writing";
 
@@ -33,14 +33,14 @@ function makeWriting(patch: Partial<Writing> = {}): Writing {
 }
 
 describe("addWritingRow", () => {
-  /** 類型是使用者在建立頁上決定的，寫入時不替他長一個出來——認不得就落到日記 */
-  it("認不得的類型落到日記，不長出新類型", async () => {
+  /** 類型是使用者在建立頁上決定的，寫入時不替他長一個出來——認不得就落到書寫 */
+  it("認不得的類型落到書寫，不長出新類型", async () => {
     const writing = makeWriting({ kind: "週計劃" });
     await addWritingRow(userId, writing);
 
-    const [row] = await db.select().from(fragments).where(eq(fragments.id, writing.id));
+    const [row] = await db.select().from(writings).where(eq(writings.id, writing.id));
     const [kind] = await db.select().from(kinds).where(eq(kinds.id, row.kindId));
-    expect(kind.name).toBe("日記");
+    expect(kind.name).toBe("書寫");
 
     const invented = await db.select().from(kinds).where(eq(kinds.name, "週計劃"));
     expect(invented).toHaveLength(0);
@@ -50,9 +50,9 @@ describe("addWritingRow", () => {
     const writing = makeWriting({ kind: "書籍" });
     await addWritingRow(userId, writing);
 
-    const [row] = await db.select().from(fragments).where(eq(fragments.id, writing.id));
+    const [row] = await db.select().from(writings).where(eq(writings.id, writing.id));
     const [kind] = await db.select().from(kinds).where(eq(kinds.id, row.kindId));
-    expect(kind.name).toBe("日記");
+    expect(kind.name).toBe("書寫");
   });
 
   it("sourceId 指到某一次閱讀時，掛回它屬於的那個作品", async () => {
@@ -62,7 +62,7 @@ describe("addWritingRow", () => {
     const writing = makeWriting({ sourceId: reading });
     await addWritingRow(userId, writing);
 
-    const [row] = await db.select().from(fragments).where(eq(fragments.id, writing.id));
+    const [row] = await db.select().from(writings).where(eq(writings.id, writing.id));
     expect(row.workId).toBeTruthy();
   });
 });
@@ -74,7 +74,7 @@ describe("updateWritingRow", () => {
 
     await updateWritingRow(userId, writing.id, { date: "" });
 
-    const [row] = await db.select().from(fragments).where(eq(fragments.id, writing.id));
+    const [row] = await db.select().from(writings).where(eq(writings.id, writing.id));
     expect(row.date).toBeNull();
   });
 });

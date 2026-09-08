@@ -1,28 +1,28 @@
 import { and, eq } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db/client";
-import { fragments } from "@/lib/db/schema/fragments";
-import { writingKeywords } from "@/lib/db/schema/keyword-links";
-import { keywords } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
+import { writings } from "@/lib/db/schema/writings";
 import { splitLines } from "@/types/book";
 import { Writing } from "@/types/writing";
 import { setFragmentSourceUrl } from "./external-links";
+import { setKeywordLinks } from "./fragments";
+import { unlinkAll } from "./internal-links";
 import { kindIdByName } from "./kind-lookup";
 import { toDate } from "./values";
 
 /**
- * 書寫寫回 fragments。跟片段同一張表，差別只在類型屬於哪一堆。
+ * 書寫寫回 writings 表。
  *
  * 舊的 kind 欄混了出處與類型：「書籍」「文章」只是在說它有出處，那件事現在由
  * work_id 記；其餘的值才是真的類型。sourceId 進來的是「某一次讀」的編號，
  * 要換成它屬於哪個作品。
  *
- * 類型認不得就落到「日記」——不在寫入時替使用者長出新類型，那是他在建立頁上
+ * 類型認不得就落到「書寫」——不在寫入時替使用者長出新類型，那是他在建立頁上
  * 決定的事。
  */
 
 const SOURCE_KINDS = ["書籍", "文章"];
-const FALLBACK_KIND = "日記";
+const FALLBACK_KIND = "書寫";
 
 async function kindIdFor(tx: Tx, userId: string, kind: string): Promise<string> {
   const name = kind.trim();
@@ -52,30 +52,10 @@ async function workIdFor(userId: string, sourceId: string): Promise<string | nul
   return work?.id ?? null;
 }
 
-async function setKeywords(
-  tx: Tx,
-  userId: string,
-  writingId: string,
-  names: string[],
-): Promise<void> {
-  if (names.length)
-    await tx
-      .insert(keywords)
-      .values(names.map((name) => ({ userId, name })))
-      .onConflictDoNothing();
-  await tx
-    .delete(writingKeywords)
-    .where(and(eq(writingKeywords.userId, userId), eq(writingKeywords.writingId, writingId)));
-  if (names.length)
-    await tx
-      .insert(writingKeywords)
-      .values(names.map((keyword) => ({ userId, writingId, keyword })));
-}
-
 export async function addWritingRow(userId: string, writing: Writing): Promise<void> {
   const workId = await workIdFor(userId, writing.sourceId);
   await db.transaction(async (tx) => {
-    await tx.insert(fragments).values({
+    await tx.insert(writings).values({
       id: writing.id,
       userId,
       kindId: await kindIdFor(tx, userId, writing.kind),
@@ -85,7 +65,7 @@ export async function addWritingRow(userId: string, writing: Writing): Promise<v
       date: toDate(writing.date),
     });
     await setFragmentSourceUrl(tx, userId, writing.id, writing.link);
-    await setKeywords(tx, userId, writing.id, splitLines(writing.keywords));
+    await setKeywordLinks(tx, userId, writing.id, splitLines(writing.keywords));
   });
 }
 
@@ -109,18 +89,20 @@ export async function updateWritingRow(
 
     if (Object.keys(values).length)
       await tx
-        .update(fragments)
+        .update(writings)
         .set(values)
-        .where(and(eq(fragments.userId, userId), eq(fragments.id, id)));
+        .where(and(eq(writings.userId, userId), eq(writings.id, id)));
     if (patch.link !== undefined) await setFragmentSourceUrl(tx, userId, id, patch.link);
-    if (patch.keywords !== undefined) await setKeywords(tx, userId, id, splitLines(patch.keywords));
+    if (patch.keywords !== undefined)
+      await setKeywordLinks(tx, userId, id, splitLines(patch.keywords));
   });
 }
 
 export async function deleteWritingRow(userId: string, id: string): Promise<void> {
   await db.transaction(async (tx) => {
-    await tx.delete(fragments).where(and(eq(fragments.userId, userId), eq(fragments.id, id)));
-    // external_links 的 source_id 不是外鍵（要同時指兩張表），fragment 刪掉不會自動 cascade
+    await tx.delete(writings).where(and(eq(writings.userId, userId), eq(writings.id, id)));
+    // external_links 的 source_id 不是外鍵（要同時指兩張表），writing 刪掉不會自動 cascade
     await setFragmentSourceUrl(tx, userId, id, "");
+    await unlinkAll(tx, userId, id);
   });
 }

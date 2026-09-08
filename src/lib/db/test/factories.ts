@@ -1,7 +1,9 @@
+import { and, eq } from "drizzle-orm";
 import { KIND_TEMPLATES, STARTER_KEYS } from "@/config/kind-templates";
-import { NEW_KIND_STATUSES } from "@/config/record-kinds";
+import { moduleDef } from "@/config/modules";
 import type { db as Db } from "@/lib/db/client";
-import { kindFields, kinds, kindStatuses } from "@/lib/db/schema/kinds";
+import { fields } from "@/lib/db/schema/fields";
+import { kinds, mapKindField } from "@/lib/db/schema/kinds";
 import { users } from "@/lib/db/schema/users";
 import type { Book } from "@/types/book";
 
@@ -45,12 +47,21 @@ export function makeBook(patch: Partial<Book> = {}): Book {
  */
 export async function seedUser(db: typeof Db, email = "test@example.com"): Promise<string> {
   const [row] = await db.insert(users).values({ email }).returning({ id: users.id });
-  await seedKindsInto(db, row.id);
+  await seedKindsInto(db);
   return row.id;
 }
 
-/** seedKinds 綁在正式的 db 上，測試用的是另一個實例，所以這裡重寫一份 */
-async function seedKindsInto(db: typeof Db, userId: string): Promise<void> {
+/**
+ * seedKinds 綁在正式的 db 上，測試用的是另一個實例，所以這裡重寫一份。
+ *
+ * 書籍、文章、佳句、單字、關鍵字、書寫是系統共用的類型（user_id 是 NULL），
+ * 每個測試檔的 pglite 是全新的資料庫，第一次呼叫時灌一份共用的進去就好，
+ * 呼叫第二次不重複灌。
+ */
+async function seedKindsInto(db: typeof Db): Promise<void> {
+  const [existing] = await db.select({ id: kinds.id }).from(kinds).limit(1);
+  if (existing) return;
+
   const starters = KIND_TEMPLATES.filter((template) => STARTER_KEYS.has(template.key));
   const orders = new Map<string, number>();
 
@@ -61,7 +72,7 @@ async function seedKindsInto(db: typeof Db, userId: string): Promise<void> {
     const [kind] = await db
       .insert(kinds)
       .values({
-        userId,
+        userId: null,
         groupKey: template.group,
         name: template.name,
         amountUnit: template.amountUnit,
@@ -69,26 +80,21 @@ async function seedKindsInto(db: typeof Db, userId: string): Promise<void> {
       })
       .returning({ id: kinds.id });
 
-    await db.insert(kindFields).values(
-      template.modules.map((key, index) => ({
-        userId,
-        kindId: kind.id,
-        fieldKey: key,
-        label: template.labels?.[key] ?? "",
-        sortOrder: index,
-      })),
-    );
+    const fieldRows = await Promise.all(
+      template.modules.map(async (key, index) => {
+        const label = template.labels?.[key] || moduleDef(key)!.label;
+        const [existingField] = await db
+          .select({ id: fields.id })
+          .from(fields)
+          .where(and(eq(fields.fieldKey, key), eq(fields.label, label)));
+        const fieldId =
+          existingField?.id ??
+          (await db.insert(fields).values({ fieldKey: key, label }).returning({ id: fields.id }))[0]
+            .id;
 
-    if (template.group === "records" && template.modules.includes("progress")) {
-      await db.insert(kindStatuses).values(
-        (template.statuses ?? NEW_KIND_STATUSES).map((status, index) => ({
-          userId,
-          kindId: kind.id,
-          key: status.key,
-          label: status.label,
-          sortOrder: index,
-        })),
-      );
-    }
+        return { userId: null, kindId: kind.id, fieldKey: key, fieldId, sortOrder: index };
+      }),
+    );
+    await db.insert(mapKindField).values(fieldRows);
   }
 }

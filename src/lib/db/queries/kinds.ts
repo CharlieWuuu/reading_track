@@ -1,19 +1,18 @@
-import { and, asc, count, eq } from "drizzle-orm";
+import { and, asc, count, eq, isNull, or } from "drizzle-orm";
 import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
+import { fields as fieldsTable } from "@/lib/db/schema/fields";
 import { fragments } from "@/lib/db/schema/fragments";
-import { kindFields, kinds as kindsTable, kindStatuses } from "@/lib/db/schema/kinds";
+import { kinds as kindsTable, mapKindField } from "@/lib/db/schema/kinds";
 import { works } from "@/lib/db/schema/works";
 import { ModuleOverride } from "@/utils/record-form";
 
 /**
- * 類型連同它的欄位別名與狀態選項。
+ * 類型連同它的欄位別名。
  *
- * 一次撈三張表再在記憶體裡兜起來，不是每個類型各查一次——類型數量是個位數，
+ * 一次撈兩張表再在記憶體裡兜起來，不是每個類型各查一次——類型數量是個位數，
  * 但表單每開一次就要全部，N+1 沒有意義。
  */
-
-export type KindStatus = { id: string; key: string; label: string };
 
 export type Kind = {
   id: string;
@@ -26,7 +25,6 @@ export type Kind = {
   count: number;
   /** 勾了哪些模組，以及它們在這個類型叫什麼。交給 resolveFormModules */
   modules: ModuleOverride[];
-  statuses: KindStatus[];
 };
 
 const groupBy = <T extends { kindId: string }>(rows: T[]): Map<string, T[]> =>
@@ -58,27 +56,28 @@ async function countsByKind(userId: string): Promise<Map<string, number>> {
 }
 
 export async function listKinds(userId: string): Promise<Kind[]> {
-  const [kinds, fields, statuses, counts] = await Promise.all([
+  const [kinds, fieldLinks, counts] = await Promise.all([
     db
       .select()
       .from(kindsTable)
-      .where(eq(kindsTable.userId, userId))
+      .where(or(eq(kindsTable.userId, userId), isNull(kindsTable.userId)))
       .orderBy(asc(kindsTable.sortOrder), asc(kindsTable.name)),
     db
-      .select()
-      .from(kindFields)
-      .where(eq(kindFields.userId, userId))
-      .orderBy(asc(kindFields.sortOrder)),
-    db
-      .select()
-      .from(kindStatuses)
-      .where(eq(kindStatuses.userId, userId))
-      .orderBy(asc(kindStatuses.sortOrder)),
+      .select({
+        kindId: mapKindField.kindId,
+        fieldKey: mapKindField.fieldKey,
+        label: fieldsTable.label,
+        isVisible: mapKindField.isVisible,
+        sortOrder: mapKindField.sortOrder,
+      })
+      .from(mapKindField)
+      .innerJoin(fieldsTable, eq(fieldsTable.id, mapKindField.fieldId))
+      .where(or(eq(mapKindField.userId, userId), isNull(mapKindField.userId)))
+      .orderBy(asc(mapKindField.sortOrder)),
     countsByKind(userId),
   ]);
 
-  const fieldsByKind = groupBy(fields);
-  const statusesByKind = groupBy(statuses);
+  const fieldsByKind = groupBy(fieldLinks);
 
   return kinds.map((kind) => ({
     id: kind.id,
@@ -90,11 +89,6 @@ export async function listKinds(userId: string): Promise<Kind[]> {
     modules: (fieldsByKind.get(kind.id) ?? [])
       .filter((f) => f.isVisible)
       .map((f) => ({ key: f.fieldKey, label: f.label, sortOrder: f.sortOrder })),
-    statuses: (statusesByKind.get(kind.id) ?? []).map((s) => ({
-      id: s.id,
-      key: s.key,
-      label: s.label,
-    })),
   }));
 }
 
@@ -103,6 +97,8 @@ export async function kindGroupOf(userId: string, kindId: string): Promise<KindG
   const [row] = await db
     .select({ group: kindsTable.groupKey })
     .from(kindsTable)
-    .where(and(eq(kindsTable.userId, userId), eq(kindsTable.id, kindId)));
+    .where(
+      and(or(eq(kindsTable.userId, userId), isNull(kindsTable.userId)), eq(kindsTable.id, kindId)),
+    );
   return (row?.group as KindGroup) ?? null;
 }

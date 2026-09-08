@@ -9,9 +9,9 @@ export interface TypePathRow {
 /**
  * 從紀錄配對出「領域 → 它底下用過的次領域」。
  *
- * 資料庫的 book_types 本來就有父子關係，但那份樹是靠寫入時 upsert 長出來的，
+ * 資料庫的 topics 本來就有父子關係，但那份樹是靠寫入時 upsert 長出來的，
  * 也就是說每一組父子都在紀錄上出現過——直接從紀錄推，就不用多開一條資料流。
- * 只推得出兩層，樹再深要改成讀 book_types。
+ * 只推得出兩層，樹再深要改成讀 topics。
  */
 export function childrenByDomain(rows: TypePathRow[]): Map<string, string[]> {
   const seen = new Map<string, Set<string>>();

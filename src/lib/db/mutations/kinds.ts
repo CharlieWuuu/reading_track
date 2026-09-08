@@ -1,9 +1,10 @@
-import { and, desc, eq } from "drizzle-orm";
-import { KIND_TEMPLATES, KindTemplate, STARTER_KEYS } from "@/config/kind-templates";
+import { and, desc, eq, isNull, or } from "drizzle-orm";
+import { KindTemplate } from "@/config/kind-templates";
 import { moduleDef } from "@/config/modules";
-import { KindGroup, NEW_KIND_STATUSES } from "@/config/record-kinds";
+import { KindGroup } from "@/config/record-kinds";
 import { db, type Tx } from "@/lib/db/client";
-import { kindFields, kinds, kindStatuses } from "@/lib/db/schema/kinds";
+import { fields } from "@/lib/db/schema/fields";
+import { kinds, mapKindField } from "@/lib/db/schema/kinds";
 
 /**
  * 類型的寫入。
@@ -19,9 +20,22 @@ export type NewKind = {
   amountUnit: string;
   /** 模組在這個類型叫什麼 */
   labels?: Record<string, string>;
-  /** 狀態的說法。沒給就用通用那組 */
-  statuses?: { key: string; label: string }[];
 };
+
+/**
+ * label 一定要有值：沒自訂就用模組庫的預設名稱，field_id 才不會是空的。
+ * fields 全體共用，不分使用者。
+ */
+async function fieldIdFor(tx: Tx, fieldKey: string, label: string): Promise<string> {
+  const [existing] = await tx
+    .select({ id: fields.id })
+    .from(fields)
+    .where(and(eq(fields.fieldKey, fieldKey), eq(fields.label, label)));
+  if (existing) return existing.id;
+
+  const [row] = await tx.insert(fields).values({ fieldKey, label }).returning({ id: fields.id });
+  return row.id;
+}
 
 async function insertKind(
   tx: Tx,
@@ -44,29 +58,17 @@ async function insertKind(
   // 認不得的模組丟掉：客戶端不能往資料庫塞任意字串
   const modules = kind.modules.filter((key) => moduleDef(key));
   if (modules.length > 0) {
-    await tx.insert(kindFields).values(
-      modules.map((key, index) => ({
+    const rows = await Promise.all(
+      modules.map(async (key, index) => ({
         userId,
         kindId: created.id,
         fieldKey: key,
-        label: kind.labels?.[key] ?? "",
+        fieldId: await fieldIdFor(tx, key, kind.labels?.[key] || moduleDef(key)!.label),
         isVisible: true,
         sortOrder: index,
       })),
     );
-  }
-
-  // 只有紀錄那一堆有進度：一句佳句摘下來就是摘下來了，沒有「在讀」
-  if (group === "records" && modules.includes("progress")) {
-    await tx.insert(kindStatuses).values(
-      (kind.statuses ?? NEW_KIND_STATUSES).map((status, index) => ({
-        userId,
-        kindId: created.id,
-        key: status.key,
-        label: status.label,
-        sortOrder: index,
-      })),
-    );
+    await tx.insert(mapKindField).values(rows);
   }
 
   return created.id;
@@ -77,15 +79,14 @@ const fromTemplate = (template: KindTemplate): NewKind => ({
   modules: [...template.modules],
   amountUnit: template.amountUnit,
   labels: template.labels,
-  statuses: template.statuses,
 });
 
-/** 排在同一堆的最後面 */
+/** 排在同一堆的最後面，含系統預設的類型一起排 */
 async function nextSortOrder(tx: Tx, userId: string, group: KindGroup): Promise<number> {
   const [last] = await tx
     .select({ sortOrder: kinds.sortOrder })
     .from(kinds)
-    .where(and(eq(kinds.userId, userId), eq(kinds.groupKey, group)))
+    .where(and(or(eq(kinds.userId, userId), isNull(kinds.userId)), eq(kinds.groupKey, group)))
     .orderBy(desc(kinds.sortOrder))
     .limit(1);
   return (last?.sortOrder ?? -1) + 1;
@@ -103,26 +104,10 @@ export async function addKindFromTemplate(userId: string, template: KindTemplate
 }
 
 /**
- * 開帳號時先給的那幾種。判斷條件是「這個人有沒有任何類型」而不是逐一比對名字——
- * 刪掉「電影」下次登入就不該長回來。
+ * 開帳號時先給的那幾種。書籍、文章、佳句、單字、關鍵字、書寫這六種現在是
+ * 系統共用的（user_id 是 NULL），全體使用者本來就看得到，不用再各自建一份——
+ * 所以這支現在什麼都不用做，留著只是呼叫端還在用，回傳 0 代表沒新增任何東西。
  */
-export async function seedKinds(userId: string): Promise<number> {
-  return db.transaction(async (tx) => {
-    const [existing] = await tx
-      .select({ id: kinds.id })
-      .from(kinds)
-      .where(eq(kinds.userId, userId))
-      .limit(1);
-    if (existing) return 0;
-
-    const starters = KIND_TEMPLATES.filter((template) => STARTER_KEYS.has(template.key));
-    const counters = new Map<KindGroup, number>();
-
-    for (const template of starters) {
-      const order = counters.get(template.group) ?? 0;
-      counters.set(template.group, order + 1);
-      await insertKind(tx, userId, template.group, fromTemplate(template), order);
-    }
-    return starters.length;
-  });
+export async function seedKinds(_userId: string): Promise<number> {
+  return 0;
 }
