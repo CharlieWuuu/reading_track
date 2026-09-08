@@ -7,7 +7,6 @@ import { kinds, kindStatuses } from "@/lib/db/schema/kinds";
 import { bookAttributes, bookTypes, keywords } from "@/lib/db/schema/taxonomy";
 import { users } from "@/lib/db/schema/users";
 import { records, works } from "@/lib/db/schema/works";
-import { metrics } from "@/lib/db/schema/writing";
 
 /**
  * demo 帳號的假資料。書名作者是真的，日期、心得、關鍵字都是編的。
@@ -320,16 +319,6 @@ export async function seedDemo(email: string): Promise<string> {
       await db
         .insert(writingKeywords)
         .values(names.map((keyword) => ({ userId, writingId: writing.id, keyword })));
-
-    if (i % 3 === 0)
-      await db.insert(metrics).values({
-        userId,
-        writingId: writing.id,
-        date: daysAgo(280 - i * 25),
-        platform: "Medium",
-        views: 300 + i * 120,
-        reads: 100 + i * 40,
-      });
   }
 
   await db.insert(fragments).values(
