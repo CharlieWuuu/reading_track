@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FormActions } from "@/components/ui/form-actions";
+import { KindTemplate, templatesOf } from "@/config/kind-templates";
 import { MODULES } from "@/config/modules";
 import { KindGroup } from "@/config/record-kinds";
 import { useKinds } from "@/hooks/use-kinds";
@@ -58,20 +59,35 @@ export function TypeBuilder({ group, groupLabel }: { group: KindGroup; groupLabe
   const [name, setName] = useState("");
   const [unit, setUnit] = useState("");
   const [picked, setPicked] = useState<string[]>(["title"]);
+  const [labels, setLabels] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
 
   const toggle = (key: string) =>
     setPicked((keys) => (keys.includes(key) ? keys.filter((k) => k !== key) : [...keys, key]));
 
-  /** 從現成的類型抄一份再改，比從空白開始快 */
   const siblings = kinds.filter((kind) => kind.group === group);
+  const taken = new Set(siblings.map((kind) => kind.name));
+  /** 範本是常駐的：刪掉「書籍」還能再套一次。已經有的就不重複列 */
+  const templates = templatesOf(group).filter((template) => !taken.has(template.name));
+
+  function applyTemplate(template: KindTemplate) {
+    setName(template.name);
+    setUnit(template.amountUnit);
+    setPicked([...template.modules]);
+    setLabels({ ...template.labels });
+  }
 
   async function save() {
     setSaving(true);
     setError(undefined);
     try {
-      await addKind(group, { name: name.trim(), modules: picked, amountUnit: unit.trim() });
+      await addKind(group, {
+        name: name.trim(),
+        modules: picked,
+        amountUnit: unit.trim(),
+        labels,
+      });
       router.back();
     } catch (err) {
       setError(err instanceof Error ? err.message : "新增類型失敗");
@@ -87,7 +103,48 @@ export function TypeBuilder({ group, groupLabel }: { group: KindGroup; groupLabe
       }}
       className="flex max-w-2xl flex-col"
     >
-      <Section step="01" label="叫什麼">
+      <Section step="01" label="從哪裡開始">
+        <div>
+          {templates.map((template) => (
+            <button
+              key={template.key}
+              type="button"
+              onClick={() => applyTemplate(template)}
+              className={`${styles.row} w-full text-left`}
+            >
+              <span className="min-w-0">
+                <span className={styles.moduleLabel}>{template.name}</span>
+                <span className={`${styles.moduleHint} block`}>
+                  {template.modules
+                    .map(
+                      (key) => template.labels?.[key] ?? MODULES.find((m) => m.key === key)?.label,
+                    )
+                    .filter(Boolean)
+                    .join("・")}
+                </span>
+              </span>
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => {
+              setName("");
+              setUnit("");
+              setPicked([]);
+              setLabels({});
+            }}
+            className={`${styles.row} w-full text-left`}
+          >
+            <span>
+              <span className={styles.moduleLabel}>全部自己勾</span>
+              <span className={`${styles.moduleHint} block`}>空白開始</span>
+            </span>
+          </button>
+        </div>
+        <span className={styles.hint}>套了範本還是可以改。範本常駐，刪掉的類型隨時能再套一次</span>
+      </Section>
+
+      <Section step="02" label="叫什麼">
         <input
           aria-label="名稱"
           value={name}
@@ -105,7 +162,7 @@ export function TypeBuilder({ group, groupLabel }: { group: KindGroup; groupLabe
       </Section>
 
       <Section
-        step="02"
+        step="03"
         label="要哪些模組"
         hint={
           <span className={styles.count}>
@@ -132,7 +189,7 @@ export function TypeBuilder({ group, groupLabel }: { group: KindGroup; groupLabe
         <span className={styles.hint}>沒勾的模組不會在表單留空位，也不會在詳情頁顯示「—」</span>
       </Section>
 
-      <Section step="03" label="長出來會是這樣">
+      <Section step="04" label="長出來會是這樣">
         <div className={styles.preview}>
           {picked.map((key) => (
             <span key={key} className={styles.previewItem}>

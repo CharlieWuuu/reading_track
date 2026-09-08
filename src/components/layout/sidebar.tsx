@@ -69,10 +69,15 @@ export function Sidebar() {
   const current = activeNavKey(pathname) ?? kindIdFromPath(pathname);
   const { kinds } = useKinds();
 
-  /** 資料庫裡有、側欄還沒寫死的那些，補在該堆後面 */
+  /**
+   * 資料庫裡有、側欄還沒寫死的那些，補在該堆後面。
+   * 沒有資料的類型不列——沒用過的不佔位置。
+   */
   const extraTypes = (group: NavGroup): NavType[] =>
     kinds
-      .filter((kind) => kind.group === group.kindGroup && !isBuiltIn(group, kind.name))
+      .filter(
+        (kind) => kind.group === group.kindGroup && kind.count > 0 && !isBuiltIn(group, kind.name),
+      )
       .map((kind) => ({
         key: kind.id,
         label: kind.name,

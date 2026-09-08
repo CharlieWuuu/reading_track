@@ -4,7 +4,12 @@ import useSWR from "swr";
 import { KindGroup } from "@/config/record-kinds";
 import { Kind } from "@/lib/db/queries/kinds";
 
-export type NewKindInput = { name: string; modules: string[]; amountUnit: string };
+export type NewKindInput = {
+  name: string;
+  modules: string[];
+  amountUnit: string;
+  labels?: Record<string, string>;
+};
 
 /**
  * 三堆的類型。不走 useCollection——那支綁著私人解鎖權杖與排序，

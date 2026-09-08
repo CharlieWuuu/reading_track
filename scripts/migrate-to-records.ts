@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../src/lib/db/client";
-import { syncKinds } from "../src/lib/db/mutations/kinds";
+import { seedKinds } from "../src/lib/db/mutations/kinds";
 import { fragments, quotes, vocabulary } from "../src/lib/db/schema/fragments";
 import { recordKinds, recordKindStatuses } from "../src/lib/db/schema/kinds";
 import { articles, books, readings } from "../src/lib/db/schema/reading";
@@ -217,13 +217,18 @@ async function migrateFragments(userId: string): Promise<number> {
   return quoteRows.length + vocabRows.length + keywordRows.length;
 }
 
-/** 專欄：舊表的 kind 是自由文字，對不到預設四種的就歸「日記」 */
+/**
+ * 專欄：舊表的類型是自由文字。對得上現有類型就用它，對不上的歸「日記」——
+ * 不在這裡替使用者長出新類型，那是他自己在建立頁上決定的事。
+ */
 async function migrateWritings(userId: string): Promise<number> {
-  const kindIds = new Map<string, string>();
-  for (const name of ["日記", "心得", "論述", "每日計畫"]) {
-    kindIds.set(name, await kindOf(userId, name));
-  }
-  const fallback = kindIds.get("日記")!;
+  const existing = await db
+    .select({ id: recordKinds.id, name: recordKinds.name })
+    .from(recordKinds)
+    .where(and(eq(recordKinds.userId, userId), eq(recordKinds.groupKey, "writings")));
+  const kindIds = new Map(existing.map((k) => [k.name, k.id]));
+  const fallback = kindIds.get("日記") ?? existing[0]?.id;
+  if (!fallback) throw new Error("專欄那一堆一種類型都沒有，先跑種子");
 
   const rows = await db
     .select({ writing: writings, type: writingTypes.name })
@@ -260,7 +265,7 @@ async function main() {
       await db.delete(works).where(eq(works.userId, user.id));
     }
 
-    await syncKinds(user.id); // 規格加了新類型，既有帳號補上
+    await seedKinds(user.id); // 還沒有任何類型的話先給起手那幾種
 
     const [existing] = await db
       .select({ id: works.id })

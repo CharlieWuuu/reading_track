@@ -41,6 +41,7 @@ export const POST = guarded("kinds POST", async (req: NextRequest) => {
     name?: unknown;
     modules?: unknown;
     amountUnit?: unknown;
+    labels?: unknown;
   }>(req, "kinds POST");
   if (!body) return badRequest("看不懂的內容");
   if (!isGroup(body.group)) return badRequest("不知道要加在哪一堆");
@@ -55,9 +56,22 @@ export const POST = guarded("kinds POST", async (req: NextRequest) => {
       )
     : [];
   const amountUnit = typeof body.amountUnit === "string" ? body.amountUnit.trim() : "";
+  const labels =
+    body.labels && typeof body.labels === "object"
+      ? Object.fromEntries(
+          Object.entries(body.labels as Record<string, unknown>).filter(
+            ([, value]) => typeof value === "string",
+          ) as [string, string][],
+        )
+      : {};
 
   try {
-    const id = await addKind(session.user.id, body.group, { name, modules, amountUnit });
+    const id = await addKind(session.user.id, body.group, {
+      name,
+      modules,
+      amountUnit,
+      labels,
+    });
     return NextResponse.json({ id });
   } catch (err) {
     return dataFailure("新增類型", "addKind", err);

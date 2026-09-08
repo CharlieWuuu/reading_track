@@ -1,69 +1,57 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_KINDS } from "@/config/default-kinds";
-import { GROUP_LAYERS } from "@/config/record-kinds";
-import { resolveFormFields, splitByLayer } from "./record-form";
+import { templateByKey } from "@/config/kind-templates";
+import { fieldsOf, resolveFormModules } from "./record-form";
 
-const book = DEFAULT_KINDS.find((k) => k.key === "book")!;
-const article = DEFAULT_KINDS.find((k) => k.key === "article")!;
+const asOverrides = (key: string) => {
+  const template = templateByKey(key)!;
+  return template.modules.map((module) => ({
+    key: module,
+    label: template.labels?.[module],
+  }));
+};
 
-describe("resolveFormFields", () => {
-  it("沒被提到的欄位照樣出現，用預設標籤", () => {
-    const fields = resolveFormFields([]);
-    expect(fields.map((f) => f.key)).toContain("creator");
-    expect(fields.find((f) => f.key === "creator")?.label).toBe("創作者");
+describe("resolveFormModules", () => {
+  it("沒勾的模組不出現", () => {
+    const keys = resolveFormModules(asOverrides("book")).map((m) => m.key);
+    expect(keys).toContain("cover");
+    expect(keys).not.toContain("gloss");
   });
 
-  it("類型只改名字，欄位還是同一批", () => {
-    const plain = resolveFormFields([]);
-    const asBook = resolveFormFields(book.fields);
-    expect(asBook.find((f) => f.key === "creator")?.label).toBe("作者");
-    expect(asBook.find((f) => f.key === "amount")?.label).toBe("頁數");
-    expect(asBook.length).toBe(plain.length);
+  it("類型只改名字，模組還是同一批", () => {
+    const book = resolveFormModules(asOverrides("book"));
+    const movie = resolveFormModules(asOverrides("movie"));
+    expect(book.find((m) => m.key === "creator")?.label).toBe("作者");
+    expect(movie.find((m) => m.key === "creator")?.label).toBe("導演");
   });
 
-  it("藏起來的欄位不畫", () => {
-    const fields = resolveFormFields(article.fields);
-    expect(fields.map((f) => f.key)).not.toContain("startDate");
-    expect(fields.find((f) => f.key === "amount")?.label).toBe("字數");
-  });
-
-  it("改名不動順序，標題還是第一個", () => {
-    expect(resolveFormFields(book.fields)[0].key).toBe("title");
-  });
-
-  it("明確給了順序才插隊", () => {
-    const keys = resolveFormFields([{ key: "amount", sortOrder: -1 }]).map((f) => f.key);
-    expect(keys[0]).toBe("amount");
-    expect(keys[1]).toBe("title");
+  it("沒給標籤就用模組庫的預設名", () => {
+    const modules = resolveFormModules([{ key: "title" }]);
+    expect(modules[0].label).toBe("標題");
   });
 
   it("認不得的 key 忽略掉", () => {
-    const fields = resolveFormFields([{ key: "亂寫", label: "亂" }]);
-    expect(fields.map((f) => f.label)).not.toContain("亂");
+    expect(resolveFormModules([{ key: "亂寫" }])).toHaveLength(0);
+  });
+
+  it("照給的順序排，除非指定 sortOrder", () => {
+    const keys = resolveFormModules([
+      { key: "title", sortOrder: 1 },
+      { key: "cover", sortOrder: 0 },
+    ]).map((m) => m.key);
+    expect(keys).toEqual(["cover", "title"]);
   });
 });
 
-describe("splitByLayer", () => {
-  it("作品與那一次的欄位分開", () => {
-    const { work, record } = splitByLayer(resolveFormFields(book.fields));
-    expect(work.map((f) => f.key)).toContain("title");
-    expect(record.map((f) => f.key)).toContain("amount");
-    expect(work.map((f) => f.key)).not.toContain("amount");
-  });
-});
-
-describe("分堆", () => {
-  it("片段不吃紀錄的欄位", () => {
-    const quote = DEFAULT_KINDS.find((k) => k.key === "quote")!;
-    const keys = resolveFormFields(quote.fields, GROUP_LAYERS.fragments).map((f) => f.key);
-    expect(keys).toContain("body");
-    expect(keys).not.toContain("amount");
-    expect(keys).not.toContain("title");
+describe("fieldsOf", () => {
+  it("一個模組展開成好幾欄", () => {
+    const keys = fieldsOf(resolveFormModules([{ key: "progress" }])).map((f) => f.key);
+    expect(keys).toEqual(["startDate", "endDate"]);
   });
 
-  it("紀錄不吃片段的欄位", () => {
-    const keys = resolveFormFields(book.fields, GROUP_LAYERS.records).map((f) => f.key);
-    expect(keys).toContain("amount");
-    expect(keys).not.toContain("wikiUrl");
+  it("兩個模組指到同一欄只留一次", () => {
+    const keys = fieldsOf(resolveFormModules([{ key: "progress" }, { key: "date" }])).map(
+      (f) => f.key,
+    );
+    expect(keys.filter((k) => k === "endDate")).toHaveLength(1);
   });
 });
