@@ -31,6 +31,10 @@ const STATUS_KEY: Record<string, string> = {
   已讀完: "done",
 };
 
+/** 舊表有沒填狀態的列。用日期推，跟畫面上的 inferStatus 同一套規則 */
+const statusKeyOf = (status: string, startDate: string | null, endDate: string | null) =>
+  STATUS_KEY[status] ?? (endDate ? "done" : startDate ? "reading" : "want");
+
 async function kindOf(userId: string, name: string) {
   const [kind] = await db
     .select({ id: recordKinds.id })
@@ -82,7 +86,7 @@ async function migrateBooks(userId: string): Promise<number> {
       }
     }
 
-    const statusId = statuses.get(STATUS_KEY[reading.status] ?? "done");
+    const statusId = statuses.get(statusKeyOf(reading.status, reading.startDate, reading.endDate));
     if (!statusId) throw new Error(`對不到狀態：${reading.status}`);
 
     if (APPLY) {

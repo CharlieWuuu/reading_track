@@ -1,11 +1,13 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { quotes, vocabulary } from "@/lib/db/schema/fragments";
+import { seedKinds } from "@/lib/db/mutations/kinds";
+import { fragments } from "@/lib/db/schema/fragments";
 import { bookKeywords, writingKeywords } from "@/lib/db/schema/keyword-links";
-import { books, readings } from "@/lib/db/schema/reading";
-import { attributes, bookTypes, keywords, writingTypes } from "@/lib/db/schema/taxonomy";
+import { recordKinds, recordKindStatuses } from "@/lib/db/schema/kinds";
+import { attributes, bookTypes, keywords } from "@/lib/db/schema/taxonomy";
 import { users } from "@/lib/db/schema/users";
-import { metrics, writings } from "@/lib/db/schema/writing";
+import { records, works } from "@/lib/db/schema/works";
+import { metrics } from "@/lib/db/schema/writing";
 
 /**
  * demo 帳號的假資料。書名作者是真的，日期、心得、關鍵字都是編的。
@@ -178,9 +180,36 @@ export async function seedDemo(email: string): Promise<string> {
   const userId = user.id;
 
   // 重跑要一致，先清掉這個帳號名下的東西（外鍵 cascade 會帶走關聯與子表）
-  for (const table of [writings, books, keywords, bookTypes, writingTypes, attributes]) {
+  for (const table of [fragments, works, keywords, bookTypes, attributes, recordKinds]) {
     await db.delete(table).where(eq(table.userId, userId));
   }
+  await seedKinds(userId); // 類型是資料，demo 帳號也要有
+
+  const kindId = async (name: string) =>
+    (
+      await db
+        .select({ id: recordKinds.id })
+        .from(recordKinds)
+        .where(and(eq(recordKinds.userId, userId), eq(recordKinds.name, name)))
+    )[0].id;
+
+  const statusId = async (kind: string, label: string) =>
+    (
+      await db
+        .select({ id: recordKindStatuses.id, label: recordKindStatuses.label })
+        .from(recordKindStatuses)
+        .where(eq(recordKindStatuses.kindId, await kindId(kind)))
+    ).find((row) => row.label === label)!.id;
+
+  const bookKindId = await kindId("書籍");
+  const statusIds = {
+    已讀完: await statusId("書籍", "已讀完"),
+    閱讀中: await statusId("書籍", "閱讀中"),
+    想讀: await statusId("書籍", "想讀"),
+  };
+  const quoteKindId = await kindId("佳句");
+  const vocabularyKindId = await kindId("單字");
+  const keywordKindId = await kindId("關鍵字");
 
   const typeId = new Map<string, string>();
   for (const [parent, children] of Object.entries(TYPES)) {
@@ -209,8 +238,13 @@ export async function seedDemo(email: string): Promise<string> {
 
   const allKeywords = new Set(BOOKS.flatMap((b) => b[6] as readonly string[]));
   for (const w of WRITINGS) for (const k of w[4] as readonly string[]) allKeywords.add(k);
-  if (allKeywords.size)
+  if (allKeywords.size) {
+    // 兩邊都要：主檔給關聯表的外鍵用，片段才是關鍵字本身
     await db.insert(keywords).values([...allKeywords].map((name) => ({ userId, name })));
+    await db
+      .insert(fragments)
+      .values([...allKeywords].map((name) => ({ userId, kindId: keywordKindId, name })));
+  }
 
   const bookIds: string[] = [];
   const readingIds: string[] = [];
@@ -218,33 +252,34 @@ export async function seedDemo(email: string): Promise<string> {
   for (const [i, entry] of BOOKS.entries()) {
     const [title, author, publisher, domain, subDomain, attribute, names] = entry;
     const [book] = await db
-      .insert(books)
+      .insert(works)
       .values({
         userId,
+        kindId: bookKindId,
         title,
-        author,
+        creator: author,
         language: "中文",
-        typeId: typeId.get(subDomain ? `${domain}/${subDomain}` : domain) ?? null,
+        topicId: typeId.get(subDomain ? `${domain}/${subDomain}` : domain) ?? null,
         attributeId: attributeId.get(attribute) ?? null,
       })
-      .returning({ id: books.id });
+      .returning({ id: works.id });
     bookIds.push(book.id);
 
     // 前面幾本讀完、中間在讀、最後幾本想讀
     const status = i < 17 ? "已讀完" : i < 22 ? "閱讀中" : "想讀";
     const [reading] = await db
-      .insert(readings)
+      .insert(records)
       .values({
         userId,
-        bookId: book.id,
-        status,
+        workId: book.id,
+        statusId: statusIds[status],
         startDate: status === "想讀" ? null : daysAgo(400 - i * 12),
         endDate: status === "已讀完" ? daysAgo(380 - i * 12) : null,
-        publisher,
-        platform: i % 3 === 0 ? "讀墨" : i % 3 === 1 ? "實體書" : "Kobo",
-        pageCount: 200 + ((i * 37) % 300),
+        source: publisher,
+        amount: 200 + ((i * 37) % 300),
+        amountUnit: "頁",
       })
-      .returning({ id: readings.id });
+      .returning({ id: records.id });
     readingIds.push(reading.id);
 
     if (names.length)
@@ -253,41 +288,35 @@ export async function seedDemo(email: string): Promise<string> {
         .values(names.map((keyword) => ({ userId, bookId: book.id, keyword })));
   }
 
-  // 兩本重讀：同一本書底下再加一次閱讀
+  // 兩本重讀：同一個作品底下再加一次紀錄
   for (const i of [13, 19]) {
-    await db.insert(readings).values({
+    await db.insert(records).values({
       userId,
-      bookId: bookIds[i],
-      status: "已讀完",
+      workId: bookIds[i],
+      statusId: statusIds["已讀完"],
       startDate: daysAgo(90),
       endDate: daysAgo(60),
-      publisher: BOOKS[i][2],
-      platform: "實體書",
+      source: BOOKS[i][2],
     });
   }
 
-  const writingTypeId = new Map<string, string>();
-  for (const name of ["讀後感", "隨筆"]) {
-    const [row] = await db
-      .insert(writingTypes)
-      .values({ userId, name })
-      .returning({ id: writingTypes.id });
-    writingTypeId.set(name, row.id);
-  }
+  // 掛了出處的是心得，沒掛的是日記——這正是專欄那一堆的分法
+  const reflectionKindId = await kindId("心得");
+  const diaryKindId = await kindId("日記");
 
   for (const [i, entry] of WRITINGS.entries()) {
-    const [title, , bookIndex, kind, names] = entry;
+    const [title, , bookIndex, , names] = entry;
     const [writing] = await db
-      .insert(writings)
+      .insert(fragments)
       .values({
         userId,
-        title,
-        bookId: bookIndex === null ? null : bookIds[bookIndex],
-        typeId: bookIndex === null ? (writingTypeId.get(kind) ?? null) : null,
-        note: NOTES[title] ?? "",
+        kindId: bookIndex === null ? diaryKindId : reflectionKindId,
+        workId: bookIndex === null ? null : bookIds[bookIndex],
+        name: title,
+        body: NOTES[title] ?? "",
         date: daysAgo(300 - i * 25),
       })
-      .returning({ id: writings.id });
+      .returning({ id: fragments.id });
 
     if (names.length)
       await db
@@ -305,34 +334,27 @@ export async function seedDemo(email: string): Promise<string> {
       });
   }
 
-  await db.insert(quotes).values(
+  await db.insert(fragments).values(
     QUOTES.map(([bookIndex, text, chapter]) => ({
       userId,
-      bookId: bookIds[bookIndex],
-      text,
-      chapter,
+      kindId: quoteKindId,
+      workId: bookIds[bookIndex],
+      body: text,
+      locator: chapter,
     })),
   );
 
-  await db.insert(vocabulary).values(
+  await db.insert(fragments).values(
     VOCABULARY.map(
-      ([
-        bookIndex,
-        word,
-        pronunciation,
-        wordTranslation,
-        sentence,
-        sentenceTranslation,
-        language,
-      ]) => ({
+      ([bookIndex, word, pronunciation, wordTranslation, sentence, sentenceTranslation]) => ({
         userId,
-        bookId: bookIds[bookIndex],
-        word,
+        kindId: vocabularyKindId,
+        workId: bookIds[bookIndex],
+        name: word,
         pronunciation,
-        wordTranslation,
-        sentence,
-        sentenceTranslation,
-        language,
+        translation: wordTranslation,
+        context: sentence,
+        contextTranslation: sentenceTranslation,
       }),
     ),
   );

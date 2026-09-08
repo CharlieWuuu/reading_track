@@ -81,7 +81,7 @@ async function seedKindsInto(db: typeof Db, userId: string): Promise<void> {
 
     if (template.group === "records" && template.modules.includes("progress")) {
       await db.insert(recordKindStatuses).values(
-        NEW_KIND_STATUSES.map((status, index) => ({
+        (template.statuses ?? NEW_KIND_STATUSES).map((status, index) => ({
           userId,
           kindId: kind.id,
           key: status.key,

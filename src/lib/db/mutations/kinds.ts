@@ -19,6 +19,8 @@ export type NewKind = {
   amountUnit: string;
   /** 模組在這個類型叫什麼 */
   labels?: Record<string, string>;
+  /** 狀態的說法。沒給就用通用那組 */
+  statuses?: { key: string; label: string }[];
 };
 
 async function insertKind(
@@ -57,7 +59,7 @@ async function insertKind(
   // 只有紀錄那一堆有進度：一句佳句摘下來就是摘下來了，沒有「在讀」
   if (group === "records" && modules.includes("progress")) {
     await tx.insert(recordKindStatuses).values(
-      NEW_KIND_STATUSES.map((status, index) => ({
+      (kind.statuses ?? NEW_KIND_STATUSES).map((status, index) => ({
         userId,
         kindId: created.id,
         key: status.key,
@@ -75,6 +77,7 @@ const fromTemplate = (template: KindTemplate): NewKind => ({
   modules: [...template.modules],
   amountUnit: template.amountUnit,
   labels: template.labels,
+  statuses: template.statuses,
 });
 
 /** 排在同一堆的最後面 */
