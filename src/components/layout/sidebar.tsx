@@ -3,10 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Plus } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { isBuiltIn, kindHref, kindIdFromPath } from "@/config/kind-routes";
-import { activeNavKey, NAV_GROUPS, NavGroup, NavType, TOOL_ITEMS } from "@/config/nav";
-import { settingsTabHref } from "@/config/routes";
+import { activeNavKey, NAV_GROUPS, NavGroup, NavType } from "@/config/nav";
 import { useKinds } from "@/hooks/use-kinds";
 
 /**
@@ -17,6 +15,8 @@ import { useKinds } from "@/hooks/use-kinds";
  *
  * 類型有兩個來源：寫死的那幾條有專屬頁面（書籍有封面牆、關鍵字有維基欄位），
  * 自己新增的從資料庫來、走通用頁。等舊表搬完就只剩後者。
+ *
+ * 統計／設定／帳號在報頭右側，不在這裡——側欄只放內容類型。
  */
 
 const styles = {
@@ -27,9 +27,6 @@ const styles = {
   add: "text-ink-faint hover:text-ink ml-auto shrink-0 p-0.5",
   row: "border-rule flex items-baseline border-b py-[7px]",
   count: "text-meta text-ink-faint ml-auto pl-2 tabular-nums",
-  tools: "border-rule-strong mt-auto border-t pt-3",
-  toolRow: "flex items-baseline py-[7px]",
-  user: "text-meta text-ink-faint flex items-center gap-2 pt-2",
   label: "text-ui truncate",
   labelActive: "font-serif text-item-sm text-accent font-semibold",
   labelIdle: "text-ink-muted",
@@ -66,27 +63,6 @@ function GroupHeading({ group }: { group: NavGroup }) {
         </Link>
       )}
     </div>
-  );
-}
-
-/** 底部的使用者：頭像與名字，點進個人資訊 */
-function SidebarUser() {
-  const { data: session } = useSession();
-  const user = session?.user;
-  if (!user) return null;
-
-  const label = user.name ?? user.email ?? "";
-
-  return (
-    <Link href={settingsTabHref("account")} className={styles.user}>
-      {user.image ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={user.image} alt="" className="h-5 w-5 shrink-0 rounded-full" />
-      ) : (
-        <span className="bg-rule h-5 w-5 shrink-0 rounded-full" />
-      )}
-      <span className="truncate">{label}</span>
-    </Link>
   );
 }
 
@@ -130,24 +106,6 @@ export function Sidebar() {
           ))}
         </div>
       ))}
-
-      <div className={styles.tools}>
-        {TOOL_ITEMS.map((item) => (
-          <Link
-            key={item.key}
-            href={item.href}
-            aria-current={item.key === current ? "page" : undefined}
-            className={styles.toolRow}
-          >
-            <span
-              className={`${styles.label} ${item.key === current ? styles.labelActive : styles.labelIdle}`}
-            >
-              {item.label}
-            </span>
-          </Link>
-        ))}
-        <SidebarUser />
-      </div>
     </nav>
   );
 }

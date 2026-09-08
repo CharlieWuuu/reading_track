@@ -62,7 +62,7 @@ export const NAV_GROUPS: NavGroup[] = [
 ];
 
 /**
- * 側欄底部的工具區。統計與設定不是內容類型，不跟三堆並列——
+ * 報頭右側的工具區。統計與設定不是內容類型，不跟三堆並列——
  * 統計是副產品，設定是後台。
  */
 export const TOOL_ITEMS: NavType[] = [
