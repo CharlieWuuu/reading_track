@@ -24,22 +24,20 @@ export type NewKind = {
   statuses?: { key: string; label: string }[];
 };
 
-/** label 一定要有值：沒自訂就用模組庫的預設名稱，field_id 才不會是空的 */
-async function fieldIdFor(
-  tx: Tx,
-  userId: string,
-  fieldKey: string,
-  label: string,
-): Promise<string> {
+/**
+ * label 一定要有值：沒自訂就用模組庫的預設名稱，field_id 才不會是空的。
+ * fields 全體共用，不分使用者。
+ */
+async function fieldIdFor(tx: Tx, fieldKey: string, label: string): Promise<string> {
   const [existing] = await tx
     .select({ id: fields.id })
     .from(fields)
-    .where(and(eq(fields.userId, userId), eq(fields.fieldKey, fieldKey), eq(fields.label, label)));
+    .where(and(eq(fields.fieldKey, fieldKey), eq(fields.label, label)));
   if (existing) return existing.id;
 
   const [row] = await tx
     .insert(fields)
-    .values({ userId, fieldKey, label })
+    .values({ fieldKey, label })
     .returning({ id: fields.id });
   return row.id;
 }
@@ -70,7 +68,7 @@ async function insertKind(
         userId,
         kindId: created.id,
         fieldKey: key,
-        fieldId: await fieldIdFor(tx, userId, key, kind.labels?.[key] || moduleDef(key)!.label),
+        fieldId: await fieldIdFor(tx, key, kind.labels?.[key] || moduleDef(key)!.label),
         isVisible: true,
         sortOrder: index,
       })),
