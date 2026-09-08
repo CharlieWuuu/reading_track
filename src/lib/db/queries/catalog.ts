@@ -1,6 +1,7 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
+import { fragments } from "@/lib/db/schema/fragments";
 import { recordKinds, recordKindStatuses } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
 
@@ -86,5 +87,49 @@ export async function listRecordsByGroup(userId: string, group: KindGroup): Prom
     source: record.source,
     coverUrl: record.coverUrl,
     isPrivate: record.isPrivate,
+  }));
+}
+
+export type FragmentRow = {
+  id: string;
+  kindId: string;
+  kindName: string;
+  workId: string | null;
+  workTitle: string;
+  name: string;
+  body: string;
+  locator: string;
+  note: string;
+  createdAt: string;
+};
+
+/**
+ * 一堆片段（或專欄）。兩者形狀一樣，都在 fragments 表裡，靠類型屬於哪一堆分。
+ *
+ * 出處的標題一起帶出來——概覽上「這句話出自哪本書」比片段本身還重要。
+ */
+export async function listFragmentsByGroup(
+  userId: string,
+  group: KindGroup,
+): Promise<FragmentRow[]> {
+  const rows = await db
+    .select({ fragment: fragments, kind: recordKinds, workTitle: works.title })
+    .from(fragments)
+    .innerJoin(recordKinds, eq(recordKinds.id, fragments.kindId))
+    .leftJoin(works, eq(works.id, fragments.workId))
+    .where(and(eq(fragments.userId, userId), eq(recordKinds.groupKey, group)))
+    .orderBy(desc(fragments.createdAt));
+
+  return rows.map(({ fragment, kind, workTitle }) => ({
+    id: fragment.id,
+    kindId: kind.id,
+    kindName: kind.name,
+    workId: fragment.workId,
+    workTitle: workTitle ?? "",
+    name: fragment.name,
+    body: fragment.body,
+    locator: fragment.locator,
+    note: fragment.note,
+    createdAt: fragment.createdAt.toISOString(),
   }));
 }

@@ -1,4 +1,4 @@
-import { RecordRow } from "@/lib/db/queries/catalog";
+import { FragmentRow, RecordRow } from "@/lib/db/queries/catalog";
 import { Article } from "@/types/article";
 import { Book } from "@/types/book";
 import { Writing } from "@/types/writing";
@@ -67,3 +67,30 @@ export const recordItem = (row: RecordRow): OverviewItem => ({
   endDate: row.endDate && `${row.endDate} 完成`,
   kindLabel: row.kindName,
 });
+
+/**
+ * 片段與專欄的一筆。標題是「有名字就用名字，沒有就用內文開頭」——
+ * 一句佳句沒有標題，硬留白會讓整排清單只剩出處看得見。
+ */
+export const fragmentItem = (row: FragmentRow): OverviewItem => {
+  const day = row.createdAt.slice(0, 10);
+  return {
+    id: row.id,
+    title: row.name || row.body.slice(0, 40),
+    byline: joinByline([row.workTitle, row.locator]),
+    href: FRAGMENT_HREF[row.kindName]?.(row) ?? `/reading/k/${row.kindId}`,
+    startDate: day,
+    endDate: day,
+    kindLabel: row.kindName,
+  };
+};
+
+/** 內建片段的詳細頁。單字用詞條當網址，那是舊路由的約定 */
+const FRAGMENT_HREF: Record<string, (row: FragmentRow) => string> = {
+  佳句: (row) => `/reading/quotes/${row.id}`,
+  單字: (row) => `/reading/vocabulary/${encodeURIComponent(row.name)}`,
+  日記: (row) => `/writing/${row.id}`,
+  心得: (row) => `/writing/${row.id}`,
+  論述: (row) => `/writing/${row.id}`,
+  每日計畫: (row) => `/writing/${row.id}`,
+};

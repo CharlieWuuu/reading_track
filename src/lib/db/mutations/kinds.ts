@@ -43,6 +43,26 @@ async function insertKind(tx: Tx, userId: string, spec: KindSpec, sortOrder: num
   ]);
 }
 
+/**
+ * 補上還沒有的預設類型。跟 seedKinds 的差別是它逐一比對名字——
+ * 給改過規格的既有帳號用，不會動到已經在用的類型。
+ */
+export async function syncKinds(userId: string): Promise<string[]> {
+  const existing = await db
+    .select({ name: recordKinds.name })
+    .from(recordKinds)
+    .where(eq(recordKinds.userId, userId));
+  const have = new Set(existing.map((k) => k.name));
+
+  const missing = DEFAULT_KINDS.filter((spec) => !have.has(spec.name));
+  await db.transaction(async (tx) => {
+    for (const [index, spec] of missing.entries()) {
+      await insertKind(tx, userId, spec, have.size + index);
+    }
+  });
+  return missing.map((spec) => spec.name);
+}
+
 /** 回報灌了幾種；已經有資料就是 0 */
 export async function seedKinds(userId: string): Promise<number> {
   return db.transaction(async (tx) => {

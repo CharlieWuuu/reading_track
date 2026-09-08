@@ -29,7 +29,12 @@ export const isBuiltIn = (group: NavGroup, name: string): boolean =>
 const NEW_HREF: Record<string, string> = {
   書籍: "/reading/books/new",
   文章: "/reading/articles/new",
-  書寫: "/writing/new",
+  佳句: "/reading/quotes",
+  單字: "/reading/vocabulary",
+  日記: "/writing/new",
+  心得: "/writing/new",
+  論述: "/writing/new",
+  每日計畫: "/writing/new",
 };
 
 export const newHref = (kindName: string): string | undefined => NEW_HREF[kindName];

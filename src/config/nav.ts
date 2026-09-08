@@ -46,6 +46,7 @@ export const NAV_GROUPS: NavGroup[] = [
     key: "fragments",
     label: "片段",
     kindGroup: "fragments",
+    href: "/fragments",
     types: [
       readingType("quotes", "佳句"),
       readingType("vocabulary", "單字"),
@@ -56,6 +57,7 @@ export const NAV_GROUPS: NavGroup[] = [
     key: "columns",
     label: "專欄",
     kindGroup: "writings",
+    href: "/columns",
     types: [{ key: "writing", label: "書寫", href: "/writing", match: "/writing" }],
   },
   {
