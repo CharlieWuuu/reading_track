@@ -1,8 +1,9 @@
 import { and, asc, count, eq } from "drizzle-orm";
 import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
+import { fields as fieldsTable } from "@/lib/db/schema/fields";
 import { fragments } from "@/lib/db/schema/fragments";
-import { kindFields, kinds as kindsTable, kindStatuses } from "@/lib/db/schema/kinds";
+import { kinds as kindsTable, kindStatuses, mapKindField } from "@/lib/db/schema/kinds";
 import { works } from "@/lib/db/schema/works";
 import { ModuleOverride } from "@/utils/record-form";
 
@@ -58,17 +59,24 @@ async function countsByKind(userId: string): Promise<Map<string, number>> {
 }
 
 export async function listKinds(userId: string): Promise<Kind[]> {
-  const [kinds, fields, statuses, counts] = await Promise.all([
+  const [kinds, fieldLinks, statuses, counts] = await Promise.all([
     db
       .select()
       .from(kindsTable)
       .where(eq(kindsTable.userId, userId))
       .orderBy(asc(kindsTable.sortOrder), asc(kindsTable.name)),
     db
-      .select()
-      .from(kindFields)
-      .where(eq(kindFields.userId, userId))
-      .orderBy(asc(kindFields.sortOrder)),
+      .select({
+        kindId: mapKindField.kindId,
+        fieldKey: mapKindField.fieldKey,
+        label: fieldsTable.label,
+        isVisible: mapKindField.isVisible,
+        sortOrder: mapKindField.sortOrder,
+      })
+      .from(mapKindField)
+      .innerJoin(fieldsTable, eq(fieldsTable.id, mapKindField.fieldId))
+      .where(eq(mapKindField.userId, userId))
+      .orderBy(asc(mapKindField.sortOrder)),
     db
       .select()
       .from(kindStatuses)
@@ -77,7 +85,7 @@ export async function listKinds(userId: string): Promise<Kind[]> {
     countsByKind(userId),
   ]);
 
-  const fieldsByKind = groupBy(fields);
+  const fieldsByKind = groupBy(fieldLinks);
   const statusesByKind = groupBy(statuses);
 
   return kinds.map((kind) => ({

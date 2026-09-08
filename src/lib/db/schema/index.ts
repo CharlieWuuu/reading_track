@@ -1,5 +1,6 @@
 export * from "./users";
 export * from "./taxonomy";
+export * from "./fields";
 export * from "./fragments";
 export * from "./writings";
 export * from "./keyword-links";

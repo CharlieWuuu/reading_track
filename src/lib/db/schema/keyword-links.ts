@@ -14,8 +14,8 @@ import { writings } from "./writings";
  * 不會留下指向舊名字的孤兒。
  */
 
-export const bookKeywords = pgTable(
-  "book_keywords",
+export const mapBookKeyword = pgTable(
+  "map_book_keyword",
   {
     bookId: uuid("book_id")
       .notNull()
@@ -36,8 +36,8 @@ export const bookKeywords = pgTable(
   ],
 );
 
-export const articleKeywords = pgTable(
-  "article_keywords",
+export const mapArticleKeyword = pgTable(
+  "map_article_keyword",
   {
     articleId: uuid("article_id")
       .notNull()
@@ -58,8 +58,8 @@ export const articleKeywords = pgTable(
   ],
 );
 
-export const writingKeywords = pgTable(
-  "writing_keywords",
+export const mapWritingKeyword = pgTable(
+  "map_writing_keyword",
   {
     writingId: uuid("writing_id")
       .notNull()

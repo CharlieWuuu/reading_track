@@ -1,7 +1,10 @@
+import { and, eq } from "drizzle-orm";
 import { KIND_TEMPLATES, STARTER_KEYS } from "@/config/kind-templates";
+import { moduleDef } from "@/config/modules";
 import { NEW_KIND_STATUSES } from "@/config/record-kinds";
 import type { db as Db } from "@/lib/db/client";
-import { kindFields, kinds, kindStatuses } from "@/lib/db/schema/kinds";
+import { fields } from "@/lib/db/schema/fields";
+import { kinds, kindStatuses, mapKindField } from "@/lib/db/schema/kinds";
 import { users } from "@/lib/db/schema/users";
 import type { Book } from "@/types/book";
 
@@ -69,15 +72,26 @@ async function seedKindsInto(db: typeof Db, userId: string): Promise<void> {
       })
       .returning({ id: kinds.id });
 
-    await db.insert(kindFields).values(
-      template.modules.map((key, index) => ({
-        userId,
-        kindId: kind.id,
-        fieldKey: key,
-        label: template.labels?.[key] ?? "",
-        sortOrder: index,
-      })),
+    const fieldRows = await Promise.all(
+      template.modules.map(async (key, index) => {
+        const label = template.labels?.[key] || moduleDef(key)!.label;
+        const [existing] = await db
+          .select({ id: fields.id })
+          .from(fields)
+          .where(and(eq(fields.userId, userId), eq(fields.fieldKey, key), eq(fields.label, label)));
+        const fieldId =
+          existing?.id ??
+          (
+            await db
+              .insert(fields)
+              .values({ userId, fieldKey: key, label })
+              .returning({ id: fields.id })
+          )[0].id;
+
+        return { userId, kindId: kind.id, fieldKey: key, fieldId, sortOrder: index };
+      }),
     );
+    await db.insert(mapKindField).values(fieldRows);
 
     if (template.group === "records" && template.modules.includes("progress")) {
       await db.insert(kindStatuses).values(

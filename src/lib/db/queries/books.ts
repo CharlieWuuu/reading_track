@@ -1,7 +1,7 @@
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { PRIVATE_MARK } from "@/config/privacy";
 import { db } from "@/lib/db/client";
-import { bookKeywords } from "@/lib/db/schema/keyword-links";
+import { mapBookKeyword } from "@/lib/db/schema/keyword-links";
 import { kinds, kindStatuses } from "@/lib/db/schema/kinds";
 import { bookAttributes } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
@@ -23,10 +23,10 @@ const BOOK_KIND = "書籍";
 
 async function keywordsByWork(userId: string): Promise<Map<string, string[]>> {
   const rows = await db
-    .select({ bookId: bookKeywords.bookId, keyword: bookKeywords.keyword })
-    .from(bookKeywords)
-    .where(eq(bookKeywords.userId, userId))
-    .orderBy(asc(bookKeywords.keyword));
+    .select({ bookId: mapBookKeyword.bookId, keyword: mapBookKeyword.keyword })
+    .from(mapBookKeyword)
+    .where(eq(mapBookKeyword.userId, userId))
+    .orderBy(asc(mapBookKeyword.keyword));
 
   const map = new Map<string, string[]>();
   for (const row of rows) map.set(row.bookId, [...(map.get(row.bookId) ?? []), row.keyword]);

@@ -12,8 +12,8 @@ import { fieldDef, FieldDef } from "@/config/record-fields";
 
 export type ModuleOverride = {
   key: string;
-  /** 模組在這個類型叫什麼。空的就用模組庫的預設名 */
-  label?: string;
+  /** 模組在這個類型叫什麼 */
+  label: string;
   sortOrder?: number;
 };
 
@@ -23,9 +23,7 @@ export function resolveFormModules(overrides: readonly ModuleOverride[]): FormMo
   return overrides
     .map((over, index) => {
       const def = moduleDef(over.key);
-      return def
-        ? { ...def, label: over.label || def.label, sortOrder: over.sortOrder ?? index }
-        : null;
+      return def ? { ...def, label: over.label, sortOrder: over.sortOrder ?? index } : null;
     })
     .filter((module): module is FormModule => module !== null)
     .sort((a, b) => a.sortOrder - b.sortOrder);

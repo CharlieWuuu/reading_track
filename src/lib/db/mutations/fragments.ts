@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db/client";
 import { fragments } from "@/lib/db/schema/fragments";
-import { bookKeywords } from "@/lib/db/schema/keyword-links";
+import { mapBookKeyword } from "@/lib/db/schema/keyword-links";
 import { keywords } from "@/lib/db/schema/taxonomy";
 import { records } from "@/lib/db/schema/works";
 import { KeywordInfo } from "@/types/keyword";
@@ -212,9 +212,9 @@ export async function renameKeyword(userId: string, from: string, to: string): P
   if (!from || !to || from === to) return 0;
 
   const affected = await db
-    .select({ bookId: bookKeywords.bookId })
-    .from(bookKeywords)
-    .where(and(eq(bookKeywords.userId, userId), eq(bookKeywords.keyword, from)));
+    .select({ bookId: mapBookKeyword.bookId })
+    .from(mapBookKeyword)
+    .where(and(eq(mapBookKeyword.userId, userId), eq(mapBookKeyword.keyword, from)));
 
   const [existing] = await db
     .select({ name: keywords.name })
@@ -227,7 +227,7 @@ export async function renameKeyword(userId: string, from: string, to: string): P
     if (existing) {
       // 合併：舊名字的關聯改指新名字，重複的丟掉，然後刪掉舊的主檔與片段
       const rows = affected.map((r) => ({ userId, bookId: r.bookId, keyword: to }));
-      if (rows.length) await tx.insert(bookKeywords).values(rows).onConflictDoNothing();
+      if (rows.length) await tx.insert(mapBookKeyword).values(rows).onConflictDoNothing();
       await tx.delete(keywords).where(and(eq(keywords.userId, userId), eq(keywords.name, from)));
       const [old] = await tx
         .select({ id: fragments.id })
@@ -262,9 +262,9 @@ export async function renameKeyword(userId: string, from: string, to: string): P
 /** 刪掉主檔那一列，關聯表靠 on delete cascade 一起清掉。回傳動到幾本書 */
 export async function deleteKeyword(userId: string, name: string): Promise<number> {
   const affected = await db
-    .select({ bookId: bookKeywords.bookId })
-    .from(bookKeywords)
-    .where(and(eq(bookKeywords.userId, userId), eq(bookKeywords.keyword, name)));
+    .select({ bookId: mapBookKeyword.bookId })
+    .from(mapBookKeyword)
+    .where(and(eq(mapBookKeyword.userId, userId), eq(mapBookKeyword.keyword, name)));
 
   await db.transaction(async (tx) => {
     const kindId = await kindIdByName(tx, userId, "關鍵字");

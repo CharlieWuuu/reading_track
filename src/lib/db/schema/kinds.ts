@@ -1,4 +1,5 @@
 import { boolean, integer, pgTable, text, unique, uuid } from "drizzle-orm/pg-core";
+import { fields } from "./fields";
 import { users } from "./users";
 
 /**
@@ -28,15 +29,16 @@ export const kinds = pgTable(
 );
 
 /**
- * 欄位在這個類型叫什麼名字、顯不顯示。
+ * 類型與欄位的關聯：這個類型勾了哪個欄位、顯不顯示、叫什麼名字。
  *
  * 沒有「特有欄位」——作者、導演、講師、主持人都是創作者，頁數、片長、集數都是份量。
  * 所以這張表只改名字與可見性，records 的欄位一動也不動。想不到的類型也有位置放。
  *
  * field_key 對到 records／experiences 上真正的欄位，合法值由 config 那層管。
+ * 名字本身走 field_id 指到 fields，不在這裡重複存字串。
  */
-export const kindFields = pgTable(
-  "kind_fields",
+export const mapKindField = pgTable(
+  "map_kind_field",
   {
     userId: uuid("user_id")
       .notNull()
@@ -46,7 +48,9 @@ export const kindFields = pgTable(
       .notNull()
       .references(() => kinds.id, { onDelete: "cascade" }),
     fieldKey: text("field_key").notNull(),
-    label: text("label").notNull(), // 「頁數」「片長」「時數」
+    fieldId: uuid("field_id")
+      .notNull()
+      .references(() => fields.id, { onDelete: "restrict" }),
     isVisible: boolean("is_visible").notNull().default(true),
     sortOrder: integer("sort_order").notNull().default(0),
   },

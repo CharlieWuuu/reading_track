@@ -1,7 +1,7 @@
 import { asc, eq } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db/client";
-import { writingKeywords } from "@/lib/db/schema/keyword-links";
+import { mapWritingKeyword } from "@/lib/db/schema/keyword-links";
 import { kinds } from "@/lib/db/schema/kinds";
 import { works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
@@ -21,10 +21,10 @@ const sourceKind = alias(kinds, "source_kind");
 
 async function keywordsByWriting(userId: string): Promise<Map<string, string[]>> {
   const rows = await db
-    .select({ writingId: writingKeywords.writingId, keyword: writingKeywords.keyword })
-    .from(writingKeywords)
-    .where(eq(writingKeywords.userId, userId))
-    .orderBy(asc(writingKeywords.keyword));
+    .select({ writingId: mapWritingKeyword.writingId, keyword: mapWritingKeyword.keyword })
+    .from(mapWritingKeyword)
+    .where(eq(mapWritingKeyword.userId, userId))
+    .orderBy(asc(mapWritingKeyword.keyword));
 
   const map = new Map<string, string[]>();
   for (const row of rows) map.set(row.writingId, [...(map.get(row.writingId) ?? []), row.keyword]);

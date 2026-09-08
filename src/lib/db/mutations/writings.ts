@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db/client";
-import { writingKeywords } from "@/lib/db/schema/keyword-links";
+import { mapWritingKeyword } from "@/lib/db/schema/keyword-links";
 import { keywords } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
@@ -64,11 +64,11 @@ async function setKeywords(
       .values(names.map((name) => ({ userId, name })))
       .onConflictDoNothing();
   await tx
-    .delete(writingKeywords)
-    .where(and(eq(writingKeywords.userId, userId), eq(writingKeywords.writingId, writingId)));
+    .delete(mapWritingKeyword)
+    .where(and(eq(mapWritingKeyword.userId, userId), eq(mapWritingKeyword.writingId, writingId)));
   if (names.length)
     await tx
-      .insert(writingKeywords)
+      .insert(mapWritingKeyword)
       .values(names.map((keyword) => ({ userId, writingId, keyword })));
 }
 

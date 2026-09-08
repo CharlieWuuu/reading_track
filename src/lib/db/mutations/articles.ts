@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { PRIVATE_MARK } from "@/config/privacy";
 import { db, type Tx } from "@/lib/db/client";
-import { articleKeywords } from "@/lib/db/schema/keyword-links";
+import { mapArticleKeyword } from "@/lib/db/schema/keyword-links";
 import { keywords } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { Article } from "@/types/article";
@@ -34,11 +34,11 @@ async function setKeywords(
       .values(names.map((name) => ({ userId, name })))
       .onConflictDoNothing();
   await tx
-    .delete(articleKeywords)
-    .where(and(eq(articleKeywords.userId, userId), eq(articleKeywords.articleId, articleId)));
+    .delete(mapArticleKeyword)
+    .where(and(eq(mapArticleKeyword.userId, userId), eq(mapArticleKeyword.articleId, articleId)));
   if (names.length)
     await tx
-      .insert(articleKeywords)
+      .insert(mapArticleKeyword)
       .values(names.map((keyword) => ({ userId, articleId, keyword })));
 }
 

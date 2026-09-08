@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
-import { articleKeywords } from "@/lib/db/schema/keyword-links";
+import { mapArticleKeyword } from "@/lib/db/schema/keyword-links";
 import { keywords } from "@/lib/db/schema/taxonomy";
 import { records } from "@/lib/db/schema/works";
 import { seedUser } from "@/lib/db/test/factories";
@@ -48,8 +48,8 @@ describe("addArticleRow", () => {
 
     const linked = await db
       .select()
-      .from(articleKeywords)
-      .where(eq(articleKeywords.articleId, article.id));
+      .from(mapArticleKeyword)
+      .where(eq(mapArticleKeyword.articleId, article.id));
     expect(linked.map((r) => r.keyword).sort()).toEqual(["資本論", "馬克思"].sort());
 
     const master = await db.select().from(keywords).where(eq(keywords.name, "馬克思"));
@@ -66,8 +66,8 @@ describe("updateArticleRow", () => {
 
     const linked = await db
       .select()
-      .from(articleKeywords)
-      .where(eq(articleKeywords.articleId, article.id));
+      .from(mapArticleKeyword)
+      .where(eq(mapArticleKeyword.articleId, article.id));
     expect(linked.map((r) => r.keyword)).toEqual(["新字"]);
   });
 
@@ -91,7 +91,7 @@ describe("deleteArticleRow", () => {
 
     expect(await db.select().from(records).where(eq(records.id, article.id))).toHaveLength(0);
     expect(
-      await db.select().from(articleKeywords).where(eq(articleKeywords.articleId, article.id)),
+      await db.select().from(mapArticleKeyword).where(eq(mapArticleKeyword.articleId, article.id)),
     ).toHaveLength(0);
   });
 });

@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { fieldsOfModules } from "@/config/modules";
 import { db } from "@/lib/db/client";
-import { kindFields, kindStatuses } from "@/lib/db/schema/kinds";
+import { kindStatuses, mapKindField } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
 import { setRecordSourceUrl } from "./external-links";
 import { toDate, toInt } from "./values";
@@ -17,9 +17,9 @@ export type FieldValues = Record<string, string>;
 
 export async function allowedFields(userId: string, kindId: string): Promise<Set<string>> {
   const rows = await db
-    .select({ key: kindFields.fieldKey })
-    .from(kindFields)
-    .where(and(eq(kindFields.userId, userId), eq(kindFields.kindId, kindId)));
+    .select({ key: mapKindField.fieldKey })
+    .from(mapKindField)
+    .where(and(eq(mapKindField.userId, userId), eq(mapKindField.kindId, kindId)));
   return new Set(fieldsOfModules(rows.map((row) => row.key)));
 }
 

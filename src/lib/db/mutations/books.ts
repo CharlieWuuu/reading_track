@@ -1,7 +1,7 @@
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { PRIVATE_MARK } from "@/config/privacy";
 import { db, type Tx } from "@/lib/db/client";
-import { bookKeywords } from "@/lib/db/schema/keyword-links";
+import { mapBookKeyword } from "@/lib/db/schema/keyword-links";
 import { keywords } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { Book, splitLines } from "@/types/book";
@@ -39,10 +39,10 @@ async function setBookKeywords(
 ): Promise<void> {
   await ensureKeywords(tx, userId, names);
   await tx
-    .delete(bookKeywords)
-    .where(and(eq(bookKeywords.userId, userId), eq(bookKeywords.bookId, bookId)));
+    .delete(mapBookKeyword)
+    .where(and(eq(mapBookKeyword.userId, userId), eq(mapBookKeyword.bookId, bookId)));
   if (names.length) {
-    await tx.insert(bookKeywords).values(names.map((keyword) => ({ userId, bookId, keyword })));
+    await tx.insert(mapBookKeyword).values(names.map((keyword) => ({ userId, bookId, keyword })));
   }
 }
 
@@ -173,19 +173,19 @@ export async function deleteBookRow(userId: string, id: string): Promise<void> {
 /** 關鍵字改名或合併時，把掛在舊名字上的書換過去 */
 export async function renameBookKeyword(userId: string, from: string, to: string): Promise<void> {
   const rows = await db
-    .select({ bookId: bookKeywords.bookId })
-    .from(bookKeywords)
-    .where(and(eq(bookKeywords.userId, userId), eq(bookKeywords.keyword, from)));
+    .select({ bookId: mapBookKeyword.bookId })
+    .from(mapBookKeyword)
+    .where(and(eq(mapBookKeyword.userId, userId), eq(mapBookKeyword.keyword, from)));
   if (!rows.length) return;
 
   await db.transaction(async (tx) => {
     await ensureKeywords(tx, userId, [to]);
     await tx
-      .delete(bookKeywords)
-      .where(and(eq(bookKeywords.userId, userId), eq(bookKeywords.keyword, from)));
+      .delete(mapBookKeyword)
+      .where(and(eq(mapBookKeyword.userId, userId), eq(mapBookKeyword.keyword, from)));
     // 合併到已經存在的名字時，那本書可能兩個都掛著，onConflictDoNothing 擋掉重複
     await tx
-      .insert(bookKeywords)
+      .insert(mapBookKeyword)
       .values(rows.map((r) => ({ userId, bookId: r.bookId, keyword: to })))
       .onConflictDoNothing();
   });

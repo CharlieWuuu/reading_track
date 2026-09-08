@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { seedKinds } from "@/lib/db/mutations/kinds";
 import { fragments } from "@/lib/db/schema/fragments";
-import { bookKeywords, writingKeywords } from "@/lib/db/schema/keyword-links";
+import { mapBookKeyword, mapWritingKeyword } from "@/lib/db/schema/keyword-links";
 import { kinds, kindStatuses } from "@/lib/db/schema/kinds";
 import { bookAttributes, bookTypes, keywords } from "@/lib/db/schema/taxonomy";
 import { users } from "@/lib/db/schema/users";
@@ -283,7 +283,7 @@ export async function seedDemo(email: string): Promise<string> {
 
     if (names.length)
       await db
-        .insert(bookKeywords)
+        .insert(mapBookKeyword)
         .values(names.map((keyword) => ({ userId, bookId: book.id, keyword })));
   }
 
@@ -318,7 +318,7 @@ export async function seedDemo(email: string): Promise<string> {
 
     if (names.length)
       await db
-        .insert(writingKeywords)
+        .insert(mapWritingKeyword)
         .values(names.map((keyword) => ({ userId, writingId: writing.id, keyword })));
   }
 

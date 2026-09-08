@@ -1,7 +1,7 @@
 import { and, asc, eq } from "drizzle-orm";
 import { PRIVATE_MARK } from "@/config/privacy";
 import { db } from "@/lib/db/client";
-import { articleKeywords } from "@/lib/db/schema/keyword-links";
+import { mapArticleKeyword } from "@/lib/db/schema/keyword-links";
 import { kinds } from "@/lib/db/schema/kinds";
 import { bookAttributes } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
@@ -14,10 +14,10 @@ const ARTICLE_KIND = "文章";
 
 async function keywordsByArticle(userId: string): Promise<Map<string, string[]>> {
   const rows = await db
-    .select({ articleId: articleKeywords.articleId, keyword: articleKeywords.keyword })
-    .from(articleKeywords)
-    .where(eq(articleKeywords.userId, userId))
-    .orderBy(asc(articleKeywords.keyword));
+    .select({ articleId: mapArticleKeyword.articleId, keyword: mapArticleKeyword.keyword })
+    .from(mapArticleKeyword)
+    .where(eq(mapArticleKeyword.userId, userId))
+    .orderBy(asc(mapArticleKeyword.keyword));
 
   const map = new Map<string, string[]>();
   for (const row of rows) map.set(row.articleId, [...(map.get(row.articleId) ?? []), row.keyword]);
