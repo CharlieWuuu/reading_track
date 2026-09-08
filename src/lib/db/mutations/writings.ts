@@ -1,9 +1,9 @@
 import { and, eq } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db/client";
-import { fragments } from "@/lib/db/schema/fragments";
 import { writingKeywords } from "@/lib/db/schema/keyword-links";
 import { keywords } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
+import { writings } from "@/lib/db/schema/writings";
 import { splitLines } from "@/types/book";
 import { Writing } from "@/types/writing";
 import { setFragmentSourceUrl } from "./external-links";
@@ -11,7 +11,7 @@ import { kindIdByName } from "./kind-lookup";
 import { toDate } from "./values";
 
 /**
- * 書寫寫回 fragments。跟片段同一張表，差別只在類型屬於哪一堆。
+ * 書寫寫回 writings 表。
  *
  * 舊的 kind 欄混了出處與類型：「書籍」「文章」只是在說它有出處，那件事現在由
  * work_id 記；其餘的值才是真的類型。sourceId 進來的是「某一次讀」的編號，
@@ -75,7 +75,7 @@ async function setKeywords(
 export async function addWritingRow(userId: string, writing: Writing): Promise<void> {
   const workId = await workIdFor(userId, writing.sourceId);
   await db.transaction(async (tx) => {
-    await tx.insert(fragments).values({
+    await tx.insert(writings).values({
       id: writing.id,
       userId,
       kindId: await kindIdFor(tx, userId, writing.kind),
@@ -109,9 +109,9 @@ export async function updateWritingRow(
 
     if (Object.keys(values).length)
       await tx
-        .update(fragments)
+        .update(writings)
         .set(values)
-        .where(and(eq(fragments.userId, userId), eq(fragments.id, id)));
+        .where(and(eq(writings.userId, userId), eq(writings.id, id)));
     if (patch.link !== undefined) await setFragmentSourceUrl(tx, userId, id, patch.link);
     if (patch.keywords !== undefined) await setKeywords(tx, userId, id, splitLines(patch.keywords));
   });
@@ -119,8 +119,8 @@ export async function updateWritingRow(
 
 export async function deleteWritingRow(userId: string, id: string): Promise<void> {
   await db.transaction(async (tx) => {
-    await tx.delete(fragments).where(and(eq(fragments.userId, userId), eq(fragments.id, id)));
-    // external_links 的 source_id 不是外鍵（要同時指兩張表），fragment 刪掉不會自動 cascade
+    await tx.delete(writings).where(and(eq(writings.userId, userId), eq(writings.id, id)));
+    // external_links 的 source_id 不是外鍵（要同時指兩張表），writing 刪掉不會自動 cascade
     await setFragmentSourceUrl(tx, userId, id, "");
   });
 }

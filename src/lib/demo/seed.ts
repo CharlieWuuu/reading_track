@@ -7,6 +7,7 @@ import { kinds, kindStatuses } from "@/lib/db/schema/kinds";
 import { bookAttributes, bookTypes, keywords } from "@/lib/db/schema/taxonomy";
 import { users } from "@/lib/db/schema/users";
 import { records, works } from "@/lib/db/schema/works";
+import { writings } from "@/lib/db/schema/writings";
 
 /**
  * demo 帳號的假資料。書名作者是真的，日期、心得、關鍵字都是編的。
@@ -179,7 +180,7 @@ export async function seedDemo(email: string): Promise<string> {
   const userId = user.id;
 
   // 重跑要一致，先清掉這個帳號名下的東西（外鍵 cascade 會帶走關聯與子表）
-  for (const table of [fragments, works, keywords, bookTypes, bookAttributes, kinds]) {
+  for (const table of [fragments, writings, works, keywords, bookTypes, bookAttributes, kinds]) {
     await db.delete(table).where(eq(table.userId, userId));
   }
   await seedKinds(userId); // 類型是資料，demo 帳號也要有
@@ -304,7 +305,7 @@ export async function seedDemo(email: string): Promise<string> {
   for (const [i, entry] of WRITINGS.entries()) {
     const [title, , bookIndex, , names] = entry;
     const [writing] = await db
-      .insert(fragments)
+      .insert(writings)
       .values({
         userId,
         kindId: bookIndex === null ? diaryKindId : reflectionKindId,
@@ -313,7 +314,7 @@ export async function seedDemo(email: string): Promise<string> {
         body: NOTES[title] ?? "",
         date: daysAgo(300 - i * 25),
       })
-      .returning({ id: fragments.id });
+      .returning({ id: writings.id });
 
     if (names.length)
       await db
