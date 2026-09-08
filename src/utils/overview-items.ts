@@ -1,3 +1,4 @@
+import { RecordRow } from "@/lib/db/queries/catalog";
 import { Article } from "@/types/article";
 import { Book } from "@/types/book";
 import { Writing } from "@/types/writing";
@@ -43,4 +44,26 @@ export const writingItem = (writing: Writing): OverviewItem => ({
   startDate: writing.date,
   endDate: writing.date && `${writing.date}`,
   kindLabel: "書寫",
+});
+
+/** 內建類型的詳細頁。自訂類型還沒有，點了退回那一種的清單 */
+const DETAIL_HREF: Record<string, (id: string) => string> = {
+  書籍: (id) => `/reading/books/${id}`,
+  文章: (id) => `/reading/articles/${id}`,
+};
+
+/**
+ * 新表的一筆紀錄。書籍、文章、電影都走這一支——欄位是共用的，
+ * 差別只有類型名，那個由 kindName 帶著走。
+ */
+export const recordItem = (row: RecordRow): OverviewItem => ({
+  id: row.id,
+  title: row.title,
+  byline: joinByline([row.creator, row.source, row.amount && `${row.amount} ${row.amountUnit}`]),
+  // 編號沿用舊表，所以舊的詳細頁直接接得上；電影那類還沒有詳細頁，退回類型清單
+  href: DETAIL_HREF[row.kindName]?.(row.id) ?? `/reading/k/${row.kindId}`,
+  coverUrl: row.coverUrl || undefined,
+  startDate: row.startDate,
+  endDate: row.endDate && `${row.endDate} 完成`,
+  kindLabel: row.kindName,
 });

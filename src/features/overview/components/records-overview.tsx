@@ -1,32 +1,29 @@
 "use client";
 
-import { useArticles } from "@/hooks/use-articles";
-import { useBooks } from "@/hooks/use-books";
-import { articleItem, bookItem } from "@/utils/overview-items";
+import { PageLoading } from "@/components/layout/page-loading";
+import { PageMessage } from "@/components/layout/page-message";
+import { useGroupRecords } from "@/hooks/use-group-records";
+import { recordItem } from "@/utils/overview-items";
 import { GroupOverview } from "./group-overview";
 
 /**
- * 紀錄那一堆的概覽：書籍與文章混在同一份清單裡排。
+ * 紀錄那一堆的概覽：書籍、文章、之後的電影都混在同一份清單裡排。
  *
- * 資料還是從舊表來——新的 records 表建好了但還沒搬。搬完之後這裡改成讀
- * 一支 hook 就好，版面不用動。
+ * 讀的是新表。舊的 books／articles 路由還在，兩套並存到確認過為止。
  */
 export function RecordsOverview() {
-  const { books } = useBooks();
-  const { articles } = useArticles();
+  const { records, isLoading, error } = useGroupRecords("records");
 
-  const active = books.filter((b) => b.status === "閱讀中").map(bookItem);
-  const pending = books.filter((b) => b.status === "想讀").map(bookItem);
-  const done = [
-    ...books.filter((b) => b.status === "已讀完").map(bookItem),
-    ...articles.filter((a) => a.endDate).map(articleItem),
-  ].sort((a, b) => (b.endDate ?? "").localeCompare(a.endDate ?? ""));
+  if (error) return <PageMessage tone="error">{error}</PageMessage>;
+  if (isLoading) return <PageLoading />;
+
+  const pick = (key: string) => records.filter((row) => row.statusKey === key).map(recordItem);
 
   return (
     <GroupOverview
-      active={active}
-      pending={pending}
-      done={done}
+      active={pick("reading")}
+      pending={pick("want")}
+      done={pick("done").sort((a, b) => (b.endDate ?? "").localeCompare(a.endDate ?? ""))}
       headlineLabel="在讀 · 最近開始的一本"
       activeLabel="其餘在讀"
       pendingLabel="想讀"
