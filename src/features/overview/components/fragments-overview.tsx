@@ -6,6 +6,7 @@ import { KindGroup } from "@/config/record-kinds";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { fragmentItem } from "@/utils/overview-items";
 import { GroupOverview } from "./group-overview";
+import { GroupTable } from "./group-table";
 
 /**
  * 片段與專欄的概覽。兩者同一張表、同一個版面，所以共用這一支。
@@ -16,9 +17,11 @@ import { GroupOverview } from "./group-overview";
 export function FragmentsOverview({
   group,
   headlineLabel,
+  view = "overview",
 }: {
   group: KindGroup;
   headlineLabel: string;
+  view?: "overview" | "table";
 }) {
   const { fragments, isLoading, error } = useGroupFragments(group);
 
@@ -26,6 +29,8 @@ export function FragmentsOverview({
   if (isLoading) return <PageLoading />;
 
   const items = fragments.map(fragmentItem);
+
+  if (view === "table") return <GroupTable items={items} />;
 
   return (
     <GroupOverview
