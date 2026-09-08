@@ -13,6 +13,8 @@ export type OverviewItem = {
   byline: string;
   href: string;
   coverUrl?: string;
+  /** 沒有封面時，封面帶生成塊中間放的字——單字、關鍵字這類本身就是重點的短字 */
+  bandLabel?: string;
   startDate?: string | null;
   endDate?: string | null;
   /** 混排時用來說明這是哪一種東西——同一頁裡書籍與電影要分得出來 */

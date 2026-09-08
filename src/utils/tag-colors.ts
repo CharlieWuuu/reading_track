@@ -100,3 +100,20 @@ export function tagColorClass(tag: string, order: string[], outline = false): st
   const index = order.indexOf(tag);
   return palette[(index >= 0 ? index : hash(tag)) % palette.length];
 }
+
+/**
+ * 封面帶的底色，跟標籤同一組色相輪替、只留底色不留字色——
+ * 底色上要疊的是生成塊本身的字，不是這個 class 管的。
+ */
+const COVER_TINTS = [
+  "bg-blue-100",
+  "bg-coral-100",
+  "bg-mint-100",
+  "bg-gold-100",
+  "bg-azure-100",
+  "bg-sand-200",
+];
+
+export function coverTintClass(seed: string): string {
+  return COVER_TINTS[hash(seed) % COVER_TINTS.length];
+}

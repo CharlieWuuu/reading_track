@@ -30,6 +30,7 @@ export function RecordsOverview({ view = "overview" }: { view?: "overview" | "ta
       headlineLabel="在讀 · 最近開始的一本"
       activeLabel="其餘在讀"
       pendingLabel="想讀"
+      coverSize="lg"
     />
   );
 }

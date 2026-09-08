@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { BookCover } from "@/components/ui/book-cover";
+import { CoverBand, CoverBandSize } from "@/components/ui/cover-band/cover-band";
 import { byMonth, OverviewItem, pickHeadline } from "@/utils/overview";
 
 /**
@@ -44,7 +45,7 @@ const joinMeta = (parts: (string | false | null | undefined)[]) =>
 function Headline({ item, label }: { item: OverviewItem; label: string }) {
   return (
     <div className={styles.headline}>
-      {item.coverUrl !== undefined && (
+      {item.coverUrl && (
         <div className="w-[118px] shrink-0">
           <BookCover url={item.coverUrl} title={item.title} size="full" />
         </div>
@@ -102,6 +103,8 @@ export type GroupOverviewProps = {
   headlineLabel: string;
   activeLabel: string;
   pendingLabel: string;
+  /** 封面帶份量跟著主角走：紀錄類（有圖）用 lg，片段與專欄（主角是文字）用 sm */
+  coverSize?: CoverBandSize;
 };
 
 export function GroupOverview({
@@ -111,6 +114,7 @@ export function GroupOverview({
   headlineLabel,
   activeLabel,
   pendingLabel,
+  coverSize = "sm",
 }: GroupOverviewProps) {
   const headline = pickHeadline(active);
   const rest = active.filter((item) => item.id !== headline?.id);
@@ -129,22 +133,20 @@ export function GroupOverview({
               <div className={styles.monthGrid}>
                 {group.items.map((item) => (
                   <div key={item.id} className={styles.item}>
-                    <div className="flex gap-3">
-                      {item.coverUrl !== undefined && (
-                        <div className="w-10 shrink-0">
-                          <BookCover url={item.coverUrl} title={item.title} size="full" />
-                        </div>
-                      )}
-                      <div className="min-w-0">
-                        <Link href={item.href} className={styles.itemTitle}>
-                          {item.title}
-                        </Link>
-                        <div className={`${styles.byline} pt-0.5`}>{item.byline}</div>
-                        <div className={`${styles.meta} pt-1.5`}>
-                          {joinMeta([item.endDate, item.kindLabel])}
-                        </div>
-                      </div>
+                    <div className="flex items-baseline justify-between pb-2">
+                      <span className={styles.meta}>{item.endDate}</span>
+                      {item.kindLabel && <span className={styles.label}>{item.kindLabel}</span>}
                     </div>
+                    <CoverBand
+                      coverUrl={item.coverUrl}
+                      seed={item.id}
+                      label={item.bandLabel}
+                      size={coverSize}
+                    />
+                    <Link href={item.href} className={`${styles.itemTitle} mt-3 block`}>
+                      {item.title}
+                    </Link>
+                    <div className={`${styles.byline} pt-1.5`}>{item.byline}</div>
                   </div>
                 ))}
               </div>

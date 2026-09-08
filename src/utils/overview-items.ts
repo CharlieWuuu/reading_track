@@ -79,6 +79,9 @@ export const fragmentItem = (row: FragmentRow): OverviewItem => {
     title: row.name || row.body.slice(0, 40),
     byline: joinByline([row.workTitle, row.locator]),
     href: FRAGMENT_HREF[row.kindName]?.(row) ?? `/reading/k/${row.kindId}`,
+    // 生成塊放什麼字跟著有沒有標題走：單字、關鍵字有名字就放名字；
+    // 佳句、日記這類一句話／長文的沒有標題，生成塊留白不硬塞內文開頭
+    bandLabel: row.name || undefined,
     startDate: day,
     endDate: day,
     kindLabel: row.kindName,
