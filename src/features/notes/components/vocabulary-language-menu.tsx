@@ -1,6 +1,6 @@
 "use client";
 
-import { FilterMenu } from "@/components/ui/filter-menu";
+import { SelectMenu } from "@/components/ui/controls";
 import { useBooks } from "@/hooks/use-books";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
@@ -21,10 +21,15 @@ export function VocabularyLanguageMenu() {
   const options = vocabularyLanguages(getVocabularyEntries(vocabulary, books));
   if (options.length < 2) return null;
 
+  const items = [{ key: "", label: "全部" }, ...options.map((key) => ({ key, label: key }))];
+
   return (
-    <FilterMenu
-      groups={[{ key: "lang", label: "語言", options, value: language }]}
-      onChange={(_key, next) => setParams({ lang: next || null })}
+    <SelectMenu
+      bare
+      items={items}
+      value={language}
+      label="語言"
+      onChange={(next) => setParams({ lang: next || null })}
     />
   );
 }

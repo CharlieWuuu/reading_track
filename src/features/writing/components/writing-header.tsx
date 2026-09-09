@@ -3,7 +3,6 @@
 import { AlignLeft, Plus, Rows3 } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { ActionButton, SelectMenu } from "@/components/ui/controls";
-import { FilterMenu } from "@/components/ui/filter-menu";
 import { SearchBar } from "@/components/ui/search-bar";
 import { kindHref } from "@/config/kind-routes";
 import { NAV_GROUPS } from "@/config/nav";
@@ -38,6 +37,10 @@ export function WritingHeader() {
   const view = WRITING_VIEWS.parse(searchParams.get("view"));
   const title = kinds.find((k) => k.slug === "writing")?.name;
   const parent = NAV_GROUPS.find((group) => group.kindGroup === "writings")?.label;
+  const kindItems = [
+    { key: "", label: "全部" },
+    ...usedKinds(writings).map((key) => ({ key, label: key })),
+  ];
 
   return (
     <PageHeader
@@ -53,9 +56,12 @@ export function WritingHeader() {
             value={view}
             onChange={(next) => setParams({ view: WRITING_VIEWS.toParam(next) })}
           />
-          <FilterMenu
-            groups={[{ key: "kind", label: "類型", options: usedKinds(writings), value: kind }]}
-            onChange={(key, next) => setParams({ [key]: next || null })}
+          <SelectMenu
+            bare
+            items={kindItems}
+            value={kind}
+            label="類型"
+            onChange={(next) => setParams({ kind: next || null })}
           />
           <ActionButton href={`${kindHref("writings", "writing")}/new`} label="新增" text="新增">
             <Plus size={16} strokeWidth={2} aria-hidden />

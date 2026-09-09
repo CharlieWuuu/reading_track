@@ -10,12 +10,10 @@ import { EnrichButton } from "@/features/books/components/enrich-button";
 import { AccountPanel } from "@/features/settings/components/account-panel";
 import { CategoryManager } from "@/features/settings/components/category-manager";
 import { MaintenancePanel } from "@/features/settings/components/maintenance-panel";
-import { PrivacyFlagsPanel } from "@/features/settings/components/privacy-flags-panel";
 import { useUrlParams } from "@/hooks/use-url-param";
 
 const TABS = [
   { key: "categories", label: "分類選項" },
-  { key: "privacy", label: "私人項目" },
   { key: "maintenance", label: "資料維護" },
   { key: "account", label: "帳號" },
 ] as const;
@@ -81,7 +79,6 @@ function Settings() {
         <PageBody>
           <div className="shrink-0 md:min-h-0 md:flex-1 md:overflow-y-auto">
             {tab === "categories" && <CategoryManager />}
-            {tab === "privacy" && <PrivacyFlagsPanel />}
             {tab === "maintenance" && <MaintenancePanel enrichSlot={<EnrichButton />} />}
             {tab === "account" && <AccountPanel />}
           </div>
