@@ -17,6 +17,8 @@ import { ModuleOverride } from "@/utils/record-form";
 export type Kind = {
   id: string;
   name: string;
+  /** 網址上的那一段 */
+  slug: string;
   /** 屬於側欄哪一堆 */
   group: KindGroup;
   sortOrder: number;
@@ -82,6 +84,7 @@ export async function listKinds(userId: string): Promise<Kind[]> {
   return kinds.map((kind) => ({
     id: kind.id,
     name: kind.name,
+    slug: kind.slug,
     group: kind.groupKey as KindGroup,
     amountUnit: kind.amountUnit,
     count: counts.get(kind.id) ?? 0,
@@ -90,6 +93,21 @@ export async function listKinds(userId: string): Promise<Kind[]> {
       .filter((f) => f.isVisible)
       .map((f) => ({ key: f.fieldKey, label: f.label, sortOrder: f.sortOrder })),
   }));
+}
+
+/** 這個 slug 在這一堆底下是不是已經被占走了，給新增表單即時檢查用 */
+export async function slugTaken(userId: string, group: KindGroup, slug: string): Promise<boolean> {
+  const [row] = await db
+    .select({ id: kindsTable.id })
+    .from(kindsTable)
+    .where(
+      and(
+        or(eq(kindsTable.userId, userId), isNull(kindsTable.userId)),
+        eq(kindsTable.groupKey, group),
+        eq(kindsTable.slug, slug),
+      ),
+    );
+  return Boolean(row);
 }
 
 /** 這個類型屬於哪一堆。寫入時要靠它決定進哪張表 */

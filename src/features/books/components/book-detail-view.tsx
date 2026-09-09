@@ -12,6 +12,7 @@ import { DetailField, DetailFields, DetailSection } from "@/components/ui/detail
 import { NoteBlock } from "@/components/ui/note-block";
 import { RelatedNotes } from "@/components/ui/related-notes";
 import { StatusBadge, TagList } from "@/components/ui/tag-badge";
+import { kindHref } from "@/config/kind-routes";
 import { bookEditHref } from "@/config/routes";
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { QuoteBlock, VocabularyItem } from "@/features/notes/components/record-items";
@@ -124,7 +125,8 @@ export function BookDetailView() {
   // 從書單帶進來的檢視方式與頁碼，一路傳給編輯頁，存完才回得到同一個畫面
   const { searchParams } = useUrlParams();
   const back = searchParams.get("back");
-  const backHref = back ? `/reading/books?${back}` : "/reading/books";
+  const booksListHref = kindHref("records", "books");
+  const backHref = back ? `${booksListHref}?${back}` : booksListHref;
   const book = books.find((b) => b.id === id);
 
   if (isLoading || error || !book) {

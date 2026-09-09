@@ -9,6 +9,7 @@ import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
 import { DetailField, DetailFields, DetailSection } from "@/components/ui/detail";
 import { RelatedNotes } from "@/components/ui/related-notes";
+import { kindHref } from "@/config/kind-routes";
 import { bookHref, quoteEditHref } from "@/config/routes";
 import { QuoteBlock } from "@/features/notes/components/record-items";
 import { useBooks } from "@/hooks/use-books";
@@ -40,7 +41,7 @@ export function QuoteDetailView() {
       <PageHeader
         title={quote?.bookTitle ?? "佳句"}
         size="compact"
-        backHref="/reading/quotes"
+        backHref={kindHref("fragments", "quotes")}
         action={quote && <ActionButton href={quoteEditHref(quote.id)}>編輯</ActionButton>}
       />
       <PageBody>

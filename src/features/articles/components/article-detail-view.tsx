@@ -11,6 +11,7 @@ import { Favicon } from "@/components/ui/favicon";
 import { NoteBlock } from "@/components/ui/note-block";
 import { RelatedNotes } from "@/components/ui/related-notes";
 import { TagList } from "@/components/ui/tag-badge";
+import { kindHref } from "@/config/kind-routes";
 import { articleEditHref } from "@/config/routes";
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { useArticles } from "@/hooks/use-articles";
@@ -35,7 +36,7 @@ export function ArticleDetailView() {
       <PageHeader
         title={article?.title ?? "文章"}
         size="compact"
-        backHref="/reading/articles"
+        backHref={kindHref("records", "articles")}
         action={article && <ActionButton href={articleEditHref(article.id)}>編輯</ActionButton>}
       />
       <PageBody>

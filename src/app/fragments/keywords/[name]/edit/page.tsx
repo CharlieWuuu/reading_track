@@ -1,0 +1,54 @@
+"use client";
+
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import { PageBody } from "@/components/layout/page-body";
+import { PageHeader } from "@/components/layout/page-header";
+import { RecordGate } from "@/components/layout/record-gate";
+import { kindHref } from "@/config/kind-routes";
+import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
+import { KeywordForm } from "@/features/keywords/components/keyword-form";
+import { EMPTY_KEYWORD_INFO } from "@/types/keyword";
+
+/**
+ * 一個關鍵字自己的編輯頁。
+ *
+ * 名字就是網址上的那一段——關鍵字沒有編號，主檔本來就是靠名字認人的。
+ * 主檔裡還沒有這一列也照樣打得開：那代表這個字只出現在某本書的關鍵字欄，
+ * 存下去就會補上主檔那一列。
+ */
+function EditKeyword() {
+  const router = useRouter();
+  const { name } = useParams<{ name: string }>();
+  // 從哪裡點進來就回哪裡：分頁與看法都在那串參數裡
+  const from = useSearchParams().get("from") || kindHref("fragments", "keywords");
+  const keyword = decodeURIComponent(name);
+  const { byName, save, remove, isLoading, error } = useKeywordInfos();
+
+  const info = byName.get(keyword) ?? { name: keyword, ...EMPTY_KEYWORD_INFO };
+
+  return (
+    <>
+      <PageHeader title="編輯關鍵字" size="compact" backHref={from} />
+      <PageBody>
+        <RecordGate loading={isLoading} error={error}>
+          <KeywordForm
+            info={info}
+            onSave={save}
+            onDelete={remove}
+            onDone={() => router.push(from)}
+          />
+        </RecordGate>
+      </PageBody>
+    </>
+  );
+}
+
+/** 讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */
+export default function EditKeywordPage() {
+  return (
+    <Suspense fallback={null}>
+      <EditKeyword />
+    </Suspense>
+  );
+}

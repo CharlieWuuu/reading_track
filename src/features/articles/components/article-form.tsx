@@ -8,6 +8,7 @@ import { FormActions } from "@/components/ui/form-actions";
 import { compactLines } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
+import { kindHref } from "@/config/kind-routes";
 import { articleEditHref, keywordEditHref, writingNewHref } from "@/config/routes";
 import { scrapeArticle } from "@/features/articles/api/scrape-article";
 import { useArticleFormTab } from "@/features/articles/components/article-form-tabs";
@@ -138,7 +139,7 @@ export function ArticleForm({ article }: { article?: Article }) {
     editHref: articleEditHref,
     existingId: article?.id ?? "",
     payload: toPayload(form, article),
-    redirectTo: "/reading/articles",
+    redirectTo: kindHref("records", "articles"),
     mutate,
     validate: () => (form.title.trim() ? undefined : "請填標題"),
   });

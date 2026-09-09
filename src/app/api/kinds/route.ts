@@ -12,13 +12,16 @@ import {
 import { moduleDef } from "@/config/modules";
 import { KindGroup } from "@/config/record-kinds";
 import { addKind } from "@/lib/db/mutations/kinds";
-import { listKinds } from "@/lib/db/queries/kinds";
+import { listKinds, slugTaken } from "@/lib/db/queries/kinds";
 
 /** 三堆共用同一支：group 決定新增出來的類型屬於哪一堆 */
 const GROUPS: KindGroup[] = ["records", "fragments", "writings"];
 
 const isGroup = (value: unknown): value is KindGroup =>
   typeof value === "string" && GROUPS.includes(value as KindGroup);
+
+/** 網址上的那一段：小寫英數與連字號，不能是空的或以連字號開頭結尾 */
+const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 export const GET = guarded("kinds GET", async () => {
   const session = await requireSession();
@@ -39,6 +42,7 @@ export const POST = guarded("kinds POST", async (req: NextRequest) => {
   const body = await readJsonBody<{
     group?: unknown;
     name?: unknown;
+    slug?: unknown;
     modules?: unknown;
     amountUnit?: unknown;
     labels?: unknown;
@@ -48,6 +52,10 @@ export const POST = guarded("kinds POST", async (req: NextRequest) => {
 
   const name = typeof body.name === "string" ? body.name.trim() : "";
   if (!name) return badRequest("類型要有名字");
+
+  const slug = typeof body.slug === "string" ? body.slug.trim() : "";
+  if (!SLUG_PATTERN.test(slug)) return badRequest("網址只能用小寫英文、數字、連字號");
+  if (await slugTaken(session.user.id, body.group, slug)) return badRequest("這個網址已經有人用了");
 
   // 認不得的模組直接丟掉，不讓客戶端往資料庫塞任意字串
   const modules = Array.isArray(body.modules)
@@ -68,6 +76,7 @@ export const POST = guarded("kinds POST", async (req: NextRequest) => {
   try {
     const id = await addKind(session.user.id, body.group, {
       name,
+      slug,
       modules,
       amountUnit,
       labels,

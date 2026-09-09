@@ -20,6 +20,8 @@ export const kinds = pgTable(
     userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
     id: uuid("id").primaryKey().defaultRandom(),
     name: text("name").notNull(),
+    /** 網址上的那一段，人工填、英文小寫連字號。/records/<slug> 走它，不走 id */
+    slug: text("slug").notNull(),
     /** 屬於側欄哪一堆：records／fragments／writings。三堆共用同一套類型機制 */
     groupKey: text("group_key").notNull(),
     /** 量的單位：頁、分鐘、字。統計讀「量＋單位」自己長句子，加類型不用改統計 */
@@ -27,7 +29,10 @@ export const kinds = pgTable(
     /** 側欄與篩選器的排列順序 */
     sortOrder: integer("sort_order").notNull().default(0),
   },
-  (t) => [unique().on(t.userId, t.groupKey, t.name)], // 同一堆底下名字不重複
+  (t) => [
+    unique().on(t.userId, t.groupKey, t.name), // 同一堆底下名字不重複
+    unique().on(t.userId, t.groupKey, t.slug), // 網址也不重複
+  ],
 );
 
 /**

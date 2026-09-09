@@ -5,14 +5,12 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { ActionButton } from "@/components/ui/controls";
 import { Dialog } from "@/components/ui/dialog";
-import { newHref } from "@/config/kind-routes";
+import { kindHref } from "@/config/kind-routes";
 import { KindGroup } from "@/config/record-kinds";
 import { useKinds } from "@/hooks/use-kinds";
 
 /**
  * 概覽頁上的新增。先選要新增哪一種，再進那一種的表單。
- *
- * 只列得出表單的類型——自訂類型的通用表單還沒做，在那之前不給入口。
  */
 export function AddRecordButton({ group }: { group: KindGroup }) {
   const { kinds } = useKinds();
@@ -20,10 +18,7 @@ export function AddRecordButton({ group }: { group: KindGroup }) {
 
   const choices = kinds
     .filter((kind) => kind.group === group)
-    .map((kind) => ({ kind, href: newHref(kind.name) }))
-    .filter((choice): choice is { kind: (typeof kinds)[number]; href: string } =>
-      Boolean(choice.href),
-    );
+    .map((kind) => ({ kind, href: `${kindHref(kind.group, kind.slug)}/new` }));
 
   if (choices.length === 0) return null;
 

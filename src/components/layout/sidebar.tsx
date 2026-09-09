@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { isBuiltIn, kindHref, kindIdFromPath } from "@/config/kind-routes";
+import { kindGroupSlugFromPath, kindHref } from "@/config/kind-routes";
 import { activeNavKey, NAV_GROUPS, NavGroup, NavType } from "@/config/nav";
 import { useKinds } from "@/hooks/use-kinds";
 
@@ -12,8 +12,8 @@ import { useKinds } from "@/hooks/use-kinds";
  *
  * 新增的入口在該類型頁面自己的 page header 上，側欄不重複放一個。
  *
- * 類型有兩個來源：寫死的那幾條有專屬頁面（書籍有封面牆、關鍵字有維基欄位），
- * 自己新增的從資料庫來、走通用頁。等舊表搬完就只剩後者。
+ * 類型全部從資料庫來，網址統一 kindHref(group, slug)。內建類型的專屬頁面
+ * 由通用路由內的 variant registry 決定要不要換皮，側欄不用管。
  *
  * 統計／設定／帳號在報頭右側，不在這裡——側欄只放內容類型。
  */
@@ -56,33 +56,27 @@ function GroupHeading({ group }: { group: NavGroup }) {
 
 export function Sidebar() {
   const pathname = usePathname();
-  const current = activeNavKey(pathname) ?? kindIdFromPath(pathname);
+  const currentSlug = activeNavKey(pathname) ?? kindGroupSlugFromPath(pathname)?.slug ?? null;
   const { kinds } = useKinds();
 
-  /**
-   * 資料庫裡有、側欄還沒寫死的那些，補在該堆後面。
-   * 沒有資料的類型不列——沒用過的不佔位置。
-   */
-  const extraTypes = (group: NavGroup): NavType[] =>
+  /** 該堆底下所有有資料的類型，全部從資料庫來——沒用過的不佔位置 */
+  const typesOf = (group: NavGroup): NavType[] =>
     kinds
-      .filter(
-        (kind) => kind.group === group.kindGroup && kind.count > 0 && !isBuiltIn(group, kind.name),
-      )
+      .filter((kind) => kind.group === group.kindGroup && kind.count > 0)
       .map((kind) => ({
-        key: kind.id,
+        key: kind.slug,
         label: kind.name,
-        href: kindHref(kind.id),
-        match: kindHref(kind.id),
+        href: kindHref(kind.group, kind.slug),
+        match: kindHref(kind.group, kind.slug),
       }));
 
-  /** 寫死的那幾列沒有 kindId，只能靠名字對回資料庫的計數 */
   const countOf = (label: string): number | undefined =>
     kinds.find((kind) => kind.name === label)?.count;
 
   return (
     <nav className={styles.nav}>
       {NAV_GROUPS.map((group) => {
-        const types = [...group.types, ...extraTypes(group)];
+        const types = typesOf(group);
 
         return (
           <div key={group.key}>
@@ -91,7 +85,7 @@ export function Sidebar() {
               <NavRow
                 key={type.key}
                 type={type}
-                active={type.key === current}
+                active={type.key === currentSlug}
                 count={countOf(type.label)}
               />
             ))}

@@ -5,6 +5,7 @@ import { BookOpen, Languages, Newspaper, Plus, Quote, Tag } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { ActionButton, SelectMenu } from "@/components/ui/controls";
 import { SearchBar } from "@/components/ui/search-bar";
+import { kindGroupSlugFromPath } from "@/config/kind-routes";
 import { READING_TABS, ReadingTab, readingTabHref } from "@/config/tabs";
 import { useUrlParams } from "@/hooks/use-url-param";
 
@@ -34,8 +35,8 @@ const TAB_ICONS: Record<ReadingTab, () => React.ReactElement> = {
 
 /** 佳句單字關鍵字是從書裡摘出來的，不單獨新增 */
 const NEW_HREF: Partial<Record<ReadingTab, string>> = {
-  books: "/reading/books/new",
-  articles: "/reading/articles/new",
+  books: `${readingTabHref("books")}/new`,
+  articles: `${readingTabHref("articles")}/new`,
 };
 
 type ReadingHeaderProps = {
@@ -49,8 +50,9 @@ type ReadingHeaderProps = {
 
 export function ReadingHeader({ views, filters, newButton }: ReadingHeaderProps = {}) {
   const router = useRouter();
-  const segment = usePathname().split("/")[2];
-  // 在哪一個分頁看網址就知道，不用各頁再傳一次
+  const pathname = usePathname();
+  // 在哪一個分頁看網址就知道，不用各頁再傳一次——收斂過的類型看 [slug]，其餘看 /reading/<tab>
+  const segment = kindGroupSlugFromPath(pathname)?.slug ?? pathname.split("/")[2];
   const current = (READING_TABS.some((t) => t.key === segment) ? segment : "books") as ReadingTab;
   const { searchParams, setParams } = useUrlParams();
   const query = searchParams.get("q") ?? "";

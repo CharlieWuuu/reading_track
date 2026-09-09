@@ -8,53 +8,65 @@
  * 拿其中一邊去猜另一邊正是原本的錯。
  */
 
+import { kindHref } from "@/config/kind-routes";
+
 /** 存完要回到原本的畫面，所以把當時的 query 一路帶著走 */
 const withBack = (href: string, back?: string | null): string => {
   return back ? `${href}?back=${encodeURIComponent(back)}` : href;
 };
 
+const booksListHref = kindHref("records", "books");
+
 export const bookHref = (id: string, back?: string | null): string => {
-  return withBack(`/reading/books/${id}`, back);
+  return withBack(`${booksListHref}/${id}`, back);
 };
 
 export const bookEditHref = (id: string, back?: string | null): string => {
-  return withBack(`/reading/books/${id}/edit`, back);
+  return withBack(`${booksListHref}/${id}/edit`, back);
 };
 
+const articlesListHref = kindHref("records", "articles");
+
 export const articleHref = (id: string): string => {
-  return `/reading/articles/${id}`;
+  return `${articlesListHref}/${id}`;
 };
 
 export const articleEditHref = (id: string): string => {
-  return `/reading/articles/${id}/edit`;
+  return `${articlesListHref}/${id}/edit`;
 };
 
+const writingsListHref = kindHref("writings", "writing");
+
 export const writingHref = (id: string): string => {
-  return `/writing/${id}`;
+  return `${writingsListHref}/${id}`;
 };
 
 export const writingEditHref = (id: string): string => {
-  return `/writing/${id}/edit`;
+  return `${writingsListHref}/${id}/edit`;
 };
 
+const quotesListHref = kindHref("fragments", "quotes");
+
 export const quoteHref = (id: string): string => {
-  return `/reading/quotes/${id}`;
+  return `${quotesListHref}/${id}`;
 };
 
 export const quoteEditHref = (id: string): string => {
-  return `/reading/quotes/${id}/edit`;
+  return `${quotesListHref}/${id}/edit`;
 };
+
+const vocabularyListHref = kindHref("fragments", "vocabulary");
 
 /**
  * 單字的鍵是詞本身而不是編號：同一個詞在不同書各有一列，那一頁一次看完（改完）
  * 所有列。換成 row id 等於改成「只看其中一次相遇」，那不是這一頁在講的事。
  */
 export const vocabularyHref = (word: string): string => {
-  return `/reading/vocabulary/${encodeURIComponent(word)}`;
+  return `${vocabularyListHref}/${encodeURIComponent(word)}`;
 };
 
 export const vocabularyEditHref = (word: string): string => {
-  return `/reading/vocabulary/${encodeURIComponent(word)}/edit`;
+  return `${vocabularyListHref}/${encodeURIComponent(word)}/edit`;
 };
 
 /**
@@ -64,7 +76,7 @@ export const vocabularyEditHref = (word: string): string => {
  * 點進來，改完要回得到「剛才在看的那個畫面」，而不是一律丟回關鍵字頁。
  */
 export const keywordEditHref = (name: string, from?: string): string => {
-  const base = `/reading/keywords/${encodeURIComponent(name)}/edit`;
+  const base = `${kindHref("fragments", "keywords")}/${encodeURIComponent(name)}/edit`;
   return from ? `${base}?from=${encodeURIComponent(from)}` : base;
 };
 
@@ -83,5 +95,5 @@ type WritingSource = {
 
 /** 從書籍／文章頁去寫一則心得：帶著出處過去，新的那則才知道自己延伸自哪一筆 */
 export const writingNewHref = (source: WritingSource): string => {
-  return `/writing/new?${new URLSearchParams(source)}`;
+  return `${writingsListHref}/new?${new URLSearchParams(source)}`;
 };

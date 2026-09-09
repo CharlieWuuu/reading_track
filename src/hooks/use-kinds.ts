@@ -6,6 +6,7 @@ import { Kind } from "@/lib/db/queries/kinds";
 
 export type NewKindInput = {
   name: string;
+  slug: string;
   modules: string[];
   amountUnit: string;
   labels?: Record<string, string>;

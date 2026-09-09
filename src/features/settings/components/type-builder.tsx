@@ -57,6 +57,7 @@ export function TypeBuilder({ group, groupLabel }: { group: KindGroup; groupLabe
   const router = useRouter();
   const { kinds, addKind } = useKinds();
   const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
   const [unit, setUnit] = useState("");
   const [picked, setPicked] = useState<string[]>(["title"]);
   const [labels, setLabels] = useState<Record<string, string>>({});
@@ -73,6 +74,7 @@ export function TypeBuilder({ group, groupLabel }: { group: KindGroup; groupLabe
 
   function applyTemplate(template: KindTemplate) {
     setName(template.name);
+    setSlug(template.key);
     setUnit(template.amountUnit);
     setPicked([...template.modules]);
     setLabels({ ...template.labels });
@@ -84,6 +86,7 @@ export function TypeBuilder({ group, groupLabel }: { group: KindGroup; groupLabe
     try {
       await addKind(group, {
         name: name.trim(),
+        slug: slug.trim(),
         modules: picked,
         amountUnit: unit.trim(),
         labels,
@@ -99,7 +102,7 @@ export function TypeBuilder({ group, groupLabel }: { group: KindGroup; groupLabe
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        if (name.trim()) void save();
+        if (name.trim() && slug.trim()) void save();
       }}
       className="flex max-w-2xl flex-col"
     >
@@ -129,6 +132,7 @@ export function TypeBuilder({ group, groupLabel }: { group: KindGroup; groupLabe
             type="button"
             onClick={() => {
               setName("");
+              setSlug("");
               setUnit("");
               setPicked([]);
               setLabels({});
@@ -149,6 +153,13 @@ export function TypeBuilder({ group, groupLabel }: { group: KindGroup; groupLabe
           aria-label="名稱"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          className={styles.input}
+        />
+        <input
+          aria-label="網址"
+          placeholder="英文小寫、連字號，例如 movie"
+          value={slug}
+          onChange={(e) => setSlug(e.target.value)}
           className={styles.input}
         />
         <input
