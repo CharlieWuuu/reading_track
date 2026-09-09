@@ -53,16 +53,6 @@ function KeywordFilter({
   );
 }
 
-/**
- * 每一列的底色：依完成年份交錯，今年白底、去年灰底、前年又回到白底……
- * 灰色沿用日曆「非本月」那格的底色，整個 app 只有一組次要底色。
- */
-function rowTone(endDate: string | null, thisYear: number): string {
-  const year = endDate ? Number(endDate.slice(0, 4)) : thisYear;
-  const distance = Number.isNaN(year) ? 0 : Math.abs(thisYear - year);
-  return distance % 2 === 1 ? "bg-gray-100 hover:bg-gray-200" : "bg-white hover:bg-gray-50";
-}
-
 /** 書封牆用的狀態標記：壓在封面左上角的一顆點，白邊讓它在任何封面上都看得見 */
 function StatusDot({ status }: { status: ReadingStatus }) {
   if (status === "已讀完") return null;
@@ -108,7 +98,6 @@ export function BookTable() {
   const { writings } = useWritings();
   const { quotes, vocabulary } = useRecords();
   const numbers = useMemo(() => completionNumbers(allBooks), [allBooks]);
-  const thisYear = new Date().getFullYear();
   const { searchParams, setParams } = useUrlParams();
   const { view: savedView } = useBookViewStore();
   // 檢視方式以網址為準，重新整理或分享連結才回得到同一個畫面
@@ -189,11 +178,7 @@ export function BookTable() {
         <div>
           <ul className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] md:grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))]">
             {books.map((b, i) => (
-              <li
-                key={b.id || `cover-${i}`}
-
-                className={`p-1.5 ${rowTone(b.endDate, thisYear)}`}
-              >
+              <li key={b.id || `cover-${i}`} className="p-1.5">
                 {/* 書封、書名、日期三層都靠 gap 分開，卡片高度固定不隨書名長短跳動 */}
                 <Link href={detailHref(b.id)} className="group flex flex-col gap-1">
                   {/* 書封牆是一整面圖，左側色條會把版面切得很碎，改成封面角落的小圓點 */}
@@ -206,8 +191,10 @@ export function BookTable() {
                     />
                     <StatusDot status={b.status} />
                   </div>
-                  <p className="truncate text-xs leading-snug font-medium">{b.title}</p>
-                  <p className="truncate text-[10px] text-gray-400">
+                  <p className="text-item-sm truncate font-serif leading-snug font-semibold tracking-tight">
+                    {b.title}
+                  </p>
+                  <p className="text-meta text-ink-faint truncate tabular-nums">
                     {b.endDate ? `${b.endDate} 讀完` : b.status}
                   </p>
                 </Link>
@@ -225,67 +212,66 @@ export function BookTable() {
       {keyword && <KeywordFilter keyword={keyword} count={books.length} onClear={clearKeyword} />}
 
       {/* 手機版：卡片列表，欄位太多的表格在小螢幕上不好讀 */}
-      <div className="rounded-surface shrink-0 overflow-hidden border bg-white md:hidden">
-        <ul className="divide-y">
-          {books.map((b, i) => (
-            <li key={b.id || `card-${i}`}>
-              <Link
-                href={detailHref(b.id)}
-                className={`relative flex items-center gap-3 p-3 ${rowTone(b.endDate, thisYear)}`}
-              >
-                {/* 色條疊在列上，畫法同桌機：border-l 在圓角裁切下會斷成一塊，滿高的絕對定位才連得起來 */}
-                {accentColor(b.status) && (
-                  <span
-                    className="absolute inset-y-0 left-0 w-[3px]"
-                    style={{ background: accentColor(b.status) ?? undefined }}
-                  />
+      <div className="border-rule-strong shrink-0 border-t md:hidden">
+        {books.map((b, i) => (
+          <Link
+            key={b.id || `card-${i}`}
+            href={detailHref(b.id)}
+            className="border-rule relative flex items-center gap-3 border-b py-3"
+          >
+            {/* 色條疊在列上：未讀完的書靠這條細線就能一眼掃出邊界 */}
+            {accentColor(b.status) && (
+              <span
+                className="absolute inset-y-0 left-0 w-[3px]"
+                style={{ background: accentColor(b.status) ?? undefined }}
+              />
+            )}
+            <BookCover url={b.coverUrl} title={b.title} size="xl" />
+            {/* 手機一列固定兩行：第一行是書名與狀態，第二行擠進作者、標籤與日期 */}
+            <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
+              <p className="flex min-w-0 items-center gap-2">
+                {numbers.has(b.id) && (
+                  <span className="text-meta text-ink-faint shrink-0 tabular-nums">
+                    #{numbers.get(b.id)}
+                  </span>
                 )}
-                <BookCover url={b.coverUrl} title={b.title} size="xl" />
-                {/* 手機一列固定兩行：第一行是書名與狀態，第二行擠進作者、標籤與日期 */}
-                <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-                  <p className="flex min-w-0 items-center gap-2 text-sm font-medium">
-                    {numbers.has(b.id) && (
-                      <span className="shrink-0 text-xs text-gray-400 tabular-nums">
-                        #{numbers.get(b.id)}
-                      </span>
-                    )}
-                    <span className="min-w-0 flex-1 truncate">{b.title}</span>
-                    <StatusBadge status={b.status} />
-                  </p>
-                  {/* 長度無上限的欄位（關鍵字、文章、心得）永遠不進這行，列高才不會跟著資料跳 */}
-                  <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                    {/* 作者與標籤共用剩下的寬度，塞不下就讓外層裁掉，日期永遠留在最右邊 */}
-                    <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
-                      {/* 作者至少留五個字寬，太窄就認不出是誰 */}
-                      <span className="max-w-[45%] min-w-[5em] shrink-0 truncate text-gray-500">
-                        {b.author}
-                      </span>
-                      {/* 標籤裝在同一個盒子裡，放不下就從右邊切掉，不會頂到日期 */}
-                      <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
-                        <TagList values={[b.platform]} tone="platform" size="sm" wrap={false} />
-                        <TagList values={[b.domain]} tone="domain" size="sm" wrap={false} />
-                        <TagList values={[b.subDomain]} tone="subDomain" size="sm" wrap={false} />
-                        <TagList values={[b.type]} tone="type" size="sm" wrap={false} />
-                      </div>
-                    </div>
-                    {/* 只放完成日期：閱讀中的書還沒有結束時間，顯示「—」正好說明它還沒讀完 */}
-                    <span className="shrink-0 tabular-nums">{b.endDate || "—"}</span>
+                <span className="text-item-sm min-w-0 flex-1 truncate font-serif font-semibold tracking-tight">
+                  {b.title}
+                </span>
+                <StatusBadge status={b.status} />
+              </p>
+              {/* 長度無上限的欄位（關鍵字、文章、心得）永遠不進這行，列高才不會跟著資料跳 */}
+              <div className="text-meta text-ink-faint flex items-center gap-1.5">
+                {/* 作者與標籤共用剩下的寬度，塞不下就讓外層裁掉，日期永遠留在最右邊 */}
+                <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
+                  {/* 作者至少留五個字寬，太窄就認不出是誰 */}
+                  <span className="text-ink-muted max-w-[45%] min-w-[5em] shrink-0 truncate">
+                    {b.author}
+                  </span>
+                  {/* 標籤裝在同一個盒子裡，放不下就從右邊切掉，不會頂到日期 */}
+                  <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
+                    <TagList values={[b.platform]} tone="platform" size="sm" wrap={false} />
+                    <TagList values={[b.domain]} tone="domain" size="sm" wrap={false} />
+                    <TagList values={[b.subDomain]} tone="subDomain" size="sm" wrap={false} />
+                    <TagList values={[b.type]} tone="type" size="sm" wrap={false} />
                   </div>
                 </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
+                {/* 只放完成日期：閱讀中的書還沒有結束時間，顯示「—」正好說明它還沒讀完 */}
+                <span className="shrink-0 tabular-nums">{b.endDate || "—"}</span>
+              </div>
+            </div>
+          </Link>
+        ))}
       </div>
 
       {/* 不自己開捲動容器：捲動一律交給 PageBody，sticky 的表頭改黏在那一層。
           自己捲的話這一頁的「捲到底」會跟其他頁不一樣（底部留白也吃不到） */}
-      <div className="rounded-surface hidden w-full border bg-white md:block">
-        <table className="w-full table-fixed text-sm">
-          {/* sticky 的儲存格自己畫底色與下緣線，邊框不會跟著黏住 */}
-          <thead className="bg-table-header-bg sticky top-0 z-10 text-left [&_th]:shadow-[inset_0_-1px_0_var(--color-table-header-rule)]">
+      <div className="hidden w-full md:block">
+        <table className="w-full table-fixed">
+          {/* sticky 的表頭跟著概覽頁的細線風格，不用底色塊 */}
+          <thead className="border-rule-strong bg-background sticky top-0 z-10 border-b text-left">
             {/* 欄寬用百分比，次要欄位隨螢幕變窄逐一收起，才不會撐出橫向捲軸 */}
-            <tr>
+            <tr className="text-label text-ink-faint tracking-label [&_th]:font-normal">
               <th className="w-[6%] px-3 py-2 whitespace-nowrap">封面</th>
               {/* 書名字級縮小後空間變多，日期與分類可以提早出現 */}
               <th className="w-[26%] px-3 py-2 whitespace-nowrap">書名</th>
@@ -304,9 +290,8 @@ export function BookTable() {
               // 整列點擊就進編輯頁，所以書名不再另外做成連結樣式
               <tr
                 key={b.id || `row-${i}`}
-
                 onClick={() => router.push(detailHref(b.id))}
-                className={`cursor-pointer border-t first:border-t-0 ${rowTone(b.endDate, thisYear)}`}
+                className="border-rule hover:bg-control-bg-hover/5 cursor-pointer border-t first:border-t-0"
               >
                 {/*
                 狀態色條疊在第一格上，不用 border-l——那會把整個 tbody 往右推 3px，
@@ -325,17 +310,17 @@ export function BookTable() {
                   {/* 編號與書名是同一塊，一起垂直置中；沒有編號時那一行就不存在 */}
                   <div className="flex flex-col justify-center">
                     {numbers.has(b.id) && (
-                      <span className="text-[11px] leading-4 text-gray-400 tabular-nums">
+                      <span className="text-meta text-ink-faint tabular-nums">
                         #{numbers.get(b.id)}
                       </span>
                     )}
-                    {/* 書名至少要跟其他欄位一樣大（表格是 text-sm），再小就變成次要資訊了 */}
-                    <span className="overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap">
+                    {/* 書名用 serif，跟概覽頁的條目標題同一套 */}
+                    <span className="text-item-sm overflow-hidden font-serif font-semibold tracking-tight text-ellipsis whitespace-nowrap">
                       {b.title}
                     </span>
                   </div>
                 </td>
-                <td className="max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap">
+                <td className="text-byline text-ink-muted max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap">
                   <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
                     {b.author}
                   </span>
@@ -347,13 +332,13 @@ export function BookTable() {
                 <td className="hidden max-w-0 overflow-hidden px-3 py-2 lg:table-cell">
                   <TagList values={[b.platform]} tone="platform" wrap={false} />
                 </td>
-                <td className="hidden max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap xl:table-cell">
-                  <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
+                <td className="text-meta text-ink-faint hidden max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap xl:table-cell">
+                  <span className="block overflow-hidden text-ellipsis whitespace-nowrap tabular-nums">
                     {b.startDate ?? "—"}
                   </span>
                 </td>
-                <td className="hidden max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap lg:table-cell">
-                  <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
+                <td className="text-meta text-ink-faint hidden max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap lg:table-cell">
+                  <span className="block overflow-hidden text-ellipsis whitespace-nowrap tabular-nums">
                     {b.endDate ?? "—"}
                   </span>
                 </td>
@@ -363,7 +348,7 @@ export function BookTable() {
                 <td className="hidden max-w-0 overflow-hidden px-3 py-2 xl:table-cell">
                   <TagList values={[b.type]} tone="type" wrap={false} />
                 </td>
-                <td className="hidden max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap 2xl:table-cell">
+                <td className="text-byline text-ink-muted hidden max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap 2xl:table-cell">
                   <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
                     {b.language}
                   </span>

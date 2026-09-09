@@ -51,9 +51,14 @@ function daysBetween(start: string, end: string): number {
   return Math.round(ms / 86400000);
 }
 
-/** 右欄「今年」那組數字：今年讀完的本數、頁數，加最厚、最快讀完各一本 */
-export function getYearStats(books: Book[], year = new Date().getFullYear()): YearStats {
-  const done = books.filter((b) => b.status === "已讀完" && b.endDate?.startsWith(String(year)));
+/**
+ * 右欄的統計數字：讀完的本數、頁數，加最厚、最快讀完各一本。
+ * 不給年份就是總計——跟「今年」共用同一套算法，差別只在要不要先篩年份。
+ */
+export function getYearStats(books: Book[], year?: number): YearStats {
+  const done = books.filter(
+    (b) => b.status === "已讀完" && (year === undefined || b.endDate?.startsWith(String(year))),
+  );
 
   const pageCounts = done.map((b) => ({ book: b, pages: toPageCount(b) }));
   const pageTotal = pageCounts.reduce((sum, { pages }) => sum + pages, 0);

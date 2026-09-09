@@ -91,6 +91,23 @@ function Headline({
   );
 }
 
+/** 總共：只看數字，不用細節撐版面——想深入就到統計頁 */
+function TotalStats({ stats }: { stats: YearStats }) {
+  return (
+    <div className="pb-8">
+      <div className={styles.railHead}>
+        <span className={styles.labelInk}>總共</span>
+        <span className={styles.meta}>{stats.count} 本</span>
+      </div>
+      {stats.count > 0 && (
+        <div className={`${styles.statCaption} pt-1.5`}>
+          {formatCount(String(stats.pageTotal))} 頁　·　平均 {stats.pageAverage} 頁一本
+        </div>
+      )}
+    </div>
+  );
+}
+
 function StatsRail({ stats, href }: { stats: YearStats; href: (book: Book) => string }) {
   const year = new Date().getFullYear();
   return (
@@ -152,7 +169,7 @@ function Rail({
       </div>
       {books.map((book) => (
         <div key={book.id} className={styles.railItem}>
-          <Link href={href(book)} className={styles.railTitle}>
+          <Link href={href(book)} className={`${styles.railTitle} line-clamp-2`}>
             {book.title}
           </Link>
           <div className={styles.meta}>{book.author}</div>
@@ -184,7 +201,8 @@ export function BookOverview({
   const headlineNotes = headline
     ? notesForSource(writings, [headline.originId || headline.id])
     : [];
-  const yearStats = getYearStats(books);
+  const yearStats = getYearStats(books, new Date().getFullYear());
+  const totalStats = getYearStats(books);
 
   return (
     <div className={styles.frame}>
@@ -231,6 +249,7 @@ export function BookOverview({
       </div>
 
       <div className={styles.rail}>
+        <TotalStats stats={totalStats} />
         <StatsRail stats={yearStats} href={href} />
         <Rail label="其餘在讀" count={rest.length} books={rest} href={href} />
         <Rail
