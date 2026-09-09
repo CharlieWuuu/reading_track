@@ -1,18 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Check, SlidersHorizontal } from "lucide-react";
-import { CONTROL_HEIGHT } from "@/components/ui/controls";
+import { Check, ChevronDown } from "lucide-react";
+import { styles as controlStyles } from "@/components/ui/controls/styles";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 
 const styles = {
   root: "relative shrink-0",
-  // 高度吃全站常數，跟旁邊的新增按鈕、別頁的分頁列站在一起才不會一高一矮
-  trigger: `flex ${CONTROL_HEIGHT} items-center gap-1.5 rounded-control border px-2.5 text-sm whitespace-nowrap hover:bg-gray-50`,
-  // 篩選中不換底色也不換框：頁首那一排每顆長得一樣，這顆自己變色會像壞掉。
-  // 「正在篩什麼」由按鈕上顯示的文字本身說明，不需要再用顏色喊一次
-  triggerOn: "border-rule text-gray-900",
-  triggerOff: "border-rule text-gray-600",
   // 選單靠右對齊：按鈕本來就在頁首右側，往左展開才不會超出畫面
   panel:
     "absolute right-0 z-50 mt-1 max-h-80 w-48 divide-y overflow-y-auto rounded-surface border bg-white shadow-lg",
@@ -64,12 +58,10 @@ export function FilterMenu({
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className={`${styles.trigger} ${active.length > 0 ? styles.triggerOn : styles.triggerOff}`}
+        className={`${controlStyles.link} ${controlStyles.linkIdle}`}
       >
-        <SlidersHorizontal size={14} strokeWidth={1.5} aria-hidden />
-        <span className="hidden sm:inline">
-          {active.length > 0 ? active.map((g) => g.value).join("・") : "篩選"}
-        </span>
+        <span>{active.length > 0 ? active.map((g) => g.value).join("・") : "篩選"}</span>
+        <ChevronDown size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
       </button>
 
       {open && (

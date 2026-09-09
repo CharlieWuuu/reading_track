@@ -1,19 +1,25 @@
 import { BackLink } from "./back-link";
 
 const styles = {
-  // 頁首不捲動；與內容的間距由 app-shell 的 main 那層 gap 提供
-  bar: "flex shrink-0 flex-wrap items-baseline justify-between gap-2 md:gap-3",
+  // 頁首不捲動；跟設計稿一致，底下畫一條線把頁首跟內容列表分開
+  bar: "border-ink flex shrink-0 flex-wrap items-baseline justify-between gap-2 border-b pb-1 md:gap-3",
   heading: "flex min-w-0 items-baseline gap-2",
   back: "hover:text-ink -ml-1 flex size-7 shrink-0 items-center justify-center self-center",
+  // 跟 meta 那行數字同一個字級：標題才是這一列的主角，麵包屑只是說明現在在哪
+  parent: "text-meta text-ink-muted truncate",
+  divider: "text-ink-faint",
   title: "font-serif truncate font-semibold tracking-tight",
   page: "text-page",
   compact: "text-item",
-  meta: "text-meta text-ink-faint truncate tabular-nums",
+  // 標題跟這行數字不算同一組資訊，間距要比麵包屑／標題那組鬆
+  meta: "text-meta text-ink-faint truncate tabular-nums ml-2",
   actions: "flex min-w-0 flex-1 items-center justify-end *:min-w-0", // *:min-w-0 讓傳進來的內容縮得下去
 };
 
 type PageHeaderProps = {
   title?: string; // 沒給就不顯示標題
+  /** 標題前面的麵包屑：「紀錄 / 書籍」的「紀錄」那一段 */
+  parent?: string;
   /** 標題旁邊那行小字：幾本、幾篇、在讀幾本 */
   meta?: React.ReactNode;
   /**
@@ -25,8 +31,15 @@ type PageHeaderProps = {
   backHref?: string; // 有值就在標題左邊放一個返回箭頭（站內有上一頁時退回去，否則走這個網址）
 };
 
-/** 頁首，固定在 PageBody 上方不捲動。與內容的分隔靠留白，不畫線 */
-export function PageHeader({ title, meta, size = "page", action, backHref }: PageHeaderProps) {
+/** 頁首，固定在 PageBody 上方不捲動。底下一條線分隔內容，跟著設計稿 */
+export function PageHeader({
+  title,
+  parent,
+  meta,
+  size = "page",
+  action,
+  backHref,
+}: PageHeaderProps) {
   // 整條都沒東西就整個收掉
   if (!title && !action && !backHref) return null;
 
@@ -36,6 +49,12 @@ export function PageHeader({ title, meta, size = "page", action, backHref }: Pag
       {(backHref || title) && (
         <div className={styles.heading}>
           {backHref && <BackLink href={backHref} className={styles.back} />}
+          {parent && (
+            <>
+              <span className={styles.parent}>{parent}</span>
+              <span className={styles.divider}>/</span>
+            </>
+          )}
           {title && <h2 className={`${styles.title} ${styles[size]}`}>{title}</h2>}
           {meta && <span className={styles.meta}>{meta}</span>}
         </div>

@@ -24,7 +24,7 @@ export function AddRecordButton({ group }: { group: KindGroup }) {
 
   return (
     <>
-      <ActionButton onClick={() => setOpen(true)} label="新增">
+      <ActionButton onClick={() => setOpen(true)} label="新增" text="新增">
         <Plus size={16} strokeWidth={2} aria-hidden />
       </ActionButton>
 

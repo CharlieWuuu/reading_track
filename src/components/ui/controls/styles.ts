@@ -12,7 +12,7 @@ const HEIGHT = CONTROL_HEIGHT;
 const TEXT = "text-xs font-medium md:text-sm";
 
 export const styles = {
-  primary: `flex ${HEIGHT} shrink-0 items-center rounded-control bg-control-bg px-3 ${TEXT} text-control-ink hover:bg-control-bg-hover md:px-4`,
+  primary: `flex ${HEIGHT} shrink-0 items-center gap-1 rounded-control bg-control-bg px-3 ${TEXT} text-control-ink hover:bg-control-bg-hover md:px-4`,
   // 只有一個圖示時左右不留文字的餘裕，寬度跟高度差不多才像一顆鍵
   primaryIcon: `flex ${HEIGHT} aspect-square shrink-0 items-center justify-center rounded-control bg-control-bg ${TEXT} text-control-ink hover:bg-control-bg-hover`,
   secondary: `flex ${HEIGHT} shrink-0 items-center gap-1 rounded-control border px-3 ${TEXT} text-control-ink-secondary hover:bg-control-ghost-hover`,
@@ -33,4 +33,11 @@ export const styles = {
   segmentIdle: "text-control-ink-idle hover:bg-control-ghost-hover",
   menu: "absolute right-0 z-30 mt-1 flex min-w-32 flex-col rounded-surface border bg-control-menu-bg py-1 shadow-lg",
   menuItem: "flex w-full items-center gap-2 px-3 py-1.5 text-sm hover:bg-control-menu-hover",
+  // 純文字連結：頁首「概覽／表格／篩選／＋新增」共用這一套，無框無底色、明體，不含顏色——
+  // 顏色由 linkIdle／linkActive／linkAccent 決定，才不會被 Tailwind 的 class 順序蓋掉
+  link: `flex items-center gap-1 font-serif ${TEXT}`,
+  linkIdle: "text-ink-muted hover:text-ink",
+  linkActive: "font-semibold text-ink",
+  // 強調色文字：新增用，跟畫面上唯一的行動色一致
+  linkAccent: "text-accent hover:text-accent",
 };

@@ -22,6 +22,8 @@ type SelectMenuProps<T extends string> = {
    * `"mobile"`＝手機只留圖示，桌機照樣寫出來：手機的頁首那一列擠不下幾個字。
    */
   iconOnly?: boolean | "mobile";
+  /** 無框純文字——頁首那排「概覽／表格」用這一版，跟框線按鈕分開 */
+  bare?: boolean;
 };
 
 /**
@@ -36,6 +38,7 @@ export function SelectMenu<T extends string>({
   onChange,
   label,
   iconOnly = false,
+  bare = false,
 }: SelectMenuProps<T>) {
   const [open, setOpen] = useState(false);
   const rootRef = useOutsideClick<HTMLDivElement>(open, () => setOpen(false));
@@ -55,14 +58,17 @@ export function SelectMenu<T extends string>({
         aria-expanded={open}
         onClick={() => setOpen(!open)}
         className={
-          labelOnlyOnDesktop
-            ? styles.secondaryResponsive
-            : showLabel
-              ? styles.secondary
-              : styles.secondaryIcon
+          bare
+            ? `${styles.link} ${styles.linkActive}`
+            : labelOnlyOnDesktop
+              ? styles.secondaryResponsive
+              : showLabel
+                ? styles.secondary
+                : styles.secondaryIcon
         }
       >
-        {current?.Icon && <current.Icon />}
+        {/* bare 版跟設計稿一樣純文字，圖示只留給有框的版本 */}
+        {!bare && current?.Icon && <current.Icon />}
         {labelOnlyOnDesktop ? (
           <span className="hidden truncate md:inline">{current?.label}</span>
         ) : (

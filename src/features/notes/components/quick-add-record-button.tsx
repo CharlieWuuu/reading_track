@@ -14,7 +14,7 @@ export function QuickAddRecordButton({ kind }: { kind: "quotes" | "vocabulary" }
 
   return (
     <>
-      <ActionButton onClick={() => setOpen(true)} label={LABEL[kind]}>
+      <ActionButton onClick={() => setOpen(true)} label={LABEL[kind]} text="新增">
         <Plus size={16} strokeWidth={2} aria-hidden />
       </ActionButton>
 

@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { ActionButton, SelectMenu } from "@/components/ui/controls";
 import { SearchBar } from "@/components/ui/search-bar";
 import { kindGroupSlugFromPath } from "@/config/kind-routes";
+import { NAV_GROUPS } from "@/config/nav";
 import { READING_TABS, ReadingTab, readingTabHref } from "@/config/tabs";
 import { useUrlParams } from "@/hooks/use-url-param";
 
@@ -46,9 +47,11 @@ type ReadingHeaderProps = {
   filters?: React.ReactNode;
   /** 新增不是換頁而是跳彈窗的那幾頁，自己把按鈕傳進來 */
   newButton?: React.ReactNode;
+  /** 標題旁邊那行小字，各頁自己算好傳進來（例如書籍頁的「312 本・在讀 3」） */
+  meta?: React.ReactNode;
 };
 
-export function ReadingHeader({ views, filters, newButton }: ReadingHeaderProps = {}) {
+export function ReadingHeader({ views, filters, newButton, meta }: ReadingHeaderProps = {}) {
   const router = useRouter();
   const pathname = usePathname();
   // 在哪一個分頁看網址就知道，不用各頁再傳一次——收斂過的類型看 [slug]，其餘看 /reading/<tab>
@@ -58,12 +61,17 @@ export function ReadingHeader({ views, filters, newButton }: ReadingHeaderProps 
   const query = searchParams.get("q") ?? "";
 
   const newHref = NEW_HREF[current];
+  const currentTab = READING_TABS.find((tab) => tab.key === current);
+  // 麵包屑：這個分頁掛在側欄哪一堆底下，字跟側欄同一份設定，不重複維護
+  const parent = NAV_GROUPS.find((group) => group.kindGroup === currentTab?.group)?.label;
 
   return (
     <PageHeader
-      title={READING_TABS.find((tab) => tab.key === current)?.label}
+      title={currentTab?.label}
+      parent={parent}
+      meta={meta}
       action={
-        <div className="flex min-w-0 flex-1 items-center gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-5">
           <SearchBar value={query} onChange={(next) => setParams({ q: next || null })} />
           {/* 桌機的側欄已經在說現在看的是哪一種，這顆只留給手機 */}
           <div className="md:hidden">
@@ -80,7 +88,7 @@ export function ReadingHeader({ views, filters, newButton }: ReadingHeaderProps 
           {/* 按鈕只放一個加號：旁邊的類型已經說了現在在看書籍還是文章 */}
           {newButton ??
             (newHref && (
-              <ActionButton href={newHref} label="新增">
+              <ActionButton href={newHref} label="新增" text="新增">
                 <Plus size={16} strokeWidth={2} aria-hidden />
               </ActionButton>
             ))}

@@ -53,5 +53,5 @@ export function BookViewMenu({
     setParams({ view: next, page: null });
   }
 
-  return <SelectMenu iconOnly label="顯示方式" items={items} value={view} onChange={select} />;
+  return <SelectMenu bare label="顯示方式" items={items} value={view} onChange={select} />;
 }
