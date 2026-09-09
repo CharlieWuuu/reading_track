@@ -13,7 +13,7 @@ import { OverviewItem } from "./overview";
  */
 
 const joinByline = (parts: (string | number | null | undefined | false)[]) =>
-  parts.filter(Boolean).join("　·　");
+  parts.filter(Boolean).join("・");
 
 export const bookItem = (book: Book): OverviewItem => ({
   id: book.id,

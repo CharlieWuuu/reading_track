@@ -58,7 +58,7 @@ export function TodayHeadline({
             <span className={styles.byline}>
               {[headline.creator, headline.amount && `${headline.amount} ${headline.amountUnit}`]
                 .filter(Boolean)
-                .join("　·　")}
+                .join("・")}
             </span>
             <span className={styles.meta}>
               {headline.startDate ? `${headline.startDate} 起讀` : ""}

@@ -42,8 +42,7 @@ const styles = {
 };
 
 /** 中點接起來的一行小字。空的不留下多餘的點 */
-const joinMeta = (parts: (string | false | null | undefined)[]) =>
-  parts.filter(Boolean).join("　·　");
+const joinMeta = (parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join("・");
 
 function Headline({ item, label }: { item: OverviewItem; label: string }) {
   return (

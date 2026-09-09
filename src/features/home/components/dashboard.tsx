@@ -33,9 +33,7 @@ const recordItem = (row: RecordRow): DigestItem => ({
   kind: row.kindName,
   date: (recordDate(row) ?? "").slice(5),
   title: row.title,
-  meta: [row.creator, row.amount && `${row.amount} ${row.amountUnit}`]
-    .filter(Boolean)
-    .join("　·　"),
+  meta: [row.creator, row.amount && `${row.amount} ${row.amountUnit}`].filter(Boolean).join("・"),
 });
 
 const fragmentItem = (row: FragmentRow): DigestItem => ({
@@ -43,7 +41,7 @@ const fragmentItem = (row: FragmentRow): DigestItem => ({
   kind: row.kindName,
   date: (fragmentDate(row) ?? "").slice(5),
   title: row.name || row.body,
-  meta: [row.workTitle, row.locator].filter(Boolean).join("　·　"),
+  meta: [row.workTitle, row.locator].filter(Boolean).join("・"),
 });
 
 export function Dashboard() {

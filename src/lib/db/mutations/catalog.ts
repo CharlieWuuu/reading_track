@@ -51,10 +51,10 @@ export async function addRecord(
         source: pick(values, allowed, "source"),
         externalId: pick(values, allowed, "externalId"),
         coverUrl: pick(values, allowed, "coverUrl"),
+        amount: toInt(pick(values, allowed, "amount")),
       })
       .returning({ id: works.id });
 
-    const amount = toInt(pick(values, allowed, "amount"));
     const [record] = await tx
       .insert(records)
       .values({
@@ -62,7 +62,6 @@ export async function addRecord(
         workId: work.id,
         startDate: toDate(pick(values, allowed, "startDate")),
         endDate: toDate(pick(values, allowed, "endDate")),
-        amount,
         isPrivate: pick(values, allowed, "isPrivate") === "是",
       })
       .returning({ id: records.id });
@@ -92,12 +91,12 @@ export async function updateRecord(userId: string, id: string, values: FieldValu
   if (has("source")) workPatch.source = values.source;
   if (has("externalId")) workPatch.externalId = values.externalId;
   if (has("coverUrl")) workPatch.coverUrl = values.coverUrl;
+  if (has("amount")) workPatch.amount = toInt(values.amount);
 
   const recordPatch: Record<string, unknown> = {};
   if (has("startDate")) recordPatch.startDate = toDate(values.startDate);
   if (has("endDate")) recordPatch.endDate = toDate(values.endDate);
   if (has("isPrivate")) recordPatch.isPrivate = values.isPrivate === "是";
-  if (has("amount")) recordPatch.amount = toInt(values.amount);
 
   await db.transaction(async (tx) => {
     if (Object.keys(workPatch).length)

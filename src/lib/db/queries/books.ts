@@ -72,7 +72,7 @@ export async function listBooks(userId: string): Promise<Book[]> {
       subDomain: type?.subDomain ?? "",
       type: attribute ?? "",
       language: work.language,
-      pageCount: record.amount?.toString() ?? "",
+      pageCount: work.amount?.toString() ?? "",
       wordCount: "",
       note: "", // 心得早就搬去書寫了，這欄留著只為了型別相容
       quotes: "",

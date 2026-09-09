@@ -20,7 +20,7 @@ export const LANDING_SECTIONS: LandingSection[] = [
     title: "紀錄",
     tag: "各色體驗",
     body: "最近接觸到什麼？是一本暢銷新書、一首難忘的歌、一場午夜電影、一段壯闊旅程？一起記下來，產生個人化的體驗週報。",
-    sample: { kind: "書籍", title: "原子習慣", meta: "James Clear　·　320 頁　·　在讀" },
+    sample: { kind: "書籍", title: "原子習慣", meta: "James Clear・320 頁・在讀" },
   },
   {
     title: "片段",
@@ -29,7 +29,7 @@ export const LANDING_SECTIONS: LandingSection[] = [
     sample: {
       kind: "佳句",
       title: "而當你真心渴望某樣東西時，整個宇宙都會聯合起來幫助你完成。",
-      meta: "牧羊少年奇幻之旅　·　第一部",
+      meta: "牧羊少年奇幻之旅・第一部",
     },
   },
   {
@@ -39,7 +39,7 @@ export const LANDING_SECTIONS: LandingSection[] = [
     sample: {
       kind: "心得",
       title: "還沒，不是不會",
-      meta: "520 字　·　出處 心態致勝：全新成功心理學",
+      meta: "520 字・出處 心態致勝：全新成功心理學",
     },
   },
 ];

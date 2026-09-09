@@ -26,7 +26,6 @@ function recordValues(book: Book) {
   return {
     startDate: toDate(book.startDate),
     endDate: toDate(book.endDate),
-    amount: toInt(book.pageCount),
     isPrivate: book.private === PRIVATE_MARK,
   };
 }
@@ -58,6 +57,7 @@ export async function addBookRow(userId: string, book: Book): Promise<void> {
             source: book.publisher || book.platform,
             externalId: book.isbn,
             coverUrl: book.coverUrl,
+            amount: toInt(book.pageCount),
             topicId: await typeIdFor(tx, userId, book.domain, book.subDomain),
             attributeId: await attributeIdFor(tx, userId, book.type),
           })
@@ -94,6 +94,7 @@ export async function updateBookRow(
   if (patch.language !== undefined) workPatch.language = patch.language;
   if (patch.isbn !== undefined) workPatch.externalId = patch.isbn;
   if (patch.coverUrl !== undefined) workPatch.coverUrl = patch.coverUrl;
+  if (patch.pageCount !== undefined) workPatch.amount = toInt(patch.pageCount);
   // 出版社與平台合成一欄，兩個都給就以出版社為準
   if (patch.publisher !== undefined) workPatch.source = patch.publisher;
   else if (patch.platform !== undefined) workPatch.source = patch.platform;
@@ -101,7 +102,6 @@ export async function updateBookRow(
   const recordPatch: Record<string, unknown> = {};
   if (patch.startDate !== undefined) recordPatch.startDate = toDate(patch.startDate);
   if (patch.endDate !== undefined) recordPatch.endDate = toDate(patch.endDate);
-  if (patch.pageCount !== undefined) recordPatch.amount = toInt(patch.pageCount);
   if (patch.private !== undefined) recordPatch.isPrivate = patch.private === PRIVATE_MARK;
 
   await db.transaction(async (tx) => {

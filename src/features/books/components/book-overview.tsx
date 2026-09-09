@@ -78,12 +78,12 @@ function Headline({
         <span className={styles.byline}>
           {[book.author, book.domain, book.pageCount && `${book.pageCount} 頁`]
             .filter(Boolean)
-            .join("　·　")}
+            .join("・")}
         </span>
         {latestNote && <p className={`${styles.summary} line-clamp-2`}>{latestNote.note}</p>}
         {(book.startDate || counts.length > 0) && (
           <span className={styles.meta}>
-            {[book.startDate && `${book.startDate} 起讀`, ...counts].filter(Boolean).join("　·　")}
+            {[book.startDate && `${book.startDate} 起讀`, ...counts].filter(Boolean).join("・")}
           </span>
         )}
       </div>
@@ -101,7 +101,7 @@ function TotalStats({ stats }: { stats: YearStats }) {
       </div>
       {stats.count > 0 && (
         <div className={`${styles.statCaption} pt-1.5`}>
-          {formatCount(String(stats.pageTotal))} 頁　·　平均 {stats.pageAverage} 頁一本
+          {formatCount(String(stats.pageTotal))} 頁・平均 {stats.pageAverage} 頁一本
         </div>
       )}
     </div>
@@ -126,18 +126,24 @@ function StatsRail({ stats, href }: { stats: YearStats; href: (book: Book) => st
 
       {stats.thickest && (
         <div className={styles.statBlock}>
-          <div className={styles.labelInk}>最厚的</div>
+          <div className="flex items-baseline justify-between">
+            <span className={styles.labelInk}>最厚的</span>
+            <span className={styles.meta}>{formatCount(stats.thickest.pageCount)} 頁</span>
+          </div>
           <Link href={href(stats.thickest)} className={`${styles.statCaption} block truncate`}>
-            {stats.thickest.title}　·　{formatCount(stats.thickest.pageCount)} 頁
+            {stats.thickest.title}
           </Link>
         </div>
       )}
 
       {stats.fastest && (
         <div className={styles.statBlock}>
-          <div className={styles.labelInk}>最快讀完的</div>
+          <div className="flex items-baseline justify-between">
+            <span className={styles.labelInk}>最快讀完的</span>
+            <span className={styles.meta}>{stats.fastest.days} 天</span>
+          </div>
           <Link href={href(stats.fastest.book)} className={`${styles.statCaption} block truncate`}>
-            {stats.fastest.book.title}　·　{stats.fastest.days} 天
+            {stats.fastest.book.title}
           </Link>
         </div>
       )}
@@ -197,7 +203,6 @@ export function BookOverview({
   const want = books.filter((b) => b.status === "想讀");
   const done = books.filter((b) => b.status === "已讀完");
   const headline = pickHeadline(reading);
-  const rest = reading.filter((b) => b.id !== headline?.id);
   const headlineNotes = headline
     ? notesForSource(writings, [headline.originId || headline.id])
     : [];
@@ -251,7 +256,7 @@ export function BookOverview({
       <div className={styles.rail}>
         <TotalStats stats={totalStats} />
         <StatsRail stats={yearStats} href={href} />
-        <Rail label="其餘在讀" count={rest.length} books={rest} href={href} />
+        <Rail label="在讀" count={reading.length} books={reading} href={href} />
         <Rail
           label="想讀"
           count={want.length}

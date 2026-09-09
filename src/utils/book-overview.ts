@@ -46,9 +46,10 @@ function toPageCount(book: Book): number {
   return /^\d+$/.test(digits) ? Number(digits) : 0;
 }
 
+/** 花了幾天讀完：頭尾同一天也是讀了一天，不是零天 */
 function daysBetween(start: string, end: string): number {
   const ms = new Date(end).getTime() - new Date(start).getTime();
-  return Math.round(ms / 86400000);
+  return Math.round(ms / 86400000) + 1;
 }
 
 /**
@@ -68,7 +69,7 @@ export function getYearStats(books: Book[], year?: number): YearStats {
   const fastest = done
     .filter((b) => b.startDate && b.endDate)
     .map((b) => ({ book: b, days: daysBetween(b.startDate!, b.endDate!) }))
-    .filter(({ days }) => days >= 0)
+    .filter(({ days }) => days >= 1)
     .sort((a, b) => a.days - b.days)[0];
 
   return {

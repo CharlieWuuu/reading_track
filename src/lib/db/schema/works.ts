@@ -25,6 +25,9 @@ import { users } from "./users";
  *
  * external_id 是外部線索不是身分——ISBN、影片編號、課程網址都塞這裡，只給匯入時
  * 去外面查資料用。比對與帶入一律走內部的 work_id，使用者從自己的紀錄挑一筆就二刷。
+ *
+ * amount 也掛在這裡：頁數／分鐘／集數是作品的份量，不是某一次讀的份量，
+ * 跟出版社、封面同一個道理。單位不存在這裡，跟著 kind_id 查 kinds.amount_unit。
  */
 export const works = pgTable("domain_works", {
   userId: uuid("user_id")
@@ -42,15 +45,12 @@ export const works = pgTable("domain_works", {
   source: text("source").notNull().default(""), // 出版社／頻道／平台
   externalId: text("external_id").notNull().default(""),
   coverUrl: text("cover_url").notNull().default(""),
+  amount: integer("amount"), // 頁數／分鐘／集數，單位跟著類型查
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 /**
  * 一筆紀錄：讀了一次、看了一次、上了一次課。
- *
- * 份量掛在這裡不掛作品：紙本與電子書是不同的一次，頁數跟著那一次走。
- * amount 的單位不存在這裡，跟著 work.kind_id 查 kinds.amount_unit——
- * 同一個類型（書）永遠同一個單位（頁），不讓單筆紀錄自己例外。
  *
  * 沒有 status 欄：想讀／閱讀中／已讀完純粹從 start_date／end_date 推論——
  * 都沒填是想讀，有 start 沒 end 是閱讀中，有 end 是已讀完。三態固定，
@@ -69,7 +69,6 @@ export const records = pgTable("domain_records", {
     .references(() => works.id, { onDelete: "cascade" }),
   startDate: date("start_date"),
   endDate: date("end_date"),
-  amount: integer("amount"), // 頁數／分鐘／集數，單位跟著類型查
   isPrivate: boolean("is_private").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

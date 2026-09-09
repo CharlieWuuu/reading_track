@@ -258,6 +258,7 @@ export async function seedDemo(email: string): Promise<string> {
         source: publisher,
         topicId: typeId.get(subDomain ? `${domain}/${subDomain}` : domain) ?? null,
         attributeId: attributeId.get(attribute) ?? null,
+        amount: 200 + ((i * 37) % 300),
       })
       .returning({ id: works.id });
     bookIds.push(book.id);
@@ -271,7 +272,6 @@ export async function seedDemo(email: string): Promise<string> {
         workId: book.id,
         startDate: status === "想讀" ? null : daysAgo(400 - i * 12),
         endDate: status === "已讀完" ? daysAgo(380 - i * 12) : null,
-        amount: 200 + ((i * 37) % 300),
       })
       .returning({ id: records.id });
     readingIds.push(reading.id);
