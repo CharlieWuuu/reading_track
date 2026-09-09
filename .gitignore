@@ -57,3 +57,6 @@ storybook-static
 
 # 設計稿工作檔：只活在本機，不進版控
 docs/design/
+
+# 一次性資料遷移腳本：含正式庫真實 user_id，不進版控
+supabase/migrations/data-migration/
