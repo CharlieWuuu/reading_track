@@ -70,7 +70,7 @@ export async function replaceBookQuotes(
         workId,
         phrase: item.text,
         locator: item.chapter,
-        note: item.note,
+        body: item.note,
       })),
   );
 }
@@ -120,7 +120,7 @@ export async function addQuote(userId: string, readingId: string, item: QuoteRow
       workId,
       phrase: item.text,
       locator: item.chapter,
-      note: item.note,
+      body: item.note,
     });
   });
 }

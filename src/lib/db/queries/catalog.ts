@@ -120,7 +120,7 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
     name: fragment.name,
     body: fragment.body,
     locator: fragment.locator,
-    note: fragment.note,
+    note: fragment.body,
     date: fragment.date,
     createdAt: fragment.createdAt.toISOString(),
   }));
