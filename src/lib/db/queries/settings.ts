@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { settings, topics } from "@/lib/db/schema/taxonomy";
+import { recordTopics, settings } from "@/lib/db/schema/taxonomy";
 
 /**
  * 設定與私人清單。
@@ -33,13 +33,13 @@ export async function writeSetting(userId: string, key: string, value: string): 
 async function privateTypeNames(userId: string): Promise<string[]> {
   const rows = await db
     .select({
-      id: topics.id,
-      name: topics.name,
-      parentId: topics.parentId,
-      isPrivate: topics.isPrivate,
+      id: recordTopics.id,
+      name: recordTopics.name,
+      parentId: recordTopics.parentId,
+      isPrivate: recordTopics.isPrivate,
     })
-    .from(topics)
-    .where(eq(topics.userId, userId));
+    .from(recordTopics)
+    .where(eq(recordTopics.userId, userId));
 
   const byParent = new Map<string, typeof rows>();
   for (const row of rows) {

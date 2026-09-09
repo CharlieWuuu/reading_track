@@ -1,6 +1,6 @@
 import { boolean, date, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { kinds } from "./kinds";
-import { attributes, topics } from "./taxonomy";
+import { attributes, recordTopics } from "./taxonomy";
 import { users } from "./users";
 
 /**
@@ -18,7 +18,7 @@ import { users } from "./users";
  *
  * 欄位是共用的：創作者就是作者／導演／講師／主持人，叫什麼名字交給 kind_fields。
  *
- * topic_id 指向 topics——那張表是主題樹（文學、歷史），跟 kind 是兩個層級。
+ * topic_id 指向 record_topics——那張表是書/文章共用的主題樹（文學、歷史），跟 kind 是兩個層級。
  *
  * source／external_id／cover_url 掛在這裡不掛紀錄：同一本書不管讀幾次，
  * 出版社、ISBN、封面都固定，不是「這一次讀」才有的屬性。
@@ -36,7 +36,7 @@ export const works = pgTable("domain_works", {
     .references(() => kinds.id, { onDelete: "restrict" }), // 還有作品掛著就不准刪類型
   title: text("title").notNull(),
   creator: text("creator").notNull().default(""),
-  topicId: uuid("topic_id").references(() => topics.id, { onDelete: "set null" }),
+  topicId: uuid("topic_id").references(() => recordTopics.id, { onDelete: "set null" }),
   attributeId: uuid("attribute_id").references(() => attributes.id, { onDelete: "set null" }),
   language: text("language").notNull().default(""),
   source: text("source").notNull().default(""), // 出版社／頻道／平台
