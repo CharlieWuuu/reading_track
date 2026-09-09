@@ -19,7 +19,9 @@ import { useKinds } from "@/hooks/use-kinds";
  */
 
 const styles = {
-  nav: "border-shell-rule flex h-full w-[188px] shrink-0 flex-col overflow-y-auto border-r px-6 gap-6",
+  frame: "flex h-full shrink-0 gap-6",
+  nav: "flex h-full w-[188px] shrink-0 flex-col overflow-y-auto gap-6",
+  rule: "bg-shell-rule w-px shrink-0",
   group: "border-rule-strong border-b-2 pb-1.5",
   groupLabel: "block w-full font-serif text-ui font-semibold tracking-section",
   row: "border-rule-soft flex items-baseline border-b py-[7px] pl-3",
@@ -74,24 +76,27 @@ export function Sidebar() {
     kinds.find((kind) => kind.name === label)?.count;
 
   return (
-    <nav className={styles.nav}>
-      {NAV_GROUPS.map((group) => {
-        const types = typesOf(group);
+    <div className={styles.frame}>
+      <nav className={styles.nav}>
+        {NAV_GROUPS.map((group) => {
+          const types = typesOf(group);
 
-        return (
-          <div key={group.key}>
-            <GroupHeading group={group} />
-            {types.map((type) => (
-              <NavRow
-                key={type.key}
-                type={type}
-                active={type.key === currentSlug}
-                count={countOf(type.label)}
-              />
-            ))}
-          </div>
-        );
-      })}
-    </nav>
+          return (
+            <div key={group.key}>
+              <GroupHeading group={group} />
+              {types.map((type) => (
+                <NavRow
+                  key={type.key}
+                  type={type}
+                  active={type.key === currentSlug}
+                  count={countOf(type.label)}
+                />
+              ))}
+            </div>
+          );
+        })}
+      </nav>
+      <div className={styles.rule} />
+    </div>
   );
 }
