@@ -2,6 +2,7 @@ import { asc, eq } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db/client";
 import { kinds } from "@/lib/db/schema/kinds";
+import { writingTopics } from "@/lib/db/schema/taxonomy";
 import { works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
 import { Writing } from "@/types/writing";
@@ -28,11 +29,13 @@ export async function listWritings(userId: string): Promise<Writing[]> {
         kindName: kinds.name,
         workTitle: works.title,
         workKind: sourceKind.name,
+        topicName: writingTopics.name,
       })
       .from(writings)
       .innerJoin(kinds, eq(kinds.id, writings.kindId))
       .leftJoin(works, eq(works.id, writings.workId))
       .leftJoin(sourceKind, eq(sourceKind.id, works.kindId))
+      .leftJoin(writingTopics, eq(writingTopics.id, writings.topicId))
       .where(eq(writings.userId, userId))
       .orderBy(asc(writings.createdAt)),
   ]);
@@ -48,7 +51,7 @@ export async function listWritings(userId: string): Promise<Writing[]> {
     ),
   ]);
 
-  return rows.map(({ writing, kindName, workTitle, workKind }) => {
+  return rows.map(({ writing, kindName, workTitle, workKind, topicName }) => {
     // 畫面上的書籍編號是「某一次讀」，所以指回第一次讀的那個
     const sourceId = writing.workId ? (firstReading.get(writing.workId) ?? writing.workId) : "";
     return {
@@ -57,6 +60,7 @@ export async function listWritings(userId: string): Promise<Writing[]> {
       date: writing.date,
       title: writing.name,
       kind: workKind ?? kindName,
+      topic: topicName ?? "",
       keywords: keywords.get(writing.id) ?? "",
       note: writing.body,
       link: links.get(writing.id) ?? "",

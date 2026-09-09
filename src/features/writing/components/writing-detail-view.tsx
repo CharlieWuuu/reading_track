@@ -51,6 +51,13 @@ export function WritingDetailView() {
                       ))}
                     </span>
                   </DetailField>
+                  {writing.topic && (
+                    <DetailField label="主題">
+                      <span className={`${KIND_TAG} ${tagColorClass(writing.topic, [])}`}>
+                        {writing.topic}
+                      </span>
+                    </DetailField>
+                  )}
                 </div>
                 <div>
                   <DetailField label="延伸自">{writing.sourceTitle}</DetailField>

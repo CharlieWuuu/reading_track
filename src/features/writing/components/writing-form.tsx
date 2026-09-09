@@ -34,6 +34,7 @@ const emptyForm = {
   date: "",
   title: "",
   kind: "",
+  topic: "",
   keywords: "",
   note: "",
   link: "",
@@ -76,6 +77,9 @@ export function WritingForm({ entry }: { entry?: Writing }) {
   // 建議只收紀事自己用過的：書、文章、紀事各記各的，混在一起選單會很吵
   const keywordSuggestions = [...new Set(writings.flatMap((e) => splitLines(e.keywords)))].sort(
     (a, b) => a.localeCompare(b, "zh-Hant"),
+  );
+  const topicSuggestions = [...new Set(writings.map((e) => e.topic).filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b, "zh-Hant"),
   );
 
   const { searchParams } = useUrlParams();
@@ -178,6 +182,16 @@ export function WritingForm({ entry }: { entry?: Writing }) {
                 onEditOption={openKeyword}
                 separator={"\n"}
                 multiple
+              />
+            </div>
+
+            <div className="col-span-2 min-w-0 sm:col-span-1">
+              {/* 主題：這件事屬於生活的哪一塊，跟關鍵字不同層次，單選 */}
+              <OptionSelect
+                label="主題"
+                options={topicSuggestions}
+                value={form.topic}
+                onChange={(v) => set("topic", v)}
               />
             </div>
 

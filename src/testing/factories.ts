@@ -110,6 +110,7 @@ export function makeWriting(overrides: Partial<Writing> = {}): Writing {
     date: "2026-08-10",
     title: "測試紀事",
     kind: "書籍",
+    topic: "",
     keywords: "",
     note: "寫了一句話",
     link: "",
