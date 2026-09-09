@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { topics } from "@/lib/db/schema/taxonomy";
+import { recordTopics } from "@/lib/db/schema/taxonomy";
 
 /**
  * 主題樹攤成「節點 → 領域／次領域」。
@@ -12,9 +12,9 @@ export async function typePaths(
   userId: string,
 ): Promise<Map<string, { domain: string; subDomain: string }>> {
   const rows = await db
-    .select({ id: topics.id, name: topics.name, parentId: topics.parentId })
-    .from(topics)
-    .where(eq(topics.userId, userId));
+    .select({ id: recordTopics.id, name: recordTopics.name, parentId: recordTopics.parentId })
+    .from(recordTopics)
+    .where(eq(recordTopics.userId, userId));
 
   const byId = new Map(rows.map((r) => [r.id, r]));
   return new Map(
@@ -48,13 +48,13 @@ export interface PrivacyFlags {
 export async function privacyFlags(userId: string): Promise<PrivacyFlags> {
   const typeRows = await db
     .select({
-      id: topics.id,
-      name: topics.name,
-      parentId: topics.parentId,
-      isPrivate: topics.isPrivate,
+      id: recordTopics.id,
+      name: recordTopics.name,
+      parentId: recordTopics.parentId,
+      isPrivate: recordTopics.isPrivate,
     })
-    .from(topics)
-    .where(eq(topics.userId, userId));
+    .from(recordTopics)
+    .where(eq(recordTopics.userId, userId));
 
   const byParent = new Map<string, typeof typeRows>();
   for (const row of typeRows) {

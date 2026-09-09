@@ -1,6 +1,6 @@
 import { and, eq, isNull } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db/client";
-import { attributes, topics } from "@/lib/db/schema/taxonomy";
+import { attributes, recordTopics } from "@/lib/db/schema/taxonomy";
 import { splitLines } from "@/types/book";
 
 /**
@@ -17,21 +17,21 @@ async function upsertType(
   parentId: string | null,
 ): Promise<string> {
   const [existing] = await tx
-    .select({ id: topics.id })
-    .from(topics)
+    .select({ id: recordTopics.id })
+    .from(recordTopics)
     .where(
       and(
-        eq(topics.userId, userId),
-        eq(topics.name, name),
-        parentId ? eq(topics.parentId, parentId) : isNull(topics.parentId),
+        eq(recordTopics.userId, userId),
+        eq(recordTopics.name, name),
+        parentId ? eq(recordTopics.parentId, parentId) : isNull(recordTopics.parentId),
       ),
     );
   if (existing) return existing.id;
 
   const [row] = await tx
-    .insert(topics)
+    .insert(recordTopics)
     .values({ userId, name, parentId })
-    .returning({ id: topics.id });
+    .returning({ id: recordTopics.id });
   return row.id;
 }
 
@@ -81,7 +81,7 @@ export async function setPrivacyFlag(
 ): Promise<void> {
   // 帶 userId 的 where：別人的節點編號猜到了也改不動
   await db
-    .update(topics)
+    .update(recordTopics)
     .set({ isPrivate })
-    .where(and(eq(topics.userId, userId), eq(topics.id, id)));
+    .where(and(eq(recordTopics.userId, userId), eq(recordTopics.id, id)));
 }

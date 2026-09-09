@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
-import { topics } from "@/lib/db/schema/taxonomy";
+import { recordTopics } from "@/lib/db/schema/taxonomy";
 import { seedUser } from "@/lib/db/test/factories";
 
 vi.mock("@/lib/db/client", async () => {
@@ -15,15 +15,15 @@ const userId = await seedUser(db);
 /** 種一棵 政治 → 選舉 → 地方選舉 的三層樹，回傳每一層的 id */
 async function seedTree() {
   const [root] = await db
-    .insert(topics)
+    .insert(recordTopics)
     .values({ userId, name: "政治" })
-    .returning({ id: topics.id });
+    .returning({ id: recordTopics.id });
   const [mid] = await db
-    .insert(topics)
+    .insert(recordTopics)
     .values({ userId, name: "選舉", parentId: root.id })
-    .returning({ id: topics.id });
-  await db.insert(topics).values({ userId, name: "地方選舉", parentId: mid.id });
-  await db.insert(topics).values({ userId, name: "文學" }); // 沒被標的另一棵
+    .returning({ id: recordTopics.id });
+  await db.insert(recordTopics).values({ userId, name: "地方選舉", parentId: mid.id });
+  await db.insert(recordTopics).values({ userId, name: "文學" }); // 沒被標的另一棵
   return root;
 }
 
@@ -36,7 +36,7 @@ describe("readPrivacySettings 的私人類型", () => {
 
   it("標了父節點，底下每一層都算私人——包含孫節點", async () => {
     const root = await seedTree();
-    await db.update(topics).set({ isPrivate: true }).where(eq(topics.id, root.id));
+    await db.update(recordTopics).set({ isPrivate: true }).where(eq(recordTopics.id, root.id));
 
     const { privateTypes } = await readPrivacySettings(userId, "passcode");
     expect(new Set(privateTypes)).toEqual(new Set(["政治", "選舉", "地方選舉"]));
@@ -44,7 +44,7 @@ describe("readPrivacySettings 的私人類型", () => {
 
   it("沒被標的那一棵不受影響", async () => {
     const root = await seedTree();
-    await db.update(topics).set({ isPrivate: true }).where(eq(topics.id, root.id));
+    await db.update(recordTopics).set({ isPrivate: true }).where(eq(recordTopics.id, root.id));
 
     const { privateTypes } = await readPrivacySettings(userId, "passcode");
     expect(privateTypes).not.toContain("文學");
