@@ -43,24 +43,28 @@ export const writingEditHref = (id: string): string => {
   return `/writing/${id}/edit`;
 };
 
+const quotesListHref = kindHref("fragments", "quotes");
+
 export const quoteHref = (id: string): string => {
-  return `/reading/quotes/${id}`;
+  return `${quotesListHref}/${id}`;
 };
 
 export const quoteEditHref = (id: string): string => {
-  return `/reading/quotes/${id}/edit`;
+  return `${quotesListHref}/${id}/edit`;
 };
+
+const vocabularyListHref = kindHref("fragments", "vocabulary");
 
 /**
  * 單字的鍵是詞本身而不是編號：同一個詞在不同書各有一列，那一頁一次看完（改完）
  * 所有列。換成 row id 等於改成「只看其中一次相遇」，那不是這一頁在講的事。
  */
 export const vocabularyHref = (word: string): string => {
-  return `/reading/vocabulary/${encodeURIComponent(word)}`;
+  return `${vocabularyListHref}/${encodeURIComponent(word)}`;
 };
 
 export const vocabularyEditHref = (word: string): string => {
-  return `/reading/vocabulary/${encodeURIComponent(word)}/edit`;
+  return `${vocabularyListHref}/${encodeURIComponent(word)}/edit`;
 };
 
 /**

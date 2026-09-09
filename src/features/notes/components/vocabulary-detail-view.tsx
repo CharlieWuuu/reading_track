@@ -9,6 +9,7 @@ import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
 import { DetailSection } from "@/components/ui/detail";
 import { RelatedNotes } from "@/components/ui/related-notes";
+import { kindHref } from "@/config/kind-routes";
 import { bookHref, vocabularyEditHref } from "@/config/routes";
 import { useBooks } from "@/hooks/use-books";
 import { useRecords } from "@/hooks/use-records";
@@ -48,7 +49,7 @@ export function VocabularyDetailView() {
       <PageHeader
         title={name}
         size="compact"
-        backHref="/reading/vocabulary"
+        backHref={kindHref("fragments", "vocabulary")}
         action={entry && <ActionButton href={vocabularyEditHref(name)}>編輯</ActionButton>}
       />
       <PageBody>

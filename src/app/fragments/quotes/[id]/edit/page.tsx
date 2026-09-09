@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
+import { kindHref } from "@/config/kind-routes";
 import { QuoteForm } from "@/features/notes/components/quote-form";
 import { useBooks } from "@/hooks/use-books";
 import { useRecordEdits } from "@/hooks/use-record-edits";
@@ -22,7 +23,7 @@ export default function EditQuotePage() {
 
   return (
     <>
-      <PageHeader title="編輯佳句" size="compact" backHref="/reading/quotes" />
+      <PageHeader title="編輯佳句" size="compact" backHref={kindHref("fragments", "quotes")} />
       <PageBody>
         <RecordGate
           loading={isLoading || loadingBooks}

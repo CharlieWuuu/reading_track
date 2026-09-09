@@ -21,6 +21,8 @@ export type ReadingTab = (typeof READING_TABS)[number]["key"];
 const MIGRATED_HREF: Partial<Record<ReadingTab, string>> = {
   books: kindHref("records", "books"),
   articles: kindHref("records", "articles"),
+  quotes: kindHref("fragments", "quotes"),
+  vocabulary: kindHref("fragments", "vocabulary"),
 };
 
 export const readingTabHref = (tab: ReadingTab) => MIGRATED_HREF[tab] ?? `/reading/${tab}`;

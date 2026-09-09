@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
+import { kindHref } from "@/config/kind-routes";
 import { VocabularyForm } from "@/features/notes/components/vocabulary-form";
 import { useBooks } from "@/hooks/use-books";
 import { useRecordEdits } from "@/hooks/use-record-edits";
@@ -28,7 +29,7 @@ export default function EditVocabularyPage() {
 
   return (
     <>
-      <PageHeader title={name} size="compact" backHref="/reading/vocabulary" />
+      <PageHeader title={name} size="compact" backHref={kindHref("fragments", "vocabulary")} />
       <PageBody>
         <RecordGate
           loading={isLoading || loadingBooks}

@@ -91,7 +91,7 @@ export const fragmentItem = (row: FragmentRow): OverviewItem => {
 
 /** 內建片段的詳細頁。單字用詞條當網址，那是舊路由的約定 */
 const FRAGMENT_HREF: Record<string, (row: FragmentRow) => string> = {
-  佳句: (row) => `/reading/quotes/${row.id}`,
-  單字: (row) => `/reading/vocabulary/${encodeURIComponent(row.name)}`,
+  佳句: (row) => `${kindHref("fragments", "quotes")}/${row.id}`,
+  單字: (row) => `${kindHref("fragments", "vocabulary")}/${encodeURIComponent(row.name)}`,
   書寫: (row) => `/writing/${row.id}`,
 };
