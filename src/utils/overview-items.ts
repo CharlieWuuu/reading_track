@@ -61,7 +61,7 @@ export const recordItem = (row: RecordRow): OverviewItem => ({
   href: `${kindHref(row.kindGroup, row.kindSlug)}/${row.id}`,
   coverUrl: row.coverUrl || undefined,
   startDate: row.startDate,
-  endDate: row.endDate && `${row.endDate} 完成`,
+  endDate: row.endDate,
   kindLabel: row.kindName,
 });
 

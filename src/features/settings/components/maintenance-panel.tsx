@@ -1,8 +1,5 @@
 "use client";
 
-import { CachePanel } from "@/features/settings/components/cache-panel";
-import { DataIssuesPanel } from "@/features/settings/components/data-issues-panel";
-
 /**
  * 偶爾才會用到的維護動作，放這裡就好，別佔著書單頁的空間。
  *
@@ -17,14 +14,6 @@ export function MaintenancePanel({ enrichSlot }: { enrichSlot: React.ReactNode }
           從網路查書名、作者、書封等資料，補進沒填的欄位。新增一批書之後跑一次就好。
         </p>
         {enrichSlot}
-      </div>
-
-      <div className="border-rule border-b pb-6">
-        <DataIssuesPanel />
-      </div>
-
-      <div>
-        <CachePanel />
       </div>
     </div>
   );

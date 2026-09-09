@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
-import { SegmentedControl } from "@/components/ui/controls";
+import { styles as controlStyles } from "@/components/ui/controls/styles";
 import { SignInPrompt } from "@/components/ui/sign-in-prompt";
 import { EnrichButton } from "@/features/books/components/enrich-button";
 import { AccountPanel } from "@/features/settings/components/account-panel";
@@ -22,6 +22,36 @@ const TABS = [
 
 type SettingsTab = (typeof TABS)[number]["key"];
 
+/**
+ * 分頁列跟頁首那排純文字連結（概覽／表格／篩選）同一套長相：無框無底色，
+ * 選中的只是變粗體。四個分頁常駐顯示，不收成下拉選單。
+ */
+function SettingsTabs({
+  tab,
+  onChange,
+}: {
+  tab: SettingsTab;
+  onChange: (next: SettingsTab) => void;
+}) {
+  return (
+    <div className="flex min-w-0 items-center gap-4 overflow-x-auto">
+      {TABS.map((t) => (
+        <button
+          key={t.key}
+          type="button"
+          onClick={() => onChange(t.key)}
+          aria-pressed={t.key === tab}
+          className={`${controlStyles.link} ${
+            t.key === tab ? controlStyles.linkActive : controlStyles.linkIdle
+          }`}
+        >
+          {t.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function Settings() {
   const { data: session } = useSession();
   const { searchParams, setParams } = useUrlParams();
@@ -38,9 +68,8 @@ function Settings() {
         title="設定"
         action={
           signedIn && (
-            <SegmentedControl
-              items={TABS}
-              value={tab}
+            <SettingsTabs
+              tab={tab}
               onChange={(next) => setParams({ tab: next === "categories" ? null : next })}
             />
           )
