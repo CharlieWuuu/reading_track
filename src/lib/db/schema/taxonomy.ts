@@ -24,8 +24,8 @@ export const topics = pgTable("domain_topics", {
 });
 
 /** 散文、圖文。講形式，書與文章共用，書寫沒有 */
-export const bookAttributes = pgTable(
-  "domain_work_attributes",
+export const attributes = pgTable(
+  "domain_attribute",
   {
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id")
