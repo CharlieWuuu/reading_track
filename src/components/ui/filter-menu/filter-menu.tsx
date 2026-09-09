@@ -7,12 +7,11 @@ import { useOutsideClick } from "@/hooks/use-outside-click";
 
 const styles = {
   root: "relative shrink-0",
-  // 選單靠右對齊：按鈕本來就在頁首右側，往左展開才不會超出畫面
-  panel:
-    "absolute right-0 z-50 mt-1 max-h-80 w-48 divide-y overflow-y-auto rounded-surface border bg-white shadow-lg",
+  // 選單靠右對齊，比 controlStyles.menu 寬一點裝得下篩選群組；顏色與項目長相跟它共用
+  panel: `${controlStyles.menu} right-0 max-h-80 w-48 divide-y overflow-y-auto`,
   group: "py-1",
   groupLabel: "px-3 pt-1 pb-0.5 text-[11px] text-ink-faint",
-  item: "flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-ink-secondary hover:bg-gray-50",
+  item: controlStyles.menuItem,
   label: "min-w-0 flex-1 truncate",
   check: "shrink-0 text-ink",
   empty: "px-3 py-1.5 text-xs text-ink-faint",
@@ -61,7 +60,7 @@ export function FilterMenu({
         className={`${controlStyles.link} ${controlStyles.linkIdle} ${active.length > 0 ? "font-semibold" : ""}`}
       >
         <span>{active.length > 0 ? active.map((g) => g.value).join("・") : "篩選"}</span>
-        <ChevronDown size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
+        <ChevronDown size={14} strokeWidth={1.5} className="text-ink-faint shrink-0" aria-hidden />
       </button>
 
       {open && (
@@ -75,7 +74,9 @@ export function FilterMenu({
               ) : (
                 <>
                   <button type="button" onClick={() => pick(group.key, "")} className={styles.item}>
-                    <span className={`${styles.label} ${!group.value ? "font-semibold" : ""}`}>
+                    <span
+                      className={`${styles.label} ${!group.value ? "text-ink font-medium" : "text-ink-muted"}`}
+                    >
                       全部
                     </span>
                     {!group.value && <Check size={14} strokeWidth={2} className={styles.check} />}
@@ -88,7 +89,7 @@ export function FilterMenu({
                       className={styles.item}
                     >
                       <span
-                        className={`${styles.label} ${group.value === option ? "font-semibold" : ""}`}
+                        className={`${styles.label} ${group.value === option ? "text-ink font-medium" : "text-ink-muted"}`}
                       >
                         {option}
                       </span>

@@ -74,7 +74,7 @@ export function SelectMenu<T extends string>({
         ) : (
           showLabel && <span className="truncate">{current?.label}</span>
         )}
-        <ChevronDown size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
+        <ChevronDown size={14} strokeWidth={1.5} className="text-ink-faint shrink-0" aria-hidden />
       </button>
 
       {open && (
@@ -88,7 +88,7 @@ export function SelectMenu<T extends string>({
                   setOpen(false);
                 }}
                 className={`${styles.menuItem} ${
-                  item.key === value ? "font-medium text-gray-900" : "text-gray-500"
+                  item.key === value ? "text-ink font-medium" : "text-ink-muted"
                 }`}
               >
                 {item.Icon && <item.Icon />}
