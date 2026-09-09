@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { BookCover } from "@/components/ui/book-cover";
 import { CoverBand } from "@/components/ui/cover-band/cover-band";
-import { Book } from "@/types/book";
+import { Book, formatCount } from "@/types/book";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { Writing } from "@/types/writing";
-import { byMonth, pickHeadline } from "@/utils/book-overview";
+import { byMonth, getYearStats, pickHeadline, YearStats } from "@/utils/book-overview";
 import { notesForSource } from "@/utils/related-notes";
 
 /**
@@ -39,6 +39,9 @@ const styles = {
   itemTitle: "font-serif text-item leading-snug font-semibold tracking-tight",
   railItem: "border-rule border-b py-[7px]",
   railTitle: "font-serif text-item-sm leading-snug font-semibold",
+  statBlock: "border-rule border-b py-3 first:pt-0 last:border-b-0",
+  statValue: "font-serif text-item leading-tight font-semibold tabular-nums",
+  statCaption: "text-meta text-ink-faint",
 };
 
 function Headline({
@@ -88,6 +91,45 @@ function Headline({
   );
 }
 
+function StatsRail({ stats, href }: { stats: YearStats; href: (book: Book) => string }) {
+  const year = new Date().getFullYear();
+  return (
+    <div className="pb-8">
+      <div className={styles.railHead}>
+        <span className={styles.labelInk}>今年</span>
+        <span className={styles.meta}>{stats.count} 本</span>
+      </div>
+
+      <div className={styles.statBlock}>
+        <div className={styles.statValue}>{formatCount(String(stats.pageTotal))} 頁</div>
+        {stats.count > 0 && (
+          <div className={styles.statCaption}>平均 {stats.pageAverage} 頁一本</div>
+        )}
+      </div>
+
+      {stats.thickest && (
+        <div className={styles.statBlock}>
+          <div className={styles.labelInk}>最厚的</div>
+          <Link href={href(stats.thickest)} className={`${styles.statCaption} block truncate`}>
+            {stats.thickest.title}　·　{formatCount(stats.thickest.pageCount)} 頁
+          </Link>
+        </div>
+      )}
+
+      {stats.fastest && (
+        <div className={styles.statBlock}>
+          <div className={styles.labelInk}>最快讀完的</div>
+          <Link href={href(stats.fastest.book)} className={`${styles.statCaption} block truncate`}>
+            {stats.fastest.book.title}　·　{stats.fastest.days} 天
+          </Link>
+        </div>
+      )}
+
+      {stats.count === 0 && <p className={`${styles.statCaption} pt-1`}>{year} 年還沒有讀完的書</p>}
+    </div>
+  );
+}
+
 function Rail({
   label,
   count,
@@ -106,7 +148,7 @@ function Rail({
     <div className="pb-8">
       <div className={styles.railHead}>
         <span className={styles.labelInk}>{label}</span>
-        <span className={styles.meta}>{count}</span>
+        <span className={styles.meta}>{count} 本</span>
       </div>
       {books.map((book) => (
         <div key={book.id} className={styles.railItem}>
@@ -142,6 +184,7 @@ export function BookOverview({
   const headlineNotes = headline
     ? notesForSource(writings, [headline.originId || headline.id])
     : [];
+  const yearStats = getYearStats(books);
 
   return (
     <div className={styles.frame}>
@@ -188,6 +231,7 @@ export function BookOverview({
       </div>
 
       <div className={styles.rail}>
+        <StatsRail stats={yearStats} href={href} />
         <Rail label="其餘在讀" count={rest.length} books={rest} href={href} />
         <Rail
           label="想讀"

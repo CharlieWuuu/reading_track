@@ -32,3 +32,45 @@ export function byMonth(books: Book[]): MonthGroup[] {
 export function pickHeadline(reading: Book[]): Book | undefined {
   return [...reading].sort((a, b) => (b.startDate ?? "").localeCompare(a.startDate ?? ""))[0];
 }
+
+export type YearStats = {
+  count: number;
+  pageTotal: number;
+  pageAverage: number;
+  thickest?: Book;
+  fastest?: { book: Book; days: number };
+};
+
+function toPageCount(book: Book): number {
+  const digits = book.pageCount.replace(/[,，\s]/g, "");
+  return /^\d+$/.test(digits) ? Number(digits) : 0;
+}
+
+function daysBetween(start: string, end: string): number {
+  const ms = new Date(end).getTime() - new Date(start).getTime();
+  return Math.round(ms / 86400000);
+}
+
+/** 右欄「今年」那組數字：今年讀完的本數、頁數，加最厚、最快讀完各一本 */
+export function getYearStats(books: Book[], year = new Date().getFullYear()): YearStats {
+  const done = books.filter((b) => b.status === "已讀完" && b.endDate?.startsWith(String(year)));
+
+  const pageCounts = done.map((b) => ({ book: b, pages: toPageCount(b) }));
+  const pageTotal = pageCounts.reduce((sum, { pages }) => sum + pages, 0);
+
+  const thickest = [...pageCounts].sort((a, b) => b.pages - a.pages)[0];
+
+  const fastest = done
+    .filter((b) => b.startDate && b.endDate)
+    .map((b) => ({ book: b, days: daysBetween(b.startDate!, b.endDate!) }))
+    .filter(({ days }) => days >= 0)
+    .sort((a, b) => a.days - b.days)[0];
+
+  return {
+    count: done.length,
+    pageTotal,
+    pageAverage: done.length > 0 ? Math.round(pageTotal / done.length) : 0,
+    thickest: thickest && thickest.pages > 0 ? thickest.book : undefined,
+    fastest,
+  };
+}
