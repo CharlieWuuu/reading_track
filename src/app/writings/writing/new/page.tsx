@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
+import { kindHref } from "@/config/kind-routes";
 import { WritingForm } from "@/features/writing/components/writing-form";
 import { WritingFormTabs } from "@/features/writing/components/writing-form-tabs";
 
@@ -12,7 +13,7 @@ function NewWriting() {
       <PageHeader
         title="新增書寫"
         size="compact"
-        backHref="/writing"
+        backHref={kindHref("writings", "writing")}
         action={<WritingFormTabs />}
       />
       <PageBody>

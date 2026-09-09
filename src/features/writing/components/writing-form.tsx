@@ -7,6 +7,7 @@ import { FormActions } from "@/components/ui/form-actions";
 import { compactLines } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
+import { kindHref } from "@/config/kind-routes";
 import { keywordEditHref, writingEditHref } from "@/config/routes";
 import { SourcePicker } from "@/features/writing/components/source-picker";
 import { useWritingsFormTab } from "@/features/writing/components/writing-form-tabs";
@@ -100,7 +101,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
     editHref: writingEditHref,
     existingId: entry?.id ?? "",
     payload: toPayload(form, isEdit),
-    redirectTo: "/writing",
+    redirectTo: kindHref("writings", "writing"),
     mutate,
     validate: () => (form.title.trim() ? undefined : "請填標題"),
   });

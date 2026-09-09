@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
+import { kindHref } from "@/config/kind-routes";
 import { WritingForm } from "@/features/writing/components/writing-form";
 import { WritingFormTabs } from "@/features/writing/components/writing-form-tabs";
 import { useWritings } from "@/hooks/use-writings";
@@ -19,7 +20,7 @@ function EditWriting() {
       <PageHeader
         title="編輯書寫"
         size="compact"
-        backHref="/writing"
+        backHref={kindHref("writings", "writing")}
         action={entry && <WritingFormTabs />}
       />
       <PageBody>

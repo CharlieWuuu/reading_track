@@ -41,7 +41,7 @@ export const writingItem = (writing: Writing): OverviewItem => ({
   id: writing.id,
   title: writing.title,
   byline: joinByline([writing.kind, writing.keywords.split("\n")[0]]),
-  href: `/writing/${writing.id}`,
+  href: `${kindHref("writings", "writing")}/${writing.id}`,
   startDate: writing.date,
   endDate: writing.date && `${writing.date}`,
   kindLabel: "書寫",
@@ -93,5 +93,5 @@ export const fragmentItem = (row: FragmentRow): OverviewItem => {
 const FRAGMENT_HREF: Record<string, (row: FragmentRow) => string> = {
   佳句: (row) => `${kindHref("fragments", "quotes")}/${row.id}`,
   單字: (row) => `${kindHref("fragments", "vocabulary")}/${encodeURIComponent(row.name)}`,
-  書寫: (row) => `/writing/${row.id}`,
+  書寫: (row) => `${kindHref("writings", "writing")}/${row.id}`,
 };

@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { ActionButton, SelectMenu } from "@/components/ui/controls";
 import { FilterMenu } from "@/components/ui/filter-menu";
 import { SearchBar } from "@/components/ui/search-bar";
+import { kindHref } from "@/config/kind-routes";
 import { WRITING_VIEWS } from "@/features/writing/views";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useWritings } from "@/hooks/use-writings";
@@ -49,7 +50,7 @@ export function WritingHeader() {
             groups={[{ key: "kind", label: "類型", options: usedKinds(writings), value: kind }]}
             onChange={(key, next) => setParams({ [key]: next || null })}
           />
-          <ActionButton href="/writing/new" label="新增">
+          <ActionButton href={`${kindHref("writings", "writing")}/new`} label="新增">
             <Plus size={16} strokeWidth={2} aria-hidden />
           </ActionButton>
         </div>

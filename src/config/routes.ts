@@ -35,12 +35,14 @@ export const articleEditHref = (id: string): string => {
   return `${articlesListHref}/${id}/edit`;
 };
 
+const writingsListHref = kindHref("writings", "writing");
+
 export const writingHref = (id: string): string => {
-  return `/writing/${id}`;
+  return `${writingsListHref}/${id}`;
 };
 
 export const writingEditHref = (id: string): string => {
-  return `/writing/${id}/edit`;
+  return `${writingsListHref}/${id}/edit`;
 };
 
 const quotesListHref = kindHref("fragments", "quotes");
@@ -93,5 +95,5 @@ type WritingSource = {
 
 /** 從書籍／文章頁去寫一則心得：帶著出處過去，新的那則才知道自己延伸自哪一筆 */
 export const writingNewHref = (source: WritingSource): string => {
-  return `/writing/new?${new URLSearchParams(source)}`;
+  return `${writingsListHref}/new?${new URLSearchParams(source)}`;
 };
