@@ -10,7 +10,7 @@ import { useSidebarStore } from "@/stores/use-sidebar-store";
 const styles = {
   frame: "px-4 pt-5 md:px-11",
   side: "flex-1 basis-0 text-meta text-ink-faint tabular-nums",
-  row: "flex items-baseline py-3",
+  row: "flex items-baseline pt-3 pb-1.5",
   title: "font-serif text-site leading-none font-semibold tracking-tight",
 };
 

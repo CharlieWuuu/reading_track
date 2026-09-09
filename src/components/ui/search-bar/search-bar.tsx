@@ -7,7 +7,8 @@ import { CONTROL_HEIGHT } from "@/components/ui/controls";
 const styles = {
   // 跟旁邊按鈕共用剩下的寬度；圖示貼右邊，展開時輸入框往左長出來
   box: `flex ${CONTROL_HEIGHT} min-w-0 flex-1 items-center justify-end gap-1.5`,
-  trigger: "text-ink-muted hover:text-ink shrink-0 rounded-control border border-transparent px-2 py-1",
+  trigger:
+    "text-ink-muted hover:text-ink shrink-0 rounded-control border border-transparent px-2 py-1",
   // 展開時吃掉 box 剩下的寬度（flex-1），收起時歸零；輸入框始終在 DOM 裡，focus 不會被打斷
   inputWrap: "min-w-0 overflow-hidden transition-[flex-grow,width] duration-200 ease-out",
   // 底線取代原本的無框透明：輸入中要看得出這是一格，不是整列都在搶注意力

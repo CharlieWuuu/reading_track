@@ -55,7 +55,11 @@ export function KindListPage({ group, slug }: { group: KindGroup; slug: string }
         title={kind?.name ?? ""}
         action={
           kind && (
-            <ActionButton href={`${kindHref(group, slug)}/new`} label={`新增${kind.name}`} text="新增">
+            <ActionButton
+              href={`${kindHref(group, slug)}/new`}
+              label={`新增${kind.name}`}
+              text="新增"
+            >
               <Plus size={16} strokeWidth={2} aria-hidden />
             </ActionButton>
           )

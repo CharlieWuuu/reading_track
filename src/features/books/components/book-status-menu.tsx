@@ -22,9 +22,7 @@ export function BookStatusMenu() {
 
   return (
     <FilterMenu
-      groups={[
-        { key: "status", label: "閱讀狀態", options: STATUS_LABELS, value: statusLabel(status) },
-      ]}
+      groups={[{ key: "status", label: "", options: STATUS_LABELS, value: statusLabel(status) }]}
       onChange={(_key, label) => {
         const next = statusFromLabel(label);
         // 預設值不寫進網址

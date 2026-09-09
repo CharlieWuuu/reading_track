@@ -19,7 +19,7 @@ import { useKinds } from "@/hooks/use-kinds";
  */
 
 const styles = {
-  nav: "border-shell-rule flex h-full w-[188px] shrink-0 flex-col overflow-y-auto border-r pr-6 gap-6",
+  nav: "border-shell-rule flex h-full w-[188px] shrink-0 flex-col overflow-y-auto border-r px-6 gap-6",
   group: "border-rule-strong border-b-2 pb-1.5",
   groupLabel: "block w-full font-serif text-ui font-semibold tracking-section",
   row: "border-rule-soft flex items-baseline border-b py-[7px] pl-3",

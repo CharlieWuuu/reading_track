@@ -8,6 +8,9 @@
  * 而不是浮在上面的一句話。跟書寫時間軸的週標題同一種做法。
  */
 export function ListHeading({ label, count }: { label: string; count: number }) {
+  // 「全部」沒有篩選出來，數量麵包屑旁邊已經顯示過，這一整行不用重複
+  if (label === "全部") return null;
+
   return (
     <div className="flex shrink-0 items-center gap-3">
       <span className="shrink-0 text-xs font-medium text-gray-700">

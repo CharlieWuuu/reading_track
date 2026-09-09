@@ -11,11 +11,11 @@ const styles = {
   panel:
     "absolute right-0 z-50 mt-1 max-h-80 w-48 divide-y overflow-y-auto rounded-surface border bg-white shadow-lg",
   group: "py-1",
-  groupLabel: "px-3 pt-1 pb-0.5 text-[11px] text-gray-400",
-  item: "flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-gray-50",
+  groupLabel: "px-3 pt-1 pb-0.5 text-[11px] text-ink-faint",
+  item: "flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-ink-secondary hover:bg-gray-50",
   label: "min-w-0 flex-1 truncate",
-  check: "shrink-0 text-gray-900",
-  empty: "px-3 py-1.5 text-xs text-gray-400",
+  check: "shrink-0 text-ink",
+  empty: "px-3 py-1.5 text-xs text-ink-faint",
 };
 
 export type FilterGroup = {
@@ -68,7 +68,7 @@ export function FilterMenu({
         <div className={styles.panel}>
           {groups.map((group) => (
             <div key={group.key} className={styles.group}>
-              <p className={styles.groupLabel}>{group.label}</p>
+              {group.label && <p className={styles.groupLabel}>{group.label}</p>}
 
               {group.options.length === 0 ? (
                 <p className={styles.empty}>還沒有任何{group.label}</p>
