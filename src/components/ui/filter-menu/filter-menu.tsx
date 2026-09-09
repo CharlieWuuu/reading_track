@@ -58,7 +58,7 @@ export function FilterMenu({
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className={`${controlStyles.link} ${controlStyles.linkIdle}`}
+        className={`${controlStyles.link} ${controlStyles.linkIdle} ${active.length > 0 ? "font-semibold" : ""}`}
       >
         <span>{active.length > 0 ? active.map((g) => g.value).join("・") : "篩選"}</span>
         <ChevronDown size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
@@ -75,7 +75,9 @@ export function FilterMenu({
               ) : (
                 <>
                   <button type="button" onClick={() => pick(group.key, "")} className={styles.item}>
-                    <span className={styles.label}>全部</span>
+                    <span className={`${styles.label} ${!group.value ? "font-semibold" : ""}`}>
+                      全部
+                    </span>
                     {!group.value && <Check size={14} strokeWidth={2} className={styles.check} />}
                   </button>
                   {group.options.map((option) => (
@@ -85,7 +87,11 @@ export function FilterMenu({
                       onClick={() => pick(group.key, option)}
                       className={styles.item}
                     >
-                      <span className={styles.label}>{option}</span>
+                      <span
+                        className={`${styles.label} ${group.value === option ? "font-semibold" : ""}`}
+                      >
+                        {option}
+                      </span>
                       {group.value === option && (
                         <Check size={14} strokeWidth={2} className={styles.check} />
                       )}
