@@ -1,5 +1,5 @@
-import { KindGroup } from "./record-kinds";
 import { NavGroup } from "./nav";
+import { KindGroup } from "./record-kinds";
 
 /**
  * 資料庫裡的類型走哪一條路由。
@@ -14,9 +14,7 @@ export const kindHref = (group: KindGroup, slug: string): string =>
   `${groupBasePath(group)}/${slug}`;
 
 /** 走在通用頁上時，側欄要亮的是那個類型 */
-export function kindGroupSlugFromPath(
-  pathname: string,
-): { group: KindGroup; slug: string } | null {
+export function kindGroupSlugFromPath(pathname: string): { group: KindGroup; slug: string } | null {
   const [, first, second] = pathname.split("/");
   return (first === "records" || first === "fragments" || first === "writings") && second
     ? { group: first, slug: second }
