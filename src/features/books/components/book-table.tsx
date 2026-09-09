@@ -16,7 +16,6 @@ import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useWritings } from "@/hooks/use-writings";
 import { isBookViewMode, useBookViewStore } from "@/stores/use-book-view-store";
-import { TOKENS } from "@/styles/generated/tokens";
 import { Book, ReadingStatus, splitLines } from "@/types/book";
 import {
   effectiveStatus,
@@ -62,22 +61,6 @@ function StatusDot({ status }: { status: ReadingStatus }) {
       className={`absolute top-1 left-1 size-2 rounded-full ring-2 ring-white ${STATUS_DOTS[status]}`}
     />
   );
-}
-
-/**
- * 還沒讀完的書在最左邊加一條色帶。
- *
- * 鋪滿整列的底色太髒，而且會跟年度交錯打架；細色條面積小、不干擾內容，
- * 但垂直掃一眼就看得到「未讀區」的邊界到哪裡。
- */
-/**
- * 表格用的色條顏色：畫成絕對定位的一條，不佔版面寬度。
- * 用該狀態徽章的底色，色條與徽章才是同一件事的兩種畫法。
- */
-function accentColor(status: ReadingStatus): string | null {
-  if (status === "想讀") return TOKENS["status-want-dot"];
-  if (status === "閱讀中") return TOKENS["status-reading-dot"];
-  return null;
 }
 
 /**
@@ -217,15 +200,8 @@ export function BookTable() {
           <Link
             key={b.id || `card-${i}`}
             href={detailHref(b.id)}
-            className="border-rule relative flex items-center gap-3 border-b py-3"
+            className="border-rule flex items-center gap-3 border-b py-3"
           >
-            {/* 色條疊在列上：未讀完的書靠這條細線就能一眼掃出邊界 */}
-            {accentColor(b.status) && (
-              <span
-                className="absolute inset-y-0 left-0 w-[3px]"
-                style={{ background: accentColor(b.status) ?? undefined }}
-              />
-            )}
             <BookCover url={b.coverUrl} title={b.title} size="xl" />
             {/* 手機一列固定兩行：第一行是書名與狀態，第二行擠進作者、標籤與日期 */}
             <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
@@ -293,17 +269,7 @@ export function BookTable() {
                 onClick={() => router.push(detailHref(b.id))}
                 className="border-rule hover:bg-control-bg-hover/5 cursor-pointer border-t first:border-t-0"
               >
-                {/*
-                狀態色條疊在第一格上，不用 border-l——那會把整個 tbody 往右推 3px，
-                表頭得跟著補一條透明的才對得齊，是很容易再壞掉的做法。
-              */}
-                <td className="relative px-3 py-2">
-                  {accentColor(b.status) && (
-                    <span
-                      className="absolute inset-y-0 left-0 w-[3px]"
-                      style={{ background: accentColor(b.status) ?? undefined }}
-                    />
-                  )}
+                <td className="px-3 py-2">
                   <BookCover url={b.coverUrl} title={b.title} size="md" />
                 </td>
                 <td className="max-w-0 overflow-hidden px-3 py-2 align-middle">
