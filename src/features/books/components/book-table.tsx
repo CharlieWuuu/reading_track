@@ -11,20 +11,13 @@ import { ListHeading } from "@/components/ui/list-heading";
 import { STATUS_DOTS, StatusBadge, TagList } from "@/components/ui/tag-badge";
 import { bookHref } from "@/config/routes";
 import { useBookView } from "@/hooks/use-book-view";
-import { useBooks } from "@/hooks/use-books";
+import { useFilteredBooks } from "@/hooks/use-filtered-books";
 import { useMounted } from "@/hooks/use-mounted";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useWritings } from "@/hooks/use-writings";
-import { Book, RecordStatus, splitLines } from "@/types/book";
-import {
-  effectiveStatus,
-  matchesStatus,
-  parseStatusFilter,
-  statusHeading,
-} from "@/utils/book-filter";
+import { Book, RecordStatus } from "@/types/book";
 import { byYear } from "@/utils/book-overview";
-import { matchesSearch, searchTerms } from "@/utils/search";
 import { BookOverview } from "./book-overview";
 
 /** 目前篩選中的關鍵字。放在清單上方，因為它會改變下面看到的是什麼 */
@@ -78,32 +71,13 @@ function completionNumbers(books: Book[]): Map<string, number> {
 export function BookTable() {
   const router = useRouter();
   const mounted = useMounted();
-  const { books: allBooks, isLoading, error } = useBooks();
+  const { allBooks, isLoading, error, found, books, keyword, terms, heading } = useFilteredBooks();
   const { writings } = useWritings();
   const { quotes, vocabulary } = useRecords();
   const numbers = useMemo(() => completionNumbers(allBooks), [allBooks]);
   const { searchParams, setParams } = useUrlParams();
   const view = useBookView();
-  // 反查：帶著 ?keyword= 就只看提到這個關鍵字的書
-  const keyword = searchParams.get("keyword") ?? "";
-  // 搜尋框在頁首，這裡跟著網址走：關鍵字反查與搜尋兩個條件同時成立
-  const terms = searchTerms(searchParams.get("q") ?? "");
-  // 找東西的時候不篩狀態：搜書名找不到會讓人以為那本書不見了
-  const status = effectiveStatus(
-    parseStatusFilter(searchParams.get("status")),
-    terms.length > 0 || Boolean(keyword),
-  );
-  // 概覽自己會把在讀、想讀、讀完排在同一頁，所以狀態篩選只套在其餘檢視上
-  const found = allBooks.filter(
-    (b) =>
-      (!keyword || splitLines(b.keywords).includes(keyword)) &&
-      matchesSearch(terms, b.title, b.author, b.publisher, b.keywords, b.note),
-  );
-  const books = found.filter((b) => matchesStatus(b, status));
   const clearKeyword = () => setParams({ keyword: null });
-  // 搜尋與關鍵字反查會蓋掉狀態篩選，所以標題要照真正生效的條件寫
-  const heading =
-    terms.length > 0 ? "搜尋結果" : keyword ? `提到「${keyword}」` : statusHeading(status);
   // 帶著目前的檢視進詳細頁，一路傳到編輯頁，存檔後才回得到同一個畫面
   const query = searchParams.toString();
   const detailHref = (id: string) => bookHref(id, query || undefined);

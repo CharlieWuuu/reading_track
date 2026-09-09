@@ -49,8 +49,13 @@ export function BookViewMenu({
 
   function select(next: BookViewMode) {
     saveView(next);
-    // 一頁裝得下幾本會跟著檢視方式變，舊頁碼沒有意義，順手清掉
-    setParams({ view: next, page: null });
+    // 一頁裝得下幾本會跟著檢視方式變，舊頁碼沒有意義，順手清掉。
+    // 概覽會把在讀／想讀／讀完排在同一頁，狀態篩選對它不生效，網址上留著會誤導
+    setParams({
+      view: next,
+      page: null,
+      ...(next === "overview" ? { status: null } : {}),
+    });
   }
 
   return <SelectMenu bare label="顯示方式" items={items} value={view} onChange={select} />;

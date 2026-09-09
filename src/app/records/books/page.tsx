@@ -7,15 +7,22 @@ import { BookTable } from "@/features/books/components/book-table";
 import { BookViewMenu } from "@/features/reading/components/book-view-menu";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
 import { useBookView } from "@/hooks/use-book-view";
-import { useBooks } from "@/hooks/use-books";
+import { useFilteredBooks } from "@/hooks/use-filtered-books";
 import { useMounted } from "@/hooks/use-mounted";
 import { Book } from "@/types/book";
 import { rootId } from "@/utils/book-reads";
 
-/** 頁首那行小字：133 次／128 本——「次」含重讀，「本」是不重複的作品數 */
+/**
+ * 頁首那行小字：133 次／128 本——「次」含重讀，「本」是不重複的作品數。
+ * 兩個數字一樣就不用重複講兩次，只寫「128 本」。
+ *
+ * 跟著目前的篩選走：選了「進行」就只算進行中的那幾本，不是書單的全部。
+ */
 function bookMeta(books: Book[]): string {
   const titles = new Set(books.map(rootId));
-  return `${books.length} 次／${titles.size} 本`;
+  return books.length === titles.size
+    ? `${titles.size} 本`
+    : `${books.length} 次／${titles.size} 本`;
 }
 
 function BooksPageBody() {
@@ -41,7 +48,7 @@ function BooksHeaderFilters() {
 
 /** 讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */
 export default function BooksPage() {
-  const { books } = useBooks();
+  const { books } = useFilteredBooks();
 
   return (
     <Suspense fallback={null}>
