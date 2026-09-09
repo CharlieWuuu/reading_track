@@ -4,7 +4,7 @@ import { records, works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
 import { splitLines } from "@/types/book";
 import { Writing } from "@/types/writing";
-import { setFragmentSourceUrl } from "./external-links";
+import { setWritingSourceUrl } from "./external-links";
 import { setKeywordLinks } from "./fragments";
 import { unlinkAll } from "./internal-links";
 import { kindIdByName } from "./kind-lookup";
@@ -64,7 +64,7 @@ export async function addWritingRow(userId: string, writing: Writing): Promise<v
       body: writing.note,
       date: toDate(writing.date),
     });
-    await setFragmentSourceUrl(tx, userId, writing.id, writing.link);
+    await setWritingSourceUrl(tx, userId, writing.id, writing.link);
     await setKeywordLinks(tx, userId, writing.id, splitLines(writing.keywords));
   });
 }
@@ -92,7 +92,7 @@ export async function updateWritingRow(
         .update(writings)
         .set(values)
         .where(and(eq(writings.userId, userId), eq(writings.id, id)));
-    if (patch.link !== undefined) await setFragmentSourceUrl(tx, userId, id, patch.link);
+    if (patch.link !== undefined) await setWritingSourceUrl(tx, userId, id, patch.link);
     if (patch.keywords !== undefined)
       await setKeywordLinks(tx, userId, id, splitLines(patch.keywords));
   });
@@ -100,9 +100,8 @@ export async function updateWritingRow(
 
 export async function deleteWritingRow(userId: string, id: string): Promise<void> {
   await db.transaction(async (tx) => {
+    // links_external 的 writing_id 是真正的外鍵，刪掉這筆連結會自動 cascade
     await tx.delete(writings).where(and(eq(writings.userId, userId), eq(writings.id, id)));
-    // external_links 的 source_id 不是外鍵（要同時指兩張表），writing 刪掉不會自動 cascade
-    await setFragmentSourceUrl(tx, userId, id, "");
     await unlinkAll(tx, userId, id);
   });
 }

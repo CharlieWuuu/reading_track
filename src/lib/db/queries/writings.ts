@@ -6,7 +6,7 @@ import { works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
 import { Writing } from "@/types/writing";
 import { firstReadingIdByBookId } from "./books";
-import { sourceUrlOfFragments } from "./external-links";
+import { sourceUrlOfWritings } from "./external-links";
 import { keywordNamesByOwner } from "./internal-links";
 
 /**
@@ -38,7 +38,7 @@ export async function listWritings(userId: string): Promise<Writing[]> {
   ]);
 
   const [links, keywords] = await Promise.all([
-    sourceUrlOfFragments(
+    sourceUrlOfWritings(
       userId,
       rows.map(({ writing }) => writing.id),
     ),

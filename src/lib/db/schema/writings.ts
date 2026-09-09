@@ -8,8 +8,7 @@ import { works } from "./works";
  *
  * work_id 可空：心得掛著讀了哪本書，日記沒有出處。
  *
- * 外部連結（發布網址）走 external_links，source_type 沿用 'fragment'——
- * 這張表是從 fragments 搬出來的，既有連結資料不用跟著搬。
+ * 外部連結（發布網址）走 external_links，掛在自己的 writing_id 欄位上。
  */
 export const writings = pgTable("domain_writings", {
   userId: uuid("user_id")
