@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { useSidebarStore } from "@/stores/use-sidebar-store";
 import { BottomNav } from "./bottom-nav";
 import { Masthead } from "./masthead";
 import { Sidebar } from "./sidebar";
@@ -26,6 +27,7 @@ export function AppShell({
   const { status } = useSession();
   const resolved = status !== "loading";
   const signedIn = status === "authenticated";
+  const collapsed = useSidebarStore((s) => s.collapsed);
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -37,7 +39,7 @@ export function AppShell({
       </div>
 
       <div className="flex min-h-0 flex-1 md:gap-8 md:px-11 md:pt-5">
-        {signedIn && (
+        {signedIn && !collapsed && (
           <div className="mb-5 hidden md:block md:self-stretch">
             <Sidebar />
           </div>

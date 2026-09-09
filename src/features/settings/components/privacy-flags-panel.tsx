@@ -3,14 +3,12 @@
 import { useState } from "react";
 import { Lock, LockOpen } from "lucide-react";
 import { usePrivacyFlags } from "@/features/settings/api";
-import { PrivacyButton } from "@/features/settings/components/privacy-button";
 import type { PrivacyFlagNode } from "@/lib/db/queries/taxonomy";
 
 type Flip = (node: PrivacyFlagNode) => void;
 
 const styles = {
   wrap: "flex max-w-2xl flex-col gap-6",
-  unlock: "border-rule flex flex-wrap items-center gap-3 border-b pb-4",
   hint: "text-meta text-ink-faint",
   group: "border-rule flex flex-col gap-2 border-b pb-4 last:border-b-0 last:pb-0",
   title: "font-serif text-item-sm font-semibold tracking-wide",
@@ -106,13 +104,8 @@ export function PrivacyFlagsPanel() {
 
   return (
     <div className={styles.wrap}>
-      {/* 解鎖鍵原本掛在「Sheet 連接面板」裡，那個面板 09-04 整個刪掉之後
-          它就沒有入口了。這一頁才是它該待的地方 */}
-      <div className={styles.unlock}>
-        <PrivacyButton />
-        <p className={styles.hint}>解鎖之後才看得到標了鎖的內容；關掉分頁會自動鎖回去。</p>
-      </div>
-
+      {/* 解鎖鍵搬去帳號頁了：那顆管的是「我現在要不要看見私人內容」，
+          是session層級的個人操作，跟這裡「哪些主題該標私人」是兩件事 */}
       <p className={styles.hint}>
         標了鎖的項目，沒解鎖時整批不會出現在畫面上——包含統計與月曆，而且是伺服器
         那端就擋掉，不是前端藏起來。標一個領域等於標了它底下的每一個次領域。
