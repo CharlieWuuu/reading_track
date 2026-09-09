@@ -49,7 +49,6 @@ export const RECORD_FIELDS = [
   { key: "span", layer: "fragment", type: "text", defaultLabel: "起訖" },
   { key: "coordinates", layer: "fragment", type: "text", defaultLabel: "座標" },
   { key: "wikiUrl", layer: "externalLink", type: "url", defaultLabel: "維基連結" },
-  { key: "note", layer: "fragment", type: "longText", defaultLabel: "心得" },
 ] as const satisfies readonly FieldDef[];
 
 export type FieldKey = (typeof RECORD_FIELDS)[number]["key"];

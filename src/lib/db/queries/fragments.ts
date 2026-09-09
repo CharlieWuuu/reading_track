@@ -37,7 +37,7 @@ export async function listQuoteRows(userId: string): Promise<QuoteRow[]> {
     bookTitle: workTitle ?? "",
     text: fragment.phrase,
     chapter: fragment.locator,
-    note: fragment.note,
+    note: fragment.body,
   }));
 }
 

@@ -33,7 +33,7 @@ export const fragments = pgTable("domain_fragments", {
   date: date("date"),
   name: text("name").notNull().default(""), // 單字、詞條
   phrase: text("phrase").notNull().default(""), // 佳句本文
-  body: text("body").notNull().default(""), // 原文、維基摘要
+  body: text("body").notNull().default(""), // 原文、維基摘要、佳句的心得
   locator: text("locator").notNull().default(""), // 章節、頁碼
   pronunciation: text("pronunciation").notNull().default(""),
   translation: text("translation").notNull().default(""),
@@ -42,6 +42,5 @@ export const fragments = pgTable("domain_fragments", {
   topics: text("topics").notNull().default(""), // 維基主題，多個以頓號相接
   span: text("span").notNull().default(""), // 生卒或起訖
   coordinates: text("coordinates").notNull().default(""), // "25.033,121.565"
-  note: text("note").notNull().default(""), // 這一則的心得
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
