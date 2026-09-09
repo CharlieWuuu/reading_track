@@ -91,7 +91,7 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
                 !cover && r.sourceId && articleUrlById.has(r.sourceId)
                   ? articleUrlById.get(r.sourceId)!
                   : undefined;
-              const kind = r.kind || r.source;
+              const topic = r.kind || r.source;
               const when = whenLabel(r.date);
               // 兩樣都沒有就別畫那一列，不然每一則底下都多一段空白
               const hasFoot = Boolean(r.origin?.trim() || r.keywords.length);
@@ -112,7 +112,7 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
                         />
                       </span>
                     ) : (
-                      <span className={`${styles.initial} ${kindTone(kind)}`}>{kind[0]}</span>
+                      <span className={`${styles.initial} ${kindTone(topic)}`}>{topic[0]}</span>
                     )}
                   </div>
 
@@ -122,7 +122,7 @@ export function ReflectionTimeline({ reflections }: { reflections: Reflection[] 
                     <Link href={r.href} className={styles.noteLink}>
                       <span className={styles.head}>
                         <span className={styles.title}>{r.title}</span>
-                        <span className={`${styles.kind} ${kindTone(kind)}`}>{kind}</span>
+                        <span className={`${styles.kind} ${kindTone(topic)}`}>{topic}</span>
                         <span className={styles.time}>{when}</span>
                       </span>
                       {r.note.trim() && <span className={styles.note}>{r.note}</span>}

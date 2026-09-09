@@ -1,5 +1,6 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db/client";
+import { writingTopics } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
 import { splitLines } from "@/types/book";
@@ -34,6 +35,30 @@ async function kindIdFor(tx: Tx, userId: string, kind: string): Promise<string> 
   }
 }
 
+/** 主題是扁平的一層，沒有領域那種父子結構；沒填就不掛 */
+async function topicIdFor(tx: Tx, userId: string, topic: string): Promise<string | null> {
+  const name = topic.trim();
+  if (!name) return null;
+
+  const [existing] = await tx
+    .select({ id: writingTopics.id })
+    .from(writingTopics)
+    .where(
+      and(
+        eq(writingTopics.userId, userId),
+        eq(writingTopics.name, name),
+        isNull(writingTopics.parentId),
+      ),
+    );
+  if (existing) return existing.id;
+
+  const [row] = await tx
+    .insert(writingTopics)
+    .values({ userId, name })
+    .returning({ id: writingTopics.id });
+  return row.id;
+}
+
 /** sourceId 可能是某一次紀錄，也可能就是作品本身（文章一對一） */
 async function workIdFor(userId: string, sourceId: string): Promise<string | null> {
   const id = sourceId.trim();
@@ -59,6 +84,7 @@ export async function addWritingRow(userId: string, writing: Writing): Promise<v
       id: writing.id,
       userId,
       kindId: await kindIdFor(tx, userId, writing.kind),
+      topicId: await topicIdFor(tx, userId, writing.topic),
       workId,
       name: writing.title,
       body: writing.note,
@@ -86,6 +112,7 @@ export async function updateWritingRow(
 
   await db.transaction(async (tx) => {
     if (patch.kind !== undefined) values.kindId = await kindIdFor(tx, userId, patch.kind);
+    if (patch.topic !== undefined) values.topicId = await topicIdFor(tx, userId, patch.topic);
 
     if (Object.keys(values).length)
       await tx

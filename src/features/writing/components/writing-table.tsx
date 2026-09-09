@@ -54,10 +54,11 @@ export function WritingTable({ writings }: { writings: Writing[] }) {
         <thead className="bg-table-header-bg sticky top-0 z-10 text-left [&_th]:shadow-[inset_0_-1px_0_var(--color-table-header-rule)]">
           <tr>
             <th className="w-[8%] px-2 py-1.5 whitespace-nowrap">日期</th>
-            <th className="w-[13%] px-2 py-1.5 whitespace-nowrap">類型</th>
-            <th className="w-[35%] px-2 py-1.5 whitespace-nowrap">標題</th>
-            <th className="w-[23%] px-2 py-1.5 whitespace-nowrap">關鍵字</th>
-            <th className="w-[21%] px-2 py-1.5 whitespace-nowrap">延伸自</th>
+            <th className="w-[12%] px-2 py-1.5 whitespace-nowrap">類型</th>
+            <th className="w-[12%] px-2 py-1.5 whitespace-nowrap">主題</th>
+            <th className="w-[29%] px-2 py-1.5 whitespace-nowrap">標題</th>
+            <th className="w-[20%] px-2 py-1.5 whitespace-nowrap">關鍵字</th>
+            <th className="w-[19%] px-2 py-1.5 whitespace-nowrap">延伸自</th>
           </tr>
         </thead>
         <tbody>
@@ -79,6 +80,11 @@ export function WritingTable({ writings }: { writings: Writing[] }) {
                     </span>
                   ))}
                 </div>
+              </td>
+              <td className="max-w-0 overflow-hidden px-2 py-1.5">
+                {e.topic && (
+                  <span className={`${styles.kind} ${tagColorClass(e.topic, [])}`}>{e.topic}</span>
+                )}
               </td>
               {/* max-w-0 + overflow-hidden：table-fixed 下過長的標題會擠進隔壁欄，寧可切掉 */}
               <td className="max-w-0 overflow-hidden px-2 py-1.5">

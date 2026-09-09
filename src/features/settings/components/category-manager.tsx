@@ -5,19 +5,29 @@ import { Lock, LockOpen } from "lucide-react";
 import { usePrivacyFlags } from "@/features/settings/api";
 import { useCategories } from "@/hooks/use-categories";
 import type { PrivacyFlagNode } from "@/lib/db/queries/taxonomy";
-import { BookCategories } from "@/types/book";
+import { BookCategories, CATEGORY_FIELDS, CategorySource } from "@/types/book";
 
 /** 領域／次領域併進同一棵樹畫，其餘欄位還是純展示的扁平清單 */
 const FLAT_LABELS: Record<Exclude<keyof BookCategories, "domain" | "subDomain">, string> = {
   platform: "平台",
   type: "屬性",
   language: "語言",
-  kind: "類型",
+  topic: "主題",
 };
+
+const SOURCE_LABELS: Record<CategorySource, string> = {
+  book: "書籍",
+  article: "文章",
+  writings: "書寫",
+};
+
+/** 小標寫「哪些紀錄・共用這一組｜叫什麼名字」，選項混了誰的資料一眼看出來 */
+function sectionTitle(sources: CategorySource[], label: string): string {
+  return `${sources.map((s) => SOURCE_LABELS[s]).join("・")}｜${label}`;
+}
 
 const styles = {
   wrap: "flex max-w-2xl flex-col gap-6",
-  hint: "text-meta text-ink-faint",
   group: "border-rule flex flex-col gap-2 border-b pb-4 last:border-b-0 last:pb-0",
   title: "font-serif text-item-sm font-semibold tracking-wide",
   list: "flex flex-wrap gap-1.5",
@@ -92,14 +102,8 @@ export function CategoryManager() {
 
   return (
     <div className={styles.wrap}>
-      <p className={styles.hint}>
-        這些選項是從你的紀錄裡整理出來的，不是一份要維護的清單。用得多的排前面；
-        想改掉某個值，直接改那筆紀錄就好。領域可以標成私人：標了鎖的整批紀錄，
-        沒解鎖時不會出現在畫面上，包含統計與月曆，且是伺服器端就擋掉。
-      </p>
-
       <div className={styles.group}>
-        <h4 className={styles.title}>領域</h4>
+        <h4 className={styles.title}>{sectionTitle(CATEGORY_FIELDS.domain.sources, "領域")}</h4>
         {failed && <p className={styles.error}>{failed}</p>}
         {isLoading ? (
           <p className={styles.empty}>載入中…</p>
@@ -138,7 +142,9 @@ export function CategoryManager() {
 
       {(Object.keys(FLAT_LABELS) as (keyof typeof FLAT_LABELS)[]).map((key) => (
         <div key={key} className={styles.group}>
-          <h4 className={styles.title}>{FLAT_LABELS[key]}</h4>
+          <h4 className={styles.title}>
+            {sectionTitle(CATEGORY_FIELDS[key].sources, FLAT_LABELS[key])}
+          </h4>
           {categories[key].length === 0 ? (
             <p className={styles.empty}>還沒有用過任何值</p>
           ) : (

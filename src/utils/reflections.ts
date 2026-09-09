@@ -17,7 +17,7 @@ export type Reflection = {
   keywords: string[];
   /** 點下去回到它原本的地方 */
   href: string;
-  /** 紀事的類型，其他來源沒有 */
+  /** 紀事的主題，其他來源沒有 */
   kind?: string;
   /** 紀事的「來源」欄：網址或純文字（「紙本日記 8/17」），沒有就是空的 */
   origin?: string;
@@ -43,7 +43,7 @@ export function journalToReflections(writings: Writing[], requireNote = true): R
       note: e.note,
       keywords: splitLines(e.keywords),
       href: `/writing/${e.id}/edit`,
-      kind: e.kind,
+      kind: e.topic,
       origin: e.link,
       sourceTitle: e.sourceTitle,
       sourceId: e.sourceId,

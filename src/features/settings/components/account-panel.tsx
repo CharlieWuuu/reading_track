@@ -7,7 +7,7 @@ import { PrivacyButton } from "@/features/settings/components/privacy-button";
 import { clearLocalData } from "@/utils/clear-local-data";
 
 const styles = {
-  wrap: "flex max-w-md flex-col gap-6",
+  wrap: "flex max-w-md flex-col gap-6 mx-auto",
   row: "border-rule flex items-center gap-4 border-b pb-6",
   avatar: "h-14 w-14 rounded-full",
   blank:

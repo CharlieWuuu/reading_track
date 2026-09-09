@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { CategorySelect } from "@/components/ui/category-select";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
 import { compactLines } from "@/components/ui/line-list-input";
@@ -34,6 +33,7 @@ const emptyForm = {
   date: "",
   title: "",
   kind: "",
+  topic: "",
   keywords: "",
   note: "",
   link: "",
@@ -76,6 +76,9 @@ export function WritingForm({ entry }: { entry?: Writing }) {
   // 建議只收紀事自己用過的：書、文章、紀事各記各的，混在一起選單會很吵
   const keywordSuggestions = [...new Set(writings.flatMap((e) => splitLines(e.keywords)))].sort(
     (a, b) => a.localeCompare(b, "zh-Hant"),
+  );
+  const topicSuggestions = [...new Set(writings.map((e) => e.topic).filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b, "zh-Hant"),
   );
 
   const { searchParams } = useUrlParams();
@@ -127,7 +130,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
     >
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
         <TabPanel active={tab === "text"}>
-          {/* 標題與類型同一行：類型是這則的名牌，跟標題一起看才知道自己在寫哪一種 */}
+          {/* 標題與主題同一行：主題是這則的名牌，跟標題一起看才知道自己在寫哪一塊 */}
           <div className="flex shrink-0 items-center gap-2">
             <input
               value={form.title}
@@ -136,12 +139,12 @@ export function WritingForm({ entry }: { entry?: Writing }) {
               className="min-w-0 flex-1 text-base font-medium outline-none"
             />
             <div className="w-28 shrink-0 md:w-36">
-              <CategorySelect
-                label="類型"
-                categoryKey="kind"
-                value={form.kind}
-                onChange={(v) => set("kind", v)}
-                placeholder="類型"
+              <OptionSelect
+                label="主題"
+                options={topicSuggestions}
+                value={form.topic}
+                onChange={(v) => set("topic", v)}
+                placeholder="主題"
                 hideLabel
                 bare
               />

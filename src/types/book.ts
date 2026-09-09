@@ -246,7 +246,7 @@ export type CategorySource = "book" | "article" | "writings";
  * 一本講心理的書跟一篇講心理的文章就是同一個領域。分成兩份的代價是同一個詞
  * 要打兩次、慢慢長歪，統計也合不起來。
  *
- * 紀事沒有領域，它只用「類型」分——那問的是「這件事屬於我生活的哪一塊」，
+ * 紀事沒有領域，它只用「主題」分——那問的是「這件事屬於我生活的哪一塊」，
  * 跟「這份內容在講什麼」不是同一個問題。
  */
 export const CATEGORY_FIELDS: Record<
@@ -258,7 +258,7 @@ export const CATEGORY_FIELDS: Record<
   subDomain: { field: "subDomain", sources: ["book", "article"] },
   type: { field: "type", sources: ["book", "article"] },
   language: { field: "language", sources: ["book", "article"] },
-  kind: { field: "kind", sources: ["writings"] },
+  topic: { field: "topic", sources: ["writings"] },
 };
 
 export interface BookCategories {
@@ -267,8 +267,8 @@ export interface BookCategories {
   subDomain: string[];
   type: string[];
   language: string[];
-  /** 紀事的類型；書籍沒有這一欄，但選項統一存在同一張「選項」分頁 */
-  kind: string[];
+  /** 紀事的主題；書籍沒有這一欄，但選項統一存在同一張「選項」分頁 */
+  topic: string[];
 }
 
 /**
@@ -286,5 +286,5 @@ export const DEFAULT_CATEGORIES: BookCategories = {
   subDomain: [],
   type: [],
   language: [],
-  kind: [],
+  topic: [],
 };
