@@ -6,20 +6,9 @@ import { BookStatusMenu } from "@/features/books/components/book-status-menu";
 import { BookTable } from "@/features/books/components/book-table";
 import { BookViewMenu } from "@/features/reading/components/book-view-menu";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
-import { useBooks } from "@/hooks/use-books";
 import { useMounted } from "@/hooks/use-mounted";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { isBookViewMode, useBookViewStore } from "@/stores/use-book-view-store";
-
-/** 頁首那行小字：312 本 · 在讀 3 · 今年完成 61 */
-function bookMeta(books: { status: string; endDate: string | null }[]): string {
-  const thisYear = new Date().getFullYear();
-  const reading = books.filter((b) => b.status === "閱讀中").length;
-  const doneThisYear = books.filter(
-    (b) => b.endDate && Number(b.endDate.slice(0, 4)) === thisYear,
-  ).length;
-  return `${books.length} 本 · 在讀 ${reading} · 今年完成 ${doneThisYear}`;
-}
 
 function BooksPageBody() {
   const mounted = useMounted();
@@ -39,15 +28,9 @@ function BooksPageBody() {
 
 /** 讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */
 export default function BooksPage() {
-  const { books } = useBooks();
-
   return (
     <Suspense fallback={null}>
-      <ReadingHeader
-        views={<BookViewMenu />}
-        filters={<BookStatusMenu />}
-        meta={books.length > 0 ? bookMeta(books) : undefined}
-      />
+      <ReadingHeader views={<BookViewMenu />} filters={<BookStatusMenu />} />
       <BooksPageBody />
     </Suspense>
   );
