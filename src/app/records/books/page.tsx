@@ -6,10 +6,9 @@ import { BookStatusMenu } from "@/features/books/components/book-status-menu";
 import { BookTable } from "@/features/books/components/book-table";
 import { BookViewMenu } from "@/features/reading/components/book-view-menu";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
+import { useBookView } from "@/hooks/use-book-view";
 import { useBooks } from "@/hooks/use-books";
 import { useMounted } from "@/hooks/use-mounted";
-import { useUrlParams } from "@/hooks/use-url-param";
-import { isBookViewMode, useBookViewStore } from "@/stores/use-book-view-store";
 import { Book } from "@/types/book";
 import { rootId } from "@/utils/book-reads";
 
@@ -21,10 +20,7 @@ function bookMeta(books: Book[]): string {
 
 function BooksPageBody() {
   const mounted = useMounted();
-  const { searchParams } = useUrlParams();
-  const { view: savedView } = useBookViewStore();
-  const urlView = searchParams.get("view");
-  const view = isBookViewMode(urlView) ? urlView : savedView;
+  const view = useBookView();
 
   return (
     // 概覽自己開兩欄各自的捲動條（月份格線＋窄欄），其餘檢視照舊交給 PageBody
@@ -35,6 +31,14 @@ function BooksPageBody() {
   );
 }
 
+/** 頁首篩選：概覽頁本來就把在讀／想讀／讀完攤在同一頁，狀態篩選對它不生效，
+ * 顯示出來卻點了沒反應會讓人以為壞掉，乾脆不給點 */
+function BooksHeaderFilters() {
+  const view = useBookView();
+  if (view === "overview") return null;
+  return <BookStatusMenu />;
+}
+
 /** 讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */
 export default function BooksPage() {
   const { books } = useBooks();
@@ -43,7 +47,7 @@ export default function BooksPage() {
     <Suspense fallback={null}>
       <ReadingHeader
         views={<BookViewMenu />}
-        filters={<BookStatusMenu />}
+        filters={<BooksHeaderFilters />}
         meta={books.length > 0 ? bookMeta(books) : undefined}
       />
       <BooksPageBody />

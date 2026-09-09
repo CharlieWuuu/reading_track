@@ -10,12 +10,12 @@ import { BookCover } from "@/components/ui/book-cover";
 import { ListHeading } from "@/components/ui/list-heading";
 import { STATUS_DOTS, StatusBadge, TagList } from "@/components/ui/tag-badge";
 import { bookHref } from "@/config/routes";
+import { useBookView } from "@/hooks/use-book-view";
 import { useBooks } from "@/hooks/use-books";
 import { useMounted } from "@/hooks/use-mounted";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useWritings } from "@/hooks/use-writings";
-import { isBookViewMode, useBookViewStore } from "@/stores/use-book-view-store";
 import { Book, RecordStatus, splitLines } from "@/types/book";
 import {
   effectiveStatus,
@@ -83,10 +83,7 @@ export function BookTable() {
   const { quotes, vocabulary } = useRecords();
   const numbers = useMemo(() => completionNumbers(allBooks), [allBooks]);
   const { searchParams, setParams } = useUrlParams();
-  const { view: savedView } = useBookViewStore();
-  // 檢視方式以網址為準，重新整理或分享連結才回得到同一個畫面
-  const urlView = searchParams.get("view");
-  const view = isBookViewMode(urlView) ? urlView : savedView;
+  const view = useBookView();
   // 反查：帶著 ?keyword= 就只看提到這個關鍵字的書
   const keyword = searchParams.get("keyword") ?? "";
   // 搜尋框在頁首，這裡跟著網址走：關鍵字反查與搜尋兩個條件同時成立
