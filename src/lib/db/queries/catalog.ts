@@ -23,6 +23,8 @@ export type RecordRow = {
   statusKey: string;
   kindId: string;
   kindName: string;
+  kindGroup: KindGroup;
+  kindSlug: string;
   startDate: string | null;
   endDate: string | null;
   amount: number | null;
@@ -48,6 +50,8 @@ const toRecordRow = ({
   statusKey: inferStatusKey(record.startDate, record.endDate),
   kindId: kind.id,
   kindName: kind.name,
+  kindGroup: kind.groupKey as KindGroup,
+  kindSlug: kind.slug,
   startDate: record.startDate,
   endDate: record.endDate,
   amount: record.amount,
@@ -87,6 +91,8 @@ export type FragmentRow = {
   id: string;
   kindId: string;
   kindName: string;
+  kindGroup: KindGroup;
+  kindSlug: string;
   workId: string | null;
   workTitle: string;
   name: string;
@@ -115,6 +121,8 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
     id: fragment.id,
     kindId: kind.id,
     kindName: kind.name,
+    kindGroup: kind.groupKey as KindGroup,
+    kindSlug: kind.slug,
     workId: fragment.workId,
     workTitle: workTitle ?? "",
     name: fragment.name,
@@ -134,6 +142,8 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       id: writing.id,
       kindId: writing.id, // 書寫沒有共用的 kindId 可用，退回類型清單時就給自己的編號
       kindName: writing.kind,
+      kindGroup: "writings" as const,
+      kindSlug: "writing",
       workId: writing.sourceId || null,
       workTitle: writing.sourceTitle,
       name: writing.title,
