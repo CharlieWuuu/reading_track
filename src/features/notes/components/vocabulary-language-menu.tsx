@@ -25,6 +25,7 @@ export function VocabularyLanguageMenu() {
 
   return (
     <SelectMenu
+      bare
       items={items}
       value={language}
       label="語言"

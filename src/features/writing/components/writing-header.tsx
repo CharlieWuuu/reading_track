@@ -57,6 +57,7 @@ export function WritingHeader() {
             onChange={(next) => setParams({ view: WRITING_VIEWS.toParam(next) })}
           />
           <SelectMenu
+            bare
             items={kindItems}
             value={kind}
             label="類型"

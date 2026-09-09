@@ -23,6 +23,7 @@ export function BookStatusMenu() {
 
   return (
     <SelectMenu
+      bare
       items={ITEMS}
       value={status}
       label="閱讀狀態"
