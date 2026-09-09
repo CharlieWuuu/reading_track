@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FormActions } from "@/components/ui/form-actions";
 import { compactLines } from "@/components/ui/line-list-input";
+import { kindHref } from "@/config/kind-routes";
 import { bookEditHref, bookHref, keywordEditHref, writingNewHref } from "@/config/routes";
 import { BookFieldsPanel } from "@/features/books/components/book-fields-panel";
 import { useBookFormTab } from "@/features/books/components/book-form-tabs";
@@ -109,7 +110,8 @@ export function BookForm({
   // 從書單進來時會帶著檢視方式與頁碼，存完要回到同一頁
   const { searchParams } = useUrlParams();
   const back = searchParams.get("back");
-  const listHref = back ? `/reading/books?${back}` : "/reading/books";
+  const booksListHref = kindHref("records", "books");
+  const listHref = back ? `${booksListHref}?${back}` : booksListHref;
   // 編輯是從書籍資訊進來的，離開就回那一頁；新增沒有資訊頁可回，直接回書單
   const backHref = book ? bookHref(book.id, back) : listHref;
 

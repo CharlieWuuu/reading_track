@@ -8,17 +8,21 @@
  * 拿其中一邊去猜另一邊正是原本的錯。
  */
 
+import { kindHref } from "@/config/kind-routes";
+
 /** 存完要回到原本的畫面，所以把當時的 query 一路帶著走 */
 const withBack = (href: string, back?: string | null): string => {
   return back ? `${href}?back=${encodeURIComponent(back)}` : href;
 };
 
+const booksListHref = kindHref("records", "books");
+
 export const bookHref = (id: string, back?: string | null): string => {
-  return withBack(`/reading/books/${id}`, back);
+  return withBack(`${booksListHref}/${id}`, back);
 };
 
 export const bookEditHref = (id: string, back?: string | null): string => {
-  return withBack(`/reading/books/${id}/edit`, back);
+  return withBack(`${booksListHref}/${id}/edit`, back);
 };
 
 export const articleHref = (id: string): string => {

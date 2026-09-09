@@ -3,18 +3,21 @@
 import { Suspense, useState } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
+import { kindHref } from "@/config/kind-routes";
 import { BookForm } from "@/features/books/components/book-form";
 import { BookFormTabs } from "@/features/books/components/book-form-tabs";
 import { BookLookupStep, LookupResult } from "@/features/books/components/book-lookup-step";
 import { BookRefetchButton } from "@/features/books/components/book-refetch-button";
 import { useUrlParams } from "@/hooks/use-url-param";
 
+const booksListHref = kindHref("records", "books");
+
 function NewBook() {
   const [result, setResult] = useState<LookupResult | null>(null);
   // 從書單進來時帶著檢視方式與頁碼，返回要回到同一頁
   const { searchParams } = useUrlParams();
   const back = searchParams.get("back");
-  const backHref = back ? `/reading/books?${back}` : "/reading/books";
+  const backHref = back ? `${booksListHref}?${back}` : booksListHref;
 
   return (
     <>

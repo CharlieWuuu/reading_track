@@ -1,3 +1,4 @@
+import { kindHref } from "@/config/kind-routes";
 import { FragmentRow, RecordRow } from "@/lib/db/queries/catalog";
 import { Article } from "@/types/article";
 import { Book } from "@/types/book";
@@ -18,7 +19,7 @@ export const bookItem = (book: Book): OverviewItem => ({
   id: book.id,
   title: book.title,
   byline: joinByline([book.author, book.domain, book.pageCount && `${book.pageCount} 頁`]),
-  href: `/reading/books/${book.id}`,
+  href: `${kindHref("records", "books")}/${book.id}`,
   coverUrl: book.coverUrl,
   startDate: book.startDate,
   endDate: book.endDate && `${book.endDate} 讀完`,
@@ -48,7 +49,7 @@ export const writingItem = (writing: Writing): OverviewItem => ({
 
 /** 內建類型的詳細頁。自訂類型還沒有，點了退回那一種的清單 */
 const DETAIL_HREF: Record<string, (id: string) => string> = {
-  書籍: (id) => `/reading/books/${id}`,
+  書籍: (id) => `${kindHref("records", "books")}/${id}`,
   文章: (id) => `/reading/articles/${id}`,
 };
 

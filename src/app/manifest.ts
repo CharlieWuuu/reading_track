@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { kindHref } from "@/config/kind-routes";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -7,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Archivum",
     short_name: "Archivum",
     description: "個人書籍與文章追蹤",
-    start_url: "/reading/books",
+    start_url: kindHref("records", "books"),
     // scope 決定哪些網址算「app 內」；超出範圍會跳出瀏覽器
     scope: "/",
     display: "standalone",
@@ -19,7 +20,7 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "zh-Hant",
     // Android 長按圖示會出現的捷徑
     shortcuts: [
-      { name: "新增書籍", short_name: "新增", url: "/reading/books/new" },
+      { name: "新增書籍", short_name: "新增", url: `${kindHref("records", "books")}/new` },
       { name: "閱讀統計", short_name: "統計", url: "/stats" },
     ],
     icons: [
