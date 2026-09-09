@@ -26,17 +26,15 @@ export function isNavActive(item: NavItem, pathname: string) {
 
 export const NAV_ITEMS: NavItem[] = [
   {
-    // 書與文章是兩條路由，導覽上仍然是同一區
-    href: "/reading/books",
+    // 紀錄與片段是兩堆，導覽上仍然是同一區
+    href: "/records",
     label: "閱讀",
-    exact: true,
-    siblings: ["/reading/articles", "/reading/quotes", "/reading/vocabulary", "/reading/keywords"],
+    siblings: ["/fragments"],
     Icon: () => <Library size={20} strokeWidth={1.5} />,
   },
   {
-    href: "/writing",
+    href: "/writings",
     label: "書寫",
-    exact: true,
     Icon: () => <PenLine size={20} strokeWidth={1.5} />,
   },
   { href: "/stats", label: "統計", Icon: () => <ChartPie size={20} strokeWidth={1.5} /> },

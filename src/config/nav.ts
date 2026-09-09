@@ -1,11 +1,10 @@
 import { KindGroup } from "./record-kinds";
-import { ReadingTab, readingTabHref } from "./tabs";
 
 /**
- * 導覽的四個分類與底下的類型。分類是「這是哪一種東西」，不是功能選單：
+ * 導覽的四個分類。分類是「這是哪一種東西」，不是功能選單：
  * 紀錄留下讀了什麼、片段是從紀錄裡摘出來的、專欄是自己寫的、統計是回頭看。
  *
- * 新增一個類型＝這張表多一列，不是多寫一支元件。電影還沒有路由，所以還沒列。
+ * 底下的類型全部從資料庫來，見 sidebar.tsx。這裡只留分類本身的設定。
  */
 
 export type NavType = {
@@ -26,39 +25,10 @@ export type NavGroup = {
   types: NavType[];
 };
 
-const readingType = (key: ReadingTab, label: string): NavType => ({
-  key,
-  label,
-  href: readingTabHref(key),
-  match: readingTabHref(key),
-});
-
 export const NAV_GROUPS: NavGroup[] = [
-  {
-    key: "records",
-    label: "紀錄",
-    kindGroup: "records",
-    href: "/records",
-    types: [readingType("books", "書籍"), readingType("articles", "文章")],
-  },
-  {
-    key: "fragments",
-    label: "片段",
-    kindGroup: "fragments",
-    href: "/fragments",
-    types: [
-      readingType("quotes", "佳句"),
-      readingType("vocabulary", "單字"),
-      readingType("keywords", "關鍵字"),
-    ],
-  },
-  {
-    key: "writings",
-    label: "專欄",
-    kindGroup: "writings",
-    href: "/writings",
-    types: [{ key: "writing", label: "書寫", href: "/writing", match: "/writing" }],
-  },
+  { key: "records", label: "紀錄", kindGroup: "records", href: "/records", types: [] },
+  { key: "fragments", label: "片段", kindGroup: "fragments", href: "/fragments", types: [] },
+  { key: "writings", label: "專欄", kindGroup: "writings", href: "/writings", types: [] },
 ];
 
 /**
