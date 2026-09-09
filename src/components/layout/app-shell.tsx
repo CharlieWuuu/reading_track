@@ -38,7 +38,7 @@ export function AppShell({
 
       <div className="flex min-h-0 flex-1 md:gap-8 md:px-11 md:pt-5">
         {signedIn && (
-          <div className="hidden md:block md:self-stretch">
+          <div className="mb-5 hidden md:block md:self-stretch">
             <Sidebar />
           </div>
         )}
