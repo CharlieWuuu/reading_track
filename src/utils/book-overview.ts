@@ -1,4 +1,5 @@
 import { Book } from "@/types/book";
+import { Writing } from "@/types/writing";
 
 /**
  * 概覽的分組。報紙式的版面要「一個頭條、其餘按月排」，
@@ -38,7 +39,7 @@ export type YearStats = {
   pageTotal: number;
   pageAverage: number;
   thickest?: Book;
-  fastest?: { book: Book; days: number };
+  mostReflected?: { book: Book; count: number };
 };
 
 function toPageCount(book: Book): number {
@@ -46,17 +47,11 @@ function toPageCount(book: Book): number {
   return /^\d+$/.test(digits) ? Number(digits) : 0;
 }
 
-/** 花了幾天讀完：頭尾同一天也是讀了一天，不是零天 */
-function daysBetween(start: string, end: string): number {
-  const ms = new Date(end).getTime() - new Date(start).getTime();
-  return Math.round(ms / 86400000) + 1;
-}
-
 /**
- * 右欄的統計數字：讀完的本數、頁數，加最厚、最快讀完各一本。
+ * 右欄的統計數字：讀完的本數、頁數，加最厚、心得篇數最多各一本。
  * 不給年份就是總計——跟「今年」共用同一套算法，差別只在要不要先篩年份。
  */
-export function getYearStats(books: Book[], year?: number): YearStats {
+export function getYearStats(books: Book[], writings: Writing[], year?: number): YearStats {
   const done = books.filter(
     (b) => b.status === "已讀完" && (year === undefined || b.endDate?.startsWith(String(year))),
   );
@@ -66,17 +61,21 @@ export function getYearStats(books: Book[], year?: number): YearStats {
 
   const thickest = [...pageCounts].sort((a, b) => b.pages - a.pages)[0];
 
-  const fastest = done
-    .filter((b) => b.startDate && b.endDate)
-    .map((b) => ({ book: b, days: daysBetween(b.startDate!, b.endDate!) }))
-    .filter(({ days }) => days >= 1)
-    .sort((a, b) => a.days - b.days)[0];
+  // 心得算在「第一次讀」那本身上：sourceId 指的是 originId 或自己的 id
+  const reflectionCounts = new Map<string, number>();
+  for (const writing of writings) {
+    if (!writing.sourceId) continue;
+    reflectionCounts.set(writing.sourceId, (reflectionCounts.get(writing.sourceId) ?? 0) + 1);
+  }
+  const mostReflected = done
+    .map((book) => ({ book, count: reflectionCounts.get(book.originId || book.id) ?? 0 }))
+    .sort((a, b) => b.count - a.count)[0];
 
   return {
     count: done.length,
     pageTotal,
     pageAverage: done.length > 0 ? Math.round(pageTotal / done.length) : 0,
     thickest: thickest && thickest.pages > 0 ? thickest.book : undefined,
-    fastest,
+    mostReflected: mostReflected && mostReflected.count > 0 ? mostReflected : undefined,
   };
 }

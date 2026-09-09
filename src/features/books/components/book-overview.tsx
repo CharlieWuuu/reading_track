@@ -91,64 +91,54 @@ function Headline({
   );
 }
 
-/** 總共：只看數字，不用細節撐版面——想深入就到統計頁 */
+/** 總共：小標籤、大數字、一行說明——跟「最厚的」那幾格同一套版型 */
 function TotalStats({ stats }: { stats: YearStats }) {
   return (
-    <div className="pb-8">
-      <div className={styles.railHead}>
-        <span className={styles.labelInk}>總共</span>
-        <span className={styles.meta}>{stats.count} 本</span>
+    <div className={styles.statBlock}>
+      <span className={styles.labelInk}>總共</span>
+      <div className={styles.statValue}>{formatCount(String(stats.pageTotal))} 頁</div>
+      <div className={styles.statCaption}>
+        {stats.count > 0 ? `${stats.count} 本・平均 ${stats.pageAverage} 頁一本` : "還沒有讀完的書"}
       </div>
-      {stats.count > 0 && (
-        <div className={`${styles.statCaption} pt-1.5`}>
-          {formatCount(String(stats.pageTotal))} 頁・平均 {stats.pageAverage} 頁一本
-        </div>
-      )}
     </div>
   );
 }
 
 function StatsRail({ stats, href }: { stats: YearStats; href: (book: Book) => string }) {
-  const year = new Date().getFullYear();
   return (
     <div className="pb-8">
-      <div className={styles.railHead}>
-        <span className={styles.labelInk}>今年</span>
-        <span className={styles.meta}>{stats.count} 本</span>
-      </div>
-
       <div className={styles.statBlock}>
+        <span className={styles.labelInk}>今年</span>
         <div className={styles.statValue}>{formatCount(String(stats.pageTotal))} 頁</div>
-        {stats.count > 0 && (
-          <div className={styles.statCaption}>平均 {stats.pageAverage} 頁一本</div>
-        )}
+        <div className={styles.statCaption}>
+          {stats.count > 0
+            ? `${stats.count} 本・平均 ${stats.pageAverage} 頁一本`
+            : "還沒有讀完的書"}
+        </div>
       </div>
 
       {stats.thickest && (
         <div className={styles.statBlock}>
-          <div className="flex items-baseline justify-between">
-            <span className={styles.labelInk}>最厚的</span>
-            <span className={styles.meta}>{formatCount(stats.thickest.pageCount)} 頁</span>
-          </div>
+          <span className={styles.labelInk}>最厚的</span>
+          <div className={styles.statValue}>{formatCount(stats.thickest.pageCount)} 頁</div>
           <Link href={href(stats.thickest)} className={`${styles.statCaption} block truncate`}>
             {stats.thickest.title}
           </Link>
         </div>
       )}
 
-      {stats.fastest && (
+      {stats.mostReflected && (
         <div className={styles.statBlock}>
-          <div className="flex items-baseline justify-between">
-            <span className={styles.labelInk}>最快讀完的</span>
-            <span className={styles.meta}>{stats.fastest.days} 天</span>
-          </div>
-          <Link href={href(stats.fastest.book)} className={`${styles.statCaption} block truncate`}>
-            {stats.fastest.book.title}
+          <span className={styles.labelInk}>心得最多的</span>
+          <div className={styles.statValue}>{stats.mostReflected.count} 篇</div>
+          <Link
+            href={href(stats.mostReflected.book)}
+            className={`${styles.statCaption} block truncate`}
+          >
+            {stats.mostReflected.book.title}
           </Link>
         </div>
       )}
-
-      {stats.count === 0 && <p className={`${styles.statCaption} pt-1`}>{year} 年還沒有讀完的書</p>}
     </div>
   );
 }
@@ -206,8 +196,8 @@ export function BookOverview({
   const headlineNotes = headline
     ? notesForSource(writings, [headline.originId || headline.id])
     : [];
-  const yearStats = getYearStats(books, new Date().getFullYear());
-  const totalStats = getYearStats(books);
+  const yearStats = getYearStats(books, writings, new Date().getFullYear());
+  const totalStats = getYearStats(books, writings);
 
   return (
     <div className={styles.frame}>
