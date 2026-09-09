@@ -5,7 +5,7 @@ import { Book } from "@/types/book";
 
 const styles = {
   panel:
-    "absolute z-50 mt-1 max-h-56 w-full overflow-y-auto rounded-surface border bg-white py-1 shadow-lg",
+    "absolute top-full left-0 z-50 mt-1 max-h-56 w-full overflow-y-auto rounded-surface border bg-white py-1 shadow-lg",
   item: "flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-gray-50",
   title: "min-w-0 flex-1 truncate",
   meta: "shrink-0 text-xs text-gray-400 tabular-nums",

@@ -4,6 +4,8 @@ import { CategorySelect } from "@/components/ui/category-select";
 import { Field } from "@/components/ui/field";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
+import { ReadBookSuggestions } from "@/features/books/components/read-book-suggestions";
+import { Book } from "@/types/book";
 
 /** 一頁裡的分組小標：一行小字加一條線，跟詳細頁的章節標題同一個長相 */
 function GroupTitle({ children }: { children: React.ReactNode }) {
@@ -29,18 +31,28 @@ export function BookFieldsPanel({
   set,
   keywordSuggestions,
   onEditKeyword,
+  titleSuggestions,
 }: {
   form: Record<string, string>;
   set: (key: string, value: string) => void;
   keywordSuggestions: string[];
   onEditKeyword: (name: string) => void;
+  /** 新增時才給：打書名時跳出讀過的書，重讀不用重查 */
+  titleSuggestions?: { books: Book[]; onPick: (book: Book) => void };
 }) {
   return (
     <>
       {/* 自己認得的那幾欄先來：書名獨佔一行，其餘兩兩成對 */}
       <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3">
-        <div className="col-span-2">
+        <div className="relative col-span-2">
           <Field label="書名" value={form.title} onChange={(v) => set("title", v)} />
+          {titleSuggestions && (
+            <ReadBookSuggestions
+              books={titleSuggestions.books}
+              query={form.title}
+              onPick={titleSuggestions.onPick}
+            />
+          )}
         </div>
 
         {/* ISBN 跟著出版社走：它們講的是同一件事，這本書是哪一版。

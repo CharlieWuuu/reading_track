@@ -138,6 +138,7 @@ export function BookForm({
   // 背景重抓回來的資料要蓋掉畫面上的舊快取——但只在使用者還沒動過的時候
   const { form, set, update } = useEntryForm(book, (b) => toForm(b ?? initial ?? {}));
   const isEdit = Boolean(book);
+  const [pickNotice, setPickNotice] = useState("");
 
   const {
     submitting,
@@ -184,6 +185,17 @@ export function BookForm({
 
   useBookRefetch(form, update);
 
+  /**
+   * 重讀：直接帶上次那筆，只留下「這次才會不同的」三欄不帶。
+   *
+   * 狀態不用清——它是從日期推出來的（見 `types/book.ts` 的 `inferStatus`），
+   * 日期空著就自動回到「想讀」。
+   */
+  function pickReadBook(picked: Book) {
+    update(() => toForm({ ...picked, startDate: null, endDate: null, note: "" }));
+    setPickNotice("已帶入上次讀這本書的資料。日期與心得留空，其餘照舊。");
+  }
+
   return (
     // 書名在「書籍」那一頁，沒填時要先切過去，不然錯誤訊息旁邊是空的
     <form
@@ -193,9 +205,9 @@ export function BookForm({
       }}
       className="flex flex-col gap-6 md:h-full md:min-h-0"
     >
-      {notice && (
+      {(notice || pickNotice) && (
         <p className="rounded-control border-rule bg-surface-sunken text-ink-secondary shrink-0 border px-3 py-2 text-xs">
-          {notice}
+          {notice || pickNotice}
         </p>
       )}
 
@@ -209,6 +221,7 @@ export function BookForm({
             set={(key, value) => set(key as keyof FormState, value)}
             keywordSuggestions={keywordSuggestions}
             onEditKeyword={openKeyword}
+            titleSuggestions={isEdit ? undefined : { books: allBooks, onPick: pickReadBook }}
           />
         </TabPanel>
 
