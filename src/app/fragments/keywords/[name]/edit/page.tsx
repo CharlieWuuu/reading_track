@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
+import { kindHref } from "@/config/kind-routes";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { KeywordForm } from "@/features/keywords/components/keyword-form";
 import { EMPTY_KEYWORD_INFO } from "@/types/keyword";
@@ -20,7 +21,7 @@ function EditKeyword() {
   const router = useRouter();
   const { name } = useParams<{ name: string }>();
   // 從哪裡點進來就回哪裡：分頁與看法都在那串參數裡
-  const from = useSearchParams().get("from") || "/reading/keywords";
+  const from = useSearchParams().get("from") || kindHref("fragments", "keywords");
   const keyword = decodeURIComponent(name);
   const { byName, save, remove, isLoading, error } = useKeywordInfos();
 

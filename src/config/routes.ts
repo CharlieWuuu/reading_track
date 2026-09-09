@@ -74,7 +74,7 @@ export const vocabularyEditHref = (word: string): string => {
  * 點進來，改完要回得到「剛才在看的那個畫面」，而不是一律丟回關鍵字頁。
  */
 export const keywordEditHref = (name: string, from?: string): string => {
-  const base = `/reading/keywords/${encodeURIComponent(name)}/edit`;
+  const base = `${kindHref("fragments", "keywords")}/${encodeURIComponent(name)}/edit`;
   return from ? `${base}?from=${encodeURIComponent(from)}` : base;
 };
 
