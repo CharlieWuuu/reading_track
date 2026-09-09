@@ -12,7 +12,9 @@ import { STATUS_DOTS, StatusBadge, TagList } from "@/components/ui/tag-badge";
 import { bookHref } from "@/config/routes";
 import { useBooks } from "@/hooks/use-books";
 import { useMounted } from "@/hooks/use-mounted";
+import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
+import { useWritings } from "@/hooks/use-writings";
 import { isBookViewMode, useBookViewStore } from "@/stores/use-book-view-store";
 import { TOKENS } from "@/styles/generated/tokens";
 import { Book, ReadingStatus, splitLines } from "@/types/book";
@@ -103,6 +105,8 @@ export function BookTable() {
   const router = useRouter();
   const mounted = useMounted();
   const { books: allBooks, isLoading, error } = useBooks();
+  const { writings } = useWritings();
+  const { quotes, vocabulary } = useRecords();
   const numbers = useMemo(() => completionNumbers(allBooks), [allBooks]);
   const thisYear = new Date().getFullYear();
   const { searchParams, setParams } = useUrlParams();
@@ -166,7 +170,15 @@ export function BookTable() {
   }
 
   if (view === "overview") {
-    return <BookOverview books={found} href={(book) => detailHref(book.id)} />;
+    return (
+      <BookOverview
+        books={found}
+        href={(book) => detailHref(book.id)}
+        writings={writings}
+        quotes={quotes}
+        vocabulary={vocabulary}
+      />
+    );
   }
 
   if (view === "card") {

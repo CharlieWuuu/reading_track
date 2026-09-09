@@ -2,8 +2,12 @@
 
 import Link from "next/link";
 import { BookCover } from "@/components/ui/book-cover";
+import { CoverBand } from "@/components/ui/cover-band/cover-band";
 import { Book } from "@/types/book";
+import { QuoteRow, VocabularyRow } from "@/types/record";
+import { Writing } from "@/types/writing";
 import { byMonth, pickHeadline } from "@/utils/book-overview";
+import { notesForSource } from "@/utils/related-notes";
 
 /**
  * 概覽：一頁只有一個主角。
@@ -20,30 +24,52 @@ const styles = {
   main: "flex min-w-0 flex-1 flex-col overflow-y-auto",
   rail: "border-rule-strong hidden w-52 shrink-0 overflow-y-auto border-l pl-6 lg:block",
   railHead: "border-rule-strong flex items-baseline justify-between border-b pb-2",
-  label: "text-label text-ink-faint tracking-label",
+  label: "text-label text-accent tracking-label font-medium",
   labelInk: "text-label text-ink tracking-label",
   meta: "text-meta text-ink-faint tabular-nums",
-  headline: "border-rule-strong flex gap-8 border-b-2 pb-5",
+  headline: "border-rule-strong flex gap-8 border-b pb-5",
   headlineTitle: "font-serif text-lede leading-tight font-semibold tracking-tight",
   byline: "text-byline text-ink-muted",
-  columns: "columns-1 gap-8 pt-1 md:columns-2 xl:columns-3 [&>*]:break-inside-avoid",
-  month: "border-rule-strong break-after-avoid border-b-2 pt-4 pb-1.5",
+  summary: "text-byline text-ink leading-relaxed",
+  // 欄數跟著寬度長，每欄寬度才不會沒有上限一直被拉開
+  monthGrid: "grid grid-cols-1 gap-x-8 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4",
+  month: "border-rule-strong border-b pt-4 pb-1.5",
   monthLabel: "font-serif text-item-sm font-semibold tracking-wide",
-  item: "border-rule border-t py-3 first:border-t-0",
+  item: "py-3",
   itemTitle: "font-serif text-item leading-snug font-semibold tracking-tight",
   railItem: "border-rule border-b py-[7px]",
   railTitle: "font-serif text-item-sm leading-snug font-semibold",
 };
 
-function Headline({ book, href }: { book: Book; href: string }) {
+function Headline({
+  book,
+  href,
+  latestNote,
+  quoteCount,
+  vocabularyCount,
+  noteCount,
+}: {
+  book: Book;
+  href: string;
+  latestNote?: Writing;
+  quoteCount: number;
+  vocabularyCount: number;
+  noteCount: number;
+}) {
+  const counts = [
+    quoteCount > 0 && `佳句 ${quoteCount}`,
+    vocabularyCount > 0 && `單字 ${vocabularyCount}`,
+    noteCount > 0 && `專欄 ${noteCount}`,
+  ].filter(Boolean);
+
   return (
     <div className={styles.headline}>
-      <div className="w-[118px] shrink-0">
+      <div className="w-28.75 shrink-0">
         <BookCover url={book.coverUrl} title={book.title} size="full" />
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <span className={styles.label}>在讀 · 最近開始的一本</span>
-        <Link href={href} className={styles.headlineTitle}>
+        <Link href={href} className={`${styles.headlineTitle} truncate`}>
           {book.title}
         </Link>
         <span className={styles.byline}>
@@ -51,7 +77,12 @@ function Headline({ book, href }: { book: Book; href: string }) {
             .filter(Boolean)
             .join("　·　")}
         </span>
-        {book.startDate && <span className={styles.meta}>{book.startDate} 起讀</span>}
+        {latestNote && <p className={`${styles.summary} line-clamp-2`}>{latestNote.note}</p>}
+        {(book.startDate || counts.length > 0) && (
+          <span className={styles.meta}>
+            {[book.startDate && `${book.startDate} 起讀`, ...counts].filter(Boolean).join("　·　")}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -90,44 +121,67 @@ function Rail({
   );
 }
 
-export function BookOverview({ books, href }: { books: Book[]; href: (book: Book) => string }) {
+export function BookOverview({
+  books,
+  href,
+  writings = [],
+  quotes = [],
+  vocabulary = [],
+}: {
+  books: Book[];
+  href: (book: Book) => string;
+  writings?: Writing[];
+  quotes?: QuoteRow[];
+  vocabulary?: VocabularyRow[];
+}) {
   const reading = books.filter((b) => b.status === "閱讀中");
   const want = books.filter((b) => b.status === "想讀");
   const done = books.filter((b) => b.status === "已讀完");
   const headline = pickHeadline(reading);
   const rest = reading.filter((b) => b.id !== headline?.id);
+  const headlineNotes = headline
+    ? notesForSource(writings, [headline.originId || headline.id])
+    : [];
 
   return (
     <div className={styles.frame}>
       <div className={styles.main}>
-        {headline && <Headline book={headline} href={href(headline)} />}
+        {headline && (
+          <Headline
+            book={headline}
+            href={href(headline)}
+            latestNote={headlineNotes[0]}
+            quoteCount={quotes.filter((q) => q.bookId === headline.id).length}
+            vocabularyCount={vocabulary.filter((v) => v.bookId === headline.id).length}
+            noteCount={headlineNotes.length}
+          />
+        )}
 
-        <div className={styles.columns}>
+        <div>
           {byMonth(done).map((group) => (
             <div key={group.label}>
-              <div className={styles.month}>
+              <div className={`${styles.month} flex items-baseline justify-between`}>
                 <span className={styles.monthLabel}>{group.label}</span>
+                <span className={styles.meta}>{group.books.length} 本</span>
               </div>
-              {group.books.map((book) => (
-                <div key={book.id} className={styles.item}>
-                  <div className="flex gap-3">
-                    <div className="w-10 shrink-0">
-                      <BookCover url={book.coverUrl} title={book.title} size="full" />
-                    </div>
-                    <div className="min-w-0">
-                      <Link href={href(book)} className={styles.itemTitle}>
+              <div className={styles.monthGrid}>
+                {group.books.map((book) => {
+                  const note = notesForSource(writings, [book.originId || book.id])[0];
+                  return (
+                    <div key={book.id} className={styles.item}>
+                      <div className="flex items-baseline justify-between pb-2">
+                        <span className={styles.meta}>{book.endDate}</span>
+                        {book.domain && <span className={styles.label}>{book.domain}</span>}
+                      </div>
+                      <CoverBand coverUrl={book.coverUrl} seed={book.id} label={book.title} />
+                      <Link href={href(book)} className={`${styles.itemTitle} mt-3 block truncate`}>
                         {book.title}
                       </Link>
-                      <div className={`${styles.byline} pt-0.5`}>{book.author}</div>
-                      <div className={`${styles.meta} pt-1.5`}>
-                        {[book.endDate && `${book.endDate} 讀完`, book.domain]
-                          .filter(Boolean)
-                          .join("　·　")}
-                      </div>
+                      {note && <p className={`${styles.byline} line-clamp-2 pt-1`}>{note.note}</p>}
                     </div>
-                  </div>
-                </div>
-              ))}
+                  );
+                })}
+              </div>
             </div>
           ))}
         </div>
