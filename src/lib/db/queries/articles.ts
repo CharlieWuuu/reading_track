@@ -2,7 +2,7 @@ import { and, asc, eq } from "drizzle-orm";
 import { PRIVATE_MARK } from "@/config/privacy";
 import { db } from "@/lib/db/client";
 import { kinds } from "@/lib/db/schema/kinds";
-import { bookAttributes } from "@/lib/db/schema/taxonomy";
+import { attributes } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { Article } from "@/types/article";
 import { sourceUrlOfRecords } from "./external-links";
@@ -16,11 +16,11 @@ export async function listArticles(userId: string): Promise<Article[]> {
   const [types, rows] = await Promise.all([
     typePaths(userId),
     db
-      .select({ record: records, work: works, attribute: bookAttributes.name })
+      .select({ record: records, work: works, attribute: attributes.name })
       .from(records)
       .innerJoin(works, eq(works.id, records.workId))
       .innerJoin(kinds, eq(kinds.id, works.kindId))
-      .leftJoin(bookAttributes, eq(bookAttributes.id, works.attributeId))
+      .leftJoin(attributes, eq(attributes.id, works.attributeId))
       .where(and(eq(records.userId, userId), eq(kinds.name, ARTICLE_KIND)))
       .orderBy(asc(records.createdAt)),
   ]);

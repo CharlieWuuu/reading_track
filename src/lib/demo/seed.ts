@@ -4,7 +4,7 @@ import { seedKinds } from "@/lib/db/mutations/kinds";
 import { fragments } from "@/lib/db/schema/fragments";
 import { internalLinks } from "@/lib/db/schema/internal-links";
 import { kinds } from "@/lib/db/schema/kinds";
-import { bookAttributes, topics } from "@/lib/db/schema/taxonomy";
+import { attributes, topics } from "@/lib/db/schema/taxonomy";
 import { users } from "@/lib/db/schema/users";
 import { records, works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
@@ -180,7 +180,7 @@ export async function seedDemo(email: string): Promise<string> {
   const userId = user.id;
 
   // 重跑要一致，先清掉這個帳號名下的東西（外鍵 cascade 會帶走關聯與子表）
-  for (const table of [internalLinks, fragments, writings, works, topics, bookAttributes, kinds]) {
+  for (const table of [internalLinks, fragments, writings, works, topics, attributes, kinds]) {
     await db.delete(table).where(eq(table.userId, userId));
   }
   await seedKinds(userId); // 類型是資料，demo 帳號也要有
@@ -217,9 +217,9 @@ export async function seedDemo(email: string): Promise<string> {
   const attributeId = new Map<string, string>();
   for (const name of ATTRIBUTES) {
     const [row] = await db
-      .insert(bookAttributes)
+      .insert(attributes)
       .values({ userId, name })
-      .returning({ id: bookAttributes.id });
+      .returning({ id: attributes.id });
     attributeId.set(name, row.id);
   }
 

@@ -1,6 +1,6 @@
 import { boolean, date, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { kinds } from "./kinds";
-import { bookAttributes, topics } from "./taxonomy";
+import { attributes, topics } from "./taxonomy";
 import { users } from "./users";
 
 /**
@@ -37,7 +37,7 @@ export const works = pgTable("domain_works", {
   title: text("title").notNull(),
   creator: text("creator").notNull().default(""),
   topicId: uuid("topic_id").references(() => topics.id, { onDelete: "set null" }),
-  attributeId: uuid("attribute_id").references(() => bookAttributes.id, { onDelete: "set null" }),
+  attributeId: uuid("attribute_id").references(() => attributes.id, { onDelete: "set null" }),
   language: text("language").notNull().default(""),
   source: text("source").notNull().default(""), // 出版社／頻道／平台
   externalId: text("external_id").notNull().default(""),
