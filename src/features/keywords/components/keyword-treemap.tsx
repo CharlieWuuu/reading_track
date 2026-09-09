@@ -111,12 +111,12 @@ function Cell({ groups, x = 0, y = 0, width = 0, height = 0, name, group, depth 
   );
 }
 
-/** 一個關鍵字可能有多個領域，只取第一個——同時放進兩群會讓面積重複計算 */
+/** 一個關鍵字可能有多個標籤，只取第一個——同時放進兩群會讓面積重複計算 */
 function groupByTopic(entries: KeywordEntry[], infos: Map<string, KeywordInfo>): TreeNode[] {
   const groups = new Map<string, TreeLeaf[]>();
 
   for (const entry of entries) {
-    const topic = topicLabel(infos.get(entry.name)?.topics.split("、")[0] ?? "") || UNCLASSIFIED;
+    const topic = topicLabel(infos.get(entry.name)?.tags.split("、")[0] ?? "") || UNCLASSIFIED;
     const leaf = { name: entry.name, size: entry.books.length, group: topic };
     const list = groups.get(topic);
     if (list) list.push(leaf);

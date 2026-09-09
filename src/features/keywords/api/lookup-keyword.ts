@@ -1,6 +1,6 @@
 import { KeywordInfo } from "@/types/keyword";
 
-/** 拿名字去查維基，補主檔的 topics／座標／生卒／摘要 */
+/** 拿名字去查維基，補主檔的座標／生卒／摘要（標籤是自己貼的，維基不查這個） */
 export async function lookupKeyword(name: string): Promise<KeywordInfo> {
   const res = await fetch("/api/keywords/lookup", {
     method: "POST",
