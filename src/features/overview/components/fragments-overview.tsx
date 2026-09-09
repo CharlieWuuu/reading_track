@@ -2,10 +2,10 @@
 
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
+import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { KindGroup } from "@/config/record-kinds";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { fragmentItem } from "@/utils/overview-items";
-import { GroupOverview } from "./group-overview";
 import { GroupTable } from "./group-table";
 
 /**

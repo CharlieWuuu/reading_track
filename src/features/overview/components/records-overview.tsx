@@ -2,9 +2,9 @@
 
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
+import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { useGroupRecords } from "@/hooks/use-group-records";
 import { recordItem } from "@/utils/overview-items";
-import { GroupOverview } from "./group-overview";
 import { GroupTable } from "./group-table";
 
 /**
