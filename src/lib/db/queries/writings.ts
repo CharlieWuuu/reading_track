@@ -17,6 +17,10 @@ import { keywordNamesByOwner } from "./internal-links";
  * 才是真正的類型。這裡再合回去。
  */
 
+/** 延伸自書或文章、卻沒特別選主題的，顯示成「心得」——這是顯示才有的詞，
+ * 不寫進 writing_topics：讀完寫下的反應本來就不必每次都挑一個主題 */
+const IMPLIED_TOPIC = "心得";
+
 /** 出處的類型：這一則掛在書上還是文章上，舊形狀的 kind 欄要它 */
 const sourceKind = alias(kinds, "source_kind");
 
@@ -60,7 +64,7 @@ export async function listWritings(userId: string): Promise<Writing[]> {
       date: writing.date,
       title: writing.name,
       kind: workKind ?? kindName,
-      topic: topicName ?? "",
+      topic: topicName ?? (writing.workId ? IMPLIED_TOPIC : ""),
       keywords: keywords.get(writing.id) ?? "",
       note: writing.body,
       link: links.get(writing.id) ?? "",

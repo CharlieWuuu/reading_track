@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { CategorySelect } from "@/components/ui/category-select";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
 import { compactLines } from "@/components/ui/line-list-input";
@@ -131,7 +130,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
     >
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
         <TabPanel active={tab === "text"}>
-          {/* 標題與類型同一行：類型是這則的名牌，跟標題一起看才知道自己在寫哪一種 */}
+          {/* 標題與主題同一行：主題是這則的名牌，跟標題一起看才知道自己在寫哪一塊 */}
           <div className="flex shrink-0 items-center gap-2">
             <input
               value={form.title}
@@ -140,12 +139,12 @@ export function WritingForm({ entry }: { entry?: Writing }) {
               className="min-w-0 flex-1 text-base font-medium outline-none"
             />
             <div className="w-28 shrink-0 md:w-36">
-              <CategorySelect
-                label="類型"
-                categoryKey="kind"
-                value={form.kind}
-                onChange={(v) => set("kind", v)}
-                placeholder="類型"
+              <OptionSelect
+                label="主題"
+                options={topicSuggestions}
+                value={form.topic}
+                onChange={(v) => set("topic", v)}
+                placeholder="主題"
                 hideLabel
                 bare
               />
@@ -182,16 +181,6 @@ export function WritingForm({ entry }: { entry?: Writing }) {
                 onEditOption={openKeyword}
                 separator={"\n"}
                 multiple
-              />
-            </div>
-
-            <div className="col-span-2 min-w-0 sm:col-span-1">
-              {/* 主題：這件事屬於生活的哪一塊，跟關鍵字不同層次，單選 */}
-              <OptionSelect
-                label="主題"
-                options={topicSuggestions}
-                value={form.topic}
-                onChange={(v) => set("topic", v)}
               />
             </div>
 

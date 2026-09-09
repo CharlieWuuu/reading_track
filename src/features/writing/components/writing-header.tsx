@@ -10,12 +10,11 @@ import { WRITING_VIEWS } from "@/features/writing/views";
 import { useKinds } from "@/hooks/use-kinds";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useWritings } from "@/hooks/use-writings";
-import { splitTags } from "@/types/book";
 import { Writing } from "@/types/writing";
 
 /** 選項只列真的有紀事在用的值，選了才不會篩出一片空白 */
-function usedKinds(writings: Writing[]): string[] {
-  return [...new Set(writings.flatMap((e) => splitTags(e.kind)))].sort((a, b) =>
+function usedTopics(writings: Writing[]): string[] {
+  return [...new Set(writings.map((e) => e.topic).filter(Boolean))].sort((a, b) =>
     a.localeCompare(b, "zh-Hant"),
   );
 }
@@ -33,13 +32,13 @@ export function WritingHeader() {
   const { kinds } = useKinds();
   const { searchParams, setParams } = useUrlParams();
   const query = searchParams.get("q") ?? "";
-  const kind = searchParams.get("kind") ?? "";
+  const topic = searchParams.get("topic") ?? "";
   const view = WRITING_VIEWS.parse(searchParams.get("view"));
   const title = kinds.find((k) => k.slug === "writing")?.name;
   const parent = NAV_GROUPS.find((group) => group.kindGroup === "writings")?.label;
-  const kindItems = [
+  const topicItems = [
     { key: "", label: "全部" },
-    ...usedKinds(writings).map((key) => ({ key, label: key })),
+    ...usedTopics(writings).map((key) => ({ key, label: key })),
   ];
 
   return (
@@ -58,10 +57,10 @@ export function WritingHeader() {
           />
           <SelectMenu
             bare
-            items={kindItems}
-            value={kind}
-            label="類型"
-            onChange={(next) => setParams({ kind: next || null })}
+            items={topicItems}
+            value={topic}
+            label="主題"
+            onChange={(next) => setParams({ topic: next || null })}
           />
           <ActionButton href={`${kindHref("writings", "writing")}/new`} label="新增" text="新增">
             <Plus size={16} strokeWidth={2} aria-hidden />

@@ -12,7 +12,7 @@ const FLAT_LABELS: Record<Exclude<keyof BookCategories, "domain" | "subDomain">,
   platform: "平台",
   type: "屬性",
   language: "語言",
-  kind: "類型",
+  topic: "書寫",
 };
 
 const styles = {

@@ -22,13 +22,13 @@ export function WritingList({ timeline }: { timeline: (writings: Writing[]) => R
   const { writings: allWriting, isLoading, error } = useWritings();
   const { searchParams } = useUrlParams();
 
-  const kind = searchParams.get("kind") ?? "";
+  const topic = searchParams.get("topic") ?? "";
   const view = WRITING_VIEWS.parse(searchParams.get("view"));
   const terms = searchTerms(searchParams.get("q") ?? "");
   // 標題、內文、關鍵字都算：想得起來的可能是任何一個，內文更是常常只記得半句
   const writings = allWriting.filter(
     (e) =>
-      (!kind || e.kind === kind) &&
+      (!topic || e.topic === topic) &&
       matchesSearch(terms, e.title, e.note, e.keywords, e.kind, e.sourceTitle),
   );
 
