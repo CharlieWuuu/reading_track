@@ -189,7 +189,7 @@ export async function saveKeywordInfos(userId: string, infos: KeywordInfo[]): Pr
     for (const info of infos) {
       const values = {
         body: info.summary,
-        topics: info.topics,
+        tags: info.tags,
         coordinates: info.coordinates,
         span: info.span,
       };

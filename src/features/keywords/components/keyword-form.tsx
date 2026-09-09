@@ -44,11 +44,11 @@ const ROWS = [[{ key: "name", label: "名稱" }], [{ key: "coordinates", label: 
  * 跟類型、領域同一個做法：打字就能登一個新的，用得多的排前面。
  * 多個領域用頓號串在同一格，存回去仍然是一欄。
  */
-function usedTopics(infos: KeywordInfo[]): Map<string, number> {
+function usedTags(infos: KeywordInfo[]): Map<string, number> {
   const counts = new Map<string, number>();
   for (const info of infos) {
-    for (const topic of info.topics.split("、").map((t) => t.trim())) {
-      if (topic) counts.set(topic, (counts.get(topic) ?? 0) + 1);
+    for (const tag of info.tags.split("、").map((t) => t.trim())) {
+      if (tag) counts.set(tag, (counts.get(tag) ?? 0) + 1);
     }
   }
   return new Map(
@@ -73,7 +73,7 @@ type KeywordFormProps = {
  */
 export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps) {
   const { infos } = useKeywordInfos();
-  const topicCounts = usedTopics(infos);
+  const tagCounts = usedTags(infos);
   const [form, setForm] = useState<KeywordInfo>(info);
   const [saving, setSaving] = useState(false);
   const [looking, setLooking] = useState(false);
@@ -99,8 +99,8 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
         setNote("維基沒有這個條目");
         return;
       }
-      // 領域是自己分的，維基查回來不該動它。欄位變了就是查到了，不用再寫一行說明
-      setForm((f) => ({ ...found, name: f.name, topics: f.topics }));
+      // 標籤是自己貼的，維基查回來不該動它。欄位變了就是查到了，不用再寫一行說明
+      setForm((f) => ({ ...found, name: f.name, tags: f.tags }));
     } catch (err) {
       setError(err instanceof Error ? err.message : "查詢失敗");
     } finally {
@@ -150,11 +150,11 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
         </div>
         <div className={styles.field}>
           <OptionSelect
-            label="領域"
-            options={[...topicCounts.keys()]}
-            counts={topicCounts}
-            value={form.topics}
-            onChange={(v) => set("topics", v)}
+            label="標籤"
+            options={[...tagCounts.keys()]}
+            counts={tagCounts}
+            value={form.tags}
+            onChange={(v) => set("tags", v)}
             multiple
           />
         </div>

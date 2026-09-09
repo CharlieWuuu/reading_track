@@ -3,7 +3,7 @@ import { pendingNames } from "@/lib/keywords/enrich";
 import { KeywordInfo } from "@/types/keyword";
 
 const info = (name: string, extra: Partial<KeywordInfo> = {}): KeywordInfo =>
-  ({ name, wikiUrl: "", summary: "", topics: "", ...extra }) as KeywordInfo;
+  ({ name, wikiUrl: "", summary: "", tags: "", ...extra }) as KeywordInfo;
 
 describe("pendingNames", () => {
   it("只留主檔裡沒有的", () => {

@@ -1,8 +1,8 @@
 /** 關鍵字主檔的一列。全部存純文字，直接查資料庫也要看得懂 */
 export interface KeywordInfo {
   name: string;
-  /** 維基的主題分類，多個以頓號相接；刻意不含 Geography，理由見 lookup */
-  topics: string;
+  /** 自己貼的標籤，多個以頓號相接；跟維基查詢無關，見 lookup 裡的說明 */
+  tags: string;
   /** "25.033,121.565"，沒有座標就是空字串 */
   coordinates: string;
   /** 生卒或起訖，"1809－1882"；只有其中一邊就留另一邊空白 */
@@ -12,7 +12,7 @@ export interface KeywordInfo {
 }
 
 export const EMPTY_KEYWORD_INFO: Omit<KeywordInfo, "name"> = {
-  topics: "",
+  tags: "",
   coordinates: "",
   span: "",
   wikiUrl: "",

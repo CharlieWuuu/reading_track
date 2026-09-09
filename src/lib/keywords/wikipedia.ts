@@ -18,8 +18,8 @@ export async function lookupKeyword(name: string): Promise<KeywordInfo> {
 
   return {
     name,
-    // 領域一律留空，自己分：模型那套分類跟「你怎麼看這些字」是兩回事
-    topics: "",
+    // 標籤一律留空，自己貼：模型那套分類跟「你怎麼看這些字」是兩回事
+    tags: "",
     coordinates: coordinate ? `${coordinate.lat},${coordinate.lon}` : "",
     span,
     wikiUrl: `https://zh.wikipedia.org/wiki/${encodeURIComponent(page.title)}`,

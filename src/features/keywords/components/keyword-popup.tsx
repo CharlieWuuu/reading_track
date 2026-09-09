@@ -49,7 +49,7 @@ export function KeywordPopup({ name, onClose }: { name: string; onClose: () => v
   const loading = loadingInfos || loadingBooks || loadingArticles || loadingWriting;
 
   const info = byName.get(name);
-  const topics = info?.topics ? info.topics.split("、").filter(Boolean).map(topicLabel) : [];
+  const tags = info?.tags ? info.tags.split("、").filter(Boolean).map(topicLabel) : [];
   const span = parseSpan(info?.span ?? "");
   const mentions = getKeywordMentions(name, books, articles, writings);
   const nothing =
@@ -63,9 +63,9 @@ export function KeywordPopup({ name, onClose }: { name: string; onClose: () => v
       <div className={styles.wrap}>
         <div className={styles.head}>
           <span className={styles.name}>{name}</span>
-          {topics.map((topic) => (
-            <span key={topic} className={styles.topic}>
-              {topic}
+          {tags.map((tag) => (
+            <span key={tag} className={styles.topic}>
+              {tag}
             </span>
           ))}
           {span && (

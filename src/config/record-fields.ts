@@ -45,7 +45,7 @@ export const RECORD_FIELDS = [
   { key: "translation", layer: "fragment", type: "text", defaultLabel: "翻譯" },
   { key: "context", layer: "fragment", type: "longText", defaultLabel: "例句" },
   { key: "contextTranslation", layer: "fragment", type: "text", defaultLabel: "例句翻譯" },
-  { key: "topics", layer: "fragment", type: "text", defaultLabel: "維基主題" },
+  { key: "tags", layer: "fragment", type: "text", defaultLabel: "標籤" },
   { key: "span", layer: "fragment", type: "text", defaultLabel: "起訖" },
   { key: "coordinates", layer: "fragment", type: "text", defaultLabel: "座標" },
   { key: "wikiUrl", layer: "externalLink", type: "url", defaultLabel: "維基連結" },

@@ -39,7 +39,7 @@ export const fragments = pgTable("domain_fragments", {
   translation: text("translation").notNull().default(""),
   context: text("context").notNull().default(""), // 例句
   contextTranslation: text("context_translation").notNull().default(""),
-  topics: text("topics").notNull().default(""), // 維基主題，多個以頓號相接
+  tags: text("tags").notNull().default(""), // 自己貼的標籤，多個以頓號相接，跟 domain_topics 的主題樹是兩回事
   span: text("span").notNull().default(""), // 生卒或起訖
   coordinates: text("coordinates").notNull().default(""), // "25.033,121.565"
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

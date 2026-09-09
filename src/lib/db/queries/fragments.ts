@@ -73,7 +73,7 @@ export async function listKeywords(userId: string): Promise<KeywordInfo[]> {
   return rows
     .map(({ fragment }) => ({
       name: fragment.name,
-      topics: fragment.topics,
+      tags: fragment.tags,
       coordinates: fragment.coordinates,
       span: fragment.span,
       wikiUrl: wikiUrls.get(fragment.id) ?? "",
