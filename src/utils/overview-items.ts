@@ -30,7 +30,7 @@ export const articleItem = (article: Article): OverviewItem => ({
   id: article.id,
   title: article.title,
   byline: joinByline([article.author, article.platform, article.domain]),
-  href: `/reading/articles/${article.id}`,
+  href: `${kindHref("records", "articles")}/${article.id}`,
   // 沒有封面欄位就整個不畫，不要留一塊空的佔位
   startDate: null,
   endDate: article.endDate && `${article.endDate} 讀完`,
@@ -50,7 +50,7 @@ export const writingItem = (writing: Writing): OverviewItem => ({
 /** 內建類型的詳細頁。自訂類型還沒有，點了退回那一種的清單 */
 const DETAIL_HREF: Record<string, (id: string) => string> = {
   書籍: (id) => `${kindHref("records", "books")}/${id}`,
-  文章: (id) => `/reading/articles/${id}`,
+  文章: (id) => `${kindHref("records", "articles")}/${id}`,
 };
 
 /**

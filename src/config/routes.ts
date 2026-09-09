@@ -25,12 +25,14 @@ export const bookEditHref = (id: string, back?: string | null): string => {
   return withBack(`${booksListHref}/${id}/edit`, back);
 };
 
+const articlesListHref = kindHref("records", "articles");
+
 export const articleHref = (id: string): string => {
-  return `/reading/articles/${id}`;
+  return `${articlesListHref}/${id}`;
 };
 
 export const articleEditHref = (id: string): string => {
-  return `/reading/articles/${id}/edit`;
+  return `${articlesListHref}/${id}/edit`;
 };
 
 export const writingHref = (id: string): string => {

@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
+import { kindHref } from "@/config/kind-routes";
 import { ArticleForm } from "@/features/articles/components/article-form";
 import { ArticleFormTabs } from "@/features/articles/components/article-form-tabs";
 
@@ -12,7 +13,7 @@ function NewArticle() {
       <PageHeader
         title="新增文章"
         size="compact"
-        backHref="/reading/articles"
+        backHref={kindHref("records", "articles")}
         action={<ArticleFormTabs />}
       />
       <PageBody>

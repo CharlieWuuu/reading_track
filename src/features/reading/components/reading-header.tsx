@@ -36,7 +36,7 @@ const TAB_ICONS: Record<ReadingTab, () => React.ReactElement> = {
 /** 佳句單字關鍵字是從書裡摘出來的，不單獨新增 */
 const NEW_HREF: Partial<Record<ReadingTab, string>> = {
   books: `${readingTabHref("books")}/new`,
-  articles: "/reading/articles/new",
+  articles: `${readingTabHref("articles")}/new`,
 };
 
 type ReadingHeaderProps = {

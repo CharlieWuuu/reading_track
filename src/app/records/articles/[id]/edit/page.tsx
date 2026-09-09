@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
+import { kindHref } from "@/config/kind-routes";
 import { ArticleForm } from "@/features/articles/components/article-form";
 import { ArticleFormTabs } from "@/features/articles/components/article-form-tabs";
 import { useArticles } from "@/hooks/use-articles";
@@ -19,7 +20,7 @@ function EditArticle() {
       <PageHeader
         title="編輯文章"
         size="compact"
-        backHref="/reading/articles"
+        backHref={kindHref("records", "articles")}
         action={article && <ArticleFormTabs />}
       />
       <PageBody>

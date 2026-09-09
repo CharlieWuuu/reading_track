@@ -20,6 +20,7 @@ export type ReadingTab = (typeof READING_TABS)[number]["key"];
 /** 已經收斂到 [slug] 通用頁的分頁，統計那邊拆成類型 × 顯示方式了，見 config/stats-views.ts */
 const MIGRATED_HREF: Partial<Record<ReadingTab, string>> = {
   books: kindHref("records", "books"),
+  articles: kindHref("records", "articles"),
 };
 
 export const readingTabHref = (tab: ReadingTab) => MIGRATED_HREF[tab] ?? `/reading/${tab}`;
