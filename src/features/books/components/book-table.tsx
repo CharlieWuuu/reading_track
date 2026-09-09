@@ -23,6 +23,7 @@ import {
   parseStatusFilter,
   statusHeading,
 } from "@/utils/book-filter";
+import { byYear } from "@/utils/book-overview";
 import { matchesSearch, searchTerms } from "@/utils/search";
 import { BookOverview } from "./book-overview";
 
@@ -155,36 +156,45 @@ export function BookTable() {
 
   if (view === "card") {
     return (
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-4">
         <ListHeading label={heading} count={books.length} />
-        {/* 書封牆：一次看到很多本、也看得清楚封面，不加外框讓封面自己說話 */}
-        <div>
-          <ul className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] md:grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))]">
-            {books.map((b, i) => (
-              <li key={b.id || `cover-${i}`} className="p-1.5">
-                {/* 書封、書名、日期三層都靠 gap 分開，卡片高度固定不隨書名長短跳動 */}
-                <Link href={detailHref(b.id)} className="group flex flex-col gap-1">
-                  {/* 書封牆是一整面圖，左側色條會把版面切得很碎，改成封面角落的小圓點 */}
-                  <div className="relative">
-                    <BookCover
-                      url={b.coverUrl}
-                      title={b.title}
-                      size="full"
-                      className="transition group-hover:shadow-md"
-                    />
-                    <StatusDot status={b.status} />
-                  </div>
-                  <p className="text-item-sm truncate font-serif leading-snug font-semibold tracking-tight">
-                    {b.title}
-                  </p>
-                  <p className="text-meta text-ink-faint truncate tabular-nums">
-                    {b.endDate ? `${b.endDate} 讀完` : b.status}
-                  </p>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {/* 書封牆：一次看到很多本、也看得清楚封面，不加外框讓封面自己說話。
+            照完成年份分段，跟概覽頁同一套邏輯，只是粒度粗到年 */}
+        {byYear(books).map((group) => (
+          <div key={group.label} className="flex flex-col gap-2">
+            <div className="border-rule-strong flex items-baseline justify-between border-b pb-1.5">
+              <span className="text-item-sm font-serif font-semibold tracking-wide">
+                {group.label}
+              </span>
+              <span className="text-meta text-ink-faint tabular-nums">{group.books.length} 本</span>
+            </div>
+            <ul className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] md:grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))]">
+              {group.books.map((b, i) => (
+                <li key={b.id || `cover-${i}`} className="p-1.5">
+                  {/* 書封、書名、日期三層都靠 gap 分開，卡片高度固定不隨書名長短跳動 */}
+                  <Link href={detailHref(b.id)} className="group flex flex-col gap-1">
+                    {/* 書封牆是一整面圖，左側色條會把版面切得很碎，改成封面角落的小圓點 */}
+                    <div className="relative">
+                      <BookCover
+                        url={b.coverUrl}
+                        title={b.title}
+                        size="full"
+                        className="transition group-hover:shadow-md"
+                      />
+                      <StatusDot status={b.status} />
+                    </div>
+                    <p className="text-item-sm truncate font-serif leading-snug font-semibold tracking-tight">
+                      {b.title}
+                    </p>
+                    <p className="text-meta text-ink-faint truncate tabular-nums">
+                      {b.endDate ? `${b.endDate} 讀完` : b.status}
+                    </p>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
     );
   }

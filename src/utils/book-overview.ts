@@ -26,6 +26,18 @@ export function byMonth(books: Book[]): MonthGroup[] {
   return [...groups].map(([label, list]) => ({ label, books: list }));
 }
 
+/** 書封牆用：完成年份分組，比月更粗，新的在前。沒有完成日的歸到最後一組 */
+export function byYear(books: Book[]): MonthGroup[] {
+  const groups = new Map<string, Book[]>();
+  for (const book of books) {
+    const key = book.endDate ? book.endDate.slice(0, 4) : "沒寫日期";
+    const bucket = groups.get(key);
+    if (bucket) bucket.push(book);
+    else groups.set(key, [book]);
+  }
+  return [...groups].map(([label, list]) => ({ label, books: list }));
+}
+
 /**
  * 頭條是「最近還在讀的那一本」。挑最近開始的，而不是清單的第一本——
  * 清單第一本是排序的結果，讀者關心的是自己現在在讀什麼。
