@@ -15,6 +15,8 @@ import { kinds, mapKindField } from "@/lib/db/schema/kinds";
 
 export type NewKind = {
   name: string;
+  /** 網址上的那一段，人工填、英文小寫連字號 */
+  slug: string;
   /** 勾了哪些模組 */
   modules: string[];
   amountUnit: string;
@@ -50,6 +52,7 @@ async function insertKind(
       userId,
       groupKey: group,
       name: kind.name,
+      slug: kind.slug,
       amountUnit: kind.amountUnit,
       sortOrder,
     })
@@ -76,6 +79,7 @@ async function insertKind(
 
 const fromTemplate = (template: KindTemplate): NewKind => ({
   name: template.name,
+  slug: template.key,
   modules: [...template.modules],
   amountUnit: template.amountUnit,
   labels: template.labels,

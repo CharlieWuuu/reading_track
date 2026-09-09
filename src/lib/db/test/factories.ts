@@ -75,6 +75,7 @@ async function seedKindsInto(db: typeof Db): Promise<void> {
         userId: null,
         groupKey: template.group,
         name: template.name,
+        slug: template.key,
         amountUnit: template.amountUnit,
         sortOrder,
       })
