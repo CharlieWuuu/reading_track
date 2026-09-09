@@ -26,11 +26,16 @@ export function byMonth(books: Book[]): MonthGroup[] {
   return [...groups].map(([label, list]) => ({ label, books: list }));
 }
 
-/** 書封牆用：完成年份分組，比月更粗，新的在前。沒有完成日的歸到最後一組 */
+/**
+ * 書封牆用：完成年份分組，比月更粗，新的在前。
+ *
+ * 沒有完成日的書不是「忘了填」——想要、進行中的書本來就還沒有完成日期，
+ * 寫「沒寫日期」聽起來像資料缺漏。用狀態本身當組名才誠實。
+ */
 export function byYear(books: Book[]): MonthGroup[] {
   const groups = new Map<string, Book[]>();
   for (const book of books) {
-    const key = book.endDate ? book.endDate.slice(0, 4) : "沒寫日期";
+    const key = book.endDate ? book.endDate.slice(0, 4) : book.status;
     const bucket = groups.get(key);
     if (bucket) bucket.push(book);
     else groups.set(key, [book]);
