@@ -53,7 +53,7 @@ function toPageCount(book: Book): number {
  */
 export function getYearStats(books: Book[], writings: Writing[], year?: number): YearStats {
   const done = books.filter(
-    (b) => b.status === "已讀完" && (year === undefined || b.endDate?.startsWith(String(year))),
+    (b) => b.status === "完成" && (year === undefined || b.endDate?.startsWith(String(year))),
   );
 
   const pageCounts = done.map((b) => ({ book: b, pages: toPageCount(b) }));

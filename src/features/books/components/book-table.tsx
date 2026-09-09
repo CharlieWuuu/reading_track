@@ -16,7 +16,7 @@ import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useWritings } from "@/hooks/use-writings";
 import { isBookViewMode, useBookViewStore } from "@/stores/use-book-view-store";
-import { Book, ReadingStatus, splitLines } from "@/types/book";
+import { Book, RecordStatus, splitLines } from "@/types/book";
 import {
   effectiveStatus,
   matchesStatus,
@@ -53,8 +53,8 @@ function KeywordFilter({
 }
 
 /** 書封牆用的狀態標記：壓在封面左上角的一顆點，白邊讓它在任何封面上都看得見 */
-function StatusDot({ status }: { status: ReadingStatus }) {
-  if (status === "已讀完") return null;
+function StatusDot({ status }: { status: RecordStatus }) {
+  if (status === "完成") return null;
   return (
     <span
       aria-label={status}
@@ -68,7 +68,7 @@ function StatusDot({ status }: { status: ReadingStatus }) {
  * 給了號碼反而看不出順序。清單本來就已排序，這裡照順序由大到小配號。
  */
 function completionNumbers(books: Book[]): Map<string, number> {
-  const done = books.filter((b) => b.status === "已讀完");
+  const done = books.filter((b) => b.status === "完成");
   const numbers = new Map<string, number>();
   done.forEach((b, i) => numbers.set(b.id, done.length - i));
   return numbers;

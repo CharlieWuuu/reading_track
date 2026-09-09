@@ -189,9 +189,9 @@ export function BookOverview({
   quotes?: QuoteRow[];
   vocabulary?: VocabularyRow[];
 }) {
-  const reading = books.filter((b) => b.status === "閱讀中");
-  const want = books.filter((b) => b.status === "想讀");
-  const done = books.filter((b) => b.status === "已讀完");
+  const reading = books.filter((b) => b.status === "進行");
+  const want = books.filter((b) => b.status === "想要");
+  const done = books.filter((b) => b.status === "完成");
   const headline = pickHeadline(reading);
   const headlineNotes = headline
     ? notesForSource(writings, [headline.originId || headline.id])

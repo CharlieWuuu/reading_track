@@ -264,14 +264,14 @@ export async function seedDemo(email: string): Promise<string> {
     bookIds.push(book.id);
 
     // 前面幾本讀完、中間在讀、最後幾本想讀
-    const status = i < 17 ? "已讀完" : i < 22 ? "閱讀中" : "想讀";
+    const status = i < 17 ? "完成" : i < 22 ? "進行" : "想要";
     const [reading] = await db
       .insert(records)
       .values({
         userId,
         workId: book.id,
-        startDate: status === "想讀" ? null : daysAgo(400 - i * 12),
-        endDate: status === "已讀完" ? daysAgo(380 - i * 12) : null,
+        startDate: status === "想要" ? null : daysAgo(400 - i * 12),
+        endDate: status === "完成" ? daysAgo(380 - i * 12) : null,
       })
       .returning({ id: records.id });
     readingIds.push(reading.id);

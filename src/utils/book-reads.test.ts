@@ -39,8 +39,8 @@ describe("sameBook", () => {
 
 describe("readCount", () => {
   it("只算讀完的", () => {
-    const first = makeBook({ id: "a", status: "已讀完" });
-    const rereading = makeBook({ id: "b", originId: "a", status: "閱讀中", endDate: null });
+    const first = makeBook({ id: "a", status: "完成" });
+    const rereading = makeBook({ id: "b", originId: "a", status: "進行", endDate: null });
     expect(readCount([first, rereading], first)).toBe(1);
   });
 });

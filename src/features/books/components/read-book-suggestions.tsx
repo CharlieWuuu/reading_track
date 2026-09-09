@@ -30,7 +30,7 @@ export function ReadBookSuggestions({
   if (!q) return null;
 
   const matches = books
-    .filter((b) => b.status === "已讀完" && b.title.toLowerCase().includes(q))
+    .filter((b) => b.status === "完成" && b.title.toLowerCase().includes(q))
     .slice(0, 5);
 
   if (matches.length === 0) return null;

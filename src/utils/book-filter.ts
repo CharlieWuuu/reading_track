@@ -1,14 +1,14 @@
-import { Book, ReadingStatus } from "@/types/book";
+import { Book, RecordStatus } from "@/types/book";
 
 export type StatusFilter = "all" | "done" | "reading" | "want";
 
 /** 預設看全部：書單就是全部的書，要挑狀態再切 */
 export const DEFAULT_STATUS: StatusFilter = "all";
 
-const STATUS_OF: Record<Exclude<StatusFilter, "all">, ReadingStatus> = {
-  done: "已讀完",
-  reading: "閱讀中",
-  want: "想讀",
+const STATUS_OF: Record<Exclude<StatusFilter, "all">, RecordStatus> = {
+  done: "完成",
+  reading: "進行",
+  want: "想要",
 };
 
 /** 篩選選單上顯示的就是狀態本身；空字串是「全部」，跟其他篩選一致 */

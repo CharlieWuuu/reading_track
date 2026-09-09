@@ -25,7 +25,7 @@ export function makeBook(patch: Partial<Book> = {}): Book {
     coverUrl: "",
     pageCount: "",
     wordCount: "",
-    status: "想讀",
+    status: "想要",
     startDate: "",
     endDate: "",
     keywords: "",

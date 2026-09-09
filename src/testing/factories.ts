@@ -33,7 +33,7 @@ export function makeBook(overrides: Partial<Book> = {}): Book {
     publisher: "",
     platform: "紙本",
     sourceUrl: "",
-    status: "已讀完",
+    status: "完成",
     startDate: "2026-08-01",
     endDate: "2026-08-10",
     domain: "心理",

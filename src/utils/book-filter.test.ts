@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Book, ReadingStatus } from "@/types/book";
+import { Book, RecordStatus } from "@/types/book";
 import {
   DEFAULT_STATUS,
   effectiveStatus,
@@ -11,14 +11,14 @@ import {
   statusLabel,
 } from "./book-filter";
 
-const book = (status: ReadingStatus) => ({ status }) as Book;
+const book = (status: RecordStatus) => ({ status }) as Book;
 
 describe("parseStatusFilter", () => {
   it.each(["all", "done", "reading", "want"] as const)("認得 %s", (raw) => {
     expect(parseStatusFilter(raw)).toBe(raw);
   });
 
-  it.each([null, undefined, "", "已讀完", "亂寫"])("看不懂就回預設：%s", (raw) => {
+  it.each([null, undefined, "", "完成", "亂寫"])("看不懂就回預設：%s", (raw) => {
     expect(parseStatusFilter(raw)).toBe(DEFAULT_STATUS);
   });
 
@@ -29,21 +29,21 @@ describe("parseStatusFilter", () => {
 
 describe("matchesStatus", () => {
   it("all 全都算", () => {
-    for (const s of ["想讀", "閱讀中", "已讀完"] as ReadingStatus[]) {
+    for (const s of ["想要", "進行", "完成"] as RecordStatus[]) {
       expect(matchesStatus(book(s), "all")).toBe(true);
     }
   });
 
-  it("done 只留已讀完", () => {
-    expect(matchesStatus(book("已讀完"), "done")).toBe(true);
-    expect(matchesStatus(book("閱讀中"), "done")).toBe(false);
-    expect(matchesStatus(book("想讀"), "done")).toBe(false);
+  it("done 只留完成", () => {
+    expect(matchesStatus(book("完成"), "done")).toBe(true);
+    expect(matchesStatus(book("進行"), "done")).toBe(false);
+    expect(matchesStatus(book("想要"), "done")).toBe(false);
   });
 
   it("reading 與 want 各認各的", () => {
-    expect(matchesStatus(book("閱讀中"), "reading")).toBe(true);
-    expect(matchesStatus(book("已讀完"), "reading")).toBe(false);
-    expect(matchesStatus(book("想讀"), "want")).toBe(true);
+    expect(matchesStatus(book("進行"), "reading")).toBe(true);
+    expect(matchesStatus(book("完成"), "reading")).toBe(false);
+    expect(matchesStatus(book("想要"), "want")).toBe(true);
   });
 });
 
@@ -70,11 +70,11 @@ describe("篩選選單上的標籤", () => {
 
   it("標題列的「全部」要寫得出來，不能是空字串", () => {
     expect(statusHeading("all")).toBe("全部");
-    expect(statusHeading("reading")).toBe("閱讀中");
+    expect(statusHeading("reading")).toBe("進行");
     expect(statusFromLabel("")).toBe("all");
   });
 
   it("三個狀態都在選單裡", () => {
-    expect(STATUS_LABELS).toEqual(["已讀完", "閱讀中", "想讀"]);
+    expect(STATUS_LABELS).toEqual(["完成", "進行", "想要"]);
   });
 });

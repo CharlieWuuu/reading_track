@@ -23,18 +23,21 @@ export function normalizePlatform(raw: string): BookPlatform | null {
 }
 
 /**
- * 閱讀狀態刻意不開放自訂：統計與月曆要靠它做判斷，
- * 可自訂的話語意會散掉。要自由分類請用領域／屬性／語言。
+ * 狀態刻意不開放自訂：統計與月曆要靠它做判斷，可自訂的話語意會散掉。
+ * 要自由分類請用領域／屬性／語言。
+ *
+ * 用詞刻意不寫「想讀」「閱讀中」「已讀完」——這套狀態書籍以外的類別
+ * （電影、Podcast……）也要用得上，寫死「讀」就沒辦法套用。
  */
-export type ReadingStatus = "想讀" | "閱讀中" | "已讀完";
+export type RecordStatus = "想要" | "進行" | "完成";
 
-export const READING_STATUSES: ReadingStatus[] = ["想讀", "閱讀中", "已讀完"];
+export const RECORD_STATUSES: RecordStatus[] = ["想要", "進行", "完成"];
 
 /** 沒填狀態的舊資料，用日期推一個合理的預設值 */
-export function inferStatus(startDate: string | null, endDate: string | null): ReadingStatus {
-  if (endDate) return "已讀完";
-  if (startDate) return "閱讀中";
-  return "想讀";
+export function inferStatus(startDate: string | null, endDate: string | null): RecordStatus {
+  if (endDate) return "完成";
+  if (startDate) return "進行";
+  return "想要";
 }
 
 /** 跨類型比對用的機器名版本：want／reading／done，不看類型自己的說法 */
@@ -46,9 +49,9 @@ export function inferStatusKey(startDate: string | null, endDate: string | null)
   return "want";
 }
 
-export function normalizeStatus(raw: string): ReadingStatus | null {
+export function normalizeStatus(raw: string): RecordStatus | null {
   const value = raw.trim();
-  return READING_STATUSES.find((s) => s === value) ?? null;
+  return RECORD_STATUSES.find((s) => s === value) ?? null;
 }
 
 export interface Book {
@@ -64,7 +67,7 @@ export interface Book {
   /** 平台是可自訂的選項，不再限定在 BOOK_PLATFORMS 裡 */
   platform: string;
   sourceUrl: string;
-  status: ReadingStatus;
+  status: RecordStatus;
   startDate: string | null;
   endDate: string | null;
   domain: string;

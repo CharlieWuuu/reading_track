@@ -18,7 +18,7 @@ export function sameBook(books: Book[], book: Book): Book[] {
   return books.filter((b) => rootId(b) === root);
 }
 
-/** 一本書讀過幾次：只算讀完的，想讀與閱讀中那一次還沒完成 */
+/** 一本書讀過幾次：只算完成的，想要與進行中那一次還沒完成 */
 export function readCount(books: Book[], book: Book): number {
-  return sameBook(books, book).filter((b) => b.status === "已讀完").length;
+  return sameBook(books, book).filter((b) => b.status === "完成").length;
 }

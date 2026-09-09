@@ -28,7 +28,7 @@ afterEach(() => {
 const quote = (bookId: string): QuoteRow => ({ bookId, text: "一句話" }) as unknown as QuoteRow;
 
 /** 統計一律只算讀完的，沒有 endDate 的那些不該進任何一張圖 */
-const unfinished = makeBook({ endDate: null, status: "閱讀中" });
+const unfinished = makeBook({ endDate: null, status: "進行" });
 
 describe("getKpis", () => {
   it("只算讀完的", () => {
@@ -258,7 +258,7 @@ describe("排行", () => {
   it("還沒讀完的那次不算又讀了一次", () => {
     const books = [
       makeBook({ title: "被討厭的勇氣" }),
-      makeBook({ title: "被討厭的勇氣", endDate: null, status: "閱讀中" }),
+      makeBook({ title: "被討厭的勇氣", endDate: null, status: "進行" }),
     ];
 
     expect(getRereadRanking(books)).toEqual([]);

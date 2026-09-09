@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import type { ReadingStatus } from "@/types/book";
+import type { RecordStatus } from "@/types/book";
 import { StatusBadge } from "./status-badge";
 
-const STATUSES: ReadingStatus[] = ["想讀", "閱讀中", "已讀完"];
+const STATUSES: RecordStatus[] = ["想要", "進行", "完成"];
 
 const meta = {
   component: StatusBadge,
-  args: { status: "閱讀中" },
+  args: { status: "進行" },
 } satisfies Meta<typeof StatusBadge>;
 
 export default meta;
