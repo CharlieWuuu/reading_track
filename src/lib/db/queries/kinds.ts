@@ -5,6 +5,7 @@ import { fields as fieldsTable } from "@/lib/db/schema/fields";
 import { fragments } from "@/lib/db/schema/fragments";
 import { kinds as kindsTable, mapKindField } from "@/lib/db/schema/kinds";
 import { works } from "@/lib/db/schema/works";
+import { writings } from "@/lib/db/schema/writings";
 import { ModuleOverride } from "@/utils/record-form";
 
 /**
@@ -37,7 +38,7 @@ const groupBy = <T extends { kindId: string }>(rows: T[]): Map<string, T[]> =>
 
 /** 每一種底下有幾筆。側欄只列有資料的類型，沒用過的不佔位置 */
 async function countsByKind(userId: string): Promise<Map<string, number>> {
-  const [workRows, fragmentRows] = await Promise.all([
+  const [workRows, fragmentRows, writingRows] = await Promise.all([
     db
       .select({ kindId: works.kindId, n: count() })
       .from(works)
@@ -48,10 +49,15 @@ async function countsByKind(userId: string): Promise<Map<string, number>> {
       .from(fragments)
       .where(eq(fragments.userId, userId))
       .groupBy(fragments.kindId),
+    db
+      .select({ kindId: writings.kindId, n: count() })
+      .from(writings)
+      .where(eq(writings.userId, userId))
+      .groupBy(writings.kindId),
   ]);
 
   const map = new Map<string, number>();
-  for (const row of [...workRows, ...fragmentRows]) {
+  for (const row of [...workRows, ...fragmentRows, ...writingRows]) {
     map.set(row.kindId, (map.get(row.kindId) ?? 0) + row.n);
   }
   return map;
