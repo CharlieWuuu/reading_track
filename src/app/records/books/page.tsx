@@ -13,7 +13,7 @@ import { Book } from "@/types/book";
 import { rootId } from "@/utils/book-reads";
 
 /**
- * 頁首那行小字：133 次／128 本——「次」含重讀，「本」是不重複的作品數。
+ * 頁首那行小字：133 次・128 本——「次」含重讀，「本」是不重複的作品數。
  * 兩個數字一樣就不用重複講兩次，只寫「128 本」。
  *
  * 跟著目前的篩選走：選了「進行」就只算進行中的那幾本，不是書單的全部。
@@ -22,7 +22,7 @@ function bookMeta(books: Book[]): string {
   const titles = new Set(books.map(rootId));
   return books.length === titles.size
     ? `${titles.size} 本`
-    : `${books.length} 次／${titles.size} 本`;
+    : `${books.length} 次・${titles.size} 本`;
 }
 
 function BooksPageBody() {
