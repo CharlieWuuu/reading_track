@@ -8,10 +8,11 @@ import { Sidebar } from "./sidebar";
 
 /**
  * 桌機是「全寬報頭 ＋ 側欄」：報頭橫跨整個寬度，側欄與內容排在它底下。
- * 手機還是底部導覽，報頭不出現——那一版另外收。
+ * 手機報頭一樣出現（含站名與登入鍵），側欄改走底部導覽。
  *
- * 沒登入就沒有導覽：側欄與底部列都指向讀不到的資料。報頭留著，
- * 站名與登入鍵在那裡。
+ * 沒登入就沒有清單導覽：側欄與底部列都指向讀不到的資料，兩者都只在
+ * signedIn 時顯示。報頭則永遠都在——不管登入與否、不管手機桌機，
+ * 站名與登入鍵都得看得到，否則沒有入口能登入。
  *
  * session 還在確認時，側欄與 children 一起不顯示——children 自己也會打 API，
  * 各自的 loading 步調不一樣，先讓側欄出現、內容才跳出來會很跳動。
@@ -34,7 +35,7 @@ export function AppShell({
       {/* 瀏海／狀態列的高度，只有手機需要 */}
       <div className="shrink-0 md:hidden" style={{ height: "env(safe-area-inset-top)" }} />
 
-      <div className="hidden shrink-0 md:block">
+      <div className="shrink-0">
         <Masthead authSlot={authSlot} />
       </div>
 
