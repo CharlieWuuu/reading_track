@@ -65,9 +65,25 @@ export type GroupOverviewProps = {
   headlineLabel: string;
   /** 統計區塊大數字後面接的量詞，跟數字同一行，例如「筆」「篇」「則」 */
   unit: string;
+  /** done 的真實總數——分頁時 done 只是目前已載入的那幾頁，統計數字要用這個而不是 done.length */
+  doneTotal?: number;
+  /** 捲到底時呼叫，不給就是原本的整包展示 */
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
 };
 
-export function GroupOverview({ active, pending, done, headlineLabel, unit }: GroupOverviewProps) {
+export function GroupOverview({
+  active,
+  pending,
+  done,
+  headlineLabel,
+  unit,
+  doneTotal,
+  onLoadMore,
+  hasMore,
+  isLoadingMore,
+}: GroupOverviewProps) {
   // active 沒東西、但呼叫端有給頭條標籤時（例如書寫，記下就算完成，沒有
   // 進行中這個狀態，仍想秀「最新一則」），頭條改從 done 挑最新一筆；
   // 文章沒有中間狀態也沒有頭條，headlineLabel 傳空字串代表故意不要
@@ -82,9 +98,15 @@ export function GroupOverview({ active, pending, done, headlineLabel, unit }: Gr
       headlineLabel={headlineLabel}
       done={restDone}
       tintSeed={(item) => item.kindLabel}
+      onLoadMore={onLoadMore}
+      hasMore={hasMore}
+      isLoadingMore={isLoadingMore}
       rail={
         <>
-          <OverviewTotalStats count={active.length + pending.length + done.length} unit={unit} />
+          <OverviewTotalStats
+            count={active.length + pending.length + (doneTotal ?? done.length)}
+            unit={unit}
+          />
           <Rail label="進行" items={rest} limit={5} />
           <Rail label="想要" items={pending} limit={5} />
         </>

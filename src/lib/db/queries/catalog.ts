@@ -1,10 +1,11 @@
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
 import { fragments } from "@/lib/db/schema/fragments";
 import { kinds } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
 import { inferStatusKey } from "@/types/book";
+import { decodeCursor, encodeCursor } from "@/utils/pagination";
 import { sourceUrlOfFragment, sourceUrlOfRecord } from "./external-links";
 import { listWritings } from "./writings";
 
@@ -87,6 +88,85 @@ export async function listRecordsByGroup(userId: string, group: KindGroup): Prom
     .orderBy(asc(records.createdAt));
 
   return rows.map(toRecordRow);
+}
+
+/**
+ * 進行中／想要那兩堆，概覽頁右欄與頭條用。這批天生就小（同時在讀的書不會太多），
+ * 整批抓，不分頁——分頁只留給會一直長大的「完成」那一堆。
+ */
+export async function listActiveRecordsByGroup(
+  userId: string,
+  group: KindGroup,
+): Promise<RecordRow[]> {
+  const rows = await db
+    .select({ record: records, work: works, kind: kinds })
+    .from(records)
+    .innerJoin(works, eq(works.id, records.workId))
+    .innerJoin(kinds, eq(kinds.id, works.kindId))
+    .where(and(eq(records.userId, userId), eq(kinds.groupKey, group), isNull(records.endDate)))
+    .orderBy(asc(records.createdAt));
+
+  return rows.map(toRecordRow);
+}
+
+type DoneCursor = { endDate: string; id: string };
+
+export type PagedRecordRows = {
+  rows: RecordRow[];
+  nextCursor: string | null;
+  hasMore: boolean;
+  total: number;
+};
+
+/**
+ * 完成的那一堆，keyset 分頁。畫面照 endDate 新到舊排（跟 records-overview.tsx
+ * 原本在前端做的 sort 同一個鍵），游標也用 (endDate, id) 而不是 createdAt，
+ * 兩者本來就是不同欄位，分頁鍵要跟顯示排序鍵一致，不然翻頁順序會跟畫面對不起來。
+ */
+export async function listDoneRecordsByGroup(
+  userId: string,
+  group: KindGroup,
+  { cursor, limit }: { cursor?: string | null; limit: number },
+): Promise<PagedRecordRows> {
+  const after = decodeCursor<DoneCursor>(cursor);
+
+  const [rows, [{ count }]] = await Promise.all([
+    db
+      .select({ record: records, work: works, kind: kinds })
+      .from(records)
+      .innerJoin(works, eq(works.id, records.workId))
+      .innerJoin(kinds, eq(kinds.id, works.kindId))
+      .where(
+        and(
+          eq(records.userId, userId),
+          eq(kinds.groupKey, group),
+          isNotNull(records.endDate),
+          after
+            ? sql`(${records.endDate}, ${records.id}) < (${after.endDate}, ${after.id})`
+            : undefined,
+        ),
+      )
+      .orderBy(desc(records.endDate), desc(records.id))
+      .limit(limit + 1),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(records)
+      .innerJoin(works, eq(works.id, records.workId))
+      .innerJoin(kinds, eq(kinds.id, works.kindId))
+      .where(
+        and(eq(records.userId, userId), eq(kinds.groupKey, group), isNotNull(records.endDate)),
+      ),
+  ]);
+
+  const hasMore = rows.length > limit;
+  const page = hasMore ? rows.slice(0, limit) : rows;
+  const last = page.at(-1);
+  const nextCursor =
+    hasMore && last
+      ? encodeCursor({ endDate: last.record.endDate!, id: last.record.id } satisfies DoneCursor)
+      : null;
+
+  return { rows: page.map(toRecordRow), nextCursor, hasMore, total: count };
 }
 
 export type FragmentRow = {

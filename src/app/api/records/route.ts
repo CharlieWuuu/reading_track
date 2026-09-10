@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readOnly, requireSession, requireWriter } from "@/app/api/_lib/respond";
+import { badRequest, readOnly, requireSession, requireWriter } from "@/app/api/_lib/respond";
 import {
   addQuote,
   addVocabulary,
@@ -8,9 +8,14 @@ import {
   replaceBookVocabulary,
 } from "@/lib/db/mutations/fragments";
 import { listBooks } from "@/lib/db/queries/books";
-import { listQuoteRows, listVocabularyRows } from "@/lib/db/queries/fragments";
+import {
+  listDoneQuoteRows,
+  listDoneVocabularyRows,
+  listQuoteRows,
+  listVocabularyRows,
+} from "@/lib/db/queries/fragments";
 import { QuoteRow, VocabularyRow } from "@/types/record";
-import { isPrivate, requestPrivacy } from "@/utils/privacy";
+import { isPrivate, RequestPrivacy, requestPrivacy } from "@/utils/privacy";
 
 /** 單字與佳句是同一種東西的兩張表，讀寫走同一條路，用 kind 分流 */
 type Kind = "vocabulary" | "quotes";
@@ -19,23 +24,50 @@ function isKind(value: string | null): value is Kind {
   return value === "vocabulary" || value === "quotes";
 }
 
+/**
+ * 佳句與單字自己沒有私人欄，但它們屬於某一本書——那本書私人，它們就跟著藏起來。
+ * 分頁那條路也要濾，跟整包那條共用同一份「哪些書藏起來」。
+ */
+async function hiddenBookIds(userId: string, privacy: RequestPrivacy): Promise<Set<string>> {
+  if (privacy.unlocked) return new Set();
+  const books = await listBooks(userId);
+  return new Set(books.filter((book) => isPrivate(book, privacy.options)).map((b) => b.id));
+}
+
+const DEFAULT_LIMIT = 30;
+
 export async function GET(req: NextRequest) {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: "請先登入" }, { status: 401 });
+  const userId = session.user.id;
+
+  const scope = req.nextUrl.searchParams.get("scope");
+  const kind = req.nextUrl.searchParams.get("kind");
 
   try {
-    const [vocabulary, quotes, privacy] = await Promise.all([
-      listVocabularyRows(session.user.id),
-      listQuoteRows(session.user.id),
-      requestPrivacy(session.user.id, req),
+    const privacy = await requestPrivacy(userId, req);
+
+    // 概覽頁專用：scope=done 分頁，靠 kind 分佳句／單字；沒帶 scope 走原本整包的路
+    if (scope === "done") {
+      if (!isKind(kind)) return badRequest("kind 不認得");
+      const cursor = req.nextUrl.searchParams.get("cursor");
+      const limit = Number(req.nextUrl.searchParams.get("limit")) || DEFAULT_LIMIT;
+      const hidden = await hiddenBookIds(userId, privacy);
+
+      const page =
+        kind === "quotes"
+          ? await listDoneQuoteRows(userId, { cursor, limit })
+          : await listDoneVocabularyRows(userId, { cursor, limit });
+      return NextResponse.json({ ...page, rows: page.rows.filter((r) => !hidden.has(r.bookId)) });
+    }
+
+    const [vocabulary, quotes] = await Promise.all([
+      listVocabularyRows(userId),
+      listQuoteRows(userId),
     ]);
     if (privacy.unlocked) return NextResponse.json({ vocabulary, quotes });
 
-    // 佳句與單字自己沒有私人欄，但它們屬於某一本書——那本書私人，它們就跟著藏起來
-    const books = await listBooks(session.user.id);
-    const hidden = new Set(
-      books.filter((book) => isPrivate(book, privacy.options)).map((b) => b.id),
-    );
+    const hidden = await hiddenBookIds(userId, privacy);
     return NextResponse.json({
       vocabulary: vocabulary.filter((row) => !hidden.has(row.bookId)),
       quotes: quotes.filter((row) => !hidden.has(row.bookId)),

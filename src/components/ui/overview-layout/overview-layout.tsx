@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import { BookCover } from "@/components/ui/book-cover";
 import { COVER_CARD_GRID, CoverCard } from "@/components/ui/cover-card/cover-card";
 import { byMonth, OverviewItem } from "@/utils/overview";
@@ -32,6 +32,8 @@ const styles = {
   summary: "text-byline text-ink leading-relaxed",
   month: "border-rule-strong border-b pt-4 pb-1.5",
   monthLabel: "font-serif text-item-sm font-semibold tracking-wide",
+  sentinel: "h-px",
+  loadingMore: "text-meta text-ink-faint py-4 text-center",
 };
 
 /** 中點接起來的一行小字。空的不留下多餘的點 */
@@ -112,6 +114,12 @@ export type OverviewLayoutProps = {
   renderItem?: (item: OverviewItem) => ReactNode;
   /** 月份格線的欄數斷點。不給就用 COVER_CARD_GRID——換了 renderItem 的頁面，卡片寬度需求不同時覆寫 */
   gridClassName?: string;
+  /** 捲到底時呼叫。不給就是原本的整包展示，不會建立任何觀察者 */
+  onLoadMore?: () => void;
+  /** 還有沒有下一批——false 時不再觀察 sentinel，避免最後一頁還一直觸發 */
+  hasMore?: boolean;
+  /** 下一批正在載入中，sentinel 位置顯示提示 */
+  isLoadingMore?: boolean;
 };
 
 export function OverviewLayout({
@@ -123,10 +131,43 @@ export function OverviewLayout({
   rail,
   renderItem,
   gridClassName = COVER_CARD_GRID,
+  onLoadMore,
+  hasMore,
+  isLoadingMore,
 }: OverviewLayoutProps) {
+  const mainRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  // onLoadMore 幾乎每次 render 都是新的閉包（呼叫端的 hook 裡帶著當下的分頁狀態），
+  // 用 ref 存最新的那一個，observer 才不用跟著每個 render 拆掉重建——
+  // 只在 hasMore 真的從有變沒有（或反過來）時才需要重新决定要不要觀察
+  const onLoadMoreRef = useRef(onLoadMore);
+  useEffect(() => {
+    onLoadMoreRef.current = onLoadMore;
+  }, [onLoadMore]);
+
+  const hasLoadMore = Boolean(onLoadMore);
+
+  useEffect(() => {
+    if (!hasLoadMore || !hasMore) return;
+    const root = mainRef.current;
+    const sentinel = sentinelRef.current;
+    if (!root || !sentinel) return;
+
+    // root 指自己的捲動容器，不是 viewport——main 有獨立的 overflow-y-auto，
+    // 用預設 viewport 觀察在這種內層捲動的版面裡根本不會觸發
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) onLoadMoreRef.current?.();
+      },
+      { root },
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasLoadMore, hasMore]);
+
   return (
     <div className={styles.frame}>
-      <div className={styles.main}>
+      <div className={styles.main} ref={mainRef}>
         {headline && <Headline item={headline} label={headlineLabel} summary={headlineSummary} />}
 
         <div>
@@ -148,6 +189,9 @@ export function OverviewLayout({
             </div>
           ))}
         </div>
+
+        {onLoadMore && hasMore && <div ref={sentinelRef} className={styles.sentinel} />}
+        {isLoadingMore && <div className={styles.loadingMore}>載入中…</div>}
       </div>
 
       {rail && <div className={styles.rail}>{rail}</div>}
