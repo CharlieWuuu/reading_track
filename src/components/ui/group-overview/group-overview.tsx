@@ -1,68 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { BookCover } from "@/components/ui/book-cover";
-import { CoverBand, CoverBandSize } from "@/components/ui/cover-band/cover-band";
-import { byMonth, OverviewItem, pickHeadline } from "@/utils/overview";
+import { OverviewLayout } from "@/components/ui/overview-layout/overview-layout";
+import { OverviewItem, pickHeadline } from "@/utils/overview";
 
 /**
- * 一堆東西的概覽：一頁只有一個主角。
- *
- * 最近開始的那一件放成頭條，其餘進行中與待辦收進右邊的窄欄，完成的照月份分段。
- *
- * 月份是刻度，橫跨整個寬度；同一個月的條目在它底下橫著填成三欄。
- * 用 CSS columns 會直著填——2019 到 2026 的資料排出來是左欄 2026、中欄 2024，讀不下去。
- * 分隔全部用線，不用卡片框——這是報紙的做法，同樣的資訊量佔的空間比卡片少一半。
- *
- * 版面沿用書單概覽那一套，差別是收 OverviewItem 而不是 Book：紀錄那頁要把書籍、
- * 文章、電影混在同一份清單裡排。
+ * 一堆東西的概覽：跟書籍概覽共用同一套骨架（OverviewLayout），
+ * 差別只有右側窄欄——這裡收的是 OverviewItem 而不是 Book，紀錄那頁要把
+ * 書籍、文章、電影混在同一份清單裡排，沒有共通的量化指標可以做統計區塊，
+ * 右欄只留「其餘進行中」「待辦」兩份清單。
  */
 
 const styles = {
-  frame: "flex min-h-0 min-w-0 flex-1 gap-8",
-  // 自己的捲動條：中間月份格線很長，右邊窄欄通常很短，兩邊各捲各的，
-  // 不要因為其中一邊比較長就把另一邊也拖走
-  main: "flex min-w-0 flex-1 flex-col overflow-y-auto",
-  rail: "border-rule-strong hidden w-64 shrink-0 overflow-y-auto border-l pl-6 lg:block",
   railHead: "border-rule-strong flex items-baseline justify-between border-b pb-2",
-  label: "text-label text-ink-faint tracking-label",
   labelInk: "text-label text-ink tracking-label",
   meta: "text-meta text-ink-faint tabular-nums",
-  headline: "border-rule-strong flex gap-8 border-b-2 pb-5",
-  headlineTitle: "font-serif text-lede leading-tight font-semibold tracking-tight",
-  byline: "text-byline text-ink-muted",
-  // 欄數跟著寬度長，每欄寬度才不會沒有上限一直被拉開
-  monthGrid: "grid grid-cols-1 gap-x-8 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4",
-  month: "border-rule-strong border-b-2 pt-4 pb-1.5",
-  monthLabel: "font-serif text-item-sm font-semibold tracking-wide",
-  item: "border-rule border-b py-3", // 一格一條下緣線：橫著排時每一列收在同一條線上
-  itemTitle: "font-serif text-item leading-snug font-semibold tracking-tight",
   railItem: "border-rule border-b py-[7px]",
   railTitle: "font-serif text-item-sm leading-snug font-semibold",
 };
-
-/** 中點接起來的一行小字。空的不留下多餘的點 */
-const joinMeta = (parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join("・");
-
-function Headline({ item, label }: { item: OverviewItem; label: string }) {
-  return (
-    <div className={styles.headline}>
-      {item.coverUrl && (
-        <div className="w-[118px] shrink-0">
-          <BookCover url={item.coverUrl} title={item.title} size="full" />
-        </div>
-      )}
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <span className={styles.label}>{label}</span>
-        <Link href={item.href} className={styles.headlineTitle}>
-          {item.title}
-        </Link>
-        <span className={styles.byline}>{joinMeta([item.byline, item.kindLabel])}</span>
-        {item.startDate && <span className={styles.meta}>{item.startDate} 起</span>}
-      </div>
-    </div>
-  );
-}
 
 function Rail({
   label,
@@ -105,8 +60,6 @@ export type GroupOverviewProps = {
   headlineLabel: string;
   activeLabel: string;
   pendingLabel: string;
-  /** 封面帶份量跟著主角走：紀錄類（有圖）用 lg，片段與專欄（主角是文字）用 sm */
-  coverSize?: CoverBandSize;
 };
 
 export function GroupOverview({
@@ -116,51 +69,21 @@ export function GroupOverview({
   headlineLabel,
   activeLabel,
   pendingLabel,
-  coverSize = "sm",
 }: GroupOverviewProps) {
   const headline = pickHeadline(active);
   const rest = active.filter((item) => item.id !== headline?.id);
 
   return (
-    <div className={styles.frame}>
-      <div className={styles.main}>
-        {headline && <Headline item={headline} label={headlineLabel} />}
-
-        <div>
-          {byMonth(done).map((group) => (
-            <div key={group.label}>
-              <div className={styles.month}>
-                <span className={styles.monthLabel}>{group.label}</span>
-              </div>
-              <div className={styles.monthGrid}>
-                {group.items.map((item) => (
-                  <div key={item.id} className={styles.item}>
-                    <div className="flex items-baseline justify-between pb-2">
-                      <span className={styles.meta}>{item.endDate}</span>
-                      {item.kindLabel && <span className={styles.label}>{item.kindLabel}</span>}
-                    </div>
-                    <CoverBand
-                      coverUrl={item.coverUrl}
-                      seed={item.id}
-                      label={item.bandLabel}
-                      size={coverSize}
-                    />
-                    <Link href={item.href} className={`${styles.itemTitle} mt-3 block`}>
-                      {item.title}
-                    </Link>
-                    <div className={`${styles.byline} pt-1.5`}>{item.byline}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className={styles.rail}>
-        <Rail label={activeLabel} items={rest} />
-        <Rail label={pendingLabel} items={pending} limit={5} />
-      </div>
-    </div>
+    <OverviewLayout
+      headline={headline}
+      headlineLabel={headlineLabel}
+      done={done}
+      rail={
+        <>
+          <Rail label={activeLabel} items={rest} />
+          <Rail label={pendingLabel} items={pending} limit={5} />
+        </>
+      }
+    />
   );
 }

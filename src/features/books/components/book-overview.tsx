@@ -1,42 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { BookCover } from "@/components/ui/book-cover";
-import { CoverBand } from "@/components/ui/cover-band/cover-band";
+import { OverviewLayout } from "@/components/ui/overview-layout/overview-layout";
 import { Book, formatCount } from "@/types/book";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { Writing } from "@/types/writing";
-import { byMonth, getYearStats, pickHeadline, YearStats } from "@/utils/book-overview";
+import { getYearStats, pickHeadline, YearStats } from "@/utils/book-overview";
+import { OverviewItem } from "@/utils/overview";
 import { notesForSource } from "@/utils/related-notes";
 
 /**
- * 概覽：一頁只有一個主角。
- *
- * 最近在讀的那一本放成頭條，其餘在讀與想讀收進右邊的窄欄，讀完的照月份
- * 排成三欄。分隔全部用線，不用卡片框——這是報紙的做法，同樣的資訊量佔的
- * 空間比卡片少一半。
+ * 書籍概覽：右側欄是書籍特有的頁數統計（總共／今年／最厚的／心得最多的），
+ * 骨架（頭條＋月份格線）跟其他概覽頁共用 OverviewLayout。
  */
 
 const styles = {
-  frame: "flex min-h-0 min-w-0 flex-1 gap-8",
-  // 自己的捲動條：中間月份格線很長，右邊窄欄通常很短，兩邊各捲各的，
-  // 不要因為其中一邊比較長就把另一邊也拖走
-  main: "flex min-w-0 flex-1 flex-col overflow-y-auto",
-  rail: "border-rule-strong hidden w-52 shrink-0 overflow-y-auto border-l pl-6 lg:block",
   railHead: "border-rule-strong flex items-baseline justify-between border-b pb-2",
-  label: "text-label text-accent tracking-label font-medium",
   labelInk: "text-label text-ink tracking-label",
   meta: "text-meta text-ink-faint tabular-nums",
-  headline: "border-rule-strong flex gap-8 border-b pb-5",
-  headlineTitle: "font-serif text-lede leading-tight font-semibold tracking-tight",
-  byline: "text-byline text-ink-muted",
-  summary: "text-byline text-ink leading-relaxed",
-  // 欄數跟著寬度長，每欄寬度才不會沒有上限一直被拉開
-  monthGrid: "grid grid-cols-1 gap-x-8 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4",
-  month: "border-rule-strong border-b pt-4 pb-1.5",
-  monthLabel: "font-serif text-item-sm font-semibold tracking-wide",
-  item: "py-3",
-  itemTitle: "font-serif text-item leading-snug font-semibold tracking-tight",
   railItem: "border-rule border-b py-[7px]",
   railTitle: "font-serif text-item-sm leading-snug font-semibold",
   statBlock: "border-rule border-b py-3 first:pt-0 last:border-b-0",
@@ -44,52 +25,16 @@ const styles = {
   statCaption: "text-meta text-ink-faint",
 };
 
-function Headline({
-  book,
-  href,
-  latestNote,
-  quoteCount,
-  vocabularyCount,
-  noteCount,
-}: {
-  book: Book;
-  href: string;
-  latestNote?: Writing;
-  quoteCount: number;
-  vocabularyCount: number;
-  noteCount: number;
-}) {
-  const counts = [
-    quoteCount > 0 && `佳句 ${quoteCount}`,
-    vocabularyCount > 0 && `單字 ${vocabularyCount}`,
-    noteCount > 0 && `專欄 ${noteCount}`,
-  ].filter(Boolean);
-
-  return (
-    <div className={styles.headline}>
-      <div className="w-28.75 shrink-0">
-        <BookCover url={book.coverUrl} title={book.title} size="full" />
-      </div>
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <span className={styles.label}>在讀 · 最近開始的一本</span>
-        <Link href={href} className={`${styles.headlineTitle} truncate`}>
-          {book.title}
-        </Link>
-        <span className={styles.byline}>
-          {[book.author, book.domain, book.pageCount && `${book.pageCount} 頁`]
-            .filter(Boolean)
-            .join("・")}
-        </span>
-        {latestNote && <p className={`${styles.summary} line-clamp-2`}>{latestNote.note}</p>}
-        {(book.startDate || counts.length > 0) && (
-          <span className={styles.meta}>
-            {[book.startDate && `${book.startDate} 起讀`, ...counts].filter(Boolean).join("・")}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
+const toItem = (book: Book): OverviewItem => ({
+  id: book.id,
+  title: book.title,
+  byline: [book.author, book.pageCount && `${book.pageCount} 頁`].filter(Boolean).join("・"),
+  href: "",
+  coverUrl: book.coverUrl,
+  startDate: book.startDate,
+  endDate: book.endDate,
+  kindLabel: book.domain,
+});
 
 /** 總共：小標籤、大數字、一行說明——跟「最厚的」那幾格同一套版型 */
 function TotalStats({ stats }: { stats: YearStats }) {
@@ -192,69 +137,62 @@ export function BookOverview({
   const reading = books.filter((b) => b.status === "進行");
   const want = books.filter((b) => b.status === "想要");
   const done = books.filter((b) => b.status === "完成");
-  const headline = pickHeadline(reading);
-  const headlineNotes = headline
-    ? notesForSource(writings, [headline.originId || headline.id])
+  const headlineBook = pickHeadline(reading);
+  const headlineNotes = headlineBook
+    ? notesForSource(writings, [headlineBook.originId || headlineBook.id])
     : [];
   const yearStats = getYearStats(books, writings, new Date().getFullYear());
   const totalStats = getYearStats(books, writings);
 
+  const doneItems: OverviewItem[] = done.map((book) => {
+    const note = notesForSource(writings, [book.originId || book.id])[0];
+    return {
+      ...toItem(book),
+      href: href(book),
+      endDate: book.endDate && `${book.endDate} 讀完`,
+      byline: note?.note ?? toItem(book).byline,
+    };
+  });
+
+  let headlineItem: OverviewItem | undefined;
+  if (headlineBook) {
+    const quoteCount = quotes.filter((q) => q.bookId === headlineBook.id).length;
+    const vocabularyCount = vocabulary.filter((v) => v.bookId === headlineBook.id).length;
+    const counts = [
+      quoteCount > 0 && `佳句 ${quoteCount}`,
+      vocabularyCount > 0 && `單字 ${vocabularyCount}`,
+      headlineNotes.length > 0 && `專欄 ${headlineNotes.length}`,
+    ].filter(Boolean);
+    const base = toItem(headlineBook);
+    headlineItem = {
+      ...base,
+      href: href(headlineBook),
+      byline: [base.byline, headlineBook.domain].filter(Boolean).join("・"),
+      startDate: base.startDate && [`${base.startDate} 起讀`, ...counts].join("・"),
+    };
+  }
+
   return (
-    <div className={styles.frame}>
-      <div className={styles.main}>
-        {headline && (
-          <Headline
-            book={headline}
-            href={href(headline)}
-            latestNote={headlineNotes[0]}
-            quoteCount={quotes.filter((q) => q.bookId === headline.id).length}
-            vocabularyCount={vocabulary.filter((v) => v.bookId === headline.id).length}
-            noteCount={headlineNotes.length}
+    <OverviewLayout
+      headline={headlineItem}
+      headlineLabel="在讀 · 最近開始的一本"
+      headlineSummary={headlineNotes[0]?.note}
+      done={doneItems}
+      tintSeed={(item) => item.kindLabel}
+      rail={
+        <>
+          <TotalStats stats={totalStats} />
+          <StatsRail stats={yearStats} href={href} />
+          <Rail label="在讀" count={reading.length} books={reading} href={href} />
+          <Rail
+            label="想讀"
+            count={want.length}
+            books={want.slice(0, 5)}
+            href={href}
+            more={want.length > 5 ? `看全部 ${want.length} 本 →` : undefined}
           />
-        )}
-
-        <div>
-          {byMonth(done).map((group) => (
-            <div key={group.label}>
-              <div className={`${styles.month} flex items-baseline justify-between`}>
-                <span className={styles.monthLabel}>{group.label}</span>
-                <span className={styles.meta}>{group.books.length} 本</span>
-              </div>
-              <div className={styles.monthGrid}>
-                {group.books.map((book) => {
-                  const note = notesForSource(writings, [book.originId || book.id])[0];
-                  return (
-                    <div key={book.id} className={styles.item}>
-                      <div className="flex items-baseline justify-between pb-2">
-                        <span className={styles.meta}>{book.endDate}</span>
-                        {book.domain && <span className={styles.label}>{book.domain}</span>}
-                      </div>
-                      <CoverBand coverUrl={book.coverUrl} seed={book.id} label={book.title} />
-                      <Link href={href(book)} className={`${styles.itemTitle} mt-3 block truncate`}>
-                        {book.title}
-                      </Link>
-                      {note && <p className={`${styles.byline} line-clamp-2 pt-1`}>{note.note}</p>}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className={styles.rail}>
-        <TotalStats stats={totalStats} />
-        <StatsRail stats={yearStats} href={href} />
-        <Rail label="在讀" count={reading.length} books={reading} href={href} />
-        <Rail
-          label="想讀"
-          count={want.length}
-          books={want.slice(0, 5)}
-          href={href}
-          more={want.length > 5 ? `看全部 ${want.length} 本 →` : undefined}
-        />
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }
