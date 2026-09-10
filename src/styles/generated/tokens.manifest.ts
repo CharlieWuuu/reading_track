@@ -187,6 +187,90 @@ export const TOKEN_MANIFEST: TokenEntry[] = [
     "description": null
   },
   {
+    "name": "color-ash-100",
+    "layer": "primitive",
+    "value": "#e6e5e2",
+    "alias": null,
+    "description": null
+  },
+  {
+    "name": "color-ash-300",
+    "layer": "primitive",
+    "value": "#c2c0ba",
+    "alias": null,
+    "description": null
+  },
+  {
+    "name": "color-ash-500",
+    "layer": "primitive",
+    "value": "#6b6a64",
+    "alias": null,
+    "description": "淡墨，取自靜野封面配色；白底對比 5.4:1"
+  },
+  {
+    "name": "color-ash-700",
+    "layer": "primitive",
+    "value": "#4c4b46",
+    "alias": null,
+    "description": null
+  },
+  {
+    "name": "color-plum-100",
+    "layer": "primitive",
+    "value": "#ece2e6",
+    "alias": null,
+    "description": null
+  },
+  {
+    "name": "color-plum-300",
+    "layer": "primitive",
+    "value": "#c9aebb",
+    "alias": null,
+    "description": null
+  },
+  {
+    "name": "color-plum-500",
+    "layer": "primitive",
+    "value": "#9c6b80",
+    "alias": null,
+    "description": null
+  },
+  {
+    "name": "color-plum-700",
+    "layer": "primitive",
+    "value": "#764f61",
+    "alias": null,
+    "description": "延伸自靜野色系的梅紫，白底對比 6.9:1"
+  },
+  {
+    "name": "color-straw-100",
+    "layer": "primitive",
+    "value": "#f6efd9",
+    "alias": null,
+    "description": null
+  },
+  {
+    "name": "color-straw-300",
+    "layer": "primitive",
+    "value": "#e6d59f",
+    "alias": null,
+    "description": null
+  },
+  {
+    "name": "color-straw-500",
+    "layer": "primitive",
+    "value": "#c7a94a",
+    "alias": null,
+    "description": "白底只有 2.3:1，只做圖表與色塊，不拿來寫字"
+  },
+  {
+    "name": "color-straw-700",
+    "layer": "primitive",
+    "value": "#836826",
+    "alias": null,
+    "description": "延伸自靜野色系的若線黃，白底對比 5.3:1"
+  },
+  {
     "name": "color-blue-100",
     "layer": "primitive",
     "value": "#dce6f1",
