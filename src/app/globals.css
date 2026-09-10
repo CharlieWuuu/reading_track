@@ -33,11 +33,15 @@
   }
 }
 
-/* 捲軸細一點、顏色跟框線同一支色系。
+/* 捲軸細一點、顏色跟框線同一支色系，平常整條透明、hover 容器才浮出把手。
    macOS 設成「一律顯示捲動列」時每個捲動容器都會留一條永久的灰軌，
-   原生那條在米白底上偏冷；軌道透明、只留把手，安靜很多 */
+   原生那條在米白底上偏冷；不 hover 時連把手都透明，畫面更安靜 */
 * {
   scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+*:hover {
   scrollbar-color: var(--color-rule) transparent;
 }
 

@@ -19,7 +19,7 @@ import { matchesSearch, searchTerms } from "@/utils/search";
  */
 export function WritingList({ timeline }: { timeline: (writings: Writing[]) => React.ReactNode }) {
   const mounted = useMounted();
-  const { writings: allWriting, isLoading, error } = useWritings();
+  const { writings: allWriting, isLoading, error, mutate } = useWritings();
   const { searchParams } = useUrlParams();
 
   const topic = searchParams.get("topic") ?? "";
@@ -45,7 +45,11 @@ export function WritingList({ timeline }: { timeline: (writings: Writing[]) => R
   return (
     <PageBody>
       {/* 沒寫心得的也要看得到：這裡是紀事本身的清單 */}
-      {view === "table" ? <WritingTable writings={writings} /> : timeline(writings)}
+      {view === "table" ? (
+        <WritingTable writings={writings} onSaved={mutate} />
+      ) : (
+        timeline(writings)
+      )}
     </PageBody>
   );
 }

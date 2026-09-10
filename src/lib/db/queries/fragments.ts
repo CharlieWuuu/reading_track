@@ -38,6 +38,7 @@ export async function listQuoteRows(userId: string): Promise<QuoteRow[]> {
     text: fragment.phrase,
     chapter: fragment.locator,
     note: fragment.body,
+    date: fragment.date,
   }));
 }
 
@@ -59,6 +60,7 @@ export async function listVocabularyRows(userId: string): Promise<VocabularyRow[
     chapter: fragment.locator,
     language: "", // 語言在作品那一層，單字自己不帶
     createdAt: fragment.createdAt.toISOString(),
+    date: fragment.date,
   }));
 }
 

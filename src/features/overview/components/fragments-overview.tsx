@@ -23,14 +23,14 @@ export function FragmentsOverview({
   headlineLabel: string;
   view?: "overview" | "table";
 }) {
-  const { fragments, isLoading, error } = useGroupFragments(group);
+  const { fragments, isLoading, error, mutate } = useGroupFragments(group);
 
   if (error) return <PageMessage tone="error">{error}</PageMessage>;
   if (isLoading) return <PageLoading />;
 
   const items = fragments.map(fragmentItem);
 
-  if (view === "table") return <GroupTable items={items} />;
+  if (view === "table") return <GroupTable items={items} onSaved={mutate} />;
 
   return (
     <GroupOverview

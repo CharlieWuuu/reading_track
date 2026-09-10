@@ -28,6 +28,18 @@
   --color-brick-300: #e8b6b0;
   --color-brick-500: #c0392b; /** 錯誤與未完成，沿用原本的磚紅 */
   --color-brick-700: #a13023;
+  --color-ash-100: #e6e5e2;
+  --color-ash-300: #c2c0ba;
+  --color-ash-500: #6b6a64; /** 淡墨，取自靜野封面配色；白底對比 5.4:1 */
+  --color-ash-700: #4c4b46;
+  --color-plum-100: #ece2e6;
+  --color-plum-300: #c9aebb;
+  --color-plum-500: #9c6b80;
+  --color-plum-700: #764f61; /** 延伸自靜野色系的梅紫，白底對比 6.9:1 */
+  --color-straw-100: #f6efd9;
+  --color-straw-300: #e6d59f;
+  --color-straw-500: #c7a94a; /** 白底只有 2.3:1，只做圖表與色塊，不拿來寫字 */
+  --color-straw-700: #836826; /** 延伸自靜野色系的若線黃，白底對比 5.3:1 */
   --color-blue-100: #dce6f1;
   --color-blue-200: #cfe0ef;
   --color-blue-300: #b9cde2;

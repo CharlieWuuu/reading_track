@@ -115,6 +115,64 @@
         "$type": "color"
       }
     },
+    "ash": {
+      "100": {
+        "$value": "#e6e5e2",
+        "$type": "color"
+      },
+      "300": {
+        "$value": "#c2c0ba",
+        "$type": "color"
+      },
+      "500": {
+        "$value": "#6b6a64",
+        "$type": "color",
+        "$description": "淡墨，取自靜野封面配色；白底對比 5.4:1"
+      },
+      "700": {
+        "$value": "#4c4b46",
+        "$type": "color"
+      }
+    },
+    "plum": {
+      "100": {
+        "$value": "#ece2e6",
+        "$type": "color"
+      },
+      "300": {
+        "$value": "#c9aebb",
+        "$type": "color"
+      },
+      "500": {
+        "$value": "#9c6b80",
+        "$type": "color"
+      },
+      "700": {
+        "$value": "#764f61",
+        "$type": "color",
+        "$description": "延伸自靜野色系的梅紫，白底對比 6.9:1"
+      }
+    },
+    "straw": {
+      "100": {
+        "$value": "#f6efd9",
+        "$type": "color"
+      },
+      "300": {
+        "$value": "#e6d59f",
+        "$type": "color"
+      },
+      "500": {
+        "$value": "#c7a94a",
+        "$type": "color",
+        "$description": "白底只有 2.3:1，只做圖表與色塊，不拿來寫字"
+      },
+      "700": {
+        "$value": "#836826",
+        "$type": "color",
+        "$description": "延伸自靜野色系的若線黃，白底對比 5.3:1"
+      }
+    },
     "blue": {
       "100": {
         "$value": "#dce6f1",

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { Tag } from "lucide-react";
 import { PageLoading } from "@/components/layout/page-loading";
@@ -11,6 +10,7 @@ import { ListHeading } from "@/components/ui/list-heading";
 import { STATUS_DOTS, StatusBadge, TagList } from "@/components/ui/tag-badge";
 import { bookHref } from "@/config/routes";
 import { useBookView } from "@/hooks/use-book-view";
+import { useBooks } from "@/hooks/use-books";
 import { useFilteredBooks } from "@/hooks/use-filtered-books";
 import { useMounted } from "@/hooks/use-mounted";
 import { useRecords } from "@/hooks/use-records";
@@ -19,6 +19,7 @@ import { useWritings } from "@/hooks/use-writings";
 import { Book, RecordStatus } from "@/types/book";
 import { byYear } from "@/utils/book-overview";
 import { BookOverview } from "./book-overview";
+import { BookTableGrid } from "./book-table-grid";
 
 /** 目前篩選中的關鍵字。放在清單上方，因為它會改變下面看到的是什麼 */
 function KeywordFilter({
@@ -69,9 +70,9 @@ function completionNumbers(books: Book[]): Map<string, number> {
 }
 
 export function BookTable() {
-  const router = useRouter();
   const mounted = useMounted();
   const { allBooks, isLoading, error, found, books, keyword, terms, heading } = useFilteredBooks();
+  const { mutate } = useBooks();
   const { writings } = useWritings();
   const { quotes, vocabulary } = useRecords();
   const numbers = useMemo(() => completionNumbers(allBooks), [allBooks]);
@@ -223,88 +224,7 @@ export function BookTable() {
 
       {/* 不自己開捲動容器：捲動一律交給 PageBody，sticky 的表頭改黏在那一層。
           自己捲的話這一頁的「捲到底」會跟其他頁不一樣（底部留白也吃不到） */}
-      <div className="hidden w-full md:block">
-        <table className="w-full table-fixed">
-          {/* sticky 的表頭跟著概覽頁的細線風格，不用底色塊 */}
-          <thead className="border-rule-strong bg-background sticky top-0 z-10 border-b text-left">
-            {/* 欄寬用百分比，次要欄位隨螢幕變窄逐一收起，才不會撐出橫向捲軸 */}
-            <tr className="text-label text-ink-faint tracking-label [&_th]:font-normal">
-              <th className="w-[6%] px-3 py-2 whitespace-nowrap">封面</th>
-              {/* 書名字級縮小後空間變多，日期與分類可以提早出現 */}
-              <th className="w-[26%] px-3 py-2 whitespace-nowrap">書名</th>
-              <th className="w-[13%] px-3 py-2 whitespace-nowrap">作者</th>
-              <th className="w-[9%] px-3 py-2 whitespace-nowrap">狀態</th>
-              <th className="hidden w-[10%] px-3 py-2 whitespace-nowrap lg:table-cell">平台</th>
-              <th className="hidden w-[10%] px-3 py-2 whitespace-nowrap xl:table-cell">開始日期</th>
-              <th className="hidden w-[10%] px-3 py-2 whitespace-nowrap lg:table-cell">完成日期</th>
-              <th className="hidden w-[10%] px-3 py-2 whitespace-nowrap lg:table-cell">領域</th>
-              <th className="hidden w-[10%] px-3 py-2 whitespace-nowrap xl:table-cell">屬性</th>
-              <th className="hidden w-[6%] px-3 py-2 whitespace-nowrap 2xl:table-cell">語言</th>
-            </tr>
-          </thead>
-          <tbody>
-            {books.map((b, i) => (
-              // 整列點擊就進編輯頁，所以書名不再另外做成連結樣式
-              <tr
-                key={b.id || `row-${i}`}
-                onClick={() => router.push(detailHref(b.id))}
-                className="border-rule hover:bg-control-bg-hover/5 cursor-pointer border-t first:border-t-0"
-              >
-                <td className="px-3 py-2">
-                  <BookCover url={b.coverUrl} title={b.title} size="md" />
-                </td>
-                <td className="max-w-0 overflow-hidden px-3 py-2 align-middle">
-                  {/* 編號與書名是同一塊，一起垂直置中；沒有編號時那一行就不存在 */}
-                  <div className="flex flex-col justify-center">
-                    {numbers.has(b.id) && (
-                      <span className="text-meta text-ink-faint tabular-nums">
-                        #{numbers.get(b.id)}
-                      </span>
-                    )}
-                    {/* 書名用 serif，跟概覽頁的條目標題同一套 */}
-                    <span className="text-item-sm overflow-hidden font-serif font-semibold tracking-tight text-ellipsis whitespace-nowrap">
-                      {b.title}
-                    </span>
-                  </div>
-                </td>
-                <td className="text-byline text-ink-muted max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap">
-                  <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
-                    {b.author}
-                  </span>
-                </td>
-                <td className="px-3 py-2 whitespace-nowrap">
-                  <StatusBadge status={b.status} />
-                </td>
-                {/* max-w-0 + overflow-hidden：table-fixed 下標籤太寬會擠進隔壁欄，寧可切掉 */}
-                <td className="hidden max-w-0 overflow-hidden px-3 py-2 lg:table-cell">
-                  <TagList values={[b.platform]} tone="platform" wrap={false} />
-                </td>
-                <td className="text-meta text-ink-faint hidden max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap xl:table-cell">
-                  <span className="block overflow-hidden text-ellipsis whitespace-nowrap tabular-nums">
-                    {b.startDate ?? "—"}
-                  </span>
-                </td>
-                <td className="text-meta text-ink-faint hidden max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap lg:table-cell">
-                  <span className="block overflow-hidden text-ellipsis whitespace-nowrap tabular-nums">
-                    {b.endDate ?? "—"}
-                  </span>
-                </td>
-                <td className="hidden max-w-0 overflow-hidden px-3 py-2 lg:table-cell">
-                  <TagList values={[b.domain]} tone="domain" wrap={false} />
-                </td>
-                <td className="hidden max-w-0 overflow-hidden px-3 py-2 xl:table-cell">
-                  <TagList values={[b.type]} tone="type" wrap={false} />
-                </td>
-                <td className="text-byline text-ink-muted hidden max-w-0 overflow-hidden px-3 py-2 whitespace-nowrap 2xl:table-cell">
-                  <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
-                    {b.language}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <BookTableGrid books={books} numbers={numbers} detailHref={detailHref} onSaved={mutate} />
 
       {/* 翻頁列放在框外，跟詳細檢視一致 */}
     </div>

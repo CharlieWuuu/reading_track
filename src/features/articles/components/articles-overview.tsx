@@ -22,7 +22,6 @@ export function ArticlesOverview({ articles }: { articles: Article[] }) {
       headlineLabel=""
       activeLabel="讀到一半"
       pendingLabel="待讀"
-      coverSize="sm"
     />
   );
 }
