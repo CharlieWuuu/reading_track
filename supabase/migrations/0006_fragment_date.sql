@@ -1,1 +1,0 @@
-ALTER TABLE "fragments" ADD COLUMN "date" date;
