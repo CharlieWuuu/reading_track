@@ -27,7 +27,7 @@ const FIELDS: Record<Kind, Field[]> = {
   ],
 };
 
-const EMPTY: Record<Kind, Record<string, string>> = {
+const EMPTY: Record<Kind, Record<string, string | null>> = {
   quotes: EMPTY_QUOTE,
   vocabulary: EMPTY_VOCABULARY,
 };
@@ -56,7 +56,7 @@ export function QuickAddRecordForm({ kind, onSaved }: { kind: Kind; onSaved?: ()
   const { books } = useBooks();
   const { addRow } = useRecords();
   const [book, setBook] = useState<Book | null>(null);
-  const [form, setForm] = useState<Record<string, string>>({ ...EMPTY[kind] });
+  const [form, setForm] = useState<Record<string, string | null>>({ ...EMPTY[kind] });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(0);

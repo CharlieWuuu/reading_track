@@ -71,6 +71,7 @@ export async function replaceBookQuotes(
         phrase: item.text,
         locator: item.chapter,
         body: item.note,
+        date: item.date,
       })),
   );
 }
@@ -97,6 +98,7 @@ export async function replaceBookVocabulary(
         context: item.sentence,
         contextTranslation: item.sentenceTranslation,
         locator: item.chapter,
+        date: item.date,
       })),
   );
 }
@@ -121,6 +123,7 @@ export async function addQuote(userId: string, readingId: string, item: QuoteRow
       phrase: item.text,
       locator: item.chapter,
       body: item.note,
+      date: item.date,
     });
   });
 }
@@ -145,6 +148,7 @@ export async function addVocabulary(
       context: item.sentence,
       contextTranslation: item.sentenceTranslation,
       locator: item.chapter,
+      date: item.date,
     });
   });
 }

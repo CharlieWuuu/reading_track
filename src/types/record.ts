@@ -19,6 +19,8 @@ export interface VocabularyRow {
   /** 空字串代表跟著書的語言走 */
   language: string;
   createdAt: string;
+  /** 記下的這一天，沒填就是 null——概覽照這個分月份 */
+  date: string | null;
 }
 
 export interface QuoteRow {
@@ -29,6 +31,8 @@ export interface QuoteRow {
   chapter: string;
   /** 這一句的心得，跟整本書的心得（書籍表的筆記欄）是兩回事 */
   note: string;
+  /** 記下的這一天，沒填就是 null——概覽照這個分月份 */
+  date: string | null;
 }
 
 export const EMPTY_VOCABULARY: Omit<VocabularyRow, "id" | "bookId" | "bookTitle"> = {
@@ -40,10 +44,12 @@ export const EMPTY_VOCABULARY: Omit<VocabularyRow, "id" | "bookId" | "bookTitle"
   chapter: "",
   language: "",
   createdAt: "",
+  date: null,
 };
 
 export const EMPTY_QUOTE: Omit<QuoteRow, "id" | "bookId" | "bookTitle"> = {
   text: "",
   chapter: "",
   note: "",
+  date: null,
 };
