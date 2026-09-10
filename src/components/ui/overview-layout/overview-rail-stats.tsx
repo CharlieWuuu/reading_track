@@ -5,7 +5,11 @@ const styles = {
   statCaption: "text-meta text-ink-faint",
 };
 
-/** 統計：小標籤、「數字+單位」同一行、下面一行說明——右側欄第一塊，全站概覽頁共用 */
+/**
+ * 統計：小標籤、「數字+單位」同一行、下面一行說明——右側欄第一塊，全站概覽頁共用。
+ * 跟右欄其餘區塊（Rail、StatsRail）的間距由父層 rail 容器的 gap 統一控制，
+ * 這裡不自己加 padding-bottom。
+ */
 export function OverviewTotalStats({
   count,
   unit,

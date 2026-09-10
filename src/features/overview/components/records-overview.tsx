@@ -3,10 +3,10 @@
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
+import { GroupTable } from "@/components/ui/group-table/group-table";
 import { useGroupRecords } from "@/hooks/use-group-records";
 import { useGroupRecordsOverview } from "@/hooks/use-group-records-overview";
 import { recordItem } from "@/utils/overview-items";
-import { GroupTable } from "./group-table";
 
 /**
  * 紀錄那一堆的概覽：書籍、文章、之後的電影都混在同一份清單裡排。

@@ -51,7 +51,7 @@ function TotalStats({ stats }: { stats: YearStats }) {
 
 function StatsRail({ stats, href }: { stats: YearStats; href: (book: Book) => string }) {
   return (
-    <div className="pb-8">
+    <div>
       <div className={styles.statBlock}>
         <span className={styles.labelInk}>今年</span>
         <div className={styles.statValue}>{formatCount(String(stats.pageTotal))} 頁</div>
@@ -103,7 +103,7 @@ function Rail({
 }) {
   if (books.length === 0) return null;
   return (
-    <div className="pb-8">
+    <div>
       <div className={styles.railHead}>
         <span className={styles.labelInk}>{label}</span>
         <span className={styles.meta}>{count} 本</span>

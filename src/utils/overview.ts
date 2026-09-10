@@ -20,23 +20,35 @@ export type OverviewItem = {
 };
 
 export type MonthGroup = {
-  /** 顯示用的月份標題，例如 2025 · 08 */
+  /** 顯示用的月份標題，例如 2025 · 08；沒填日期的這組不顯示標題文字（見 label 為空字串） */
   label: string;
   items: OverviewItem[];
 };
 
 const monthLabel = (date: string): string => `${date.slice(0, 4)} · ${date.slice(5, 7)}`;
 
-/** 照完成月份分組，新的在前。沒有完成日的歸到最後一組 */
+/**
+ * 照完成月份分組，新的在前。沒有完成日的項目不自成一組——沒有月份可言，
+ * 混進第一組（有標題的最新月份），沒有月份資料時就自己是唯一一組、標題留空。
+ */
 export function byMonth(items: readonly OverviewItem[]): MonthGroup[] {
+  const dated = items.filter((item) => item.endDate);
+  const undated = items.filter((item) => !item.endDate);
+
   const groups = new Map<string, OverviewItem[]>();
-  for (const item of items) {
-    const key = item.endDate ? monthLabel(item.endDate) : "沒寫日期";
+  for (const item of dated) {
+    const key = monthLabel(item.endDate!);
     const bucket = groups.get(key);
     if (bucket) bucket.push(item);
     else groups.set(key, [item]);
   }
-  return [...groups].map(([label, list]) => ({ label, items: list }));
+
+  const result = [...groups].map(([label, list]) => ({ label, items: list }));
+  if (undated.length === 0) return result;
+  if (result.length === 0) return [{ label: "", items: undated }];
+
+  result[0] = { ...result[0], items: [...result[0].items, ...undated] };
+  return result;
 }
 
 /**

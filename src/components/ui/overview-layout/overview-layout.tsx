@@ -19,18 +19,19 @@ import { byMonth, OverviewItem } from "@/utils/overview";
  */
 
 const styles = {
-  frame: "flex min-h-0 min-w-0 flex-1 gap-8",
+  frame: "flex min-h-0 min-w-0 flex-1 items-stretch gap-8",
   // 自己的捲動條：中間月份格線很長，右邊窄欄通常很短，兩邊各捲各的，
   // 不要因為其中一邊比較長就把另一邊也拖走
-  main: "flex min-w-0 flex-1 flex-col overflow-y-auto",
-  rail: "border-rule-strong hidden w-64 shrink-0 overflow-y-auto border-l pl-6 lg:block",
+  main: "flex min-w-0 flex-1 flex-col gap-5 overflow-y-auto",
+  rail: "border-rule-strong hidden w-64 shrink-0 flex-col gap-8 self-stretch overflow-y-auto border-l pl-6 lg:flex",
   label: "text-label text-accent tracking-label font-medium",
   meta: "text-meta text-ink-faint tabular-nums",
   headline: "border-rule-strong flex gap-8 border-b pb-5",
   headlineTitle: "font-serif text-lede leading-snug font-semibold tracking-tight",
   byline: "text-byline text-ink-muted",
   summary: "text-byline text-ink leading-relaxed",
-  month: "border-rule-strong border-b pt-4 pb-1.5",
+  monthList: "flex flex-col gap-5",
+  month: "border-rule-strong border-b pb-1.5",
   monthLabel: "font-serif text-item-sm font-semibold tracking-wide",
   sentinel: "h-px",
   loadingMore: "text-meta text-ink-faint py-4 text-center",
@@ -50,9 +51,11 @@ function Headline({
 }) {
   return (
     <div className={styles.headline}>
-      <div className="w-28.75 shrink-0">
-        <BookCover url={item.coverUrl ?? ""} title={item.title} size="full" />
-      </div>
+      {item.coverUrl && (
+        <div className="w-28.75 shrink-0">
+          <BookCover url={item.coverUrl} title={item.title} size="full" />
+        </div>
+      )}
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <span className={styles.label}>{label}</span>
         <Link href={item.href} className={`${styles.headlineTitle} truncate`}>
@@ -170,11 +173,11 @@ export function OverviewLayout({
       <div className={styles.main} ref={mainRef}>
         {headline && <Headline item={headline} label={headlineLabel} summary={headlineSummary} />}
 
-        <div>
+        <div className={styles.monthList}>
           {byMonth(done).map((group) => (
-            <div key={group.label}>
+            <div key={group.label || "no-date"} className="flex flex-col gap-3">
               <div className={`${styles.month} flex items-baseline justify-between`}>
-                <span className={styles.monthLabel}>{group.label}</span>
+                {group.label && <span className={styles.monthLabel}>{group.label}</span>}
                 <span className={styles.meta}>{group.items.length}</span>
               </div>
               <div className={gridClassName}>

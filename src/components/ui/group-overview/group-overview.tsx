@@ -34,7 +34,7 @@ function Rail({
   const hidden = items.length - shown.length;
 
   return (
-    <div className="pb-8">
+    <div>
       <div className={styles.railHead}>
         <span className={styles.labelInk}>{label}</span>
         <span className={styles.meta}>{items.length}</span>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Tag } from "lucide-react";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
@@ -70,6 +70,7 @@ function completionNumbers(books: Book[]): Map<string, number> {
 }
 
 export function BookTable() {
+  const [editAll, setEditAll] = useState(false);
   const mounted = useMounted();
   const { allBooks, isLoading, error, found, books, keyword, terms, heading } = useFilteredBooks();
   const { mutate } = useBooks();
@@ -173,7 +174,20 @@ export function BookTable() {
 
   return (
     <div className="flex flex-col gap-3">
-      <ListHeading label={heading} count={books.length} />
+      <div className="flex items-center gap-3">
+        <ListHeading label={heading} count={books.length} />
+        <button
+          type="button"
+          onClick={() => setEditAll((prev) => !prev)}
+          className={`rounded-control shrink-0 border px-2 py-1 text-xs font-medium ${
+            editAll
+              ? "border-accent text-accent"
+              : "text-ink-muted hover:bg-control-ghost-hover border-transparent"
+          }`}
+        >
+          {editAll ? "完成編輯" : "編輯模式"}
+        </button>
+      </div>
       {keyword && <KeywordFilter keyword={keyword} count={books.length} onClear={clearKeyword} />}
 
       {/* 手機版：卡片列表，欄位太多的表格在小螢幕上不好讀 */}
@@ -224,7 +238,13 @@ export function BookTable() {
 
       {/* 不自己開捲動容器：捲動一律交給 PageBody，sticky 的表頭改黏在那一層。
           自己捲的話這一頁的「捲到底」會跟其他頁不一樣（底部留白也吃不到） */}
-      <BookTableGrid books={books} numbers={numbers} detailHref={detailHref} onSaved={mutate} />
+      <BookTableGrid
+        books={books}
+        numbers={numbers}
+        detailHref={detailHref}
+        onSaved={mutate}
+        editAll={editAll}
+      />
 
       {/* 翻頁列放在框外，跟詳細檢視一致 */}
     </div>

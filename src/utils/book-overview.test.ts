@@ -15,12 +15,18 @@ describe("byMonth", () => {
     expect(groups[0].books.map((b) => b.id)).toEqual(["a", "b"]);
   });
 
-  it("沒有完成日的自成一組", () => {
+  it("沒有完成日的混進第一組，不自成一組", () => {
     const groups = byMonth([
       book({ id: "a", endDate: null }),
       book({ id: "b", endDate: "2025-08-01" }),
     ]);
-    expect(groups.map((g) => g.label)).toEqual(["沒寫日期", "2025 · 08"]);
+    expect(groups.map((g) => g.label)).toEqual(["2025 · 08"]);
+    expect(groups[0].books.map((b) => b.id)).toEqual(["b", "a"]);
+  });
+
+  it("全部都沒有完成日時，唯一一組不顯示標題", () => {
+    const groups = byMonth([book({ id: "a", endDate: null })]);
+    expect(groups.map((g) => g.label)).toEqual([""]);
   });
 });
 

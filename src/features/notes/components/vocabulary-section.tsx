@@ -2,6 +2,7 @@
 
 import { PageLoading } from "@/components/layout/page-loading";
 import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
+import { GroupTable } from "@/components/ui/group-table/group-table";
 import { OverviewLayout } from "@/components/ui/overview-layout/overview-layout";
 import { OverviewTotalStats } from "@/components/ui/overview-layout/overview-rail-stats";
 import { vocabularyHref } from "@/config/routes";
@@ -29,7 +30,6 @@ function toItem(entry: VocabularyEntry): OverviewItem {
     title: entry.word,
     byline: latest.sentence,
     href: vocabularyHref(entry.word),
-    coverUrl: latest.coverUrl,
     startDate: latest.date,
     endDate: latest.date,
     kindLabel: "單字",
@@ -37,8 +37,14 @@ function toItem(entry: VocabularyEntry): OverviewItem {
 }
 
 /** 單字概覽：跟書籍頁同一套 OverviewLayout 骨架，一個詞一張卡，多次相遇合併 */
-export function VocabularySection({ books }: { books: Book[] }) {
-  const { vocabulary, isLoading } = useRecords();
+export function VocabularySection({
+  books,
+  view = "overview",
+}: {
+  books: Book[];
+  view?: "overview" | "table";
+}) {
+  const { vocabulary, isLoading, mutate } = useRecords();
   const { searchParams } = useUrlParams();
   const entries = filterVocabularyByLanguage(
     getVocabularyEntries(vocabulary, books),
@@ -48,6 +54,9 @@ export function VocabularySection({ books }: { books: Book[] }) {
   if (isLoading) return <PageLoading />;
 
   const items = entries.map(toItem);
+
+  if (view === "table") return <GroupTable items={items} onSaved={mutate} />;
+
   const headline = pickHeadline(items);
   const rest = items.filter((item) => item.id !== headline?.id);
 
@@ -75,7 +84,6 @@ export function VocabularySection({ books }: { books: Book[] }) {
             label={translation}
             detail={pronunciation}
             body={latest.sentence}
-            coverUrl={latest.coverUrl}
           />
         );
       }}

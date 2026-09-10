@@ -22,7 +22,7 @@ export default function RecordsPage() {
       <PageHeader
         title="紀錄"
         action={
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-5">
             <GroupViewMenu />
             <AddRecordButton group="records" />
           </div>

@@ -25,7 +25,7 @@ export type FragmentCardProps = {
 };
 
 const styles = {
-  card: "flex min-w-0 cursor-pointer flex-col gap-2 rounded-surface border border-rule-strong bg-white p-4 hover:bg-gray-50",
+  card: "flex h-full min-w-0 cursor-pointer flex-col gap-2 rounded-surface border border-rule-strong bg-white p-4 hover:bg-gray-50",
   cover: "block h-40 w-full rounded-surface object-cover",
   head: "flex min-w-0 flex-wrap items-end justify-between gap-x-2",
   nameGroup: "flex min-w-0 flex-col",

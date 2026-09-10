@@ -26,15 +26,15 @@ export function isNavActive(item: NavItem, pathname: string) {
 
 export const NAV_ITEMS: NavItem[] = [
   {
-    // 紀錄與片段是兩堆，導覽上仍然是同一區
+    // 紀錄與片段是兩堆，導覽上仍然是同一區；文字跟頁面標題（/records 的「紀錄」）一致
     href: "/records",
-    label: "閱讀",
+    label: "紀錄",
     siblings: ["/fragments"],
     Icon: () => <Library size={20} strokeWidth={1.5} />,
   },
   {
     href: "/writings",
-    label: "書寫",
+    label: "專欄",
     Icon: () => <PenLine size={20} strokeWidth={1.5} />,
   },
   { href: "/stats", label: "統計", Icon: () => <ChartPie size={20} strokeWidth={1.5} /> },

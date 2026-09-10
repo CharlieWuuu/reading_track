@@ -26,7 +26,7 @@ const toItem = (record: QuoteRecord): OverviewItem => ({
   title: record.text,
   byline: record.bookTitle,
   href: quoteHref(record.id),
-  coverUrl: record.bookCover,
+  coverUrl: record.coverUrl,
   startDate: record.date,
   endDate: record.date,
   kindLabel: "佳句",
@@ -64,7 +64,12 @@ function QuotesGrid({
       renderItem={(item) => {
         const record = records.find((r) => r.id === item.id)!;
         return (
-          <FragmentCard href={quoteHref(record.id)} title={record.text} meta={record.bookTitle} />
+          <FragmentCard
+            href={quoteHref(record.id)}
+            title={record.text}
+            meta={record.bookTitle}
+            coverUrl={record.coverUrl}
+          />
         );
       }}
     />

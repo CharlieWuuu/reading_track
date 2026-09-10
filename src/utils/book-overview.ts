@@ -14,16 +14,28 @@ export type MonthGroup = {
 
 const monthLabel = (date: string): string => `${date.slice(0, 4)} · ${date.slice(5, 7)}`;
 
-/** 讀完的書照完成月份分組，新的在前。沒有完成日的歸到最後一組 */
+/**
+ * 讀完的書照完成月份分組，新的在前。沒有完成日的書不自成一組——在讀、想讀的書
+ * 本來就還沒有完成日，混進第一組（最新月份）比另立一組「沒寫日期」更不像資料缺漏。
+ */
 export function byMonth(books: Book[]): MonthGroup[] {
+  const dated = books.filter((book) => book.endDate);
+  const undated = books.filter((book) => !book.endDate);
+
   const groups = new Map<string, Book[]>();
-  for (const book of books) {
-    const key = book.endDate ? monthLabel(book.endDate) : "沒寫日期";
+  for (const book of dated) {
+    const key = monthLabel(book.endDate!);
     const bucket = groups.get(key);
     if (bucket) bucket.push(book);
     else groups.set(key, [book]);
   }
-  return [...groups].map(([label, list]) => ({ label, books: list }));
+
+  const result = [...groups].map(([label, list]) => ({ label, books: list }));
+  if (undated.length === 0) return result;
+  if (result.length === 0) return [{ label: "", books: undated }];
+
+  result[0] = { ...result[0], books: [...result[0].books, ...undated] };
+  return result;
 }
 
 /**

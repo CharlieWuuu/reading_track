@@ -4,10 +4,10 @@ import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { CardMasonry } from "@/components/ui/card-masonry";
 import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
+import { GroupTable } from "@/components/ui/group-table/group-table";
 import { KindGroup } from "@/config/record-kinds";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { fragmentHref, fragmentItem, fragmentMeta, fragmentTitle } from "@/utils/overview-items";
-import { GroupTable } from "./group-table";
 
 const styles = {
   empty: "text-meta text-ink-faint py-8 text-center",

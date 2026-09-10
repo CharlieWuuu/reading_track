@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Check, Pencil, X } from "lucide-react";
 import { BookCover } from "@/components/ui/book-cover";
 import { ListHeading } from "@/components/ui/list-heading";
+import { TagList } from "@/components/ui/tag-badge";
 import { useInlineEdit } from "@/hooks/use-inline-edit";
 import { OverviewItem } from "@/utils/overview";
 
@@ -32,7 +33,6 @@ const styles = {
   title: "font-serif text-item-sm font-semibold",
   byline: "text-byline text-ink-muted",
   meta: "text-meta text-ink-faint tabular-nums",
-  kind: "text-label text-ink-faint tracking-label",
   cover: "h-10 w-7 shrink-0",
   mobileList: "flex flex-col md:hidden",
   mobileRow: "border-rule flex items-center gap-3 border-b py-2.5",
@@ -98,7 +98,7 @@ export function GroupTable({
                   )}
                 </td>
                 <td className={styles.td}>
-                  <span className={styles.kind}>{item.kindLabel}</span>
+                  <TagList values={[item.kindLabel]} tone="article" size="sm" wrap={false} />
                 </td>
                 <td className={styles.td}>
                   {editing && form ? (
@@ -177,7 +177,7 @@ export function GroupTable({
             )}
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline gap-2">
-                <span className={styles.kind}>{item.kindLabel}</span>
+                <TagList values={[item.kindLabel]} tone="article" size="sm" wrap={false} />
                 <span className={styles.meta}>{item.endDate ?? item.startDate ?? ""}</span>
               </div>
               <p className={`${styles.title} truncate`}>{item.title}</p>

@@ -23,9 +23,11 @@ export type MonthCount = { label: string; unit: string; value: number };
 function Count({ count }: { count: MonthCount }) {
   return (
     <div className="flex-1">
-      <div className={styles.number}>{count.value.toLocaleString()}</div>
-      <div className={`${styles.sideLabel} mt-1`}>{count.unit}</div>
-      <div className={styles.meta}>{count.label}</div>
+      <div className="flex items-baseline gap-1">
+        <span className={styles.number}>{count.value.toLocaleString()}</span>
+        <span className={styles.sideLabel}>{count.unit}</span>
+      </div>
+      <div className={`${styles.meta} mt-1`}>{count.label}</div>
     </div>
   );
 }
