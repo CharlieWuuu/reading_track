@@ -71,6 +71,7 @@ export async function listWritings(userId: string): Promise<Writing[]> {
       sourceTitle: workTitle ?? "",
       sourceId,
       private: "", // 書寫不帶私人旗標，藏東西一律從主題與類型下手
+      coverUrl: writing.coverUrl,
     };
   });
 }

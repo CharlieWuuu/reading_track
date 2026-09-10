@@ -65,6 +65,20 @@ export function useRecords() {
     await mutate();
   }
 
+  /** 把一筆既有的佳句／單字改連到另一本書；bookId 空字串是拔掉出處 */
+  async function relink(id: string, bookId: string) {
+    const res = await fetch("/api/records", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, bookId }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error ?? "更新失敗");
+    }
+    await mutate();
+  }
+
   return {
     vocabulary: data?.vocabulary ?? [],
     quotes: data?.quotes ?? [],
@@ -73,6 +87,7 @@ export function useRecords() {
     error: error instanceof Error ? error.message : undefined,
     addRow,
     saveBookRows,
+    relink,
     mutate,
   };
 }

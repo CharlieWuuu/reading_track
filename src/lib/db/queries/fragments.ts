@@ -39,6 +39,7 @@ export async function listQuoteRows(userId: string): Promise<QuoteRow[]> {
     chapter: fragment.locator,
     note: fragment.body,
     date: fragment.date,
+    coverUrl: fragment.coverUrl,
   }));
 }
 
@@ -61,6 +62,7 @@ export async function listVocabularyRows(userId: string): Promise<VocabularyRow[
     language: "", // 語言在作品那一層，單字自己不帶
     createdAt: fragment.createdAt.toISOString(),
     date: fragment.date,
+    coverUrl: fragment.coverUrl,
   }));
 }
 
@@ -80,6 +82,7 @@ export async function listKeywords(userId: string): Promise<KeywordInfo[]> {
       span: fragment.span,
       wikiUrl: wikiUrls.get(fragment.id) ?? "",
       summary: fragment.body,
+      createdAt: fragment.createdAt.toISOString(),
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }

@@ -29,9 +29,7 @@ export default function FragmentsPage() {
         }
       />
       <PageBody scroll={view === "table"}>
-        {mounted && (
-          <FragmentsOverview group="fragments" headlineLabel="最近摘下的一則" view={view} />
-        )}
+        {mounted && <FragmentsOverview group="fragments" view={view} />}
       </PageBody>
     </>
   );

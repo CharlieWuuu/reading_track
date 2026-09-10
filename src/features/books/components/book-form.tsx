@@ -17,7 +17,6 @@ import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useCurrentHref } from "@/lib/keywords/href";
 import { Book, inferStatus, splitLines } from "@/types/book";
-import { QuoteRow, VocabularyRow } from "@/types/record";
 import { sameBook } from "@/utils/book-reads";
 
 const emptyForm = {
@@ -122,20 +121,13 @@ export function BookForm({
   const keywordSuggestions = [...new Set(allBooks.flatMap((b) => splitLines(b.keywords)))].sort(
     (a, b) => a.localeCompare(b, "zh-Hant"),
   );
-  // 單字與佳句各自一張表，跟著這本書一起存
-  const { vocabulary, quotes, saveBookRows } = useRecords();
+  // 單字與佳句各自一張表；紀錄分頁只管「連到哪本書」，relink 立即生效，不等表單送出
+  const { vocabulary, quotes, relink } = useRecords();
   const bookId = book?.id ?? "";
-  const [vocabularyRows, setVocabularyRows] = useState<VocabularyRow[]>([]);
-  const [quoteRows, setQuoteRows] = useState<QuoteRow[]>([]);
-  const [loadedFor, setLoadedFor] = useState<string | null>(null);
-
-  // 紀錄是非同步抓回來的，抓到之後才填得進來；換一本書也要重填
-  if (loadedFor !== bookId) {
-    setLoadedFor(bookId);
-    setVocabularyRows(vocabulary.filter((row) => row.bookId === bookId));
-    setQuoteRows(quotes.filter((row) => row.bookId === bookId));
-  }
-  // 背景重抓回來的資料要蓋掉畫面上的舊快取——但只在使用者還沒動過的時候
+  const quoteRows = quotes.filter((row) => row.bookId === bookId);
+  const vocabularyRows = vocabulary.filter((row) => row.bookId === bookId);
+  const unlinkedQuotes = quotes.filter((row) => !row.bookId);
+  const unlinkedVocabulary = vocabulary.filter((row) => !row.bookId);
   const { form, set, update } = useEntryForm(book, (b) => toForm(b ?? initial ?? {}));
   const isEdit = Boolean(book);
   const [pickNotice, setPickNotice] = useState("");
@@ -156,13 +148,6 @@ export function BookForm({
     deleteRedirectTo: listHref,
     mutate,
     validate: () => (form.title.trim() ? undefined : "請填書名"),
-    // 佳句與單字靠書籍編號認人，新增時那個編號要等書存完才生得出來
-    onSaved: async (id) => {
-      const withBook = <T extends { bookId: string; bookTitle: string }>(rows: T[]) =>
-        rows.map((row) => ({ ...row, bookId: id, bookTitle: form.title }));
-      await saveBookRows("vocabulary", id, form.title, withBook(vocabularyRows));
-      await saveBookRows("quotes", id, form.title, withBook(quoteRows));
-    },
   });
 
   /** 點關鍵字跳到那個字的編輯頁；沒填書名就先擋下來，不然新增頁沒東西可落地 */
@@ -228,11 +213,19 @@ export function BookForm({
         {/* 從這本書留下來的東西：佳句、單字、書寫、相關文章，全站叫什麼這裡就叫什麼 */}
         <TabPanel active={tab === "record"}>
           <BookRecordPanel
-            quoteRows={quoteRows}
-            onQuotes={setQuoteRows}
-            vocabularyRows={vocabularyRows}
-            onVocabulary={setVocabularyRows}
-            bookLanguage={form.language}
+            quotes={{
+              linked: quoteRows,
+              unlinked: unlinkedQuotes,
+              onLink: (row) => relink(row.id, bookId),
+              onUnlink: (row) => relink(row.id, ""),
+            }}
+            vocabulary={{
+              linked: vocabularyRows,
+              unlinked: unlinkedVocabulary,
+              onLink: (row) => relink(row.id, bookId),
+              onUnlink: (row) => relink(row.id, ""),
+            }}
+            canLink={isEdit}
             relatedArticles={form.relatedArticles}
             onRelatedArticles={(v) => set("relatedArticles", v)}
             writingSourceIds={isEdit && book ? sameBook(allBooks, book).map((b) => b.id) : null}

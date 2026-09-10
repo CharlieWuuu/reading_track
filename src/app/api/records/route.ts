@@ -3,6 +3,7 @@ import { readOnly, requireSession, requireWriter } from "@/app/api/_lib/respond"
 import {
   addQuote,
   addVocabulary,
+  relinkFragment,
   replaceBookQuotes,
   replaceBookVocabulary,
 } from "@/lib/db/mutations/fragments";
@@ -95,6 +96,23 @@ export async function PUT(req: NextRequest) {
   } catch (err) {
     console.error("replaceBookRecords failed:", err);
     return NextResponse.json({ error: "儲存失敗" }, { status: 502 });
+  }
+}
+
+/** 把一筆既有的佳句／單字改連到另一本書；bookId 空字串是拔掉出處 */
+export async function PATCH(req: NextRequest) {
+  const session = await requireWriter();
+  if (!session) return readOnly();
+
+  const { id, bookId } = (await req.json()) as { id: string; bookId: string };
+  if (!id) return NextResponse.json({ error: "缺少必要欄位" }, { status: 400 });
+
+  try {
+    await relinkFragment(session.user.id, id, bookId ?? "");
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error("relinkFragment failed:", err);
+    return NextResponse.json({ error: "更新失敗" }, { status: 502 });
   }
 }
 

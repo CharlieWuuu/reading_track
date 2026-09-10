@@ -28,8 +28,7 @@ export function RecordsOverview({ view = "overview" }: { view?: "overview" | "ta
       pending={pick("want")}
       done={pick("done").sort((a, b) => (b.endDate ?? "").localeCompare(a.endDate ?? ""))}
       headlineLabel="在讀 · 最近開始的一本"
-      activeLabel="其餘在讀"
-      pendingLabel="想讀"
+      unit="筆"
     />
   );
 }

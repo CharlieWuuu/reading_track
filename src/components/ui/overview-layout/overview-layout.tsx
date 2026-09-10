@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ReactNode } from "react";
 import { BookCover } from "@/components/ui/book-cover";
-import { CoverItem } from "@/components/ui/cover-item/cover-item";
+import { COVER_CARD_GRID, CoverCard } from "@/components/ui/cover-card/cover-card";
 import { byMonth, OverviewItem } from "@/utils/overview";
 
 /**
@@ -30,8 +30,6 @@ const styles = {
   headlineTitle: "font-serif text-lede leading-snug font-semibold tracking-tight",
   byline: "text-byline text-ink-muted",
   summary: "text-byline text-ink leading-relaxed",
-  // 欄數跟著寬度長，每欄寬度才不會沒有上限一直被拉開
-  monthGrid: "grid grid-cols-1 gap-x-8 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4",
   month: "border-rule-strong border-b pt-4 pb-1.5",
   monthLabel: "font-serif text-item-sm font-semibold tracking-wide",
 };
@@ -50,11 +48,9 @@ function Headline({
 }) {
   return (
     <div className={styles.headline}>
-      {item.coverUrl && (
-        <div className="w-28.75 shrink-0">
-          <BookCover url={item.coverUrl} title={item.title} size="full" />
-        </div>
-      )}
+      <div className="w-28.75 shrink-0">
+        <BookCover url={item.coverUrl ?? ""} title={item.title} size="full" />
+      </div>
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <span className={styles.label}>{label}</span>
         <Link href={item.href} className={`${styles.headlineTitle} truncate`}>
@@ -62,9 +58,36 @@ function Headline({
         </Link>
         <span className={styles.byline}>{joinMeta([item.byline, item.kindLabel])}</span>
         {summary && <p className={`${styles.summary} line-clamp-2`}>{summary}</p>}
-        {item.startDate && <span className={styles.meta}>{item.startDate} 起</span>}
+        {item.startDate && (
+          <span className={styles.meta}>
+            {item.startDate}
+            {item.startDate !== item.endDate && " 起"}
+          </span>
+        )}
       </div>
     </div>
+  );
+}
+
+/** 月份格線裡一格的預設畫法：書籍、紀錄用這個 */
+function DefaultItem({
+  item,
+  tintSeed,
+}: {
+  item: OverviewItem;
+  tintSeed?: (item: OverviewItem) => string | undefined;
+}) {
+  return (
+    <CoverCard
+      id={item.id}
+      href={item.href}
+      title={item.title}
+      coverUrl={item.coverUrl}
+      meta={item.endDate}
+      label={item.kindLabel}
+      caption={item.byline}
+      tintSeed={tintSeed?.(item)}
+    />
   );
 }
 
@@ -81,6 +104,14 @@ export type OverviewLayoutProps = {
   tintSeed?: (item: OverviewItem) => string | undefined;
   /** 右側窄欄——各頁自己的統計、Rail 清單都放這裡；沒有就不留這塊區域 */
   rail?: ReactNode;
+  /**
+   * 月份格線裡一格怎麼畫。預設用 CoverCard（書籍、紀錄那種有封面的清單）；
+   * 片段、書寫這種一則一張卡的頁面換成 FragmentCard，骨架（頭條、月份分段、
+   * 右側統計欄）不變，只換中間這一格的畫法。
+   */
+  renderItem?: (item: OverviewItem) => ReactNode;
+  /** 月份格線的欄數斷點。不給就用 COVER_CARD_GRID——換了 renderItem 的頁面，卡片寬度需求不同時覆寫 */
+  gridClassName?: string;
 };
 
 export function OverviewLayout({
@@ -90,6 +121,8 @@ export function OverviewLayout({
   done,
   tintSeed,
   rail,
+  renderItem,
+  gridClassName = COVER_CARD_GRID,
 }: OverviewLayoutProps) {
   return (
     <div className={styles.frame}>
@@ -103,20 +136,14 @@ export function OverviewLayout({
                 <span className={styles.monthLabel}>{group.label}</span>
                 <span className={styles.meta}>{group.items.length}</span>
               </div>
-              <div className={styles.monthGrid}>
-                {group.items.map((item) => (
-                  <CoverItem
-                    key={item.id}
-                    id={item.id}
-                    href={item.href}
-                    title={item.title}
-                    coverUrl={item.coverUrl}
-                    meta={item.endDate}
-                    label={item.kindLabel}
-                    caption={item.byline}
-                    tintSeed={tintSeed?.(item)}
-                  />
-                ))}
+              <div className={gridClassName}>
+                {group.items.map((item) =>
+                  renderItem ? (
+                    <div key={item.id}>{renderItem(item)}</div>
+                  ) : (
+                    <DefaultItem key={item.id} item={item} tintSeed={tintSeed} />
+                  ),
+                )}
               </div>
             </div>
           ))}

@@ -3,21 +3,17 @@
 import { PageBody } from "@/components/layout/page-body";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
+import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { WritingTable } from "@/features/writing/components/writing-table";
 import { WRITING_VIEWS } from "@/features/writing/views";
 import { useMounted } from "@/hooks/use-mounted";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useWritings } from "@/hooks/use-writings";
-import { Writing } from "@/types/writing";
+import { writingItem } from "@/utils/overview-items";
 import { matchesSearch, searchTerms } from "@/utils/search";
 
-/**
- * 書寫清單。搜尋、篩選、看哪一種都在網址上，所以這裡自己讀。
- *
- * 時間軸那一版由 app 那層傳進來：它住在 features/notes，而 features 之間
- * 不互相 import（eslint 的 import/no-restricted-paths 會擋）。理由同 Sidebar 的 authSlot。
- */
-export function WritingList({ timeline }: { timeline: (writings: Writing[]) => React.ReactNode }) {
+/** 書寫清單。搜尋、篩選、看哪一種都在網址上，所以這裡自己讀。 */
+export function WritingList() {
   const mounted = useMounted();
   const { writings: allWriting, isLoading, error, mutate } = useWritings();
   const { searchParams } = useUrlParams();
@@ -44,11 +40,16 @@ export function WritingList({ timeline }: { timeline: (writings: Writing[]) => R
 
   return (
     <PageBody>
-      {/* 沒寫心得的也要看得到：這裡是紀事本身的清單 */}
       {view === "table" ? (
         <WritingTable writings={writings} onSaved={mutate} />
       ) : (
-        timeline(writings)
+        <GroupOverview
+          active={[]}
+          pending={[]}
+          done={writings.map(writingItem)}
+          headlineLabel="最新一則"
+          unit="則"
+        />
       )}
     </PageBody>
   );

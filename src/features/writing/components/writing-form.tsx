@@ -40,6 +40,7 @@ const emptyForm = {
   sourceTitle: "",
   sourceId: "",
   private: "",
+  coverUrl: "",
 };
 
 type FormState = typeof emptyForm;
@@ -203,9 +204,19 @@ export function WritingForm({ entry }: { entry?: Writing }) {
             <div className="col-span-2 sm:col-span-3">
               <Field
                 label="來源"
-                hint="來源：網址，或「紙本日記 8/17」"
+                hint="網址，或「紙本日記 8/17」"
                 value={form.link}
                 onChange={(v) => set("link", v)}
+                hideLabel
+              />
+            </div>
+
+            {/* 封面圖，選填——像部落格文章那種示意圖，不跟出處的書籍封面連動 */}
+            <div className="col-span-2 sm:col-span-3">
+              <Field
+                label="封面圖網址"
+                value={form.coverUrl}
+                onChange={(v) => set("coverUrl", v)}
                 hideLabel
               />
             </div>

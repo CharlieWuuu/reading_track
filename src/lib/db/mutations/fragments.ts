@@ -72,6 +72,7 @@ export async function replaceBookQuotes(
         locator: item.chapter,
         body: item.note,
         date: item.date,
+        coverUrl: item.coverUrl,
       })),
   );
 }
@@ -99,8 +100,28 @@ export async function replaceBookVocabulary(
         contextTranslation: item.sentenceTranslation,
         locator: item.chapter,
         date: item.date,
+        coverUrl: item.coverUrl,
       })),
   );
+}
+
+/**
+ * 把一筆已存在的佳句／單字改連到另一本書（或拔掉出處）。
+ *
+ * 跟 replaceBookQuotes 不同：那支是「這本書底下的全部換一批」，這支是單筆
+ * 換它的出處——書籍紀錄分頁挑一筆既有的接上來，不是新增內容，用這支。
+ * readingId 空字串代表拔掉出處，回到沒有書的狀態。
+ */
+export async function relinkFragment(
+  userId: string,
+  fragmentId: string,
+  readingId: string,
+): Promise<void> {
+  const workId = await workIdOf(userId, readingId);
+  await db
+    .update(fragments)
+    .set({ workId })
+    .where(and(eq(fragments.userId, userId), eq(fragments.id, fragmentId)));
 }
 
 /**
@@ -124,6 +145,7 @@ export async function addQuote(userId: string, readingId: string, item: QuoteRow
       locator: item.chapter,
       body: item.note,
       date: item.date,
+      coverUrl: item.coverUrl,
     });
   });
 }
@@ -149,6 +171,7 @@ export async function addVocabulary(
       contextTranslation: item.sentenceTranslation,
       locator: item.chapter,
       date: item.date,
+      coverUrl: item.coverUrl,
     });
   });
 }

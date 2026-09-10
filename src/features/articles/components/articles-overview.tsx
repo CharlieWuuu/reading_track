@@ -14,14 +14,5 @@ export function ArticlesOverview({ articles }: { articles: Article[] }) {
   const pending = articles.filter((a) => !a.endDate).map(articleItem);
   const done = articles.filter((a) => a.endDate).map(articleItem);
 
-  return (
-    <GroupOverview
-      active={[]}
-      pending={pending}
-      done={done}
-      headlineLabel=""
-      activeLabel="讀到一半"
-      pendingLabel="待讀"
-    />
-  );
+  return <GroupOverview active={[]} pending={pending} done={done} headlineLabel="" unit="篇" />;
 }

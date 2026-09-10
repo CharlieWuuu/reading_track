@@ -22,7 +22,7 @@ export const bookItem = (book: Book): OverviewItem => ({
   href: `${kindHref("records", "books")}/${book.id}`,
   coverUrl: book.coverUrl,
   startDate: book.startDate,
-  endDate: book.endDate && `${book.endDate} 讀完`,
+  endDate: book.endDate,
   kindLabel: "書籍",
 });
 
@@ -33,18 +33,19 @@ export const articleItem = (article: Article): OverviewItem => ({
   href: `${kindHref("records", "articles")}/${article.id}`,
   // 沒有封面欄位就整個不畫，不要留一塊空的佔位
   startDate: null,
-  endDate: article.endDate && `${article.endDate} 讀完`,
+  endDate: article.endDate,
   kindLabel: "文章",
 });
 
 export const writingItem = (writing: Writing): OverviewItem => ({
   id: writing.id,
-  title: writing.title,
-  byline: joinByline([writing.kind, writing.keywords.split("\n")[0]]),
+  title: writing.title || writing.note,
+  byline: writing.note,
   href: `${kindHref("writings", "writing")}/${writing.id}`,
+  coverUrl: writing.coverUrl,
   startDate: writing.date,
   endDate: writing.date && `${writing.date}`,
-  kindLabel: "書寫",
+  kindLabel: writing.topic,
 });
 
 /**
@@ -74,18 +75,25 @@ const FRAGMENT_HREF: Record<string, (row: FragmentRow) => string> = {
   關鍵字: (row) => kindHref(row.kindGroup, row.kindSlug),
 };
 
+export const fragmentHref = (row: FragmentRow): string =>
+  FRAGMENT_HREF[row.kindName]?.(row) ?? `${kindHref(row.kindGroup, row.kindSlug)}/${row.id}`;
+
+/** 片段的標題：有名字就用名字，沒有就用整段內文——一句佳句沒有標題，硬留白只剩出處看得見 */
+export const fragmentTitle = (row: FragmentRow): string => row.name || row.body;
+
+/** 片段的出處：書名・頁碼之類 */
+export const fragmentMeta = (row: FragmentRow): string => joinByline([row.workTitle, row.locator]);
+
 /**
- * 片段與專欄的一筆。標題是「有名字就用名字，沒有就用內文開頭」——
- * 一句佳句沒有標題，硬留白會讓整排清單只剩出處看得見。
+ * 片段與專欄的一筆，攤平成概覽用的形狀。
  */
 export const fragmentItem = (row: FragmentRow): OverviewItem => {
   const day = row.date ?? row.createdAt.slice(0, 10);
   return {
     id: row.id,
-    title: row.name || row.body.slice(0, 40),
-    byline: joinByline([row.workTitle, row.locator]),
-    href:
-      FRAGMENT_HREF[row.kindName]?.(row) ?? `${kindHref(row.kindGroup, row.kindSlug)}/${row.id}`,
+    title: fragmentTitle(row),
+    byline: fragmentMeta(row),
+    href: fragmentHref(row),
     startDate: day,
     endDate: day,
     kindLabel: row.kindName,

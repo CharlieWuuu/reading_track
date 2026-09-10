@@ -33,4 +33,6 @@ export interface Writing {
   sourceId: string;
   /** 「是」代表私人：鎖上的時候伺服器不會把這一列送到瀏覽器 */
   private: string;
+  /** 封面圖，選填——像部落格文章那種示意圖，不跟出處的書籍封面連動 */
+  coverUrl: string;
 }

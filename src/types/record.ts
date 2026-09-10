@@ -21,6 +21,8 @@ export interface VocabularyRow {
   createdAt: string;
   /** 記下的這一天，沒填就是 null——概覽照這個分月份 */
   date: string | null;
+  /** 封面圖，選填——像部落格文章那種示意圖，不跟出處的書籍封面連動 */
+  coverUrl: string;
 }
 
 export interface QuoteRow {
@@ -33,6 +35,8 @@ export interface QuoteRow {
   note: string;
   /** 記下的這一天，沒填就是 null——概覽照這個分月份 */
   date: string | null;
+  /** 封面圖，選填——像部落格文章那種示意圖，不跟出處的書籍封面連動 */
+  coverUrl: string;
 }
 
 export const EMPTY_VOCABULARY: Omit<VocabularyRow, "id" | "bookId" | "bookTitle"> = {
@@ -45,6 +49,7 @@ export const EMPTY_VOCABULARY: Omit<VocabularyRow, "id" | "bookId" | "bookTitle"
   language: "",
   createdAt: "",
   date: null,
+  coverUrl: "",
 };
 
 export const EMPTY_QUOTE: Omit<QuoteRow, "id" | "bookId" | "bookTitle"> = {
@@ -52,4 +57,5 @@ export const EMPTY_QUOTE: Omit<QuoteRow, "id" | "bookId" | "bookTitle"> = {
   chapter: "",
   note: "",
   date: null,
+  coverUrl: "",
 };

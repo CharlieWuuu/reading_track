@@ -29,7 +29,7 @@ export default function WritingsPage() {
         }
       />
       <PageBody scroll={view === "table"}>
-        {mounted && <FragmentsOverview group="writings" headlineLabel="最近寫的一則" view={view} />}
+        {mounted && <FragmentsOverview group="writings" view={view} />}
       </PageBody>
     </>
   );

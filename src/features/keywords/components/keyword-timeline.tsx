@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import { BookCover } from "@/components/ui/book-cover";
-import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
+import { keywordHref } from "@/config/routes";
 import { KeywordEntry } from "@/features/keywords/utils/keyword-stats";
 import { KeywordInfo, parseSpan } from "@/types/keyword";
 import { CATEGORICAL, SERIES_OVERFLOW } from "@/utils/chart-palette";
@@ -61,7 +61,6 @@ type KeywordTimelineProps = {
 
 /** 有生卒／起訖的關鍵字排成一條數線，橫向捲 */
 export function KeywordTimeline({ entries, infos }: KeywordTimelineProps) {
-  const [viewing, setViewing] = useState<string | null>(null);
   const spans = toSpans(entries, infos);
 
   if (spans.length === 0) {
@@ -96,11 +95,7 @@ export function KeywordTimeline({ entries, infos }: KeywordTimelineProps) {
             {packLanes(segments).map((lane, i) => (
               <div key={i} className={styles.lane}>
                 {lane.map((segment) => (
-                  <Bar
-                    key={segment.name}
-                    segment={segment}
-                    onOpen={() => setViewing(segment.name)}
-                  />
+                  <Bar key={segment.name} segment={segment} />
                 ))}
               </div>
             ))}
@@ -121,21 +116,18 @@ export function KeywordTimeline({ entries, infos }: KeywordTimelineProps) {
           </li>
         ))}
       </ul>
-
-      {viewing && <KeywordPopup name={viewing} onClose={() => setViewing(null)} />}
     </div>
   );
 }
 
-function Bar({ segment, onOpen }: { segment: Segment; onOpen: () => void }) {
+function Bar({ segment }: { segment: Segment }) {
   const range = segment.point
     ? label(segment.from)
     : `${label(segment.from)}－${segment.open ? "至今" : label(segment.to)}`;
 
   return (
-    <button
-      type="button"
-      onClick={onOpen}
+    <Link
+      href={keywordHref(segment.name)}
       title={`${segment.name}｜${range}`}
       style={{ left: segment.start, width: segment.width }}
       className={styles.bar}
@@ -158,7 +150,7 @@ function Bar({ segment, onOpen }: { segment: Segment; onOpen: () => void }) {
           />
         )}
       </span>
-    </button>
+    </Link>
   );
 }
 

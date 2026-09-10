@@ -30,6 +30,7 @@ function makeWriting(patch: Partial<Writing> = {}): Writing {
     sourceTitle: "",
     sourceId: "",
     private: "",
+    coverUrl: "",
     ...patch,
   };
 }

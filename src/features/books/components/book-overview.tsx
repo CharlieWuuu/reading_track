@@ -149,7 +149,7 @@ export function BookOverview({
     return {
       ...toItem(book),
       href: href(book),
-      endDate: book.endDate && `${book.endDate} 讀完`,
+      endDate: book.endDate,
       byline: note?.note ?? toItem(book).byline,
     };
   });
@@ -183,9 +183,9 @@ export function BookOverview({
         <>
           <TotalStats stats={totalStats} />
           <StatsRail stats={yearStats} href={href} />
-          <Rail label="在讀" count={reading.length} books={reading} href={href} />
+          <Rail label="進行" count={reading.length} books={reading} href={href} />
           <Rail
-            label="想讀"
+            label="想要"
             count={want.length}
             books={want.slice(0, 5)}
             href={href}

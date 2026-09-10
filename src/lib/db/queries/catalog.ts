@@ -27,6 +27,7 @@ export type RecordRow = {
   kindSlug: string;
   startDate: string | null;
   endDate: string | null;
+  createdAt: string;
   amount: number | null;
   amountUnit: string;
   source: string;
@@ -54,6 +55,7 @@ const toRecordRow = ({
   kindSlug: kind.slug,
   startDate: record.startDate,
   endDate: record.endDate,
+  createdAt: record.createdAt.toISOString(),
   amount: work.amount,
   amountUnit: kind.amountUnit,
   source: work.source,
@@ -101,6 +103,7 @@ export type FragmentRow = {
   note: string;
   date: string | null;
   createdAt: string;
+  coverUrl: string;
 };
 
 /**
@@ -131,6 +134,7 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
     note: fragment.body,
     date: fragment.date,
     createdAt: fragment.createdAt.toISOString(),
+    coverUrl: fragment.coverUrl,
   }));
 }
 
@@ -152,6 +156,7 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       note: writing.note,
       date: writing.date,
       createdAt: writing.createdAt,
+      coverUrl: writing.coverUrl,
     }))
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
@@ -222,6 +227,7 @@ export async function getFragmentValues(
       contextTranslation: row.contextTranslation,
       endDate: row.date ?? "",
       sourceUrl: await sourceUrlOfFragment(userId, id),
+      coverUrl: row.coverUrl,
     },
   };
 }

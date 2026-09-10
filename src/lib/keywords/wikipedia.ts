@@ -8,7 +8,8 @@ import { EMPTY_KEYWORD_INFO, KeywordInfo } from "@/types/keyword";
  * 猜錯條目的代價是把不相干的摘要寫進主檔，寧可查不到讓使用者自己補。
  */
 export async function lookupKeyword(name: string): Promise<KeywordInfo> {
-  const empty: KeywordInfo = { name, ...EMPTY_KEYWORD_INFO };
+  // 查回來的只是暫存結果，寫入時資料庫會補上真正的 created_at，這裡的值不會被用到
+  const empty: KeywordInfo = { name, createdAt: "", ...EMPTY_KEYWORD_INFO };
 
   const page = (await fetchPage(name)) ?? (await fetchPage(await nearMatch(name)));
   if (!page) return empty;
@@ -18,6 +19,7 @@ export async function lookupKeyword(name: string): Promise<KeywordInfo> {
 
   return {
     name,
+    createdAt: "",
     // 標籤一律留空，自己貼：模型那套分類跟「你怎麼看這些字」是兩回事
     tags: "",
     coordinates: coordinate ? `${coordinate.lat},${coordinate.lon}` : "",

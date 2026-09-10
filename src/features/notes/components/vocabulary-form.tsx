@@ -182,6 +182,16 @@ export function VocabularyForm({ writings, onSave, onDone }: VocabularyFormProps
                 className={styles.input}
               />
             </div>
+
+            <div className={styles.field}>
+              <label className={styles.label}>封面圖網址</label>
+              <input
+                value={edit.coverUrl}
+                onChange={(e) => update(i, { coverUrl: e.target.value })}
+                placeholder="https://..."
+                className={styles.input}
+              />
+            </div>
           </div>
         );
       })}

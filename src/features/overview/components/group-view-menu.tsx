@@ -31,5 +31,5 @@ export function GroupViewMenu() {
     setParams({ view: next });
   }
 
-  return <SelectMenu label="顯示方式" items={ITEMS} value={view} onChange={select} />;
+  return <SelectMenu bare label="顯示方式" items={ITEMS} value={view} onChange={select} />;
 }

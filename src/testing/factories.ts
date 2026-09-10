@@ -88,6 +88,7 @@ export function makeVocabulary(overrides: Partial<VocabularyRow> = {}): Vocabula
     language: "", // 空字串代表跟著書走
     createdAt: "",
     date: null,
+    coverUrl: "",
     ...overrides,
   };
 }
@@ -101,6 +102,7 @@ export function makeQuote(overrides: Partial<QuoteRow> = {}): QuoteRow {
     chapter: "",
     note: "",
     date: null,
+    coverUrl: "",
     ...overrides,
   };
 }
@@ -119,6 +121,7 @@ export function makeWriting(overrides: Partial<Writing> = {}): Writing {
     sourceTitle: "",
     sourceId: "",
     private: "",
+    coverUrl: "",
     ...overrides,
   };
 }

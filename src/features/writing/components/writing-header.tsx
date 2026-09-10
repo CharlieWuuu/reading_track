@@ -1,6 +1,6 @@
 "use client";
 
-import { AlignLeft, Plus, Rows3 } from "lucide-react";
+import { Newspaper, Plus, Rows3 } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { ActionButton, SelectMenu } from "@/components/ui/controls";
 import { SearchBar } from "@/components/ui/search-bar";
@@ -22,7 +22,7 @@ function usedTopics(writings: Writing[]): string[] {
 const ICON = { size: 16, strokeWidth: 1.5 } as const;
 /** 預設的那一個排前面，選單打開時第一眼看到的就是現在這個 */
 const VIEW_ITEMS = [
-  { key: "timeline" as const, label: "時間軸", Icon: () => <AlignLeft {...ICON} /> },
+  { key: "card" as const, label: "概覽", Icon: () => <Newspaper {...ICON} /> },
   { key: "table" as const, label: "表格", Icon: () => <Rows3 {...ICON} /> },
 ];
 
