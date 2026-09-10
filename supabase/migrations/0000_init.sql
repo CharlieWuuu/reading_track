@@ -1,153 +1,185 @@
-CREATE TABLE "attributes" (
+CREATE TABLE "users" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"name" text NOT NULL,
-	CONSTRAINT "attributes_name_unique" UNIQUE("name")
+	"email" text NOT NULL,
+	"google_sub" text,
+	"password_hash" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "users_email_unique" UNIQUE("email"),
+	CONSTRAINT "users_google_sub_unique" UNIQUE("google_sub")
 );
 --> statement-breakpoint
-CREATE TABLE "book_types" (
+CREATE TABLE "domain_attribute" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"name" text NOT NULL,
+	CONSTRAINT "domain_attribute_user_id_name_unique" UNIQUE("user_id","name")
+);
+--> statement-breakpoint
+CREATE TABLE "domain_record_topic" (
+	"user_id" uuid NOT NULL,
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"parent_id" uuid,
 	"name" text NOT NULL,
 	"is_private" boolean DEFAULT false NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "keywords" (
-	"name" text PRIMARY KEY NOT NULL,
-	"topics" text DEFAULT '' NOT NULL,
-	"coordinates" text DEFAULT '' NOT NULL,
-	"span" text DEFAULT '' NOT NULL,
-	"wiki_url" text DEFAULT '' NOT NULL,
-	"summary" text DEFAULT '' NOT NULL,
+CREATE TABLE "setting_privacy_pwd" (
+	"user_id" uuid NOT NULL,
+	"key" text NOT NULL,
+	"value" text DEFAULT '' NOT NULL,
+	CONSTRAINT "setting_privacy_pwd_user_id_key_pk" PRIMARY KEY("user_id","key")
+);
+--> statement-breakpoint
+CREATE TABLE "domain_writing_topic" (
+	"user_id" uuid NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"parent_id" uuid,
+	"name" text NOT NULL,
 	"is_private" boolean DEFAULT false NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "writing_types" (
+CREATE TABLE "setting_fields" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid,
+	"field_key" text NOT NULL,
+	"label" text NOT NULL,
+	CONSTRAINT "setting_fields_field_key_label_unique" UNIQUE("field_key","label")
+);
+--> statement-breakpoint
+CREATE TABLE "domain_fragments" (
+	"user_id" uuid NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"kind_id" uuid NOT NULL,
+	"work_id" uuid,
+	"date" date,
+	"name" text DEFAULT '' NOT NULL,
+	"phrase" text DEFAULT '' NOT NULL,
+	"body" text DEFAULT '' NOT NULL,
+	"locator" text DEFAULT '' NOT NULL,
+	"pronunciation" text DEFAULT '' NOT NULL,
+	"translation" text DEFAULT '' NOT NULL,
+	"context" text DEFAULT '' NOT NULL,
+	"context_translation" text DEFAULT '' NOT NULL,
+	"tags" text DEFAULT '' NOT NULL,
+	"span" text DEFAULT '' NOT NULL,
+	"coordinates" text DEFAULT '' NOT NULL,
+	"cover_url" text DEFAULT '' NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "domain_writings" (
+	"user_id" uuid NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"kind_id" uuid NOT NULL,
+	"work_id" uuid,
+	"topic_id" uuid,
+	"date" date,
+	"name" text DEFAULT '' NOT NULL,
+	"body" text DEFAULT '' NOT NULL,
+	"cover_url" text DEFAULT '' NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "setting_kinds" (
+	"user_id" uuid,
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" text NOT NULL,
-	"is_private" boolean DEFAULT false NOT NULL,
-	CONSTRAINT "writing_types_name_unique" UNIQUE("name")
+	"slug" text NOT NULL,
+	"group_key" text NOT NULL,
+	"amount_unit" text DEFAULT '' NOT NULL,
+	"sort_order" integer DEFAULT 0 NOT NULL,
+	CONSTRAINT "setting_kinds_user_id_group_key_name_unique" UNIQUE("user_id","group_key","name"),
+	CONSTRAINT "setting_kinds_user_id_group_key_slug_unique" UNIQUE("user_id","group_key","slug")
 );
 --> statement-breakpoint
-CREATE TABLE "articles" (
+CREATE TABLE "setting_map_kind_field" (
+	"user_id" uuid,
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"title" text NOT NULL,
-	"author" text DEFAULT '' NOT NULL,
-	"platform" text DEFAULT '' NOT NULL,
-	"source_url" text DEFAULT '' NOT NULL,
-	"end_date" date,
-	"type_id" uuid,
-	"attribute_id" uuid,
-	"language" text DEFAULT '' NOT NULL,
-	"is_private" boolean DEFAULT false NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+	"kind_id" uuid NOT NULL,
+	"field_key" text NOT NULL,
+	"field_id" uuid NOT NULL,
+	"is_visible" boolean DEFAULT true NOT NULL,
+	"sort_order" integer DEFAULT 0 NOT NULL,
+	CONSTRAINT "setting_map_kind_field_kind_id_field_key_unique" UNIQUE("kind_id","field_key")
 );
 --> statement-breakpoint
-CREATE TABLE "books" (
+CREATE TABLE "domain_records" (
+	"user_id" uuid NOT NULL,
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"title" text NOT NULL,
-	"author" text DEFAULT '' NOT NULL,
-	"type_id" uuid,
-	"attribute_id" uuid,
-	"language" text DEFAULT '' NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE "readings" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"book_id" uuid NOT NULL,
-	"status" text NOT NULL,
+	"work_id" uuid NOT NULL,
 	"start_date" date,
 	"end_date" date,
-	"isbn" text DEFAULT '' NOT NULL,
-	"platform" text DEFAULT '' NOT NULL,
-	"publisher" text DEFAULT '' NOT NULL,
-	"page_count" integer,
-	"word_count" integer,
-	"source_url" text DEFAULT '' NOT NULL,
-	"cover_url" text DEFAULT '' NOT NULL,
 	"is_private" boolean DEFAULT false NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "metrics" (
+CREATE TABLE "domain_works" (
+	"user_id" uuid NOT NULL,
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"writing_id" uuid NOT NULL,
-	"date" date NOT NULL,
-	"platform" text DEFAULT '' NOT NULL,
-	"views" integer,
-	"reads" integer,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE "writings" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"book_id" uuid,
-	"article_id" uuid,
-	"type_id" uuid,
+	"kind_id" uuid NOT NULL,
 	"title" text NOT NULL,
-	"note" text DEFAULT '' NOT NULL,
-	"date" date,
-	"link" text DEFAULT '' NOT NULL,
-	"is_private" boolean DEFAULT false NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "one_source" CHECK ("writings"."book_id" is null or "writings"."article_id" is null)
-);
---> statement-breakpoint
-CREATE TABLE "quotes" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"book_id" uuid,
-	"text" text NOT NULL,
-	"chapter" text DEFAULT '' NOT NULL,
-	"note" text DEFAULT '' NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE "vocabulary" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"book_id" uuid,
-	"word" text NOT NULL,
-	"pronunciation" text DEFAULT '' NOT NULL,
-	"word_translation" text DEFAULT '' NOT NULL,
-	"sentence" text DEFAULT '' NOT NULL,
-	"sentence_translation" text DEFAULT '' NOT NULL,
-	"chapter" text DEFAULT '' NOT NULL,
+	"creator" text DEFAULT '' NOT NULL,
+	"topic_id" uuid,
+	"attribute_id" uuid,
 	"language" text DEFAULT '' NOT NULL,
+	"source" text DEFAULT '' NOT NULL,
+	"external_id" text DEFAULT '' NOT NULL,
+	"cover_url" text DEFAULT '' NOT NULL,
+	"amount" integer,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "article_keywords" (
-	"article_id" uuid NOT NULL,
-	"keyword" text NOT NULL,
-	CONSTRAINT "article_keywords_article_id_keyword_pk" PRIMARY KEY("article_id","keyword")
+CREATE TABLE "links_external" (
+	"user_id" uuid NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"record_id" uuid,
+	"fragment_id" uuid,
+	"writing_id" uuid,
+	"url" text NOT NULL,
+	"label" text DEFAULT '' NOT NULL,
+	"sort_order" integer DEFAULT 0 NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "links_external_exactly_one_source" CHECK ((
+        ("links_external"."record_id" is not null)::int +
+        ("links_external"."fragment_id" is not null)::int +
+        ("links_external"."writing_id" is not null)::int
+      ) = 1)
 );
 --> statement-breakpoint
-CREATE TABLE "book_keywords" (
-	"book_id" uuid NOT NULL,
-	"keyword" text NOT NULL,
-	CONSTRAINT "book_keywords_book_id_keyword_pk" PRIMARY KEY("book_id","keyword")
+CREATE TABLE "links_internal" (
+	"user_id" uuid NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"a_id" uuid NOT NULL,
+	"b_id" uuid NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "writing_keywords" (
-	"writing_id" uuid NOT NULL,
-	"keyword" text NOT NULL,
-	CONSTRAINT "writing_keywords_writing_id_keyword_pk" PRIMARY KEY("writing_id","keyword")
-);
---> statement-breakpoint
-ALTER TABLE "book_types" ADD CONSTRAINT "book_types_parent_id_book_types_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."book_types"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "articles" ADD CONSTRAINT "articles_type_id_book_types_id_fk" FOREIGN KEY ("type_id") REFERENCES "public"."book_types"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "articles" ADD CONSTRAINT "articles_attribute_id_attributes_id_fk" FOREIGN KEY ("attribute_id") REFERENCES "public"."attributes"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "books" ADD CONSTRAINT "books_type_id_book_types_id_fk" FOREIGN KEY ("type_id") REFERENCES "public"."book_types"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "books" ADD CONSTRAINT "books_attribute_id_attributes_id_fk" FOREIGN KEY ("attribute_id") REFERENCES "public"."attributes"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "readings" ADD CONSTRAINT "readings_book_id_books_id_fk" FOREIGN KEY ("book_id") REFERENCES "public"."books"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "metrics" ADD CONSTRAINT "metrics_writing_id_writings_id_fk" FOREIGN KEY ("writing_id") REFERENCES "public"."writings"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "writings" ADD CONSTRAINT "writings_book_id_books_id_fk" FOREIGN KEY ("book_id") REFERENCES "public"."books"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "writings" ADD CONSTRAINT "writings_article_id_articles_id_fk" FOREIGN KEY ("article_id") REFERENCES "public"."articles"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "writings" ADD CONSTRAINT "writings_type_id_writing_types_id_fk" FOREIGN KEY ("type_id") REFERENCES "public"."writing_types"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "quotes" ADD CONSTRAINT "quotes_book_id_books_id_fk" FOREIGN KEY ("book_id") REFERENCES "public"."books"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "vocabulary" ADD CONSTRAINT "vocabulary_book_id_books_id_fk" FOREIGN KEY ("book_id") REFERENCES "public"."books"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "article_keywords" ADD CONSTRAINT "article_keywords_article_id_articles_id_fk" FOREIGN KEY ("article_id") REFERENCES "public"."articles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "article_keywords" ADD CONSTRAINT "article_keywords_keyword_keywords_name_fk" FOREIGN KEY ("keyword") REFERENCES "public"."keywords"("name") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "book_keywords" ADD CONSTRAINT "book_keywords_book_id_books_id_fk" FOREIGN KEY ("book_id") REFERENCES "public"."books"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "book_keywords" ADD CONSTRAINT "book_keywords_keyword_keywords_name_fk" FOREIGN KEY ("keyword") REFERENCES "public"."keywords"("name") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "writing_keywords" ADD CONSTRAINT "writing_keywords_writing_id_writings_id_fk" FOREIGN KEY ("writing_id") REFERENCES "public"."writings"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "writing_keywords" ADD CONSTRAINT "writing_keywords_keyword_keywords_name_fk" FOREIGN KEY ("keyword") REFERENCES "public"."keywords"("name") ON DELETE cascade ON UPDATE cascade;
+ALTER TABLE "domain_attribute" ADD CONSTRAINT "domain_attribute_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "domain_record_topic" ADD CONSTRAINT "domain_record_topic_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "domain_record_topic" ADD CONSTRAINT "domain_record_topic_parent_id_domain_record_topic_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."domain_record_topic"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "setting_privacy_pwd" ADD CONSTRAINT "setting_privacy_pwd_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "domain_writing_topic" ADD CONSTRAINT "domain_writing_topic_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "domain_writing_topic" ADD CONSTRAINT "domain_writing_topic_parent_id_domain_writing_topic_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."domain_writing_topic"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "setting_fields" ADD CONSTRAINT "setting_fields_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "domain_fragments" ADD CONSTRAINT "domain_fragments_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "domain_fragments" ADD CONSTRAINT "domain_fragments_kind_id_setting_kinds_id_fk" FOREIGN KEY ("kind_id") REFERENCES "public"."setting_kinds"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "domain_fragments" ADD CONSTRAINT "domain_fragments_work_id_domain_works_id_fk" FOREIGN KEY ("work_id") REFERENCES "public"."domain_works"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "domain_writings" ADD CONSTRAINT "domain_writings_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "domain_writings" ADD CONSTRAINT "domain_writings_kind_id_setting_kinds_id_fk" FOREIGN KEY ("kind_id") REFERENCES "public"."setting_kinds"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "domain_writings" ADD CONSTRAINT "domain_writings_work_id_domain_works_id_fk" FOREIGN KEY ("work_id") REFERENCES "public"."domain_works"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "domain_writings" ADD CONSTRAINT "domain_writings_topic_id_domain_writing_topic_id_fk" FOREIGN KEY ("topic_id") REFERENCES "public"."domain_writing_topic"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "setting_kinds" ADD CONSTRAINT "setting_kinds_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "setting_map_kind_field" ADD CONSTRAINT "setting_map_kind_field_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "setting_map_kind_field" ADD CONSTRAINT "setting_map_kind_field_kind_id_setting_kinds_id_fk" FOREIGN KEY ("kind_id") REFERENCES "public"."setting_kinds"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "setting_map_kind_field" ADD CONSTRAINT "setting_map_kind_field_field_id_setting_fields_id_fk" FOREIGN KEY ("field_id") REFERENCES "public"."setting_fields"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "domain_records" ADD CONSTRAINT "domain_records_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "domain_records" ADD CONSTRAINT "domain_records_work_id_domain_works_id_fk" FOREIGN KEY ("work_id") REFERENCES "public"."domain_works"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "domain_works" ADD CONSTRAINT "domain_works_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "domain_works" ADD CONSTRAINT "domain_works_kind_id_setting_kinds_id_fk" FOREIGN KEY ("kind_id") REFERENCES "public"."setting_kinds"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "domain_works" ADD CONSTRAINT "domain_works_topic_id_domain_record_topic_id_fk" FOREIGN KEY ("topic_id") REFERENCES "public"."domain_record_topic"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "domain_works" ADD CONSTRAINT "domain_works_attribute_id_domain_attribute_id_fk" FOREIGN KEY ("attribute_id") REFERENCES "public"."domain_attribute"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "links_external" ADD CONSTRAINT "links_external_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "links_external" ADD CONSTRAINT "links_external_record_id_domain_records_id_fk" FOREIGN KEY ("record_id") REFERENCES "public"."domain_records"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "links_external" ADD CONSTRAINT "links_external_fragment_id_domain_fragments_id_fk" FOREIGN KEY ("fragment_id") REFERENCES "public"."domain_fragments"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "links_external" ADD CONSTRAINT "links_external_writing_id_domain_writings_id_fk" FOREIGN KEY ("writing_id") REFERENCES "public"."domain_writings"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "links_internal" ADD CONSTRAINT "links_internal_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;

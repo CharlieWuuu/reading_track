@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db/client";
 import { kinds } from "@/lib/db/schema/kinds";
@@ -6,6 +6,7 @@ import { writingTopics } from "@/lib/db/schema/taxonomy";
 import { works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
 import { Writing } from "@/types/writing";
+import { decodeCursor, encodeCursor } from "@/utils/pagination";
 import { firstReadingIdByBookId } from "./books";
 import { sourceUrlOfWritings } from "./external-links";
 import { keywordNamesByOwner } from "./internal-links";
@@ -24,27 +25,33 @@ const IMPLIED_TOPIC = "心得";
 /** 出處的類型：這一則掛在書上還是文章上，舊形狀的 kind 欄要它 */
 const sourceKind = alias(kinds, "source_kind");
 
-export async function listWritings(userId: string): Promise<Writing[]> {
-  const [firstReading, rows] = await Promise.all([
-    firstReadingIdByBookId(userId),
-    db
-      .select({
-        writing: writings,
-        kindName: kinds.name,
-        workTitle: works.title,
-        workKind: sourceKind.name,
-        topicName: writingTopics.name,
-      })
-      .from(writings)
-      .innerJoin(kinds, eq(kinds.id, writings.kindId))
-      .leftJoin(works, eq(works.id, writings.workId))
-      .leftJoin(sourceKind, eq(sourceKind.id, works.kindId))
-      .leftJoin(writingTopics, eq(writingTopics.id, writings.topicId))
-      .where(eq(writings.userId, userId))
-      .orderBy(asc(writings.createdAt)),
-  ]);
+const baseSelect = () =>
+  db
+    .select({
+      writing: writings,
+      kindName: kinds.name,
+      workTitle: works.title,
+      workKind: sourceKind.name,
+      topicName: writingTopics.name,
+    })
+    .from(writings)
+    .innerJoin(kinds, eq(kinds.id, writings.kindId))
+    .leftJoin(works, eq(works.id, writings.workId))
+    .leftJoin(sourceKind, eq(sourceKind.id, works.kindId))
+    .leftJoin(writingTopics, eq(writingTopics.id, writings.topicId));
 
-  const [links, keywords] = await Promise.all([
+type WritingJoinRow = {
+  writing: typeof writings.$inferSelect;
+  kindName: string;
+  workTitle: string | null;
+  workKind: string | null;
+  topicName: string | null;
+};
+
+/** 撈出來的原始列轉成 Writing——出處連結、關鍵字這些批次查詢一起做，跟分不分頁無關 */
+async function toWritings(userId: string, rows: WritingJoinRow[]): Promise<Writing[]> {
+  const [firstReading, links, keywords] = await Promise.all([
+    firstReadingIdByBookId(userId),
     sourceUrlOfWritings(
       userId,
       rows.map(({ writing }) => writing.id),
@@ -71,6 +78,65 @@ export async function listWritings(userId: string): Promise<Writing[]> {
       sourceTitle: workTitle ?? "",
       sourceId,
       private: "", // 書寫不帶私人旗標，藏東西一律從主題與類型下手
+      coverUrl: writing.coverUrl,
     };
   });
+}
+
+export async function listWritings(userId: string): Promise<Writing[]> {
+  const rows = await baseSelect()
+    .where(eq(writings.userId, userId))
+    .orderBy(asc(writings.createdAt));
+  return toWritings(userId, rows);
+}
+
+type WritingCursor = { date: string | null; id: string };
+
+export type PagedWritings = {
+  rows: Writing[];
+  nextCursor: string | null;
+  hasMore: boolean;
+  total: number;
+};
+
+/**
+ * 概覽頁專用：keyset 分頁，date 新到舊、沒填日期的排最後（NULLS LAST）。
+ * 書寫記下就算完成，沒有進行中這個狀態，整批都在這一支裡分頁。
+ */
+export async function listWritingsPaged(
+  userId: string,
+  { cursor, limit }: { cursor?: string | null; limit: number },
+): Promise<PagedWritings> {
+  const after = decodeCursor<WritingCursor>(cursor);
+
+  const keysetCondition = after
+    ? after.date !== null
+      ? or(
+          sql`${writings.date} < ${after.date}`,
+          and(eq(writings.date, after.date), sql`${writings.id} < ${after.id}`),
+          isNull(writings.date),
+        )
+      : and(isNull(writings.date), sql`${writings.id} < ${after.id}`)
+    : undefined;
+
+  const [rows, [{ count }]] = await Promise.all([
+    baseSelect()
+      .where(and(eq(writings.userId, userId), keysetCondition))
+      .orderBy(sql`${writings.date} DESC NULLS LAST`, desc(writings.id))
+      .limit(limit + 1),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(writings)
+      .where(eq(writings.userId, userId)),
+  ]);
+
+  const hasMore = rows.length > limit;
+  const page = hasMore ? rows.slice(0, limit) : rows;
+  const last = page.at(-1);
+  const nextCursor =
+    hasMore && last
+      ? encodeCursor({ date: last.writing.date, id: last.writing.id } satisfies WritingCursor)
+      : null;
+
+  return { rows: await toWritings(userId, page), nextCursor, hasMore, total: count };
 }

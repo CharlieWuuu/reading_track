@@ -42,5 +42,6 @@ export const fragments = pgTable("domain_fragments", {
   tags: text("tags").notNull().default(""), // 自己貼的標籤，多個以頓號相接，跟 domain_topics 的主題樹是兩回事
   span: text("span").notNull().default(""), // 生卒或起訖
   coordinates: text("coordinates").notNull().default(""), // "25.033,121.565"
+  coverUrl: text("cover_url").notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

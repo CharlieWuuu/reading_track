@@ -67,11 +67,28 @@ export function filterVocabularyByLanguage(
   return entries.filter((entry) => entry.encounters.some((e) => e.language === language));
 }
 
-export type QuoteRecord = QuoteRow & { bookCover: string };
+export type QuoteRecord = QuoteRow & { bookCover: string; language: string };
 
+/** 佳句沒有自己的語言欄，跟著出處書走——跟單字沒填時的規則一樣 */
 export function getQuoteRecords(rows: QuoteRow[], books: Book[]): QuoteRecord[] {
   const byId = new Map(books.map((book) => [book.id, book]));
-  return rows.map((row) => withBook(row, byId));
+  return rows.map((row) => ({
+    ...withBook(row, byId),
+    language: byId.get(row.bookId)?.language ?? "",
+  }));
+}
+
+/** 目前真的有佳句在用的語言。選項只列有東西的，選了才不會篩出一片空白 */
+export function quoteLanguages(records: QuoteRecord[]): string[] {
+  return [...new Set(records.map((r) => r.language).filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b, "zh-Hant"),
+  );
+}
+
+/** 依語言篩。空字串是「全部」 */
+export function filterQuotesByLanguage(records: QuoteRecord[], language: string): QuoteRecord[] {
+  if (!language) return records;
+  return records.filter((r) => r.language === language);
 }
 
 export type NoteRecord = {

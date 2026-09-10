@@ -44,7 +44,8 @@ function ArticlesBody() {
     );
   if (found.length === 0 && terms.length > 0) return <PageMessage fill>沒有符合的文章</PageMessage>;
 
-  if (view === "overview") return <ArticlesOverview articles={found} />;
+  if (view === "overview")
+    return <ArticlesOverview q={searchParams.get("q") ?? ""} filtered={found} />;
   return <ReadingList articles={found} view={view} />;
 }
 

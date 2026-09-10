@@ -54,6 +54,9 @@ export function localStorageProvider(): Cache {
       for (const [key, value] of map) {
         // 解鎖狀態下抓到的資料含私人項目，不落地——不然鎖上之後翻 localStorage 還是看得到
         if (key.includes("unlock=")) continue;
+        // 分頁翻到第幾頁不落地：只快取第一頁當骨架，翻很多頁不會把額度塞滿，
+        // 重新整理後回到第一頁重新累加也是 infinite scroll 常見行為
+        if (key.includes("cursor=")) continue;
         const data = (value as { data?: unknown } | undefined)?.data;
         if (data !== undefined) all.push([key, { data }]);
       }

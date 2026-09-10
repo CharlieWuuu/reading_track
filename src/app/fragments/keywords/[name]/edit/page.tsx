@@ -25,7 +25,7 @@ function EditKeyword() {
   const keyword = decodeURIComponent(name);
   const { byName, save, remove, isLoading, error } = useKeywordInfos();
 
-  const info = byName.get(keyword) ?? { name: keyword, ...EMPTY_KEYWORD_INFO };
+  const info = byName.get(keyword) ?? { name: keyword, createdAt: "", ...EMPTY_KEYWORD_INFO };
 
   return (
     <>

@@ -60,3 +60,4 @@ docs/design/
 
 # 一次性資料遷移腳本：含正式庫真實 user_id，不進版控
 supabase/migrations/data-migration/
+supabase/migrations_old_backup/

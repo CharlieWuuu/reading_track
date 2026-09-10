@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { makeBook, makeQuote, makeVocabulary, resetIds } from "@/testing/factories";
 import {
+  filterQuotesByLanguage,
   filterVocabularyByLanguage,
   getNoteRecords,
   getQuoteRecords,
   getVocabularyEntries,
+  quoteLanguages,
   vocabularyLanguages,
 } from "./vocabulary-stats";
 
@@ -70,11 +72,16 @@ describe("getVocabularyEntries", () => {
 
 describe("getQuoteRecords", () => {
   it("補上封面、書名用活的那一份", () => {
-    const book = makeBook({ id: "b1", title: "改過的書名", coverUrl: "cover.jpg" });
+    const book = makeBook({
+      id: "b1",
+      title: "改過的書名",
+      coverUrl: "cover.jpg",
+      language: "中文",
+    });
     const rows = [makeQuote({ bookId: "b1", bookTitle: "舊書名" })];
 
     expect(getQuoteRecords(rows, [book])).toEqual([
-      { ...rows[0], bookTitle: "改過的書名", bookCover: "cover.jpg" },
+      { ...rows[0], bookTitle: "改過的書名", bookCover: "cover.jpg", language: "中文" },
     ]);
   });
 
@@ -82,6 +89,46 @@ describe("getQuoteRecords", () => {
     const rows = [makeQuote({ text: "第一句" }), makeQuote({ text: "第二句" })];
 
     expect(getQuoteRecords(rows, []).map((r) => r.text)).toEqual(["第一句", "第二句"]);
+  });
+
+  it("語言跟著出處書走", () => {
+    const book = makeBook({ id: "b1", language: "日文" });
+    const rows = [makeQuote({ bookId: "b1" })];
+
+    expect(getQuoteRecords(rows, [book])[0].language).toBe("日文");
+  });
+});
+
+describe("quoteLanguages", () => {
+  it("只列有東西的語言，去重排序", () => {
+    const records = [
+      { ...makeQuote(), language: "英文", bookCover: "" },
+      { ...makeQuote(), language: "中文", bookCover: "" },
+      { ...makeQuote(), language: "英文", bookCover: "" },
+      { ...makeQuote(), language: "", bookCover: "" },
+    ];
+
+    expect(quoteLanguages(records)).toEqual(["中文", "英文"]);
+  });
+});
+
+describe("filterQuotesByLanguage", () => {
+  it("空字串代表全部", () => {
+    const records = [
+      { ...makeQuote(), language: "英文", bookCover: "" },
+      { ...makeQuote(), language: "中文", bookCover: "" },
+    ];
+
+    expect(filterQuotesByLanguage(records, "")).toHaveLength(2);
+  });
+
+  it("依語言篩", () => {
+    const records = [
+      { ...makeQuote(), language: "英文", bookCover: "" },
+      { ...makeQuote(), language: "中文", bookCover: "" },
+    ];
+
+    expect(filterQuotesByLanguage(records, "英文")).toHaveLength(1);
   });
 });
 

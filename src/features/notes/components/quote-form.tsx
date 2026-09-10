@@ -76,6 +76,16 @@ export function QuoteForm({ record, onSave, onDone }: QuoteFormProps) {
         />
       </div>
 
+      <div className={styles.field}>
+        <label className={styles.label}>封面圖網址</label>
+        <input
+          value={form.coverUrl}
+          onChange={(e) => setForm({ ...form, coverUrl: e.target.value })}
+          placeholder="https://..."
+          className={styles.input}
+        />
+      </div>
+
       <FormActions
         onSave={() => submit(false)}
         saving={saving}

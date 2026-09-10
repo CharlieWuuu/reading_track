@@ -27,5 +27,6 @@ export const writings = pgTable("domain_writings", {
   date: date("date"),
   name: text("name").notNull().default(""), // 標題
   body: text("body").notNull().default(""), // 內文
+  coverUrl: text("cover_url").notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

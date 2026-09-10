@@ -1,12 +1,12 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { PageMessage } from "@/components/layout/page-message";
 import { Spinner } from "@/components/ui/spinner";
+import { keywordHref } from "@/config/routes";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { KeywordCards } from "@/features/keywords/components/keyword-cards";
-import { KeywordPopup } from "@/features/keywords/components/keyword-popup";
 import { KeywordTimeline } from "@/features/keywords/components/keyword-timeline";
 import { KeywordTreemap } from "@/features/keywords/components/keyword-treemap";
 import { getKeywordEntries } from "@/features/keywords/utils/keyword-stats";
@@ -46,7 +46,7 @@ export type KeywordView = "card" | "chart" | "map" | "timeline";
  */
 export function KeywordsSection({ books, view }: { books: Book[]; view: KeywordView }) {
   const { byName } = useKeywordInfos();
-  const [viewing, setViewing] = useState<string | null>(null);
+  const router = useRouter();
 
   const entries = getKeywordEntries(books);
   if (entries.length === 0) {
@@ -58,7 +58,11 @@ export function KeywordsSection({ books, view }: { books: Book[]; view: KeywordV
       {view === "chart" ? (
         <div className={styles.panel}>
           <div className={styles.chart}>
-            <KeywordTreemap entries={entries} infos={byName} onSelect={setViewing} />
+            <KeywordTreemap
+              entries={entries}
+              infos={byName}
+              onSelect={(name) => router.push(keywordHref(name))}
+            />
           </div>
         </div>
       ) : view === "timeline" ? (
@@ -76,8 +80,6 @@ export function KeywordsSection({ books, view }: { books: Book[]; view: KeywordV
           <KeywordCards books={books} />
         </div>
       )}
-
-      {viewing && <KeywordPopup name={viewing} onClose={() => setViewing(null)} />}
     </div>
   );
 }

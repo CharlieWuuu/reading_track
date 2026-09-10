@@ -5,64 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1788512098948,
+      "when": 1789066894501,
       "tag": "0000_init",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1788516898262,
-      "tag": "0001_settings",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1788581526841,
-      "tag": "0002_drop_keyword_private",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1788594923715,
-      "tag": "0003_multi_tenant",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1788806102268,
-      "tag": "0004_records_table",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1788844726094,
-      "tag": "0005_kind_amount_unit",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1788845697834,
-      "tag": "0006_fragment_date",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1788847064691,
-      "tag": "0007_metrics_to_fragments",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1788847245060,
-      "tag": "0008_keyword_links_to_new",
       "breakpoints": true
     }
   ]

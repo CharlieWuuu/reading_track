@@ -9,9 +9,11 @@ export interface KeywordInfo {
   span: string;
   wikiUrl: string;
   summary: string;
+  /** 這個字第一次被記下的時間（ISO）。概覽頁的頭條、排序用這個 */
+  createdAt: string;
 }
 
-export const EMPTY_KEYWORD_INFO: Omit<KeywordInfo, "name"> = {
+export const EMPTY_KEYWORD_INFO: Omit<KeywordInfo, "name" | "createdAt"> = {
   tags: "",
   coordinates: "",
   span: "",
