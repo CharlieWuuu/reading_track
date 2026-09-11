@@ -41,6 +41,8 @@ const NEW_HREF: Partial<Record<ReadingTab, string>> = {
 };
 
 type ReadingHeaderProps = {
+  /** 搜尋框右邊、views 左邊的插槽——表格才有意義的操作放這裡（BookEditModeButton） */
+  beforeViews?: React.ReactNode;
   /** 這一頁有幾種看法時放進來（BookViewMenu、KeywordViewMenu）；頁首不該認得任何一個 feature */
   views?: React.ReactNode;
   /** 這一頁有東西可以篩的時候放進來（BookStatusMenu） */
@@ -51,7 +53,13 @@ type ReadingHeaderProps = {
   meta?: React.ReactNode;
 };
 
-export function ReadingHeader({ views, filters, newButton, meta }: ReadingHeaderProps = {}) {
+export function ReadingHeader({
+  beforeViews,
+  views,
+  filters,
+  newButton,
+  meta,
+}: ReadingHeaderProps = {}) {
   const router = useRouter();
   const pathname = usePathname();
   // 在哪一個分頁看網址就知道，不用各頁再傳一次——收斂過的類型看 [slug]，其餘看 /reading/<tab>
@@ -83,6 +91,7 @@ export function ReadingHeader({ views, filters, newButton, meta }: ReadingHeader
               iconOnly="mobile"
             />
           </div>
+          {beforeViews}
           {views}
           {filters}
           {/* 按鈕只放一個加號：旁邊的類型已經說了現在在看書籍還是文章 */}

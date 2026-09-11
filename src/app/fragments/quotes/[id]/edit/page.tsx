@@ -5,6 +5,7 @@ import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
 import { kindHref } from "@/config/kind-routes";
+import { quoteHref } from "@/config/routes";
 import { QuoteForm } from "@/features/notes/components/quote-form";
 import { useBooks } from "@/hooks/use-books";
 import { useRecordEdits } from "@/hooks/use-record-edits";
@@ -20,10 +21,21 @@ export default function EditQuotePage() {
   const { saveQuote } = useRecordEdits(books);
 
   const record = getQuoteRecords(quotes, books).find((r) => r.id === id);
+  const recordLabel =
+    record && (record.bookTitle.length > 5 ? `${record.bookTitle.slice(0, 5)}…` : record.bookTitle);
 
   return (
     <>
-      <PageHeader title="編輯佳句" size="compact" backHref={kindHref("fragments", "quotes")} />
+      <PageHeader
+        title="編輯"
+        size="compact"
+        parent={[
+          { label: "片段", href: "/fragments" },
+          { label: "佳句", href: kindHref("fragments", "quotes") },
+          ...(recordLabel ? [{ label: recordLabel, href: quoteHref(id) }] : []),
+        ]}
+        backHref={kindHref("fragments", "quotes")}
+      />
       <PageBody>
         <RecordGate
           loading={isLoading || loadingBooks}

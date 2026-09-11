@@ -7,6 +7,7 @@ import { records, works } from "@/lib/db/schema/works";
 import { inferStatusKey } from "@/types/book";
 import { decodeCursor, encodeCursor } from "@/utils/pagination";
 import { sourceUrlOfFragment, sourceUrlOfRecord } from "./external-links";
+import { worksOfFragments } from "./fragments";
 import { listWritings } from "./writings";
 
 /**
@@ -193,29 +194,36 @@ export type FragmentRow = {
  */
 async function listFragmentsOnly(userId: string, group: KindGroup): Promise<FragmentRow[]> {
   const rows = await db
-    .select({ fragment: fragments, kind: kinds, workTitle: works.title })
+    .select({ fragment: fragments, kind: kinds })
     .from(fragments)
     .innerJoin(kinds, eq(kinds.id, fragments.kindId))
-    .leftJoin(works, eq(works.id, fragments.workId))
     .where(and(eq(fragments.userId, userId), eq(kinds.groupKey, group)))
     .orderBy(desc(fragments.createdAt));
 
-  return rows.map(({ fragment, kind, workTitle }) => ({
-    id: fragment.id,
-    kindId: kind.id,
-    kindName: kind.name,
-    kindGroup: kind.groupKey as KindGroup,
-    kindSlug: kind.slug,
-    workId: fragment.workId,
-    workTitle: workTitle ?? "",
-    name: fragment.name,
-    body: fragment.body,
-    locator: fragment.locator,
-    note: fragment.body,
-    date: fragment.date,
-    createdAt: fragment.createdAt.toISOString(),
-    coverUrl: fragment.coverUrl,
-  }));
+  const worksByFragment = await worksOfFragments(
+    userId,
+    rows.map(({ fragment }) => fragment.id),
+  );
+
+  return rows.map(({ fragment, kind }) => {
+    const work = worksByFragment.get(fragment.id);
+    return {
+      id: fragment.id,
+      kindId: kind.id,
+      kindName: kind.name,
+      kindGroup: kind.groupKey as KindGroup,
+      kindSlug: kind.slug,
+      workId: work?.id ?? null,
+      workTitle: work?.title ?? "",
+      name: fragment.name,
+      body: fragment.body,
+      locator: fragment.locator,
+      note: fragment.body,
+      date: fragment.date,
+      createdAt: fragment.createdAt.toISOString(),
+      coverUrl: fragment.coverUrl,
+    };
+  });
 }
 
 /** 書寫獨立成表了，不在 fragments 裡——概覽頁要的形狀一樣，這裡轉一次 */

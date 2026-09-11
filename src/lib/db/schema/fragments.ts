@@ -1,15 +1,14 @@
 import { date, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { kinds } from "./kinds";
 import { users } from "./users";
-import { works } from "./works";
 
 /**
  * 新的片段表。佳句、單字、關鍵字都是這張表的一列，靠 kind_id 分。
  *
  * 一層，不像紀錄有作品那一層——一句話不會被讀第二次。
  *
- * work_id 可空，抄到一句話但不是從書上看到的照樣留得下來。指向作品而不是
- * 「哪一次讀」，重讀時記的句子看第一次那筆時也該出現。
+ * 跟作品的關聯走 internal_links，不是自己的欄位——抄到一句話但不是從書上
+ * 看到的照樣留得下來，沒有作品可連。跟關鍵字連誰是同一套機制。
  *
  * 欄位刻意寬而稀疏：一句話沒有發音，一個單字沒有座標。這是共用一組欄位的代價，
  * 換來的是新增一種片段不用開表。
@@ -28,7 +27,6 @@ export const fragments = pgTable("domain_fragments", {
   kindId: uuid("kind_id")
     .notNull()
     .references(() => kinds.id, { onDelete: "restrict" }),
-  workId: uuid("work_id").references(() => works.id, { onDelete: "set null" }),
   /** 這件事發生在哪一天。記下的時間看 created_at，兩者不是同一件事 */
   date: date("date"),
   name: text("name").notNull().default(""), // 單字、詞條

@@ -11,6 +11,7 @@ import type { Book } from "@/types/book";
 export function makeBook(patch: Partial<Book> = {}): Book {
   return {
     id: crypto.randomUUID(),
+    workId: crypto.randomUUID(),
     createdAt: "2026-01-01T00:00:00.000Z",
     title: "資本論",
     author: "馬克思",
@@ -34,7 +35,6 @@ export function makeBook(patch: Partial<Book> = {}): Book {
     note: "",
     quotes: "",
     vocabulary: "",
-    relatedArticles: "",
     ...patch,
   };
 }

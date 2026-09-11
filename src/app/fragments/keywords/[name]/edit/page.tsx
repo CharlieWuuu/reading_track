@@ -6,6 +6,7 @@ import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
 import { kindHref } from "@/config/kind-routes";
+import { keywordHref } from "@/config/routes";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { KeywordForm } from "@/features/keywords/components/keyword-form";
 import { EMPTY_KEYWORD_INFO } from "@/types/keyword";
@@ -29,7 +30,16 @@ function EditKeyword() {
 
   return (
     <>
-      <PageHeader title="編輯關鍵字" size="compact" backHref={from} />
+      <PageHeader
+        title="編輯"
+        size="compact"
+        parent={[
+          { label: "片段", href: "/fragments" },
+          { label: "關鍵字", href: kindHref("fragments", "keywords") },
+          { label: keyword, href: keywordHref(keyword) },
+        ]}
+        backHref={from}
+      />
       <PageBody>
         <RecordGate loading={isLoading} error={error}>
           <KeywordForm

@@ -7,8 +7,8 @@ const styles = {
   list: "divide-rule-soft flex flex-col divide-y",
   row: "flex flex-col gap-0.5 py-2.5 first:pt-0 last:pb-0 hover:bg-gray-50",
   head: "flex min-w-0 items-baseline gap-2",
-  title: "min-w-0 truncate text-sm font-medium",
-  meta: "ml-auto shrink-0 text-[11px] text-gray-400 tabular-nums",
+  title: "min-w-0 truncate font-serif text-sm font-semibold",
+  meta: "shrink-0 text-[11px] text-gray-400 tabular-nums",
   note: "line-clamp-2 text-xs leading-relaxed text-gray-500",
   empty: "text-xs text-gray-400",
 };
@@ -36,7 +36,6 @@ export function RelatedNotes({
         <Link key={note.id} href={writingHref(note.id)} className={styles.row}>
           <span className={styles.head}>
             <span className={styles.title}>{note.title || "（沒有標題）"}</span>
-            {note.kind && <span className="shrink-0 text-[11px] text-gray-400">{note.kind}</span>}
             <span className={styles.meta}>{shortDate(note.date)}</span>
           </span>
           {note.note.trim() && <span className={styles.note}>{note.note}</span>}

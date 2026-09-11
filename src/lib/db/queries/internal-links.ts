@@ -1,16 +1,25 @@
 import { and, eq, inArray, or } from "drizzle-orm";
-import { db } from "@/lib/db/client";
+import { db as defaultDb, type Tx } from "@/lib/db/client";
 import { fragments } from "@/lib/db/schema/fragments";
 import { internalLinks } from "@/lib/db/schema/internal-links";
+import { kinds } from "@/lib/db/schema/kinds";
 
 /**
  * 站內連結查詢。a_id／b_id 不分方向，查一筆東西跟誰有關要兩邊都看，
  * 對方是哪一個 id 由呼叫端自己判斷（排除掉查詢的那個 id 就是對方）。
+ *
+ * 兩支都接受可選的 tx：mutation 那邊在交易裡查完馬上要寫，若用外層的 db
+ * 開一條新連線，跟交易鎖的同一批列互等，會卡死（addWritingRow 那批測試
+ * 曾經因此全部 timeout）。呼叫端在交易內就把 tx 傳進來，走同一條連線。
  */
 
 /** 跟某個 id 有關的所有連結，回傳對方的 id */
-export async function linkedIdsOf(userId: string, id: string): Promise<string[]> {
-  const rows = await db
+export async function linkedIdsOf(
+  userId: string,
+  id: string,
+  tx: Tx | typeof defaultDb = defaultDb,
+): Promise<string[]> {
+  const rows = await tx
     .select({ aId: internalLinks.aId, bId: internalLinks.bId })
     .from(internalLinks)
     .where(
@@ -27,12 +36,13 @@ export async function linkedIdsOf(userId: string, id: string): Promise<string[]>
 export async function linkedIdsOfMany(
   userId: string,
   ids: string[],
+  tx: Tx | typeof defaultDb = defaultDb,
 ): Promise<Map<string, string[]>> {
   const map = new Map<string, string[]>();
   if (!ids.length) return map;
 
   const idSet = new Set(ids);
-  const rows = await db
+  const rows = await tx
     .select({ aId: internalLinks.aId, bId: internalLinks.bId })
     .from(internalLinks)
     .where(
@@ -52,6 +62,9 @@ export async function linkedIdsOfMany(
 /**
  * 一批東西（書、文章、書寫……）各自連到哪些關鍵字，回傳「id → 名字」。
  * 名字用換行接成一串是舊形狀，畫面上的 keywords 欄位吃這個。
+ *
+ * ownerId 名下可能還連著佳句、單字這些不相干的片段，靠 kind 過濾出真正的關鍵字——
+ * 不然同名的單字混進來，畫面上會撞出重複的 key。
  */
 export async function keywordNamesByOwner(
   userId: string,
@@ -61,10 +74,17 @@ export async function keywordNamesByOwner(
   const keywordIds = [...new Set([...linked.values()].flat())];
   if (!keywordIds.length) return new Map();
 
-  const rows = await db
+  const rows = await defaultDb
     .select({ id: fragments.id, name: fragments.name })
     .from(fragments)
-    .where(and(eq(fragments.userId, userId), inArray(fragments.id, keywordIds)));
+    .innerJoin(kinds, eq(kinds.id, fragments.kindId))
+    .where(
+      and(
+        eq(fragments.userId, userId),
+        inArray(fragments.id, keywordIds),
+        eq(kinds.name, "關鍵字"),
+      ),
+    );
   const nameById = new Map(rows.map((row) => [row.id, row.name]));
 
   const result = new Map<string, string>();

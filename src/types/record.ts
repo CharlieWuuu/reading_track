@@ -59,3 +59,10 @@ export const EMPTY_QUOTE: Omit<QuoteRow, "id" | "bookId" | "bookTitle"> = {
   date: null,
   coverUrl: "",
 };
+
+/** 任何能被站內連結的一筆內容：作品、片段、書寫，統一長這樣給前端用 */
+export interface Linkable {
+  id: string;
+  label: string;
+  kindName: string;
+}

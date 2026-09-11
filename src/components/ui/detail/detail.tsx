@@ -22,12 +22,23 @@ export function DetailSection({ title, children }: { title: string; children: Re
  * 沒有值就整列不畫——一排「—」只是在告訴人「這裡什麼都沒有」，佔的卻是
  * 跟有內容的欄位一樣的高度。
  */
-export function DetailField({ label, children }: { label: string; children: React.ReactNode }) {
+export function DetailField({
+  label,
+  children,
+  align = "left",
+}: {
+  label: string;
+  children: React.ReactNode;
+  /** 值靠右對齊——窄的資料卡（如書籍詳情右欄）齊尾比較好讀 */
+  align?: "left" | "right";
+}) {
   if (!children) return null;
   return (
     <div className="grid grid-cols-[3.25rem_minmax(0,1fr)] items-baseline gap-2 py-1.5">
       <span className="text-xs text-gray-400">{label}</span>
-      <div className="min-w-0 text-sm text-gray-800">{children}</div>
+      <div className={`min-w-0 text-sm text-gray-800 ${align === "right" ? "text-right" : ""}`}>
+        {children}
+      </div>
     </div>
   );
 }

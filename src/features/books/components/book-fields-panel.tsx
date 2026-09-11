@@ -1,10 +1,11 @@
 "use client";
 
 import { CategorySelect } from "@/components/ui/category-select";
+import { ContentLinkInput } from "@/components/ui/content-link-input";
 import { Field } from "@/components/ui/field";
-import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
 import { ReadBookSuggestions } from "@/features/books/components/read-book-suggestions";
+import { useContentLinks } from "@/hooks/use-content-links";
 import { Book } from "@/types/book";
 
 /** 一頁裡的分組小標：一行小字加一條線，跟詳細頁的章節標題同一個長相 */
@@ -29,17 +30,18 @@ function Section({ children }: { children: React.ReactNode }) {
 export function BookFieldsPanel({
   form,
   set,
-  keywordSuggestions,
-  onEditKeyword,
   titleSuggestions,
+  workId,
 }: {
   form: Record<string, string>;
   set: (key: string, value: string) => void;
-  keywordSuggestions: string[];
-  onEditKeyword: (name: string) => void;
   /** 新增時才給：打書名時跳出讀過的書，重讀不用重查 */
   titleSuggestions?: { books: Book[]; onPick: (book: Book) => void };
+  /** 作品的編號；還沒存的書沒有編號，沒有東西可以連 */
+  workId: string | null;
 }) {
+  const { linked, link, unlink } = useContentLinks(workId);
+
   return (
     <>
       {/* 自己認得的那幾欄先來：書名獨佔一行，其餘兩兩成對 */}
@@ -85,7 +87,7 @@ export function BookFieldsPanel({
       <div className="flex min-h-0 shrink-0 flex-col gap-3">
         <GroupTitle>標記</GroupTitle>
 
-        {/* 三個一行：兩排欄位，最後一排是私人與關鍵字 */}
+        {/* 三個一行：兩排欄位，最後一排是私人 */}
         <Section>
           <Field
             label="開始日期"
@@ -130,21 +132,25 @@ export function BookFieldsPanel({
             multiple
           />
 
-          {/* 私人跟關鍵字都是自己貼上去的標記，只是一個是開關、一個是標籤；
-                關鍵字會塞很多個，佔兩欄 */}
+          {/* 私人是自己貼上去的標記，畫面上就是一顆開關 */}
           <PrivateToggle value={form.private} onChange={(v) => set("private", v)} />
 
-          <div className="col-span-2 min-w-0">
-            <OptionSelect
-              label="關鍵字"
-              options={keywordSuggestions}
-              value={form.keywords}
-              onChange={(v) => set("keywords", v)}
-              onEditOption={onEditKeyword}
-              placeholder="一個一組：地名、人名、事件、專有名詞"
-              separator={"\n"}
-              multiple
-            />
+          {/* 這本書留下來的東西：佳句、單字、關鍵字、書寫、文章，全部混在同一個 tag input 裡連結。
+                跟上面的欄位同一組，不獨立分區——它也是一格「填表」，不是另一件事 */}
+          <div className="col-span-full">
+            {workId ? (
+              <ContentLinkInput
+                label="站內關聯"
+                excludeId={workId}
+                linked={linked}
+                onLink={link}
+                onUnlink={unlink}
+              />
+            ) : (
+              <p className="rounded-control border-rule text-meta text-ink-faint border border-dashed px-3 py-2">
+                存好這本書之後就可以連結佳句、單字、關鍵字、書寫、文章
+              </p>
+            )}
           </div>
         </Section>
       </div>

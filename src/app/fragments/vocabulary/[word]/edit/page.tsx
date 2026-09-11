@@ -5,6 +5,7 @@ import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
 import { kindHref } from "@/config/kind-routes";
+import { vocabularyHref } from "@/config/routes";
 import { VocabularyForm } from "@/features/notes/components/vocabulary-form";
 import { useBooks } from "@/hooks/use-books";
 import { useRecordEdits } from "@/hooks/use-record-edits";
@@ -29,7 +30,16 @@ export default function EditVocabularyPage() {
 
   return (
     <>
-      <PageHeader title={name} size="compact" backHref={kindHref("fragments", "vocabulary")} />
+      <PageHeader
+        title="編輯"
+        size="compact"
+        parent={[
+          { label: "片段", href: "/fragments" },
+          { label: "單字", href: kindHref("fragments", "vocabulary") },
+          { label: name, href: vocabularyHref(name) },
+        ]}
+        backHref={kindHref("fragments", "vocabulary")}
+      />
       <PageBody>
         <RecordGate
           loading={isLoading || loadingBooks}

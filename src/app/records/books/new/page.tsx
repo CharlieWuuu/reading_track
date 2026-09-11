@@ -5,7 +5,6 @@ import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { kindHref } from "@/config/kind-routes";
 import { BookForm } from "@/features/books/components/book-form";
-import { BookFormTabs } from "@/features/books/components/book-form-tabs";
 import { BookRefetchButton } from "@/features/books/components/book-refetch-button";
 import { useUrlParams } from "@/hooks/use-url-param";
 
@@ -28,13 +27,12 @@ function NewBook() {
       <PageHeader
         title="新增書籍"
         size="compact"
+        parent={[
+          { label: "紀錄", href: "/records" },
+          { label: "書籍", href: booksListHref },
+        ]}
         backHref={backHref}
-        action={
-          <div className="flex min-w-0 items-center gap-2">
-            <BookRefetchButton />
-            <BookFormTabs />
-          </div>
-        }
+        action={<BookRefetchButton />}
       />
       <PageBody>
         <div className="shrink-0 md:min-h-0 md:flex-1">

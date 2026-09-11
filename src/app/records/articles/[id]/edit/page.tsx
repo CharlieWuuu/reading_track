@@ -6,6 +6,7 @@ import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
 import { kindHref } from "@/config/kind-routes";
+import { articleHref } from "@/config/routes";
 import { ArticleForm } from "@/features/articles/components/article-form";
 import { ArticleFormTabs } from "@/features/articles/components/article-form-tabs";
 import { useArticles } from "@/hooks/use-articles";
@@ -14,12 +15,19 @@ function EditArticle() {
   const { id } = useParams<{ id: string }>();
   const { articles, isLoading, error } = useArticles();
   const article = articles.find((a) => a.id === id);
+  const articleLabel =
+    article && (article.title.length > 5 ? `${article.title.slice(0, 5)}…` : article.title);
 
   return (
     <>
       <PageHeader
-        title="編輯文章"
+        title="編輯"
         size="compact"
+        parent={[
+          { label: "紀錄", href: "/records" },
+          { label: "文章", href: kindHref("records", "articles") },
+          ...(articleLabel ? [{ label: articleLabel, href: articleHref(id) }] : []),
+        ]}
         backHref={kindHref("records", "articles")}
         action={article && <ArticleFormTabs />}
       />

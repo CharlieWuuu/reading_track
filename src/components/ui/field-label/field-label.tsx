@@ -21,7 +21,7 @@ export const FIELD_CONTROL_CLASS = "min-w-0 md:flex-1";
  * 聚焦時線變成主色，不靠外框也看得出游標在哪一欄。
  */
 export const FIELD_INPUT_CLASS =
-  "border-0 border-b border-rule bg-transparent px-0 py-1.5 focus:border-b-2 focus:border-accent focus:outline-none focus:py-[calc(0.375rem-1px)]";
+  "border-0 border-b border-rule bg-transparent px-0 py-1.5 placeholder:text-gray-400 focus:border-b-2 focus:border-accent focus:outline-none focus:py-[calc(0.375rem-1px)]";
 
 /** 標籤與輸入框的外框：手機版直排，md 以上並排 */
 export const FIELD_ROW_CLASS = "min-w-0 md:flex md:items-center md:gap-2";

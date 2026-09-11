@@ -7,7 +7,8 @@ import { PageHeader } from "@/components/layout/page-header";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { ActionButton } from "@/components/ui/controls";
-import { kindHref } from "@/config/kind-routes";
+import { groupBasePath, kindHref } from "@/config/kind-routes";
+import { NAV_GROUPS } from "@/config/nav";
 import { KindGroup } from "@/config/record-kinds";
 import { variantFor } from "@/features/kinds/variant-registry";
 import { ModuleForm } from "@/features/overview/components/module-form";
@@ -83,12 +84,19 @@ export function KindListPage({ group, slug }: { group: KindGroup; slug: string }
 export function KindNewPage({ group, slug }: { group: KindGroup; slug: string }) {
   const { kind, isLoading } = useKindBySlug(group, slug);
   const Form = kind ? variantFor(kind.slug).form : undefined;
+  const groupLabel = NAV_GROUPS.find((g) => g.kindGroup === group)?.label;
 
   return (
     <>
       <PageHeader
         title={kind ? `新增${kind.name}` : ""}
         size="compact"
+        parent={
+          kind && [
+            { label: groupLabel ?? "", href: groupBasePath(group) },
+            { label: kind.name, href: kindHref(group, slug) },
+          ]
+        }
         backHref={kindHref(group, slug)}
       />
       <PageBody>
@@ -118,12 +126,19 @@ export function KindRecordPage({
   const Detail = kind ? variantFor(kind.slug).detail : undefined;
   const Form = kind ? variantFor(kind.slug).form : undefined;
   const isLoading = kindLoading || recordLoading;
+  const groupLabel = NAV_GROUPS.find((g) => g.kindGroup === group)?.label;
 
   return (
     <>
       <PageHeader
         title={record?.values.title ?? ""}
         size="compact"
+        parent={
+          kind && [
+            { label: groupLabel ?? "", href: groupBasePath(group) },
+            { label: kind.name, href: kindHref(group, slug) },
+          ]
+        }
         backHref={kindHref(group, slug)}
       />
       <PageBody>

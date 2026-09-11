@@ -10,10 +10,10 @@ export function QuoteBlock({ quote }: { quote: Pick<QuoteRow, "text" | "chapter"
   return (
     <div className="flex flex-col gap-1.5">
       {/* 不畫左側那條線：旁邊就是封面，兩個直的元素並排會像被切成兩欄 */}
-      <blockquote className="text-[15px] leading-relaxed whitespace-pre-wrap text-gray-800 md:text-base">
+      <blockquote className="font-serif text-[15px] leading-relaxed whitespace-pre-wrap text-gray-800 md:text-base">
         {quote.text}
       </blockquote>
-      {quote.chapter && <p className="text-right text-xs text-gray-400">— {quote.chapter}</p>}
+      {quote.chapter && <p className="text-xs text-gray-400">{quote.chapter}</p>}
       {quote.note && (
         <p className="text-xs leading-relaxed whitespace-pre-wrap text-gray-400">{quote.note}</p>
       )}
@@ -21,28 +21,13 @@ export function QuoteBlock({ quote }: { quote: Pick<QuoteRow, "text" | "chapter"
   );
 }
 
-/** 單字排成詞條：單字與翻譯同一行，例句與翻譯縮排在下面 */
+/** 單字排成一行：單字靠左、翻譯靠右，同一行一目了然 */
 export function VocabularyItem({ row }: { row: VocabularyRow }) {
   return (
-    <li className="flex flex-col gap-0.5">
-      <p className="flex flex-wrap items-baseline gap-2">
-        {/* 單字是這一則的主角，比翻譯與例句大一級 */}
-        <span className="text-base font-semibold text-gray-900 md:text-lg">{row.word}</span>
-        {row.pronunciation && <span className="text-xs text-gray-400">{row.pronunciation}</span>}
-        {row.wordTranslation && (
-          <span className="text-sm text-gray-500">{row.wordTranslation}</span>
-        )}
-        {row.chapter && <span className="text-xs text-gray-400">{row.chapter}</span>}
-      </p>
-      {row.sentence && (
-        <p className="pl-4 text-xs leading-relaxed whitespace-pre-wrap text-gray-600">
-          {row.sentence}
-        </p>
-      )}
-      {row.sentenceTranslation && (
-        <p className="pl-4 text-xs leading-relaxed whitespace-pre-wrap text-gray-400">
-          {row.sentenceTranslation}
-        </p>
+    <li className="flex items-baseline justify-between gap-2 py-1.5">
+      <span className="font-serif text-sm font-medium text-gray-900">{row.word}</span>
+      {row.wordTranslation && (
+        <span className="shrink-0 text-xs text-gray-400">{row.wordTranslation}</span>
       )}
     </li>
   );

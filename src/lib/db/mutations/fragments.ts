@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db/client";
 import { linkedIdsOf } from "@/lib/db/queries/internal-links";
 import { fragments } from "@/lib/db/schema/fragments";
@@ -6,7 +6,7 @@ import { records } from "@/lib/db/schema/works";
 import { KeywordInfo } from "@/types/keyword";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { setFragmentSourceUrl } from "./external-links";
-import { link, setLinks, unlinkAll } from "./internal-links";
+import { link, unlink, unlinkAll } from "./internal-links";
 import { kindIdByName } from "./kind-lookup";
 
 /**
@@ -15,8 +15,7 @@ import { kindIdByName } from "./kind-lookup";
  * 畫面送進來的 bookId 是「某一次讀」的編號，資料庫記的是「哪個作品」——
  * 換算在這一層做完，呼叫端不用知道有這回事。
  *
- * 關鍵字就是一則 fragment（kind 是「關鍵字」），沒有另外的主檔。
- * 誰連到哪個關鍵字走 internal_links，不分書／文章／書寫。
+ * 跟作品的關聯走 internal_links，跟關鍵字連誰是同一套機制，不再有自己的欄位。
  */
 
 async function workIdOf(userId: string, readingId: string): Promise<string | null> {
@@ -29,7 +28,7 @@ async function workIdOf(userId: string, readingId: string): Promise<string | nul
   return row?.workId ?? null;
 }
 
-/** 某個作品底下某一種片段整批換掉：先刪屬於它的，再把新的加回去 */
+/** 某個作品底下某一種片段整批換掉：先找出屬於它的（靠 internal_links），刪掉再把新的加回去並重新連結 */
 async function replaceFragments(
   userId: string,
   workId: string,
@@ -38,17 +37,35 @@ async function replaceFragments(
 ): Promise<void> {
   await db.transaction(async (tx) => {
     const kindId = await kindIdByName(tx, userId, kindName);
-    await tx
-      .delete(fragments)
-      .where(
-        and(
-          eq(fragments.userId, userId),
-          eq(fragments.workId, workId),
-          eq(fragments.kindId, kindId),
+    const linkedIds = await linkedIdsOf(userId, workId, tx);
+    const existing =
+      linkedIds.length > 0
+        ? await tx
+            .select({ id: fragments.id })
+            .from(fragments)
+            .where(
+              and(
+                eq(fragments.userId, userId),
+                eq(fragments.kindId, kindId),
+                inArray(fragments.id, linkedIds),
+              ),
+            )
+        : [];
+
+    for (const row of existing) await unlinkAll(tx, userId, row.id);
+    if (existing.length)
+      await tx.delete(fragments).where(
+        inArray(
+          fragments.id,
+          existing.map((row) => row.id),
         ),
       );
+
     const values = rows(kindId);
-    if (values.length) await tx.insert(fragments).values(values as never);
+    if (values.length) {
+      await tx.insert(fragments).values(values as never);
+      for (const value of values) await link(tx, userId, (value as { id: string }).id, workId);
+    }
   });
 }
 
@@ -67,7 +84,6 @@ export async function replaceBookQuotes(
         id: item.id || crypto.randomUUID(),
         userId,
         kindId,
-        workId,
         phrase: item.text,
         locator: item.chapter,
         body: item.note,
@@ -92,7 +108,6 @@ export async function replaceBookVocabulary(
         id: item.id || crypto.randomUUID(),
         userId,
         kindId,
-        workId,
         name: item.word,
         pronunciation: item.pronunciation,
         translation: item.wordTranslation,
@@ -118,15 +133,15 @@ export async function relinkFragment(
   readingId: string,
 ): Promise<void> {
   const workId = await workIdOf(userId, readingId);
-  await db
-    .update(fragments)
-    .set({ workId })
-    .where(and(eq(fragments.userId, userId), eq(fragments.id, fragmentId)));
+  await db.transaction(async (tx) => {
+    await unlinkAll(tx, userId, fragmentId);
+    if (workId) await link(tx, userId, fragmentId, workId);
+  });
 }
 
 /**
  * 單列新增。整批取代是以「哪個作品」為單位的，沒有作品就沒有那個單位——
- * 抄到一句話不是從書上看到的，走這條進來，work_id 留空。
+ * 抄到一句話不是從書上看到的，走這條進來，不連結任何作品。
  *
  * 選了書但那個 readingId 查不到作品時視為無出處，不是丟錯：寧可留下這一筆。
  */
@@ -134,19 +149,20 @@ export async function addQuote(userId: string, readingId: string, item: QuoteRow
   if (!item.text.trim()) return;
   // 交易外先查好：在交易裡用外層的 db 會等自己解鎖
   const workId = await workIdOf(userId, readingId);
+  const id = item.id || crypto.randomUUID();
 
   await db.transaction(async (tx) => {
     await tx.insert(fragments).values({
-      id: item.id || crypto.randomUUID(),
+      id,
       userId,
       kindId: await kindIdByName(tx, userId, "佳句"),
-      workId,
       phrase: item.text,
       locator: item.chapter,
       body: item.note,
       date: item.date,
       coverUrl: item.coverUrl,
     });
+    if (workId) await link(tx, userId, id, workId);
   });
 }
 
@@ -157,13 +173,13 @@ export async function addVocabulary(
 ): Promise<void> {
   if (!item.word.trim()) return;
   const workId = await workIdOf(userId, readingId);
+  const id = item.id || crypto.randomUUID();
 
   await db.transaction(async (tx) => {
     await tx.insert(fragments).values({
-      id: item.id || crypto.randomUUID(),
+      id,
       userId,
       kindId: await kindIdByName(tx, userId, "單字"),
-      workId,
       name: item.word,
       pronunciation: item.pronunciation,
       translation: item.wordTranslation,
@@ -173,6 +189,7 @@ export async function addVocabulary(
       date: item.date,
       coverUrl: item.coverUrl,
     });
+    if (workId) await link(tx, userId, id, workId);
   });
 }
 
@@ -197,6 +214,10 @@ export async function keywordFragmentId(tx: Tx, userId: string, name: string): P
 /**
  * 某一筆資料（書、文章、書寫……）身上的關鍵字整批換掉。
  * 名字自動變成關鍵字片段（沒有就新建），再用 internal_links 連起來。
+ *
+ * 不能走 setLinks 的「先清光這個 id 的所有連結」——ownerId 是書/文章本身，
+ * 它名下還掛著佳句、單字這些不相干的連結，全清會把那些一起弄丟。
+ * 這裡只動「對方是關鍵字」的那幾條邊：先找出舊的關鍵字連結、跟新名單做差集。
  */
 export async function setKeywordLinks(
   tx: Tx,
@@ -204,8 +225,28 @@ export async function setKeywordLinks(
   ownerId: string,
   names: string[],
 ): Promise<void> {
-  const ids = await Promise.all(names.map((name) => keywordFragmentId(tx, userId, name)));
-  await setLinks(tx, userId, ownerId, ids);
+  const keywordKindId = await kindIdByName(tx, userId, "關鍵字");
+  const linkedIds = await linkedIdsOf(userId, ownerId, tx);
+  const oldKeywordIds = linkedIds.length
+    ? (
+        await tx
+          .select({ id: fragments.id })
+          .from(fragments)
+          .where(
+            and(
+              eq(fragments.userId, userId),
+              eq(fragments.kindId, keywordKindId),
+              inArray(fragments.id, linkedIds),
+            ),
+          )
+      ).map((row) => row.id)
+    : [];
+
+  const newIds = await Promise.all(names.map((name) => keywordFragmentId(tx, userId, name)));
+  const newIdSet = new Set(newIds);
+
+  for (const id of oldKeywordIds) if (!newIdSet.has(id)) await unlink(tx, userId, ownerId, id);
+  for (const id of newIds) await link(tx, userId, ownerId, id);
 }
 
 /** 維基查回來的資料整批寫入；已經有的就更新，不動使用者自己填的名字 */
@@ -270,7 +311,7 @@ export async function renameKeyword(userId: string, from: string, to: string): P
       );
     if (!oldFragment) return 0;
 
-    const affected = await linkedIdsOf(userId, oldFragment.id);
+    const affected = await linkedIdsOf(userId, oldFragment.id, tx);
 
     const [existing] = await tx
       .select({ id: fragments.id })
@@ -304,7 +345,7 @@ export async function deleteKeyword(userId: string, name: string): Promise<numbe
       );
     if (!old) return 0;
 
-    const affected = await linkedIdsOf(userId, old.id);
+    const affected = await linkedIdsOf(userId, old.id, tx);
 
     await unlinkAll(tx, userId, old.id);
     await tx.delete(fragments).where(eq(fragments.id, old.id));

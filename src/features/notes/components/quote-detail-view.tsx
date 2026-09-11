@@ -41,6 +41,10 @@ export function QuoteDetailView() {
       <PageHeader
         title={quote?.bookTitle ?? "佳句"}
         size="compact"
+        parent={[
+          { label: "片段", href: "/fragments" },
+          { label: "佳句", href: kindHref("fragments", "quotes") },
+        ]}
         backHref={kindHref("fragments", "quotes")}
         action={quote && <ActionButton href={quoteEditHref(quote.id)}>編輯</ActionButton>}
       />

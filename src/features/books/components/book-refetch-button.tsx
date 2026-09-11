@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionButton } from "@/components/ui/controls/action-button";
 import { useBookRefetchStore } from "@/features/books/stores/use-book-refetch-store";
 
 /** 頁首上的「重新抓取資料」。表單沒登記動作就整顆不畫 */
@@ -9,15 +10,10 @@ export function BookRefetchButton() {
 
   return (
     <div className="flex min-w-0 items-center gap-2">
-      {note && <span className="truncate text-xs text-gray-500">{note}</span>}
-      <button
-        type="button"
-        onClick={run}
-        disabled={running}
-        className="rounded-control shrink-0 border px-3 py-1.5 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
-      >
+      {note && <span className="text-meta text-ink-faint truncate">{note}</span>}
+      <ActionButton tone="secondary" onClick={run} disabled={running}>
         {running ? "抓取中…" : "重新抓取"}
-      </button>
+      </ActionButton>
     </div>
   );
 }

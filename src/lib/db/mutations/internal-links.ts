@@ -43,6 +43,21 @@ export async function setLinks(
   for (const otherId of otherIds) await link(tx, userId, id, otherId);
 }
 
+/** 拆掉兩個 id 之間那一條連結，其他連結不動 */
+export async function unlink(tx: Tx, userId: string, aId: string, bId: string): Promise<void> {
+  await tx
+    .delete(internalLinks)
+    .where(
+      and(
+        eq(internalLinks.userId, userId),
+        or(
+          and(eq(internalLinks.aId, aId), eq(internalLinks.bId, bId)),
+          and(eq(internalLinks.aId, bId), eq(internalLinks.bId, aId)),
+        ),
+      ),
+    );
+}
+
 /** 拆掉某個 id 的所有連結，不留孤兒列。刪一筆資料本身時用 */
 export async function unlinkAll(tx: Tx, userId: string, id: string): Promise<void> {
   await tx

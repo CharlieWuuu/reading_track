@@ -45,7 +45,7 @@ export const writingEditHref = (id: string): string => {
   return `${writingsListHref}/${id}/edit`;
 };
 
-const quotesListHref = kindHref("fragments", "quotes");
+export const quotesListHref = kindHref("fragments", "quotes");
 
 export const quoteHref = (id: string): string => {
   return `${quotesListHref}/${id}`;
@@ -55,7 +55,7 @@ export const quoteEditHref = (id: string): string => {
   return `${quotesListHref}/${id}/edit`;
 };
 
-const vocabularyListHref = kindHref("fragments", "vocabulary");
+export const vocabularyListHref = kindHref("fragments", "vocabulary");
 
 /**
  * 單字的鍵是詞本身而不是編號：同一個詞在不同書各有一列，那一頁一次看完（改完）

@@ -32,6 +32,10 @@ export function WritingDetailView() {
       <PageHeader
         title={writing?.title ?? "紀事"}
         size="compact"
+        parent={[
+          { label: "專欄", href: "/writings" },
+          { label: "書寫", href: kindHref("writings", "writing") },
+        ]}
         backHref={kindHref("writings", "writing")}
         action={writing && <ActionButton href={writingEditHref(writing.id)}>編輯</ActionButton>}
       />
