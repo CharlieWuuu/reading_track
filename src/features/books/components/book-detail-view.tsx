@@ -71,13 +71,19 @@ function FactsCard({ book }: { book: Book }) {
   return (
     <div className="w-full shrink-0 md:w-52 md:border-l md:pl-6">
       <SectionHeading title="基本資料" />
-      <DetailField label="狀態">
+      <DetailField label="狀態" align="right">
         <StatusBadge status={book.status} />
       </DetailField>
-      <DetailField label="開始">{book.startDate}</DetailField>
-      <DetailField label="讀完">{book.endDate}</DetailField>
-      <DetailField label="語言">{book.language}</DetailField>
-      <DetailField label="來源">
+      <DetailField label="開始" align="right">
+        {book.startDate}
+      </DetailField>
+      <DetailField label="讀完" align="right">
+        {book.endDate}
+      </DetailField>
+      <DetailField label="語言" align="right">
+        {book.language}
+      </DetailField>
+      <DetailField label="來源" align="right">
         {book.sourceUrl && (
           <a
             href={book.sourceUrl}
@@ -91,7 +97,9 @@ function FactsCard({ book }: { book: Book }) {
           </a>
         )}
       </DetailField>
-      <DetailField label="私人">{book.private === PRIVATE_MARK ? "是" : "否"}</DetailField>
+      <DetailField label="私人" align="right">
+        {book.private === PRIVATE_MARK ? "是" : "否"}
+      </DetailField>
     </div>
   );
 }
@@ -178,9 +186,10 @@ export function BookDetailView() {
   const note = book.note.trim();
   const noteCount = (note ? 1 : 0) + notes.length;
 
-  // 量化資訊行：屬性、頁數、出版社，缺的項目自動不留空隙
+  // 量化資訊行：類型、子類型、頁數、出版社，缺的項目自動不留空隙
   const quantLine = [
-    book.domain,
+    book.type,
+    book.subDomain,
     formatCount(book.pageCount) && `${formatCount(book.pageCount)} 頁`,
     book.publisher,
   ]
@@ -212,11 +221,7 @@ export function BookDetailView() {
                 <h2 className="font-serif text-2xl leading-tight font-semibold break-words text-gray-900 md:text-3xl">
                   {book.title}
                 </h2>
-                {(book.author || book.publisher) && (
-                  <p className="font-serif text-base text-gray-500">
-                    {[book.author, book.publisher].filter(Boolean).join(" — ")}
-                  </p>
-                )}
+                {book.author && <p className="font-serif text-base text-gray-500">{book.author}</p>}
                 {quantLine && <p className="text-meta text-ink-faint">{quantLine}</p>}
                 <CountStats
                   quotes={bookQuotes.length}
