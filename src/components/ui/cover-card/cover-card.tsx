@@ -2,8 +2,7 @@ import Link from "next/link";
 import { CoverBand } from "@/components/ui/cover-band/cover-band";
 
 /** CoverCard 排成的格線：欄數跟著寬度長，每欄寬度才不會沒有上限一直被拉開 */
-export const COVER_CARD_GRID =
-  "grid grid-cols-1 gap-x-8 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4";
+export const COVER_CARD_GRID = "grid grid-cols-2 gap-x-5 md:gap-x-8 xl:grid-cols-3 2xl:grid-cols-4";
 
 const styles = {
   item: "block py-3",
