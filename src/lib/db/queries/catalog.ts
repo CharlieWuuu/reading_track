@@ -226,6 +226,41 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
   });
 }
 
+/** 某一種片段類型底下的全部。自訂類型的清單頁走這條——紀錄那堆走 listRecordsByKind */
+export async function listFragmentsByKind(userId: string, kindId: string): Promise<FragmentRow[]> {
+  const rows = await db
+    .select({ fragment: fragments, kind: kinds })
+    .from(fragments)
+    .innerJoin(kinds, eq(kinds.id, fragments.kindId))
+    .where(and(eq(fragments.userId, userId), eq(fragments.kindId, kindId)))
+    .orderBy(desc(fragments.createdAt));
+
+  const worksByFragment = await worksOfFragments(
+    userId,
+    rows.map(({ fragment }) => fragment.id),
+  );
+
+  return rows.map(({ fragment, kind }) => {
+    const work = worksByFragment.get(fragment.id);
+    return {
+      id: fragment.id,
+      kindId: kind.id,
+      kindName: kind.name,
+      kindGroup: kind.groupKey as KindGroup,
+      kindSlug: kind.slug,
+      workId: work?.id ?? null,
+      workTitle: work?.title ?? "",
+      name: fragment.name,
+      body: fragment.body,
+      locator: fragment.locator,
+      note: fragment.body,
+      date: fragment.date,
+      createdAt: fragment.createdAt.toISOString(),
+      coverUrl: fragment.coverUrl,
+    };
+  });
+}
+
 /**
  * 書寫獨立成表了，不在 fragments 裡——概覽頁要的形狀一樣，這裡轉一次。
  *
