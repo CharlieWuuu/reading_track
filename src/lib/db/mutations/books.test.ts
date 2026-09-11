@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { recordTopics } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { makeBook, seedUser } from "@/lib/db/test/factories";
-import { kindIdByName } from "./kind-lookup";
+import { kindIdBySlug } from "./kind-lookup";
 
 // mutations 從模組層拿 db，換成記憶體裡的那份才測得到
 vi.mock("@/lib/db/client", async () => {
@@ -103,7 +103,7 @@ describe("交易", () => {
       db.transaction(async (tx) => {
         await tx.insert(works).values({
           userId,
-          kindId: await kindIdByName(tx, userId, "書籍"),
+          kindId: await kindIdBySlug(tx, userId, "books"),
           title: "會被回滾的書",
           creator: "",
           language: "",

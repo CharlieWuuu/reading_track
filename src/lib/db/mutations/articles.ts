@@ -7,7 +7,7 @@ import { splitLines } from "@/types/book";
 import { setRecordSourceUrl } from "./external-links";
 import { setKeywordLinks } from "./fragments";
 import { unlinkAll } from "./internal-links";
-import { kindIdByName } from "./kind-lookup";
+import { kindIdBySlug } from "./kind-lookup";
 import { attributeIdFor, typeIdFor } from "./taxonomy";
 import { toDate } from "./values";
 
@@ -20,11 +20,11 @@ import { toDate } from "./values";
  * 有完成日就是讀完了，沒有就是想讀：舊形狀沒有狀態欄，狀態由日期推出來。
  */
 
-const ARTICLE_KIND = "文章";
+const ARTICLE_KIND_SLUG = "articles";
 
 export async function addArticleRow(userId: string, article: Article): Promise<void> {
   await db.transaction(async (tx) => {
-    const kindId = await kindIdByName(tx, userId, ARTICLE_KIND);
+    const kindId = await kindIdBySlug(tx, userId, ARTICLE_KIND_SLUG);
 
     await tx.insert(works).values({
       id: article.id,

@@ -6,7 +6,7 @@ import { Book, splitLines } from "@/types/book";
 import { setRecordSourceUrl } from "./external-links";
 import { setKeywordLinks } from "./fragments";
 import { unlinkAll } from "./internal-links";
-import { kindIdByName } from "./kind-lookup";
+import { kindIdBySlug } from "./kind-lookup";
 import { attributeIdFor, typeIdFor } from "./taxonomy";
 import { toDate, toInt } from "./values";
 
@@ -20,7 +20,7 @@ import { toDate, toInt } from "./values";
  * 舊形狀那欄留著只為了型別相容，寫入時丟掉。
  */
 
-const BOOK_KIND = "書籍";
+const BOOK_KIND_SLUG = "books";
 
 function recordValues(book: Book) {
   return {
@@ -50,7 +50,7 @@ export async function addBookRow(userId: string, book: Book): Promise<void> {
           .insert(works)
           .values({
             userId,
-            kindId: await kindIdByName(tx, userId, BOOK_KIND),
+            kindId: await kindIdBySlug(tx, userId, BOOK_KIND_SLUG),
             title: book.title,
             creator: book.author,
             language: book.language,

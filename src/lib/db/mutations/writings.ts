@@ -8,7 +8,7 @@ import { Writing } from "@/types/writing";
 import { setWritingSourceUrl } from "./external-links";
 import { setKeywordLinks } from "./fragments";
 import { unlinkAll } from "./internal-links";
-import { kindIdByName } from "./kind-lookup";
+import { kindIdBySlug } from "./kind-lookup";
 import { toDate } from "./values";
 
 /**
@@ -18,7 +18,7 @@ import { toDate } from "./values";
  * 關鍵字。sourceId 進來的是「某一次讀」的編號，要換成它屬於哪個作品。
  */
 
-const WRITING_KIND = "書寫";
+const WRITING_KIND_SLUG = "writing";
 
 /** 主題是扁平的一層，沒有領域那種父子結構；沒填就不掛 */
 async function topicIdFor(tx: Tx, userId: string, topic: string): Promise<string | null> {
@@ -68,7 +68,7 @@ export async function addWritingRow(userId: string, writing: Writing): Promise<v
     await tx.insert(writings).values({
       id: writing.id,
       userId,
-      kindId: await kindIdByName(tx, userId, WRITING_KIND),
+      kindId: await kindIdBySlug(tx, userId, WRITING_KIND_SLUG),
       topicId: await topicIdFor(tx, userId, writing.topic),
       workId,
       name: writing.title,

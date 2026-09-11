@@ -13,13 +13,13 @@ const asOverrides = (key: string) => {
 
 describe("resolveFormModules", () => {
   it("沒勾的模組不出現", () => {
-    const keys = resolveFormModules(asOverrides("book")).map((m) => m.key);
+    const keys = resolveFormModules(asOverrides("books")).map((m) => m.key);
     expect(keys).toContain("cover");
     expect(keys).not.toContain("gloss");
   });
 
   it("類型只改名字，模組還是同一批", () => {
-    const book = resolveFormModules(asOverrides("book"));
+    const book = resolveFormModules(asOverrides("books"));
     const movie = resolveFormModules(asOverrides("movie"));
     expect(book.find((m) => m.key === "creator")?.label).toBe("作者");
     expect(movie.find((m) => m.key === "creator")?.label).toBe("導演");
