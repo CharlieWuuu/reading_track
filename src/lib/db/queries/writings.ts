@@ -12,10 +12,11 @@ import { sourceUrlOfWritings } from "./external-links";
 import { keywordNamesByOwner } from "./internal-links";
 
 /**
- * 書寫讀回舊形狀，畫面不用改。
+ * 書寫讀回舊形狀。
  *
- * 舊的「類型」欄混了兩件事：有出處時它記的是出處（書籍／文章），沒出處時記的
- * 才是真正的類型。這裡再合回去。
+ * kind 只回傳這則書寫自己的類型；出處的類型另外用 sourceKind 回傳，
+ * 兩者不合併——之前合併顯示（有出處時 kind 被出處類型蓋掉）是錯誤設計，
+ * 同一份內容因為「有沒有連結出處」就顯示不同類型，沒辦法拿來做篩選或統計。
  */
 
 /** 延伸自書或文章、卻沒特別選主題的，顯示成「心得」——這是顯示才有的詞，
@@ -70,12 +71,13 @@ async function toWritings(userId: string, rows: WritingJoinRow[]): Promise<Writi
       createdAt: writing.createdAt.toISOString(),
       date: writing.date,
       title: writing.name,
-      kind: workKind ?? kindName,
+      kind: kindName,
       topic: topicName ?? (writing.workId ? IMPLIED_TOPIC : ""),
       keywords: keywords.get(writing.id) ?? "",
       note: writing.body,
       link: links.get(writing.id) ?? "",
       sourceTitle: workTitle ?? "",
+      sourceKind: workKind ?? "",
       sourceId,
       private: "", // 書寫不帶私人旗標，藏東西一律從主題與類型下手
       coverUrl: writing.coverUrl,

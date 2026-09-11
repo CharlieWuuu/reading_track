@@ -28,6 +28,7 @@ function makeWriting(patch: Partial<Writing> = {}): Writing {
     note: "內容",
     link: "",
     sourceTitle: "",
+    sourceKind: "",
     sourceId: "",
     private: "",
     coverUrl: "",
