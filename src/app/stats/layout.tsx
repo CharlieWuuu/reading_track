@@ -57,10 +57,16 @@ const VIEW_ICONS: Record<StatsView, () => React.ReactElement> = {
 function StatsHeader() {
   const router = useRouter();
   const segment = usePathname().split("/")[2];
-  const type = isStatsType(segment) ? segment : "books";
+  const validSegment = isStatsType(segment);
+  // 首頁（/stats，segment 是 undefined）是分類卡片牆，不屬於任何一個類型，
+  // 頁首只留標題，不畫「看哪一種／怎麼看」那兩顆選單——沒有當下的類型可以切。
+  // useUrlParams 還是要呼叫：hooks 不能依條件跳過，沒用到時值就晾著
+  const type = validSegment ? segment : "books";
   const { searchParams } = useUrlParams();
   const view = resolveView(type, searchParams.get("view"));
   const views = viewsFor(type).map((v) => ({ ...v, Icon: VIEW_ICONS[v.key] }));
+
+  if (!validSegment) return <PageHeader title="統計" />;
 
   return (
     <PageHeader
