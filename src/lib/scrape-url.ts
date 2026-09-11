@@ -1,11 +1,12 @@
-export type ScrapedFields = { title?: string; author?: string; platform?: string };
+import { ScrapedArticle } from "@/lib/scrapers/article";
 
 /**
  * 通用網址剖析：讀 OpenGraph／JSON-LD，站台改版也吃得下大部分頁面。
- * 內建的書籍抓取器是各平台專用的剖析器，這支服務的是自訂類型——沒有專用剖析器，
- * 能拿到多少算多少。
+ * 書籍走的是各平台專用剖析器（/api/scrape），跟這支是兩條路。
+ *
+ * 抓不到會丟例外，訊息由 route 給。
  */
-export async function scrapeUrl(url: string): Promise<ScrapedFields> {
+export async function scrapeUrl(url: string): Promise<ScrapedArticle> {
   const res = await fetch("/api/scrape-article", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
