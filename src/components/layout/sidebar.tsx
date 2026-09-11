@@ -61,10 +61,13 @@ export function Sidebar() {
   const currentSlug = activeNavKey(pathname) ?? kindGroupSlugFromPath(pathname)?.slug ?? null;
   const { kinds } = useKinds();
 
-  /** 該堆底下所有有資料的類型，全部從資料庫來——沒用過的不佔位置 */
+  /**
+   * 該堆底下所有類型，全部從資料庫來——包含使用者剛新增、還沒有任何資料的那個。
+   * 沒有入口就點不進去，沒地方新增第一筆；0 筆不等於不存在。
+   */
   const typesOf = (group: NavGroup): NavType[] =>
     kinds
-      .filter((kind) => kind.group === group.kindGroup && kind.count > 0)
+      .filter((kind) => kind.group === group.kindGroup)
       .map((kind) => ({
         key: kind.slug,
         label: kind.name,
