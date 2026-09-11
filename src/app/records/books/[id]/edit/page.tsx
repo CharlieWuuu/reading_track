@@ -6,7 +6,6 @@ import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
 import { bookHref } from "@/config/routes";
 import { BookForm } from "@/features/books/components/book-form";
-import { BookFormTabs } from "@/features/books/components/book-form-tabs";
 import { BookRefetchButton } from "@/features/books/components/book-refetch-button";
 import { useBooks } from "@/hooks/use-books";
 import { useUrlParams } from "@/hooks/use-url-param";
@@ -26,14 +25,7 @@ export default function EditBookPage() {
         title="編輯書籍"
         size="compact"
         backHref={backHref}
-        action={
-          book && (
-            <div className="flex min-w-0 items-center gap-2">
-              <BookRefetchButton />
-              <BookFormTabs />
-            </div>
-          )
-        }
+        action={book && <BookRefetchButton />}
       />
       <PageBody>
         <RecordGate loading={isLoading} error={error} missing={!book && "找不到這本書"}>

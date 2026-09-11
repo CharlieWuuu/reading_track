@@ -322,30 +322,34 @@ export async function seedDemo(email: string): Promise<string> {
       );
   }
 
-  await db.insert(fragments).values(
-    QUOTES.map(([bookIndex, text, chapter]) => ({
-      userId,
-      kindId: quoteKindId,
-      workId: bookIds[bookIndex],
-      phrase: text,
-      locator: chapter,
-    })),
-  );
+  const quoteFragments = QUOTES.map(([bookIndex, text, chapter]) => ({
+    row: { id: crypto.randomUUID(), userId, kindId: quoteKindId, phrase: text, locator: chapter },
+    workId: bookIds[bookIndex],
+  }));
+  await db.insert(fragments).values(quoteFragments.map(({ row }) => row));
+  await db
+    .insert(internalLinks)
+    .values(quoteFragments.map(({ row, workId }) => ({ userId, aId: row.id, bId: workId })));
 
-  await db.insert(fragments).values(
-    VOCABULARY.map(
-      ([bookIndex, word, pronunciation, wordTranslation, sentence, sentenceTranslation]) => ({
+  const vocabularyFragments = VOCABULARY.map(
+    ([bookIndex, word, pronunciation, wordTranslation, sentence, sentenceTranslation]) => ({
+      row: {
+        id: crypto.randomUUID(),
         userId,
         kindId: vocabularyKindId,
-        workId: bookIds[bookIndex],
         name: word,
         pronunciation,
         translation: wordTranslation,
         context: sentence,
         contextTranslation: sentenceTranslation,
-      }),
-    ),
+      },
+      workId: bookIds[bookIndex],
+    }),
   );
+  await db.insert(fragments).values(vocabularyFragments.map(({ row }) => row));
+  await db
+    .insert(internalLinks)
+    .values(vocabularyFragments.map(({ row, workId }) => ({ userId, aId: row.id, bId: workId })));
 
   return (
     `${email}：${BOOKS.length} 本書、${readingIds.length + 2} 次閱讀、${WRITINGS.length} 則書寫、` +

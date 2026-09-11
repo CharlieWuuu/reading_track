@@ -56,6 +56,8 @@ export function normalizeStatus(raw: string): RecordStatus | null {
 
 export interface Book {
   id: string;
+  /** 作品的編號，不是這一次讀的編號——站內連結（佳句、單字、書寫……）都掛在這裡 */
+  workId: string;
   /** 記下這一列的時間（ISO）。日期只到日，同一天的先後只有它分得出來 */
   createdAt: string;
   title: string;
@@ -86,8 +88,6 @@ export interface Book {
   keywords: string;
   /** 「是」代表私人：鎖上的時候伺服器不會把這一列送到瀏覽器 */
   private: string;
-  /** 相關文章，一行一個網址 */
-  relatedArticles: string;
   /** @deprecated 單字搬到「單字」分頁了，這欄只留給遷移讀取，app 不再寫入 */
   vocabulary: string;
   /**

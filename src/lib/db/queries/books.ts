@@ -57,6 +57,7 @@ export async function listBooks(userId: string): Promise<Book[]> {
     const first = firstRecordOf.get(work.id);
     return {
       id: record.id,
+      workId: work.id,
       createdAt: record.createdAt.toISOString(),
       title: work.title,
       author: work.creator,
@@ -79,7 +80,6 @@ export async function listBooks(userId: string): Promise<Book[]> {
       vocabulary: "",
       keywords: keywords.get(work.id) ?? "",
       private: record.isPrivate ? PRIVATE_MARK : "",
-      relatedArticles: "",
       // 第一次讀的那列 originId 是空的，其餘指回它——跟 Sheet 時代的約定一樣
       originId: first === record.id ? "" : (first ?? ""),
     };

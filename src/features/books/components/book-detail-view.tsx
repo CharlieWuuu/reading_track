@@ -8,12 +8,13 @@ import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
-import { DetailField, DetailFields, DetailSection } from "@/components/ui/detail";
+import { DetailField } from "@/components/ui/detail";
 import { NoteBlock } from "@/components/ui/note-block";
 import { RelatedNotes } from "@/components/ui/related-notes";
-import { StatusBadge, TagList } from "@/components/ui/tag-badge";
+import { StatusBadge } from "@/components/ui/tag-badge";
 import { kindHref } from "@/config/kind-routes";
-import { bookEditHref } from "@/config/routes";
+import { PRIVATE_MARK } from "@/config/privacy";
+import { bookEditHref, quotesListHref, vocabularyListHref } from "@/config/routes";
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { QuoteBlock, VocabularyItem } from "@/features/notes/components/record-items";
 import { useBooks } from "@/hooks/use-books";
@@ -21,99 +22,117 @@ import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useWritings } from "@/hooks/use-writings";
 import { Book, formatCount, splitLines } from "@/types/book";
+import { QuoteRow, VocabularyRow } from "@/types/record";
 import { sameBook } from "@/utils/book-reads";
 import { notesForSource } from "@/utils/related-notes";
 
-/** 這本書本身的事實：換誰來讀都一樣，所以跟書名放在一起當書名頁 */
-function BookFacts({ book }: { book: Book }) {
+/** 一次讀完就知道的四個數字：書裡留下了多少東西，緊接在量化資訊行下面 */
+function CountStats({
+  quotes,
+  vocabulary,
+  notes,
+  keywords,
+}: {
+  quotes: number;
+  vocabulary: number;
+  notes: number;
+  keywords: number;
+}) {
+  const items = [
+    { label: "佳句", value: quotes },
+    { label: "單字", value: vocabulary },
+    { label: "紀事", value: notes },
+    { label: "關鍵字", value: keywords },
+  ];
   return (
-    <DetailFields>
-      <div>
-        <DetailField label="ISBN">{book.isbn}</DetailField>
-        <DetailField label="語言">{book.language}</DetailField>
-      </div>
-      <div>
-        <DetailField label="頁數">{formatCount(book.pageCount)}</DetailField>
-        <DetailField label="字數">{formatCount(book.wordCount)}</DetailField>
-        <DetailField label="來源">
-          {book.sourceUrl && (
-            <a
-              href={book.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title={book.sourceUrl}
-              className="inline-flex items-center gap-1 text-blue-700 underline underline-offset-2 hover:text-blue-900"
-            >
-              原始頁面
-              <ExternalLink size={12} strokeWidth={1.5} aria-hidden />
-            </a>
-          )}
-        </DetailField>
-      </div>
-    </DetailFields>
-  );
-}
-
-/**
- * 讀過幾次。只有重讀的書才畫——讀一次的書多一個「讀過 1 次」的區塊是廢話。
- *
- * 書單一本書只佔一列，所以次數只有在這裡看得到。
- */
-function ReadingHistory({ reads }: { reads: Book[] }) {
-  const ordered = [...reads].sort((a, b) =>
-    (a.startDate ?? a.endDate ?? "").localeCompare(b.startDate ?? b.endDate ?? ""),
-  );
-
-  return (
-    <ol className="flex flex-col gap-2">
-      {ordered.map((read, i) => (
-        <li key={read.id} className="flex items-baseline gap-3 text-sm">
-          <span className="shrink-0 text-xs text-gray-400 tabular-nums">第 {i + 1} 次</span>
-          <span className="text-gray-700 tabular-nums">
-            {[read.startDate, read.endDate].filter(Boolean).join(" – ") || "沒有日期"}
-          </span>
-          {read.platform && <span className="text-xs text-gray-400">{read.platform}</span>}
-        </li>
+    <div className="border-rule-soft mt-1.5 flex gap-8 border-t pt-3">
+      {items.map((item) => (
+        <div key={item.label}>
+          <div className="font-serif text-2xl font-semibold text-gray-900">{item.value}</div>
+          <span className="text-label text-ink-faint tracking-label uppercase">{item.label}</span>
+        </div>
       ))}
-    </ol>
-  );
-}
-
-/**
- * 進這一頁最先想知道的三件事：讀完了沒、什麼時候讀的、在哪讀的。
- * 它們原本排在分類旁邊，得先捲過封面與 ISBN 才看得到，所以提到書名底下。
- */
-function ReadingMeta({ book }: { book: Book }) {
-  const span = [book.startDate, book.endDate].filter(Boolean).join(" – ");
-  return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-gray-500">
-      <StatusBadge status={book.status} />
-      {span && <span className="tabular-nums">{span}</span>}
-      {book.platform && <TagList values={[book.platform]} tone="platform" />}
     </div>
   );
 }
 
-/** 怎麼歸類的。狀態與日期提到書名底下之後，這一節只剩分類 */
-function Classification({ book }: { book: Book }) {
+/** 右欄的固定資料卡：狀態、開始、讀完、語言、來源、私人 */
+function FactsCard({ book }: { book: Book }) {
   return (
-    <DetailFields>
-      <div>
-        <DetailField label="領域">
-          {(book.domain || book.subDomain) && (
-            <div className="flex flex-wrap items-center gap-1.5">
-              <TagList values={[book.domain]} tone="domain" />
-              <TagList values={[book.subDomain]} tone="subDomain" />
-            </div>
-          )}
-        </DetailField>
+    <div className="w-full shrink-0 md:w-52 md:border-l md:pl-6">
+      <h3 className="border-rule-strong text-label text-ink tracking-label border-b pb-1.5 font-semibold uppercase">
+        基本資料
+      </h3>
+      <DetailField label="狀態">
+        <StatusBadge status={book.status} />
+      </DetailField>
+      <DetailField label="開始">{book.startDate}</DetailField>
+      <DetailField label="讀完">{book.endDate}</DetailField>
+      <DetailField label="語言">{book.language}</DetailField>
+      <DetailField label="來源">
+        {book.sourceUrl && (
+          <a
+            href={book.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={book.sourceUrl}
+            className="inline-flex items-center gap-1 text-blue-700 underline underline-offset-2 hover:text-blue-900"
+          >
+            原始頁面
+            <ExternalLink size={12} strokeWidth={1.5} aria-hidden />
+          </a>
+        )}
+      </DetailField>
+      <DetailField label="私人">{book.private === PRIVATE_MARK ? "是" : "否"}</DetailField>
+    </div>
+  );
+}
+
+/** 右欄的佳句清單：只列前幾則，其餘去列表頁看 */
+function QuotePreview({ quotes }: { quotes: QuoteRow[] }) {
+  const preview = quotes.slice(0, 3);
+  return (
+    <div className="flex min-w-0 flex-col gap-3">
+      <div className="border-rule-strong flex items-baseline justify-between border-b pb-1.5">
+        <h3 className="text-label text-ink tracking-label font-semibold uppercase">佳句</h3>
+        <span className="text-meta text-ink-faint tabular-nums">{quotes.length} 則</span>
       </div>
-      <div>
-        <DetailField label="屬性">
-          {book.type && <TagList values={[book.type]} tone="type" />}
-        </DetailField>
+      <ul className="divide-rule flex flex-col divide-y">
+        {preview.map((row) => (
+          <li key={row.id} className="py-3 first:pt-0">
+            <QuoteBlock quote={row} />
+          </li>
+        ))}
+      </ul>
+      {quotes.length > preview.length && (
+        <a href={quotesListHref} className="text-meta text-ink-faint hover:text-ink">
+          看全部 {quotes.length} 則 →
+        </a>
+      )}
+    </div>
+  );
+}
+
+/** 右欄的單字清單：只列前幾個，其餘去列表頁看 */
+function VocabularyPreview({ vocabulary }: { vocabulary: VocabularyRow[] }) {
+  const preview = vocabulary.slice(0, 4);
+  return (
+    <div className="flex min-w-0 flex-col gap-3">
+      <div className="border-rule-strong flex items-baseline justify-between border-b pb-1.5">
+        <h3 className="text-label text-ink tracking-label font-semibold uppercase">單字</h3>
+        <span className="text-meta text-ink-faint tabular-nums">{vocabulary.length} 個</span>
       </div>
-    </DetailFields>
+      <ul className="divide-rule flex flex-col divide-y">
+        {preview.map((row) => (
+          <VocabularyItem key={row.id} row={row} />
+        ))}
+      </ul>
+      {vocabulary.length > preview.length && (
+        <a href={vocabularyListHref} className="text-meta text-ink-faint hover:text-ink">
+          看全部 {vocabulary.length} 個 →
+        </a>
+      )}
+    </div>
   );
 }
 
@@ -148,7 +167,6 @@ export function BookDetailView() {
   }
 
   const keywords = splitLines(book.keywords);
-  const relatedArticles = splitLines(book.relatedArticles);
   // 佳句與單字綁的是「某一次讀」那一列，所以重讀的那幾列要一起算進來
   const reads = sameBook(books, book);
   const readIds = new Set(reads.map((b) => b.id));
@@ -156,129 +174,99 @@ export function BookDetailView() {
   const bookVocabulary = vocabulary.filter((row) => readIds.has(row.bookId));
   const notes = notesForSource(writings, readIds);
   const note = book.note.trim();
+  const noteCount = (note ? 1 : 0) + notes.length;
+
+  // 量化資訊行：屬性、頁數、出版社，缺的項目自動不留空隙
+  const quantLine = [
+    book.domain,
+    formatCount(book.pageCount) && `${formatCount(book.pageCount)} 頁`,
+    book.publisher,
+  ]
+    .filter(Boolean)
+    .join("　·　");
 
   return (
     <>
       <PageHeader
-        title="書籍資訊"
+        title="詳情"
+        parent={["紀錄", "書籍"]}
         size="compact"
         backHref={backHref}
         action={<ActionButton href={bookEditHref(book.id, back)}>編輯</ActionButton>}
       />
 
-      {/* 一份文件：單欄、靠章節標題分段，不切成一張張卡片 */}
       <PageBody>
         <article className="flex w-full flex-col gap-8">
-          {/* 書名頁：書名獨佔一行，底下才是封面與欄位 */}
-          {/* 書名跟封面並排時只剩半個寬度，長書名要斷成三四行才擺得下 */}
-          <header className="flex flex-col gap-4 md:gap-6">
-            <div className="flex flex-col gap-1">
-              <h2 className="text-2xl leading-tight font-semibold break-words text-gray-900 md:text-3xl">
-                {book.title}
-              </h2>
-              {/* 作者與出版社緊跟著書名，是書名的一部分，不必再排進下面的資訊表 */}
-              {(book.author || book.publisher) && (
-                <p className="text-sm text-gray-500">
-                  {[book.author, book.publisher].filter(Boolean).join("｜")}
-                </p>
-              )}
-            </div>
-
-            <ReadingMeta book={book} />
-            {/* 不設 items-start，右欄才會被拉到跟封面一樣高，那條垂直線就不會半途斷掉 */}
-            <div className="flex gap-4 md:gap-6">
+          {/* 書名頁：封面＋書名／作者／量化資訊／統計數字在左，固定資料卡在右 */}
+          <header className="border-rule-strong flex flex-col gap-6 border-b pb-6 md:flex-row">
+            <div className="flex gap-4 sm:flex-1 md:gap-10">
               <BookCover
                 url={book.coverUrl}
                 title={book.title}
                 size="detail"
-                className="self-start"
+                className="shrink-0 self-start"
               />
-              <div className="border-rule-soft flex min-w-0 flex-1 flex-col gap-4 border-l pl-4 md:pl-6">
-                <BookFacts book={book} />
+              <div className="flex min-w-0 flex-1 flex-col gap-2.5">
+                <h2 className="font-serif text-2xl leading-tight font-semibold break-words text-gray-900 md:text-3xl">
+                  {book.title}
+                </h2>
+                {(book.author || book.publisher) && (
+                  <p className="font-serif text-base text-gray-500">
+                    {[book.author, book.publisher].filter(Boolean).join(" — ")}
+                  </p>
+                )}
+                {quantLine && <p className="text-meta text-ink-faint">{quantLine}</p>}
+                <CountStats
+                  quotes={bookQuotes.length}
+                  vocabulary={bookVocabulary.length}
+                  notes={noteCount}
+                  keywords={keywords.length}
+                />
               </div>
             </div>
+
+            <FactsCard book={book} />
           </header>
 
-          {/* 書本身的事實在上面的書名頁；這一節以下全是我加上去的，用章節線隔開 */}
-          <DetailSection title="分類">
-            <Classification book={book} />
-          </DetailSection>
+          {/* 主內容雙欄：左邊心得紀事（含關鍵字），右邊佳句／單字清單 */}
+          <div className="flex flex-col gap-8 md:flex-row">
+            <div className="flex min-w-0 flex-1 flex-col gap-3">
+              {noteCount > 0 && (
+                <>
+                  <div className="border-rule-strong flex items-baseline justify-between border-b pb-1.5">
+                    <h3 className="text-label text-ink tracking-label font-semibold uppercase">
+                      心得・紀事
+                    </h3>
+                    <span className="text-meta text-ink-faint tabular-nums">{noteCount} 則</span>
+                  </div>
+                  {note && <NoteBlock note={note} />}
+                  {notes.length > 0 && <RelatedNotes notes={notes} />}
+                </>
+              )}
 
-          {reads.length > 1 && (
-            <DetailSection title="讀過的次數">
-              <ReadingHistory reads={reads} />
-            </DetailSection>
-          )}
+              {keywords.length > 0 && (
+                <div className="flex flex-col gap-2 pt-2">
+                  <span className="text-label text-ink-faint tracking-label uppercase">關鍵字</span>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {keywords.map((keyword) => (
+                      <KeywordTag
+                        key={keyword}
+                        name={keyword}
+                        className="rounded-control bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
-          {keywords.length > 0 && (
-            <DetailSection title="關鍵字">
-              <div className="flex flex-wrap items-center gap-1.5">
-                {keywords.map((keyword) => (
-                  <KeywordTag
-                    key={keyword}
-                    name={keyword}
-                    className="rounded-control bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200"
-                  />
-                ))}
+            {(bookQuotes.length > 0 || bookVocabulary.length > 0) && (
+              <div className="flex w-full flex-col gap-8 md:w-80 md:shrink-0 md:border-l md:pl-7">
+                {bookQuotes.length > 0 && <QuotePreview quotes={bookQuotes} />}
+                {bookVocabulary.length > 0 && <VocabularyPreview vocabulary={bookVocabulary} />}
               </div>
-            </DetailSection>
-          )}
-
-          {bookQuotes.length > 0 && (
-            <DetailSection title="佳句">
-              <ul className="flex flex-col gap-5">
-                {bookQuotes.map((row) => (
-                  <li key={row.id}>
-                    <QuoteBlock quote={row} />
-                  </li>
-                ))}
-              </ul>
-            </DetailSection>
-          )}
-
-          {bookVocabulary.length > 0 && (
-            <DetailSection title="單字">
-              <ul className="flex flex-col gap-4">
-                {bookVocabulary.map((row) => (
-                  <VocabularyItem key={row.id} row={row} />
-                ))}
-              </ul>
-            </DetailSection>
-          )}
-
-          {note && (
-            <DetailSection title="心得">
-              {/* 心得是這一頁唯一的長文，只有這一段限行長：一行拉到整個寬螢幕會讀不下去 */}
-              <NoteBlock note={note} />
-            </DetailSection>
-          )}
-
-          {notes.length > 0 && (
-            <DetailSection title="紀事">
-              <RelatedNotes notes={notes} />
-            </DetailSection>
-          )}
-
-          {relatedArticles.length > 0 && (
-            <DetailSection title="相關文章">
-              <ul className="flex flex-col gap-1.5">
-                {relatedArticles.map((url) => (
-                  <li key={url} className="min-w-0">
-                    <a
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title={url}
-                      className="inline-flex max-w-full items-center gap-1 text-sm text-blue-700 underline underline-offset-2 hover:text-blue-900"
-                    >
-                      <span className="truncate">{url}</span>
-                      <ExternalLink size={12} strokeWidth={1.5} className="shrink-0" aria-hidden />
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </DetailSection>
-          )}
+            )}
+          </div>
         </article>
       </PageBody>
     </>

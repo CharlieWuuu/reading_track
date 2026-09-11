@@ -26,6 +26,7 @@ export function resetIds() {
 export function makeBook(overrides: Partial<Book> = {}): Book {
   return {
     id: nextId("book"),
+    workId: nextId("work"),
     createdAt: "2026-01-01T00:00:00.000Z",
     title: "測試書名",
     author: "測試作者",
@@ -47,7 +48,6 @@ export function makeBook(overrides: Partial<Book> = {}): Book {
     quotes: "",
     keywords: "",
     private: "",
-    relatedArticles: "",
     vocabulary: "",
     originId: "",
     ...overrides,

@@ -13,6 +13,8 @@ type ActionButtonProps = {
   label?: string;
   /** 按鈕上要顯示的文字，例如「新增」。沒給就是純圖示（label 只給讀螢幕用） */
   text?: string;
+  /** 進行中不給再按一次；連結形式（href）沒有這個狀態 */
+  disabled?: boolean;
 };
 
 /** 主要動作，例如「新增書籍」「編輯」 */
@@ -23,14 +25,11 @@ export function ActionButton({
   tone = "primary",
   label,
   text,
+  disabled,
 }: ActionButtonProps) {
-  // 有文字就是純文字連結（頁首那排的長相），用強調色跟旁邊的中性字分開；沒文字才是圖示按鈕
-  const primary = label ? styles.primaryIcon : styles.primary;
-  const className = text
-    ? `${styles.link} ${styles.linkAccent}`
-    : tone === "primary"
-      ? primary
-      : styles.secondary;
+  // 有文字內容就用一般寬度的樣式；純圖示（沒有 text，只有給讀螢幕看的 label）才收窄成正方形
+  const primary = text || !label ? styles.primary : styles.primaryIcon;
+  const className = `${tone === "primary" ? primary : styles.secondary} ${disabled ? "opacity-50" : ""}`;
   const content = (
     <>
       {children}
@@ -45,7 +44,14 @@ export function ActionButton({
     );
   }
   return (
-    <button type="button" onClick={onClick} aria-label={label} title={label} className={className}>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={label}
+      title={label}
+      className={className}
+    >
       {content}
     </button>
   );

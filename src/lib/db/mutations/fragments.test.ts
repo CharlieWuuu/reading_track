@@ -11,6 +11,7 @@ vi.mock("@/lib/db/client", async () => {
 
 const { addVocabulary } = await import("./fragments");
 const { addBookRow } = await import("./books");
+const { linkedIdsOf } = await import("@/lib/db/queries/internal-links");
 const { db } = await import("@/lib/db/client");
 const userId = await seedUser(db);
 
@@ -23,7 +24,7 @@ describe("addVocabulary", () => {
     await addVocabulary(userId, "", makeWord({ word: "邂逅" }));
 
     const [row] = await db.select().from(fragments).where(eq(fragments.name, "邂逅"));
-    expect(row.workId).toBeNull();
+    expect(await linkedIdsOf(userId, row.id)).toHaveLength(0);
   });
 
   it("掛了書就記在那個作品上", async () => {
@@ -33,7 +34,7 @@ describe("addVocabulary", () => {
     await addVocabulary(userId, book.id, makeWord({ word: "剩餘價值" }));
 
     const [row] = await db.select().from(fragments).where(eq(fragments.name, "剩餘價值"));
-    expect(row.workId).not.toBeNull();
+    expect(await linkedIdsOf(userId, row.id)).not.toHaveLength(0);
   });
 
   it("空白的字不留列", async () => {

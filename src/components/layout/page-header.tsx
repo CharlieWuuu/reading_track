@@ -18,8 +18,8 @@ const styles = {
 
 type PageHeaderProps = {
   title?: string; // 沒給就不顯示標題
-  /** 標題前面的麵包屑：「紀錄 / 書籍」的「紀錄」那一段 */
-  parent?: string;
+  /** 標題前面的麵包屑：一段是「紀錄 / 書籍」的「紀錄」，多段就是「紀錄 / 書籍 / 詳情」的前兩段——分隔線統一由這裡插入，呼叫端不用自己拼字元 */
+  parent?: string | string[];
   /** 標題旁邊那行小字：幾本、幾篇、在讀幾本 */
   meta?: React.ReactNode;
   /**
@@ -49,12 +49,13 @@ export function PageHeader({
       {(backHref || title) && (
         <div className={styles.heading}>
           {backHref && <BackLink href={backHref} className={styles.back} />}
-          {parent && (
-            <>
-              <span className={styles.parent}>{parent}</span>
-              <span className={styles.divider}>/</span>
-            </>
-          )}
+          {parent &&
+            (Array.isArray(parent) ? parent : [parent]).map((segment, i) => (
+              <span key={i} className="flex items-baseline gap-2">
+                <span className={styles.parent}>{segment}</span>
+                <span className={styles.divider}>/</span>
+              </span>
+            ))}
           {title && <h2 className={`${styles.title} ${styles[size]}`}>{title}</h2>}
           {meta && <span className={styles.meta}>{meta}</span>}
         </div>
