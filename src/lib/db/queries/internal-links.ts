@@ -2,6 +2,7 @@ import { and, eq, inArray, or } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { fragments } from "@/lib/db/schema/fragments";
 import { internalLinks } from "@/lib/db/schema/internal-links";
+import { kinds } from "@/lib/db/schema/kinds";
 
 /**
  * 站內連結查詢。a_id／b_id 不分方向，查一筆東西跟誰有關要兩邊都看，
@@ -52,6 +53,9 @@ export async function linkedIdsOfMany(
 /**
  * 一批東西（書、文章、書寫……）各自連到哪些關鍵字，回傳「id → 名字」。
  * 名字用換行接成一串是舊形狀，畫面上的 keywords 欄位吃這個。
+ *
+ * ownerId 名下可能還連著佳句、單字這些不相干的片段，靠 kind 過濾出真正的關鍵字——
+ * 不然同名的單字混進來，畫面上會撞出重複的 key。
  */
 export async function keywordNamesByOwner(
   userId: string,
@@ -64,7 +68,14 @@ export async function keywordNamesByOwner(
   const rows = await db
     .select({ id: fragments.id, name: fragments.name })
     .from(fragments)
-    .where(and(eq(fragments.userId, userId), inArray(fragments.id, keywordIds)));
+    .innerJoin(kinds, eq(kinds.id, fragments.kindId))
+    .where(
+      and(
+        eq(fragments.userId, userId),
+        inArray(fragments.id, keywordIds),
+        eq(kinds.name, "關鍵字"),
+      ),
+    );
   const nameById = new Map(rows.map((row) => [row.id, row.name]));
 
   const result = new Map<string, string>();
