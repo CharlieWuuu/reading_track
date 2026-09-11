@@ -58,7 +58,7 @@ export function PageHeader({
             (Array.isArray(parent) ? parent : [parent]).map((segment, i) => {
               const crumb: Crumb = typeof segment === "string" ? { label: segment } : segment;
               return (
-                <span key={i} className="flex items-baseline gap-2">
+                <span key={i} className="flex min-w-0 shrink items-baseline gap-2">
                   {crumb.href ? (
                     <Link href={crumb.href} className={styles.parentLink}>
                       {crumb.label}
@@ -70,7 +70,7 @@ export function PageHeader({
                 </span>
               );
             })}
-          {title && <h2 className={`${styles.title} ${styles[size]}`}>{title}</h2>}
+          {title && <h2 className={`${styles.title} ${styles[size]} min-w-0 shrink-0`}>{title}</h2>}
           {meta && <span className={styles.meta}>{meta}</span>}
         </div>
       )}

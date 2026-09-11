@@ -1,8 +1,9 @@
-import { ChartPie, Library, PenLine, Settings } from "lucide-react";
+import { ChartPie, Library, PenLine, Settings, Sparkles } from "lucide-react";
 
 /**
- * 側欄與底部導覽列共用的導覽項目。兩邊一模一樣——
- * 佳句、單字、關鍵字都在「閱讀」底下，月曆在「統計」底下，桌機也照這個分法。
+ * 底部導覽列的項目。跟桌機側欄（NAV_GROUPS + TOOL_ITEMS，見 config/nav.ts）
+ * 分開維護——側欄是可捲動的完整清單，底部只放得下五格，是側欄的精簡版，
+ * 不是同一份資料硬塞兩種畫法，兩邊各自照自己的空間限制決定要列哪些。
  */
 
 type IconProps = { active?: boolean };
@@ -26,11 +27,15 @@ export function isNavActive(item: NavItem, pathname: string) {
 
 export const NAV_ITEMS: NavItem[] = [
   {
-    // 紀錄與片段是兩堆，導覽上仍然是同一區；文字跟頁面標題（/records 的「紀錄」）一致
     href: "/records",
     label: "紀錄",
-    siblings: ["/fragments"],
     Icon: () => <Library size={20} strokeWidth={1.5} />,
+  },
+  {
+    // 之前跟「紀錄」共用一格（靠 siblings 讓紀錄連帶亮），手機沒有直接入口點得進來
+    href: "/fragments",
+    label: "片段",
+    Icon: () => <Sparkles size={20} strokeWidth={1.5} />,
   },
   {
     href: "/writings",

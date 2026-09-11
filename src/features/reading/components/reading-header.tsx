@@ -79,7 +79,7 @@ export function ReadingHeader({
       parent={parent}
       meta={meta}
       action={
-        <div className="flex min-w-0 flex-1 items-center gap-5">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-5 gap-y-2 md:flex-nowrap">
           <SearchBar value={query} onChange={(next) => setParams({ q: next || null })} />
           {/* 桌機的側欄已經在說現在看的是哪一種，這顆只留給手機 */}
           <div className="md:hidden">
