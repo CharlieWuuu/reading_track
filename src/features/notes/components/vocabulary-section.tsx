@@ -30,14 +30,12 @@ function dedupedBookIds(entries: readonly VocabularyEntry[]): string[] {
   ]);
 }
 
-/** 這個月：有出處／沒有出處／遇到兩次以上的個數，各當一則條目顯示 */
+/** 這個月：有出處／遇到兩次以上的個數，各當一則條目顯示 */
 function thisMonthBreakdown(entries: readonly VocabularyEntry[]) {
   const withSource = entries.filter((e) => e.encounters.some((enc) => enc.bookId)).length;
-  const withoutSource = entries.length - withSource;
   const metTwice = entries.filter((e) => e.encounters.length > 1).length;
   return [
     { id: "with-source", title: "有出處", meta: `${withSource} 個` },
-    { id: "without-source", title: "沒有出處", meta: `${withoutSource} 個` },
     { id: "met-twice", title: "遇到兩次以上", meta: `${metTwice} 個` },
   ];
 }
@@ -66,7 +64,6 @@ function toItem(entry: VocabularyEntry): OverviewItem {
     href: vocabularyHref(entry.word),
     startDate: latest.date,
     endDate: latest.date,
-    kindLabel: "單字",
   };
 }
 

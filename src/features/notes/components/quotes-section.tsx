@@ -5,10 +5,7 @@ import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { FRAGMENT_CARD_GRID, FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { OverviewLayout } from "@/components/ui/overview-layout/overview-layout";
-import {
-  OverviewRailList,
-  OverviewRailListItem,
-} from "@/components/ui/overview-layout/overview-rail-stats";
+import { OverviewRailList } from "@/components/ui/overview-layout/overview-rail-stats";
 import { quoteHref } from "@/config/routes";
 import { useQuotesOverview } from "@/hooks/use-fragments-overview";
 import { useRecords } from "@/hooks/use-records";
@@ -29,32 +26,20 @@ const toItem = (record: QuoteRecord): OverviewItem => ({
   coverUrl: record.coverUrl,
   startDate: record.date,
   endDate: record.date,
-  kindLabel: "佳句",
 });
 
 const RAIL_LIST_SIZE = 5;
-
-/** 沒有出處的佳句：沒填 bookId 那些，依記下的時間新到舊 */
-function withoutSource(records: readonly QuoteRecord[]): OverviewRailListItem[] {
-  return [...records]
-    .filter((record) => !record.bookId)
-    .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))
-    .slice(0, RAIL_LIST_SIZE)
-    .map((record) => ({ id: record.id, title: record.text, meta: record.note || "出處可以留空" }));
-}
 
 function QuotesRail({ records, books }: { records: QuoteRecord[]; books: Book[] }) {
   // 一則佳句只對一本書，天生不會重複，直接攤平傳給共用聚合就好
   const bookIds = records.map((r) => r.bookId);
   const sources = topBookSources(bookIds, books, "則", RAIL_LIST_SIZE);
   const keywords = topKeywordsFromBooks(bookIds, books, "則", RAIL_LIST_SIZE);
-  const noSourceCount = records.filter((r) => !r.bookId).length;
 
   return (
     <>
       <OverviewRailList label="出處排行" count={sources.length} items={sources} />
       <OverviewRailList label="常一起出現的關鍵字" count={keywords.length} items={keywords} />
-      <OverviewRailList label="沒有出處的" count={noSourceCount} items={withoutSource(records)} />
     </>
   );
 }

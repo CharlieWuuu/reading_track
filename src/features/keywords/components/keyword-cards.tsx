@@ -66,7 +66,6 @@ export function KeywordCards({ books }: { books: Book[] }) {
       href: keywordHref(entry.name),
       startDate: day,
       endDate: day,
-      kindLabel: "關鍵字",
     };
   };
 
