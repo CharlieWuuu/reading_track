@@ -72,6 +72,10 @@ export function BookTableGrid({
   // 記下按下時的座標，放開時位移超過門檻就當作在捲動，不要跳頁
   const pointerDownAt = useRef<{ x: number; y: number } | null>(null);
   const DRAG_THRESHOLD = 6;
+  // 純滑鼠沒有天生的橫向滑動手勢，讓使用者可以直接按住表格拖曳橫向捲動——
+  // 記下按下當下的滑鼠位置與容器當下的捲動位置，移動時算差值套回去
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const dragScroll = useRef<{ startX: number; startLeft: number } | null>(null);
   // editAll 開著時每一列各自存一份表單，key 是書的 id；不影響單列編輯用的 form
   const [allForms, setAllForms] = useState<Record<string, EditForm>>({});
   // 正在補齊資料的那一列，同時只查一筆，按鈕顯示轉圈
@@ -151,8 +155,34 @@ export function BookTableGrid({
     }
   }
 
+  function handleScrollPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    // 右鍵、雙指觸控板手勢本身已經會捲動，只接手滑鼠左鍵拖曳
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    dragScroll.current = { startX: e.clientX, startLeft: el.scrollLeft };
+  }
+
+  function handleScrollPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    const drag = dragScroll.current;
+    const el = scrollRef.current;
+    if (!drag || !el) return;
+    el.scrollLeft = drag.startLeft - (e.clientX - drag.startX);
+  }
+
+  function handleScrollPointerUp() {
+    dragScroll.current = null;
+  }
+
   return (
-    <div className="hidden w-full overflow-x-auto md:block">
+    <div
+      ref={scrollRef}
+      onPointerDown={handleScrollPointerDown}
+      onPointerMove={handleScrollPointerMove}
+      onPointerUp={handleScrollPointerUp}
+      onPointerLeave={handleScrollPointerUp}
+      className="hidden w-full cursor-grab overflow-x-auto active:cursor-grabbing md:block"
+    >
       {error && <p className="px-3 py-2 text-xs text-red-600">{error}</p>}
       <table className="w-full min-w-[1100px] table-fixed">
         <thead className="border-rule-strong bg-background sticky top-0 z-10 border-b text-center">
