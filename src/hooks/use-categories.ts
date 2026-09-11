@@ -64,5 +64,12 @@ export function useCategories() {
   /** 次領域的選單靠這個縮到「選中的領域底下」，見 CategorySelect */
   const children = useMemo(() => childrenByDomain([...books, ...articles]), [books, articles]);
 
-  return { categories, counts, children };
+  /** 標題只掛有紀錄的來源，見 category-manager 的 sectionTitle */
+  const hasRecords: Record<CategorySource, boolean> = {
+    book: books.length > 0,
+    article: articles.length > 0,
+    writings: writings.length > 0,
+  };
+
+  return { categories, counts, children, hasRecords };
 }

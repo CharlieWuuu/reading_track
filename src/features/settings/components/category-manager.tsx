@@ -21,9 +21,14 @@ const SOURCE_LABELS: Record<CategorySource, string> = {
   writings: "書寫",
 };
 
-/** 小標寫「哪些紀錄・共用這一組｜叫什麼名字」，選項混了誰的資料一眼看出來 */
-function sectionTitle(sources: CategorySource[], label: string): string {
-  return `${sources.map((s) => SOURCE_LABELS[s]).join("・")}｜${label}`;
+/** 小標寫「哪些紀錄・共用這一組｜叫什麼名字」，只列有資料的來源，沒紀錄的不掛名 */
+function sectionTitle(
+  sources: CategorySource[],
+  label: string,
+  hasRecords: Record<CategorySource, boolean>,
+): string {
+  const used = sources.filter((s) => hasRecords[s]);
+  return `${(used.length > 0 ? used : sources).map((s) => SOURCE_LABELS[s]).join("・")}｜${label}`;
 }
 
 const styles = {
@@ -35,7 +40,9 @@ const styles = {
   count: "text-meta text-ink-faint tabular-nums",
   empty: "text-meta text-ink-faint",
   error: "text-meta text-red-600",
-  children: "ml-4 flex flex-wrap gap-1.5",
+  domainRow: "flex flex-wrap items-center gap-4",
+  domainName: "w-24 shrink-0",
+  children: "flex flex-wrap gap-1.5",
   chip: "rounded-control flex items-center gap-1 border px-2 py-1 text-xs disabled:opacity-40",
   chipOn: "border-accent text-accent",
   chipOff: "border-rule text-ink-muted",
@@ -83,7 +90,7 @@ function DomainChip({
  * 佔一個分頁（私人項目），跟這裡功能重疊太多，併進來就不用兩邊各看一次。
  */
 export function CategoryManager() {
-  const { categories, counts } = useCategories();
+  const { categories, counts, hasRecords } = useCategories();
   const { flags, isLoading, error, toggle } = usePrivacyFlags();
   const [busyId, setBusyId] = useState("");
   const [failed, setFailed] = useState("");
@@ -103,7 +110,9 @@ export function CategoryManager() {
   return (
     <div className={styles.wrap}>
       <div className={styles.group}>
-        <h4 className={styles.title}>{sectionTitle(CATEGORY_FIELDS.domain.sources, "領域")}</h4>
+        <h4 className={styles.title}>
+          {sectionTitle(CATEGORY_FIELDS.domain.sources, "領域", hasRecords)}
+        </h4>
         {failed && <p className={styles.error}>{failed}</p>}
         {isLoading ? (
           <p className={styles.empty}>載入中…</p>
@@ -113,8 +122,8 @@ export function CategoryManager() {
           <p className={styles.empty}>還沒有用過任何值</p>
         ) : (
           flags.types.map((node) => (
-            <div key={node.id} className={styles.group}>
-              <div className={styles.list}>
+            <div key={node.id} className={styles.domainRow}>
+              <div className={styles.domainName}>
                 <DomainChip
                   node={node}
                   count={counts.domain.get(node.name) ?? 0}
@@ -122,32 +131,29 @@ export function CategoryManager() {
                   onFlip={flip}
                 />
               </div>
-              {node.children.length > 0 && (
-                <div className={styles.children}>
-                  {node.children.map((child) => (
-                    <DomainChip
-                      key={child.id}
-                      node={child}
-                      count={counts.subDomain.get(child.name) ?? 0}
-                      busy={busyId === child.id}
-                      onFlip={flip}
-                    />
-                  ))}
-                </div>
-              )}
+              <div className={styles.children}>
+                {node.children.map((child) => (
+                  <DomainChip
+                    key={child.id}
+                    node={child}
+                    count={counts.subDomain.get(child.name) ?? 0}
+                    busy={busyId === child.id}
+                    onFlip={flip}
+                  />
+                ))}
+              </div>
             </div>
           ))
         )}
       </div>
 
-      {(Object.keys(FLAT_LABELS) as (keyof typeof FLAT_LABELS)[]).map((key) => (
-        <div key={key} className={styles.group}>
-          <h4 className={styles.title}>
-            {sectionTitle(CATEGORY_FIELDS[key].sources, FLAT_LABELS[key])}
-          </h4>
-          {categories[key].length === 0 ? (
-            <p className={styles.empty}>還沒有用過任何值</p>
-          ) : (
+      {(Object.keys(FLAT_LABELS) as (keyof typeof FLAT_LABELS)[])
+        .filter((key) => categories[key].length > 0)
+        .map((key) => (
+          <div key={key} className={styles.group}>
+            <h4 className={styles.title}>
+              {sectionTitle(CATEGORY_FIELDS[key].sources, FLAT_LABELS[key], hasRecords)}
+            </h4>
             <div className={styles.list}>
               {categories[key].map((option) => (
                 <span key={option} className={styles.item}>
@@ -156,9 +162,8 @@ export function CategoryManager() {
                 </span>
               ))}
             </div>
-          )}
-        </div>
-      ))}
+          </div>
+        ))}
     </div>
   );
 }
