@@ -46,7 +46,7 @@ export function WritingHeader() {
       title={title}
       parent={parent}
       action={
-        <div className="flex min-w-0 flex-1 items-center gap-5">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-5 gap-y-2 md:flex-nowrap">
           <SearchBar value={query} onChange={(next) => setParams({ q: next || null })} />
           <SelectMenu
             bare
