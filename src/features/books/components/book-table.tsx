@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Tag } from "lucide-react";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
@@ -70,7 +70,6 @@ function completionNumbers(books: Book[]): Map<string, number> {
 }
 
 export function BookTable() {
-  const [editAll, setEditAll] = useState(false);
   const mounted = useMounted();
   const { allBooks, isLoading, error, found, books, keyword, terms, heading } = useFilteredBooks();
   const { mutate } = useBooks();
@@ -78,6 +77,8 @@ export function BookTable() {
   const { quotes, vocabulary } = useRecords();
   const numbers = useMemo(() => completionNumbers(allBooks), [allBooks]);
   const { searchParams, setParams } = useUrlParams();
+  // 編輯模式的開關搬到頁首（BookEditModeButton），這裡只讀網址上的狀態
+  const editAll = searchParams.get("edit") === "1";
   const view = useBookView();
   const clearKeyword = () => setParams({ keyword: null });
   // 帶著目前的檢視進詳細頁，一路傳到編輯頁，存檔後才回得到同一個畫面
@@ -176,17 +177,6 @@ export function BookTable() {
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-3">
         <ListHeading label={heading} count={books.length} />
-        <button
-          type="button"
-          onClick={() => setEditAll((prev) => !prev)}
-          className={`rounded-control shrink-0 border px-2 py-1 text-xs font-medium ${
-            editAll
-              ? "border-accent text-accent"
-              : "text-ink-muted hover:bg-control-ghost-hover border-transparent"
-          }`}
-        >
-          {editAll ? "完成編輯" : "編輯模式"}
-        </button>
       </div>
       {keyword && <KeywordFilter keyword={keyword} count={books.length} onClear={clearKeyword} />}
 
