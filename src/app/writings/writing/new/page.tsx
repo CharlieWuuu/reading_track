@@ -13,6 +13,10 @@ function NewWriting() {
       <PageHeader
         title="新增書寫"
         size="compact"
+        parent={[
+          { label: "專欄", href: "/writings" },
+          { label: "書寫", href: kindHref("writings", "writing") },
+        ]}
         backHref={kindHref("writings", "writing")}
         action={<WritingFormTabs />}
       />

@@ -57,6 +57,10 @@ export function KeywordDetailView() {
       <PageHeader
         title={name}
         size="compact"
+        parent={[
+          { label: "片段", href: "/fragments" },
+          { label: "關鍵字", href: kindHref("fragments", "keywords") },
+        ]}
         backHref={kindHref("fragments", "keywords")}
         action={<ActionButton href={keywordEditHref(name)}>編輯</ActionButton>}
       />

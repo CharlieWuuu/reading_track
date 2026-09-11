@@ -36,6 +36,10 @@ export function ArticleDetailView() {
       <PageHeader
         title={article?.title ?? "文章"}
         size="compact"
+        parent={[
+          { label: "紀錄", href: "/records" },
+          { label: "文章", href: kindHref("records", "articles") },
+        ]}
         backHref={kindHref("records", "articles")}
         action={article && <ActionButton href={articleEditHref(article.id)}>編輯</ActionButton>}
       />

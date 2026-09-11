@@ -27,6 +27,10 @@ function NewBook() {
       <PageHeader
         title="新增書籍"
         size="compact"
+        parent={[
+          { label: "紀錄", href: "/records" },
+          { label: "書籍", href: booksListHref },
+        ]}
         backHref={backHref}
         action={<BookRefetchButton />}
       />

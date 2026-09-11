@@ -49,6 +49,10 @@ export function VocabularyDetailView() {
       <PageHeader
         title={name}
         size="compact"
+        parent={[
+          { label: "片段", href: "/fragments" },
+          { label: "單字", href: kindHref("fragments", "vocabulary") },
+        ]}
         backHref={kindHref("fragments", "vocabulary")}
         action={entry && <ActionButton href={vocabularyEditHref(name)}>編輯</ActionButton>}
       />
