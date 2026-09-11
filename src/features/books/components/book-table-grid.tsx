@@ -160,6 +160,8 @@ export function BookTableGrid({
     if (e.pointerType === "mouse" && e.button !== 0) return;
     const el = scrollRef.current;
     if (!el) return;
+    // 不擋掉就是拖一下、整排文字被選起來——瀏覽器把滑鼠移動預設當成選字手勢
+    e.preventDefault();
     dragScroll.current = { startX: e.clientX, startLeft: el.scrollLeft };
   }
 
@@ -181,7 +183,7 @@ export function BookTableGrid({
       onPointerMove={handleScrollPointerMove}
       onPointerUp={handleScrollPointerUp}
       onPointerLeave={handleScrollPointerUp}
-      className="hidden w-full cursor-grab overflow-x-auto active:cursor-grabbing md:block"
+      className="hidden w-full cursor-grab overflow-x-auto active:cursor-grabbing active:select-none md:block"
     >
       {error && <p className="px-3 py-2 text-xs text-red-600">{error}</p>}
       <table className="w-full min-w-[1100px] table-fixed">
