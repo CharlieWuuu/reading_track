@@ -25,7 +25,7 @@ const RECORD_BASE: ModuleKey[] = ["title", "creator", "link", "progress", "keywo
 
 export const KIND_TEMPLATES: KindTemplate[] = [
   {
-    key: "book",
+    key: "books",
     group: "records",
     name: "書籍",
     amountUnit: "頁",
@@ -33,7 +33,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     labels: { creator: "作者", amount: "頁數" },
   },
   {
-    key: "article",
+    key: "articles",
     group: "records",
     name: "文章",
     amountUnit: "字",
@@ -81,7 +81,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     labels: { creator: "講師", amount: "時數" },
   },
   {
-    key: "quote",
+    key: "quotes",
     group: "fragments",
     name: "佳句",
     amountUnit: "",
@@ -97,7 +97,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     labels: { title: "單字", gloss: "字義", oneLine: "例句" },
   },
   {
-    key: "keyword",
+    key: "keywords",
     group: "fragments",
     name: "關鍵字",
     amountUnit: "",
@@ -129,11 +129,11 @@ export const KIND_TEMPLATES: KindTemplate[] = [
 
 /** 開帳號時先給的那幾種。其餘留在範本庫裡，要用再套 */
 export const STARTER_KEYS = new Set([
-  "book",
-  "article",
-  "quote",
+  "books",
+  "articles",
+  "quotes",
   "vocabulary",
-  "keyword",
+  "keywords",
   "writing",
 ]);
 
