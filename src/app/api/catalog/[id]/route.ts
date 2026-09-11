@@ -9,9 +9,11 @@ import {
   requireWriter,
   unauthorized,
 } from "@/app/api/_lib/respond";
+import { PRIVATE_MARK } from "@/config/privacy";
 import { deleteRecord, updateRecord } from "@/lib/db/mutations/catalog";
 import { deleteFragment, updateFragment } from "@/lib/db/mutations/fragment-modules";
 import { getFragmentValues, getRecordValues } from "@/lib/db/queries/catalog";
+import { requestPrivacy } from "@/utils/privacy";
 
 /**
  * 單筆的讀寫。紀錄與片段共用這一支——編號是唯一的，查不到就換另一張表找，
@@ -23,14 +25,18 @@ const load = async (userId: string, id: string) =>
 
 export const GET = guarded(
   "catalog GET",
-  async (_req: NextRequest, ctx: { params: Promise<{ id: string }> }) => {
+  async (req: NextRequest, ctx: { params: Promise<{ id: string }> }) => {
     const session = await requireSession();
     if (!session) return unauthorized();
 
     const { id } = await ctx.params;
+    const { unlocked } = await requestPrivacy(session.user.id, req);
     try {
       const found = await load(session.user.id, id);
-      return found ? NextResponse.json(found) : badRequest("找不到這一筆");
+      if (!found) return badRequest("找不到這一筆");
+      // 沒解鎖就當作不存在——回「這一筆是私人的」等於承認它在
+      if (!unlocked && found.values.isPrivate === PRIVATE_MARK) return badRequest("找不到這一筆");
+      return NextResponse.json(found);
     } catch (err) {
       return dataFailure("讀取", "getRecordValues", err);
     }
