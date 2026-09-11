@@ -56,13 +56,21 @@ function CountStats({
   );
 }
 
+/** 每一節的標題列：粗分隔線＋大寫小標，右邊可選擇放數量 */
+function SectionHeading({ title, count }: { title: string; count?: string }) {
+  return (
+    <div className="border-rule-strong flex items-baseline justify-between border-b pb-1.5">
+      <h3 className="text-label text-ink tracking-label font-semibold uppercase">{title}</h3>
+      {count && <span className="text-meta text-ink-faint tabular-nums">{count}</span>}
+    </div>
+  );
+}
+
 /** 右欄的固定資料卡：狀態、開始、讀完、語言、來源、私人 */
 function FactsCard({ book }: { book: Book }) {
   return (
     <div className="w-full shrink-0 md:w-52 md:border-l md:pl-6">
-      <h3 className="border-rule-strong text-label text-ink tracking-label border-b pb-1.5 font-semibold uppercase">
-        基本資料
-      </h3>
+      <SectionHeading title="基本資料" />
       <DetailField label="狀態">
         <StatusBadge status={book.status} />
       </DetailField>
@@ -93,10 +101,7 @@ function QuotePreview({ quotes }: { quotes: QuoteRow[] }) {
   const preview = quotes.slice(0, 3);
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      <div className="border-rule-strong flex items-baseline justify-between border-b pb-1.5">
-        <h3 className="text-label text-ink tracking-label font-semibold uppercase">佳句</h3>
-        <span className="text-meta text-ink-faint tabular-nums">{quotes.length} 則</span>
-      </div>
+      <SectionHeading title="佳句" count={`${quotes.length} 則`} />
       <ul className="divide-rule flex flex-col divide-y">
         {preview.map((row) => (
           <li key={row.id} className="py-3 first:pt-0">
@@ -118,10 +123,7 @@ function VocabularyPreview({ vocabulary }: { vocabulary: VocabularyRow[] }) {
   const preview = vocabulary.slice(0, 4);
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      <div className="border-rule-strong flex items-baseline justify-between border-b pb-1.5">
-        <h3 className="text-label text-ink tracking-label font-semibold uppercase">單字</h3>
-        <span className="text-meta text-ink-faint tabular-nums">{vocabulary.length} 個</span>
-      </div>
+      <SectionHeading title="單字" count={`${vocabulary.length} 個`} />
       <ul className="divide-rule flex flex-col divide-y">
         {preview.map((row) => (
           <VocabularyItem key={row.id} row={row} />
@@ -233,12 +235,7 @@ export function BookDetailView() {
             <div className="flex min-w-0 flex-1 flex-col gap-3">
               {noteCount > 0 && (
                 <>
-                  <div className="border-rule-strong flex items-baseline justify-between border-b pb-1.5">
-                    <h3 className="text-label text-ink tracking-label font-semibold uppercase">
-                      心得・紀事
-                    </h3>
-                    <span className="text-meta text-ink-faint tabular-nums">{noteCount} 則</span>
-                  </div>
+                  <SectionHeading title="心得・紀事" count={`${noteCount} 則`} />
                   {note && <NoteBlock note={note} />}
                   {notes.length > 0 && <RelatedNotes notes={notes} />}
                 </>
