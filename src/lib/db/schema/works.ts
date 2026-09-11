@@ -42,7 +42,8 @@ export const works = pgTable("domain_works", {
   topicId: uuid("topic_id").references(() => recordTopics.id, { onDelete: "set null" }),
   attributeId: uuid("attribute_id").references(() => attributes.id, { onDelete: "set null" }),
   language: text("language").notNull().default(""),
-  source: text("source").notNull().default(""), // 出版社／頻道／平台
+  source: text("source").notNull().default(""), // 出版社／頻道
+  platform: text("platform").notNull().default(""), // 讀墨／Kindle／Kobo……在哪看的
   externalId: text("external_id").notNull().default(""),
   coverUrl: text("cover_url").notNull().default(""),
   amount: integer("amount"), // 頁數／分鐘／集數，單位跟著類型查

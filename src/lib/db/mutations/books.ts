@@ -13,11 +13,11 @@ import { toDate, toInt } from "./values";
 /**
  * 舊的 Book 形狀寫回 works／records。
  *
- * 一筆 Book 等於「一次閱讀」：書名作者進 works，日期平台進 records。
+ * 一筆 Book 等於「一次閱讀」：書名作者進 works，日期進 records。
  * originId 有值代表這是同一本書的另一次讀，掛到它指的那個作品底下，不另開一本。
  *
- * 出版社與平台在新表合成一欄 source，字數沒有對應欄位——舊形狀那兩欄留著只為了
- * 型別相容，寫入時丟掉。
+ * 出版社與平台是各自獨立的欄位（source／platform）；字數沒有對應欄位——
+ * 舊形狀那欄留著只為了型別相容，寫入時丟掉。
  */
 
 const BOOK_KIND = "書籍";
@@ -54,7 +54,8 @@ export async function addBookRow(userId: string, book: Book): Promise<void> {
             title: book.title,
             creator: book.author,
             language: book.language,
-            source: book.publisher || book.platform,
+            source: book.publisher,
+            platform: book.platform,
             externalId: book.isbn,
             coverUrl: book.coverUrl,
             amount: toInt(book.pageCount),
@@ -95,9 +96,8 @@ export async function updateBookRow(
   if (patch.isbn !== undefined) workPatch.externalId = patch.isbn;
   if (patch.coverUrl !== undefined) workPatch.coverUrl = patch.coverUrl;
   if (patch.pageCount !== undefined) workPatch.amount = toInt(patch.pageCount);
-  // 出版社與平台合成一欄，兩個都給就以出版社為準
   if (patch.publisher !== undefined) workPatch.source = patch.publisher;
-  else if (patch.platform !== undefined) workPatch.source = patch.platform;
+  if (patch.platform !== undefined) workPatch.platform = patch.platform;
 
   const recordPatch: Record<string, unknown> = {};
   if (patch.startDate !== undefined) recordPatch.startDate = toDate(patch.startDate);

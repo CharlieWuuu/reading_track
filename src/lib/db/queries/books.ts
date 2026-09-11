@@ -64,7 +64,7 @@ export async function listBooks(userId: string): Promise<Book[]> {
       coverUrl: work.coverUrl,
       publisher: work.source,
       isbn: work.externalId,
-      platform: "", // 出版社與平台合成一欄了，舊形狀留著空的
+      platform: work.platform,
       sourceUrl: sourceUrls.get(record.id) ?? "",
       status: inferStatus(record.startDate, record.endDate),
       startDate: record.startDate,

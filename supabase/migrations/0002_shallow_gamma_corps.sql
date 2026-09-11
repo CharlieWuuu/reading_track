@@ -1,0 +1,1 @@
+ALTER TABLE "domain_works" ADD COLUMN "platform" text DEFAULT '' NOT NULL;
