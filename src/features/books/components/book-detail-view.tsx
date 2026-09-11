@@ -186,15 +186,16 @@ export function BookDetailView() {
   const note = book.note.trim();
   const noteCount = (note ? 1 : 0) + notes.length;
 
-  // 量化資訊行：類型、子類型、頁數、出版社，缺的項目自動不留空隙
+  // 量化資訊行：領域、子領域、頁數、出版社、平台，缺的項目自動不留空隙
   const quantLine = [
-    book.type,
+    book.domain,
     book.subDomain,
     formatCount(book.pageCount) && `${formatCount(book.pageCount)} 頁`,
     book.publisher,
+    book.platform,
   ]
     .filter(Boolean)
-    .join("　·　");
+    .join(" · ");
 
   return (
     <>
