@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BackLink } from "./back-link";
 
 const styles = {
@@ -7,6 +8,7 @@ const styles = {
   back: "hover:text-ink -ml-1 flex size-7 shrink-0 items-center justify-center self-center",
   // 跟 meta 那行數字同一個字級：標題才是這一列的主角，麵包屑只是說明現在在哪
   parent: "text-meta text-ink-muted truncate",
+  parentLink: "text-meta text-ink-muted truncate hover:text-ink hover:underline",
   divider: "text-ink-faint",
   title: "font-serif truncate font-semibold tracking-tight",
   page: "text-page",
@@ -16,10 +18,13 @@ const styles = {
   actions: "flex min-w-0 flex-1 items-center justify-end *:min-w-0", // *:min-w-0 讓傳進來的內容縮得下去
 };
 
+/** 麵包屑一段：純文字沒有 href 就不能點，有給就是連到那一層 */
+type Crumb = { label: string; href?: string };
+
 type PageHeaderProps = {
   title?: string; // 沒給就不顯示標題
-  /** 標題前面的麵包屑：一段是「紀錄 / 書籍」的「紀錄」，多段就是「紀錄 / 書籍 / 詳情」的前兩段——分隔線統一由這裡插入，呼叫端不用自己拼字元 */
-  parent?: string | string[];
+  /** 標題前面的麵包屑：一段是「紀錄 / 書籍」的「紀錄」，多段就是「紀錄 / 書籍 / 詳情」的前兩段——分隔線統一由這裡插入，呼叫端不用自己拼字元。字串就是不能點的純文字，要能點傳 Crumb 帶 href */
+  parent?: string | Crumb | (string | Crumb)[];
   /** 標題旁邊那行小字：幾本、幾篇、在讀幾本 */
   meta?: React.ReactNode;
   /**
@@ -50,12 +55,21 @@ export function PageHeader({
         <div className={styles.heading}>
           {backHref && <BackLink href={backHref} className={styles.back} />}
           {parent &&
-            (Array.isArray(parent) ? parent : [parent]).map((segment, i) => (
-              <span key={i} className="flex items-baseline gap-2">
-                <span className={styles.parent}>{segment}</span>
-                <span className={styles.divider}>/</span>
-              </span>
-            ))}
+            (Array.isArray(parent) ? parent : [parent]).map((segment, i) => {
+              const crumb: Crumb = typeof segment === "string" ? { label: segment } : segment;
+              return (
+                <span key={i} className="flex items-baseline gap-2">
+                  {crumb.href ? (
+                    <Link href={crumb.href} className={styles.parentLink}>
+                      {crumb.label}
+                    </Link>
+                  ) : (
+                    <span className={styles.parent}>{crumb.label}</span>
+                  )}
+                  <span className={styles.divider}>/</span>
+                </span>
+              );
+            })}
           {title && <h2 className={`${styles.title} ${styles[size]}`}>{title}</h2>}
           {meta && <span className={styles.meta}>{meta}</span>}
         </div>

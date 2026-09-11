@@ -201,8 +201,10 @@ export function BookDetailView() {
     <>
       <PageHeader
         title="詳情"
-        parent={["紀錄", "書籍"]}
-        size="compact"
+        parent={[
+          { label: "紀錄", href: "/records" },
+          { label: "書籍", href: booksListHref },
+        ]}
         backHref={backHref}
         action={<ActionButton href={bookEditHref(book.id, back)}>編輯</ActionButton>}
       />
