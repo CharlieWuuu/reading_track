@@ -6,7 +6,10 @@ import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
+import { CardMasonry } from "@/components/ui/card-masonry";
 import { ActionButton } from "@/components/ui/controls";
+import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
+import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { groupBasePath, kindHref } from "@/config/kind-routes";
 import { NAV_GROUPS } from "@/config/nav";
 import { KindGroup } from "@/config/record-kinds";
@@ -16,6 +19,7 @@ import { useCatalogRecord } from "@/hooks/use-catalog-record";
 import { useKindRecords } from "@/hooks/use-kind-records";
 import { useKinds } from "@/hooks/use-kinds";
 import { Kind } from "@/lib/db/queries/kinds";
+import { fragmentHref, fragmentMeta, fragmentTitle, recordItem } from "@/utils/overview-items";
 
 /**
  * 三個 group 共用的通用頁骨架。找到 kind 之後照 slug 決定要不要換皮，
@@ -26,23 +30,57 @@ function useKindBySlug(group: KindGroup, slug: string): { kind?: Kind; isLoading
   return { kind: kinds.find((k) => k.group === group && k.slug === slug), isLoading };
 }
 
+/**
+ * 沒有 variant 的類型就用這個畫清單——絕大多數自訂類型走這條。
+ *
+ * 紀錄那堆照月份排成封面格線，跟內建類型同一套；片段與專欄一則一張卡。
+ * 空的時候要說話：側欄把 0 筆的類型也列出來，點進來一片空白等於沒有下一步。
+ */
 function GenericKindList({ kind }: { kind: Kind }) {
-  const { records, isLoading, error } = useKindRecords(kind.id);
+  const { records, fragments, isLoading, error } = useKindRecords(kind.id);
 
   if (error) return <PageMessage tone="error">{error}</PageMessage>;
   if (isLoading) return <PageLoading />;
 
+  const isRecords = kind.group === "records";
+  const empty = isRecords ? records.length === 0 : fragments.length === 0;
+  if (empty) {
+    return (
+      <PageMessage fill>
+        還沒有任何{kind.name}。
+        <Link href={`${kindHref(kind.group, kind.slug)}/new`} className="underline">
+          記下第一筆
+        </Link>
+      </PageMessage>
+    );
+  }
+
+  if (isRecords) {
+    return (
+      <GroupOverview
+        active={[]}
+        pending={[]}
+        done={records.map(recordItem)}
+        headlineLabel=""
+        unit={kind.amountUnit || "筆"}
+      />
+    );
+  }
+
   return (
-    <ul className="flex flex-col">
-      {records.map((record) => (
-        <li key={record.id} className="border-rule border-b py-2">
-          <Link href={`${kindHref(kind.group, kind.slug)}/${record.id}`} className="text-item-sm">
-            {record.title}
-          </Link>
-          {record.creator && <span className="text-ink-muted text-ui ml-2">{record.creator}</span>}
-        </li>
+    <CardMasonry>
+      {fragments.map((row) => (
+        <FragmentCard
+          key={row.id}
+          href={fragmentHref(row)}
+          title={fragmentTitle(row)}
+          label={row.kindName}
+          body={row.body}
+          meta={fragmentMeta(row)}
+          coverUrl={row.coverUrl}
+        />
       ))}
-    </ul>
+    </CardMasonry>
   );
 }
 
