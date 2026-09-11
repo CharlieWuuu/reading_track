@@ -1,3 +1,5 @@
+import { Book, splitLines } from "@/types/book";
+
 /**
  * 概覽的分組。報紙式的版面要「一個頭條、其餘按月排」，
  * 所以這裡只做分組與挑選，畫法交給元件。
@@ -57,4 +59,58 @@ export function byMonth(items: readonly OverviewItem[]): MonthGroup[] {
  */
 export function pickHeadline(active: readonly OverviewItem[]): OverviewItem | undefined {
   return [...active].sort((a, b) => (b.startDate ?? "").localeCompare(a.startDate ?? ""))[0];
+}
+
+export type RailListItem = { id: string; title: string; meta: string };
+
+/**
+ * 右欄「出處排行」「關鍵字」共用的聚合：佳句、單字、關鍵字概覽頁都要從一批
+ * 「掛在哪本書上」的條目，算出書籍排行榜、或這些書掛了哪些關鍵字的排行榜。
+ * unit 只影響顯示（"則"／"個"），計數邏輯三頁完全一樣。
+ *
+ * bookIds 是攤平過的清單，一個元素記一次；同一筆條目在同一本書出現多次要不要去重
+ * 由呼叫端決定（佳句一則只對一本書，天生不會重複；單字一詞可能在同一本書多次相遇，
+ * 呼叫端要先用 Set 去重再傳進來，不然出處排行會把「相遇次數」算成「單字數」）。
+ */
+export function topBookSources(
+  bookIds: readonly (string | undefined)[],
+  books: readonly Book[],
+  unit: string,
+  limit = 5,
+): RailListItem[] {
+  const byId = new Map(books.map((book) => [book.id, book]));
+  const counts = new Map<string, number>();
+  for (const bookId of bookIds) {
+    if (!bookId || !byId.has(bookId)) continue;
+    counts.set(bookId, (counts.get(bookId) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([bookId, count]) => ({
+      id: bookId,
+      title: byId.get(bookId)!.title,
+      meta: `${count} ${unit}`,
+    }));
+}
+
+export function topKeywordsFromBooks(
+  bookIds: readonly (string | undefined)[],
+  books: readonly Book[],
+  unit: string,
+  limit = 5,
+): RailListItem[] {
+  const byId = new Map(books.map((book) => [book.id, book]));
+  const counts = new Map<string, number>();
+  for (const bookId of bookIds) {
+    const book = bookId ? byId.get(bookId) : undefined;
+    if (!book) continue;
+    for (const keyword of splitLines(book.keywords)) {
+      counts.set(keyword, (counts.get(keyword) ?? 0) + 1);
+    }
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([name, count]) => ({ id: name, title: name, meta: `${count} ${unit}` }));
 }
