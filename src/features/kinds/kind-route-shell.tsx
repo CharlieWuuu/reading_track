@@ -10,6 +10,7 @@ import { CardMasonry } from "@/components/ui/card-masonry";
 import { ActionButton } from "@/components/ui/controls";
 import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
+import { SearchBar } from "@/components/ui/search-bar/search-bar";
 import { groupBasePath, kindHref } from "@/config/kind-routes";
 import { NAV_GROUPS } from "@/config/nav";
 import { KindGroup } from "@/config/record-kinds";
@@ -18,8 +19,10 @@ import { ModuleForm } from "@/features/overview/components/module-form";
 import { useCatalogRecord } from "@/hooks/use-catalog-record";
 import { useKindRecords } from "@/hooks/use-kind-records";
 import { useKinds } from "@/hooks/use-kinds";
+import { useUrlParams } from "@/hooks/use-url-param";
 import { Kind } from "@/lib/db/queries/kinds";
 import { fragmentHref, fragmentMeta, fragmentTitle, recordItem } from "@/utils/overview-items";
+import { matchesSearch, searchTerms } from "@/utils/search";
 
 /**
  * 三個 group 共用的通用頁骨架。找到 kind 之後照 slug 決定要不要換皮，
@@ -36,13 +39,25 @@ function useKindBySlug(group: KindGroup, slug: string): { kind?: Kind; isLoading
  * 紀錄那堆照月份排成封面格線，跟內建類型同一套；片段與專欄一則一張卡。
  * 空的時候要說話：側欄把 0 筆的類型也列出來，點進來一片空白等於沒有下一步。
  */
-function GenericKindList({ kind }: { kind: Kind }) {
+function GenericKindList({ kind, query }: { kind: Kind; query: string }) {
   const { records, fragments, isLoading, error } = useKindRecords(kind.id);
+  const terms = searchTerms(query);
 
   if (error) return <PageMessage tone="error">{error}</PageMessage>;
   if (isLoading) return <PageLoading />;
 
   const isRecords = kind.group === "records";
+  const shownRecords = records.filter((row) =>
+    matchesSearch(terms, row.title, row.creator, row.source),
+  );
+  const shownFragments = fragments.filter((row) =>
+    matchesSearch(terms, row.name, row.body, row.workTitle),
+  );
+
+  if (terms.length > 0 && (isRecords ? shownRecords.length : shownFragments.length) === 0) {
+    return <PageMessage fill>沒有符合的{kind.name}</PageMessage>;
+  }
+
   const empty = isRecords ? records.length === 0 : fragments.length === 0;
   if (empty) {
     return (
@@ -60,7 +75,7 @@ function GenericKindList({ kind }: { kind: Kind }) {
       <GroupOverview
         active={[]}
         pending={[]}
-        done={records.map(recordItem)}
+        done={shownRecords.map(recordItem)}
         headlineLabel=""
         unit={kind.amountUnit || "筆"}
       />
@@ -69,7 +84,7 @@ function GenericKindList({ kind }: { kind: Kind }) {
 
   return (
     <CardMasonry>
-      {fragments.map((row) => (
+      {shownFragments.map((row) => (
         <FragmentCard
           key={row.id}
           href={fragmentHref(row)}
@@ -87,20 +102,30 @@ function GenericKindList({ kind }: { kind: Kind }) {
 export function KindListPage({ group, slug }: { group: KindGroup; slug: string }) {
   const { kind, isLoading } = useKindBySlug(group, slug);
   const List = kind ? variantFor(kind.slug).list : undefined;
+  const { searchParams, setParams } = useUrlParams();
+  const query = searchParams.get("q") ?? "";
+  // 麵包屑指回這一堆的概覽，字跟側欄同一份設定
+  const parent = NAV_GROUPS.find((nav) => nav.kindGroup === group);
 
   return (
     <>
       <PageHeader
         title={kind?.name ?? ""}
+        parent={parent ? [{ label: parent.label, href: parent.href }] : undefined}
         action={
           kind && (
-            <ActionButton
-              href={`${kindHref(group, slug)}/new`}
-              label={`新增${kind.name}`}
-              text="新增"
-            >
-              <Plus size={16} strokeWidth={2} aria-hidden />
-            </ActionButton>
+            <div className="flex min-w-0 flex-1 items-center justify-end gap-5">
+              {!List && (
+                <SearchBar value={query} onChange={(next) => setParams({ q: next || null })} />
+              )}
+              <ActionButton
+                href={`${kindHref(group, slug)}/new`}
+                label={`新增${kind.name}`}
+                text="新增"
+              >
+                <Plus size={16} strokeWidth={2} aria-hidden />
+              </ActionButton>
+            </div>
           )
         }
       />
@@ -112,7 +137,7 @@ export function KindListPage({ group, slug }: { group: KindGroup; slug: string }
         ) : List ? (
           <List kind={kind} />
         ) : (
-          <GenericKindList kind={kind} />
+          <GenericKindList kind={kind} query={query} />
         )}
       </PageBody>
     </>
