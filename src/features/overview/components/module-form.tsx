@@ -5,8 +5,8 @@ import { useState } from "react";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
 import { FieldDef } from "@/config/record-fields";
-import { scrapeUrl } from "@/features/overview/api/scrape-url";
 import { Kind } from "@/lib/db/queries/kinds";
+import { scrapeUrl } from "@/lib/scrape-url";
 import { fieldsOf, FormModule, resolveFormModules } from "@/utils/record-form";
 
 /**

@@ -10,13 +10,13 @@ import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
 import { kindHref } from "@/config/kind-routes";
 import { articleEditHref, keywordEditHref, writingNewHref } from "@/config/routes";
-import { scrapeArticle } from "@/features/articles/api/scrape-article";
 import { useArticleFormTab } from "@/features/articles/components/article-form-tabs";
 import { RelatedWriting } from "@/features/writing/components/related-writings";
 import { useArticles } from "@/hooks/use-articles";
 import { useEntryForm } from "@/hooks/use-entry-form";
 import { useRecordForm } from "@/hooks/use-record-form";
 import { useCurrentHref } from "@/lib/keywords/href";
+import { scrapeUrl } from "@/lib/scrape-url";
 import { Article } from "@/types/article";
 import { splitLines } from "@/types/book";
 import { today } from "@/utils/date";
@@ -105,7 +105,7 @@ export function ArticleForm({ article }: { article?: Article }) {
     setFetching(true);
     setFetchNote("");
     try {
-      const found = await scrapeArticle(url);
+      const found = await scrapeUrl(url);
 
       const filled: string[] = [];
       update((f) => {
