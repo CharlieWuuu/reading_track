@@ -161,7 +161,15 @@ export function TypeBuilder({ group }: { group: KindGroup }) {
       className={styles.frame}
     >
       <div className={`${styles.main} max-w-2xl`}>
-        <Section step="01" label="選擇類型">
+        <Section step="01" label="叫什麼">
+          <div className="flex flex-col gap-3 sm:max-w-sm">
+            <Field label="名稱" value={name} onChange={setName} />
+            <Field label="網址" value={slug} onChange={setSlug} />
+            <Field label="量的單位" value={unit} onChange={setUnit} />
+          </div>
+        </Section>
+
+        <Section step="02" label="選擇類型">
           <div className="flex flex-wrap gap-2">
             {templates.map((template) => (
               <button
@@ -192,7 +200,7 @@ export function TypeBuilder({ group }: { group: KindGroup }) {
         </Section>
 
         <Section
-          step="02"
+          step="03"
           label="要哪些模組"
           hint={
             <span className={styles.count}>
@@ -230,13 +238,6 @@ export function TypeBuilder({ group }: { group: KindGroup }) {
       </div>
 
       <div className={styles.rail}>
-        <div className="flex flex-col gap-3">
-          <span className={styles.railLabel}>叫什麼</span>
-          <Field label="名稱" value={name} onChange={setName} />
-          <Field label="網址" value={slug} onChange={setSlug} />
-          <Field label="量的單位" value={unit} onChange={setUnit} />
-        </div>
-
         <span className={styles.railLabel}>長出來會是這樣</span>
         <TypePreview group={group} name={name} picked={picked} />
       </div>
