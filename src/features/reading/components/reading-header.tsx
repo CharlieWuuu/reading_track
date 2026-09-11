@@ -1,9 +1,9 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
-import { BookOpen, Languages, Newspaper, Plus, Quote, Tag } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Plus } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
-import { ActionButton, SelectMenu } from "@/components/ui/controls";
+import { ActionButton } from "@/components/ui/controls";
 import { SearchBar } from "@/components/ui/search-bar";
 import { kindGroupSlugFromPath } from "@/config/kind-routes";
 import { NAV_GROUPS } from "@/config/nav";
@@ -19,20 +19,9 @@ import { useUrlParams } from "@/hooks/use-url-param";
  * 這裡不是 layout.tsx：五條是兄弟路由，中間沒有共同路段可以掛；
  * 而 /reading 那層的 layout 會連單筆頁也套上分頁列，那不是單筆頁要的。
  *
- * 五個分頁在手機上收成一顆「類型」選單而不是排成一列：手機放不下五格，擠出畫面
- * 就再也點不到了。省下來的寬度給搜尋框常駐。桌機那顆不畫，側欄已經在說了。
+ * 手機不放類型切換：那是堆概覽頁（/records、/fragments）頁首那排 tab 在做的事，
+ * 單一類型頁只講自己這一種。省下來的寬度給搜尋框常駐。
  */
-
-const ICON = { size: 16, strokeWidth: 1.5 } as const;
-
-/** 圖示放在這裡不放 config/tabs.ts：那支是純資料，測試也讀它，放 JSX 就得改副檔名 */
-const TAB_ICONS: Record<ReadingTab, () => React.ReactElement> = {
-  books: () => <BookOpen {...ICON} />,
-  articles: () => <Newspaper {...ICON} />,
-  quotes: () => <Quote {...ICON} />,
-  vocabulary: () => <Languages {...ICON} />,
-  keywords: () => <Tag {...ICON} />,
-};
 
 /** 佳句單字關鍵字是從書裡摘出來的，不單獨新增 */
 const NEW_HREF: Partial<Record<ReadingTab, string>> = {
@@ -60,7 +49,6 @@ export function ReadingHeader({
   newButton,
   meta,
 }: ReadingHeaderProps = {}) {
-  const router = useRouter();
   const pathname = usePathname();
   // 在哪一個分頁看網址就知道，不用各頁再傳一次——收斂過的類型看 [slug]，其餘看 /reading/<tab>
   const segment = kindGroupSlugFromPath(pathname)?.slug ?? pathname.split("/")[2];
@@ -81,16 +69,6 @@ export function ReadingHeader({
       action={
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-5 gap-y-2 md:flex-nowrap">
           <SearchBar value={query} onChange={(next) => setParams({ q: next || null })} />
-          {/* 桌機的側欄已經在說現在看的是哪一種，這顆只留給手機 */}
-          <div className="md:hidden">
-            <SelectMenu
-              label="類型"
-              items={READING_TABS.map((tab) => ({ ...tab, Icon: TAB_ICONS[tab.key] }))}
-              value={current}
-              onChange={(next) => router.push(readingTabHref(next))}
-              iconOnly="mobile"
-            />
-          </div>
           {beforeViews}
           {views}
           {filters}

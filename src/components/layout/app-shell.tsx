@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useSidebarStore } from "@/stores/use-sidebar-store";
 import { BottomNav } from "./bottom-nav";
@@ -12,9 +11,7 @@ import { Sidebar } from "./sidebar";
  * 手機版型骨架（設計稿 Layout）：報頭不出現，站名交給底部導覽與系統列，
  * 每頁自己的 PageHeader 頂著標題、返回、動作。
  *
- * 沒登入時手機沒有底部導覽可以當入口（底部導覽指向讀不到的資料），
- * 這種情況才補一條迷你列給登入鍵用——僅未登入 + 手機同時成立時出現，
- * 登入後立刻讓位給底部導覽，不違背設計稿「報頭不出現」的原則。
+ * 沒登入時手機不補任何列——落地頁自己有「開始使用」指向登入頁。
  *
  * session 還在確認時，側欄與 children 一起不顯示——children 自己也會打 API，
  * 各自的 loading 步調不一樣，先讓側欄出現、內容才跳出來會很跳動。
@@ -40,18 +37,6 @@ export function AppShell({
       <div className="hidden shrink-0 md:block">
         <Masthead authSlot={authSlot} />
       </div>
-
-      {/* 手機未登入時的迷你入口：底部導覽要登入後才出現，這是唯一能點的登入按鈕 */}
-      {resolved && !signedIn && (
-        <div className="border-rule-strong flex shrink-0 items-center justify-end border-b px-4 py-2 md:hidden">
-          <Link
-            href="/login"
-            className="bg-control-bg text-control-ink text-ui px-3 py-1.5 font-medium"
-          >
-            登入
-          </Link>
-        </div>
-      )}
 
       <div className="flex min-h-0 flex-1 md:gap-8 md:px-11 md:pt-5">
         {signedIn && !collapsed && (

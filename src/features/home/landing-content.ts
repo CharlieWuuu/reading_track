@@ -11,7 +11,7 @@ export type LandingSection = {
 };
 
 export const LANDING_HERO = {
-  title: "抓住思緒的碎片",
+  title: "抓住思緒碎片",
   lede: "最近讀了什麼？學到什麼？想到什麼？讓 Archivum 幫你轉成個人生活的週報。",
 };
 

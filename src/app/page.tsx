@@ -3,7 +3,7 @@ import { PageBody } from "@/components/layout/page-body";
 import { HomeView } from "@/features/home/components/home-view";
 
 export const metadata: Metadata = {
-  title: "Archivum — 抓住思緒的碎片",
+  title: "Archivum — 抓住思緒碎片",
   description: "最近讀了什麼？學到什麼？想到什麼？讓 Archivum 幫你轉成個人生活的週報。",
 };
 

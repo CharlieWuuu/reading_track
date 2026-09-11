@@ -91,7 +91,7 @@ export function Dashboard() {
         streak={streakDays(dates, today)}
       />
 
-      <div className="flex gap-7 pt-5">
+      <div className="flex flex-col gap-6 pt-5 md:flex-row md:gap-7">
         <DigestColumn
           title="最近的紀錄"
           total={records.records.length}

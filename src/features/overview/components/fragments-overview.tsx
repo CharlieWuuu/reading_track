@@ -4,6 +4,7 @@ import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { CardMasonry } from "@/components/ui/card-masonry";
 import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
+import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { GroupTable } from "@/components/ui/group-table/group-table";
 import { KindGroup } from "@/config/record-kinds";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
@@ -14,10 +15,10 @@ const styles = {
 };
 
 /**
- * 片段與專欄的概覽。兩者同一張表、同一個版面，所以共用這一支。
+ * 片段與專欄的概覽。兩者同一張表，但排法不同。
  *
- * 卡片牆——跟關鍵字（KeywordCards）同一套視覺語言：一則一張卡、grid 同列等高排版。
- * 沒有「進行中／完成」的狀態，也不用挑頭條，全部攤平排就好。
+ * 片段是卡片牆——跟關鍵字（KeywordCards）同一套視覺語言：一則一張卡、grid 同列等高排版。
+ * 專欄照月份排成封面格線，跟底下的書寫子頁一致；沒有「進行中」，全部當成完成的排。
  */
 export function FragmentsOverview({
   group,
@@ -34,6 +35,18 @@ export function FragmentsOverview({
   if (view === "table") return <GroupTable items={fragments.map(fragmentItem)} onSaved={mutate} />;
 
   if (fragments.length === 0) return <div className={styles.empty}>還沒有任何紀錄</div>;
+
+  if (group === "writings") {
+    return (
+      <GroupOverview
+        active={[]}
+        pending={[]}
+        done={fragments.map(fragmentItem)}
+        headlineLabel="最新一則"
+        unit="則"
+      />
+    );
+  }
 
   return (
     <CardMasonry>

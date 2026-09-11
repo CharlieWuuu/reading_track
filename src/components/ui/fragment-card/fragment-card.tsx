@@ -25,7 +25,7 @@ export type FragmentCardProps = {
 };
 
 /** OverviewLayout 骨架配 FragmentCard 用的共用格線：佳句、單字、關鍵字都吃這個 */
-export const FRAGMENT_CARD_GRID = "grid grid-cols-1 gap-3 lg:grid-cols-2 2xl:grid-cols-3";
+export const FRAGMENT_CARD_GRID = "grid grid-cols-2 gap-3 2xl:grid-cols-3";
 
 const styles = {
   card: "flex h-full min-w-0 cursor-pointer flex-col gap-2 rounded-surface border border-rule-strong bg-white p-4 hover:bg-gray-50",

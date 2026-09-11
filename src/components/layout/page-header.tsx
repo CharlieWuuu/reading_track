@@ -13,8 +13,9 @@ const styles = {
   title: "font-serif truncate font-semibold tracking-tight",
   page: "text-page",
   compact: "text-item",
-  // 標題跟這行數字不算同一組資訊，間距要比麵包屑／標題那組鬆
-  meta: "text-meta text-ink-faint truncate tabular-nums ml-2",
+  // 標題跟這行數字不算同一組資訊，間距要比麵包屑／標題那組鬆。
+  // 手機不畫：那行寬度先留給標題與類型切換，數字在清單裡自己看得到
+  meta: "text-meta text-ink-faint ml-2 hidden truncate tabular-nums md:inline",
   actions: "flex min-w-0 flex-1 items-center justify-end *:min-w-0", // *:min-w-0 讓傳進來的內容縮得下去
 };
 
