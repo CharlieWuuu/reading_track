@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Check, Pencil, Sparkles, X } from "lucide-react";
 import { BookCover } from "@/components/ui/book-cover";
 import { StatusBadge, TagList } from "@/components/ui/tag-badge";
@@ -68,6 +68,10 @@ export function BookTableGrid({
     onSaved,
   );
   const [form, setForm] = useState<EditForm | null>(null);
+  // 表格容器可以橫向捲動，觸控板左右滑在部分瀏覽器會連帶觸發 click——
+  // 記下按下時的座標，放開時位移超過門檻就當作在捲動，不要跳頁
+  const pointerDownAt = useRef<{ x: number; y: number } | null>(null);
+  const DRAG_THRESHOLD = 6;
   // editAll 開著時每一列各自存一份表單，key 是書的 id；不影響單列編輯用的 form
   const [allForms, setAllForms] = useState<Record<string, EditForm>>({});
   // 正在補齊資料的那一列，同時只查一筆，按鈕顯示轉圈
@@ -179,7 +183,25 @@ export function BookTableGrid({
             return (
               <tr
                 key={b.id || `row-${i}`}
-                onClick={editing ? undefined : () => router.push(detailHref(b.id))}
+                onPointerDown={
+                  editing
+                    ? undefined
+                    : (e) => {
+                        pointerDownAt.current = { x: e.clientX, y: e.clientY };
+                      }
+                }
+                onClick={
+                  editing
+                    ? undefined
+                    : (e) => {
+                        const start = pointerDownAt.current;
+                        const moved =
+                          start &&
+                          (Math.abs(e.clientX - start.x) > DRAG_THRESHOLD ||
+                            Math.abs(e.clientY - start.y) > DRAG_THRESHOLD);
+                        if (!moved) router.push(detailHref(b.id));
+                      }
+                }
                 className={`border-rule border-t first:border-t-0 ${editing ? "" : "hover:bg-control-bg-hover/5 cursor-pointer"}`}
               >
                 <td className="px-3 py-2">
