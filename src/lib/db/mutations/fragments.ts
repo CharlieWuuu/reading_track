@@ -37,7 +37,7 @@ async function replaceFragments(
 ): Promise<void> {
   await db.transaction(async (tx) => {
     const kindId = await kindIdByName(tx, userId, kindName);
-    const linkedIds = await linkedIdsOf(userId, workId);
+    const linkedIds = await linkedIdsOf(userId, workId, tx);
     const existing =
       linkedIds.length > 0
         ? await tx
@@ -226,7 +226,7 @@ export async function setKeywordLinks(
   names: string[],
 ): Promise<void> {
   const keywordKindId = await kindIdByName(tx, userId, "關鍵字");
-  const linkedIds = await linkedIdsOf(userId, ownerId);
+  const linkedIds = await linkedIdsOf(userId, ownerId, tx);
   const oldKeywordIds = linkedIds.length
     ? (
         await tx
@@ -311,7 +311,7 @@ export async function renameKeyword(userId: string, from: string, to: string): P
       );
     if (!oldFragment) return 0;
 
-    const affected = await linkedIdsOf(userId, oldFragment.id);
+    const affected = await linkedIdsOf(userId, oldFragment.id, tx);
 
     const [existing] = await tx
       .select({ id: fragments.id })
@@ -345,7 +345,7 @@ export async function deleteKeyword(userId: string, name: string): Promise<numbe
       );
     if (!old) return 0;
 
-    const affected = await linkedIdsOf(userId, old.id);
+    const affected = await linkedIdsOf(userId, old.id, tx);
 
     await unlinkAll(tx, userId, old.id);
     await tx.delete(fragments).where(eq(fragments.id, old.id));
