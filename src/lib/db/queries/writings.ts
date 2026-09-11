@@ -30,6 +30,8 @@ const baseSelect = () =>
   db
     .select({
       writing: writings,
+      kindName: kinds.name,
+      kindSlug: kinds.slug,
       workTitle: works.title,
       workKind: sourceKind.name,
       topicName: writingTopics.name,
@@ -42,6 +44,8 @@ const baseSelect = () =>
 
 type WritingJoinRow = {
   writing: typeof writings.$inferSelect;
+  kindName: string;
+  kindSlug: string;
   workTitle: string | null;
   workKind: string | null;
   topicName: string | null;
@@ -61,7 +65,7 @@ async function toWritings(userId: string, rows: WritingJoinRow[]): Promise<Writi
     ),
   ]);
 
-  return rows.map(({ writing, workTitle, workKind, topicName }) => {
+  return rows.map(({ writing, kindName, kindSlug, workTitle, workKind, topicName }) => {
     // 畫面上的書籍編號是「某一次讀」，所以指回第一次讀的那個
     const sourceId = writing.workId ? (firstReading.get(writing.workId) ?? writing.workId) : "";
     return {
@@ -75,6 +79,9 @@ async function toWritings(userId: string, rows: WritingJoinRow[]): Promise<Writi
       link: links.get(writing.id) ?? "",
       sourceTitle: workTitle ?? "",
       sourceKind: workKind ?? "",
+      kindId: writing.kindId,
+      kindName,
+      kindSlug,
       sourceId,
       private: "", // 書寫不帶私人旗標，藏東西一律從主題與類型下手
       coverUrl: writing.coverUrl,
