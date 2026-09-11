@@ -114,3 +114,24 @@ export function topKeywordsFromBooks(
     .slice(0, limit)
     .map(([name, count]) => ({ id: name, title: name, meta: `${count} ${unit}` }));
 }
+
+/**
+ * 一批字串各出現幾次的排行榜。書寫的「類型排行」「主題排行」不需要
+ * 像書籍那樣先查表換算，值本身就是要顯示的名字，直接數就好。
+ */
+export function tally(
+  values: readonly (string | null | undefined)[],
+  unit: string,
+  limit = 5,
+): RailListItem[] {
+  const counts = new Map<string, number>();
+  for (const value of values) {
+    const v = value?.trim();
+    if (!v) continue;
+    counts.set(v, (counts.get(v) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([name, count]) => ({ id: name, title: name, meta: `${count} ${unit}` }));
+}

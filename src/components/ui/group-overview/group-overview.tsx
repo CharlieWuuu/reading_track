@@ -71,6 +71,8 @@ export type GroupOverviewProps = {
   onLoadMore?: () => void;
   hasMore?: boolean;
   isLoadingMore?: boolean;
+  /** 「進行」「想要」底下要多放的統計——書寫沒有這兩種狀態，右欄靠這個補內容 */
+  extraRail?: React.ReactNode;
 };
 
 export function GroupOverview({
@@ -83,6 +85,7 @@ export function GroupOverview({
   onLoadMore,
   hasMore,
   isLoadingMore,
+  extraRail,
 }: GroupOverviewProps) {
   // active 沒東西、但呼叫端有給頭條標籤時（例如書寫，記下就算完成，沒有
   // 進行中這個狀態，仍想秀「最新一則」），頭條改從 done 挑最新一筆；
@@ -109,6 +112,7 @@ export function GroupOverview({
           />
           <Rail label="進行" items={rest} limit={5} />
           <Rail label="想要" items={pending} limit={5} />
+          {extraRail}
         </>
       }
     />

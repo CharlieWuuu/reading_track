@@ -4,14 +4,47 @@ import { PageBody } from "@/components/layout/page-body";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
+import { OverviewRailList } from "@/components/ui/overview-layout/overview-rail-stats";
 import { WritingTable } from "@/features/writing/components/writing-table";
 import { WRITING_VIEWS } from "@/features/writing/views";
 import { useMounted } from "@/hooks/use-mounted";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useWritings } from "@/hooks/use-writings";
 import { useWritingsOverview } from "@/hooks/use-writings-overview";
+import { splitLines } from "@/types/book";
+import { Writing } from "@/types/writing";
+import { tally } from "@/utils/overview";
 import { writingItem } from "@/utils/overview-items";
 import { matchesSearch, searchTerms } from "@/utils/search";
+
+const RAIL_LIST_SIZE = 5;
+
+/** 右欄補的排行：類型（心得／日記…）、主題、關鍵字——書寫沒有進行中／想要可以列 */
+function WritingRail({ writings }: { writings: readonly Writing[] }) {
+  const kinds = tally(
+    writings.map((w) => w.kind),
+    "則",
+    RAIL_LIST_SIZE,
+  );
+  const topics = tally(
+    writings.map((w) => w.topic),
+    "則",
+    RAIL_LIST_SIZE,
+  );
+  const keywords = tally(
+    writings.flatMap((w) => splitLines(w.keywords)),
+    "則",
+    RAIL_LIST_SIZE,
+  );
+
+  return (
+    <>
+      <OverviewRailList label="類型排行" count={kinds.length} items={kinds} />
+      <OverviewRailList label="主題排行" count={topics.length} items={topics} />
+      <OverviewRailList label="常出現的關鍵字" count={keywords.length} items={keywords} />
+    </>
+  );
+}
 
 /**
  * 書寫清單。搜尋、篩選、看哪一種都在網址上，所以這裡自己讀。
@@ -63,6 +96,7 @@ function WritingListFull({ view, topic, q }: { view: string; topic: string; q: s
           done={writings.map(writingItem)}
           headlineLabel="最新一則"
           unit="則"
+          extraRail={<WritingRail writings={writings} />}
         />
       )}
     </PageBody>
@@ -93,6 +127,7 @@ function WritingListPaged() {
         onLoadMore={overview.loadMore}
         hasMore={overview.hasMore}
         isLoadingMore={overview.isLoadingMore}
+        extraRail={<WritingRail writings={overview.writings} />}
       />
     </PageBody>
   );
