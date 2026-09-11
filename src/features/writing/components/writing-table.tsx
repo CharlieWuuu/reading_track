@@ -6,7 +6,7 @@ import { Check, Pencil, X } from "lucide-react";
 import { writingHref } from "@/config/routes";
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { useInlineEdit } from "@/hooks/use-inline-edit";
-import { splitLines, splitTags } from "@/types/book";
+import { splitLines } from "@/types/book";
 import { Writing } from "@/types/writing";
 import { shortDate } from "@/utils/date";
 import { tagColorClass } from "@/utils/tag-colors";
@@ -20,10 +20,9 @@ import { tagColorClass } from "@/utils/tag-colors";
  * 日期擺第一欄，只寫 `08/19`：一整欄同寬的數字，往下掃就是一條時間軸。
  * 完整年份沒有意義——同一個畫面裡的紀事幾乎都是今年的，跨年的才補上。
  *
- * 窄螢幕不再藏欄位，改成整張表左右滑——藏起來的欄位在手機上等於不存在，
- * 而「這則是什麼類型」正是手機上最想先看到的。
+ * 窄螢幕不再藏欄位，改成整張表左右滑——藏起來的欄位在手機上等於不存在。
  *
- * 「編輯」欄位點下去，那一列的日期、類型、主題、標題、關鍵字換成輸入框；
+ * 「編輯」欄位點下去，那一列的日期、主題、標題、關鍵字換成輸入框；
  * 「延伸自」不開放 inline 改——換出處要挑書或文章，跟這裡的文字欄位不是同一件事。
  */
 /**
@@ -36,7 +35,7 @@ function dayTone(group: number): string {
   return group % 2 === 1 ? "bg-gray-100 hover:bg-gray-200" : "bg-white hover:bg-gray-50";
 }
 
-/** 類型與關鍵字的長相跟時間軸那邊同一套：同一個東西在兩個檢視裡不該換臉 */
+/** 主題與關鍵字的長相跟時間軸那邊同一套：同一個東西在兩個檢視裡不該換臉 */
 const styles = {
   kind: "rounded-control shrink-0 px-1 py-px text-[10px] leading-none font-medium",
   tag: "rounded-control shrink-0 bg-gray-100 px-1 py-px text-[10px] text-gray-500 hover:bg-gray-200",
@@ -46,7 +45,6 @@ const inputClass = "border-rule-strong w-full rounded-control border bg-white px
 
 type EditForm = {
   date: string;
-  kind: string;
   topic: string;
   title: string;
   keywords: string;
@@ -55,7 +53,6 @@ type EditForm = {
 function toEditForm(writing: Writing): EditForm {
   return {
     date: writing.date ?? "",
-    kind: writing.kind,
     topic: writing.topic,
     title: writing.title,
     keywords: writing.keywords,
@@ -108,12 +105,11 @@ export function WritingTable({
       <table className="w-full min-w-[36rem] table-fixed text-sm">
         <thead className="bg-table-header-bg sticky top-0 z-10 text-left [&_th]:shadow-[inset_0_-1px_0_var(--color-table-header-rule)]">
           <tr>
-            <th className="w-[8%] px-2 py-1.5 whitespace-nowrap">日期</th>
-            <th className="w-[11%] px-2 py-1.5 whitespace-nowrap">類型</th>
-            <th className="w-[11%] px-2 py-1.5 whitespace-nowrap">主題</th>
-            <th className="w-[26%] px-2 py-1.5 whitespace-nowrap">標題</th>
-            <th className="w-[18%] px-2 py-1.5 whitespace-nowrap">關鍵字</th>
-            <th className="w-[17%] px-2 py-1.5 whitespace-nowrap">延伸自</th>
+            <th className="w-[9%] px-2 py-1.5 whitespace-nowrap">日期</th>
+            <th className="w-[13%] px-2 py-1.5 whitespace-nowrap">主題</th>
+            <th className="w-[30%] px-2 py-1.5 whitespace-nowrap">標題</th>
+            <th className="w-[20%] px-2 py-1.5 whitespace-nowrap">關鍵字</th>
+            <th className="w-[19%] px-2 py-1.5 whitespace-nowrap">延伸自</th>
             <th className="w-[9%] px-2 py-1.5 whitespace-nowrap">編輯</th>
           </tr>
         </thead>
@@ -138,24 +134,6 @@ export function WritingTable({
                     />
                   ) : (
                     shortDate(e.date) || "—"
-                  )}
-                </td>
-                <td className="max-w-0 overflow-hidden px-2 py-1.5">
-                  {editing && form ? (
-                    <input
-                      className={inputClass}
-                      value={form.kind}
-                      onChange={(ev) => setForm({ ...form, kind: ev.target.value })}
-                      onClick={(ev) => ev.stopPropagation()}
-                    />
-                  ) : (
-                    <div className="flex flex-nowrap gap-1.5">
-                      {splitTags(e.kind).map((kind) => (
-                        <span key={kind} className={`${styles.kind} ${tagColorClass(kind, [])}`}>
-                          {kind}
-                        </span>
-                      ))}
-                    </div>
                   )}
                 </td>
                 <td className="max-w-0 overflow-hidden px-2 py-1.5">

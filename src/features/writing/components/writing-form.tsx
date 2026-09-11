@@ -32,7 +32,6 @@ function TabPanel({ active, children }: { active: boolean; children: React.React
 const emptyForm = {
   date: "",
   title: "",
-  kind: "",
   topic: "",
   keywords: "",
   note: "",
@@ -86,7 +85,6 @@ export function WritingForm({ entry }: { entry?: Writing }) {
   const prefill = {
     sourceId: searchParams.get("sourceId") ?? "",
     sourceTitle: searchParams.get("sourceTitle") ?? "",
-    kind: searchParams.get("kind") ?? "",
     // 從書籍／文章那個框帶過來的草稿，不用再打一次
     note: searchParams.get("note") ?? "",
   };

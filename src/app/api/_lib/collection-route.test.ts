@@ -16,7 +16,7 @@ vi.mock("@/lib/db/queries/settings", () => ({
   })),
 }));
 
-type Row = { id: string; private?: string; kind?: string; domain?: string; keywords?: string };
+type Row = { id: string; private?: string; topic?: string; domain?: string; keywords?: string };
 
 const url = () => "http://localhost/api/books";
 const post = (body: string) => new NextRequest(url(), { method: "POST", body });
@@ -109,15 +109,15 @@ describe("GET", () => {
     });
   });
 
-  it("書寫的類型標了私人的那筆也不會離開伺服器", async () => {
+  it("書寫的主題標了私人的那筆也不會離開伺服器", async () => {
     const { route } = build([
-      { id: "b1", kind: "書籍" },
-      { id: "b2", kind: "日記" },
+      { id: "b1", topic: "隨筆" },
+      { id: "b2", topic: "日記" },
     ]);
 
     const res = await route.GET(new NextRequest(url()));
 
-    expect(await res.json()).toEqual({ books: [{ id: "b1", kind: "書籍" }] });
+    expect(await res.json()).toEqual({ books: [{ id: "b1", topic: "隨筆" }] });
   });
 });
 

@@ -24,13 +24,13 @@ describe("isPrivate", () => {
     expect(isPrivate(makeWriting())).toBe(false);
   });
 
-  it("類型在清單裡，整批算私人", () => {
+  it("主題在清單裡，整批算私人", () => {
     const options = { ...NO_OPTIONS, types: new Set(["日記"]) };
-    expect(isPrivate(makeWriting({ kind: "日記" }), options)).toBe(true);
-    expect(isPrivate(makeWriting({ kind: "書籍" }), options)).toBe(false);
+    expect(isPrivate(makeWriting({ topic: "日記" }), options)).toBe(true);
+    expect(isPrivate(makeWriting({ topic: "思緒" }), options)).toBe(false);
   });
 
-  it("類型標私人時，書的領域與次領域都算", () => {
+  it("主題標私人時，書的領域與次領域都算", () => {
     const options = { ...NO_OPTIONS, types: new Set(["政治"]) };
     expect(isPrivate(makeBook({ domain: "政治" }), options)).toBe(true);
     expect(isPrivate(makeBook({ domain: "人文社科", subDomain: "政治" }), options)).toBe(true);
@@ -42,9 +42,9 @@ describe("isPrivate", () => {
     expect(isPrivate(makeBook({ keywords: "日記\n東京" }), options)).toBe(false);
   });
 
-  it("空字串的類型不會對上空清單以外的東西", () => {
+  it("空字串的主題不會對上空清單以外的東西", () => {
     const options = { ...NO_OPTIONS, types: new Set([""]) };
-    expect(isPrivate(makeWriting({ kind: "" }), options)).toBe(false);
+    expect(isPrivate(makeWriting({ topic: "" }), options)).toBe(false);
   });
 });
 
@@ -56,7 +56,7 @@ describe("withPrivacy", () => {
   });
 
   it("解鎖了就原樣回傳，清單也不管用", () => {
-    const rows = [makeWriting({ id: "a", kind: "日記" }), makeWriting({ id: "b", private: "是" })];
+    const rows = [makeWriting({ id: "a", topic: "日記" }), makeWriting({ id: "b", private: "是" })];
     const unlocked = { unlocked: true, options: { ...NO_OPTIONS, types: new Set(["日記"]) } };
 
     expect(withPrivacy(rows, unlocked).map((r) => r.id)).toEqual(["a", "b"]);

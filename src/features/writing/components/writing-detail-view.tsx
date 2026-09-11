@@ -12,7 +12,7 @@ import { kindHref } from "@/config/kind-routes";
 import { writingEditHref } from "@/config/routes";
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { useWritings } from "@/hooks/use-writings";
-import { splitLines, splitTags } from "@/types/book";
+import { splitLines } from "@/types/book";
 import { isUrl } from "@/utils/reflections";
 import { tagColorClass } from "@/utils/tag-colors";
 
@@ -46,15 +46,6 @@ export function WritingDetailView() {
               <DetailFields>
                 <div>
                   <DetailField label="日期">{writing.date}</DetailField>
-                  <DetailField label="類型">
-                    <span className="flex flex-wrap gap-1.5">
-                      {splitTags(writing.kind).map((kind) => (
-                        <span key={kind} className={`${KIND_TAG} ${tagColorClass(kind, [])}`}>
-                          {kind}
-                        </span>
-                      ))}
-                    </span>
-                  </DetailField>
                   {writing.topic && (
                     <DetailField label="主題">
                       <span className={`${KIND_TAG} ${tagColorClass(writing.topic, [])}`}>

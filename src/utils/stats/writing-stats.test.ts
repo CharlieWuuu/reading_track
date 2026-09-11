@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { makeWriting, resetIds } from "@/testing/factories";
-import { getKindDistribution, getWritingKpis, getWritingMonthlyTrend } from "./writing-stats";
+import { getTopicDistribution, getWritingKpis, getWritingMonthlyTrend } from "./writing-stats";
 
 resetIds();
 
@@ -40,22 +40,22 @@ describe("getWritingMonthlyTrend", () => {
   });
 });
 
-describe("getKindDistribution", () => {
-  it("依類型分布，多的排前面", () => {
+describe("getTopicDistribution", () => {
+  it("依主題分布，多的排前面", () => {
     const writings = [
-      makeWriting({ kind: "書籍" }),
-      makeWriting({ kind: "書籍" }),
-      makeWriting({ kind: "影劇" }),
+      makeWriting({ topic: "心得" }),
+      makeWriting({ topic: "心得" }),
+      makeWriting({ topic: "隨筆" }),
     ];
 
-    expect(getKindDistribution(writings)).toEqual([
-      { name: "書籍", value: 2 },
-      { name: "影劇", value: 1 },
+    expect(getTopicDistribution(writings)).toEqual([
+      { name: "心得", value: 2 },
+      { name: "隨筆", value: 1 },
     ]);
   });
 
-  it("沒填類型的算未分類", () => {
-    expect(getKindDistribution([makeWriting({ kind: "" })])).toEqual([
+  it("沒填主題的算未分類", () => {
+    expect(getTopicDistribution([makeWriting({ topic: "" })])).toEqual([
       { name: "未分類", value: 1 },
     ]);
   });

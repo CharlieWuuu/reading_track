@@ -14,6 +14,6 @@ export function getWritingMonthlyTrend(writings: Writing[], monthsBack = 24): Mo
   return getRecordMonthlyTrend(writings, monthsBack);
 }
 
-export function getKindDistribution(writings: Writing[]): DistributionSlice[] {
-  return getFieldDistribution(writings, "kind");
+export function getTopicDistribution(writings: Writing[]): DistributionSlice[] {
+  return getFieldDistribution(writings, "topic");
 }

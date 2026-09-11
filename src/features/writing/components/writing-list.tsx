@@ -19,13 +19,8 @@ import { matchesSearch, searchTerms } from "@/utils/search";
 
 const RAIL_LIST_SIZE = 5;
 
-/** 右欄補的排行：類型（心得／日記…）、主題、關鍵字——書寫沒有進行中／想要可以列 */
+/** 右欄補的排行：主題、關鍵字——書寫沒有進行中／想要可以列 */
 function WritingRail({ writings }: { writings: readonly Writing[] }) {
-  const kinds = tally(
-    writings.map((w) => w.kind),
-    "則",
-    RAIL_LIST_SIZE,
-  );
   const topics = tally(
     writings.map((w) => w.topic),
     "則",
@@ -39,7 +34,6 @@ function WritingRail({ writings }: { writings: readonly Writing[] }) {
 
   return (
     <>
-      <OverviewRailList label="類型排行" count={kinds.length} items={kinds} />
       <OverviewRailList label="主題排行" count={topics.length} items={topics} />
       <OverviewRailList label="常出現的關鍵字" count={keywords.length} items={keywords} />
     </>
@@ -73,7 +67,7 @@ function WritingListFull({ view, topic, q }: { view: string; topic: string; q: s
   const writings = allWriting.filter(
     (e) =>
       (!topic || e.topic === topic) &&
-      matchesSearch(terms, e.title, e.note, e.keywords, e.kind, e.sourceTitle),
+      matchesSearch(terms, e.title, e.note, e.keywords, e.sourceTitle),
   );
 
   if (isLoading) return <PageLoading />;

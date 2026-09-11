@@ -25,10 +25,10 @@ function markedPrivate(row: PrivateRow): boolean {
   return TRUTHY.has((row.private ?? "").trim().toLowerCase());
 }
 
-/** 書寫的類型在 kind，書籍與文章的在 domain／subDomain——都對同一份主題清單比對 */
+/** 書寫的分類在 topic，書籍與文章的在 domain／subDomain——都對同一份主題清單比對 */
 export type PrivateRow = {
   private?: string;
-  kind?: string;
+  topic?: string;
   domain?: string;
   subDomain?: string;
 };
@@ -54,7 +54,7 @@ const NO_OPTIONS: PrivateOptions = { types: new Set() };
  */
 export function isPrivate(row: PrivateRow, options: PrivateOptions = NO_OPTIONS): boolean {
   if (markedPrivate(row)) return true;
-  if (inList(row.kind, options.types)) return true;
+  if (inList(row.topic, options.types)) return true;
   return inList(row.domain, options.types) || inList(row.subDomain, options.types);
 }
 

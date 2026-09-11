@@ -1,14 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { makeBook, makeWriting } from "@/testing/factories";
 import { groupBooks } from "./group-books";
-import {
-  distinctValues,
-  isSourceKind,
-  toBookAndReadings,
-  toInt,
-  toWriting,
-  typeNodes,
-} from "./to-rows";
+import { distinctValues, toBookAndReadings, toInt, toWriting, typeNodes } from "./to-rows";
 
 describe("typeNodes", () => {
   it("父節點排在子節點前面，插入時才找得到 parent", () => {
@@ -89,12 +82,8 @@ describe("toBookAndReadings", () => {
 });
 
 describe("toWriting", () => {
-  it("「書籍」「文章」是出處不是類型，留空給外鍵記", () => {
-    expect(isSourceKind("書籍")).toBe(true);
-    expect(toWriting(makeWriting({ kind: "書籍", sourceId: "abc" })).typeName).toBe("");
-  });
-
-  it("沒出處的那些，類型欄記的才是真的類型", () => {
-    expect(toWriting(makeWriting({ kind: "思緒" })).typeName).toBe("思緒");
+  it("書寫不分類型，typeName 一律留空——分類交給主題與關鍵字", () => {
+    expect(toWriting(makeWriting({ sourceId: "abc" })).typeName).toBe("");
+    expect(toWriting(makeWriting()).typeName).toBe("");
   });
 });

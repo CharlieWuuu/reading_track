@@ -9,13 +9,6 @@ import { BookGroup } from "./group-books";
  * 匯入腳本只負責讀進來、把結果餵給 insert。
  */
 
-/** 書寫的「類型」欄混了兩種東西：有出處時記的是出處，沒出處時才是真的類型 */
-const SOURCE_KINDS = ["書籍", "文章"];
-
-export function isSourceKind(kind: string): boolean {
-  return SOURCE_KINDS.includes(kind.trim());
-}
-
 export interface TypeNode {
   name: string;
   parent: string | null;
@@ -126,8 +119,7 @@ export function toWriting(row: Writing): WritingRow {
     note: row.note,
     date: toDate(row.date),
     link: row.link.trim(),
-    // 「書籍」「文章」是出處不是類型，出處由外鍵記，這裡留空
-    typeName: isSourceKind(row.kind) ? "" : row.kind.trim(),
+    typeName: "", // 書寫不再分類型，分類一律交給主題與關鍵字
     isPrivate: row.private.trim() === PRIVATE_MARK,
     sourceId: row.sourceId.trim(),
     keywords: distinctValues(splitLines(row.keywords)),

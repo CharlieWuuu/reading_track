@@ -14,26 +14,11 @@ import { toDate } from "./values";
 /**
  * 書寫寫回 writings 表。
  *
- * 舊的 kind 欄混了出處與類型：「書籍」「文章」只是在說它有出處，那件事現在由
- * work_id 記；其餘的值才是真的類型。sourceId 進來的是「某一次讀」的編號，
- * 要換成它屬於哪個作品。
- *
- * 類型認不得就落到「書寫」——不在寫入時替使用者長出新類型，那是他在建立頁上
- * 決定的事。
+ * 書寫底下不再分類型：每一則都掛在「書寫」這個類型上，分類一律交給主題與
+ * 關鍵字。sourceId 進來的是「某一次讀」的編號，要換成它屬於哪個作品。
  */
 
-const SOURCE_KINDS = ["書籍", "文章"];
-const FALLBACK_KIND = "書寫";
-
-async function kindIdFor(tx: Tx, userId: string, kind: string): Promise<string> {
-  const name = kind.trim();
-  if (!name || SOURCE_KINDS.includes(name)) return kindIdByName(tx, userId, FALLBACK_KIND);
-  try {
-    return await kindIdByName(tx, userId, name);
-  } catch {
-    return kindIdByName(tx, userId, FALLBACK_KIND);
-  }
-}
+const WRITING_KIND = "書寫";
 
 /** 主題是扁平的一層，沒有領域那種父子結構；沒填就不掛 */
 async function topicIdFor(tx: Tx, userId: string, topic: string): Promise<string | null> {
@@ -83,7 +68,7 @@ export async function addWritingRow(userId: string, writing: Writing): Promise<v
     await tx.insert(writings).values({
       id: writing.id,
       userId,
-      kindId: await kindIdFor(tx, userId, writing.kind),
+      kindId: await kindIdByName(tx, userId, WRITING_KIND),
       topicId: await topicIdFor(tx, userId, writing.topic),
       workId,
       name: writing.title,
@@ -113,7 +98,6 @@ export async function updateWritingRow(
   if (patch.coverUrl !== undefined) values.coverUrl = patch.coverUrl;
 
   await db.transaction(async (tx) => {
-    if (patch.kind !== undefined) values.kindId = await kindIdFor(tx, userId, patch.kind);
     if (patch.topic !== undefined) values.topicId = await topicIdFor(tx, userId, patch.topic);
 
     if (Object.keys(values).length)

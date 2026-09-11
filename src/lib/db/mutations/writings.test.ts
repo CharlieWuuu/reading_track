@@ -22,7 +22,6 @@ function makeWriting(patch: Partial<Writing> = {}): Writing {
     createdAt: "2026-01-01T00:00:00.000Z",
     date: "2026-03-03",
     title: "一則書寫",
-    kind: "反思",
     topic: "",
     keywords: "",
     note: "內容",
@@ -37,26 +36,17 @@ function makeWriting(patch: Partial<Writing> = {}): Writing {
 }
 
 describe("addWritingRow", () => {
-  /** 類型是使用者在建立頁上決定的，寫入時不替他長一個出來——認不得就落到書寫 */
-  it("認不得的類型落到書寫，不長出新類型", async () => {
-    const writing = makeWriting({ kind: "週計劃" });
+  /** 書寫不分類型：每一則都掛在「書寫」這個類型上，分類交給主題與關鍵字 */
+  it("一律掛在書寫這個類型上，不長出別的類型", async () => {
+    const writing = makeWriting();
     await addWritingRow(userId, writing);
 
     const [row] = await db.select().from(writings).where(eq(writings.id, writing.id));
     const [kind] = await db.select().from(kinds).where(eq(kinds.id, row.kindId));
     expect(kind.name).toBe("書寫");
 
-    const invented = await db.select().from(kinds).where(eq(kinds.name, "週計劃"));
-    expect(invented).toHaveLength(0);
-  });
-
-  it("「書籍」「文章」不是類型，是在說它有出處", async () => {
-    const writing = makeWriting({ kind: "書籍" });
-    await addWritingRow(userId, writing);
-
-    const [row] = await db.select().from(writings).where(eq(writings.id, writing.id));
-    const [kind] = await db.select().from(kinds).where(eq(kinds.id, row.kindId));
-    expect(kind.name).toBe("書寫");
+    const all = await db.select().from(kinds).where(eq(kinds.groupKey, "writings"));
+    expect(all).toHaveLength(1);
   });
 
   it("主題寫入 writing_topics，同名不重複建立", async () => {

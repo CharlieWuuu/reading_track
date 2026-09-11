@@ -9,13 +9,13 @@ import { Section } from "@/features/stats/components/section-list";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { Writing } from "@/types/writing";
 import {
-  getKindDistribution,
+  getTopicDistribution,
   getWritingKpis,
   getWritingMonthlyTrend,
 } from "@/utils/stats/writing-stats";
 
 /**
- * 紀事統計要畫哪幾塊。紀事只有類型一種分類，所以比書籍與文章少一組圖。
+ * 紀事統計要畫哪幾塊。紀事只有主題一種分類，所以比書籍與文章少一組圖。
  */
 export function useWritingSections(writings: Writing[]): Section[] {
   const isMobile = useIsMobile();
@@ -23,8 +23,8 @@ export function useWritingSections(writings: Writing[]): Section[] {
   return useMemo(() => {
     const kpis = getWritingKpis(writings);
     const monthly = getWritingMonthlyTrend(writings);
-    // 紀事只有類型一種分類，所以只有一張圖
-    const pies = [{ key: "kind", label: "類型分布", data: getKindDistribution(writings) }];
+    // 紀事只有主題一種分類，所以只有一張圖
+    const pies = [{ key: "topic", label: "主題分布", data: getTopicDistribution(writings) }];
 
     const trend = (title = "每月筆數") => (
       <MonthlyTrendChart title={title} data={monthly} unit="筆" seriesLabel="筆數" height="100%" />

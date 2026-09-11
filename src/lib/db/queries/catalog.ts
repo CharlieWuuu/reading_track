@@ -233,7 +233,7 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
     .map((writing) => ({
       id: writing.id,
       kindId: writing.id, // 書寫沒有共用的 kindId 可用，退回類型清單時就給自己的編號
-      kindName: writing.kind,
+      kindName: "書寫",
       kindGroup: "writings" as const,
       kindSlug: "writing",
       workId: writing.sourceId || null,
