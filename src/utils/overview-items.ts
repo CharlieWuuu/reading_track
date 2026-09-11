@@ -69,14 +69,16 @@ export const recordItem = (row: RecordRow): OverviewItem => ({
 /**
  * 片段自己的網址要接哪一段 id。單字用詞本身（同一個詞可能好幾列，那一頁一次改完）；
  * 關鍵字沒有逐筆的詳細頁（卡片彈窗式），點了退回那一種的清單；其餘片段用編號。
+ *
+ * 認 slug 不認名字——名字使用者改得掉，改完這張表就對不上了。
  */
 const FRAGMENT_HREF: Record<string, (row: FragmentRow) => string> = {
-  單字: (row) => `${kindHref(row.kindGroup, row.kindSlug)}/${encodeURIComponent(row.name)}`,
-  關鍵字: (row) => kindHref(row.kindGroup, row.kindSlug),
+  vocabulary: (row) => `${kindHref(row.kindGroup, row.kindSlug)}/${encodeURIComponent(row.name)}`,
+  keywords: (row) => kindHref(row.kindGroup, row.kindSlug),
 };
 
 export const fragmentHref = (row: FragmentRow): string =>
-  FRAGMENT_HREF[row.kindName]?.(row) ?? `${kindHref(row.kindGroup, row.kindSlug)}/${row.id}`;
+  FRAGMENT_HREF[row.kindSlug]?.(row) ?? `${kindHref(row.kindGroup, row.kindSlug)}/${row.id}`;
 
 /** 片段的標題：有名字就用名字，沒有就用整段內文——一句佳句沒有標題，硬留白只剩出處看得見 */
 export const fragmentTitle = (row: FragmentRow): string => row.name || row.body;

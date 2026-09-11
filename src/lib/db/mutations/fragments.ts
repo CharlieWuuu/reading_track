@@ -7,7 +7,7 @@ import { KeywordInfo } from "@/types/keyword";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { setFragmentSourceUrl } from "./external-links";
 import { link, unlink, unlinkAll } from "./internal-links";
-import { kindIdByName } from "./kind-lookup";
+import { kindIdBySlug } from "./kind-lookup";
 
 /**
  * 佳句、單字、關鍵字的寫入。三種都在 fragments 表裡，靠類型分。
@@ -32,11 +32,11 @@ async function workIdOf(userId: string, readingId: string): Promise<string | nul
 async function replaceFragments(
   userId: string,
   workId: string,
-  kindName: string,
+  kindSlug: string,
   rows: (kindId: string) => Record<string, unknown>[],
 ): Promise<void> {
   await db.transaction(async (tx) => {
-    const kindId = await kindIdByName(tx, userId, kindName);
+    const kindId = await kindIdBySlug(tx, userId, kindSlug);
     const linkedIds = await linkedIdsOf(userId, workId, tx);
     const existing =
       linkedIds.length > 0
@@ -77,7 +77,7 @@ export async function replaceBookQuotes(
   const workId = await workIdOf(userId, readingId);
   if (!workId) return;
 
-  await replaceFragments(userId, workId, "佳句", (kindId) =>
+  await replaceFragments(userId, workId, "quotes", (kindId) =>
     items
       .filter((item) => item.text.trim())
       .map((item) => ({
@@ -101,7 +101,7 @@ export async function replaceBookVocabulary(
   const workId = await workIdOf(userId, readingId);
   if (!workId) return;
 
-  await replaceFragments(userId, workId, "單字", (kindId) =>
+  await replaceFragments(userId, workId, "vocabulary", (kindId) =>
     items
       .filter((item) => item.word.trim())
       .map((item) => ({
@@ -155,7 +155,7 @@ export async function addQuote(userId: string, readingId: string, item: QuoteRow
     await tx.insert(fragments).values({
       id,
       userId,
-      kindId: await kindIdByName(tx, userId, "佳句"),
+      kindId: await kindIdBySlug(tx, userId, "quotes"),
       phrase: item.text,
       locator: item.chapter,
       body: item.note,
@@ -179,7 +179,7 @@ export async function addVocabulary(
     await tx.insert(fragments).values({
       id,
       userId,
-      kindId: await kindIdByName(tx, userId, "單字"),
+      kindId: await kindIdBySlug(tx, userId, "vocabulary"),
       name: item.word,
       pronunciation: item.pronunciation,
       translation: item.wordTranslation,
@@ -195,7 +195,7 @@ export async function addVocabulary(
 
 /** 關鍵字片段，查不到就自己長一個出來——名字是唯一的身分 */
 export async function keywordFragmentId(tx: Tx, userId: string, name: string): Promise<string> {
-  const kindId = await kindIdByName(tx, userId, "關鍵字");
+  const kindId = await kindIdBySlug(tx, userId, "keywords");
   const [existing] = await tx
     .select({ id: fragments.id })
     .from(fragments)
@@ -225,7 +225,7 @@ export async function setKeywordLinks(
   ownerId: string,
   names: string[],
 ): Promise<void> {
-  const keywordKindId = await kindIdByName(tx, userId, "關鍵字");
+  const keywordKindId = await kindIdBySlug(tx, userId, "keywords");
   const linkedIds = await linkedIdsOf(userId, ownerId, tx);
   const oldKeywordIds = linkedIds.length
     ? (
@@ -252,7 +252,7 @@ export async function setKeywordLinks(
 /** 維基查回來的資料整批寫入；已經有的就更新，不動使用者自己填的名字 */
 export async function saveKeywordInfos(userId: string, infos: KeywordInfo[]): Promise<void> {
   await db.transaction(async (tx) => {
-    const kindId = await kindIdByName(tx, userId, "關鍵字");
+    const kindId = await kindIdBySlug(tx, userId, "keywords");
 
     for (const info of infos) {
       const values = {
@@ -302,7 +302,7 @@ export async function renameKeyword(userId: string, from: string, to: string): P
   if (!from || !to || from === to) return 0;
 
   return db.transaction(async (tx) => {
-    const kindId = await kindIdByName(tx, userId, "關鍵字");
+    const kindId = await kindIdBySlug(tx, userId, "keywords");
     const [oldFragment] = await tx
       .select({ id: fragments.id })
       .from(fragments)
@@ -336,7 +336,7 @@ export async function renameKeyword(userId: string, from: string, to: string): P
 /** 刪掉這則關鍵字片段，連結靠 unlinkAll 一起清掉。回傳動到幾條連結 */
 export async function deleteKeyword(userId: string, name: string): Promise<number> {
   return db.transaction(async (tx) => {
-    const kindId = await kindIdByName(tx, userId, "關鍵字");
+    const kindId = await kindIdBySlug(tx, userId, "keywords");
     const [old] = await tx
       .select({ id: fragments.id })
       .from(fragments)
