@@ -3,7 +3,7 @@
 import { ReactNode } from "react";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
-import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
+import { FRAGMENT_CARD_GRID, FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { OverviewLayout } from "@/components/ui/overview-layout/overview-layout";
 import { OverviewTotalStats } from "@/components/ui/overview-layout/overview-rail-stats";
 import { quoteHref } from "@/config/routes";
@@ -17,9 +17,6 @@ import {
   getQuoteRecords,
   QuoteRecord,
 } from "@/utils/stats/vocabulary-stats";
-
-/** 佳句一句比書籍一本占的字數多，欄數比其他概覽頁少一階，每欄才有空間放得下 */
-const QUOTE_GRID = "grid grid-cols-1 gap-x-8 gap-y-3 lg:grid-cols-2 2xl:grid-cols-3";
 
 const toItem = (record: QuoteRecord): OverviewItem => ({
   id: record.id,
@@ -57,7 +54,7 @@ function QuotesGrid({
       headlineLabel={headlineLabel}
       done={rest}
       rail={rail}
-      gridClassName={QUOTE_GRID}
+      gridClassName={FRAGMENT_CARD_GRID}
       onLoadMore={onLoadMore}
       hasMore={hasMore}
       isLoadingMore={isLoadingMore}

@@ -1,6 +1,6 @@
 "use client";
 
-import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
+import { FRAGMENT_CARD_GRID, FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { OverviewLayout } from "@/components/ui/overview-layout/overview-layout";
 import { OverviewTotalStats } from "@/components/ui/overview-layout/overview-rail-stats";
 import { keywordHref } from "@/config/routes";
@@ -16,9 +16,6 @@ const styles = {
   topic: "rounded-control px-1.5 py-0.5 text-[11px] font-medium",
   count: "shrink-0 text-xs text-gray-400 tabular-nums",
 };
-
-/** 一個關鍵字連摘要一起占的字數比書籍一本多，欄數比其他概覽頁少一階，每欄才有空間放得下 */
-const KEYWORD_GRID = "grid grid-cols-1 gap-x-8 gap-y-3 lg:grid-cols-2 2xl:grid-cols-3";
 
 /**
  * 關鍵字卡片牆：關鍵字頁與手機的筆記頁共用，點一張就進那個字的詳情頁。
@@ -59,7 +56,7 @@ export function KeywordCards({ books }: { books: Book[] }) {
       headlineLabel="最近記的"
       done={rest}
       rail={<OverviewTotalStats count={entries.length} unit="個" />}
-      gridClassName={KEYWORD_GRID}
+      gridClassName={FRAGMENT_CARD_GRID}
       renderItem={(item) => {
         const entry = entries.find((e) => e.name === item.id)!;
         const info = byName.get(entry.name);

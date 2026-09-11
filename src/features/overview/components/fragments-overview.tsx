@@ -16,7 +16,7 @@ const styles = {
 /**
  * 片段與專欄的概覽。兩者同一張表、同一個版面，所以共用這一支。
  *
- * 卡片牆——跟關鍵字（KeywordCards）同一套視覺語言：一則一張卡、瀑布式排版。
+ * 卡片牆——跟關鍵字（KeywordCards）同一套視覺語言：一則一張卡、grid 同列等高排版。
  * 沒有「進行中／完成」的狀態，也不用挑頭條，全部攤平排就好。
  */
 export function FragmentsOverview({

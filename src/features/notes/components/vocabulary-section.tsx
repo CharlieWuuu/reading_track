@@ -1,7 +1,7 @@
 "use client";
 
 import { PageLoading } from "@/components/layout/page-loading";
-import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
+import { FRAGMENT_CARD_GRID, FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { GroupTable } from "@/components/ui/group-table/group-table";
 import { OverviewLayout } from "@/components/ui/overview-layout/overview-layout";
 import { OverviewTotalStats } from "@/components/ui/overview-layout/overview-rail-stats";
@@ -15,9 +15,6 @@ import {
   getVocabularyEntries,
   VocabularyEntry,
 } from "@/utils/stats/vocabulary-stats";
-
-/** 一個詞連例句一起占的字數比書籍一本多，欄數比其他概覽頁少一階，每欄才有空間放得下 */
-const VOCABULARY_GRID = "grid grid-cols-1 gap-x-8 gap-y-3 lg:grid-cols-2 2xl:grid-cols-3";
 
 function latestOf(entry: VocabularyEntry) {
   return [...entry.encounters].sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))[0];
@@ -66,7 +63,7 @@ export function VocabularySection({
       headlineLabel="最近記的"
       done={rest}
       rail={<OverviewTotalStats count={entries.length} unit="個" />}
-      gridClassName={VOCABULARY_GRID}
+      gridClassName={FRAGMENT_CARD_GRID}
       renderItem={(item) => {
         const entry = entries.find((e) => e.word === item.id)!;
         const latest = latestOf(entry);
