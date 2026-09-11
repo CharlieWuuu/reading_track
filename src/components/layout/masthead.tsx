@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PanelLeft } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useSidebarStore } from "@/stores/use-sidebar-store";
 import { isoWeekOf } from "@/utils/iso-week";
 
@@ -42,6 +43,8 @@ function IssueLinks() {
 
 export function Masthead({ authSlot }: { authSlot: React.ReactNode }) {
   const { collapsed, toggle } = useSidebarStore();
+  const { status } = useSession();
+  const signedIn = status === "authenticated";
 
   return (
     <div className={styles.frame}>
@@ -50,16 +53,18 @@ export function Masthead({ authSlot }: { authSlot: React.ReactNode }) {
 
       <div className={styles.row}>
         <div className={`${styles.side} flex items-center gap-3`}>
-          {/* 手機走底部導覽，側欄本來就不出現，這顆只給桌機看 */}
-          <button
-            type="button"
-            onClick={toggle}
-            aria-pressed={collapsed}
-            title={collapsed ? "展開側欄" : "收合側欄"}
-            className="text-ink-faint hover:text-ink hidden shrink-0 md:block"
-          >
-            <PanelLeft size={16} strokeWidth={1.5} aria-hidden />
-          </button>
+          {/* 手機走底部導覽，側欄本來就不出現，這顆只給桌機看；沒登入沒有側欄可收合 */}
+          {signedIn && (
+            <button
+              type="button"
+              onClick={toggle}
+              aria-pressed={collapsed}
+              title={collapsed ? "展開側欄" : "收合側欄"}
+              className="text-ink-faint hover:text-ink hidden shrink-0 md:block"
+            >
+              <PanelLeft size={16} strokeWidth={1.5} aria-hidden />
+            </button>
+          )}
           <IssueLinks />
         </div>
         <div className="flex-1 basis-0 text-center whitespace-nowrap">

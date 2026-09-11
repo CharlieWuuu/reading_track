@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 
 /** 帳密登入。沒有註冊入口，帳號由 scripts/create-user 建 */
-export function CredentialsForm() {
+export function CredentialsForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -17,7 +17,7 @@ export function CredentialsForm() {
 
     const result = await signIn("credentials", { email, password, redirect: false });
     if (result?.error) setError("帳號或密碼不對");
-    else window.location.reload(); // session 換人了，整頁重來最乾淨
+    else window.location.href = callbackUrl; // session 換人了，整頁重來最乾淨
 
     setPending(false);
   }

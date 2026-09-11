@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useSidebarStore } from "@/stores/use-sidebar-store";
 import { BottomNav } from "./bottom-nav";
@@ -43,7 +44,12 @@ export function AppShell({
       {/* 手機未登入時的迷你入口：底部導覽要登入後才出現，這是唯一能點的登入按鈕 */}
       {resolved && !signedIn && (
         <div className="border-rule-strong flex shrink-0 items-center justify-end border-b px-4 py-2 md:hidden">
-          {authSlot}
+          <Link
+            href="/login"
+            className="bg-control-bg text-control-ink text-ui px-3 py-1.5 font-medium"
+          >
+            登入
+          </Link>
         </div>
       )}
 

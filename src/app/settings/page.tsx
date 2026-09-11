@@ -1,11 +1,11 @@
 "use client";
 
-import { Suspense } from "react";
+import { useRouter } from "next/navigation";
+import { Suspense, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { styles as controlStyles } from "@/components/ui/controls/styles";
-import { SignInPrompt } from "@/components/ui/sign-in-prompt";
 import { EnrichButton } from "@/features/books/components/enrich-button";
 import { AccountPanel } from "@/features/settings/components/account-panel";
 import { CategoryManager } from "@/features/settings/components/category-manager";
@@ -51,7 +51,8 @@ function SettingsTabs({
 }
 
 function Settings() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const { searchParams, setParams } = useUrlParams();
   // 分頁走網址：側欄那顆頭像要指得進「帳號」，上一頁也才回得去
   const param = searchParams.get("tab");
@@ -59,31 +60,32 @@ function Settings() {
 
   const signedIn = Boolean(session?.user);
 
-  // 頁首畫一次就好，未登入時只是沒有分頁列可切
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.replace(`/login?callbackUrl=${encodeURIComponent("/settings")}`);
+    }
+  }, [status, router]);
+
+  if (!signedIn) return null;
+
   return (
     <>
       <PageHeader
         title="設定"
         action={
-          signedIn && (
-            <SettingsTabs
-              tab={tab}
-              onChange={(next) => setParams({ tab: next === "categories" ? null : next })}
-            />
-          )
+          <SettingsTabs
+            tab={tab}
+            onChange={(next) => setParams({ tab: next === "categories" ? null : next })}
+          />
         }
       />
-      {!signedIn ? (
-        <SignInPrompt />
-      ) : (
-        <PageBody>
-          <div className="shrink-0 md:min-h-0 md:flex-1 md:overflow-y-auto">
-            {tab === "categories" && <CategoryManager />}
-            {tab === "maintenance" && <MaintenancePanel enrichSlot={<EnrichButton />} />}
-            {tab === "account" && <AccountPanel />}
-          </div>
-        </PageBody>
-      )}
+      <PageBody>
+        <div className="shrink-0 md:min-h-0 md:flex-1 md:overflow-y-auto">
+          {tab === "categories" && <CategoryManager />}
+          {tab === "maintenance" && <MaintenancePanel enrichSlot={<EnrichButton />} />}
+          {tab === "account" && <AccountPanel />}
+        </div>
+      </PageBody>
     </>
   );
 }

@@ -5,7 +5,13 @@ import { signIn } from "next-auth/react";
 import { CredentialsForm } from "./credentials-form";
 
 /** Google 按鈕不自動轉走：在授權頁按取消回來會又被送出去 */
-export function SignInPrompt({ text = "請先登入" }: { text?: string }) {
+export function SignInPrompt({
+  text = "請先登入",
+  callbackUrl = "/",
+}: {
+  text?: string;
+  callbackUrl?: string;
+}) {
   const [withPassword, setWithPassword] = useState(false);
 
   return (
@@ -14,12 +20,12 @@ export function SignInPrompt({ text = "請先登入" }: { text?: string }) {
 
       {withPassword ? (
         <div className="w-full max-w-xs">
-          <CredentialsForm />
+          <CredentialsForm callbackUrl={callbackUrl} />
         </div>
       ) : (
         <button
           type="button"
-          onClick={() => signIn("google")}
+          onClick={() => signIn("google", { callbackUrl })}
           className="rounded-control bg-control-bg text-control-ink px-3 py-1.5 text-sm font-medium"
         >
           使用 Google 登入

@@ -45,6 +45,12 @@ export function Landing() {
       <div className={styles.hero}>
         <h1 className={styles.headline}>{LANDING_HERO.title}</h1>
         <p className={styles.lede}>{LANDING_HERO.lede}</p>
+        <Link
+          href="/login"
+          className="bg-control-bg text-control-ink hover:bg-control-bg-hover text-ui mt-4 inline-block px-3 py-1.5 font-medium"
+        >
+          開始使用
+        </Link>
       </div>
 
       <div className={styles.columns}>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signIn, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { Spinner } from "@/components/ui/spinner";
 import { activeNavKey, TOOL_ITEMS } from "@/config/nav";
 import { settingsTabHref } from "@/config/routes";
@@ -14,8 +14,9 @@ const styles = {
 };
 
 /**
- * 報頭右上角。沒登入只有一顆登入鍵；登入後是統計／設定／帳號一排——
+ * 報頭右上角，只在登入後出現：統計／設定／帳號一排——
  * 這三個是後台與回顧，不是內容類型，跟側欄的三堆分開放。
+ * 登入鍵改放手機迷你列（app-shell），這裡沒登入時不顯示任何東西。
  */
 export function AuthButton() {
   const { data: session, status } = useSession();
@@ -26,15 +27,7 @@ export function AuthButton() {
   }
 
   if (!session?.user) {
-    return (
-      <button
-        type="button"
-        onClick={() => signIn("google")}
-        className="bg-control-bg text-control-ink hover:bg-control-bg-hover text-ui px-3 py-1.5 font-medium"
-      >
-        用 Google 登入
-      </button>
-    );
+    return null;
   }
 
   const user = session.user;

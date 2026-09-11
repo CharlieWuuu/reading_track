@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
-import { SignInPrompt } from "@/components/ui/sign-in-prompt";
 import { PrivacyButton } from "@/features/settings/components/privacy-button";
 import { clearLocalData } from "@/utils/clear-local-data";
 
@@ -24,7 +23,7 @@ const styles = {
 /** 原本的 /profile：頭像、登出、版本號。內容太少，撐不起一條路由 */
 export function AccountPanel() {
   const { data: session } = useSession();
-  if (!session?.user) return <SignInPrompt />;
+  if (!session?.user) return null;
 
   return (
     <div className={styles.wrap}>

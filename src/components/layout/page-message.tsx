@@ -1,6 +1,6 @@
 "use client";
 
-import { SignInPrompt } from "@/components/ui/sign-in-prompt";
+import Link from "next/link";
 
 type PageMessageProps = {
   children: React.ReactNode;
@@ -12,7 +12,17 @@ type PageMessageProps = {
 export function PageMessage({ children, tone = "muted", fill = false }: PageMessageProps) {
   // API 回「請先登入」時光顯示文字沒有用，直接給可以按的登入入口
   if (typeof children === "string" && children.includes("請先登入")) {
-    return <SignInPrompt text={children} />;
+    return (
+      <div className="text-ui text-ink-muted flex w-full flex-col items-center gap-3 p-8 text-center">
+        <span>{children}</span>
+        <Link
+          href="/login"
+          className="rounded-control bg-control-bg text-control-ink px-3 py-1.5 text-sm font-medium"
+        >
+          前往登入
+        </Link>
+      </div>
+    );
   }
 
   return (
