@@ -9,7 +9,7 @@ type RecordFormOptions<P> = {
   resource: Resource; // API 路徑上的那一段，例如 "books"
   existingId: string; // 新增時是空字串
   payload: P;
-  redirectTo: string; // 刪完之後要去哪
+  redirectTo: string; // 刪完、或沒有上一格可退時要去哪
   editHref: (id: string) => string; // 用 config/routes 的，頁面路徑跟 API 路徑是兩套
   deleteRedirectTo?: string; // 刪完不能回這一筆的詳細頁，那一頁已經沒了
   mutate: () => Promise<unknown>;
@@ -94,7 +94,9 @@ export function useRecordForm<P>({
       await onSaved?.(id);
       autoSave.markSaved(payload, id);
       await mutate();
-      router.back(); // 存完就是離開，跟按返回鍵同一件事
+      // 存完就是離開，跟按返回鍵同一件事；直接開網址進來時沒有上一格，退回清單
+      if (window.history.length > 1) router.back();
+      else router.replace(redirectTo);
     } catch (err) {
       setError(err instanceof Error ? err.message : "儲存失敗");
     } finally {
