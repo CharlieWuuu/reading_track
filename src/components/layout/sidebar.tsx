@@ -37,7 +37,7 @@ function NavRow({ type, active, count }: { type: NavType; active: boolean; count
       <span className={`${styles.label} ${active ? styles.labelActive : styles.labelIdle}`}>
         {type.label}
       </span>
-      {count ? <span className={styles.count}>{count.toLocaleString()}</span> : null}
+      {count !== undefined && <span className={styles.count}>{count.toLocaleString()}</span>}
     </Link>
   );
 }
