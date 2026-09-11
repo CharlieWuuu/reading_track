@@ -226,16 +226,21 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
   });
 }
 
-/** 書寫獨立成表了，不在 fragments 裡——概覽頁要的形狀一樣，這裡轉一次 */
+/**
+ * 書寫獨立成表了，不在 fragments 裡——概覽頁要的形狀一樣，這裡轉一次。
+ *
+ * 類型讀自己那一列的 kind_id，不寫死「書寫」：專欄堆底下不只一種，
+ * 範本庫還有論述、每日計畫。
+ */
 async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
   const rows = await listWritings(userId);
   return rows
     .map((writing) => ({
       id: writing.id,
-      kindId: writing.id, // 書寫沒有共用的 kindId 可用，退回類型清單時就給自己的編號
-      kindName: "書寫",
+      kindId: writing.kindId,
+      kindName: writing.kindName,
       kindGroup: "writings" as const,
-      kindSlug: "writing",
+      kindSlug: writing.kindSlug,
       workId: writing.sourceId || null,
       workTitle: writing.sourceTitle,
       name: writing.title,
