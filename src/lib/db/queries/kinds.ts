@@ -4,7 +4,7 @@ import { db } from "@/lib/db/client";
 import { fields as fieldsTable } from "@/lib/db/schema/fields";
 import { fragments } from "@/lib/db/schema/fragments";
 import { kinds as kindsTable, mapKindField } from "@/lib/db/schema/kinds";
-import { works } from "@/lib/db/schema/works";
+import { records, works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
 import { ModuleOverride } from "@/utils/record-form";
 
@@ -36,13 +36,20 @@ const groupBy = <T extends { kindId: string }>(rows: T[]): Map<string, T[]> =>
     return map;
   }, new Map<string, T[]>());
 
-/** 每一種底下有幾筆。側欄只列有資料的類型，沒用過的不佔位置 */
+/**
+ * 每一種底下有幾筆。側欄只列有資料的類型，沒用過的不佔位置。
+ *
+ * 書籍／文章這類要數 records（透過 join 換算回 kindId），不能直接數 works——
+ * 一個作品可以有作品列卻沒有對應的閱讀紀錄（缺資料、匯入中斷……），
+ * 這樣側欄跟列表頁（永遠是從 records 撈的）數字才會一致。
+ */
 async function countsByKind(userId: string): Promise<Map<string, number>> {
   const [workRows, fragmentRows, writingRows] = await Promise.all([
     db
       .select({ kindId: works.kindId, n: count() })
-      .from(works)
-      .where(eq(works.userId, userId))
+      .from(records)
+      .innerJoin(works, eq(works.id, records.workId))
+      .where(eq(records.userId, userId))
       .groupBy(works.kindId),
     db
       .select({ kindId: fragments.kindId, n: count() })
