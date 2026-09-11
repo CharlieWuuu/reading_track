@@ -11,12 +11,17 @@ import {
 } from "@/app/api/_lib/respond";
 import { addRecord } from "@/lib/db/mutations/catalog";
 import { addFragment } from "@/lib/db/mutations/fragment-modules";
-import { listRecordsByKind } from "@/lib/db/queries/catalog";
+import { listFragmentsByKind, listRecordsByKind } from "@/lib/db/queries/catalog";
 import { kindGroupOf } from "@/lib/db/queries/kinds";
 import { requestPrivacy } from "@/utils/privacy";
 import { hideSelfPrivate } from "@/utils/privacy-rows";
 
-/** 某一種類型底下的紀錄。沒解鎖就濾掉自己標私人的那幾筆，跟堆那條路同一套規則 */
+/**
+ * 某一種類型底下的全部。走哪張表由類型屬於哪一堆決定，跟 POST 同一套規則——
+ * 只查 records 的話，片段與專欄底下的自訂類型清單永遠是空的。
+ *
+ * 沒解鎖就濾掉自己標私人的那幾筆；片段不帶私人旗標，不用濾。
+ */
 export const GET = guarded(
   "kind records GET",
   async (req: NextRequest, ctx: { params: Promise<{ id: string }> }) => {
@@ -24,8 +29,14 @@ export const GET = guarded(
     if (!session) return unauthorized();
 
     const { id } = await ctx.params;
+    const group = await kindGroupOf(session.user.id, id);
+    if (!group) return badRequest("找不到這個類型");
+
     const { unlocked } = await requestPrivacy(session.user.id, req);
     try {
+      if (group !== "records") {
+        return NextResponse.json({ fragments: await listFragmentsByKind(session.user.id, id) });
+      }
       const rows = await listRecordsByKind(session.user.id, id);
       return NextResponse.json({ records: unlocked ? rows : hideSelfPrivate(rows) });
     } catch (err) {
