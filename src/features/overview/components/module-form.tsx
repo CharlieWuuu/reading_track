@@ -2,11 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ContentLinkInput } from "@/components/ui/content-link-input";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
 import { kindHref } from "@/config/kind-routes";
 import { FieldDef } from "@/config/record-fields";
 import { useAutoSave } from "@/hooks/use-auto-save";
+import { useContentLinks } from "@/hooks/use-content-links";
 import { Kind } from "@/lib/db/queries/kinds";
 import { scrapeUrl } from "@/lib/scrape-url";
 import { fieldsOf, FormModule, resolveFormModules } from "@/utils/record-form";
@@ -73,6 +75,8 @@ export function ModuleForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
   const [fetching, setFetching] = useState(false);
+  // 新增頁自動存過之後的編號。站內關聯要有編號才連得起來
+  const [savedId, setSavedId] = useState("");
   const [fetchNote, setFetchNote] = useState("");
 
   const modules = resolveFormModules(kind.modules);
@@ -144,6 +148,7 @@ export function ModuleForm({
         { values: payload },
         "新增失敗",
       );
+      if (data.id) setSavedId(data.id); // ref 改了不會重繪，連結欄要等這個才出現
       return data.id; // 編號由伺服器產，回傳給 hook 記住
     },
     update: (id, payload) =>
@@ -177,6 +182,10 @@ export function ModuleForm({
     return send(`/api/catalog/${recordId}`, "DELETE", {}, "刪除失敗");
   };
 
+  // 編輯時就是這一筆；新增時等自動存檔給了編號才連得起來
+  const linkId = recordId || savedId;
+  const { linked, link, unlink } = useContentLinks(linkId || null);
+
   return (
     <form
       onSubmit={(e) => {
@@ -196,6 +205,22 @@ export function ModuleForm({
       ))}
       {fetching && <p className="text-xs text-gray-500">抓取中…</p>}
       {!fetching && fetchNote && <p className="text-xs text-gray-500">{fetchNote}</p>}
+
+      {/* 站內關聯跟書籍表單同一套。新增時要先有編號才連得起來——自動存檔會給，
+          所以這裡等 linkId 出現再畫，不是永遠不給自訂類型用 */}
+      {linkId ? (
+        <ContentLinkInput
+          label="站內關聯"
+          excludeId={linkId}
+          linked={linked}
+          onLink={link}
+          onUnlink={unlink}
+        />
+      ) : (
+        <p className="rounded-control border-rule text-meta text-ink-faint border border-dashed px-3 py-2">
+          先填標題，存過一次之後才連得起來
+        </p>
+      )}
       <FormActions
         saving={saving}
         onCancel={() => router.back()}

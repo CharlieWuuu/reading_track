@@ -6,7 +6,7 @@ import { PageMessage } from "@/components/layout/page-message";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { OverviewRailList } from "@/components/ui/overview-layout/overview-rail-stats";
 import { WritingTable } from "@/features/writing/components/writing-table";
-import { WRITING_VIEWS } from "@/features/writing/views";
+import { useWritingView } from "@/features/writing/use-writing-view";
 import { useMounted } from "@/hooks/use-mounted";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useWritings } from "@/hooks/use-writings";
@@ -51,7 +51,7 @@ export function WritingList() {
   const { searchParams } = useUrlParams();
 
   const topic = searchParams.get("topic") ?? "";
-  const view = WRITING_VIEWS.parse(searchParams.get("view"));
+  const view = useWritingView();
   const q = searchParams.get("q") ?? "";
   const filtered = Boolean(topic || q);
 

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { ReactNode, useEffect, useRef } from "react";
 import { COVER_CARD_GRID, CoverCard } from "@/components/ui/cover-card/cover-card";
 import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headline";

@@ -6,7 +6,8 @@ import { ActionButton, SelectMenu } from "@/components/ui/controls";
 import { SearchBar } from "@/components/ui/search-bar";
 import { kindHref } from "@/config/kind-routes";
 import { NAV_GROUPS } from "@/config/nav";
-import { WRITING_VIEWS } from "@/features/writing/views";
+import { useWritingView } from "@/features/writing/use-writing-view";
+import { useWritingViewStore, WRITING_VIEWS } from "@/features/writing/views";
 import { useKinds } from "@/hooks/use-kinds";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useWritings } from "@/hooks/use-writings";
@@ -33,7 +34,8 @@ export function WritingHeader() {
   const { searchParams, setParams } = useUrlParams();
   const query = searchParams.get("q") ?? "";
   const topic = searchParams.get("topic") ?? "";
-  const view = WRITING_VIEWS.parse(searchParams.get("view"));
+  const view = useWritingView();
+  const saveView = useWritingViewStore((s) => s.setView);
   const title = kinds.find((k) => k.slug === "writing")?.name;
   const parent = NAV_GROUPS.find((group) => group.kindGroup === "writings")?.label;
   const topicItems = [
@@ -53,7 +55,10 @@ export function WritingHeader() {
             label="顯示方式"
             items={VIEW_ITEMS}
             value={view}
-            onChange={(next) => setParams({ view: WRITING_VIEWS.toParam(next) })}
+            onChange={(next) => {
+              saveView(next);
+              setParams({ view: WRITING_VIEWS.toParam(next) });
+            }}
           />
           <SelectMenu
             bare
