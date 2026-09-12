@@ -47,6 +47,9 @@ export default function StatsIndexPage() {
           </Link>
         );
       })}
+      <p className="text-meta text-ink-faint pt-1 sm:col-span-2">
+        其餘類型還沒有統計——圖表要照那一種的欄位各別畫，不是所有類型都有數字可算。
+      </p>
     </div>
   );
 }
