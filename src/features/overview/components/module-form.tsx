@@ -4,7 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
+import { kindHref } from "@/config/kind-routes";
 import { FieldDef } from "@/config/record-fields";
+import { useAutoSave } from "@/hooks/use-auto-save";
 import { Kind } from "@/lib/db/queries/kinds";
 import { scrapeUrl } from "@/lib/scrape-url";
 import { fieldsOf, FormModule, resolveFormModules } from "@/utils/record-form";
@@ -114,30 +116,66 @@ export function ModuleForm({
     }
   }
 
+  async function request(url: string, method: string, body: object, fallback: string) {
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error ?? fallback);
+    return data as { id?: string };
+  }
+
+  /**
+   * 離開頁面時自動存檔，跟書籍／文章／書寫那三張表單同一套——寫到一半點側欄
+   * 跳走，內容不該就這樣不見。
+   *
+   * 新增這一筆的編號由伺服器給，所以 create 拿回傳的 id 回填，之後都是改同一筆。
+   */
+  const autoSave = useAutoSave({
+    ready: Boolean(values.title?.trim() || values.name?.trim() || values.body?.trim()),
+    existingId: recordId ?? "",
+    payload: values,
+    create: async (_id, payload) => {
+      const data = await request(
+        `/api/kinds/${kind.id}/records`,
+        "POST",
+        { values: payload },
+        "新增失敗",
+      );
+      return data.id; // 編號由伺服器產，回傳給 hook 記住
+    },
+    update: (id, payload) =>
+      request(`/api/catalog/${id}`, "PATCH", { values: payload }, "儲存失敗"),
+  });
+
   async function send(url: string, method: string, body: object, fallback: string) {
     setSaving(true);
     setError(undefined);
     try {
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? fallback);
-      router.back();
+      const data = await request(url, method, body, fallback);
+      autoSave.markSaved(values, data.id);
+      // 直接開網址進來時沒有上一格可退，回這一種的清單
+      if (window.history.length > 1) router.back();
+      else router.replace(kindHref(kind.group, kind.slug));
     } catch (err) {
       setError(err instanceof Error ? err.message : fallback);
       setSaving(false);
     }
   }
 
-  const save = () =>
-    recordId
-      ? send(`/api/catalog/${recordId}`, "PATCH", { values }, "儲存失敗")
+  const save = () => {
+    const id = recordId ?? autoSave.savedIdRef.current;
+    return id
+      ? send(`/api/catalog/${id}`, "PATCH", { values }, "儲存失敗")
       : send(`/api/kinds/${kind.id}/records`, "POST", { values }, "新增失敗");
+  };
 
-  const remove = () => send(`/api/catalog/${recordId}`, "DELETE", {}, "刪除失敗");
+  const remove = () => {
+    autoSave.markDeleted();
+    return send(`/api/catalog/${recordId}`, "DELETE", {}, "刪除失敗");
+  };
 
   return (
     <form

@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { ReactNode, useEffect, useRef } from "react";
-import { BookCover } from "@/components/ui/book-cover";
 import { COVER_CARD_GRID, CoverCard } from "@/components/ui/cover-card/cover-card";
+import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headline";
 import { byMonth, OverviewItem } from "@/utils/overview";
 
 /**
@@ -24,55 +24,13 @@ const styles = {
   // 不要因為其中一邊比較長就把另一邊也拖走
   main: "flex min-w-0 flex-1 flex-col gap-5 overflow-y-auto",
   rail: "border-rule-strong hidden w-64 shrink-0 flex-col gap-8 self-stretch overflow-y-auto border-l pl-6 lg:flex",
-  label: "text-label text-accent tracking-label font-medium",
   meta: "text-meta text-ink-faint tabular-nums",
-  headline: "border-rule-strong flex gap-8 border-b pb-5",
-  headlineTitle: "font-serif text-lede leading-snug font-semibold tracking-tight",
-  byline: "text-byline text-ink-muted",
-  summary: "text-byline text-ink leading-relaxed",
   monthList: "flex flex-col gap-5",
   month: "border-rule-strong border-b pb-1.5",
   monthLabel: "font-serif text-item-sm font-semibold tracking-wide",
   sentinel: "h-px",
   loadingMore: "text-meta text-ink-faint py-4 text-center",
 };
-
-/** 中點接起來的一行小字。空的不留下多餘的點 */
-const joinMeta = (parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join("・");
-
-function Headline({
-  item,
-  label,
-  summary,
-}: {
-  item: OverviewItem;
-  label: string;
-  summary?: string;
-}) {
-  return (
-    <div className={styles.headline}>
-      {item.coverUrl && (
-        <div className="w-28.75 shrink-0">
-          <BookCover url={item.coverUrl} title={item.title} size="full" />
-        </div>
-      )}
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <span className={styles.label}>{label}</span>
-        <Link href={item.href} className={`${styles.headlineTitle} truncate`}>
-          {item.title}
-        </Link>
-        <span className={styles.byline}>{joinMeta([item.byline, item.kindLabel])}</span>
-        {summary && <p className={`${styles.summary} line-clamp-2`}>{summary}</p>}
-        {item.startDate && (
-          <span className={styles.meta}>
-            {item.startDate}
-            {item.startDate !== item.endDate && " 起"}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
 
 /** 月份格線裡一格的預設畫法：書籍、紀錄用這個 */
 function DefaultItem({
@@ -171,7 +129,9 @@ export function OverviewLayout({
   return (
     <div className={styles.frame}>
       <div className={styles.main} ref={mainRef}>
-        {headline && <Headline item={headline} label={headlineLabel} summary={headlineSummary} />}
+        {headline && (
+          <OverviewHeadline item={headline} label={headlineLabel} summary={headlineSummary} />
+        )}
 
         <div className={styles.monthList}>
           {byMonth(done).map((group) => (
