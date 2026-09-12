@@ -9,6 +9,7 @@ type AutoSaveOptions<P> = {
   existingId: string;
   /** 現在這一刻要送出去的內容；跟上次存的一樣就不會再送 */
   payload: P;
+  /** 回傳字串就是伺服器給的編號，以它為準；回傳別的就用傳進去的 id */
   create: (id: string, payload: P) => Promise<unknown>;
   update: (id: string, payload: P) => Promise<unknown>;
 };
@@ -49,10 +50,13 @@ export function useAutoSave<P>({ ready, existingId, payload, create, update }: A
     if (id) return update(id, payload).catch(revert);
 
     // 編號要等 create 真的成功才記住。先記的話，POST 失敗後每次存檔都會 PATCH
-    // 一筆資料庫裡不存在的列，這一筆就永久卡死
+    // 一筆資料庫裡不存在的列，這一筆就永久卡死。
+    //
+    // 編號由誰決定看資料表：舊的三張表收 client 給的 newId，走通用路由那條由
+    // 伺服器產，create 把它回傳回來，以它為準。
     return create(newId, payload)
-      .then(() => {
-        savedIdRef.current = newId;
+      .then((created) => {
+        savedIdRef.current = typeof created === "string" ? created : newId;
       })
       .catch(revert);
   }
