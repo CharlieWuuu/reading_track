@@ -1,4 +1,3 @@
-import { NavGroup } from "./nav";
 import { KindGroup } from "./record-kinds";
 
 /**
@@ -20,7 +19,3 @@ export function kindGroupSlugFromPath(pathname: string): { group: KindGroup; slu
     ? { group: first, slug: second }
     : null;
 }
-
-/** 側欄已經寫死的那幾列，用名字對得起來就不重複畫 */
-export const isBuiltIn = (group: NavGroup, name: string): boolean =>
-  group.types.some((type) => type.label === name);
