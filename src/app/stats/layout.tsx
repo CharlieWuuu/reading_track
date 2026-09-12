@@ -68,9 +68,14 @@ function StatsHeader() {
 
   if (!validSegment) return <PageHeader title="統計" />;
 
+  const label = STATS_TYPES.find((item) => item.key === type)?.label;
+
   return (
     <PageHeader
-      title="統計"
+      // 標題是現在看的那一種，「統計」退成麵包屑——不然四頁的頁首長得一模一樣，
+      // 也沒有路回卡片牆
+      title={label}
+      parent={[{ label: "統計", href: "/stats" }]}
       action={
         <div className="flex min-w-0 items-center gap-2">
           <SelectMenu
