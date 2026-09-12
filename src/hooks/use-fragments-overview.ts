@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from "react";
 import useSWRInfinite from "swr/infinite";
 import { usePrivacyStore } from "@/stores/use-privacy-store";
-import { QuoteRow, VocabularyRow } from "@/types/record";
+import { QuoteRow } from "@/types/record";
 
 /**
  * 佳句／單字概覽頁專用：分頁抓，滾到底載入下一批。
@@ -71,8 +71,4 @@ function usePagedFragments<T>(kind: "quotes" | "vocabulary") {
 
 export function useQuotesOverview() {
   return usePagedFragments<QuoteRow>("quotes");
-}
-
-export function useVocabularyOverview() {
-  return usePagedFragments<VocabularyRow>("vocabulary");
 }
