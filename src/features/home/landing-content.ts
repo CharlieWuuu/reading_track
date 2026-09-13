@@ -33,7 +33,7 @@ export const LANDING_SECTIONS: LandingSection[] = [
     },
   },
   {
-    title: "專欄",
+    title: "書寫",
     tag: "想說的話",
     body: "近期生活的感觸，凝結成想說的話。日記、心得、論述、每日計畫都不設限。",
     sample: {

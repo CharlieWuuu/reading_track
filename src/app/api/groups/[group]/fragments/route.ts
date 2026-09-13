@@ -9,7 +9,7 @@ import {
 import { KindGroup } from "@/config/record-kinds";
 import { listFragmentsByGroup } from "@/lib/db/queries/catalog";
 
-/** 片段與專欄共用：兩者同一張表，靠類型屬於哪一堆分 */
+/** 片段與書寫共用：兩者同一張表，靠類型屬於哪一堆分 */
 const GROUPS: KindGroup[] = ["fragments", "writings"];
 
 export const GET = guarded(

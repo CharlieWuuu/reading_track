@@ -9,7 +9,7 @@ import { FragmentRow, RecordRow } from "@/lib/db/queries/catalog";
 /** 一筆紀錄落在哪一天：讀完的算讀完那天，還在讀的算開始那天 */
 export const recordDate = (row: RecordRow): string | null => row.endDate ?? row.startDate;
 
-/** 片段與專欄落在哪一天：沒填日期就用建立時間的日期部分 */
+/** 片段與書寫落在哪一天：沒填日期就用建立時間的日期部分 */
 export const fragmentDate = (row: FragmentRow): string | null =>
   row.date ?? (row.createdAt ? row.createdAt.slice(0, 10) : null);
 

@@ -29,7 +29,7 @@ export type KindSpec = {
   key: string;
   group: KindGroup;
   name: string;
-  /** 份量的單位，跟著那一次走——有聲書是分鐘，紙本是頁。片段與專欄用不到 */
+  /** 份量的單位，跟著那一次走——有聲書是分鐘，紙本是頁。片段與書寫用不到 */
   amountUnit: string;
   fields: FieldSpec[];
 };

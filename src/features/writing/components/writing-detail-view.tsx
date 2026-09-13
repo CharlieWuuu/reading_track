@@ -8,7 +8,6 @@ import { RecordGate } from "@/components/layout/record-gate";
 import { ActionButton } from "@/components/ui/controls";
 import { DetailField, DetailFields, DetailSection } from "@/components/ui/detail";
 import { NoteBlock } from "@/components/ui/note-block";
-import { kindHref } from "@/config/kind-routes";
 import { writingEditHref } from "@/config/routes";
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { useWritings } from "@/hooks/use-writings";
@@ -32,11 +31,8 @@ export function WritingDetailView() {
       <PageHeader
         title={writing?.title ?? "紀事"}
         size="compact"
-        parent={[
-          { label: "專欄", href: "/writings" },
-          { label: "書寫", href: kindHref("writings", "writing") },
-        ]}
-        backHref={kindHref("writings", "writing")}
+        parent={[{ label: "書寫", href: "/writings" }]}
+        backHref={"/writings"}
         action={writing && <ActionButton href={writingEditHref(writing.id)}>編輯</ActionButton>}
       />
       <PageBody>

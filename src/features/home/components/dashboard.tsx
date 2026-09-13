@@ -78,7 +78,7 @@ export function Dashboard() {
           value: countInMonth(fragments.fragments.map(fragmentDate), month),
         },
         {
-          label: "專欄",
+          label: "書寫",
           unit: "篇",
           value: countInMonth(writings.fragments.map(fragmentDate), month),
         },
@@ -123,7 +123,7 @@ export function Dashboard() {
           href="/fragments"
         />
         <DigestColumn
-          title="最近的專欄"
+          title="最近的書寫"
           total={writings.fragments.length}
           items={recentBy(writings.fragments, fragmentDate, 3).map(fragmentItem)}
           href="/writings"

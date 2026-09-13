@@ -8,7 +8,7 @@ import { KindTabs } from "@/features/overview/components/kind-tabs";
 import { useGroupView } from "@/hooks/use-group-view";
 import { useMounted } from "@/hooks/use-mounted";
 
-/** 側欄點「專欄」進來的那一頁。日記、心得、論述、每日計畫混在同一份清單裡 */
+/** 側欄點「書寫」進來的那一頁。日記、心得、論述、每日計畫混在同一份清單裡 */
 export default function WritingsPage() {
   const mounted = useMounted();
   const view = useGroupView();
@@ -16,7 +16,7 @@ export default function WritingsPage() {
   return (
     <>
       <PageHeader
-        title="專欄"
+        title="書寫"
         afterTitle={<KindTabs group="writings" />}
         action={<GroupViewMenu />}
       />

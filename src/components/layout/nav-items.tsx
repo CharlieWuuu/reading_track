@@ -39,7 +39,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     href: "/writings",
-    label: "專欄",
+    label: "書寫",
     Icon: () => <PenLine size={20} strokeWidth={1.5} />,
   },
   { href: "/stats", label: "統計", Icon: () => <ChartPie size={20} strokeWidth={1.5} /> },

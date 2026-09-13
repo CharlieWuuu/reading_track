@@ -5,7 +5,7 @@ import { FragmentRow, RecordRow } from "@/lib/db/queries/catalog";
 import { usePrivacyStore } from "@/stores/use-privacy-store";
 
 /**
- * 某一種類型底下的全部。紀錄那堆回 records，片段與專欄回 fragments——
+ * 某一種類型底下的全部。紀錄那堆回 records，片段與書寫回 fragments——
  * 兩張表形狀不同，呼叫端自己看拿到哪一種。舊的 books／articles 還走各自的 hook。
  */
 async function fetcher(url: string): Promise<{ records?: RecordRow[]; fragments?: FragmentRow[] }> {

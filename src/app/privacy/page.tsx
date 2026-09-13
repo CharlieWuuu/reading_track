@@ -41,7 +41,7 @@ export default function PrivacyPage() {
           <h2 className={styles.h2}>存了哪些資料</h2>
           <p>
             站上的資料都是你手動輸入的：紀錄（書籍、文章、電影、Podcast 等）、
-            片段（佳句、單字、關鍵字）與專欄（日記、心得、論述）。
+            片段（佳句、單字、關鍵字）與書寫（日記、心得、論述）。
             這是它唯一的資料來源，沒有背景蒐集，也沒有串接其他 App。
           </p>
         </section>

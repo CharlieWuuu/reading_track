@@ -264,7 +264,7 @@ export async function listFragmentsByKind(userId: string, kindId: string): Promi
 /**
  * 書寫獨立成表了，不在 fragments 裡——概覽頁要的形狀一樣，這裡轉一次。
  *
- * 類型讀自己那一列的 kind_id，不寫死「書寫」：專欄堆底下不只一種，
+ * 類型讀自己那一列的 kind_id，不寫死「書寫」：書寫堆底下不只一種，
  * 範本庫還有論述、每日計畫。
  */
 async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
@@ -333,7 +333,7 @@ export async function getRecordValues(
   };
 }
 
-/** 片段與專欄的單筆。欄位名跟紀錄那邊不一樣，攤平時一起對回模組認得的鍵 */
+/** 片段與書寫的單筆。欄位名跟紀錄那邊不一樣，攤平時一起對回模組認得的鍵 */
 export async function getFragmentValues(
   userId: string,
   id: string,
