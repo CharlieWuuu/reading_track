@@ -3,6 +3,7 @@
 import useSWR from "swr";
 import { KindGroup } from "@/config/record-kinds";
 import { RecordRow } from "@/lib/db/queries/catalog";
+import { usePrivacyStore } from "@/stores/use-privacy-store";
 
 /** 整堆的紀錄。概覽頁用，書籍與文章混在同一份清單裡 */
 async function fetcher(url: string): Promise<{ records: RecordRow[] }> {
@@ -13,7 +14,10 @@ async function fetcher(url: string): Promise<{ records: RecordRow[] }> {
 }
 
 export function useGroupRecords(group: KindGroup) {
-  const { data, error, isLoading, mutate } = useSWR(`/api/groups/${group}/records`, fetcher);
+  // 解鎖了就帶權杖，不然這一頁的表格永遠看不到標私人的那幾筆
+  const unlock = usePrivacyStore((s) => s.token);
+  const key = `/api/groups/${group}/records${unlock ? `?unlock=${unlock}` : ""}`;
+  const { data, error, isLoading, mutate } = useSWR(key, fetcher);
 
   return {
     records: data?.records ?? [],
