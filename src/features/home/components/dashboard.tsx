@@ -1,5 +1,6 @@
 "use client";
 
+import { IssueLinks } from "@/components/layout/issue-links";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
@@ -65,7 +66,8 @@ export function Dashboard() {
     <div className="flex min-h-full flex-1 flex-col">
       <div className={styles.head}>
         <h1 className={styles.title}>今天</h1>
-        <span className={styles.meta}>{today}</span>
+        {/* 手機沒有報頭，這行是唯一進得去回顧頁的入口——桌機的報頭也是同一份 */}
+        <IssueLinks className={styles.meta} />
       </div>
 
       <TodayHeadline

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PanelLeft } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useSidebarStore } from "@/stores/use-sidebar-store";
-import { isoWeekOf } from "@/utils/iso-week";
+import { IssueLinks } from "./issue-links";
 
 /**
  * 全寬報頭。報紙的識別就是報頭本身：3px 與 1.4px 兩條線夾著襯線站名，
@@ -15,31 +15,6 @@ const styles = {
   row: "flex items-baseline pt-3 pb-1.5",
   title: "font-serif text-site leading-none font-semibold tracking-tight",
 };
-
-/**
- * 報頭左上三段：年、日、週，各自連到那個粒度的回顧頁。
- * 伺服器與瀏覽器各算一次，跨午夜的那一瞬間會差一天，但那只是報頭上的一行小字，
- * 不值得為它把整層變成 client-only。
- */
-function IssueLinks() {
-  const today = new Date().toISOString().slice(0, 10);
-  const [year, month, day] = today.split("-").map(Number);
-  const { week } = isoWeekOf(today);
-
-  return (
-    <span suppressHydrationWarning className="flex items-center gap-3">
-      <Link href={`/year/${year}`} className="text-ink-faint hover:text-ink shrink-0">
-        {year} 年
-      </Link>
-      <Link href={`/daily/${today}`} className="text-ink-faint hover:text-ink shrink-0">
-        {month} 月 {day} 日
-      </Link>
-      <Link href={`/weekly/${year}/${week}`} className="text-ink-faint hover:text-ink shrink-0">
-        第 {week} 週
-      </Link>
-    </span>
-  );
-}
 
 export function Masthead({ authSlot }: { authSlot: React.ReactNode }) {
   const { collapsed, toggle } = useSidebarStore();
