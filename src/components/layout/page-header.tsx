@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { House } from "lucide-react";
 import { BackLink } from "./back-link";
 
 const styles = {
@@ -8,6 +9,8 @@ const styles = {
   back: "hover:text-ink -ml-1 flex size-7 shrink-0 items-center justify-center self-center",
   // 跟 meta 那行數字同一個字級：標題才是這一列的主角，麵包屑只是說明現在在哪
   parent: "text-meta text-ink-muted truncate",
+  // 桌機的報頭已經有站名可以點，這顆只給手機
+  home: "text-ink-faint flex shrink-0 items-center self-center md:hidden",
   parentLink: "text-meta text-ink-muted truncate hover:text-ink hover:underline",
   divider: "text-ink-faint",
   title: "font-serif truncate font-semibold tracking-tight",
@@ -55,6 +58,14 @@ export function PageHeader({
       {(backHref || title) && (
         <div className={styles.heading}>
           {backHref && <BackLink href={backHref} className={styles.back} />}
+          {/* 手機沒有報頭，站名那顆點不到；底部導覽五格也沒有首頁。
+              麵包屑最前面補一個，才回得去「今天」 */}
+          <span className={styles.home}>
+            <Link href="/" aria-label="首頁" className="hover:text-ink flex items-center">
+              <House size={14} strokeWidth={1.5} aria-hidden />
+            </Link>
+            <span className={`${styles.divider} ml-2`}>/</span>
+          </span>
           {parent &&
             (Array.isArray(parent) ? parent : [parent]).map((segment, i) => {
               const crumb: Crumb = typeof segment === "string" ? { label: segment } : segment;
