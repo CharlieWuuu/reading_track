@@ -7,6 +7,7 @@ import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { GroupTable } from "@/components/ui/group-table/group-table";
 import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headline";
+import { QuoteWall } from "@/components/ui/quote-wall";
 import { KindGroup } from "@/config/record-kinds";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { fragmentHref, fragmentItem, fragmentMeta, fragmentTitle } from "@/utils/overview-items";
@@ -53,6 +54,9 @@ export function FragmentsOverview({
   // 一頁一個主角：最新記下的那一則提到最上面，其餘照原本的順序排在卡片牆裡
   const [headline, ...rest] = fragments;
 
+  // 佳句是句子不是卡片，切成兩欄會把長句擠成一行三四個字
+  const allQuotes = fragments.every((row) => row.kindSlug === "quotes");
+
   return (
     <div className="flex flex-col gap-5">
       <OverviewHeadline
@@ -60,19 +64,23 @@ export function FragmentsOverview({
         label="最新一則"
         summary={headline.body || undefined}
       />
-      <CardGrid>
-        {rest.map((row) => (
-          <FragmentCard
-            key={row.id}
-            href={fragmentHref(row)}
-            title={fragmentTitle(row)}
-            label={row.kindName}
-            body={row.body}
-            meta={fragmentMeta(row)}
-            coverUrl={row.coverUrl}
-          />
-        ))}
-      </CardGrid>
+      {allQuotes ? (
+        <QuoteWall rows={rest} hrefOf={fragmentHref} />
+      ) : (
+        <CardGrid>
+          {rest.map((row) => (
+            <FragmentCard
+              key={row.id}
+              href={fragmentHref(row)}
+              title={fragmentTitle(row)}
+              label={row.kindName}
+              body={row.body}
+              meta={fragmentMeta(row)}
+              coverUrl={row.coverUrl}
+            />
+          ))}
+        </CardGrid>
+      )}
     </div>
   );
 }

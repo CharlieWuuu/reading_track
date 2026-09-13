@@ -10,6 +10,7 @@ import { CardGrid } from "@/components/ui/card-grid";
 import { ActionButton } from "@/components/ui/controls";
 import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
+import { QuoteWall } from "@/components/ui/quote-wall";
 import { SearchBar } from "@/components/ui/search-bar/search-bar";
 import { groupBasePath, kindHref } from "@/config/kind-routes";
 import { NAV_GROUPS } from "@/config/nav";
@@ -81,6 +82,9 @@ function GenericKindList({ kind, query }: { kind: Kind; query: string }) {
       />
     );
   }
+
+  // 佳句是句子不是卡片：切成兩欄會把長句擠成一行三四個字
+  if (kind.slug === "quotes") return <QuoteWall rows={shownFragments} hrefOf={fragmentHref} />;
 
   return (
     <CardGrid>
