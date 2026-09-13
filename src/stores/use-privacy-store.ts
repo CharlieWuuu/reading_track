@@ -4,8 +4,8 @@ import { createJSONStorage, persist } from "zustand/middleware";
 /**
  * 私人項目的解鎖狀態。
  *
- * 權杖放 sessionStorage 而不是 localStorage：關掉分頁就自動鎖回去。在公司開一下
- * 又忘記鎖，是這個功能最可能出包的方式，所以預設就讓它短命。
+ * 權杖放 localStorage：手機上切出去再回來就是關掉分頁，sessionStorage 等於
+ * 每次都要重打一次密碼，煩到讓人乾脆不用這個功能。要鎖回去就按上鎖。
  */
 interface PrivacyStore {
   /** 解鎖權杖；null 代表鎖著。讀清單時帶著它，伺服器才會把私人的那幾列一起送來 */
@@ -23,7 +23,7 @@ export const usePrivacyStore = create<PrivacyStore>()(
     }),
     {
       name: "reading-track-privacy",
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage),
     },
   ),
 );

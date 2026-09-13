@@ -12,24 +12,39 @@ import { coverTintClass } from "@/utils/tag-colors";
  * 划不來。固定色輪替＋漸層（下深上淺）就夠了。
  */
 
-const BAND = "h-[148px]";
+/**
+ * 色帶切齊封面上緣。
+ *
+ * 書背往下偏 12px（-mb-3）製造「插在架上」的效果，所以色帶要比書背矮這麼多，
+ * 不然上面會空一截純色。兩種畫法的總高度維持一致：色帶 + 溢出的 12px。
+ */
+const BAND = "h-[112px] md:h-[140px]";
 // 手機一格窄，書背等比縮一號；傾斜與陰影兩邊都留著——那是「這是一本書」的訊號
 const SPINE = "h-[124px] w-[88px] md:h-[152px] md:w-[108px]";
+/** 書背比色帶高，溢出的部分要有地方站，不然會蓋到上面那行日期 */
+const OVERFLOW_ROOM = "pt-3";
 
 export function CoverBand({ coverUrl, seed }: { coverUrl?: string; seed: string }) {
   if (coverUrl) {
     return (
-      <div className={`${BAND} ${coverTintClass(seed)} flex items-end overflow-hidden`}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={coverUrl}
-          alt=""
-          loading="lazy"
-          className={`${SPINE} -mb-3 ml-2.5 rotate-[-4deg] object-cover shadow-md md:ml-3.5`}
-        />
+      <div className={OVERFLOW_ROOM}>
+        <div className={`${BAND} ${coverTintClass(seed)} flex items-end`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={coverUrl}
+            alt=""
+            loading="lazy"
+            className={`${SPINE} -mb-3 ml-2.5 rotate-[-4deg] object-cover shadow-md md:ml-3.5`}
+          />
+        </div>
       </div>
     );
   }
 
-  return <div className={`${BAND} ${coverTintClass(seed)}`} />;
+  // 沒封面的色塊也留同一段空間，兩種畫法佔的總高度才一樣
+  return (
+    <div className={OVERFLOW_ROOM}>
+      <div className={`${BAND} ${coverTintClass(seed)}`} />
+    </div>
+  );
 }
