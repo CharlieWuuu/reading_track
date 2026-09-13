@@ -1,7 +1,6 @@
 import { eq } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
 import { kinds } from "@/lib/db/schema/kinds";
-import { writingTopics } from "@/lib/db/schema/taxonomy";
 import { writings } from "@/lib/db/schema/writings";
 import { makeBook, seedUser } from "@/lib/db/test/factories";
 import type { Writing } from "@/types/writing";
@@ -29,8 +28,8 @@ function makeWriting(patch: Partial<Writing> = {}): Writing {
     sourceTitle: "",
     sourceKind: "",
     kindId: "",
-    kindName: "書寫",
-    kindSlug: "writing",
+    kindName: "心得",
+    kindSlug: "reflection",
     sourceId: "",
     private: "",
     coverUrl: "",
@@ -39,33 +38,30 @@ function makeWriting(patch: Partial<Writing> = {}): Writing {
 }
 
 describe("addWritingRow", () => {
-  /** 書寫不分類型：每一則都掛在「書寫」這個類型上，分類交給主題與關鍵字 */
-  it("一律掛在書寫這個類型上，不長出別的類型", async () => {
-    const writing = makeWriting();
+  /** 分類是第三層類型，不是主題——舊形狀的 topic 欄帶的就是類型名字 */
+  it("照名字掛到對應的類型上", async () => {
+    const writing = makeWriting({ topic: "思緒" });
     await addWritingRow(userId, writing);
 
     const [row] = await db.select().from(writings).where(eq(writings.id, writing.id));
     const [kind] = await db.select().from(kinds).where(eq(kinds.id, row.kindId));
-    expect(kind.name).toBe("書寫");
-
-    const all = await db.select().from(kinds).where(eq(kinds.groupKey, "writings"));
-    expect(all).toHaveLength(1);
+    expect(kind.name).toBe("思緒");
+    expect(row.topicId).toBeNull(); // 主題那層不再參與分類
   });
 
-  it("主題寫入 writing_topics，同名不重複建立", async () => {
-    const first = makeWriting({ topic: "思緒" });
-    await addWritingRow(userId, first);
-    const second = makeWriting({ topic: "思緒" });
-    await addWritingRow(userId, second);
+  it("沒給類型就當心得", async () => {
+    const writing = makeWriting({ topic: "" });
+    await addWritingRow(userId, writing);
 
-    const rows = await db.select().from(writings).where(eq(writings.id, first.id));
-    const [row] = rows;
-    const topics = await db.select().from(writingTopics).where(eq(writingTopics.name, "思緒"));
-    expect(topics).toHaveLength(1);
-    expect(row.topicId).toBe(topics[0].id);
+    const [row] = await db.select().from(writings).where(eq(writings.id, writing.id));
+    const [kind] = await db.select().from(kinds).where(eq(kinds.id, row.kindId));
+    expect(kind.name).toBe("心得");
+  });
 
-    const [row2] = await db.select().from(writings).where(eq(writings.id, second.id));
-    expect(row2.topicId).toBe(topics[0].id);
+  it("專欄底下沒有這個類型就丟錯，不默默寫錯的進去", async () => {
+    await expect(addWritingRow(userId, makeWriting({ topic: "不存在的類型" }))).rejects.toThrow(
+      "不存在的類型",
+    );
   });
 
   it("sourceId 指到某一次閱讀時，掛回它屬於的那個作品", async () => {

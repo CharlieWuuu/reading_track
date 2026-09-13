@@ -2,7 +2,6 @@ import { and, asc, desc, eq, isNull, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db/client";
 import { kinds } from "@/lib/db/schema/kinds";
-import { writingTopics } from "@/lib/db/schema/taxonomy";
 import { works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
 import { Writing } from "@/types/writing";
@@ -19,10 +18,6 @@ import { keywordNamesByOwner } from "./internal-links";
  * 同一份內容因為「有沒有連結出處」就顯示不同類型，沒辦法拿來做篩選或統計。
  */
 
-/** 延伸自書或文章、卻沒特別選主題的，顯示成「心得」——這是顯示才有的詞，
- * 不寫進 writing_topics：讀完寫下的反應本來就不必每次都挑一個主題 */
-const IMPLIED_TOPIC = "心得";
-
 /** 出處的類型：這一則掛在書上還是文章上，舊形狀的 kind 欄要它 */
 const sourceKind = alias(kinds, "source_kind");
 
@@ -34,13 +29,11 @@ const baseSelect = () =>
       kindSlug: kinds.slug,
       workTitle: works.title,
       workKind: sourceKind.name,
-      topicName: writingTopics.name,
     })
     .from(writings)
     .innerJoin(kinds, eq(kinds.id, writings.kindId))
     .leftJoin(works, eq(works.id, writings.workId))
-    .leftJoin(sourceKind, eq(sourceKind.id, works.kindId))
-    .leftJoin(writingTopics, eq(writingTopics.id, writings.topicId));
+    .leftJoin(sourceKind, eq(sourceKind.id, works.kindId));
 
 type WritingJoinRow = {
   writing: typeof writings.$inferSelect;
@@ -48,7 +41,6 @@ type WritingJoinRow = {
   kindSlug: string;
   workTitle: string | null;
   workKind: string | null;
-  topicName: string | null;
 };
 
 /** 撈出來的原始列轉成 Writing——出處連結、關鍵字這些批次查詢一起做，跟分不分頁無關 */
@@ -65,7 +57,7 @@ async function toWritings(userId: string, rows: WritingJoinRow[]): Promise<Writi
     ),
   ]);
 
-  return rows.map(({ writing, kindName, kindSlug, workTitle, workKind, topicName }) => {
+  return rows.map(({ writing, kindName, kindSlug, workTitle, workKind }) => {
     // 畫面上的書籍編號是「某一次讀」，所以指回第一次讀的那個
     const sourceId = writing.workId ? (firstReading.get(writing.workId) ?? writing.workId) : "";
     return {
@@ -73,7 +65,7 @@ async function toWritings(userId: string, rows: WritingJoinRow[]): Promise<Writi
       createdAt: writing.createdAt.toISOString(),
       date: writing.date,
       title: writing.name,
-      topic: topicName ?? (writing.workId ? IMPLIED_TOPIC : ""),
+      topic: kindName, // 分類已經是 kind，topic 欄留著給篩選與統計沿用同一個名字
       keywords: keywords.get(writing.id) ?? "",
       note: writing.body,
       link: links.get(writing.id) ?? "",

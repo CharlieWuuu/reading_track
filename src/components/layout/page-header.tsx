@@ -10,7 +10,7 @@ const styles = {
   parent: "text-meta text-ink-muted truncate",
   // 桌機的報頭已經有站名可以點，這顆只給手機
   home: "flex shrink-0 items-baseline md:hidden",
-  homeLink: "font-serif text-item hover:text-ink font-semibold tracking-tight", // 手機的報頭就靠這個站名
+  homeLink: "flex items-center self-center opacity-70 hover:opacity-100", // 報頭那個記號，跟分頁圖示同一張
   parentLink: "text-meta text-ink-muted truncate hover:text-ink hover:underline",
   divider: "text-ink-faint",
   title: "font-serif truncate font-semibold tracking-tight",
@@ -64,8 +64,9 @@ export function PageHeader({
           {/* 手機沒有報頭，站名那顆點不到；底部導覽五格也沒有首頁。
               麵包屑最前面放站名，才回得去「今天」 */}
           <span className={styles.home}>
-            <Link href="/" className={styles.homeLink}>
-              Archivum
+            <Link href="/" aria-label="首頁" className={styles.homeLink}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/icon.svg" alt="" width={18} height={18} />
             </Link>
             <span className={`${styles.divider} ml-2`}>/</span>
           </span>
