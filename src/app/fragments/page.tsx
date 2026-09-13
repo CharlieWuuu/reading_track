@@ -4,7 +4,6 @@ import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { FragmentsOverview } from "@/features/overview/components/fragments-overview";
 import { GroupViewMenu } from "@/features/overview/components/group-view-menu";
-import { KindTabs } from "@/features/overview/components/kind-tabs";
 import { useGroupView } from "@/hooks/use-group-view";
 import { useMounted } from "@/hooks/use-mounted";
 
@@ -15,11 +14,7 @@ export default function FragmentsPage() {
 
   return (
     <>
-      <PageHeader
-        title="片段"
-        afterTitle={<KindTabs group="fragments" />}
-        action={<GroupViewMenu />}
-      />
+      <PageHeader title="片段" action={<GroupViewMenu />} />
       <PageBody scroll={view === "table"}>
         {mounted && <FragmentsOverview group="fragments" view={view} />}
       </PageBody>

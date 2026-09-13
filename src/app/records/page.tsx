@@ -3,7 +3,6 @@
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { GroupViewMenu } from "@/features/overview/components/group-view-menu";
-import { KindTabs } from "@/features/overview/components/kind-tabs";
 import { RecordsOverview } from "@/features/overview/components/records-overview";
 import { useGroupView } from "@/hooks/use-group-view";
 import { useMounted } from "@/hooks/use-mounted";
@@ -15,11 +14,7 @@ export default function RecordsPage() {
 
   return (
     <>
-      <PageHeader
-        title="紀錄"
-        afterTitle={<KindTabs group="records" />}
-        action={<GroupViewMenu />}
-      />
+      <PageHeader title="紀錄" action={<GroupViewMenu />} />
       <PageBody scroll={view === "table"}>{mounted && <RecordsOverview view={view} />}</PageBody>
     </>
   );

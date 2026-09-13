@@ -65,8 +65,8 @@ export function PageHeader({
               麵包屑最前面放站名，才回得去「今天」 */}
           <span className={styles.home}>
             <Link href="/" aria-label="首頁" className={styles.homeLink}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               {/* 專用的透明版：icon.svg 有白底，那是分頁圖示要的，鋪在紙色頁首上會浮成方框 */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/masthead-mark.svg" alt="" width={18} height={18} />
             </Link>
             <span className={`${styles.divider} ml-2`}>/</span>
@@ -75,7 +75,9 @@ export function PageHeader({
             (Array.isArray(parent) ? parent : [parent]).map((segment, i) => {
               const crumb: Crumb = typeof segment === "string" ? { label: segment } : segment;
               return (
-                <span key={i} className="flex min-w-0 shrink items-baseline gap-2">
+                // 手機只留 logo 與頁名：中間那幾層佔掉整行，而返回箭頭跟底部導覽
+                // 已經說了「上一層是誰、我在哪一堆」
+                <span key={i} className="hidden min-w-0 shrink items-baseline gap-2 md:flex">
                   {crumb.href ? (
                     <Link href={crumb.href} className={styles.parentLink}>
                       {crumb.label}
