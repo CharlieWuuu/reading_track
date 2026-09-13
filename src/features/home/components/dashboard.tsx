@@ -24,7 +24,7 @@ import { TodayHeadline } from "./today-headline";
  */
 
 const styles = {
-  head: "flex items-baseline gap-3.5 pb-2.5",
+  head: "flex items-baseline justify-between gap-3.5 pb-2.5",
   title: "font-serif text-page tracking-tight font-semibold",
   meta: "text-meta text-ink-faint tabular-nums",
 };
