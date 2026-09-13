@@ -1,16 +1,16 @@
 import Link from "next/link";
-import { House } from "lucide-react";
 import { BackLink } from "./back-link";
 
 const styles = {
   // 頁首不捲動；跟設計稿一致，底下畫一條線把頁首跟內容列表分開
   bar: "border-ink flex shrink-0 flex-wrap items-baseline justify-between gap-2 border-b pb-1 md:gap-3",
-  heading: "flex min-w-0 items-baseline gap-2",
+  heading: "flex min-w-0 flex-1 items-baseline gap-2",
   back: "hover:text-ink -ml-1 flex size-7 shrink-0 items-center justify-center self-center",
   // 跟 meta 那行數字同一個字級：標題才是這一列的主角，麵包屑只是說明現在在哪
   parent: "text-meta text-ink-muted truncate",
   // 桌機的報頭已經有站名可以點，這顆只給手機
-  home: "text-ink-faint flex shrink-0 items-center self-center md:hidden",
+  home: "flex shrink-0 items-baseline md:hidden",
+  homeLink: "font-serif text-item hover:text-ink font-semibold tracking-tight", // 手機的報頭就靠這個站名
   parentLink: "text-meta text-ink-muted truncate hover:text-ink hover:underline",
   divider: "text-ink-faint",
   title: "font-serif truncate font-semibold tracking-tight",
@@ -19,7 +19,7 @@ const styles = {
   // 標題跟這行數字不算同一組資訊，間距要比麵包屑／標題那組鬆。
   // 手機不畫：那行寬度先留給標題與類型切換，數字在清單裡自己看得到
   meta: "text-meta text-ink-faint ml-2 hidden truncate tabular-nums md:inline",
-  actions: "flex min-w-0 flex-1 items-center justify-end *:min-w-0", // *:min-w-0 讓傳進來的內容縮得下去
+  actions: "flex min-w-0 shrink-0 items-center justify-end *:min-w-0", // *:min-w-0 讓傳進來的內容縮得下去
 };
 
 /** 麵包屑一段：純文字沒有 href 就不能點，有給就是連到那一層 */
@@ -62,10 +62,10 @@ export function PageHeader({
         <div className={styles.heading}>
           {backHref && <BackLink href={backHref} className={styles.back} />}
           {/* 手機沒有報頭，站名那顆點不到；底部導覽五格也沒有首頁。
-              麵包屑最前面補一個，才回得去「今天」 */}
+              麵包屑最前面放站名，才回得去「今天」 */}
           <span className={styles.home}>
-            <Link href="/" aria-label="首頁" className="hover:text-ink flex items-center">
-              <House size={14} strokeWidth={1.5} aria-hidden />
+            <Link href="/" className={styles.homeLink}>
+              Archivum
             </Link>
             <span className={`${styles.divider} ml-2`}>/</span>
           </span>
@@ -87,7 +87,7 @@ export function PageHeader({
             })}
           {title && <h2 className={`${styles.title} ${styles[size]} min-w-0 shrink-0`}>{title}</h2>}
           {meta && <span className={styles.meta}>{meta}</span>}
-          {afterTitle}
+          {afterTitle && <div className="ml-auto flex min-w-0 shrink">{afterTitle}</div>}
         </div>
       )}
       {/* 按鈕的插槽 */}
