@@ -9,7 +9,7 @@ const styles = {
   band: "border-rule-strong flex flex-col gap-5 border-t border-b-2 py-4 md:flex-row md:gap-7",
   cover: "bg-rule-soft h-[120px] w-[85px] shrink-0 object-cover md:h-[158px] md:w-[112px]",
   tag: "text-label text-accent tracking-label font-medium",
-  title: "font-serif text-lede tracking-tight leading-tight font-semibold",
+  title: "font-serif text-item md:text-lede tracking-tight leading-tight font-semibold", // 手機留給封面與作者，標題不必佔滿一行
   byline: "text-byline text-ink-muted",
   meta: "text-meta text-ink-faint tabular-nums",
   side: "border-rule shrink-0 border-t pt-4 md:w-[250px] md:border-t-0 md:border-l md:pt-0 md:pl-6",

@@ -29,6 +29,7 @@ const baseSelect = () =>
       kindSlug: kinds.slug,
       workTitle: works.title,
       workKind: sourceKind.name,
+      workCoverUrl: works.coverUrl,
     })
     .from(writings)
     .innerJoin(kinds, eq(kinds.id, writings.kindId))
@@ -41,6 +42,7 @@ type WritingJoinRow = {
   kindSlug: string;
   workTitle: string | null;
   workKind: string | null;
+  workCoverUrl: string | null;
 };
 
 /** 撈出來的原始列轉成 Writing——出處連結、關鍵字這些批次查詢一起做，跟分不分頁無關 */
@@ -57,7 +59,7 @@ async function toWritings(userId: string, rows: WritingJoinRow[]): Promise<Writi
     ),
   ]);
 
-  return rows.map(({ writing, kindName, kindSlug, workTitle, workKind }) => {
+  return rows.map(({ writing, kindName, kindSlug, workTitle, workKind, workCoverUrl }) => {
     // 畫面上的書籍編號是「某一次讀」，所以指回第一次讀的那個
     const sourceId = writing.workId ? (firstReading.get(writing.workId) ?? writing.workId) : "";
     return {
@@ -76,7 +78,7 @@ async function toWritings(userId: string, rows: WritingJoinRow[]): Promise<Writi
       kindSlug,
       sourceId,
       private: "", // 書寫不帶私人旗標，藏東西一律從主題與類型下手
-      coverUrl: writing.coverUrl,
+      coverUrl: writing.coverUrl || (workCoverUrl ?? ""), // 自己沒填就用出處那本書的封面
     };
   });
 }
