@@ -3,6 +3,7 @@
 import { IssueLinks } from "@/components/layout/issue-links";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
+import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headline";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { useGroupRecords } from "@/hooks/use-group-records";
 import { FragmentRow, RecordRow } from "@/lib/db/queries/catalog";
@@ -14,8 +15,9 @@ import {
   recordDate,
   streakDays,
 } from "@/utils/home-digest";
+import { recordItem as recordOverviewItem } from "@/utils/overview-items";
 import { DigestColumn, DigestItem } from "./digest-column";
-import { TodayHeadline } from "./today-headline";
+import { MonthPanel } from "./month-panel";
 
 /**
  * 登入後的首頁。三堆各取最近三筆，上面壓一則頭條與這個月的數字。
@@ -27,6 +29,8 @@ const styles = {
   head: "flex items-baseline justify-between gap-3.5 pb-2.5",
   title: "font-serif text-page tracking-tight font-semibold",
   meta: "text-meta text-ink-faint tabular-nums",
+  // 沒有頭條可畫時的替身，線與間距跟 OverviewHeadline 對齊
+  emptyBand: "border-rule-strong flex flex-col gap-5 border-b pb-5 md:flex-row md:gap-8",
 };
 
 const recordItem = (row: RecordRow): DigestItem => ({
@@ -62,6 +66,27 @@ export function Dashboard() {
     ...writings.fragments.map(fragmentDate),
   ];
 
+  const headline = pickHeadline(records.records);
+  const monthPanel = (
+    <MonthPanel
+      month={month.slice(5)}
+      counts={[
+        { label: "紀錄", unit: "筆", value: countInMonth(records.records.map(recordDate), month) },
+        {
+          label: "片段",
+          unit: "則",
+          value: countInMonth(fragments.fragments.map(fragmentDate), month),
+        },
+        {
+          label: "專欄",
+          unit: "篇",
+          value: countInMonth(writings.fragments.map(fragmentDate), month),
+        },
+      ]}
+      streak={streakDays(dates, today)}
+    />
+  );
+
   return (
     <div className="flex min-h-full flex-1 flex-col">
       <div className={styles.head}>
@@ -70,28 +95,19 @@ export function Dashboard() {
         <IssueLinks className={styles.meta} />
       </div>
 
-      <TodayHeadline
-        headline={pickHeadline(records.records)}
-        month={month.slice(5)}
-        counts={[
-          {
-            label: "紀錄",
-            unit: "筆",
-            value: countInMonth(records.records.map(recordDate), month),
-          },
-          {
-            label: "片段",
-            unit: "則",
-            value: countInMonth(fragments.fragments.map(fragmentDate), month),
-          },
-          {
-            label: "專欄",
-            unit: "篇",
-            value: countInMonth(writings.fragments.map(fragmentDate), month),
-          },
-        ]}
-        streak={streakDays(dates, today)}
-      />
+      {headline ? (
+        <OverviewHeadline
+          item={recordOverviewItem(headline)}
+          label={headline.statusKey === "reading" ? "在讀" : "最近讀完"}
+          aside={monthPanel}
+        />
+      ) : (
+        // 一筆紀錄都沒有時沒有主角可以當頭條，只剩「這個月」
+        <div className={styles.emptyBand}>
+          <p className="text-byline text-ink-muted flex-1">還沒有紀錄</p>
+          {monthPanel}
+        </div>
+      )}
 
       <div className="flex flex-col gap-6 pt-5 md:flex-row md:gap-7">
         <DigestColumn
