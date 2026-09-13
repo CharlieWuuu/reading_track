@@ -1,6 +1,6 @@
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, or } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db/client";
-import { writingTopics } from "@/lib/db/schema/taxonomy";
+import { kinds } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
 import { splitLines } from "@/types/book";
@@ -8,40 +8,35 @@ import { Writing } from "@/types/writing";
 import { setWritingSourceUrl } from "./external-links";
 import { setKeywordLinks } from "./fragments";
 import { unlinkAll } from "./internal-links";
-import { kindIdBySlug } from "./kind-lookup";
 import { toDate } from "./values";
 
 /**
  * 書寫寫回 writings 表。
  *
- * 書寫底下不再分類型：每一則都掛在「書寫」這個類型上，分類一律交給主題與
- * 關鍵字。sourceId 進來的是「某一次讀」的編號，要換成它屬於哪個作品。
+ * 心得、思緒、週計劃是第三層類型，跟書籍、文章同一個位階——不再是主題。
+ * 舊形狀的 topic 欄帶的就是類型名字，寫入時換成 kind_id。
+ *
+ * sourceId 進來的是「某一次讀」的編號，要換成它屬於哪個作品。
  */
 
-const WRITING_KIND_SLUG = "writing";
+/** 沒指定類型時的預設，一則書寫一定要掛一個類型 */
+const FALLBACK_KIND = "心得";
 
-/** 主題是扁平的一層，沒有領域那種父子結構；沒填就不掛 */
-async function topicIdFor(tx: Tx, userId: string, topic: string): Promise<string | null> {
-  const name = topic.trim();
-  if (!name) return null;
-
-  const [existing] = await tx
-    .select({ id: writingTopics.id })
-    .from(writingTopics)
+/** 舊形狀帶名字，這裡換成編號。名字使用者改得掉，所以找不到就丟錯不亂猜 */
+async function writingKindIdFor(tx: Tx, userId: string, topic: string): Promise<string> {
+  const name = topic.trim() || FALLBACK_KIND;
+  const [kind] = await tx
+    .select({ id: kinds.id })
+    .from(kinds)
     .where(
       and(
-        eq(writingTopics.userId, userId),
-        eq(writingTopics.name, name),
-        isNull(writingTopics.parentId),
+        or(eq(kinds.userId, userId), isNull(kinds.userId)),
+        eq(kinds.groupKey, "writings"),
+        eq(kinds.name, name),
       ),
     );
-  if (existing) return existing.id;
-
-  const [row] = await tx
-    .insert(writingTopics)
-    .values({ userId, name })
-    .returning({ id: writingTopics.id });
-  return row.id;
+  if (!kind) throw new Error(`專欄底下沒有「${name}」這個類型`);
+  return kind.id;
 }
 
 /** sourceId 可能是某一次紀錄，也可能就是作品本身（文章一對一） */
@@ -68,8 +63,7 @@ export async function addWritingRow(userId: string, writing: Writing): Promise<v
     await tx.insert(writings).values({
       id: writing.id,
       userId,
-      kindId: await kindIdBySlug(tx, userId, WRITING_KIND_SLUG),
-      topicId: await topicIdFor(tx, userId, writing.topic),
+      kindId: await writingKindIdFor(tx, userId, writing.topic),
       workId,
       name: writing.title,
       body: writing.note,
@@ -98,7 +92,7 @@ export async function updateWritingRow(
   if (patch.coverUrl !== undefined) values.coverUrl = patch.coverUrl;
 
   await db.transaction(async (tx) => {
-    if (patch.topic !== undefined) values.topicId = await topicIdFor(tx, userId, patch.topic);
+    if (patch.topic !== undefined) values.kindId = await writingKindIdFor(tx, userId, patch.topic);
 
     if (Object.keys(values).length)
       await tx
