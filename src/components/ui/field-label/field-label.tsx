@@ -23,6 +23,15 @@ export const FIELD_CONTROL_CLASS = "min-w-0 md:flex-1";
 export const FIELD_INPUT_CLASS =
   "border-0 border-b border-rule bg-transparent px-0 py-1.5 placeholder:text-gray-400 focus:border-b-2 focus:border-accent focus:outline-none focus:py-[calc(0.375rem-1px)]";
 
+/**
+ * 多行輸入框長相：這個要整框。
+ *
+ * 單行用底線是因為一頁十幾個欄位，整框會變成十幾個方塊比字還搶眼；多行不一樣，
+ * 空白的 textarea 只有一條底線看不出能寫幾行，也看不出範圍到哪裡。
+ */
+export const FIELD_TEXTAREA_CLASS =
+  "rounded-control border border-rule bg-transparent px-3 py-2 placeholder:text-gray-400 focus:border-accent focus:outline-none";
+
 /** 標籤與輸入框的外框：手機版直排，md 以上並排 */
 export const FIELD_ROW_CLASS = "min-w-0 md:flex md:items-center md:gap-2";
 

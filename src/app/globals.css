@@ -148,7 +148,7 @@ a {
 }
 .loader:after {
   box-shadow: 0 calc(2 * var(--size)) 0 var(--color-2) inset;
-  animation: loader-rotate 2s linear infinite;
+  animation: loader-rotate 0.8s linear infinite;
 }
 
 @keyframes loader-rotate {

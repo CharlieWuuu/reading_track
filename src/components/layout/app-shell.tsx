@@ -46,7 +46,7 @@ export function AppShell({
         )}
 
         {/* main 只負責版面與留白，捲動交給頁面裡的 PageBody，頁首才固定得住 */}
-        <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-hidden p-4 md:gap-5 md:p-0">
+        <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-hidden px-4 pt-4 md:gap-5 md:p-0">
           {resolved && children}
         </main>
       </div>

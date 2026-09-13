@@ -32,3 +32,16 @@ export const WithHint: Story = {
 export const DateInput: Story = {
   args: { label: "讀完日期", type: "date", value: "2026-08-19" },
 };
+
+/** 多行是唯一整框的欄位：空白的 textarea 只有一條底線看不出範圍到哪裡 */
+export const TextArea: Story = {
+  args: { label: "內文", type: "textarea", value: "" },
+};
+
+export const TextAreaFilled: Story = {
+  args: {
+    label: "內文",
+    type: "textarea",
+    value: "而當你真心渴望某樣東西時，整個宇宙都會聯合起來幫助你完成。",
+  },
+};

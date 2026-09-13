@@ -27,6 +27,7 @@ const INPUT_TYPE: Partial<Record<FieldDef["type"], string>> = {
   date: "date",
   number: "number",
   url: "url",
+  longText: "textarea", // 內文、例句這種，畫成單行根本寫不完
 };
 
 function ModuleFields({
