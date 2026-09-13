@@ -41,9 +41,10 @@ const styles = {
   empty: "text-meta text-ink-faint",
   error: "text-meta text-red-600",
   domainRow: "flex flex-wrap items-center gap-4",
-  domainName: "w-24 shrink-0",
+  // 四個中文字加鎖頭與數字，96px 會被擠成兩行；下限放寬、內容長就自己撐
+  domainName: "min-w-32 shrink-0 whitespace-nowrap",
   children: "flex flex-wrap gap-1.5",
-  chip: "rounded-control flex items-center gap-1 border px-2 py-1 text-xs disabled:opacity-40",
+  chip: "rounded-control flex items-center gap-1 border px-2 py-1 text-xs whitespace-nowrap disabled:opacity-40",
   chipOn: "border-accent text-accent",
   chipOff: "border-rule text-ink-muted",
 };
