@@ -52,7 +52,7 @@ export const GET = guarded(
       }
 
       const rows = await listRecordsByGroup(session.user.id, group as KindGroup);
-      return NextResponse.json({ records: rows });
+      return NextResponse.json({ records: unlocked ? rows : hideSelfPrivate(rows) });
     } catch (err) {
       return dataFailure("讀取紀錄", "listRecordsByGroup", err);
     }

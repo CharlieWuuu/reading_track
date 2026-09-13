@@ -67,7 +67,9 @@ export function PrivacyButton() {
         current,
       });
       unlock(data.token);
-      await mutate(() => true);
+      // 跟上鎖一樣要 revalidate：權杖進了 store，但舊的那份回應沒有私人項目，
+      // 不強制重抓就只是標記過期，畫面上那幾筆永遠不會出現
+      await mutate(() => true, undefined, { revalidate: true });
       close();
     } catch (err) {
       // 這台資料庫還沒有密碼：切到設定模式，不要說「密碼不對」——那是假的

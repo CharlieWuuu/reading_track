@@ -13,27 +13,19 @@ import { coverTintClass } from "@/utils/tag-colors";
  */
 
 const BAND = "h-[148px]";
-const SPINE = "h-[152px] w-[108px]";
+// 手機一格窄，書背等比縮一號；傾斜與陰影兩邊都留著——那是「這是一本書」的訊號
+const SPINE = "h-[124px] w-[88px] md:h-[152px] md:w-[108px]";
 
 export function CoverBand({ coverUrl, seed }: { coverUrl?: string; seed: string }) {
   if (coverUrl) {
     return (
       <div className={`${BAND} ${coverTintClass(seed)} flex items-end overflow-hidden`}>
-        {/* 窄的時候（手機兩欄，一格約 160px）書背只剩一條，傾斜與陰影都看不出來，
-            反而糊掉——那個尺寸直接畫正封面。md 以上才是書背 */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={coverUrl}
           alt=""
           loading="lazy"
-          className="mx-auto h-full w-auto object-contain md:hidden"
-        />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={coverUrl}
-          alt=""
-          loading="lazy"
-          className={`${SPINE} -mb-3 ml-3.5 hidden rotate-[-4deg] object-cover shadow-md md:block`}
+          className={`${SPINE} -mb-3 ml-2.5 rotate-[-4deg] object-cover shadow-md md:ml-3.5`}
         />
       </div>
     );
