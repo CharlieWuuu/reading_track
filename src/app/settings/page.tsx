@@ -6,17 +6,14 @@ import { useSession } from "next-auth/react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { styles as controlStyles } from "@/components/ui/controls/styles";
-import { EnrichButton } from "@/features/books/components/enrich-button";
 import { AccountPanel } from "@/features/settings/components/account-panel";
 import { CategoryManager } from "@/features/settings/components/category-manager";
 import { KindPanel } from "@/features/settings/components/kind-panel";
-import { MaintenancePanel } from "@/features/settings/components/maintenance-panel";
 import { useUrlParams } from "@/hooks/use-url-param";
 
 const TABS = [
   { key: "categories", label: "分類選項" },
   { key: "kinds", label: "新增類型" },
-  { key: "maintenance", label: "資料維護" },
   { key: "account", label: "帳號" },
 ] as const;
 
@@ -24,7 +21,7 @@ type SettingsTab = (typeof TABS)[number]["key"];
 
 /**
  * 分頁列跟頁首那排純文字連結（概覽／表格／篩選）同一套長相：無框無底色，
- * 選中的只是變粗體。四個分頁常駐顯示，不收成下拉選單。
+ * 選中的只是變粗體。分頁常駐顯示，不收成下拉選單。
  */
 function SettingsTabs({
   tab,
@@ -85,7 +82,6 @@ function Settings() {
         <div className="shrink-0 md:min-h-0 md:flex-1 md:overflow-y-auto">
           {tab === "categories" && <CategoryManager />}
           {tab === "kinds" && <KindPanel />}
-          {tab === "maintenance" && <MaintenancePanel enrichSlot={<EnrichButton />} />}
           {tab === "account" && <AccountPanel />}
         </div>
       </PageBody>

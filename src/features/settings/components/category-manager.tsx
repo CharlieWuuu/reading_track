@@ -40,10 +40,11 @@ const styles = {
   count: "text-meta text-ink-faint tabular-nums",
   empty: "text-meta text-ink-faint",
   error: "text-meta text-red-600",
-  domainRow: "flex flex-wrap items-center gap-4",
+  // 手機放不下一整列，子領域換行；縮排是唯一看得出層級的線索
+  domainRow: "flex flex-col gap-1.5 md:flex-row md:flex-wrap md:items-center md:gap-4",
   // 四個中文字加鎖頭與數字，96px 會被擠成兩行；下限放寬、內容長就自己撐
   domainName: "min-w-32 shrink-0 whitespace-nowrap",
-  children: "flex flex-wrap gap-1.5",
+  children: "flex flex-wrap gap-1.5 pl-4 md:pl-0",
   chip: "rounded-control flex items-center gap-1 border px-2 py-1 text-xs whitespace-nowrap disabled:opacity-40",
   chipOn: "border-accent text-accent",
   chipOff: "border-rule text-ink-muted",
@@ -132,17 +133,19 @@ export function CategoryManager() {
                   onFlip={flip}
                 />
               </div>
-              <div className={styles.children}>
-                {node.children.map((child) => (
-                  <DomainChip
-                    key={child.id}
-                    node={child}
-                    count={counts.subDomain.get(child.name) ?? 0}
-                    busy={busyId === child.id}
-                    onFlip={flip}
-                  />
-                ))}
-              </div>
+              {node.children.length > 0 && (
+                <div className={styles.children}>
+                  {node.children.map((child) => (
+                    <DomainChip
+                      key={child.id}
+                      node={child}
+                      count={counts.subDomain.get(child.name) ?? 0}
+                      busy={busyId === child.id}
+                      onFlip={flip}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           ))
         )}

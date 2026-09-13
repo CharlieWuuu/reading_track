@@ -14,7 +14,6 @@ const styles = {
   name: "font-serif text-item font-semibold",
   email: "text-meta text-ink-faint",
   unlock: "border-rule flex flex-wrap items-center gap-3 border-b pb-6",
-  hint: "text-meta text-ink-faint",
   signOut:
     "rounded-control border-rule-strong hover:bg-control-bg hover:text-control-ink w-full border px-3 py-2 text-sm font-medium transition-colors",
   footer: "border-rule text-meta text-ink-faint flex items-center justify-between border-t pt-4",
@@ -46,7 +45,6 @@ export function AccountPanel() {
           標哪些主題是私人的設定留在「私人項目」分頁 */}
       <div className={styles.unlock}>
         <PrivacyButton />
-        <p className={styles.hint}>解鎖之後才看得到標了鎖的內容；關掉分頁會自動鎖回去。</p>
       </div>
 
       <button
