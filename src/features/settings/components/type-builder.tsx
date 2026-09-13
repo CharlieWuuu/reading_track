@@ -36,7 +36,7 @@ const styles = {
   chipActive: "bg-accent border-accent text-white hover:bg-accent",
 };
 
-/** 依勾選的模組組出示意內容：紀錄用 CoverCard，片段／專欄用 FragmentCard——跟畫面上真正的畫法一致 */
+/** 依勾選的模組組出示意內容：紀錄用 CoverCard，片段／書寫用 FragmentCard——跟畫面上真正的畫法一致 */
 function TypePreview({
   group,
   name,

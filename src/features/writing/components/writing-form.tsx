@@ -2,11 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { Field } from "@/components/ui/field";
+import { FIELD_INPUT_CLASS, FIELD_TEXTAREA_CLASS } from "@/components/ui/field-label";
 import { FormActions } from "@/components/ui/form-actions";
 import { compactLines } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
-import { kindHref } from "@/config/kind-routes";
 import { keywordEditHref, writingEditHref } from "@/config/routes";
 import { SourcePicker } from "@/features/writing/components/source-picker";
 import { useWritingsFormTab } from "@/features/writing/components/writing-form-tabs";
@@ -19,8 +19,9 @@ import { splitLines } from "@/types/book";
 import { Writing } from "@/types/writing";
 import { fromDateTimeInput, now, toDateTimeInput } from "@/utils/date";
 
-// 內文吃掉整個表單剩下的高度：這一欄是主體，寫長了不該只給它一個小框
-const TEXTAREA_CLASS = "min-h-32 w-full min-w-0 flex-1 resize-none text-sm outline-none";
+// 內文吃掉整個表單剩下的高度：這一欄是主體，寫長了不該只給它一個小框。
+// 框線與聚焦色跟其他表單同一套（FIELD_TEXTAREA_CLASS），只是高度自己撐滿
+const TEXTAREA_CLASS = `${FIELD_TEXTAREA_CLASS} min-h-32 w-full min-w-0 flex-1 resize-none text-sm`;
 
 /** 沒選到的分頁留在畫面上但藏起來，切回來時打到一半的內容還在 */
 function TabPanel({ active, children }: { active: boolean; children: React.ReactNode }) {
@@ -103,7 +104,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
     editHref: writingEditHref,
     existingId: entry?.id ?? "",
     payload: toPayload(form, isEdit),
-    redirectTo: kindHref("writings", "writing"),
+    redirectTo: "/writings/writing",
     mutate,
     validate: () => (form.title.trim() ? undefined : "請填標題"),
   });
@@ -135,7 +136,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
               value={form.title}
               onChange={(e) => set("title", e.target.value)}
               placeholder="標題"
-              className="min-w-0 flex-1 text-base font-medium outline-none"
+              className={`${FIELD_INPUT_CLASS} min-w-0 flex-1 text-base font-medium`}
             />
             <div className="w-28 shrink-0 md:w-36">
               <OptionSelect

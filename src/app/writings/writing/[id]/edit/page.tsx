@@ -5,7 +5,6 @@ import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
-import { kindHref } from "@/config/kind-routes";
 import { writingHref } from "@/config/routes";
 import { WritingForm } from "@/features/writing/components/writing-form";
 import { WritingFormTabs } from "@/features/writing/components/writing-form-tabs";
@@ -24,11 +23,10 @@ function EditWriting() {
         title="編輯"
         size="compact"
         parent={[
-          { label: "專欄", href: "/writings" },
-          { label: "書寫", href: kindHref("writings", "writing") },
+          { label: "書寫", href: "/writings" },
           ...(entryLabel ? [{ label: entryLabel, href: writingHref(id) }] : []),
         ]}
-        backHref={kindHref("writings", "writing")}
+        backHref={"/writings"}
         action={entry && <WritingFormTabs />}
       />
       <PageBody>

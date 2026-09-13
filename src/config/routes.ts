@@ -35,7 +35,14 @@ export const articleEditHref = (id: string): string => {
   return `${articlesListHref}/${id}/edit`;
 };
 
-const writingsListHref = kindHref("writings", "writing");
+/**
+ * 書寫的單筆頁走這條固定路徑，不跟著類型的 slug 走。
+ *
+ * 心得、思緒、工作各是一個類型，但單筆頁長得一樣、查資料也只靠 id
+ * （見 WritingDetailView）。連結只拿得到 id，要對應 slug 就得先查一次類型，
+ * 為了一個不影響畫面的網址片段不值得。`writing` 在這裡是路徑，不是 slug。
+ */
+const writingsListHref = "/writings/writing";
 
 export const writingHref = (id: string): string => {
   return `${writingsListHref}/${id}`;

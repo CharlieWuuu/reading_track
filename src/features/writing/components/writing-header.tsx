@@ -4,7 +4,6 @@ import { Newspaper, Plus, Rows3 } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { ActionButton, SelectMenu } from "@/components/ui/controls";
 import { SearchBar } from "@/components/ui/search-bar";
-import { kindHref } from "@/config/kind-routes";
 import { NAV_GROUPS } from "@/config/nav";
 import { useWritingView } from "@/features/writing/use-writing-view";
 import { useWritingViewStore, WRITING_VIEWS } from "@/features/writing/views";
@@ -67,7 +66,7 @@ export function WritingHeader() {
             label="主題"
             onChange={(next) => setParams({ topic: next || null })}
           />
-          <ActionButton href={`${kindHref("writings", "writing")}/new`} label="新增" text="新增">
+          <ActionButton href={`${"/writings/writing"}/new`} label="新增" text="新增">
             <Plus size={16} strokeWidth={2} aria-hidden />
           </ActionButton>
         </div>

@@ -161,7 +161,7 @@ export function BookOverview({
     const counts = [
       quoteCount > 0 && `佳句 ${quoteCount}`,
       vocabularyCount > 0 && `單字 ${vocabularyCount}`,
-      headlineNotes.length > 0 && `專欄 ${headlineNotes.length}`,
+      headlineNotes.length > 0 && `書寫 ${headlineNotes.length}`,
     ].filter(Boolean);
     const base = toItem(headlineBook);
     headlineItem = {

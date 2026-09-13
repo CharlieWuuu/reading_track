@@ -2,7 +2,7 @@ import { KindGroup } from "./record-kinds";
 
 /**
  * 導覽的四個分類。分類是「這是哪一種東西」，不是功能選單：
- * 紀錄留下讀了什麼、片段是從紀錄裡摘出來的、專欄是自己寫的、統計是回頭看。
+ * 紀錄留下讀了什麼、片段是從紀錄裡摘出來的、書寫是自己寫的、統計是回頭看。
  *
  * 底下的類型全部從資料庫來，見 sidebar.tsx。這裡只留分類本身的設定。
  */
@@ -28,7 +28,7 @@ export type NavGroup = {
 export const NAV_GROUPS: NavGroup[] = [
   { key: "records", label: "紀錄", kindGroup: "records", href: "/records", types: [] },
   { key: "fragments", label: "片段", kindGroup: "fragments", href: "/fragments", types: [] },
-  { key: "writings", label: "專欄", kindGroup: "writings", href: "/writings", types: [] },
+  { key: "writings", label: "書寫", kindGroup: "writings", href: "/writings", types: [] },
 ];
 
 /**

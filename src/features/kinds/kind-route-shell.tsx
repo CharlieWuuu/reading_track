@@ -36,7 +36,7 @@ function useKindBySlug(group: KindGroup, slug: string): { kind?: Kind; isLoading
 /**
  * 沒有 variant 的類型就用這個畫清單——絕大多數自訂類型走這條。
  *
- * 紀錄那堆照月份排成封面格線，跟內建類型同一套；片段與專欄一則一張卡。
+ * 紀錄那堆照月份排成封面格線，跟內建類型同一套；片段與書寫一則一張卡。
  * 空的時候要說話：側欄把 0 筆的類型也列出來，點進來一片空白等於沒有下一步。
  */
 function GenericKindList({ kind, query }: { kind: Kind; query: string }) {

@@ -35,7 +35,7 @@ async function writingKindIdFor(tx: Tx, userId: string, topic: string): Promise<
         eq(kinds.name, name),
       ),
     );
-  if (!kind) throw new Error(`專欄底下沒有「${name}」這個類型`);
+  if (!kind) throw new Error(`書寫底下沒有「${name}」這個類型`);
   return kind.id;
 }
 

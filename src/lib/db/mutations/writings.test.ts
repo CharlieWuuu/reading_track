@@ -58,7 +58,7 @@ describe("addWritingRow", () => {
     expect(kind.name).toBe("心得");
   });
 
-  it("專欄底下沒有這個類型就丟錯，不默默寫錯的進去", async () => {
+  it("書寫底下沒有這個類型就丟錯，不默默寫錯的進去", async () => {
     await expect(addWritingRow(userId, makeWriting({ topic: "不存在的類型" }))).rejects.toThrow(
       "不存在的類型",
     );

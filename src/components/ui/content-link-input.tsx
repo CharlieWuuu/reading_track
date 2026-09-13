@@ -32,7 +32,7 @@ const styles = {
  * 站內任何內容（作品、片段、書寫）互相關聯的單一輸入框。
  *
  * 已連結的顯示成框內的 chip，同一格打字繼續搜，選中就加一個 chip——
- * 不分紀錄／片段／專欄，內容本身是哪一種只在 chip 上用小字標。
+ * 不分紀錄／片段／書寫，內容本身是哪一種只在 chip 上用小字標。
  */
 export function ContentLinkInput({
   label,
@@ -40,7 +40,7 @@ export function ContentLinkInput({
   linked,
   onLink,
   onUnlink,
-  placeholder = "搜尋任何紀錄、片段、專欄來關聯",
+  placeholder = "搜尋任何紀錄、片段、書寫來關聯",
 }: {
   /** 跟 input 同一行排版的欄位標籤 */
   label?: string;

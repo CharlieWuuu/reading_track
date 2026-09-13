@@ -41,7 +41,7 @@ export const writingItem = (writing: Writing): OverviewItem => ({
   id: writing.id,
   title: writing.title || writing.note,
   byline: writing.note,
-  href: `${kindHref("writings", "writing")}/${writing.id}`,
+  href: `${"/writings/writing"}/${writing.id}`,
   coverUrl: writing.coverUrl,
   startDate: writing.date,
   endDate: writing.date && `${writing.date}`,
@@ -87,7 +87,7 @@ export const fragmentTitle = (row: FragmentRow): string => row.name || row.body;
 export const fragmentMeta = (row: FragmentRow): string => joinByline([row.workTitle, row.locator]);
 
 /**
- * 片段與專欄的一筆，攤平成概覽用的形狀。
+ * 片段與書寫的一筆，攤平成概覽用的形狀。
  */
 export const fragmentItem = (row: FragmentRow): OverviewItem => {
   const day = row.date ?? row.createdAt.slice(0, 10);
