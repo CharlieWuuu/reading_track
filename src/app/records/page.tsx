@@ -15,8 +15,11 @@ export default function RecordsPage() {
 
   return (
     <>
-      <PageHeader title="紀錄" action={<GroupViewMenu />} />
-      <KindTabs group="records" />
+      <PageHeader
+        title="紀錄"
+        afterTitle={<KindTabs group="records" />}
+        action={<GroupViewMenu />}
+      />
       <PageBody scroll={view === "table"}>{mounted && <RecordsOverview view={view} />}</PageBody>
     </>
   );

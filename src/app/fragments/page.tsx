@@ -15,8 +15,11 @@ export default function FragmentsPage() {
 
   return (
     <>
-      <PageHeader title="片段" action={<GroupViewMenu />} />
-      <KindTabs group="fragments" />
+      <PageHeader
+        title="片段"
+        afterTitle={<KindTabs group="fragments" />}
+        action={<GroupViewMenu />}
+      />
       <PageBody scroll={view === "table"}>
         {mounted && <FragmentsOverview group="fragments" view={view} />}
       </PageBody>

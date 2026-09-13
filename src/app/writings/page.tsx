@@ -15,8 +15,11 @@ export default function WritingsPage() {
 
   return (
     <>
-      <PageHeader title="專欄" action={<GroupViewMenu />} />
-      <KindTabs group="writings" />
+      <PageHeader
+        title="專欄"
+        afterTitle={<KindTabs group="writings" />}
+        action={<GroupViewMenu />}
+      />
       <PageBody scroll={view === "table"}>
         {mounted && <FragmentsOverview group="writings" view={view} />}
       </PageBody>

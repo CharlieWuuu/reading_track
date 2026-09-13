@@ -36,6 +36,8 @@ type PageHeaderProps = {
    * 表單與單筆頁的主角在內容裡（書名、單字），頁首只是說明現在在做什麼，用 compact
    */
   size?: "page" | "compact";
+  /** 標題後面接著畫的東西：類型切換那排 tab。跟標題同一行，不另外占一行高度 */
+  afterTitle?: React.ReactNode;
   action?: React.ReactNode; // 頁首右側的操作區
   backHref?: string; // 有值就在標題左邊放一個返回箭頭（站內有上一頁時退回去，否則走這個網址）
 };
@@ -46,6 +48,7 @@ export function PageHeader({
   parent,
   meta,
   size = "page",
+  afterTitle,
   action,
   backHref,
 }: PageHeaderProps) {
@@ -84,6 +87,7 @@ export function PageHeader({
             })}
           {title && <h2 className={`${styles.title} ${styles[size]} min-w-0 shrink-0`}>{title}</h2>}
           {meta && <span className={styles.meta}>{meta}</span>}
+          {afterTitle}
         </div>
       )}
       {/* 按鈕的插槽 */}
