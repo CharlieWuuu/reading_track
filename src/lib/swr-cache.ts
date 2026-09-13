@@ -1,7 +1,11 @@
 import type { Cache, State } from "swr";
 import { approximateBytes, trimToBudget } from "@/utils/cache-budget";
 
-const STORAGE_KEY = "reading-track-swr-cache";
+/**
+ * 資料形狀換掉時把尾巴的版號 +1：舊的那把鑰匙沒人讀，等於所有裝置自動丟掉舊快取。
+ * 不然畫面會拿 24 小時內的舊資料墊著，使用者得自己去清瀏覽器資料才看得到新的。
+ */
+const STORAGE_KEY = "reading-track-swr-cache-v2";
 /** 超過這個時間的快取就不再拿來墊畫面，避免看到太舊的資料 */
 const MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
@@ -33,6 +37,12 @@ export function localStorageProvider(): Cache {
   const map = new Map<string, State>();
 
   if (typeof window === "undefined") return map;
+
+  try {
+    localStorage.removeItem("reading-track-swr-cache"); // v1 的那份沒人讀了，別佔著額度
+  } catch {
+    // 隱私模式讀不到就算了
+  }
 
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
