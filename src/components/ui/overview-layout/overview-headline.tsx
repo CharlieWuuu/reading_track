@@ -12,7 +12,7 @@ import { OverviewItem } from "@/utils/overview";
 const styles = {
   band: "border-rule-strong flex flex-col gap-5 border-b pb-5 md:flex-row md:gap-8",
   label: "text-label text-accent tracking-label font-medium",
-  title: "font-serif text-item md:text-lede leading-snug font-semibold tracking-tight",
+  title: "font-serif text-lede leading-snug font-semibold tracking-tight",
   byline: "text-byline text-ink-muted",
   summary: "text-byline text-ink leading-relaxed",
   meta: "text-meta text-ink-faint tabular-nums",

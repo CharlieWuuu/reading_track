@@ -88,9 +88,9 @@
   --color-map-label-bg: rgba(255, 255, 255, 0.9); /** 地名常駐在密集的點上，要半透明白底才讀得到 */
   --font-serif: var(--font-noto-serif), Georgia, 'Songti TC', serif; /** 值用襯線：書名、單字、數字、站名 */
   --font-sans: var(--font-noto-sans), 'PingFang TC', sans-serif; /** 標籤與介面文字 */
-  --text-site: 40px; /** 報頭站名 */
-  --text-lede: 34px; /** 頭條：一頁只有一個 */
-  --text-page: 30px; /** 頁名 */
+  --text-site: clamp(26px, 4.4vw + 9px, 40px); /** 報頭站名 */
+  --text-lede: clamp(20px, 4.4vw + 3px, 34px); /** 頭條：一頁只有一個 */
+  --text-page: clamp(21px, 2.8vw + 10px, 30px); /** 頁名 */
   --text-item: 17px; /** 主要條目 */
   --text-item-sm: 15px; /** 次要條目、側欄條目 */
   --text-note: 14px; /** 襯線摘要與引文 */

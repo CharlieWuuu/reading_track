@@ -66,7 +66,8 @@ export function PageHeader({
           <span className={styles.home}>
             <Link href="/" aria-label="首頁" className={styles.homeLink}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/icon.svg" alt="" width={18} height={18} />
+              {/* 專用的透明版：icon.svg 有白底，那是分頁圖示要的，鋪在紙色頁首上會浮成方框 */}
+              <img src="/masthead-mark.svg" alt="" width={18} height={18} />
             </Link>
             <span className={`${styles.divider} ml-2`}>/</span>
           </span>

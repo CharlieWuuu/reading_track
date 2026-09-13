@@ -1001,21 +1001,21 @@ export const TOKEN_MANIFEST: TokenEntry[] = [
   {
     "name": "text-site",
     "layer": "semantic",
-    "value": "40px",
+    "value": "clamp(26px, 4.4vw + 9px, 40px)",
     "alias": null,
     "description": "報頭站名"
   },
   {
     "name": "text-lede",
     "layer": "semantic",
-    "value": "34px",
+    "value": "clamp(20px, 4.4vw + 3px, 34px)",
     "alias": null,
     "description": "頭條：一頁只有一個"
   },
   {
     "name": "text-page",
     "layer": "semantic",
-    "value": "30px",
+    "value": "clamp(21px, 2.8vw + 10px, 30px)",
     "alias": null,
     "description": "頁名"
   },

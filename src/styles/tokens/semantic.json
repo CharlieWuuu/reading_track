@@ -214,17 +214,17 @@
   },
   "text": {
     "site": {
-      "$value": "40px",
+      "$value": "clamp(26px, 4.4vw + 9px, 40px)",
       "$type": "dimension",
       "$description": "報頭站名"
     },
     "lede": {
-      "$value": "34px",
+      "$value": "clamp(20px, 4.4vw + 3px, 34px)",
       "$type": "dimension",
       "$description": "頭條：一頁只有一個"
     },
     "page": {
-      "$value": "30px",
+      "$value": "clamp(21px, 2.8vw + 10px, 30px)",
       "$type": "dimension",
       "$description": "頁名"
     },
