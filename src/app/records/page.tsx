@@ -2,7 +2,6 @@
 
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
-import { AddRecordButton } from "@/features/overview/components/add-record-button";
 import { GroupViewMenu } from "@/features/overview/components/group-view-menu";
 import { KindTabs } from "@/features/overview/components/kind-tabs";
 import { RecordsOverview } from "@/features/overview/components/records-overview";
@@ -16,15 +15,7 @@ export default function RecordsPage() {
 
   return (
     <>
-      <PageHeader
-        title="紀錄"
-        action={
-          <div className="flex min-w-0 items-center gap-5">
-            <GroupViewMenu />
-            <AddRecordButton group="records" />
-          </div>
-        }
-      />
+      <PageHeader title="紀錄" action={<GroupViewMenu />} />
       <KindTabs group="records" />
       <PageBody scroll={view === "table"}>{mounted && <RecordsOverview view={view} />}</PageBody>
     </>

@@ -2,7 +2,6 @@
 
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
-import { AddRecordButton } from "@/features/overview/components/add-record-button";
 import { FragmentsOverview } from "@/features/overview/components/fragments-overview";
 import { GroupViewMenu } from "@/features/overview/components/group-view-menu";
 import { KindTabs } from "@/features/overview/components/kind-tabs";
@@ -16,15 +15,7 @@ export default function WritingsPage() {
 
   return (
     <>
-      <PageHeader
-        title="專欄"
-        action={
-          <div className="flex items-center gap-2">
-            <GroupViewMenu />
-            <AddRecordButton group="writings" />
-          </div>
-        }
-      />
+      <PageHeader title="專欄" action={<GroupViewMenu />} />
       <KindTabs group="writings" />
       <PageBody scroll={view === "table"}>
         {mounted && <FragmentsOverview group="writings" view={view} />}

@@ -83,7 +83,7 @@ export const keywordEditHref = (name: string, from?: string): string => {
   return from ? `${base}?from=${encodeURIComponent(from)}` : base;
 };
 
-type SettingsTab = "categories" | "maintenance" | "account";
+type SettingsTab = "categories" | "kinds" | "maintenance" | "account";
 
 /** 設定的分頁走網址，側欄那顆頭像才指得進「帳號」 */
 export const settingsTabHref = (tab: SettingsTab): string => {
