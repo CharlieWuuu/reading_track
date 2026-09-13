@@ -2,7 +2,7 @@
 
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
-import { CardMasonry } from "@/components/ui/card-masonry";
+import { CardGrid } from "@/components/ui/card-grid";
 import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { GroupTable } from "@/components/ui/group-table/group-table";
@@ -60,7 +60,7 @@ export function FragmentsOverview({
         label="最新一則"
         summary={headline.body || undefined}
       />
-      <CardMasonry>
+      <CardGrid>
         {rest.map((row) => (
           <FragmentCard
             key={row.id}
@@ -72,7 +72,7 @@ export function FragmentsOverview({
             coverUrl={row.coverUrl}
           />
         ))}
-      </CardMasonry>
+      </CardGrid>
     </div>
   );
 }

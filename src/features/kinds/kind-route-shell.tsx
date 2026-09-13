@@ -6,7 +6,7 @@ import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
-import { CardMasonry } from "@/components/ui/card-masonry";
+import { CardGrid } from "@/components/ui/card-grid";
 import { ActionButton } from "@/components/ui/controls";
 import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
@@ -83,7 +83,7 @@ function GenericKindList({ kind, query }: { kind: Kind; query: string }) {
   }
 
   return (
-    <CardMasonry>
+    <CardGrid>
       {shownFragments.map((row) => (
         <FragmentCard
           key={row.id}
@@ -95,7 +95,7 @@ function GenericKindList({ kind, query }: { kind: Kind; query: string }) {
           coverUrl={row.coverUrl}
         />
       ))}
-    </CardMasonry>
+    </CardGrid>
   );
 }
 

@@ -1,22 +1,22 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { CardMasonry } from "./card-masonry";
+import { CardGrid } from "./card-grid";
 
 const HEIGHTS = [80, 140, 60, 200, 110, 90, 160, 70, 130];
 
 const meta = {
-  component: CardMasonry,
+  component: CardGrid,
   args: { children: null },
   parameters: { layout: "fullscreen" },
-} satisfies Meta<typeof CardMasonry>;
+} satisfies Meta<typeof CardGrid>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** 卡片高度參差才看得出瀑布式在做什麼；拉寬視窗會從兩欄變三欄 */
+/** 卡片高度參差時同列會對齊到最高的那張；拉寬視窗會從兩欄變三欄 */
 export const Default: Story = {
   render: () => (
     <div className="p-4">
-      <CardMasonry>
+      <CardGrid>
         {HEIGHTS.map((height, i) => (
           <div
             key={i}
@@ -26,7 +26,7 @@ export const Default: Story = {
             {i + 1}
           </div>
         ))}
-      </CardMasonry>
+      </CardGrid>
     </div>
   ),
 };
@@ -34,11 +34,11 @@ export const Default: Story = {
 export const Single: Story = {
   render: () => (
     <div className="p-4">
-      <CardMasonry>
+      <CardGrid>
         <div className="flex h-24 items-center justify-center rounded border bg-gray-50 text-sm text-gray-500">
           只有一張
         </div>
-      </CardMasonry>
+      </CardGrid>
     </div>
   ),
 };

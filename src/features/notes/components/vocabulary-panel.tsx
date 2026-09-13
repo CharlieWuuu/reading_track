@@ -1,7 +1,7 @@
 "use client";
 
 import { BookCover } from "@/components/ui/book-cover";
-import { CardMasonry } from "@/components/ui/card-masonry";
+import { CardGrid } from "@/components/ui/card-grid";
 import { VocabularyEntry } from "@/utils/stats/vocabulary-stats";
 
 const styles = {
@@ -37,7 +37,7 @@ export function VocabularyPanel({ writings, onEdit }: VocabularyPanelProps) {
   }
 
   return (
-    <CardMasonry>
+    <CardGrid>
       {writings.map((writings) => {
         // 同一個詞在不同書可能各記了翻譯，重複的只留一個
         const translations = [
@@ -87,6 +87,6 @@ export function VocabularyPanel({ writings, onEdit }: VocabularyPanelProps) {
           </div>
         );
       })}
-    </CardMasonry>
+    </CardGrid>
   );
 }

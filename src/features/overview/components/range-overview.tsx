@@ -2,7 +2,7 @@
 
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
-import { CardMasonry } from "@/components/ui/card-masonry";
+import { CardGrid } from "@/components/ui/card-grid";
 import { COVER_CARD_GRID, CoverCard } from "@/components/ui/cover-card/cover-card";
 import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
@@ -61,7 +61,7 @@ function FragmentSection({ label, rows }: { label: string; rows: readonly Fragme
         <span className={styles.sectionLabel}>{label}</span>
         <span className={styles.meta}>{rows.length}</span>
       </div>
-      <CardMasonry>
+      <CardGrid>
         {rows.map((row) => (
           <FragmentCard
             key={row.id}
@@ -73,7 +73,7 @@ function FragmentSection({ label, rows }: { label: string; rows: readonly Fragme
             coverUrl={row.coverUrl}
           />
         ))}
-      </CardMasonry>
+      </CardGrid>
     </div>
   );
 }
