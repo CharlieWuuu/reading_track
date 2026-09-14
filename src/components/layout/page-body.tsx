@@ -9,7 +9,8 @@
  * 用 `px-1 -mx-1` 在裡面留一格餘裕再用負 margin 抵銷：版面寬度不變，
  * 陰影有地方畫。這件事在這裡解決一次，各個清單就不用各自補 padding。
  *
- * 底部留 24px：捲到底時最後一行貼著螢幕邊會看不清楚，尤其手機。
+ * 桌機底部留 24px：捲到底時最後一行貼著螢幕邊會看不清楚。手機不留——
+ * 底部導覽列本來就擋在那裡，再加 padding 只是多一段空白。
  *
  * 只要有東西比容器寬就會冒出橫向捲軸——裡面的卡片都要能縮（min-w-0）。
  *
@@ -25,7 +26,7 @@ export function PageBody({
 }) {
   return (
     <div
-      className={`-mx-1 flex min-h-0 flex-1 flex-col gap-3 px-1 pb-6 md:gap-5 ${scroll ? "overflow-y-auto" : "overflow-hidden"}`}
+      className={`-mx-1 flex min-h-0 flex-1 flex-col gap-3 px-1 md:gap-5 md:pb-6 ${scroll ? "overflow-y-auto" : "overflow-hidden"}`}
     >
       {children}
     </div>
