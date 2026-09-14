@@ -28,7 +28,7 @@ export function CoverBand({ coverUrl, seed }: { coverUrl?: string; seed: string 
   if (coverUrl) {
     return (
       <div className={OVERFLOW_ROOM}>
-        <div className={`${BAND} ${coverTintClass(seed)} flex items-end`}>
+        <div className={`${BAND} ${coverTintClass(seed)} flex items-end overflow-hidden`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={coverUrl}
