@@ -1,9 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { ReactNode } from "react";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
-import { FRAGMENT_CARD_GRID, FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { OverviewLayout } from "@/components/ui/overview-layout/overview-layout";
 import { OverviewRailList } from "@/components/ui/overview-layout/overview-rail-stats";
 import { quoteHref } from "@/config/routes";
@@ -69,28 +69,33 @@ function QuotesGrid({
       headlineLabel={headlineLabel}
       done={rest}
       rail={rail}
-      gridClassName={FRAGMENT_CARD_GRID}
+      gridClassName="flex flex-col"
       onLoadMore={onLoadMore}
       hasMore={hasMore}
       isLoadingMore={isLoadingMore}
       renderItem={(item) => {
         const record = records.find((r) => r.id === item.id)!;
         return (
-          <FragmentCard
-            href={quoteHref(record.id)}
-            title={record.text}
-            meta={record.bookTitle}
-            coverUrl={record.coverUrl}
-          />
+          <Link key={record.id} href={quoteHref(record.id)} className={quoteStyles.row}>
+            <blockquote className={quoteStyles.text}>{record.text}</blockquote>
+            {record.bookTitle && <p className={quoteStyles.meta}>{record.bookTitle}</p>}
+          </Link>
         );
       }}
     />
   );
 }
 
+/** 一句一列的版式，跟 QuoteWall 同一套——佳句是句子不是卡片 */
+const quoteStyles = {
+  row: "border-rule flex flex-col gap-1.5 border-b py-4 first:pt-0 last:border-b-0",
+  text: "font-serif text-[15px] leading-relaxed whitespace-pre-wrap text-gray-800 md:text-base",
+  meta: "text-meta text-ink-faint truncate",
+};
+
 /**
  * 佳句概覽：跟書籍頁同一套 OverviewLayout 骨架（頭條＋月份格線＋右側統計欄），
- * 只是月份格線裡一格換成 FragmentCard——佳句沒有封面清單那種畫法要的欄位。
+ * 只是月份格線裡一格換成引用列——佳句是句子不是卡片，切成兩欄會把長句擠成一行三四個字。
  *
  * 有語言篩選（lang）時要整包資料在前端 filter，套不了分頁，退回整包抓取；
  * 沒有篩選才用分頁。
