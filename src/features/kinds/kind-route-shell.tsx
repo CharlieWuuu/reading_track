@@ -23,6 +23,7 @@ import { useKinds } from "@/hooks/use-kinds";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { Kind } from "@/lib/db/queries/kinds";
 import {
+  fragmentBody,
   fragmentHref,
   fragmentItem,
   fragmentMeta,
@@ -113,7 +114,7 @@ function GenericKindList({ kind, query }: { kind: Kind; query: string }) {
           href={fragmentHref(row)}
           title={fragmentTitle(row)}
           label={row.kindName}
-          body={row.body}
+          body={fragmentBody(row)}
           meta={fragmentMeta(row)}
           coverUrl={row.coverUrl}
         />
