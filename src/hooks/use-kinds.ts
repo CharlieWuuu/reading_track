@@ -38,10 +38,19 @@ export function useKinds() {
     await mutate();
   }
 
+  /** 關掉一個類型。底下還有資料時伺服器會擋，錯誤訊息直接丟給呼叫端顯示 */
+  async function removeKind(kindId: string) {
+    const res = await fetch(`/api/kinds/${kindId}`, { method: "DELETE" });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error ?? "移除類型失敗");
+    await mutate();
+  }
+
   return {
     kinds: data?.kinds ?? [],
     isLoading,
     error: error instanceof Error ? error.message : undefined,
     addKind,
+    removeKind,
   };
 }

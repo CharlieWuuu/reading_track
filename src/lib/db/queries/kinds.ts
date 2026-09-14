@@ -3,7 +3,7 @@ import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
 import { fields as fieldsTable } from "@/lib/db/schema/fields";
 import { fragments } from "@/lib/db/schema/fragments";
-import { kinds as kindsTable, mapKindField } from "@/lib/db/schema/kinds";
+import { kinds as kindsTable, mapKindField, userKinds } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
 import { ModuleOverride } from "@/utils/record-form";
@@ -72,11 +72,14 @@ async function countsByKind(userId: string): Promise<Map<string, number>> {
 
 export async function listKinds(userId: string): Promise<Kind[]> {
   const [kinds, fieldLinks, counts] = await Promise.all([
+    // 「在用哪些」與「怎麼排」都讀 setting_user_kinds：setting_kinds 是共用目錄，
+    // 關掉一個類型是從這張表移掉一列，別人不受影響
     db
-      .select()
-      .from(kindsTable)
-      .where(or(eq(kindsTable.userId, userId), isNull(kindsTable.userId)))
-      .orderBy(asc(kindsTable.sortOrder), asc(kindsTable.name)),
+      .select({ kind: kindsTable, sortOrder: userKinds.sortOrder })
+      .from(userKinds)
+      .innerJoin(kindsTable, eq(kindsTable.id, userKinds.kindId))
+      .where(eq(userKinds.userId, userId))
+      .orderBy(asc(userKinds.sortOrder), asc(kindsTable.name)),
     db
       .select({
         kindId: mapKindField.kindId,
@@ -94,42 +97,46 @@ export async function listKinds(userId: string): Promise<Kind[]> {
 
   const fieldsByKind = groupBy(fieldLinks);
 
-  return kinds.map((kind) => ({
+  return kinds.map(({ kind, sortOrder }) => ({
     id: kind.id,
     name: kind.name,
     slug: kind.slug,
     group: kind.groupKey as KindGroup,
     amountUnit: kind.amountUnit,
     count: counts.get(kind.id) ?? 0,
-    sortOrder: kind.sortOrder,
+    sortOrder,
     modules: (fieldsByKind.get(kind.id) ?? [])
       .filter((f) => f.isVisible)
       .map((f) => ({ key: f.fieldKey, label: f.label, sortOrder: f.sortOrder })),
   }));
 }
 
-/** 這個 slug 在這個 group 底下是不是已經被占走了，給新增表單即時檢查用 */
+/**
+ * 這個 slug 在這個 group 底下是不是已經被占走了，給新增表單即時檢查用。
+ *
+ * 只看自己在用的：別人建了什麼、目錄裡還有哪些沒套用的範本，都不該擋住網址。
+ */
 export async function slugTaken(userId: string, group: KindGroup, slug: string): Promise<boolean> {
   const [row] = await db
     .select({ id: kindsTable.id })
-    .from(kindsTable)
+    .from(userKinds)
+    .innerJoin(kindsTable, eq(kindsTable.id, userKinds.kindId))
     .where(
-      and(
-        or(eq(kindsTable.userId, userId), isNull(kindsTable.userId)),
-        eq(kindsTable.groupKey, group),
-        eq(kindsTable.slug, slug),
-      ),
+      and(eq(userKinds.userId, userId), eq(kindsTable.groupKey, group), eq(kindsTable.slug, slug)),
     );
   return Boolean(row);
 }
 
-/** 這個類型屬於哪個 group。寫入時要靠它決定進哪張表 */
+/**
+ * 這個類型屬於哪個 group。寫入時要靠它決定進哪張表。
+ *
+ * 走 setting_user_kinds：關掉的類型不該還能往裡面寫，回 null 讓呼叫端當成找不到。
+ */
 export async function kindGroupOf(userId: string, kindId: string): Promise<KindGroup | null> {
   const [row] = await db
     .select({ group: kindsTable.groupKey })
-    .from(kindsTable)
-    .where(
-      and(or(eq(kindsTable.userId, userId), isNull(kindsTable.userId)), eq(kindsTable.id, kindId)),
-    );
+    .from(userKinds)
+    .innerJoin(kindsTable, eq(kindsTable.id, userKinds.kindId))
+    .where(and(eq(userKinds.userId, userId), eq(userKinds.kindId, kindId)));
   return (row?.group as KindGroup) ?? null;
 }
