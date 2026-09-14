@@ -1,5 +1,6 @@
 "use client";
 
+import { SCROLL_BOTTOM } from "@/components/layout/page-body";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
@@ -58,7 +59,7 @@ export function FragmentsOverview({
 
   // PageBody 收到 scroll={false}，捲動歸這裡——不開的話整頁卡住捲不動
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto pb-6">
+    <div className={`flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto ${SCROLL_BOTTOM}`}>
       <OverviewHeadline
         item={fragmentItem(headline)}
         label="最新一則"

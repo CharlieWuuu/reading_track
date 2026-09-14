@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { SCROLL_BOTTOM } from "@/components/layout/page-body";
 import { Field } from "@/components/ui/field";
 import { FIELD_INPUT_CLASS, FIELD_TEXTAREA_CLASS } from "@/components/ui/field-label";
 import { FormActions } from "@/components/ui/form-actions";
@@ -128,7 +129,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
       }}
       className="flex min-h-0 flex-1 flex-col gap-3"
     >
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+      <div className={`flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto ${SCROLL_BOTTOM}`}>
         <TabPanel active={tab === "text"}>
           {/* 標題與主題同一行：主題是這則的名牌，跟標題一起看才知道自己在寫哪一塊 */}
           <div className="flex shrink-0 items-center gap-2">

@@ -3,7 +3,6 @@
 import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { BooksGate } from "@/features/books/components/books-gate";
-import { QuickAddRecordButton } from "@/features/notes/components/quick-add-record-button";
 import { VocabularyLanguageMenu } from "@/features/notes/components/vocabulary-language-menu";
 import { VocabularySection } from "@/features/notes/components/vocabulary-section";
 import { GroupViewMenu } from "@/features/overview/components/group-view-menu";
@@ -20,11 +19,7 @@ export default function VocabularyPage() {
 
   return (
     <Suspense fallback={null}>
-      <ReadingHeader
-        views={<GroupViewMenu />}
-        filters={<VocabularyLanguageMenu />}
-        newButton={<QuickAddRecordButton kind="vocabulary" />}
-      />
+      <ReadingHeader views={<GroupViewMenu />} filters={<VocabularyLanguageMenu />} />
       <PageBody>
         <BooksGate>{(books) => <VocabularySection books={books} view={view} />}</BooksGate>
       </PageBody>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { SCROLL_BOTTOM } from "@/components/layout/page-body";
 import { PageMessage } from "@/components/layout/page-message";
 import { Favicon } from "@/components/ui/favicon";
 import { TagList } from "@/components/ui/tag-badge";
@@ -91,7 +92,7 @@ function ArticleCards({ articles }: { articles: Article[] }) {
 function ArticleTable({ articles }: { articles: Article[] }) {
   const router = useRouter();
   return (
-    <div className="hidden min-h-0 w-full flex-1 overflow-y-auto md:block">
+    <div className={`hidden min-h-0 w-full flex-1 overflow-y-auto md:block ${SCROLL_BOTTOM}`}>
       <table className="w-full table-fixed">
         <thead className="border-rule-strong bg-background sticky top-0 z-10 border-b text-left">
           <tr className="text-label text-ink-faint tracking-label [&_th]:font-normal">
