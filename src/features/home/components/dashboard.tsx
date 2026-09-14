@@ -4,20 +4,14 @@ import { IssueLinks } from "@/components/layout/issue-links";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headline";
+import { unitOfGroup } from "@/config/nav";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { useGroupRecords } from "@/hooks/use-group-records";
 import { FragmentRow, RecordRow } from "@/lib/db/queries/catalog";
-import {
-  countInMonth,
-  fragmentDate,
-  pickHeadline,
-  recentBy,
-  recordDate,
-  streakDays,
-} from "@/utils/home-digest";
+import { countOnDate, fragmentDate, pickHeadline, recentBy, recordDate } from "@/utils/home-digest";
 import { recordItem as recordOverviewItem } from "@/utils/overview-items";
 import { DigestColumn, DigestItem } from "./digest-column";
-import { MonthPanel } from "./month-panel";
+import { TodayPanel } from "./today-panel";
 
 /**
  * 登入後的首頁。三個 group 各取最近三筆，上面壓一則頭條與這個月的數字。
@@ -39,6 +33,7 @@ const recordItem = (row: RecordRow): DigestItem => ({
   date: (recordDate(row) ?? "").slice(5),
   title: row.title,
   meta: [row.creator, row.amount && `${row.amount} ${row.amountUnit}`].filter(Boolean).join("・"),
+  coverUrl: row.coverUrl,
 });
 
 const fragmentItem = (row: FragmentRow): DigestItem => ({
@@ -47,6 +42,7 @@ const fragmentItem = (row: FragmentRow): DigestItem => ({
   date: (fragmentDate(row) ?? "").slice(5),
   title: row.name || row.body,
   meta: [row.workTitle, row.locator].filter(Boolean).join("・"),
+  coverUrl: row.coverUrl,
 });
 
 export function Dashboard() {
@@ -59,31 +55,24 @@ export function Dashboard() {
   if (records.isLoading || fragments.isLoading || writings.isLoading) return <PageLoading />;
 
   const today = new Date().toISOString().slice(0, 10);
-  const month = today.slice(0, 7);
-  const dates = [
-    ...records.records.map(recordDate),
-    ...fragments.fragments.map(fragmentDate),
-    ...writings.fragments.map(fragmentDate),
-  ];
 
   const headline = pickHeadline(records.records);
-  const monthPanel = (
-    <MonthPanel
-      month={month.slice(5)}
+  const todayPanel = (
+    <TodayPanel
+      date={today.slice(5)}
       counts={[
-        { label: "紀錄", unit: "筆", value: countInMonth(records.records.map(recordDate), month) },
+        { label: "紀錄", unit: "筆", value: countOnDate(records.records.map(recordDate), today) },
         {
           label: "片段",
           unit: "則",
-          value: countInMonth(fragments.fragments.map(fragmentDate), month),
+          value: countOnDate(fragments.fragments.map(fragmentDate), today),
         },
         {
           label: "書寫",
           unit: "篇",
-          value: countInMonth(writings.fragments.map(fragmentDate), month),
+          value: countOnDate(writings.fragments.map(fragmentDate), today),
         },
       ]}
-      streak={streakDays(dates, today)}
     />
   );
 
@@ -99,13 +88,13 @@ export function Dashboard() {
         <OverviewHeadline
           item={recordOverviewItem(headline)}
           label={headline.statusKey === "reading" ? "在讀" : "最近讀完"}
-          aside={monthPanel}
+          aside={todayPanel}
         />
       ) : (
         // 一筆紀錄都沒有時沒有主角可以當頭條，只剩「這個月」
         <div className={styles.emptyBand}>
           <p className="text-byline text-ink-muted flex-1">還沒有紀錄</p>
-          {monthPanel}
+          {todayPanel}
         </div>
       )}
 
@@ -114,18 +103,21 @@ export function Dashboard() {
           title="最近的紀錄"
           total={records.records.length}
           items={recentBy(records.records, recordDate, 3).map(recordItem)}
+          unit={unitOfGroup("records")}
           href="/records"
         />
         <DigestColumn
           title="最近的片段"
           total={fragments.fragments.length}
           items={recentBy(fragments.fragments, fragmentDate, 3).map(fragmentItem)}
+          unit={unitOfGroup("fragments")}
           href="/fragments"
         />
         <DigestColumn
           title="最近的書寫"
           total={writings.fragments.length}
           items={recentBy(writings.fragments, fragmentDate, 3).map(fragmentItem)}
+          unit={unitOfGroup("writings")}
           href="/writings"
         />
       </div>

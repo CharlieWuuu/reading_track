@@ -22,14 +22,39 @@ export type NavGroup = {
   kindGroup?: KindGroup;
   /** 這個 group 的概覽頁。沒有的話標題就只是標題，點不下去 */
   href?: string;
+  /**
+   * 數量的單位：一「筆」紀錄、一「則」片段、一「篇」書寫。
+   *
+   * 跟 Kind.amountUnit 是兩回事——那個是內容的份量（頁、分鐘、字），
+   * 這個是東西的個數。首頁、概覽、統計都要講「幾個」，講法在這裡定一次。
+   */
+  unit: string;
   types: NavType[];
 };
 
 export const NAV_GROUPS: NavGroup[] = [
-  { key: "records", label: "紀錄", kindGroup: "records", href: "/records", types: [] },
-  { key: "fragments", label: "片段", kindGroup: "fragments", href: "/fragments", types: [] },
-  { key: "writings", label: "書寫", kindGroup: "writings", href: "/writings", types: [] },
+  { key: "records", label: "紀錄", kindGroup: "records", href: "/records", unit: "筆", types: [] },
+  {
+    key: "fragments",
+    label: "片段",
+    kindGroup: "fragments",
+    href: "/fragments",
+    unit: "則",
+    types: [],
+  },
+  {
+    key: "writings",
+    label: "書寫",
+    kindGroup: "writings",
+    href: "/writings",
+    unit: "篇",
+    types: [],
+  },
 ];
+
+/** 這個 group 的數量單位。不認得的（統計那種沒有 kindGroup 的）一律「筆」 */
+export const unitOfGroup = (group: KindGroup): string =>
+  NAV_GROUPS.find((nav) => nav.kindGroup === group)?.unit ?? "筆";
 
 /**
  * 報頭右側的工具區。統計與設定不是內容類型，不跟三個 group 並列——

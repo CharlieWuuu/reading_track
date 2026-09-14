@@ -21,7 +21,8 @@ import { fragmentHref, fragmentMeta, fragmentTitle, recordItem } from "@/utils/o
  */
 
 const styles = {
-  section: "border-rule-strong border-b pt-4 pb-1.5",
+  // 節與節的間距由外層 gap 給，這裡只管標題與線；線與底下格線的空隙也走 gap
+  section: "border-rule-strong border-b pb-1.5",
   sectionLabel: "font-serif text-item-sm font-semibold tracking-wide",
   meta: "text-meta text-ink-faint tabular-nums",
   empty: "text-meta text-ink-faint py-8 text-center",
@@ -30,7 +31,7 @@ const styles = {
 function RecordSection({ label, items }: { label: string; items: readonly OverviewItem[] }) {
   if (items.length === 0) return null;
   return (
-    <div>
+    <div className="flex flex-col gap-3">
       <div className={`${styles.section} flex items-baseline justify-between`}>
         <span className={styles.sectionLabel}>{label}</span>
         <span className={styles.meta}>{items.length}</span>
@@ -56,7 +57,7 @@ function RecordSection({ label, items }: { label: string; items: readonly Overvi
 function FragmentSection({ label, rows }: { label: string; rows: readonly FragmentRow[] }) {
   if (rows.length === 0) return null;
   return (
-    <div>
+    <div className="flex flex-col gap-3">
       <div className={`${styles.section} flex items-baseline justify-between`}>
         <span className={styles.sectionLabel}>{label}</span>
         <span className={styles.meta}>{rows.length}</span>
@@ -103,7 +104,7 @@ export function RangeOverview({
   if (total === 0) return <div className={styles.empty}>{emptyLabel}</div>;
 
   return (
-    <div>
+    <div className="flex flex-col gap-6">
       <RecordSection label="紀錄" items={recordItems} />
       <FragmentSection label="片段" rows={fragmentRows} />
       <FragmentSection label="書寫" rows={writingRows} />
