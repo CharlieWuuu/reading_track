@@ -7,7 +7,7 @@
 export const FIELD_LABEL_CLASS =
   "mb-1 flex items-center gap-1.5 text-label font-medium tracking-label text-ink-faint uppercase md:mb-0 md:justify-end md:text-right";
 
-/** 固定寬的那一欄；帶說明的標籤裝不下，那種就讓它照內容撐開 */
+/** 固定寬的那一欄。四個中文字剛好塞得下 */
 const FIXED_WIDTH = "md:w-16 md:shrink-0";
 
 /** 平行時輸入框那一欄：撐滿剩下的寬度，min-w-0 才不會被內容撐破 */
@@ -35,18 +35,7 @@ export const FIELD_TEXTAREA_CLASS =
 /** 標籤與輸入框的外框：手機版直排，md 以上並排 */
 export const FIELD_ROW_CLASS = "min-w-0 md:flex md:items-center md:gap-2";
 
-export function FieldLabel({
-  label,
-  hint,
-}: {
-  label: string;
-  /** 標籤旁邊的淡字說明 */
-  hint?: string;
-}) {
-  return (
-    <label className={`${FIELD_LABEL_CLASS} ${hint ? "" : FIXED_WIDTH}`}>
-      {label}
-      {hint && <span className="text-meta text-ink-faint tracking-normal normal-case">{hint}</span>}
-    </label>
-  );
+/** 只有欄名。說明走 placeholder，不掛在標籤旁邊當一行小字 */
+export function FieldLabel({ label }: { label: string }) {
+  return <label className={`${FIELD_LABEL_CLASS} ${FIXED_WIDTH}`}>{label}</label>;
 }

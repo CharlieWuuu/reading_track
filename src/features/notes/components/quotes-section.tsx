@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ReactNode } from "react";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
+import { BookCover } from "@/components/ui/book-cover";
 import { OverviewLayout } from "@/components/ui/overview-layout/overview-layout";
 import { OverviewRailList } from "@/components/ui/overview-layout/overview-rail-stats";
 import { quoteHref } from "@/config/routes";
@@ -76,9 +77,12 @@ function QuotesGrid({
       renderItem={(item) => {
         const record = records.find((r) => r.id === item.id)!;
         return (
-          <Link key={record.id} href={quoteHref(record.id)} className={quoteStyles.row}>
-            <blockquote className={quoteStyles.text}>{record.text}</blockquote>
-            {record.bookTitle && <p className={quoteStyles.meta}>— {record.bookTitle}</p>}
+          <Link href={quoteHref(record.id)} className={quoteStyles.row}>
+            <BookCover url={record.coverUrl} title={record.bookTitle} size="lg" />
+            <div className={quoteStyles.body}>
+              <blockquote className={quoteStyles.text}>{record.text}</blockquote>
+              {record.bookTitle && <p className={quoteStyles.meta}>— {record.bookTitle}</p>}
+            </div>
           </Link>
         );
       }}
@@ -87,13 +91,16 @@ function QuotesGrid({
 }
 
 /**
- * 引用版式：左邊一條灰線、襯線字縮排，出處靠右當署名——照書裡的樣子排。
- * 這是 RecordItems.QuoteBlock（7a2af24）原本的長相，重構時掉了，貼回來。
+ * 佳句的版式：左邊書封，右邊引文，出處靠右當署名，一則一列用分隔線隔開。
+ *
+ * 這是 RecordCard + QuoteBlock（97eed6a 改接 OverviewLayout 之前）原本的長相。
+ * 引文不畫左側那條線——旁邊就是封面，兩個直的元素並排會像被切成兩欄。
  */
 const quoteStyles = {
-  row: "flex flex-col gap-1.5 py-4 first:pt-0",
-  text: "border-l-2 border-gray-300 pl-4 font-serif text-[15px] leading-relaxed whitespace-pre-wrap text-gray-800 md:text-base",
-  meta: "text-meta text-ink-faint truncate pl-4 text-right",
+  row: "border-rule-soft flex cursor-pointer items-start gap-3 border-b px-1 py-3 hover:bg-gray-50 md:py-4",
+  body: "flex min-w-0 flex-1 flex-col gap-1.5",
+  text: "text-[15px] leading-relaxed whitespace-pre-wrap text-gray-800 md:text-base",
+  meta: "text-meta text-ink-faint truncate text-right",
 };
 
 /**

@@ -35,12 +35,13 @@ export function Field({
   rows?: number;
 }) {
   const shared = `${FIELD_CONTROL_CLASS} box-border block w-full max-w-full text-sm`;
-  const placeholder = hideLabel ? (hint ?? label) : undefined;
+  // 說明一律走 placeholder：掛在標籤旁邊會變成一行講解，欄位一多整頁都是字
+  const placeholder = hideLabel ? (hint ?? label) : hint;
 
   if (type === "textarea") {
     return (
       <div className={`${FIELD_ROW_CLASS} md:items-start`}>
-        {!hideLabel && <FieldLabel label={label} hint={hint} />}
+        {!hideLabel && <FieldLabel label={label} />}
         <textarea
           aria-label={label}
           placeholder={placeholder}
@@ -56,7 +57,7 @@ export function Field({
 
   return (
     <div className={FIELD_ROW_CLASS}>
-      {!hideLabel && <FieldLabel label={label} hint={hint} />}
+      {!hideLabel && <FieldLabel label={label} />}
       <input
         type={type}
         aria-label={label}
