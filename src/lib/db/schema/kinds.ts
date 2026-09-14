@@ -25,6 +25,8 @@ export const kinds = pgTable(
     groupKey: text("group_key").notNull(),
     /** 量的單位：頁、分鐘、字。統計讀「量＋單位」自己長句子，加類型不用改統計 */
     amountUnit: text("amount_unit").notNull().default(""),
+    /** 個數的單位：則、篇、部。跟 amount_unit 不同——那個是份量，這個是「幾件」。沒填就是「筆」 */
+    countUnit: text("count_unit").notNull().default(""),
     /** @deprecated 排序搬到 setting_user_kinds 了——共用列上調順序會動到所有人。查詢全切過去後刪掉 */
     sortOrder: integer("sort_order").notNull().default(0),
   },

@@ -1,3 +1,5 @@
+import { imageSrc } from "@/utils/image-key";
+
 /**
  * 書封，以及沒有書封時的替代方塊。
  *
@@ -68,12 +70,14 @@ export function BookCover({
   className?: string;
 }) {
   const shape = `aspect-2/3 shrink-0 ${SIZES[size]} ${className}`;
+  // 自己上傳的存的是 key，走代理才讀得到；抓回來的外部網址原樣用
+  const src = imageSrc(url);
 
-  if (url) {
+  if (src) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={url}
+        src={src}
         alt=""
         loading="lazy"
         title={title}

@@ -1,0 +1,1 @@
+ALTER TABLE "setting_kinds" ADD COLUMN "count_unit" text DEFAULT '' NOT NULL;

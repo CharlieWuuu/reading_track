@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { SCROLL_BOTTOM_MD } from "@/components/layout/page-body";
 import { CategorySelect } from "@/components/ui/category-select";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
@@ -163,7 +164,9 @@ export function ArticleForm({ article }: { article?: Article }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 md:h-full md:min-h-0">
-      <div className="flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
+      <div
+        className={`flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto ${SCROLL_BOTTOM_MD}`}
+      >
         <TabPanel active={tab === "article"}>
           <div className="grid min-h-0 shrink-0 grid-cols-2 content-start gap-3">
             <div className="col-span-2">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { imageSrc } from "@/utils/image-key";
 
 /**
  * 右側窄欄那種清單：小標題、數量、幾筆條目、看全部。
@@ -57,7 +58,7 @@ export function OverviewRail({
         <div key={item.id} className={styles.item}>
           {item.coverUrl && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={item.coverUrl} alt="" loading="lazy" className={styles.cover} />
+            <img src={imageSrc(item.coverUrl)} alt="" loading="lazy" className={styles.cover} />
           )}
           <div className={styles.body}>
             <Link href={item.href} className={styles.title}>

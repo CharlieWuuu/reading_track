@@ -121,6 +121,7 @@ export function makeWriting(overrides: Partial<Writing> = {}): Writing {
     sourceKind: "",
     kindId: "",
     kindName: "書寫",
+    kindCountUnit: "",
     kindSlug: "writing",
     sourceId: "",
     private: "",

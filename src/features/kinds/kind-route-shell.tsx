@@ -1,15 +1,18 @@
+"use client";
+
 import Link from "next/link";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { CardGrid } from "@/components/ui/card-grid";
+import { ActionButton } from "@/components/ui/controls/action-button";
 import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { QuoteWall } from "@/components/ui/quote-wall";
 import { SearchBar } from "@/components/ui/search-bar/search-bar";
 import { groupBasePath, kindHref } from "@/config/kind-routes";
-import { NAV_GROUPS, unitOfGroup } from "@/config/nav";
+import { NAV_GROUPS, unitOfKind } from "@/config/nav";
 import { KindGroup } from "@/config/record-kinds";
 import { variantFor } from "@/features/kinds/variant-registry";
 import { ModuleDetail } from "@/features/overview/components/module-detail";
@@ -21,8 +24,6 @@ import { useUrlParams } from "@/hooks/use-url-param";
 import { Kind } from "@/lib/db/queries/kinds";
 import { fragmentCard, fragmentHref, fragmentItem, recordItem } from "@/utils/overview-items";
 import { matchesSearch, searchTerms } from "@/utils/search";
-
-("use client");
 
 /**
  * 三個 group 共用的通用頁骨架。找到 kind 之後照 slug 決定要不要換皮，
@@ -78,7 +79,7 @@ function GenericKindList({ kind, query }: { kind: Kind; query: string }) {
         done={shownRecords.map(recordItem)}
         headlineLabel=""
         // amountUnit 是份量（頁、分鐘），這裡要的是個數
-        unit={unitOfGroup(kind.group)}
+        unit={unitOfKind(kind)}
       />
     );
   }
@@ -91,7 +92,7 @@ function GenericKindList({ kind, query }: { kind: Kind; query: string }) {
         pending={[]}
         done={shownFragments.map(fragmentItem)}
         headlineLabel="最新一則"
-        unit={unitOfGroup(kind.group)}
+        unit={unitOfKind(kind)}
       />
     );
   }
@@ -208,12 +209,7 @@ export function KindRecordPage({
         backHref={kindHref(group, slug)}
         action={
           kind && (
-            <Link
-              href={`${kindHref(group, slug)}/${recordId}/edit`}
-              className="text-byline text-accent ml-auto font-medium"
-            >
-              編輯
-            </Link>
+            <ActionButton href={`${kindHref(group, slug)}/${recordId}/edit`}>編輯</ActionButton>
           )
         }
       />

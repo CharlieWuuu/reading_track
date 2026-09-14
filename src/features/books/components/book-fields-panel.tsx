@@ -3,6 +3,7 @@
 import { CategorySelect } from "@/components/ui/category-select";
 import { ContentLinkInput } from "@/components/ui/content-link-input";
 import { Field } from "@/components/ui/field";
+import { ImageField } from "@/components/ui/image-field";
 import { PrivateToggle } from "@/components/ui/private-toggle";
 import { ReadBookSuggestions } from "@/features/books/components/read-book-suggestions";
 import { useContentLinks } from "@/hooks/use-content-links";
@@ -77,8 +78,8 @@ export function BookFieldsPanel({
           />
         </div>
 
-        {/* 兩個網址跟上面那些欄位一樣是抓回來的，不值得自己一個分組 */}
-        <Field label="封面網址" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
+        {/* 封面抓回來是外部網址，自己換的話就上傳成 key；兩種 ImageField 都認得 */}
+        <ImageField label="封面" value={form.coverUrl} onChange={(v) => set("coverUrl", v)} />
         <Field label="來源網址" value={form.sourceUrl} onChange={(v) => set("sourceUrl", v)} />
       </div>
 

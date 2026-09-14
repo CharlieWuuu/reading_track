@@ -1,3 +1,4 @@
+import { imageSrc } from "@/utils/image-key";
 import { coverTintClass } from "@/utils/tag-colors";
 
 /**
@@ -31,7 +32,7 @@ export function CoverBand({ coverUrl, seed }: { coverUrl?: string; seed: string 
         <div className={`${BAND} ${coverTintClass(seed)} flex items-end overflow-hidden`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={coverUrl}
+            src={imageSrc(coverUrl)}
             alt=""
             loading="lazy"
             className={`${SPINE} -mb-3 ml-2.5 rotate-[-4deg] object-cover shadow-md md:ml-3.5`}

@@ -8,10 +8,10 @@ import { RecordGate } from "@/components/layout/record-gate";
 import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
 import { DetailField, DetailFields, DetailSection } from "@/components/ui/detail";
+import { Quote } from "@/components/ui/quote";
 import { RelatedNotes } from "@/components/ui/related-notes";
 import { kindHref } from "@/config/kind-routes";
 import { bookHref, quoteEditHref } from "@/config/routes";
-import { QuoteBlock } from "@/features/notes/components/record-items";
 import { useBooks } from "@/hooks/use-books";
 import { useRecords } from "@/hooks/use-records";
 import { useWritings } from "@/hooks/use-writings";
@@ -56,7 +56,8 @@ export function QuoteDetailView() {
         >
           {quote && (
             <div className="flex flex-col gap-6">
-              <QuoteBlock quote={quote} />
+              {/* 出處與想法底下各有自己的欄位，這裡只留句子 */}
+              <Quote text={quote.text} />
 
               <DetailFields>
                 <div>

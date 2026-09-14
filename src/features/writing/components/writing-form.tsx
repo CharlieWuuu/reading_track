@@ -5,6 +5,7 @@ import { SCROLL_BOTTOM } from "@/components/layout/page-body";
 import { Field } from "@/components/ui/field";
 import { FIELD_INPUT_CLASS, FIELD_TEXTAREA_CLASS } from "@/components/ui/field-label";
 import { FormActions } from "@/components/ui/form-actions";
+import { ImageField } from "@/components/ui/image-field";
 import { compactLines } from "@/components/ui/line-list-input";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PrivateToggle } from "@/components/ui/private-toggle";
@@ -207,11 +208,10 @@ export function WritingForm({ entry }: { entry?: Writing }) {
 
             {/* 封面圖，選填——像部落格文章那種示意圖，不跟出處的書籍封面連動 */}
             <div className="col-span-2 sm:col-span-3">
-              <Field
-                label="封面圖網址"
+              <ImageField
+                label="封面圖"
                 value={form.coverUrl}
                 onChange={(v) => set("coverUrl", v)}
-                hideLabel
               />
             </div>
           </div>

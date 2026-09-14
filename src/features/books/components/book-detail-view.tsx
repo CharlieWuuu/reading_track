@@ -10,13 +10,14 @@ import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
 import { DetailField } from "@/components/ui/detail";
 import { NoteBlock } from "@/components/ui/note-block";
+import { Quote } from "@/components/ui/quote";
 import { RelatedNotes } from "@/components/ui/related-notes";
 import { StatusBadge } from "@/components/ui/tag-badge";
 import { kindHref } from "@/config/kind-routes";
 import { PRIVATE_MARK } from "@/config/privacy";
 import { bookEditHref, quotesListHref, vocabularyListHref } from "@/config/routes";
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
-import { QuoteBlock, VocabularyItem } from "@/features/notes/components/record-items";
+import { VocabularyItem } from "@/features/notes/components/record-items";
 import { useBooks } from "@/hooks/use-books";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
@@ -113,7 +114,7 @@ function QuotePreview({ quotes }: { quotes: QuoteRow[] }) {
       <ul className="divide-rule flex flex-col divide-y">
         {preview.map((row) => (
           <li key={row.id} className="py-3 first:pt-0">
-            <QuoteBlock quote={row} />
+            <Quote text={row.text} source={row.chapter} />
           </li>
         ))}
       </ul>

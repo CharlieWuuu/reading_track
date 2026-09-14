@@ -9,6 +9,7 @@ import { cellBorder } from "@/features/calendar/utils/cell-border";
 import { Article } from "@/types/article";
 import { Book } from "@/types/book";
 import { Writing } from "@/types/writing";
+import { imageSrc } from "@/utils/image-key";
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
@@ -86,7 +87,7 @@ function DayDetail({ day }: { day?: CalendarDay }) {
         >
           {b.coverUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={b.coverUrl} alt="" className="rounded-thumb h-9 w-6 object-cover" />
+            <img src={imageSrc(b.coverUrl)} alt="" className="rounded-thumb h-9 w-6 object-cover" />
           ) : (
             <div className="rounded-thumb h-9 w-6 bg-gray-200" />
           )}
@@ -237,7 +238,7 @@ export function MonthGrid({
                     {day.books[0].coverUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={day.books[0].coverUrl}
+                        src={imageSrc(day.books[0].coverUrl)}
                         alt=""
                         className="rounded-thumb h-full w-full object-cover shadow-sm"
                       />
@@ -316,7 +317,7 @@ export function MonthGrid({
                       {day.books[0].coverUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
-                          src={day.books[0].coverUrl}
+                          src={imageSrc(day.books[0].coverUrl)}
                           alt={day.books[0].title}
                           className="rounded-thumb h-12 w-8 object-cover shadow-sm lg:h-14 lg:w-10"
                         />

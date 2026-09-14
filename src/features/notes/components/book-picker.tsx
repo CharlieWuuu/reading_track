@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import { Book } from "@/types/book";
+import { imageSrc } from "@/utils/image-key";
 
 const styles = {
   root: "relative min-w-0",
@@ -81,7 +82,7 @@ export function BookPicker({
               >
                 {b.coverUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={b.coverUrl} alt="" className={styles.cover} />
+                  <img src={imageSrc(b.coverUrl)} alt="" className={styles.cover} />
                 ) : (
                   <div className={styles.blank} />
                 )}

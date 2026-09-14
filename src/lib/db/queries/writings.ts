@@ -26,6 +26,7 @@ const baseSelect = () =>
     .select({
       writing: writings,
       kindName: kinds.name,
+      kindCountUnit: kinds.countUnit,
       kindSlug: kinds.slug,
       workTitle: works.title,
       workKind: sourceKind.name,
@@ -39,6 +40,7 @@ const baseSelect = () =>
 type WritingJoinRow = {
   writing: typeof writings.$inferSelect;
   kindName: string;
+  kindCountUnit: string;
   kindSlug: string;
   workTitle: string | null;
   workKind: string | null;
@@ -59,28 +61,31 @@ async function toWritings(userId: string, rows: WritingJoinRow[]): Promise<Writi
     ),
   ]);
 
-  return rows.map(({ writing, kindName, kindSlug, workTitle, workKind, workCoverUrl }) => {
-    // 畫面上的書籍編號是「某一次讀」，所以指回第一次讀的那個
-    const sourceId = writing.workId ? (firstReading.get(writing.workId) ?? writing.workId) : "";
-    return {
-      id: writing.id,
-      createdAt: writing.createdAt.toISOString(),
-      date: writing.date,
-      title: writing.name,
-      topic: kindName, // 分類已經是 kind，topic 欄留著給篩選與統計沿用同一個名字
-      keywords: keywords.get(writing.id) ?? "",
-      note: writing.body,
-      link: links.get(writing.id) ?? "",
-      sourceTitle: workTitle ?? "",
-      sourceKind: workKind ?? "",
-      kindId: writing.kindId,
-      kindName,
-      kindSlug,
-      sourceId,
-      private: "", // 書寫不帶私人旗標，藏東西一律從主題與類型下手
-      coverUrl: writing.coverUrl || (workCoverUrl ?? ""), // 自己沒填就用出處那本書的封面
-    };
-  });
+  return rows.map(
+    ({ writing, kindName, kindCountUnit, kindSlug, workTitle, workKind, workCoverUrl }) => {
+      // 畫面上的書籍編號是「某一次讀」，所以指回第一次讀的那個
+      const sourceId = writing.workId ? (firstReading.get(writing.workId) ?? writing.workId) : "";
+      return {
+        id: writing.id,
+        createdAt: writing.createdAt.toISOString(),
+        date: writing.date,
+        title: writing.name,
+        topic: kindName, // 分類已經是 kind，topic 欄留著給篩選與統計沿用同一個名字
+        keywords: keywords.get(writing.id) ?? "",
+        note: writing.body,
+        link: links.get(writing.id) ?? "",
+        sourceTitle: workTitle ?? "",
+        sourceKind: workKind ?? "",
+        kindId: writing.kindId,
+        kindName,
+        kindCountUnit,
+        kindSlug,
+        sourceId,
+        private: "", // 書寫不帶私人旗標，藏東西一律從主題與類型下手
+        coverUrl: writing.coverUrl || (workCoverUrl ?? ""), // 自己沒填就用出處那本書的封面
+      };
+    },
+  );
 }
 
 export async function listWritings(userId: string): Promise<Writing[]> {
