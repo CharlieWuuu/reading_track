@@ -8,7 +8,7 @@ import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { getKeywordEntries, KeywordEntry } from "@/features/keywords/utils/keyword-stats";
 import { topicLabel } from "@/features/keywords/utils/topic-labels";
 import { Book } from "@/types/book";
-import { OverviewItem, pickHeadline, topBookSources, topKeywordsFromBooks } from "@/utils/overview";
+import { OverviewItem, pickHeadline, topKeywordsFromBooks } from "@/utils/overview";
 import { tagColorClass } from "@/utils/tag-colors";
 
 const styles = {
@@ -19,10 +19,9 @@ const styles = {
 
 const RAIL_LIST_SIZE = 5;
 
-/** 出處排行：哪本書掛的關鍵字最多；常一起出現：這些書上還掛了哪些別的關鍵字 */
+/** 常一起出現：這些書上還掛了哪些別的關鍵字 */
 function KeywordsRail({ entries, books }: { entries: KeywordEntry[]; books: Book[] }) {
   const bookIds = entries.flatMap((entry) => entry.books.map((book) => book.id));
-  const sources = topBookSources(bookIds, books, "個", RAIL_LIST_SIZE);
 
   const own = new Set(entries.map((entry) => entry.name));
   const related = topKeywordsFromBooks(bookIds, books, "本", RAIL_LIST_SIZE + own.size).filter(
@@ -30,14 +29,11 @@ function KeywordsRail({ entries, books }: { entries: KeywordEntry[]; books: Book
   );
 
   return (
-    <>
-      <OverviewRailList label="出處排行" count={sources.length} items={sources} />
-      <OverviewRailList
-        label="常一起出現的關鍵字"
-        count={related.length}
-        items={related.slice(0, RAIL_LIST_SIZE)}
-      />
-    </>
+    <OverviewRailList
+      label="常一起出現的關鍵字"
+      count={related.length}
+      items={related.slice(0, RAIL_LIST_SIZE)}
+    />
   );
 }
 
@@ -69,7 +65,10 @@ export function KeywordCards({ books }: { books: Book[] }) {
     };
   };
 
-  const items = entries.map(toItem);
+  // getKeywordEntries 照書數排，月份格線要的是日期序；沒建立時間的排最後
+  const items = entries
+    .map(toItem)
+    .sort((a, b) => (b.endDate ?? "").localeCompare(a.endDate ?? ""));
   const headline = pickHeadline(items);
 
   return (

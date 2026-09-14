@@ -38,7 +38,8 @@ export function RecordCard({
 }: RecordCardProps) {
   return (
     <div onClick={onClick} className={styles.card}>
-      <BookCover url={coverUrl} title={title} size="lg" />
+      {/* 沒圖也沒書名時整欄不畫：替代方塊只剩一個破折號，沒資訊還吃掉句子的寬度 */}
+      {(coverUrl || title) && <BookCover url={coverUrl} title={title} size="lg" />}
 
       <div className={styles.body}>
         {(showTitle || meta) && (

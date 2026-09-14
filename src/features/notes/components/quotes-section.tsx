@@ -82,7 +82,7 @@ function QuotesGrid({
             title={record.bookTitle}
             showTitle={false}
             coverUrl={record.bookCover}
-            meta={record.chapter}
+            // 出處不傳：QuoteBlock 自己會把 chapter 畫成署名，傳了會上下各出現一次
             onClick={() => router.push(quoteHref(record.id))}
           >
             <QuoteBlock quote={record} />
