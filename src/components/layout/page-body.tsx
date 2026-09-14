@@ -19,6 +19,12 @@
  * `scroll={false}`：子元件裡有自己的多欄捲動（例如概覽頁的月份格線＋窄欄，
  * 兩欄各捲各的），這裡就只給高度、不搶著當捲動容器，捲軸留給子元件自己開。
  */
+/**
+ * 捲動容器的底部留白。自己開 overflow-y-auto 的元件都要帶上這個——
+ * PageBody 的 padding 在它自己那層，子元件搶去捲的話就落在容器外面沒作用。
+ */
+export const SCROLL_BOTTOM = "pb-6";
+
 export function PageBody({
   children,
   scroll = true,

@@ -10,7 +10,8 @@ import { useKinds } from "@/hooks/use-kinds";
  * 桌機側欄。四個分類各配一條實線小標，底下的類型一行一條細線分隔——
  * 不畫框、不上底色，選中的那一列靠字本身放大變粗表示。
  *
- * 新增的入口在該類型頁面自己的 page header 上，側欄不重複放一個。
+ * 每個 group 標題右邊一顆「＋」：記一筆是隨時想做的事，不該先走到某一頁才找得到。
+ * 手機走底部的類型列（NavKindStrip），同一件事兩邊各給一個入口。
  *
  * 類型全部從資料庫來，網址統一 kindHref(group, slug)。內建類型的專屬頁面
  * 由通用路由內的 variant registry 決定要不要換皮，側欄不用管。
@@ -22,7 +23,8 @@ const styles = {
   frame: "flex h-full shrink-0 gap-6",
   nav: "flex h-full w-[180px] shrink-0 flex-col overflow-y-auto gap-6",
   rule: "bg-shell-rule w-px shrink-0",
-  group: "border-rule-strong border-b-2 pb-1.5",
+  group: "border-rule-strong flex items-baseline justify-between border-b-2 pb-1.5",
+  add: "text-meta text-ink-faint hover:text-ink shrink-0 pl-2",
   groupLabel: "block w-full font-serif text-ui font-semibold tracking-section",
   row: "border-rule-soft flex items-baseline border-b py-[7px] pl-3",
   count: "text-meta text-ink-faint ml-auto pl-2 tabular-nums",
@@ -42,7 +44,7 @@ function NavRow({ type, active, count }: { type: NavType; active: boolean; count
   );
 }
 
-function GroupHeading({ group }: { group: NavGroup }) {
+function GroupHeading({ group, addHref }: { group: NavGroup; addHref?: string }) {
   return (
     <div className={styles.group}>
       {group.href ? (
@@ -51,6 +53,11 @@ function GroupHeading({ group }: { group: NavGroup }) {
         </Link>
       ) : (
         <span className={styles.groupLabel}>{group.label}</span>
+      )}
+      {addHref && (
+        <Link href={addHref} aria-label={`新增${group.label}`} className={styles.add}>
+          ＋
+        </Link>
       )}
     </div>
   );
@@ -86,7 +93,7 @@ export function Sidebar() {
 
           return (
             <div key={group.key}>
-              <GroupHeading group={group} />
+              <GroupHeading group={group} addHref={types[0] && `${types[0].href}/new`} />
               {types.map((type) => (
                 <NavRow
                   key={type.key}

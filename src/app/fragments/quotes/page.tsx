@@ -3,7 +3,6 @@
 import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { BooksGate } from "@/features/books/components/books-gate";
-import { QuickAddRecordButton } from "@/features/notes/components/quick-add-record-button";
 import { QuoteLanguageMenu } from "@/features/notes/components/quote-language-menu";
 import { QuotesSection } from "@/features/notes/components/quotes-section";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
@@ -12,10 +11,7 @@ import { ReadingHeader } from "@/features/reading/components/reading-header";
 export default function QuotesPage() {
   return (
     <Suspense fallback={null}>
-      <ReadingHeader
-        filters={<QuoteLanguageMenu />}
-        newButton={<QuickAddRecordButton kind="quotes" />}
-      />
+      <ReadingHeader filters={<QuoteLanguageMenu />} />
       <PageBody>
         <BooksGate>{(books) => <QuotesSection books={books} />}</BooksGate>
       </PageBody>

@@ -22,6 +22,8 @@ const styles = {
   on: "bg-accent/10 text-accent font-medium",
   off: "text-ink-faint",
   count: "text-meta ml-1 tabular-nums opacity-60",
+  // 新增固定在最右邊，不跟著類型捲走——記一筆是隨時想做的事
+  add: "bg-accent text-ui sticky right-0 ml-auto shrink-0 rounded-full px-3 py-1 font-medium whitespace-nowrap text-white",
 };
 
 export function NavKindStrip() {
@@ -67,6 +69,10 @@ export function NavKindStrip() {
           </Link>
         );
       })}
+      {/* 在某個類型上就新增那一種，在概覽上就新增第一種——不用再選一次要記什麼 */}
+      <Link href={`${kindHref(group, here?.slug ?? rows[0].slug)}/new`} className={styles.add}>
+        ＋ 新增
+      </Link>
     </nav>
   );
 }

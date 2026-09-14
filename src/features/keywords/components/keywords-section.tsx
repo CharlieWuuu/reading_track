@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import { SCROLL_BOTTOM } from "@/components/layout/page-body";
 import { PageMessage } from "@/components/layout/page-message";
 import { Spinner } from "@/components/ui/spinner";
 import { keywordHref } from "@/config/routes";
@@ -31,7 +32,7 @@ const styles = {
   // 地圖自己就是一整面內容，留白只會讓它變小；底圖直接貼到框線
   mapPanel: "flex min-h-0 flex-1 flex-col overflow-hidden rounded-surface border bg-white",
   chart: "min-h-0 flex-1",
-  cards: "min-h-0 flex-1 overflow-y-auto",
+  cards: `min-h-0 flex-1 overflow-y-auto ${SCROLL_BOTTOM}`,
   loading: "flex h-full items-center justify-center text-xs text-gray-400",
 };
 
