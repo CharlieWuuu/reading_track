@@ -61,23 +61,27 @@ async function insertKind(
   // 建了就是在用。目錄一列、「我在用」一列，兩張表一起寫
   await tx.insert(userKinds).values({ userId, kindId: created.id, sortOrder });
 
-  // 認不得的模組丟掉：客戶端不能往資料庫塞任意字串
-  const modules = kind.modules.filter((key) => moduleDef(key));
-  if (modules.length > 0) {
-    const rows = await Promise.all(
-      modules.map(async (key, index) => ({
-        userId,
-        kindId: created.id,
-        fieldKey: key,
-        fieldId: await fieldIdFor(tx, key, kind.labels?.[key] || moduleDef(key)!.label),
-        isVisible: true,
-        sortOrder: index,
-      })),
-    );
-    await tx.insert(mapKindField).values(rows);
-  }
+  await insertFields(tx, userId, created.id, kind);
 
   return created.id;
+}
+
+/** 認不得的模組丟掉：客戶端不能往資料庫塞任意字串 */
+async function insertFields(tx: Tx, userId: string, kindId: string, kind: NewKind): Promise<void> {
+  const modules = kind.modules.filter((key) => moduleDef(key));
+  if (modules.length === 0) return;
+
+  const rows = await Promise.all(
+    modules.map(async (key, index) => ({
+      userId,
+      kindId,
+      fieldKey: key,
+      fieldId: await fieldIdFor(tx, key, kind.labels?.[key] || moduleDef(key)!.label),
+      isVisible: true,
+      sortOrder: index,
+    })),
+  );
+  await tx.insert(mapKindField).values(rows);
 }
 
 const fromTemplate = (template: KindTemplate): NewKind => ({
@@ -126,6 +130,54 @@ export async function addKindFromTemplate(userId: string, template: KindTemplate
  */
 export async function hideKind(userId: string, kindId: string): Promise<void> {
   await db.delete(userKinds).where(and(eq(userKinds.userId, userId), eq(userKinds.kindId, kindId)));
+}
+
+/**
+ * 改一個類型：名字、網址、單位、勾哪些模組。
+ *
+ * 共用列（user_id 是 NULL）不能直接改——那是全體共用的定義，改了會動到別人。
+ * 遇到共用列就先複製一份成自己的，再把「我在用」指過去：對使用者來說就是改了，
+ * 別人看到的還是原本那個。
+ *
+ * 改網址等於改路由，舊連結會失效——這是使用者自己按的，不特別擋。
+ * 紀錄照 kind_id 關聯，不受影響。
+ */
+export async function updateKind(userId: string, kindId: string, patch: NewKind): Promise<string> {
+  const [existing] = await db.select().from(kinds).where(eq(kinds.id, kindId));
+  if (!existing) throw new Error("找不到這個類型");
+
+  if (existing.userId === null) return forkKind(userId, existing, patch);
+
+  return db.transaction(async (tx) => {
+    await tx
+      .update(kinds)
+      .set({ name: patch.name, slug: patch.slug, amountUnit: patch.amountUnit })
+      .where(and(eq(kinds.id, kindId), eq(kinds.userId, userId)));
+
+    await tx.delete(mapKindField).where(eq(mapKindField.kindId, kindId));
+    await insertFields(tx, userId, kindId, patch);
+    return kindId;
+  });
+}
+
+/** 共用類型改成自己的：複製一列、把「我在用」指過去，原本那列留給別人 */
+async function forkKind(
+  userId: string,
+  shared: typeof kinds.$inferSelect,
+  patch: NewKind,
+): Promise<string> {
+  return db.transaction(async (tx) => {
+    const [{ sortOrder }] = await tx
+      .select({ sortOrder: userKinds.sortOrder })
+      .from(userKinds)
+      .where(and(eq(userKinds.userId, userId), eq(userKinds.kindId, shared.id)));
+
+    const created = await insertKind(tx, userId, shared.groupKey as KindGroup, patch, sortOrder);
+    await tx
+      .delete(userKinds)
+      .where(and(eq(userKinds.userId, userId), eq(userKinds.kindId, shared.id)));
+    return created;
+  });
 }
 
 /**

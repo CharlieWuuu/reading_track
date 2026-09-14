@@ -2,6 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { Plus } from "lucide-react";
+import { kindHref } from "@/config/kind-routes";
+import { useKinds } from "@/hooks/use-kinds";
+import { Kind } from "@/lib/db/queries/kinds";
 import { isNavActive, NAV_ITEMS } from "./nav-items";
 
 /**
@@ -13,31 +18,68 @@ import { isNavActive, NAV_ITEMS } from "./nav-items";
 
 export function BottomNav() {
   const pathname = usePathname();
+  const { kinds } = useKinds();
+  const [adding, setAdding] = useState(false);
 
   return (
-    <nav
-      className="border-shell-rule shrink-0 border-t bg-white md:hidden"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-    >
-      <ul className="flex items-stretch">
-        {NAV_ITEMS.map((item) => {
-          const active = isNavActive(item, pathname);
-          return (
-            <li key={item.href} className="flex-1">
-              <Link
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                className={`flex flex-col items-center gap-0.5 px-1 py-2 text-[10px] ${
-                  active ? "text-gray-900" : "text-gray-400"
-                }`}
-              >
-                <item.Icon active={active} />
-                <span className="leading-none">{item.label}</span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
+    <>
+      {adding && <NewRecordSheet kinds={kinds} onClose={() => setAdding(false)} />}
+      <nav
+        className="border-shell-rule shrink-0 border-t bg-white md:hidden"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <ul className="flex items-stretch">
+          {NAV_ITEMS.map((item) => {
+            const active = isNavActive(item, pathname);
+            return (
+              <li key={item.href} className="flex-1">
+                <Link
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`flex flex-col items-center gap-0.5 px-1 py-2 text-[10px] ${
+                    active ? "text-gray-900" : "text-gray-400"
+                  }`}
+                >
+                  <item.Icon active={active} />
+                  <span className="leading-none">{item.label}</span>
+                </Link>
+              </li>
+            );
+          })}
+          {/* 記一筆是隨時想做的事，跟切分類同一排——不做浮在畫面上的圓鈕，那會蓋住內容 */}
+          <li className="flex-1">
+            <button
+              type="button"
+              onClick={() => setAdding(true)}
+              className="text-accent flex w-full flex-col items-center gap-0.5 px-1 py-2 text-[10px]"
+            >
+              <Plus size={20} strokeWidth={1.5} />
+              <span className="leading-none">新增</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </>
+  );
+}
+
+/** 點了新增之後從下面推上來的類型清單：要記什麼在這裡選 */
+function NewRecordSheet({ kinds, onClose }: { kinds: Kind[]; onClose: () => void }) {
+  return (
+    <>
+      <div className="fixed inset-0 z-40 bg-black/20 md:hidden" onClick={onClose} />
+      <div className="border-shell-rule fixed right-0 bottom-0 left-0 z-50 flex max-h-[70vh] flex-col overflow-y-auto rounded-t-2xl border-t bg-white pb-[env(safe-area-inset-bottom)] md:hidden">
+        {kinds.map((kind) => (
+          <Link
+            key={kind.id}
+            href={`${kindHref(kind.group, kind.slug)}/new`}
+            onClick={onClose}
+            className="border-rule text-ui border-b px-4 py-3 last:border-b-0"
+          >
+            {kind.name}
+          </Link>
+        ))}
+      </div>
+    </>
   );
 }

@@ -24,7 +24,7 @@ const styles = {
   groupLabel: "font-serif text-ui tracking-section font-semibold",
   addLink: "text-meta text-ink-faint hover:text-ink",
   row: "border-rule-soft flex items-baseline border-b py-[7px] pl-3",
-  name: "text-ui text-ink-muted truncate",
+  name: "text-ui text-ink-muted hover:text-ink flex-1 truncate text-left",
   count: "text-meta text-ink-faint ml-auto pl-2 tabular-nums",
   // 移除是破壞性的，用紅字；有資料不給按的時候褪掉，不要再喊得那麼大聲
   remove: "text-meta pl-3 text-red-700 hover:text-red-800 disabled:text-ink-faint/40",
@@ -36,6 +36,8 @@ const styles = {
 export function KindPanel() {
   /** 展開中的新增表單屬於哪一個分類，null 就是沒展開 */
   const [adding, setAdding] = useState<KindGroup | null>(null);
+  /** 正在改哪一個類型，null 就是沒在改 */
+  const [editing, setEditing] = useState<string | null>(null);
   const [removing, setRemoving] = useState<string | null>(null);
   const [error, setError] = useState<string>();
   const { kinds, removeKind } = useKinds();
@@ -65,7 +67,10 @@ export function KindPanel() {
               {/* 新增的入口放在各分類自己的標題列上：按哪一顆就知道要加去哪裡 */}
               <button
                 type="button"
-                onClick={() => setAdding(adding === group ? null : group)}
+                onClick={() => {
+                  setAdding(adding === group ? null : group);
+                  setEditing(null);
+                }}
                 className={styles.addLink}
               >
                 {adding === group ? "取消" : "新增"}
@@ -77,21 +82,43 @@ export function KindPanel() {
             )}
 
             {rows.map((kind) => (
-              <div key={kind.id} className={styles.row}>
-                <span className={styles.name}>{kind.name}</span>
-                <span className={styles.count}>
-                  {kind.count.toLocaleString()} {nav.unit}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => remove(kind.id)}
-                  disabled={kind.count > 0 || removing === kind.id}
-                  // 有資料就不給移除：手動記的東西沒有還原路徑，先清空那一步本身就是確認
-                  title={kind.count > 0 ? "還有資料，要先清空才能移除" : undefined}
-                  className={styles.remove}
-                >
-                  移除
-                </button>
+              <div key={kind.id}>
+                <div className={styles.row}>
+                  {/* 名字點下去就是改它：改名、改網址、改勾了哪些模組 */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditing(editing === kind.id ? null : kind.id);
+                      setAdding(null);
+                    }}
+                    className={styles.name}
+                  >
+                    {kind.name}
+                  </button>
+                  <span className={styles.count}>
+                    {kind.count.toLocaleString()} {nav.unit}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => remove(kind.id)}
+                    disabled={kind.count > 0 || removing === kind.id}
+                    // 有資料就不給移除：手動記的東西沒有還原路徑，先清空那一步本身就是確認
+                    title={kind.count > 0 ? "還有資料，要先清空才能移除" : undefined}
+                    className={styles.remove}
+                  >
+                    移除
+                  </button>
+                </div>
+                {editing === kind.id && (
+                  <div className={styles.builder}>
+                    <TypeBuilder
+                      key={kind.id}
+                      group={group}
+                      editing={kind}
+                      onDone={() => setEditing(null)}
+                    />
+                  </div>
+                )}
               </div>
             ))}
 

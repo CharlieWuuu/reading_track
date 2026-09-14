@@ -11,6 +11,7 @@ import { KindTemplate, templatesOf } from "@/config/kind-templates";
 import { MODULES } from "@/config/modules";
 import { KindGroup } from "@/config/record-kinds";
 import { useKinds } from "@/hooks/use-kinds";
+import { Kind } from "@/lib/db/queries/kinds";
 
 /**
  * 新增類型。類型是資料不是程式——勾完就有清單、詳情、表單三頁，不用寫 code。
@@ -108,23 +109,40 @@ function Section({
   );
 }
 
-/** onDone 不給就回上一頁——這支本來是獨立頁，收在面板裡展開時要的是收起來 */
-export function TypeBuilder({ group, onDone }: { group: KindGroup; onDone?: () => void }) {
+/**
+ * 新增或修改一個類型。
+ *
+ * 給了 editing 就是改那一個，帶入它現在的設定；不給就是從空白建一個新的。
+ * onDone 不給就回上一頁——這支本來是獨立頁，收在面板裡展開時要的是收起來。
+ */
+export function TypeBuilder({
+  group,
+  editing,
+  onDone,
+}: {
+  group: KindGroup;
+  editing?: Kind;
+  onDone?: () => void;
+}) {
   const router = useRouter();
   const done = onDone ?? (() => router.back());
-  const { kinds, addKind } = useKinds();
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
-  const [unit, setUnit] = useState("");
-  const [picked, setPicked] = useState<string[]>(["title"]);
-  const [labels, setLabels] = useState<Record<string, string>>({});
+  const { kinds, addKind, editKind } = useKinds();
+  const [name, setName] = useState(editing?.name ?? "");
+  const [slug, setSlug] = useState(editing?.slug ?? "");
+  const [unit, setUnit] = useState(editing?.amountUnit ?? "");
+  const [picked, setPicked] = useState<string[]>(
+    editing ? editing.modules.map((m) => m.key) : ["title"],
+  );
+  const [labels, setLabels] = useState<Record<string, string>>(
+    editing ? Object.fromEntries(editing.modules.map((m) => [m.key, m.label])) : {},
+  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
 
   const toggle = (key: string) =>
     setPicked((keys) => (keys.includes(key) ? keys.filter((k) => k !== key) : [...keys, key]));
 
-  const siblings = kinds.filter((kind) => kind.group === group);
+  const siblings = kinds.filter((kind) => kind.group === group && kind.id !== editing?.id);
   const taken = new Set(siblings.map((kind) => kind.name));
   /** 範本是常駐的：刪掉「書籍」還能再套一次。已經有的就不重複列 */
   const templates = templatesOf(group).filter((template) => !taken.has(template.name));
@@ -140,17 +158,20 @@ export function TypeBuilder({ group, onDone }: { group: KindGroup; onDone?: () =
   async function save() {
     setSaving(true);
     setError(undefined);
+    const values = {
+      name: name.trim(),
+      slug: slug.trim(),
+      modules: picked,
+      amountUnit: unit.trim(),
+      labels,
+    };
+
     try {
-      await addKind(group, {
-        name: name.trim(),
-        slug: slug.trim(),
-        modules: picked,
-        amountUnit: unit.trim(),
-        labels,
-      });
+      if (editing) await editKind(editing.id, values);
+      else await addKind(group, values);
       done();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "新增類型失敗");
+      setError(err instanceof Error ? err.message : editing ? "儲存失敗" : "新增類型失敗");
       setSaving(false);
     }
   }
