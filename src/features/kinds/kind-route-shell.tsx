@@ -16,6 +16,7 @@ import { groupBasePath, kindHref } from "@/config/kind-routes";
 import { NAV_GROUPS, unitOfGroup } from "@/config/nav";
 import { KindGroup } from "@/config/record-kinds";
 import { variantFor } from "@/features/kinds/variant-registry";
+import { ModuleDetail } from "@/features/overview/components/module-detail";
 import { ModuleForm } from "@/features/overview/components/module-form";
 import { useCatalogRecord } from "@/hooks/use-catalog-record";
 import { useKindRecords } from "@/hooks/use-kind-records";
@@ -237,6 +238,53 @@ export function KindRecordPage({
           <PageLoading />
         ) : Detail ? (
           <Detail kind={kind} recordId={recordId} />
+        ) : (
+          <ModuleDetail kind={kind} recordId={recordId} values={record.values} />
+        )}
+      </PageBody>
+    </>
+  );
+}
+
+/**
+ * 一筆紀錄的編輯頁。詳情頁按了「編輯」才會到這裡——看跟改是兩件事，
+ * 點進一筆不該直接掉進表單。
+ */
+export function KindEditPage({
+  group,
+  slug,
+  recordId,
+}: {
+  group: KindGroup;
+  slug: string;
+  recordId: string;
+}) {
+  const { kind, isLoading: kindLoading } = useKindBySlug(group, slug);
+  const { record, isLoading: recordLoading, error } = useCatalogRecord(recordId);
+  const Form = kind ? variantFor(kind.slug).form : undefined;
+  const isLoading = kindLoading || recordLoading;
+  const groupLabel = NAV_GROUPS.find((g) => g.kindGroup === group)?.label;
+  const back = `${kindHref(group, slug)}/${recordId}`;
+
+  return (
+    <>
+      <PageHeader
+        title="編輯"
+        size="compact"
+        parent={
+          kind && [
+            { label: groupLabel ?? "", href: groupBasePath(group) },
+            { label: kind.name, href: kindHref(group, slug) },
+            { label: record?.values.title ?? "", href: back },
+          ]
+        }
+        backHref={back}
+      />
+      <PageBody>
+        {error ? (
+          <PageMessage tone="error">{error}</PageMessage>
+        ) : isLoading || !kind || !record ? (
+          <PageLoading />
         ) : Form ? (
           <Form kind={kind} recordId={recordId} initial={record.values} />
         ) : (
