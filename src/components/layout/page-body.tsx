@@ -25,6 +25,9 @@
  */
 export const SCROLL_BOTTOM = "pb-6";
 
+/** 只有桌機才自己捲的那幾個（表單、清單）：手機跟著整頁捲，留白歸 PageBody */
+export const SCROLL_BOTTOM_MD = "md:pb-6";
+
 export function PageBody({
   children,
   scroll = true,
@@ -34,7 +37,7 @@ export function PageBody({
 }) {
   return (
     <div
-      className={`-mx-1 flex min-h-0 flex-1 flex-col gap-3 px-1 md:gap-5 ${scroll ? "overflow-y-auto pb-6" : "overflow-hidden"}`}
+      className={`-mx-1 flex min-h-0 flex-1 flex-col gap-3 px-1 md:gap-5 ${scroll ? `overflow-y-auto ${SCROLL_BOTTOM}` : "overflow-hidden"}`}
     >
       {children}
     </div>

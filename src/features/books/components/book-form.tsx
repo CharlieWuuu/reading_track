@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SCROLL_BOTTOM_MD } from "@/components/layout/page-body";
 import { FormActions } from "@/components/ui/form-actions";
 import { kindHref } from "@/config/kind-routes";
 import { bookEditHref, bookHref } from "@/config/routes";
@@ -138,7 +139,9 @@ export function BookForm({
       )}
 
       {/* 桌機在這層捲，手機不自己捲，跟著整頁捲 */}
-      <div className="flex flex-col gap-10 md:min-h-0 md:flex-1 md:overflow-y-auto">
+      <div
+        className={`flex flex-col gap-10 md:min-h-0 md:flex-1 md:overflow-y-auto ${SCROLL_BOTTOM_MD}`}
+      >
         <BookFieldsPanel
           form={form}
           set={(key, value) => set(key as keyof FormState, value)}
