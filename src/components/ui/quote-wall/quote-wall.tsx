@@ -5,15 +5,17 @@ import { FragmentRow } from "@/lib/db/queries/catalog";
  * 佳句牆。一句一列，不切兩欄。
  *
  * 佳句是句子不是卡片：切成兩欄的格子，長句會被擠成一行三四個字，
- * 讀起來像被切斷。整行寬度讓它照原本的斷句排，出處靠右當署名——
- * 跟書籍頁的 QuoteBlock 同一套版式。
+ * 讀起來像被切斷。整行寬度讓它照原本的斷句排。
+ *
+ * 左邊一條灰線、襯線字縮排，出處靠右加破折號當署名——照書裡的樣子排，
+ * 這是 RecordItems.QuoteBlock（7a2af24）原本的長相。
  */
 
 const styles = {
   wall: "flex flex-col",
-  row: "border-rule flex flex-col gap-1.5 border-b py-4 first:pt-0 last:border-b-0",
-  text: "font-serif text-[15px] leading-relaxed whitespace-pre-wrap text-gray-800 md:text-base",
-  meta: "text-meta text-ink-faint truncate",
+  row: "flex flex-col gap-1.5 py-4 first:pt-0",
+  text: "border-l-2 border-gray-300 pl-4 font-serif text-[15px] leading-relaxed whitespace-pre-wrap text-gray-800 md:text-base",
+  meta: "text-meta text-ink-faint truncate pl-4 text-right",
 };
 
 const source = (row: FragmentRow) => [row.workTitle, row.locator].filter(Boolean).join("・");
@@ -30,7 +32,7 @@ export function QuoteWall({
       {rows.map((row) => (
         <Link key={row.id} href={hrefOf(row)} className={styles.row}>
           <blockquote className={styles.text}>{row.body || row.name}</blockquote>
-          {source(row) && <p className={styles.meta}>{source(row)}</p>}
+          {source(row) && <p className={styles.meta}>— {source(row)}</p>}
         </Link>
       ))}
     </div>
