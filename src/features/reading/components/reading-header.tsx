@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { SearchBar } from "@/components/ui/search-bar";
 import { kindGroupSlugFromPath } from "@/config/kind-routes";
 import { NAV_GROUPS } from "@/config/nav";
-import { READING_TABS, ReadingTab, readingTabHref } from "@/config/tabs";
+import { READING_TABS, ReadingTab } from "@/config/tabs";
 import { useUrlParams } from "@/hooks/use-url-param";
 
 /**

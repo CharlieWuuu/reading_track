@@ -34,7 +34,6 @@ export function PrivacyButton() {
   const [passcode, setPasscode] = useState("");
   const [current, setCurrent] = useState("");
   const [setting, setSetting] = useState(false);
-  const [noPasscode, setNoPasscode] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -46,7 +45,6 @@ export function PrivacyButton() {
     setCurrent("");
     setError("");
     setSetting(false);
-    setNoPasscode(false);
   }
 
   async function handleLock() {
@@ -74,7 +72,6 @@ export function PrivacyButton() {
     } catch (err) {
       // 這台資料庫還沒有密碼：切到設定模式，不要說「密碼不對」——那是假的
       if ((err as { noPasscode?: boolean }).noPasscode) {
-        setNoPasscode(true);
         setSetting(true);
       }
       setError(err instanceof Error ? err.message : "解鎖失敗");
