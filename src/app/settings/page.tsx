@@ -9,11 +9,13 @@ import { styles as controlStyles } from "@/components/ui/controls/styles";
 import { AccountPanel } from "@/features/settings/components/account-panel";
 import { CategoryManager } from "@/features/settings/components/category-manager";
 import { KindPanel } from "@/features/settings/components/kind-panel";
+import { StatsTypeCards } from "@/features/stats/components/stats-type-cards";
 import { useUrlParams } from "@/hooks/use-url-param";
 
 const TABS = [
   { key: "categories", label: "分類選項" },
   { key: "kinds", label: "類型" },
+  { key: "stats", label: "統計" },
   { key: "account", label: "帳號" },
 ] as const;
 
@@ -82,6 +84,7 @@ function Settings() {
         <div className={`shrink-0 md:min-h-0 md:flex-1 md:overflow-y-auto ${SCROLL_BOTTOM}`}>
           {tab === "categories" && <CategoryManager />}
           {tab === "kinds" && <KindPanel />}
+          {tab === "stats" && <StatsTypeCards />}
           {tab === "account" && <AccountPanel />}
         </div>
       </PageBody>

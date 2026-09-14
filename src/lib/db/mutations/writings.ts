@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { and, eq, isNull, or } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db/client";
 import { kinds } from "@/lib/db/schema/kinds";
@@ -85,9 +86,12 @@ export async function addWritingFromValues(
   kindId: string,
   values: Record<string, string>,
 ): Promise<string> {
+  // id 自己產：這張表的欄位沒有 default，靠資料庫給會撞 not-null（舊的 addWritingRow 也是自己帶）
+  const id = randomUUID();
   const [row] = await db
     .insert(writings)
     .values({
+      id,
       userId,
       kindId,
       name: values.title ?? "",

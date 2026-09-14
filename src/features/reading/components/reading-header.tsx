@@ -1,9 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Plus } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
-import { ActionButton } from "@/components/ui/controls";
 import { SearchBar } from "@/components/ui/search-bar";
 import { kindGroupSlugFromPath } from "@/config/kind-routes";
 import { NAV_GROUPS } from "@/config/nav";
@@ -24,11 +22,6 @@ import { useUrlParams } from "@/hooks/use-url-param";
  */
 
 /** 佳句單字關鍵字是從書裡摘出來的，不單獨新增 */
-const NEW_HREF: Partial<Record<ReadingTab, string>> = {
-  books: `${readingTabHref("books")}/new`,
-  articles: `${readingTabHref("articles")}/new`,
-};
-
 type ReadingHeaderProps = {
   /** 搜尋框右邊、views 左邊的插槽——表格才有意義的操作放這裡（BookEditModeButton） */
   beforeViews?: React.ReactNode;
@@ -36,19 +29,11 @@ type ReadingHeaderProps = {
   views?: React.ReactNode;
   /** 這一頁有東西可以篩的時候放進來（BookStatusMenu） */
   filters?: React.ReactNode;
-  /** 新增不是換頁而是跳彈窗的那幾頁，自己把按鈕傳進來 */
-  newButton?: React.ReactNode;
   /** 標題旁邊那行小字，各頁自己算好傳進來（例如書籍頁的「312 本・在讀 3」） */
   meta?: React.ReactNode;
 };
 
-export function ReadingHeader({
-  beforeViews,
-  views,
-  filters,
-  newButton,
-  meta,
-}: ReadingHeaderProps = {}) {
+export function ReadingHeader({ beforeViews, views, filters, meta }: ReadingHeaderProps = {}) {
   const pathname = usePathname();
   // 在哪一個分頁看網址就知道，不用各頁再傳一次——收斂過的類型看 [slug]，其餘看 /reading/<tab>
   const segment = kindGroupSlugFromPath(pathname)?.slug ?? pathname.split("/")[2];
@@ -56,7 +41,6 @@ export function ReadingHeader({
   const { searchParams, setParams } = useUrlParams();
   const query = searchParams.get("q") ?? "";
 
-  const newHref = NEW_HREF[current];
   const currentTab = READING_TABS.find((tab) => tab.key === current);
   // 麵包屑：這個分頁掛在側欄哪個 group 底下，字跟側欄同一份設定，不重複維護
   const parent = NAV_GROUPS.find((group) => group.kindGroup === currentTab?.group)?.label;
@@ -72,13 +56,6 @@ export function ReadingHeader({
           {beforeViews}
           {views}
           {filters}
-          {/* 按鈕只放一個加號：旁邊的類型已經說了現在在看書籍還是文章 */}
-          {newButton ??
-            (newHref && (
-              <ActionButton href={newHref} label="新增" text="新增">
-                <Plus size={16} strokeWidth={2} aria-hidden />
-              </ActionButton>
-            ))}
         </div>
       }
     />
