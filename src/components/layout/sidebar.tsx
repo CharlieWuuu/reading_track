@@ -2,16 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { Plus } from "lucide-react";
 import { kindGroupSlugFromPath, kindHref } from "@/config/kind-routes";
 import { activeNavKey, NAV_GROUPS, NavGroup, NavType } from "@/config/nav";
 import { useKinds } from "@/hooks/use-kinds";
+import { Kind } from "@/lib/db/queries/kinds";
 
 /**
  * 桌機側欄。四個分類各配一條實線小標，底下的類型一行一條細線分隔——
  * 不畫框、不上底色，選中的那一列靠字本身放大變粗表示。
  *
- * 每個 group 標題右邊一顆「＋」：記一筆是隨時想做的事，不該先走到某一頁才找得到。
- * 手機走底部的類型列（NavKindStrip），同一件事兩邊各給一個入口。
+ * 三個 group 底下一顆「新增」：記一筆是隨時想做的事，不該先走到某一頁才找得到。
+ * 點了展開全部類型，選一種就進那一種的新增頁——入口只有一個，要記什麼在裡面選。
  *
  * 類型全部從資料庫來，網址統一 kindHref(group, slug)。內建類型的專屬頁面
  * 由通用路由內的 variant registry 決定要不要換皮，側欄不用管。
@@ -24,7 +27,10 @@ const styles = {
   nav: "flex h-full w-[180px] shrink-0 flex-col overflow-y-auto gap-6",
   rule: "bg-shell-rule w-px shrink-0",
   group: "border-rule-strong flex items-baseline justify-between border-b-2 pb-1.5",
-  add: "text-meta text-ink-faint hover:text-ink shrink-0 pl-2",
+  newButton:
+    "rounded-control border-rule text-ui mt-2 flex items-center justify-center gap-1 border border-dashed py-2 text-ink-muted hover:bg-gray-50",
+  newList: "flex flex-col gap-0.5 pt-1",
+  newItem: "text-ui text-ink-muted hover:text-ink py-1 pl-3 text-left",
   groupLabel: "block w-full font-serif text-ui font-semibold tracking-section",
   row: "border-rule-soft flex items-baseline border-b py-[7px] pl-3",
   count: "text-meta text-ink-faint ml-auto pl-2 tabular-nums",
@@ -58,7 +64,7 @@ function NavRow({
   );
 }
 
-function GroupHeading({ group, addHref }: { group: NavGroup; addHref?: string }) {
+function GroupHeading({ group }: { group: NavGroup }) {
   return (
     <div className={styles.group}>
       {group.href ? (
@@ -68,10 +74,35 @@ function GroupHeading({ group, addHref }: { group: NavGroup; addHref?: string })
       ) : (
         <span className={styles.groupLabel}>{group.label}</span>
       )}
-      {addHref && (
-        <Link href={addHref} aria-label={`新增${group.label}`} className={styles.add}>
-          ＋
-        </Link>
+    </div>
+  );
+}
+
+/** 一顆新增：點了列出全部類型，選一種進那一種的新增頁 */
+function NewRecordLink({ kinds }: { kinds: Kind[] }) {
+  const [open, setOpen] = useState(false);
+
+  if (kinds.length === 0) return null;
+
+  return (
+    <div>
+      <button type="button" onClick={() => setOpen(!open)} className={styles.newButton}>
+        <Plus size={14} strokeWidth={2} aria-hidden />
+        新增
+      </button>
+      {open && (
+        <div className={styles.newList}>
+          {kinds.map((kind) => (
+            <Link
+              key={kind.id}
+              href={`${kindHref(kind.group, kind.slug)}/new`}
+              onClick={() => setOpen(false)}
+              className={styles.newItem}
+            >
+              {kind.name}
+            </Link>
+          ))}
+        </div>
       )}
     </div>
   );
@@ -106,7 +137,7 @@ export function Sidebar() {
 
           return (
             <div key={group.key}>
-              <GroupHeading group={group} addHref={types[0] && `${types[0].href}/new`} />
+              <GroupHeading group={group} />
               {types.map((type) => (
                 <NavRow
                   key={type.key}
@@ -119,6 +150,7 @@ export function Sidebar() {
             </div>
           );
         })}
+        <NewRecordLink kinds={kinds} />
       </nav>
       <div className={styles.rule} />
     </div>
