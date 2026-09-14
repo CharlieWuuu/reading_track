@@ -11,6 +11,7 @@ import { useAutoSave } from "@/hooks/use-auto-save";
 import { useContentLinks } from "@/hooks/use-content-links";
 import { Kind } from "@/lib/db/queries/kinds";
 import { scrapeUrl } from "@/lib/scrape-url";
+import type { Linkable } from "@/types/record";
 import { fieldsOf, FormModule, resolveFormModules } from "@/utils/record-form";
 
 /**
@@ -149,7 +150,12 @@ export function ModuleForm({
         { values: payload },
         "新增失敗",
       );
-      if (data.id) setSavedId(data.id); // ref 改了不會重繪，連結欄要等這個才出現
+      // 自動存檔先建了那筆，選好的關聯這時就補得上去，不用等按儲存
+      if (data.id) {
+        await flushPending(data.id);
+        setPending([]);
+        setSavedId(data.id);
+      }
       return data.id; // 編號由伺服器產，回傳給 hook 記住
     },
     update: (id, payload) =>
@@ -162,6 +168,7 @@ export function ModuleForm({
     try {
       const data = await request(url, method, body, fallback);
       autoSave.markSaved(values, data.id);
+      if (data.id) await flushPending(data.id);
       // 直接開網址進來時沒有上一格可退，回這一種的清單
       if (window.history.length > 1) router.back();
       else router.replace(kindHref(kind.group, kind.slug));
@@ -183,9 +190,31 @@ export function ModuleForm({
     return send(`/api/catalog/${recordId}`, "DELETE", {}, "刪除失敗");
   };
 
-  // 編輯時就是這一筆；新增時等自動存檔給了編號才連得起來
+  /**
+   * 站內關聯要有編號才存得起來，但新增中的那筆還沒有。
+   *
+   * 所以先收在這裡，等存檔拿到編號再一次送出——選的當下就看得到，
+   * 不用先存一次再回來連。已經有編號的（編輯、或自動存檔給過了）直接走 hook。
+   */
   const linkId = recordId || savedId;
-  const { linked, link, unlink } = useContentLinks(linkId || null);
+  const remote = useContentLinks(linkId || null);
+  const [pending, setPending] = useState<Linkable[]>([]);
+
+  const linked = linkId ? remote.linked : pending;
+  const link = (item: Linkable) =>
+    linkId ? remote.link(item) : setPending((items) => [...items, item]);
+  const unlink = (itemId: string) =>
+    linkId ? remote.unlink(itemId) : setPending((items) => items.filter((i) => i.id !== itemId));
+
+  /** 新建的那筆拿到編號了，把選好的關聯補上去 */
+  async function flushPending(id: string) {
+    if (pending.length === 0) return;
+    await fetch(`/api/links/${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ otherIds: pending.map((item) => item.id) }),
+    });
+  }
 
   return (
     <form
@@ -207,21 +236,15 @@ export function ModuleForm({
       {fetching && <p className="text-xs text-gray-500">抓取中…</p>}
       {!fetching && fetchNote && <p className="text-xs text-gray-500">{fetchNote}</p>}
 
-      {/* 站內關聯跟書籍表單同一套。新增時要先有編號才連得起來——自動存檔會給，
-          所以這裡等 linkId 出現再畫，不是永遠不給自訂類型用 */}
-      {linkId ? (
-        <ContentLinkInput
-          label="站內關聯"
-          excludeId={linkId}
-          linked={linked}
-          onLink={link}
-          onUnlink={unlink}
-        />
-      ) : (
-        <p className="rounded-control border-rule text-meta text-ink-faint border border-dashed px-3 py-2">
-          先填標題，存過一次之後才連得起來
-        </p>
-      )}
+      {/* 站內關聯跟書籍表單同一套。新增時還沒有編號，選的先收在 pending，存檔後補上 */}
+      <ContentLinkInput
+        label="站內關聯"
+        excludeId={linkId || undefined}
+        linked={linked}
+        onLink={link}
+        onUnlink={unlink}
+      />
+
       <FormActions
         saving={saving}
         onCancel={() => router.back()}
