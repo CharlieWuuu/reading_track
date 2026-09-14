@@ -24,6 +24,8 @@ export type Kind = {
   group: KindGroup;
   sortOrder: number;
   amountUnit: string;
+  /** 個數的單位。空字串代表沒指定，顯示時退回「筆」 */
+  countUnit: string;
   /** 底下有幾筆。側欄用它決定要不要列 */
   count: number;
   /** 勾了哪些模組，以及它們在這個類型叫什麼。交給 resolveFormModules */
@@ -103,6 +105,7 @@ export async function listKinds(userId: string): Promise<Kind[]> {
     slug: kind.slug,
     group: kind.groupKey as KindGroup,
     amountUnit: kind.amountUnit,
+    countUnit: kind.countUnit,
     count: counts.get(kind.id) ?? 0,
     sortOrder,
     modules: (fieldsByKind.get(kind.id) ?? [])

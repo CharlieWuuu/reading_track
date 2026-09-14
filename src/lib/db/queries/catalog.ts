@@ -27,6 +27,8 @@ export type RecordRow = {
   statusKey: string;
   kindId: string;
   kindName: string;
+  /** 個數單位，空的就退回「筆」 */
+  kindCountUnit: string;
   kindGroup: KindGroup;
   kindSlug: string;
   startDate: string | null;
@@ -55,6 +57,7 @@ const toRecordRow = ({
   statusKey: inferStatusKey(record.startDate, record.endDate),
   kindId: kind.id,
   kindName: kind.name,
+  kindCountUnit: kind.countUnit,
   kindGroup: kind.groupKey as KindGroup,
   kindSlug: kind.slug,
   startDate: record.startDate,
@@ -176,6 +179,8 @@ export type FragmentRow = {
   id: string;
   kindId: string;
   kindName: string;
+  /** 個數單位，空的就退回「筆」 */
+  kindCountUnit: string;
   kindGroup: KindGroup;
   kindSlug: string;
   workId: string | null;
@@ -217,6 +222,7 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
       id: fragment.id,
       kindId: kind.id,
       kindName: kind.name,
+      kindCountUnit: kind.countUnit,
       kindGroup: kind.groupKey as KindGroup,
       kindSlug: kind.slug,
       workId: work?.id ?? null,
@@ -256,6 +262,7 @@ export async function listFragmentsByKind(userId: string, kindId: string): Promi
       id: fragment.id,
       kindId: kind.id,
       kindName: kind.name,
+      kindCountUnit: kind.countUnit,
       kindGroup: kind.groupKey as KindGroup,
       kindSlug: kind.slug,
       workId: work?.id ?? null,
@@ -291,6 +298,7 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       id: writing.id,
       kindId: writing.kindId,
       kindName: writing.kindName,
+      kindCountUnit: writing.kindCountUnit,
       kindGroup: "writings" as const,
       kindSlug: writing.kindSlug,
       workId: writing.sourceId || null,

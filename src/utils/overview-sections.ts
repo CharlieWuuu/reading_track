@@ -14,6 +14,8 @@ export type KindSection = {
   slug: string;
   name: string;
   total: number;
+  /** 這個類型的個數單位，空的就退回「筆」 */
+  countUnit: string;
   rows: FragmentRow[];
 };
 
@@ -32,6 +34,7 @@ export function sectionsByKind(
     const section = acc.get(row.kindSlug) ?? {
       slug: row.kindSlug,
       name: row.kindName,
+      countUnit: row.kindCountUnit,
       total: 0,
       rows: [] as FragmentRow[],
     };

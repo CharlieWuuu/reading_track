@@ -33,6 +33,8 @@ export interface Writing {
   /** 這則自己的類型。書寫 group 底下不只「書寫」一種，範本庫還有論述、每日計畫 */
   kindId: string;
   kindName: string;
+  /** 個數單位，空的就退回「筆」 */
+  kindCountUnit: string;
   kindSlug: string;
   /** 同一件事給程式看的那一份；空白代表不是從系統裡的紀錄延伸來的 */
   sourceId: string;

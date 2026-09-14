@@ -52,9 +52,19 @@ export const NAV_GROUPS: NavGroup[] = [
   },
 ];
 
-/** 這個 group 的數量單位。不認得的（統計那種沒有 kindGroup 的）一律「筆」 */
+/** 沒有指定單位時就是這個 */
+export const DEFAULT_UNIT = "筆";
+
+/**
+ * 混排多個類型時的單位（首頁那三欄、範圍報告）。
+ * 單一類型有自己的 countUnit，走 unitOfKind。
+ */
 export const unitOfGroup = (group: KindGroup): string =>
-  NAV_GROUPS.find((nav) => nav.kindGroup === group)?.unit ?? "筆";
+  NAV_GROUPS.find((nav) => nav.kindGroup === group)?.unit ?? DEFAULT_UNIT;
+
+/** 這個類型的個數單位。資料庫沒填就是「筆」 */
+export const unitOfKind = (kind: { countUnit?: string }): string =>
+  kind.countUnit?.trim() || DEFAULT_UNIT;
 
 /**
  * 報頭右側的工具區。統計與設定不是內容類型，不跟三個 group 並列——
