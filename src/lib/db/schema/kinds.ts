@@ -8,9 +8,8 @@ import { users } from "./users";
  * 舊的作法是類型＝表名，所以多一種就要開表、寫 query、寫頁面，側欄那幾列才會寫死。
  * 這裡把類型降成資料，使用者自己新增一種也走同一條路，沒有二等公民。
  *
- * user_id 可空：NULL 代表系統預設的類型，不是哪個使用者自己建的。
- * 目前每個使用者開帳號時還是各自 seed 一份帶 user_id 的，這個欄位先放寬，
- * 真的共用一份預設列是之後的事。
+ * user_id 是「誰建的」，NULL 代表系統預設。「誰在用」是另一回事，
+ * 記在 setting_user_kinds——所以預設類型也能關掉，不影響其他人。
  *
  * 注意跟 topics 不是同一層：那張是主題樹（文學、歷史），這張是「這是哪一種東西」。
  */
@@ -26,13 +25,38 @@ export const kinds = pgTable(
     groupKey: text("group_key").notNull(),
     /** 量的單位：頁、分鐘、字。統計讀「量＋單位」自己長句子，加類型不用改統計 */
     amountUnit: text("amount_unit").notNull().default(""),
-    /** 側欄與篩選器的排列順序 */
+    /** @deprecated 排序搬到 setting_user_kinds 了——共用列上調順序會動到所有人。查詢全切過去後刪掉 */
     sortOrder: integer("sort_order").notNull().default(0),
   },
   (t) => [
     unique().on(t.userId, t.groupKey, t.name), // 同一個 group 底下名字不重複
     unique().on(t.userId, t.groupKey, t.slug), // 網址也不重複
   ],
+);
+
+/**
+ * 這個使用者在用哪些類型，以及自己排的順序。
+ *
+ * setting_kinds 是目錄——書籍、文章、電影長什麼樣，全站共用一份定義。
+ * 「我在用哪幾種」「側欄要照什麼順序排」是各人的事，記在這裡。
+ *
+ * 分開的理由是刪除：把「書籍」關掉只是從這張表移掉一列，目錄那份定義不動，
+ * 也不影響別人。想再用就插回來，刪除永遠可逆。
+ *
+ * sort_order 也在這裡不在 setting_kinds：那張是共用的，一個人調順序會動到所有人。
+ */
+export const userKinds = pgTable(
+  "setting_user_kinds",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    kindId: uuid("kind_id")
+      .notNull()
+      .references(() => kinds.id, { onDelete: "cascade" }),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [unique().on(t.userId, t.kindId)], // 同一種類型不會用兩次
 );
 
 /**

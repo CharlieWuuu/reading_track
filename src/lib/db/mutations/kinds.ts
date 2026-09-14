@@ -1,10 +1,10 @@
-import { and, desc, eq, isNull, or } from "drizzle-orm";
-import { KindTemplate } from "@/config/kind-templates";
+import { and, asc, desc, eq, inArray, isNull } from "drizzle-orm";
+import { KindTemplate, STARTER_KEYS } from "@/config/kind-templates";
 import { moduleDef } from "@/config/modules";
 import { KindGroup } from "@/config/record-kinds";
 import { db, type Tx } from "@/lib/db/client";
 import { fields } from "@/lib/db/schema/fields";
-import { kinds, mapKindField } from "@/lib/db/schema/kinds";
+import { kinds, mapKindField, userKinds } from "@/lib/db/schema/kinds";
 
 /**
  * 類型的寫入。
@@ -58,6 +58,9 @@ async function insertKind(
     })
     .returning({ id: kinds.id });
 
+  // 建了就是在用。目錄一列、「我在用」一列，兩張表一起寫
+  await tx.insert(userKinds).values({ userId, kindId: created.id, sortOrder });
+
   // 認不得的模組丟掉：客戶端不能往資料庫塞任意字串
   const modules = kind.modules.filter((key) => moduleDef(key));
   if (modules.length > 0) {
@@ -85,13 +88,14 @@ const fromTemplate = (template: KindTemplate): NewKind => ({
   labels: template.labels,
 });
 
-/** 排在同一個 group 的最後面，含系統預設的類型一起排 */
+/** 排在同一個 group 的最後面。順序是各人的事，只看自己在用的那幾種 */
 async function nextSortOrder(tx: Tx, userId: string, group: KindGroup): Promise<number> {
   const [last] = await tx
-    .select({ sortOrder: kinds.sortOrder })
-    .from(kinds)
-    .where(and(or(eq(kinds.userId, userId), isNull(kinds.userId)), eq(kinds.groupKey, group)))
-    .orderBy(desc(kinds.sortOrder))
+    .select({ sortOrder: userKinds.sortOrder })
+    .from(userKinds)
+    .innerJoin(kinds, eq(kinds.id, userKinds.kindId))
+    .where(and(eq(userKinds.userId, userId), eq(kinds.groupKey, group)))
+    .orderBy(desc(userKinds.sortOrder))
     .limit(1);
   return (last?.sortOrder ?? -1) + 1;
 }
@@ -108,10 +112,39 @@ export async function addKindFromTemplate(userId: string, template: KindTemplate
 }
 
 /**
- * 開帳號時先給的那幾種。書籍、文章、佳句、單字、關鍵字、書寫這六種現在是
- * 系統共用的（user_id 是 NULL），全體使用者本來就看得到，不用再各自建一份——
- * 所以這支現在什麼都不用做，留著只是呼叫端還在用，回傳 0 代表沒新增任何東西。
+ * 關掉一個類型：從 setting_user_kinds 移掉那一列。
+ *
+ * 目錄（setting_kinds）與它的欄位設定都不動——預設類型是共用的，刪了會動到別人；
+ * 自訂類型留著也不佔什麼，想再打開就插回來。這樣刪除永遠可逆。
+ *
+ * 底下還有資料就不給關：這些資料是一筆一筆手動記的，沒有還原路徑。
+ * 想清掉就先把資料刪光，那一步本身就是確認。
  */
-export async function seedKinds(_userId: string): Promise<number> {
-  return 0;
+export async function hideKind(userId: string, kindId: string): Promise<void> {
+  await db.delete(userKinds).where(and(eq(userKinds.userId, userId), eq(userKinds.kindId, kindId)));
+}
+
+/**
+ * 開帳號時先給的那幾種。
+ *
+ * 類型的定義是共用目錄（user_id 是 NULL 那幾列），不用各自建一份；要給的是
+ * 「我在用哪些」——沒有這幾列，新帳號登進來會是一片空白。
+ *
+ * 只認 STARTER_KEYS：範本庫裡還有電影、Podcast、線上課程，那些要用再自己套。
+ */
+export async function seedKinds(userId: string): Promise<number> {
+  const starters = await db
+    .select({ id: kinds.id })
+    .from(kinds)
+    .where(and(isNull(kinds.userId), inArray(kinds.slug, [...STARTER_KEYS])))
+    .orderBy(asc(kinds.sortOrder));
+
+  if (starters.length === 0) return 0;
+
+  await db
+    .insert(userKinds)
+    .values(starters.map((kind, index) => ({ userId, kindId: kind.id, sortOrder: index })))
+    .onConflictDoNothing();
+
+  return starters.length;
 }

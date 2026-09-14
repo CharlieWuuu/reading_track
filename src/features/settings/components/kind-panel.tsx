@@ -7,10 +7,13 @@ import { TypeBuilder } from "@/features/settings/components/type-builder";
 import { useKinds } from "@/hooks/use-kinds";
 
 /**
- * 新增類型。原本掛在三個概覽頁的頁首上（/records/new-kind 那三條），
- * 但新增一種類型是設定，不是記一筆東西——放在頁首會跟「新增一筆紀錄」混淆。
+ * 類型的增減。原本掛在三個概覽頁的頁首上（/records/new-kind 那三條），
+ * 但增減類型是設定，不是記一筆東西——放在頁首會跟「新增一筆紀錄」混淆。
  *
- * 先選要加在哪一個分類，再填內容；分類固定三個，不會有第四個。
+ * 先選哪一個 group，再看它底下有哪幾種、要不要移除，最後才是新增。
+ * group 固定三個，不會有第四個。
+ *
+ * 移除只是關掉：預設與自訂一視同仁，資料與定義都不動，想再用就重新加回來。
  */
 
 const styles = {
@@ -19,13 +22,33 @@ const styles = {
   tab: "text-ui py-1",
   active: "font-serif text-ink font-semibold",
   idle: "text-ink-muted hover:text-ink",
-  existing: "text-meta text-ink-faint",
+  list: "border-rule flex flex-col border-t",
+  item: "border-rule flex items-baseline gap-3 border-b py-2",
+  name: "text-ui flex-1",
+  count: "text-meta text-ink-faint tabular-nums",
+  remove:
+    "text-meta text-ink-faint hover:text-ink disabled:text-ink-faint/40 disabled:hover:text-ink-faint/40",
+  error: "text-meta text-red-700",
 };
 
 export function KindPanel() {
   const [group, setGroup] = useState<KindGroup>("records");
-  const { kinds } = useKinds();
+  const [removing, setRemoving] = useState<string | null>(null);
+  const [error, setError] = useState<string>();
+  const { kinds, removeKind } = useKinds();
   const existing = kinds.filter((kind) => kind.group === group);
+
+  async function remove(kindId: string) {
+    setRemoving(kindId);
+    setError(undefined);
+    try {
+      await removeKind(kindId);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "移除失敗");
+    } finally {
+      setRemoving(null);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -45,10 +68,26 @@ export function KindPanel() {
           ))}
         </div>
         {existing.length > 0 && (
-          <span className={styles.existing}>
-            已經有：{existing.map((kind) => kind.name).join("、")}
-          </span>
+          <ul className={styles.list}>
+            {existing.map((kind) => (
+              <li key={kind.id} className={styles.item}>
+                <span className={styles.name}>{kind.name}</span>
+                <span className={styles.count}>{kind.count}</span>
+                <button
+                  type="button"
+                  onClick={() => remove(kind.id)}
+                  disabled={kind.count > 0 || removing === kind.id}
+                  // 有資料就不給移除：手動記的東西沒有還原路徑，先清空那一步本身就是確認
+                  title={kind.count > 0 ? "還有資料，要先清空才能移除" : undefined}
+                  className={styles.remove}
+                >
+                  移除
+                </button>
+              </li>
+            ))}
+          </ul>
         )}
+        {error && <span className={styles.error}>{error}</span>}
       </div>
 
       <TypeBuilder key={group} group={group} />
