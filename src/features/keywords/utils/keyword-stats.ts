@@ -6,9 +6,16 @@ export type KeywordEntry = {
   books: Book[];
 };
 
-/** 維基主檔還沒做，現在的關鍵字資料就只有「哪些書提到它」，其餘欄位之後才補得出來 */
-export function getKeywordEntries(books: Book[]): KeywordEntry[] {
-  const map = new Map<string, Book[]>();
+/**
+ * 有哪些關鍵字以主檔為準，書籍只是「誰提到它」。
+ *
+ * 本來反過來：從每本書的 keywords 欄反推有哪些關鍵字，所以自己記一筆
+ * （沒有任何書提到的）就不會出現。關鍵字是獨立的一種片段，不是書的附屬品。
+ *
+ * `names` 是主檔那份；沒給就退回舊行為，統計那幾張圖還在用書籍那條路。
+ */
+export function getKeywordEntries(books: Book[], names?: readonly string[]): KeywordEntry[] {
+  const map = new Map<string, Book[]>(names?.map((name) => [name, []]));
   for (const book of books) {
     for (const name of splitLines(book.keywords)) {
       const list = map.get(name);
