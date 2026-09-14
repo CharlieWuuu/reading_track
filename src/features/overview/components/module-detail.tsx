@@ -1,8 +1,6 @@
 "use client";
 
-import Link from "next/link";
 import { DetailField, DetailFields } from "@/components/ui/detail";
-import { kindHref } from "@/config/kind-routes";
 import { Kind } from "@/lib/db/queries/kinds";
 import { fieldsOf, FormModule, resolveFormModules } from "@/utils/record-form";
 
@@ -16,21 +14,12 @@ import { fieldsOf, FormModule, resolveFormModules } from "@/utils/record-form";
 const styles = {
   frame: "flex max-w-2xl flex-col gap-5",
   longText: "font-serif text-[15px] leading-[1.9] whitespace-pre-wrap text-gray-800 md:text-base",
-  edit: "text-meta text-ink-faint hover:text-ink self-start",
 };
 
 /** 長文自己一段，不擠進兩欄的資訊表——一段文章塞進半個欄寬讀不下去 */
 const LONG_KEYS = new Set(["body"]);
 
-export function ModuleDetail({
-  kind,
-  recordId,
-  values,
-}: {
-  kind: Kind;
-  recordId: string;
-  values: Record<string, string>;
-}) {
+export function ModuleDetail({ kind, values }: { kind: Kind; values: Record<string, string> }) {
   const modules = resolveFormModules(kind.modules);
   const labelOf = (form: FormModule, index: number, fallback: string) =>
     index === 0 ? form.label : fallback;
@@ -62,10 +51,6 @@ export function ModuleDetail({
           </DetailField>
         ))}
       </DetailFields>
-
-      <Link href={`${kindHref(kind.group, kind.slug)}/${recordId}/edit`} className={styles.edit}>
-        編輯
-      </Link>
     </div>
   );
 }
