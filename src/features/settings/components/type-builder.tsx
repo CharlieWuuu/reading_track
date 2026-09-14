@@ -107,8 +107,10 @@ function Section({
   );
 }
 
-export function TypeBuilder({ group }: { group: KindGroup }) {
+/** onDone 不給就回上一頁——這支本來是獨立頁，收在面板裡展開時要的是收起來 */
+export function TypeBuilder({ group, onDone }: { group: KindGroup; onDone?: () => void }) {
   const router = useRouter();
+  const done = onDone ?? (() => router.back());
   const { kinds, addKind } = useKinds();
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -145,7 +147,7 @@ export function TypeBuilder({ group }: { group: KindGroup }) {
         amountUnit: unit.trim(),
         labels,
       });
-      router.back();
+      done();
     } catch (err) {
       setError(err instanceof Error ? err.message : "新增類型失敗");
       setSaving(false);
@@ -228,12 +230,7 @@ export function TypeBuilder({ group }: { group: KindGroup }) {
         </Section>
 
         <div className="pt-6">
-          <FormActions
-            saving={saving}
-            saveLabel="建立"
-            onCancel={() => router.back()}
-            error={error}
-          />
+          <FormActions saving={saving} saveLabel="建立" onCancel={done} error={error} />
         </div>
       </div>
 

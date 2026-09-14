@@ -29,10 +29,12 @@ const styles = {
   remove:
     "text-meta text-ink-faint hover:text-ink disabled:text-ink-faint/40 disabled:hover:text-ink-faint/40",
   error: "text-meta text-red-700",
+  add: "rounded-control border-rule text-ui self-start border px-3 py-1.5 font-medium hover:bg-gray-50",
 };
 
 export function KindPanel() {
   const [group, setGroup] = useState<KindGroup>("records");
+  const [adding, setAdding] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
   const [error, setError] = useState<string>();
   const { kinds, removeKind } = useKinds();
@@ -53,13 +55,17 @@ export function KindPanel() {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-2">
-        <span className={styles.label}>加在哪一個分類</span>
+        <span className={styles.label}>哪一個分類</span>
         <div className={styles.row}>
           {NAV_GROUPS.map((nav) => (
             <button
               key={nav.key}
               type="button"
-              onClick={() => nav.kindGroup && setGroup(nav.kindGroup)}
+              onClick={() => {
+                if (!nav.kindGroup) return;
+                setGroup(nav.kindGroup);
+                setAdding(false); // 填一半換 group，那份內容對不上新的 group
+              }}
               aria-pressed={nav.kindGroup === group}
               className={`${styles.tab} ${nav.kindGroup === group ? styles.active : styles.idle}`}
             >
@@ -90,7 +96,14 @@ export function KindPanel() {
         {error && <span className={styles.error}>{error}</span>}
       </div>
 
-      <TypeBuilder key={group} group={group} />
+      {/* 表單三段填完才建得出一個類型，攤開來比清單長得多——平常收起來，要加才展開 */}
+      {adding ? (
+        <TypeBuilder key={group} group={group} onDone={() => setAdding(false)} />
+      ) : (
+        <button type="button" onClick={() => setAdding(true)} className={styles.add}>
+          新增類型
+        </button>
+      )}
     </div>
   );
 }
