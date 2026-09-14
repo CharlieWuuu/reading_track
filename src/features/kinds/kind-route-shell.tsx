@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
@@ -23,6 +21,8 @@ import { useUrlParams } from "@/hooks/use-url-param";
 import { Kind } from "@/lib/db/queries/kinds";
 import { fragmentCard, fragmentHref, fragmentItem, recordItem } from "@/utils/overview-items";
 import { matchesSearch, searchTerms } from "@/utils/search";
+
+("use client");
 
 /**
  * 三個 group 共用的通用頁骨架。找到 kind 之後照 slug 決定要不要換皮，
@@ -194,8 +194,10 @@ export function KindRecordPage({
 
   return (
     <>
+      {/* 標題不放頁首：一則紀錄的標題可以很長，擠在麵包屑那一行會被動作按鈕蓋掉。
+          跟書籍詳情同一套——頁首只說「詳情」，標題在內容區當大標 */}
       <PageHeader
-        title={record?.values.title ?? ""}
+        title="詳情"
         size="compact"
         parent={
           kind && [
@@ -208,7 +210,7 @@ export function KindRecordPage({
           kind && (
             <Link
               href={`${kindHref(group, slug)}/${recordId}/edit`}
-              className="text-meta text-ink-faint hover:text-ink ml-auto"
+              className="text-byline text-accent ml-auto font-medium"
             >
               編輯
             </Link>
