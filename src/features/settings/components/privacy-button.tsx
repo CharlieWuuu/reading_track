@@ -99,13 +99,6 @@ export function PrivacyButton() {
       {open && (
         <Dialog title={setting ? "設定私人密碼" : "顯示私人項目"} onClose={close}>
           <form onSubmit={handleSubmit} className={styles.form}>
-            {noPasscode && <p className={styles.hint}>這台資料庫上還沒有密碼，先設一組。</p>}
-            <p className={styles.hint}>
-              {setting
-                ? "密碼的雜湊存在伺服器，換裝置也通用。它擋的是旁邊的人瞄一眼，不是加密。"
-                : "解鎖之後才會載入標成私人的書籍、文章與書寫。關掉分頁會自動鎖回去。"}
-            </p>
-
             {setting && (
               <input
                 type="password"

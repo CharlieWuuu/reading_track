@@ -18,7 +18,7 @@ import { useKinds } from "@/hooks/use-kinds";
  */
 
 const styles = {
-  frame: "flex max-w-xl flex-col gap-6",
+  frame: "mx-auto flex w-full max-w-xl flex-col gap-6",
   group: "flex flex-col",
   groupHead: "border-rule-strong flex items-baseline justify-between border-b-2 pb-1.5",
   groupLabel: "font-serif text-ui tracking-section font-semibold",
@@ -26,8 +26,8 @@ const styles = {
   row: "border-rule-soft flex items-baseline border-b py-[7px] pl-3",
   name: "text-ui text-ink-muted truncate",
   count: "text-meta text-ink-faint ml-auto pl-2 tabular-nums",
-  remove:
-    "text-meta text-ink-faint hover:text-ink disabled:text-ink-faint/40 disabled:hover:text-ink-faint/40 pl-3",
+  // 移除是破壞性的，用紅字；有資料不給按的時候褪掉，不要再喊得那麼大聲
+  remove: "text-meta pl-3 text-red-700 hover:text-red-800 disabled:text-ink-faint/40",
   empty: "text-meta text-ink-faint py-[7px] pl-3",
   error: "text-meta text-red-700",
   builder: "pl-3",

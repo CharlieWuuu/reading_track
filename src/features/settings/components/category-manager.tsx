@@ -32,7 +32,8 @@ function sectionTitle(
 }
 
 const styles = {
-  wrap: "flex max-w-2xl flex-col gap-6",
+  // 不設上限：主題一列可能有七八個，寬度夠就讓它排完，不要提早折行
+  wrap: "flex flex-col gap-6",
   group: "border-rule flex flex-col gap-2 border-b pb-4 last:border-b-0 last:pb-0",
   title: "font-serif text-item-sm font-semibold tracking-wide",
   list: "flex flex-wrap gap-1.5",

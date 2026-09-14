@@ -227,7 +227,6 @@ export function TypeBuilder({ group, onDone }: { group: KindGroup; onDone?: () =
               </label>
             ))}
           </div>
-          <span className={styles.hint}>沒勾的模組不會在表單留空位，也不會在詳情頁顯示「—」</span>
         </Section>
 
         <div className="pt-6">

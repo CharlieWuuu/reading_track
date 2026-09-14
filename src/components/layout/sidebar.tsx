@@ -86,7 +86,8 @@ export function Sidebar() {
    * 這個 group 底下所有類型，全部從資料庫來——包含使用者剛新增、還沒有任何資料的那個。
    * 沒有入口就點不進去，沒地方新增第一筆；0 筆不等於不存在。
    */
-  const typesOf = (group: NavGroup): NavType[] =>
+  // 計數跟著類型一起帶下來，不要再用名字反查——名字跨 group 會撞，find 會撿錯那一個
+  const typesOf = (group: NavGroup): (NavType & { count: number })[] =>
     kinds
       .filter((kind) => kind.group === group.kindGroup)
       .map((kind) => ({
@@ -94,10 +95,8 @@ export function Sidebar() {
         label: kind.name,
         href: kindHref(kind.group, kind.slug),
         match: kindHref(kind.group, kind.slug),
+        count: kind.count,
       }));
-
-  const countOf = (label: string): number | undefined =>
-    kinds.find((kind) => kind.name === label)?.count;
 
   return (
     <div className={styles.frame}>
@@ -113,7 +112,7 @@ export function Sidebar() {
                   key={type.key}
                   type={type}
                   active={type.key === currentSlug}
-                  count={countOf(type.label)}
+                  count={type.count}
                   unit={group.unit}
                 />
               ))}

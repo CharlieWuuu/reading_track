@@ -202,13 +202,7 @@ export function WritingForm({ entry }: { entry?: Writing }) {
 
             {/* 這則放在哪裡：發表的網址，或「紙本日記 8/17」這種純文字 */}
             <div className="col-span-2 sm:col-span-3">
-              <Field
-                label="來源"
-                hint="網址，或「紙本日記 8/17」"
-                value={form.link}
-                onChange={(v) => set("link", v)}
-                hideLabel
-              />
+              <Field label="來源" value={form.link} onChange={(v) => set("link", v)} hideLabel />
             </div>
 
             {/* 封面圖，選填——像部落格文章那種示意圖，不跟出處的書籍封面連動 */}
