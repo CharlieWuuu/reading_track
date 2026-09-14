@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, or } from "drizzle-orm";
 import { KindTemplate, STARTER_KEYS } from "@/config/kind-templates";
 import { moduleDef } from "@/config/modules";
 import { KindGroup } from "@/config/record-kinds";
@@ -89,7 +89,11 @@ const fromTemplate = (template: KindTemplate): NewKind => ({
 });
 
 /** 排在同一個 group 的最後面。順序是各人的事，只看自己在用的那幾種 */
-async function nextSortOrder(tx: Tx, userId: string, group: KindGroup): Promise<number> {
+async function nextSortOrder(
+  tx: Tx | typeof db,
+  userId: string,
+  group: KindGroup,
+): Promise<number> {
   const [last] = await tx
     .select({ sortOrder: userKinds.sortOrder })
     .from(userKinds)
@@ -122,6 +126,43 @@ export async function addKindFromTemplate(userId: string, template: KindTemplate
  */
 export async function hideKind(userId: string, kindId: string): Promise<void> {
   await db.delete(userKinds).where(and(eq(userKinds.userId, userId), eq(userKinds.kindId, kindId)));
+}
+
+/**
+ * 目錄裡已經有這個 slug 的話就重新啟用它，不要另外建一列。
+ *
+ * 關掉「書籍」再套一次範本，走 addKind 會插一列新的同名類型，原本那列
+ * （系統共用的）沒人用卻還在——目錄會慢慢長出一堆重複。這支先撿現成的。
+ *
+ * 只認共用列與自己建的：別人的自訂類型不該被撿來用。
+ * 回傳 kindId，沒有現成的就回 null，呼叫端再走 addKind。
+ */
+export async function reuseKind(
+  userId: string,
+  group: KindGroup,
+  slug: string,
+  name: string,
+): Promise<string | null> {
+  const [existing] = await db
+    .select({ id: kinds.id })
+    .from(kinds)
+    .where(
+      and(
+        or(eq(kinds.userId, userId), isNull(kinds.userId)),
+        eq(kinds.groupKey, group),
+        eq(kinds.slug, slug),
+        // 名字也要一樣才算「同一種」：自己填的剛好撞到 slug，該建新的而不是撿舊的
+        eq(kinds.name, name),
+      ),
+    );
+  if (!existing) return null;
+
+  await db
+    .insert(userKinds)
+    .values({ userId, kindId: existing.id, sortOrder: await nextSortOrder(db, userId, group) })
+    .onConflictDoNothing();
+
+  return existing.id;
 }
 
 /**

@@ -11,7 +11,7 @@ import {
 } from "@/app/api/_lib/respond";
 import { moduleDef } from "@/config/modules";
 import { KindGroup } from "@/config/record-kinds";
-import { addKind } from "@/lib/db/mutations/kinds";
+import { addKind, reuseKind } from "@/lib/db/mutations/kinds";
 import { listKinds, slugTaken } from "@/lib/db/queries/kinds";
 
 /** 三個 group 共用同一支：group 決定新增出來的類型屬於哪個 group */
@@ -74,6 +74,10 @@ export const POST = guarded("kinds POST", async (req: NextRequest) => {
       : {};
 
   try {
+    // 關掉過的類型再加回來：目錄裡那列還在，撿回來用，不另外建一列同名的
+    const reused = await reuseKind(session.user.id, body.group, slug, name);
+    if (reused) return NextResponse.json({ id: reused });
+
     const id = await addKind(session.user.id, body.group, {
       name,
       slug,
