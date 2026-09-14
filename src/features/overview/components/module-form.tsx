@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ContentLinkInput } from "@/components/ui/content-link-input";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
+import { PrivateToggle } from "@/components/ui/private-toggle/private-toggle";
 import { kindHref } from "@/config/kind-routes";
 import { FieldDef } from "@/config/record-fields";
 import { useAutoSave } from "@/hooks/use-auto-save";
@@ -47,16 +48,26 @@ function ModuleFields({
 
   return (
     <>
-      {fields.map((field, index) => (
-        <Field
-          key={field.key}
-          label={index === 0 ? module.label : field.defaultLabel}
-          type={INPUT_TYPE[field.type] ?? "text"}
-          value={values[field.key] ?? ""}
-          onChange={(value) => onChange(field.key, value)}
-          onPaste={field.key === "sourceUrl" ? onUrlPaste : undefined}
-        />
-      ))}
+      {fields.map((field, index) =>
+        // 開關不是輸入框：flag 走勾選，畫成 input 會叫人自己打「是」
+        field.type === "flag" ? (
+          <PrivateToggle
+            key={field.key}
+            label={index === 0 ? module.label : field.defaultLabel}
+            value={values[field.key] ?? ""}
+            onChange={(value) => onChange(field.key, value)}
+          />
+        ) : (
+          <Field
+            key={field.key}
+            label={index === 0 ? module.label : field.defaultLabel}
+            type={INPUT_TYPE[field.type] ?? "text"}
+            value={values[field.key] ?? ""}
+            onChange={(value) => onChange(field.key, value)}
+            onPaste={field.key === "sourceUrl" ? onUrlPaste : undefined}
+          />
+        ),
+      )}
     </>
   );
 }
