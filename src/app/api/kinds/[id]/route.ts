@@ -10,7 +10,7 @@ import {
 } from "@/app/api/_lib/respond";
 import { moduleDef } from "@/config/modules";
 import { hideKind, mergeKinds, updateKind } from "@/lib/db/mutations/kinds";
-import { listKinds, slugTaken } from "@/lib/db/queries/kinds";
+import { listKinds } from "@/lib/db/queries/kinds";
 
 /** 網址上的那一段：小寫英數與連字號，不能是空的或以連字號開頭結尾 */
 const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -44,11 +44,9 @@ export const PATCH = guarded(
     const slug = typeof body.slug === "string" ? body.slug.trim() : "";
     if (!SLUG_PATTERN.test(slug)) return badRequest("網址只能用小寫英文、數字、連字號");
 
-    const current = (await listKinds(session.user.id)).find((row) => row.id === id);
+    const mine = await listKinds(session.user.id);
+    const current = mine.find((row) => row.id === id);
     if (!current) return badRequest("找不到這個類型");
-    // 改成別人已經占走的網址才擋；沒動就放行
-    if (slug !== current.slug && (await slugTaken(session.user.id, current.group, slug)))
-      return badRequest("這個網址已經有人用了");
 
     const modules = Array.isArray(body.modules)
       ? body.modules.filter(
@@ -65,6 +63,34 @@ export const PATCH = guarded(
           ) as Record<string, string>)
         : {};
 
+    /**
+     * 改成跟現有的同名同網址，就是在講「這兩個其實是同一種」。
+     *
+     * 一個類型是「名字 ＋ 一組欄位」：欄位一樣就真的是同一種，資料併過去；
+     * 欄位不一樣才擋——那是兩種東西剛好想取同一個名字，併了會有欄位對不上的紀錄。
+     */
+    const clash = mine.find(
+      (row) =>
+        row.id !== id && row.group === current.group && (row.slug === slug || row.name === name),
+    );
+
+    if (clash) {
+      const same = (kind: { modules: { key: string }[] }) =>
+        kind.modules
+          .map((m) => m.key)
+          .sort()
+          .join(",");
+      if (same(clash) !== [...modules].sort().join(","))
+        return badRequest(`已經有一個「${clash.name}」，但兩邊的欄位不一樣，併不起來`);
+
+      try {
+        await mergeKinds(session.user.id, id, clash.id);
+        return NextResponse.json({ id: clash.id, merged: true });
+      } catch (err) {
+        return dataFailure("合併類型", "mergeKinds", err);
+      }
+    }
+
     try {
       const newId = await updateKind(session.user.id, id, {
         name,
@@ -76,36 +102,6 @@ export const PATCH = guarded(
       return NextResponse.json({ id: newId });
     } catch (err) {
       return dataFailure("儲存類型", "updateKind", err);
-    }
-  },
-);
-
-/**
- * 把這個類型底下的資料整批搬到另一個，然後關掉這一個。
- *
- * 改名併不起來——兩個類型不能共用一個網址。搬資料才是真正要做的事。
- */
-export const POST = guarded(
-  "kind merge POST",
-  async (req: NextRequest, ctx: { params: Promise<{ id: string }> }) => {
-    const session = await requireWriter();
-    if (!session) return unauthorized();
-    if ("demo" in session) return readOnly();
-
-    const { id } = await ctx.params;
-    const body = await readJsonBody<{ into?: unknown }>(req, "kind merge POST");
-    const into = typeof body?.into === "string" ? body.into : "";
-    if (!into) return badRequest("要併到哪一個類型");
-
-    const mine = await listKinds(session.user.id);
-    if (!mine.some((row) => row.id === id)) return badRequest("找不到這個類型");
-    if (!mine.some((row) => row.id === into)) return badRequest("找不到要併過去的類型");
-
-    try {
-      await mergeKinds(session.user.id, id, into);
-      return NextResponse.json({ ok: true });
-    } catch (err) {
-      return dataFailure("合併類型", "mergeKinds", err);
     }
   },
 );

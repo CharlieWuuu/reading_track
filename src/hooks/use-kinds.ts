@@ -38,7 +38,10 @@ export function useKinds() {
     await mutate();
   }
 
-  /** 改一個類型。共用類型會在伺服器端複製成自己的，回傳的編號可能跟傳進去的不同 */
+  /**
+   * 改一個類型。改成跟現有的同名同網址時伺服器會把資料併過去，所以回傳的編號
+   * 可能是另一個類型的；共用類型也會被複製成自己的，同樣會換編號。
+   */
   async function editKind(kindId: string, kind: NewKindInput) {
     const res = await fetch(`/api/kinds/${kindId}`, {
       method: "PATCH",
@@ -47,18 +50,6 @@ export function useKinds() {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error ?? "儲存類型失敗");
-    await mutate();
-  }
-
-  /** 把一個類型底下的資料整批搬到另一個，來源跟著關掉 */
-  async function mergeKind(kindId: string, into: string) {
-    const res = await fetch(`/api/kinds/${kindId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ into }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error ?? "合併失敗");
     await mutate();
   }
 
@@ -76,7 +67,6 @@ export function useKinds() {
     error: error instanceof Error ? error.message : undefined,
     addKind,
     editKind,
-    mergeKind,
     removeKind,
   };
 }
