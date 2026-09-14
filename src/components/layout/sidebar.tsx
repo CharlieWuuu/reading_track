@@ -28,7 +28,7 @@ const styles = {
   rule: "bg-shell-rule w-px shrink-0",
   group: "border-rule-strong flex items-baseline justify-between border-b-2 pb-1.5",
   newButton:
-    "rounded-control border-rule text-ui mt-2 flex items-center justify-center gap-1 border border-dashed py-2 text-ink-muted hover:bg-gray-50",
+    "rounded-control border-rule text-ui text-ink-muted mt-2 flex w-full items-center justify-center gap-1 border border-dashed py-2 hover:bg-gray-50",
   newList: "flex flex-col gap-0.5 pt-1",
   newItem: "text-ui text-ink-muted hover:text-ink py-1 pl-3 text-left",
   groupLabel: "block w-full font-serif text-ui font-semibold tracking-section",

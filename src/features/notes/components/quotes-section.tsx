@@ -1,13 +1,14 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ReactNode } from "react";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
-import { BookCover } from "@/components/ui/book-cover";
 import { OverviewLayout } from "@/components/ui/overview-layout/overview-layout";
 import { OverviewRailList } from "@/components/ui/overview-layout/overview-rail-stats";
+import { RecordCard } from "@/components/ui/record-card/record-card";
 import { quoteHref } from "@/config/routes";
+import { QuoteBlock } from "@/features/notes/components/record-items";
 import { useQuotesOverview } from "@/hooks/use-fragments-overview";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
@@ -24,7 +25,7 @@ const toItem = (record: QuoteRecord): OverviewItem => ({
   title: record.text,
   byline: record.bookTitle,
   href: quoteHref(record.id),
-  coverUrl: record.coverUrl,
+  coverUrl: record.bookCover,
   startDate: record.date,
   endDate: record.date,
 });
@@ -60,6 +61,7 @@ function QuotesGrid({
   hasMore?: boolean;
   isLoadingMore?: boolean;
 }) {
+  const router = useRouter();
   const items = records.map(toItem);
   const headline = pickHeadline(items);
   const rest = items.filter((item) => item.id !== headline?.id);
@@ -77,31 +79,20 @@ function QuotesGrid({
       renderItem={(item) => {
         const record = records.find((r) => r.id === item.id)!;
         return (
-          <Link href={quoteHref(record.id)} className={quoteStyles.row}>
-            <BookCover url={record.coverUrl} title={record.bookTitle} size="lg" />
-            <div className={quoteStyles.body}>
-              <blockquote className={quoteStyles.text}>{record.text}</blockquote>
-              {record.bookTitle && <p className={quoteStyles.meta}>— {record.bookTitle}</p>}
-            </div>
-          </Link>
+          <RecordCard
+            title={record.bookTitle}
+            showTitle={false}
+            coverUrl={record.bookCover}
+            meta={record.chapter}
+            onClick={() => router.push(quoteHref(record.id))}
+          >
+            <QuoteBlock quote={record} />
+          </RecordCard>
         );
       }}
     />
   );
 }
-
-/**
- * 佳句的版式：左邊書封，右邊引文，出處靠右當署名，一則一列用分隔線隔開。
- *
- * 這是 RecordCard + QuoteBlock（97eed6a 改接 OverviewLayout 之前）原本的長相。
- * 引文不畫左側那條線——旁邊就是封面，兩個直的元素並排會像被切成兩欄。
- */
-const quoteStyles = {
-  row: "border-rule-soft flex cursor-pointer items-start gap-3 border-b px-1 py-3 hover:bg-gray-50 md:py-4",
-  body: "flex min-w-0 flex-1 flex-col gap-1.5",
-  text: "text-[15px] leading-relaxed whitespace-pre-wrap text-gray-800 md:text-base",
-  meta: "text-meta text-ink-faint truncate text-right",
-};
 
 /**
  * 佳句概覽：跟書籍頁同一套 OverviewLayout 骨架（頭條＋月份格線＋右側統計欄），
