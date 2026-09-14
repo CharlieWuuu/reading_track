@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { OverviewLayout } from "@/components/ui/overview-layout/overview-layout";
+import { OverviewRail } from "@/components/ui/overview-layout/overview-rail-list";
 import { Book, formatCount } from "@/types/book";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { Writing } from "@/types/writing";
@@ -88,38 +89,14 @@ function StatsRail({ stats, href }: { stats: YearStats; href: (book: Book) => st
   );
 }
 
-function Rail({
-  label,
-  count,
-  books,
-  href,
-  more,
-}: {
-  label: string;
-  count: number;
-  books: Book[];
-  href: (book: Book) => string;
-  more?: string;
-}) {
-  if (books.length === 0) return null;
-  return (
-    <div>
-      <div className={styles.railHead}>
-        <span className={styles.labelInk}>{label}</span>
-        <span className={styles.meta}>{count} 本</span>
-      </div>
-      {books.map((book) => (
-        <div key={book.id} className={styles.railItem}>
-          <Link href={href(book)} className={`${styles.railTitle} line-clamp-2`}>
-            {book.title}
-          </Link>
-          <div className={styles.meta}>{book.author}</div>
-        </div>
-      ))}
-      {more && <span className={`${styles.meta} block pt-2`}>{more}</span>}
-    </div>
-  );
-}
+/** Book 攤成右欄清單要的形狀。書封一起帶，跟紀錄概覽看到的同一種列 */
+const toRailItem = (href: (book: Book) => string) => (book: Book) => ({
+  id: book.id,
+  title: book.title,
+  byline: book.author,
+  href: href(book),
+  coverUrl: book.coverUrl,
+});
 
 export function BookOverview({
   books,
@@ -183,14 +160,8 @@ export function BookOverview({
         <>
           <TotalStats stats={totalStats} />
           <StatsRail stats={yearStats} href={href} />
-          <Rail label="進行" count={reading.length} books={reading} href={href} />
-          <Rail
-            label="想要"
-            count={want.length}
-            books={want.slice(0, 5)}
-            href={href}
-            more={want.length > 5 ? `看全部 ${want.length} 本 →` : undefined}
-          />
+          <OverviewRail label="進行" items={reading.map(toRailItem(href))} unit="本" />
+          <OverviewRail label="想要" items={want.map(toRailItem(href))} unit="本" limit={5} />
         </>
       }
     />

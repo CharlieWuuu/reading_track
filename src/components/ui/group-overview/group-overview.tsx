@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { OverviewLayout } from "@/components/ui/overview-layout/overview-layout";
+import { OverviewRail } from "@/components/ui/overview-layout/overview-rail-list";
 import { OverviewTotalStats } from "@/components/ui/overview-layout/overview-rail-stats";
 import { OverviewItem, pickHeadline } from "@/utils/overview";
 
@@ -11,62 +11,6 @@ import { OverviewItem, pickHeadline } from "@/utils/overview";
  * 書籍、文章、電影混在同一份清單裡排，沒有共通的量化指標可以做統計區塊，
  * 右欄是統計／進行／想要，標籤全站固定，不開放呼叫端自訂。
  */
-
-const styles = {
-  railHead: "border-rule-strong flex items-baseline justify-between border-b pb-2",
-  labelInk: "text-label text-ink tracking-label",
-  meta: "text-meta text-ink-faint tabular-nums",
-  railItem: "border-rule flex items-start gap-2.5 border-b py-[7px]",
-  railCover: "rounded-surface h-11 w-8 shrink-0 object-cover",
-  railBody: "min-w-0 flex-1",
-  railTitle: "font-serif text-item-sm leading-snug font-semibold line-clamp-2",
-};
-
-function Rail({
-  label,
-  items,
-  unit,
-  limit,
-}: {
-  label: string;
-  items: readonly OverviewItem[];
-  unit: string;
-  limit?: number;
-}) {
-  if (items.length === 0) return null;
-  const shown = limit ? items.slice(0, limit) : items;
-  const hidden = items.length - shown.length;
-
-  return (
-    <div>
-      <div className={styles.railHead}>
-        <span className={styles.labelInk}>{label}</span>
-        <span className={styles.meta}>
-          {items.length} {unit}
-        </span>
-      </div>
-      {shown.map((item) => (
-        <div key={item.id} className={styles.railItem}>
-          {item.coverUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={item.coverUrl} alt="" loading="lazy" className={styles.railCover} />
-          )}
-          <div className={styles.railBody}>
-            <Link href={item.href} className={styles.railTitle}>
-              {item.title}
-            </Link>
-            <div className={styles.meta}>{item.byline}</div>
-          </div>
-        </div>
-      ))}
-      {hidden > 0 && (
-        <span className={`${styles.meta} block pt-2`}>
-          看全部 {items.length} {unit} →
-        </span>
-      )}
-    </div>
-  );
-}
 
 export type GroupOverviewProps = {
   /** 進行中的，頭條從這裡挑 */
@@ -124,8 +68,8 @@ export function GroupOverview({
             unit={unit}
           />
           {/* 頭條那本也留在清單裡：這份是「現在在讀什麼」，少一本就不是全部了 */}
-          <Rail label="進行" items={active} unit={unit} limit={5} />
-          <Rail label="想要" items={pending} unit={unit} limit={5} />
+          <OverviewRail label="進行" items={active} unit={unit} limit={5} />
+          <OverviewRail label="想要" items={pending} unit={unit} limit={5} />
           {extraRail}
         </>
       }
