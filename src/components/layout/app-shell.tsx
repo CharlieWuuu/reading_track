@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useSidebarStore } from "@/stores/use-sidebar-store";
 import { BottomNav } from "./bottom-nav";
 import { Masthead } from "./masthead";
+import { NavKindStrip } from "./nav-kind-strip";
 import { Sidebar } from "./sidebar";
 
 /**
@@ -51,7 +52,12 @@ export function AppShell({
         </main>
       </div>
 
-      {signedIn && <BottomNav />}
+      {signedIn && (
+        <>
+          <NavKindStrip />
+          <BottomNav />
+        </>
+      )}
     </div>
   );
 }
