@@ -4,6 +4,7 @@ import { db } from "@/lib/db/client";
 import { fragments } from "@/lib/db/schema/fragments";
 import { kinds } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
+import { writings } from "@/lib/db/schema/writings";
 import { inferStatusKey } from "@/types/book";
 import { decodeCursor, encodeCursor } from "@/utils/pagination";
 import { byDateThenNewest } from "@/utils/record-order";
@@ -354,6 +355,35 @@ export async function getRecordValues(
 }
 
 /** 片段與書寫的單筆。欄位名跟紀錄那邊不一樣，攤平時一起對回模組認得的鍵 */
+/**
+ * 單筆書寫攤成表單的形狀。
+ *
+ * 書寫獨立成 writings 表了，不在 records 也不在 fragments——少了這一支，
+ * 點進任何一則心得都是「找不到這一筆」。
+ *
+ * 沒有 amount：字數是內文本身算得出來的，不存。
+ */
+export async function getWritingValues(
+  userId: string,
+  id: string,
+): Promise<{ kindId: string; values: Record<string, string> } | null> {
+  const [row] = await db
+    .select()
+    .from(writings)
+    .where(and(eq(writings.userId, userId), eq(writings.id, id)));
+  if (!row) return null;
+
+  return {
+    kindId: row.kindId,
+    values: {
+      title: row.name,
+      body: row.body,
+      endDate: row.date ?? "",
+      coverUrl: row.coverUrl,
+    },
+  };
+}
+
 export async function getFragmentValues(
   userId: string,
   id: string,

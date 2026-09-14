@@ -89,8 +89,14 @@ export const fragmentTitle = (row: FragmentRow): string => row.name || row.body;
  */
 export const fragmentBody = (row: FragmentRow): string => row.context || row.body;
 
-/** 片段的出處：書名・頁碼之類 */
-export const fragmentMeta = (row: FragmentRow): string => joinByline([row.workTitle, row.locator]);
+/**
+ * 片段的出處：書名・頁碼之類。
+ *
+ * 書寫沒有出處那一層，改用內文開頭——卡片上總要看得出這則在寫什麼，
+ * 只有標題的話一整面卡片長得都一樣。
+ */
+export const fragmentMeta = (row: FragmentRow): string =>
+  row.kindGroup === "writings" ? row.body : joinByline([row.workTitle, row.locator]);
 
 /**
  * 片段與書寫的一筆，攤平成概覽用的形狀。

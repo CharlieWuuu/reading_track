@@ -11,6 +11,7 @@ import {
 } from "@/app/api/_lib/respond";
 import { addRecord } from "@/lib/db/mutations/catalog";
 import { addFragment } from "@/lib/db/mutations/fragment-modules";
+import { addWritingFromValues } from "@/lib/db/mutations/writings";
 import {
   listFragmentsByKind,
   listRecordsByKind,
@@ -53,7 +54,8 @@ export const GET = guarded(
 );
 
 /**
- * 新增一筆。走哪張表由類型屬於哪個 group 決定——紀錄有作品那一層，片段沒有。
+ * 新增一筆。三個 group 三張表，跟 GET 同一套規則——紀錄有作品那一層，片段沒有，
+ * 書寫獨立成 writings。
  *
  * 值只收這個類型勾了的欄位，其餘在 mutations 那層擋掉。
  */
@@ -79,10 +81,13 @@ export const POST = guarded(
       const group = await kindGroupOf(session.user.id, id);
       if (!group) return badRequest("找不到這個類型");
 
+      // 三個 group 三張表，跟 GET 同一套規則——書寫寫進 fragments 的話存了讀不到
       const newId =
         group === "records"
           ? await addRecord(session.user.id, id, values)
-          : await addFragment(session.user.id, id, values);
+          : group === "writings"
+            ? await addWritingFromValues(session.user.id, id, values)
+            : await addFragment(session.user.id, id, values);
       return NextResponse.json({ id: newId });
     } catch (err) {
       return dataFailure("新增", "addRecord", err);
