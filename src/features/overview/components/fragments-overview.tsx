@@ -2,15 +2,14 @@
 
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
-import { CardGrid } from "@/components/ui/card-grid";
-import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { GroupTable } from "@/components/ui/group-table/group-table";
 import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headline";
-import { QuoteWall } from "@/components/ui/quote-wall";
 import { KindGroup } from "@/config/record-kinds";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
-import { fragmentHref, fragmentItem, fragmentMeta, fragmentTitle } from "@/utils/overview-items";
+import { fragmentItem } from "@/utils/overview-items";
+import { sectionsByKind } from "@/utils/overview-sections";
+import { KindSectionBlock } from "./kind-section";
 
 const styles = {
   empty: "text-meta text-ink-faint py-8 text-center",
@@ -19,8 +18,10 @@ const styles = {
 /**
  * 片段與書寫的概覽。兩者同一張表，但排法不同。
  *
- * 片段是卡片牆——跟關鍵字（KeywordCards）同一套視覺語言：一則一張卡、grid 同列等高排版。
- * 最上面提一則頭條，跟其餘概覽頁一致：一頁只有一個主角。
+ * 最上面提一則頭條，跟其餘概覽頁一致：一頁只有一個主角。底下按類型分區，
+ * 一區露四筆再給「更多」——概覽是摘要不是清單，跟首頁「每個 group 一欄各三筆」
+ * 同一套想法，只是往下降一層。每個類型保留自己的畫法（見 KindSectionBlock）。
+ *
  * 書寫照月份排成封面格線，跟底下的書寫子頁一致；沒有「進行中」，全部當成完成的排。
  */
 export function FragmentsOverview({
@@ -51,37 +52,21 @@ export function FragmentsOverview({
     );
   }
 
-  // 一頁一個主角：最新記下的那一則提到最上面，其餘照原本的順序排在卡片牆裡
-  const [headline, ...rest] = fragments;
-
-  // 佳句是句子不是卡片，切成兩欄會把長句擠成一行三四個字
-  const allQuotes = fragments.every((row) => row.kindSlug === "quotes");
+  // 一頁一個主角：最新記下的那一則提到最上面，底下按類型分區
+  const [headline] = fragments;
+  const sections = sectionsByKind(fragments, { exclude: headline.id });
 
   // PageBody 收到 scroll={false}，捲動歸這裡——不開的話整頁卡住捲不動
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto">
+    <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto">
       <OverviewHeadline
         item={fragmentItem(headline)}
         label="最新一則"
         summary={headline.body || undefined}
       />
-      {allQuotes ? (
-        <QuoteWall rows={rest} hrefOf={fragmentHref} />
-      ) : (
-        <CardGrid>
-          {rest.map((row) => (
-            <FragmentCard
-              key={row.id}
-              href={fragmentHref(row)}
-              title={fragmentTitle(row)}
-              label={row.kindName}
-              body={row.body}
-              meta={fragmentMeta(row)}
-              coverUrl={row.coverUrl}
-            />
-          ))}
-        </CardGrid>
-      )}
+      {sections.map((section) => (
+        <KindSectionBlock key={section.slug} group={group} section={section} />
+      ))}
     </div>
   );
 }
