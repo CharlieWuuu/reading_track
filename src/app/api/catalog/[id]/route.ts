@@ -17,7 +17,7 @@ import { requestPrivacy } from "@/utils/privacy";
 
 /**
  * 單筆的讀寫。紀錄與片段共用這一支——編號是唯一的，查不到就換另一張表找，
- * 呼叫端不用先知道它是哪一堆。
+ * 呼叫端不用先知道它是哪個 group。
  */
 
 const load = async (userId: string, id: string) =>

@@ -85,7 +85,7 @@ const fromTemplate = (template: KindTemplate): NewKind => ({
   labels: template.labels,
 });
 
-/** 排在同一堆的最後面，含系統預設的類型一起排 */
+/** 排在同一個 group 的最後面，含系統預設的類型一起排 */
 async function nextSortOrder(tx: Tx, userId: string, group: KindGroup): Promise<number> {
   const [last] = await tx
     .select({ sortOrder: kinds.sortOrder })

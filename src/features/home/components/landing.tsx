@@ -2,8 +2,8 @@ import Link from "next/link";
 import { LANDING_HERO, LANDING_SECTIONS, LandingSection } from "../landing-content";
 
 /**
- * 未登入的首頁。報頭底下是頭條，再來三堆並排——
- * 一堆一欄，欄與欄之間一條細線，不畫卡片框。
+ * 未登入的首頁。報頭底下是頭條，再來三個 group 並排——
+ * 一個 group 一欄，欄與欄之間一條細線，不畫卡片框。
  */
 
 const styles = {

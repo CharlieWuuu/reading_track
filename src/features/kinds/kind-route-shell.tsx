@@ -37,7 +37,7 @@ function useKindBySlug(group: KindGroup, slug: string): { kind?: Kind; isLoading
 /**
  * 沒有 variant 的類型就用這個畫清單——絕大多數自訂類型走這條。
  *
- * 紀錄那堆照月份排成封面格線，跟內建類型同一套；片段與書寫一則一張卡。
+ * 紀錄那個 group 照月份排成封面格線，跟內建類型同一套；片段與書寫一則一張卡。
  * 空的時候要說話：側欄把 0 筆的類型也列出來，點進來一片空白等於沒有下一步。
  */
 function GenericKindList({ kind, query }: { kind: Kind; query: string }) {
@@ -108,7 +108,7 @@ export function KindListPage({ group, slug }: { group: KindGroup; slug: string }
   const List = kind ? variantFor(kind.slug).list : undefined;
   const { searchParams, setParams } = useUrlParams();
   const query = searchParams.get("q") ?? "";
-  // 麵包屑指回這一堆的概覽，字跟側欄同一份設定
+  // 麵包屑指回這個 group 的概覽，字跟側欄同一份設定
   const parent = NAV_GROUPS.find((nav) => nav.kindGroup === group);
 
   return (

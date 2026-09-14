@@ -10,7 +10,7 @@ import { useInlineEdit } from "@/hooks/use-inline-edit";
 import { OverviewItem } from "@/utils/overview";
 
 /**
- * 堆概覽的表格檢視。一列一筆，欄位對齊，掃描與比較用——跟概覽的「摘要」是兩種目的。
+ * group 概覽的表格檢視。一列一筆，欄位對齊，掃描與比較用——跟概覽的「摘要」是兩種目的。
  *
  * 混排多種類型，所以第一欄永遠是類型；書籍、電影有封面，佳句、日記沒有，
  * 沒有封面的那一欄就空著，不畫佔位框。

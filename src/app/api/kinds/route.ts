@@ -14,7 +14,7 @@ import { KindGroup } from "@/config/record-kinds";
 import { addKind } from "@/lib/db/mutations/kinds";
 import { listKinds, slugTaken } from "@/lib/db/queries/kinds";
 
-/** 三堆共用同一支：group 決定新增出來的類型屬於哪一堆 */
+/** 三個 group 共用同一支：group 決定新增出來的類型屬於哪個 group */
 const GROUPS: KindGroup[] = ["records", "fragments", "writings"];
 
 const isGroup = (value: unknown): value is KindGroup =>
@@ -48,7 +48,7 @@ export const POST = guarded("kinds POST", async (req: NextRequest) => {
     labels?: unknown;
   }>(req, "kinds POST");
   if (!body) return badRequest("看不懂的內容");
-  if (!isGroup(body.group)) return badRequest("不知道要加在哪一堆");
+  if (!isGroup(body.group)) return badRequest("不知道要加在哪個 group");
 
   const name = typeof body.name === "string" ? body.name.trim() : "";
   if (!name) return badRequest("類型要有名字");

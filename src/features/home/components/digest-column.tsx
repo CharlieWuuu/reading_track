@@ -2,7 +2,7 @@ import Link from "next/link";
 
 /**
  * 「最近的紀錄／片段／書寫」共用的一欄。三筆加一條「看全部」，
- * 標題右邊是這一堆的總數——概覽是摘要，不是清單。
+ * 標題右邊是這個 group 的總數——概覽是摘要，不是清單。
  */
 
 export type DigestItem = {

@@ -6,13 +6,13 @@ import { setFragmentSourceUrl } from "./external-links";
 import { toDate } from "./values";
 
 /**
- * 片段與書寫照模組寫入。兩者同一張表，差別只在類型屬於哪一堆。
+ * 片段與書寫照模組寫入。兩者同一張表，差別只在類型屬於哪個 group。
  *
  * 欄位名跟紀錄那邊不一樣（標題叫 name、連結走 external_links），換算只在這一層做——
  * 模組那層一律用 title、sourceUrl。
  */
 
-/** 新增一則片段或書寫。兩者同一張表，差別只在類型屬於哪一堆 */
+/** 新增一則片段或書寫。兩者同一張表，差別只在類型屬於哪個 group */
 export async function addFragment(
   userId: string,
   kindId: string,

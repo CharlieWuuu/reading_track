@@ -13,7 +13,7 @@ export type NewKindInput = {
 };
 
 /**
- * 三堆的類型。不走 useCollection——那支綁著私人解鎖權杖與排序，
+ * 三個 group 的類型。不走 useCollection——那支綁著私人解鎖權杖與排序，
  * 類型沒有私人的問題，排序也在伺服器端就排好了。
  */
 

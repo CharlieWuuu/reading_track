@@ -17,7 +17,7 @@ import { requestPrivacy } from "@/utils/privacy";
 import { hideSelfPrivate } from "@/utils/privacy-rows";
 
 /**
- * 某一種類型底下的全部。走哪張表由類型屬於哪一堆決定，跟 POST 同一套規則——
+ * 某一種類型底下的全部。走哪張表由類型屬於哪個 group 決定，跟 POST 同一套規則——
  * 只查 records 的話，片段與書寫底下的自訂類型清單永遠是空的。
  *
  * 沒解鎖就濾掉自己標私人的那幾筆；片段不帶私人旗標，不用濾。
@@ -46,7 +46,7 @@ export const GET = guarded(
 );
 
 /**
- * 新增一筆。走哪張表由類型屬於哪一堆決定——紀錄有作品那一層，片段沒有。
+ * 新增一筆。走哪張表由類型屬於哪個 group 決定——紀錄有作品那一層，片段沒有。
  *
  * 值只收這個類型勾了的欄位，其餘在 mutations 那層擋掉。
  */

@@ -9,7 +9,7 @@ import { useGroupRecordsOverview } from "@/hooks/use-group-records-overview";
 import { recordItem } from "@/utils/overview-items";
 
 /**
- * 紀錄那一堆的概覽：書籍、文章、之後的電影都混在同一份清單裡排。
+ * 紀錄那個 group 的概覽：書籍、文章、之後的電影都混在同一份清單裡排。
  *
  * 讀的是新表。舊的 books／articles 路由還在，兩套並存到確認過為止。
  *

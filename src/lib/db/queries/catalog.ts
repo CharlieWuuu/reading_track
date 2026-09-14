@@ -65,7 +65,7 @@ const toRecordRow = ({
   isPrivate: record.isPrivate,
 });
 
-/** kindId 不給就是整堆都要——概覽頁要把書籍與文章混在一起排 */
+/** kindId 不給就是整個 group 都要——概覽頁要把書籍與文章混在一起排 */
 export async function listRecordsByKind(userId: string, kindId?: string): Promise<RecordRow[]> {
   const rows = await db
     .select({ record: records, work: works, kind: kinds })
@@ -78,7 +78,7 @@ export async function listRecordsByKind(userId: string, kindId?: string): Promis
   return rows.map(toRecordRow);
 }
 
-/** 整堆的紀錄。概覽頁要把同一堆底下所有類型混在一起排 */
+/** 整個 group 的紀錄。概覽頁要把同一個 group 底下所有類型混在一起排 */
 export async function listRecordsByGroup(userId: string, group: KindGroup): Promise<RecordRow[]> {
   const rows = await db
     .select({ record: records, work: works, kind: kinds })
@@ -93,7 +93,7 @@ export async function listRecordsByGroup(userId: string, group: KindGroup): Prom
 
 /**
  * 進行中／想要那兩堆，概覽頁右欄與頭條用。這批天生就小（同時在讀的書不會太多），
- * 整批抓，不分頁——分頁只留給會一直長大的「完成」那一堆。
+ * 整批抓，不分頁——分頁只留給會一直長大的「完成」那個 group。
  */
 export async function listActiveRecordsByGroup(
   userId: string,
@@ -120,7 +120,7 @@ export type PagedRecordRows = {
 };
 
 /**
- * 完成的那一堆，keyset 分頁。畫面照 endDate 新到舊排（跟 records-overview.tsx
+ * 完成的那個 group，keyset 分頁。畫面照 endDate 新到舊排（跟 records-overview.tsx
  * 原本在前端做的 sort 同一個鍵），游標也用 (endDate, id) 而不是 createdAt，
  * 兩者本來就是不同欄位，分頁鍵要跟顯示排序鍵一致，不然翻頁順序會跟畫面對不起來。
  */
@@ -188,7 +188,7 @@ export type FragmentRow = {
 };
 
 /**
- * 一堆片段。片段（佳句、單字、關鍵字）都在 fragments 表裡，靠類型屬於哪一堆分。
+ * 整個 group 的片段。片段（佳句、單字、關鍵字）都在 fragments 表裡，靠類型屬於哪個 group 分。
  *
  * 出處的標題一起帶出來——概覽上「這句話出自哪本書」比片段本身還重要。
  */
@@ -226,7 +226,7 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
   });
 }
 
-/** 某一種片段類型底下的全部。自訂類型的清單頁走這條——紀錄那堆走 listRecordsByKind */
+/** 某一種片段類型底下的全部。自訂類型的清單頁走這條——紀錄那個 group 走 listRecordsByKind */
 export async function listFragmentsByKind(userId: string, kindId: string): Promise<FragmentRow[]> {
   const rows = await db
     .select({ fragment: fragments, kind: kinds })
@@ -264,7 +264,7 @@ export async function listFragmentsByKind(userId: string, kindId: string): Promi
 /**
  * 書寫獨立成表了，不在 fragments 裡——概覽頁要的形狀一樣，這裡轉一次。
  *
- * 類型讀自己那一列的 kind_id，不寫死「書寫」：書寫堆底下不只一種，
+ * 類型讀自己那一列的 kind_id，不寫死「書寫」：書寫 group 底下不只一種，
  * 範本庫還有論述、每日計畫。
  */
 async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {

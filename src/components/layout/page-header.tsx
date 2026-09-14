@@ -76,7 +76,7 @@ export function PageHeader({
               const crumb: Crumb = typeof segment === "string" ? { label: segment } : segment;
               return (
                 // 手機只留 logo 與頁名：中間那幾層佔掉整行，而返回箭頭跟底部導覽
-                // 已經說了「上一層是誰、我在哪一堆」
+                // 已經說了「上一層是誰、我在哪個 group」
                 <span key={i} className="hidden min-w-0 shrink items-baseline gap-2 md:flex">
                   {crumb.href ? (
                     <Link href={crumb.href} className={styles.parentLink}>
