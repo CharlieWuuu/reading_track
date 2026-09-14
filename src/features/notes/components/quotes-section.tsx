@@ -6,9 +6,9 @@ import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { OverviewLayout } from "@/components/ui/overview-layout/overview-layout";
 import { OverviewRailList } from "@/components/ui/overview-layout/overview-rail-stats";
+import { Quote } from "@/components/ui/quote";
 import { RecordCard } from "@/components/ui/record-card/record-card";
 import { quoteHref } from "@/config/routes";
-import { QuoteBlock } from "@/features/notes/components/record-items";
 import { useQuotesOverview } from "@/hooks/use-fragments-overview";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
@@ -82,10 +82,9 @@ function QuotesGrid({
             title={record.bookTitle}
             showTitle={false}
             coverUrl={record.bookCover}
-            // 出處不傳：QuoteBlock 自己會把 chapter 畫成署名，傳了會上下各出現一次
             onClick={() => router.push(quoteHref(record.id))}
           >
-            <QuoteBlock quote={record} />
+            <Quote text={record.text} source={record.chapter} note={record.note} />
           </RecordCard>
         );
       }}
