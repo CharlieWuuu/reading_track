@@ -6,6 +6,7 @@ import { kinds } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
 import { inferStatusKey } from "@/types/book";
 import { decodeCursor, encodeCursor } from "@/utils/pagination";
+import { byDateThenNewest } from "@/utils/record-order";
 import { sourceUrlOfFragment, sourceUrlOfRecord } from "./external-links";
 import { worksOfFragments } from "./fragments";
 import { listWritings } from "./writings";
@@ -266,6 +267,9 @@ export async function listFragmentsByKind(userId: string, kindId: string): Promi
  *
  * 類型讀自己那一列的 kind_id，不寫死「書寫」：書寫 group 底下不只一種，
  * 範本庫還有論述、每日計畫。
+ *
+ * 照 date 排不是 createdAt——補記一則舊心得，該落在它自己的日期上，
+ * 不是跳到最前面。沒填日期的排最後，跟其他清單同一套規則。
  */
 async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
   const rows = await listWritings(userId);
@@ -286,7 +290,7 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       createdAt: writing.createdAt,
       coverUrl: writing.coverUrl,
     }))
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    .sort(byDateThenNewest((row) => row.date));
 }
 
 /** 某一種書寫類型底下的全部。書寫不在 fragments 表，走 listFragmentsByKind 會永遠是空的 */
