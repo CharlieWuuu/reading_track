@@ -10,8 +10,6 @@ async function fetcher(url: string): Promise<{ keywords: KeywordInfo[] }> {
   return data;
 }
 
-export type EnrichResult = { added: number; found: number; remaining: number };
-
 /** 關鍵字主檔跨三種紀錄共用，只查一次 */
 export function useKeywordInfos() {
   const { mutate: mutateGlobal } = useSWRConfig();
@@ -21,19 +19,6 @@ export function useKeywordInfos() {
 
   const infos = data?.keywords ?? [];
   const byName = new Map(infos.map((info) => [info.name, info]));
-
-  /** 把還沒查過的名字送去查維基，回報補了幾個；retry 連查過但沒查到的也再試一次 */
-  async function enrich(names: string[], retry = false): Promise<EnrichResult> {
-    const res = await fetch("/api/keywords", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ names, retry }),
-    });
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.error ?? "補齊關鍵字失敗");
-    await mutate();
-    return result as EnrichResult;
-  }
 
   /** 手動改一筆；改名時連帶改寫引用它的書。改完重讀，畫面才會跟著更新 */
   async function save(keyword: KeywordInfo, previousName?: string) {
@@ -68,7 +53,6 @@ export function useKeywordInfos() {
     byName,
     isLoading,
     error: error instanceof Error ? error.message : undefined,
-    enrich,
     save,
     remove,
   };
