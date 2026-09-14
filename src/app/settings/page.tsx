@@ -13,7 +13,7 @@ import { useUrlParams } from "@/hooks/use-url-param";
 
 const TABS = [
   { key: "categories", label: "分類選項" },
-  { key: "kinds", label: "新增類型" },
+  { key: "kinds", label: "類型" },
   { key: "account", label: "帳號" },
 ] as const;
 
