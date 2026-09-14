@@ -90,6 +90,12 @@ eslint 用 `import/no-restricted-paths` 鎖邊界，跨 feature 例外列在 `AL
 - husky：pre-push 跑 check:all、commit-msg 擋非 Conventional Commits；commit 不檢查
 - eslint 有 `--cache`；改設定後第一次慢（`import/no-cycle` 約 83 秒）
 
+# 動線
+
+- **新增一筆**只在導覽列：桌機側欄底下一顆、手機底部導覽正中間。頁首一律沒有
+- **新增類型**只在設定頁的「類型」分頁
+- 點一筆進去是**詳情**，不是編輯表單；編輯從詳情頁進去
+
 # 產品原則
 
 - 資料在 Postgres（drizzle，`lib/db`）。多值一行一筆，不塞 JSON

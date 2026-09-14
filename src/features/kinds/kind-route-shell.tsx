@@ -1,13 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Plus } from "lucide-react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { CardGrid } from "@/components/ui/card-grid";
-import { ActionButton } from "@/components/ui/controls";
 import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { QuoteWall } from "@/components/ui/quote-wall";
@@ -145,13 +143,6 @@ export function KindListPage({ group, slug }: { group: KindGroup; slug: string }
               {!List && (
                 <SearchBar value={query} onChange={(next) => setParams({ q: next || null })} />
               )}
-              <ActionButton
-                href={`${kindHref(group, slug)}/new`}
-                label={`新增${kind.name}`}
-                text="新增"
-              >
-                <Plus size={16} strokeWidth={2} aria-hidden />
-              </ActionButton>
             </div>
           )
         }
@@ -214,7 +205,6 @@ export function KindRecordPage({
   const { kind, isLoading: kindLoading } = useKindBySlug(group, slug);
   const { record, isLoading: recordLoading, error } = useCatalogRecord(recordId);
   const Detail = kind ? variantFor(kind.slug).detail : undefined;
-  const Form = kind ? variantFor(kind.slug).form : undefined;
   const isLoading = kindLoading || recordLoading;
   const groupLabel = NAV_GROUPS.find((g) => g.kindGroup === group)?.label;
 
