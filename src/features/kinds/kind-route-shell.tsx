@@ -204,6 +204,16 @@ export function KindRecordPage({
           ]
         }
         backHref={kindHref(group, slug)}
+        action={
+          kind && (
+            <Link
+              href={`${kindHref(group, slug)}/${recordId}/edit`}
+              className="text-meta text-ink-faint hover:text-ink ml-auto"
+            >
+              編輯
+            </Link>
+          )
+        }
       />
       <PageBody>
         {error ? (
@@ -213,7 +223,7 @@ export function KindRecordPage({
         ) : Detail ? (
           <Detail kind={kind} recordId={recordId} />
         ) : (
-          <ModuleDetail kind={kind} recordId={recordId} values={record.values} />
+          <ModuleDetail kind={kind} values={record.values} />
         )}
       </PageBody>
     </>
