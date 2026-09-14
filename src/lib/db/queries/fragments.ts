@@ -32,18 +32,18 @@ const rowsOfKind = (userId: string, kindName: string) =>
 export async function worksOfFragments(
   userId: string,
   fragmentIds: string[],
-): Promise<Map<string, { id: string; title: string }>> {
+): Promise<Map<string, { id: string; title: string; coverUrl: string }>> {
   const linked = await linkedIdsOfMany(userId, fragmentIds);
   const otherIds = [...new Set([...linked.values()].flat())];
   if (!otherIds.length) return new Map();
 
   const workRows = await db
-    .select({ id: works.id, title: works.title })
+    .select({ id: works.id, title: works.title, coverUrl: works.coverUrl })
     .from(works)
     .where(and(eq(works.userId, userId), inArray(works.id, otherIds)));
   const workById = new Map(workRows.map((row) => [row.id, row]));
 
-  const result = new Map<string, { id: string; title: string }>();
+  const result = new Map<string, { id: string; title: string; coverUrl: string }>();
   for (const [fragmentId, ids] of linked) {
     const work = ids.map((id) => workById.get(id)).find((row) => row !== undefined);
     if (work) result.set(fragmentId, work);

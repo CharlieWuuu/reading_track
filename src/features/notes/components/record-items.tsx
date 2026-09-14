@@ -5,12 +5,23 @@ import { QuoteRow, VocabularyRow } from "@/types/record";
  * 兩邊看到的同一則東西才會長得一樣，只差筆記頁左邊多一張封面。
  */
 
-/** 佳句照書裡的樣子排：出處靠右當署名，心得再下一行 */
+/**
+ * 佳句照書裡的樣子排：開頭一個引號、出處靠右當署名，心得再下一行。
+ *
+ * 引號用 ldquo 掛在文字左上角，不佔行首那一格——中文標點本來就有半格空白，
+ * 再縮排一次會歪掉。
+ */
 export function QuoteBlock({ quote }: { quote: Pick<QuoteRow, "text" | "chapter" | "note"> }) {
   return (
     <div className="flex flex-col gap-1.5">
       {/* 不畫左側那條線：旁邊就是封面，兩個直的元素並排會像被切成兩欄 */}
-      <blockquote className="text-[15px] leading-relaxed whitespace-pre-wrap text-gray-800 md:text-base">
+      <blockquote className="relative pl-6 text-[15px] leading-relaxed whitespace-pre-wrap text-gray-800 md:text-base">
+        <span
+          aria-hidden
+          className="absolute top-0 left-0 font-serif text-3xl leading-none text-gray-300 select-none"
+        >
+          &ldquo;
+        </span>
         {quote.text}
       </blockquote>
       {quote.chapter && <p className="text-right text-xs text-gray-400">— {quote.chapter}</p>}

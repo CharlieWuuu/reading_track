@@ -89,13 +89,12 @@ export function VocabularySection({
   if (view === "table") return <GroupTable items={items} onSaved={mutate} />;
 
   const headline = pickHeadline(items);
-  const rest = items.filter((item) => item.id !== headline?.id);
 
   return (
     <OverviewLayout
       headline={headline}
       headlineLabel="最近記的"
-      done={rest}
+      done={items}
       rail={<VocabularyRail entries={entries} books={books} />}
       gridClassName={FRAGMENT_CARD_GRID}
       renderItem={(item) => {

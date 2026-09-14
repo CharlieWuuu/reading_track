@@ -229,7 +229,8 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
       pronunciation: fragment.pronunciation,
       date: fragment.date,
       createdAt: fragment.createdAt.toISOString(),
-      coverUrl: fragment.coverUrl,
+      // 自己沒填示意圖就用出處的封面——一句佳句本來就長在某本書上
+      coverUrl: fragment.coverUrl || work?.coverUrl || "",
     };
   });
 }
@@ -266,7 +267,8 @@ export async function listFragmentsByKind(userId: string, kindId: string): Promi
       pronunciation: fragment.pronunciation,
       date: fragment.date,
       createdAt: fragment.createdAt.toISOString(),
-      coverUrl: fragment.coverUrl,
+      // 自己沒填示意圖就用出處的封面——一句佳句本來就長在某本書上
+      coverUrl: fragment.coverUrl || work?.coverUrl || "",
     };
   });
 }
