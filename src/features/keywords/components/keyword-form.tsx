@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { FormActions } from "@/components/ui/form-actions";
 import { OptionSelect } from "@/components/ui/option-select";
-import { lookupKeyword } from "@/features/keywords/api/lookup-keyword";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { formatSpan, KeywordInfo, parseSpan } from "@/types/keyword";
 
@@ -19,9 +18,6 @@ const styles = {
   summary:
     "min-h-64 w-full flex-1 resize-none rounded-control border border-rule bg-transparent px-3 py-2 font-serif text-sm text-ink",
   actions: "flex flex-wrap items-center gap-2 pt-1",
-  lookup:
-    "rounded-control border border-control-border px-3 py-2 text-sm font-medium text-control-ink-secondary hover:bg-control-ghost-hover disabled:opacity-50",
-  note: "text-meta text-ink-faint",
   save: "rounded-control bg-control-bg text-control-ink px-4 py-2 text-sm font-medium hover:bg-control-bg-hover disabled:opacity-50",
   cancel:
     "rounded-control border border-control-border px-4 py-2 text-sm font-medium text-control-ink-secondary hover:bg-control-ghost-hover",
@@ -67,7 +63,7 @@ type KeywordFormProps = {
 };
 
 /**
- * 關鍵字的欄位。維基查回來的每一欄都能手改，改完整列覆寫，不會被下次補齊蓋掉。
+ * 關鍵字的欄位。都是手填的——自動查維基那套拿掉了。
  *
  * 不自己畫外框：它同時長在整頁的編輯頁與表單裡的對話框上，兩邊只差外面那一層。
  */
@@ -76,8 +72,6 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
   const tagCounts = usedTags(infos);
   const [form, setForm] = useState<KeywordInfo>(info);
   const [saving, setSaving] = useState(false);
-  const [looking, setLooking] = useState(false);
-  const [note, setNote] = useState("");
   const [error, setError] = useState("");
 
   const set = (key: keyof KeywordInfo, value: string) => setForm((f) => ({ ...f, [key]: value }));
@@ -87,26 +81,6 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
   const spanFrom = span?.from == null ? "" : String(span.from);
   const spanTo = span?.to == null ? "" : String(span.to);
   const setSpan = (from: string, to: string) => set("span", formatSpan(from, to));
-
-  /** 去維基查這個字，查到的填進欄位讓人過目；要不要留下還是按儲存才算 */
-  async function handleLookup() {
-    setLooking(true);
-    setError("");
-    setNote("");
-    try {
-      const found = await lookupKeyword(form.name.trim());
-      if (!found.wikiUrl && !found.summary) {
-        setNote("維基沒有這個條目");
-        return;
-      }
-      // 標籤是自己貼的，維基查回來不該動它。欄位變了就是查到了，不用再寫一行說明
-      setForm((f) => ({ ...found, name: f.name, tags: f.tags }));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "查詢失敗");
-    } finally {
-      setLooking(false);
-    }
-  }
 
   async function handleDelete() {
     if (!onDelete) return;
@@ -216,8 +190,6 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
         />
       </div>
 
-      {note && <p className={styles.note}>{note}</p>}
-
       <FormActions
         onSave={handleSave}
         saving={saving}
@@ -226,16 +198,6 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
         deleteLabel="刪除這個關鍵字"
         confirmLabel="確定刪除？提到它的書也會拿掉這個關鍵字"
         error={error}
-        extra={
-          <button
-            type="button"
-            onClick={handleLookup}
-            disabled={looking || !form.name.trim()}
-            className={styles.lookup}
-          >
-            {looking ? "查詢中…" : "查維基"}
-          </button>
-        }
       />
     </div>
   );
