@@ -74,7 +74,7 @@ export const recordItem = (row: RecordRow): OverviewItem => ({
  */
 const FRAGMENT_HREF: Record<string, (row: FragmentRow) => string> = {
   vocabulary: (row) => `${kindHref(row.kindGroup, row.kindSlug)}/${encodeURIComponent(row.name)}`,
-  keywords: (row) => kindHref(row.kindGroup, row.kindSlug),
+  keywords: (row) => `${kindHref(row.kindGroup, row.kindSlug)}/${encodeURIComponent(row.name)}`,
 };
 
 export const fragmentHref = (row: FragmentRow): string =>
