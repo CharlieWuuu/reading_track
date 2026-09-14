@@ -75,6 +75,30 @@ export async function addWritingRow(userId: string, writing: Writing): Promise<v
   });
 }
 
+/**
+ * 從通用表單新增一則書寫。kindId 是現成的，不用像 addWritingRow 那樣靠 topic 反查。
+ *
+ * 沒有字數：那是內文本身算得出來的，不存。
+ */
+export async function addWritingFromValues(
+  userId: string,
+  kindId: string,
+  values: Record<string, string>,
+): Promise<string> {
+  const [row] = await db
+    .insert(writings)
+    .values({
+      userId,
+      kindId,
+      name: values.title ?? "",
+      body: values.body ?? "",
+      date: toDate(values.endDate ?? ""),
+      coverUrl: values.coverUrl ?? "",
+    })
+    .returning({ id: writings.id });
+  return row.id;
+}
+
 export async function addWritingRows(userId: string, rows: Writing[]): Promise<void> {
   for (const row of rows) await addWritingRow(userId, row);
 }

@@ -109,14 +109,14 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "writings",
     name: "心得",
     amountUnit: "字",
-    modules: ["title", "longText", "source", "date", "keywords", "amount", "private"],
+    modules: ["title", "longText", "source", "date", "keywords", "private"],
   },
   {
     key: "thoughts",
     group: "writings",
     name: "思緒",
     amountUnit: "字",
-    modules: ["title", "longText", "date", "keywords", "amount", "private"],
+    modules: ["title", "longText", "date", "keywords", "private"],
   },
   {
     key: "weekly-plan",
@@ -130,7 +130,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "writings",
     name: "論述",
     amountUnit: "字",
-    modules: ["title", "longText", "link", "date", "keywords", "amount", "private"],
+    modules: ["title", "longText", "link", "date", "keywords", "private"],
   },
   {
     key: "plan",

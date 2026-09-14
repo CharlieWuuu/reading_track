@@ -12,16 +12,19 @@ import {
 import { PRIVATE_MARK } from "@/config/privacy";
 import { deleteRecord, updateRecord } from "@/lib/db/mutations/catalog";
 import { deleteFragment, updateFragment } from "@/lib/db/mutations/fragment-modules";
-import { getFragmentValues, getRecordValues } from "@/lib/db/queries/catalog";
+import { deleteWritingRow, updateWritingRow } from "@/lib/db/mutations/writings";
+import { getFragmentValues, getRecordValues, getWritingValues } from "@/lib/db/queries/catalog";
 import { requestPrivacy } from "@/utils/privacy";
 
 /**
- * 單筆的讀寫。紀錄與片段共用這一支——編號是唯一的，查不到就換另一張表找，
+ * 單筆的讀寫。三個 group 共用這一支——編號是唯一的，查不到就換下一張表找，
  * 呼叫端不用先知道它是哪個 group。
  */
 
 const load = async (userId: string, id: string) =>
-  (await getRecordValues(userId, id)) ?? (await getFragmentValues(userId, id));
+  (await getRecordValues(userId, id)) ??
+  (await getFragmentValues(userId, id)) ??
+  (await getWritingValues(userId, id));
 
 export const GET = guarded(
   "catalog GET",
@@ -62,9 +65,20 @@ export const PATCH = guarded(
     );
 
     try {
-      const isRecord = Boolean(await getRecordValues(session.user.id, id));
-      if (isRecord) await updateRecord(session.user.id, id, values);
-      else await updateFragment(session.user.id, id, values);
+      // 哪張表有這筆就改哪張。三個 group 三張表，跟 GET 同一套規則
+      if (await getRecordValues(session.user.id, id)) {
+        await updateRecord(session.user.id, id, values);
+      } else if (await getFragmentValues(session.user.id, id)) {
+        await updateFragment(session.user.id, id, values);
+      } else {
+        // ModuleForm 送的是欄位名，換成 Writing 的說法
+        await updateWritingRow(session.user.id, id, {
+          title: values.title,
+          note: values.body,
+          date: values.endDate,
+          coverUrl: values.coverUrl,
+        });
+      }
       return NextResponse.json({ ok: true });
     } catch (err) {
       return dataFailure("儲存", "updateRecord", err);
@@ -81,9 +95,10 @@ export const DELETE = guarded(
 
     const { id } = await ctx.params;
     try {
-      // 兩張都試：查不到的那張什麼也不會做
+      // 三張都試：查不到的那幾張什麼也不會做
       await deleteRecord(session.user.id, id);
       await deleteFragment(session.user.id, id);
+      await deleteWritingRow(session.user.id, id);
       return NextResponse.json({ ok: true });
     } catch (err) {
       return dataFailure("刪除", "deleteRecord", err);
