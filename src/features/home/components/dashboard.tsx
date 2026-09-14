@@ -20,9 +20,9 @@ import { DigestColumn, DigestItem } from "./digest-column";
 import { MonthPanel } from "./month-panel";
 
 /**
- * 登入後的首頁。三堆各取最近三筆，上面壓一則頭條與這個月的數字。
+ * 登入後的首頁。三個 group 各取最近三筆，上面壓一則頭條與這個月的數字。
  *
- * 三堆各自一支 SWR，哪一堆慢就哪一堆晚到，不互相擋。
+ * 三個 group 各自一支 SWR，哪個 group 慢就哪個 group 晚到，不互相擋。
  */
 
 const styles = {

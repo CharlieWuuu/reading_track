@@ -62,7 +62,7 @@ export function Sidebar() {
   const { kinds } = useKinds();
 
   /**
-   * 該堆底下所有類型，全部從資料庫來——包含使用者剛新增、還沒有任何資料的那個。
+   * 這個 group 底下所有類型，全部從資料庫來——包含使用者剛新增、還沒有任何資料的那個。
    * 沒有入口就點不進去，沒地方新增第一筆；0 筆不等於不存在。
    */
   const typesOf = (group: NavGroup): NavType[] =>

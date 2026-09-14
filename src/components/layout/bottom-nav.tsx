@@ -14,7 +14,7 @@ import { NavKindSheet } from "./nav-kind-sheet";
  * 手機版底部導覽列。桌機版走側欄（Sidebar），兩邊共用同一份 NAV_ITEMS。
  * 底部留 safe-area，避免被 iPhone 的 home indicator 蓋住。
  *
- * 三堆那幾格可以長按：往上推出這一堆的類型清單（見 NavKindSheet）。
+ * 三個 group 那幾格可以長按：往上推出這個 group 的類型清單（見 NavKindSheet）。
  * 短按還是進概覽頁，長按不跟著跳頁——按住到選單出現就取消那次導覽。
  */
 

@@ -9,7 +9,7 @@ import {
 import { KindGroup } from "@/config/record-kinds";
 import { listFragmentsByGroup } from "@/lib/db/queries/catalog";
 
-/** 片段與書寫共用：兩者同一張表，靠類型屬於哪一堆分 */
+/** 片段與書寫共用：兩者同一張表，靠類型屬於哪個 group 分 */
 const GROUPS: KindGroup[] = ["fragments", "writings"];
 
 export const GET = guarded(
@@ -19,7 +19,7 @@ export const GET = guarded(
     if (!session) return unauthorized();
 
     const { group } = await ctx.params;
-    if (!GROUPS.includes(group as KindGroup)) return badRequest("沒有這一堆");
+    if (!GROUPS.includes(group as KindGroup)) return badRequest("沒有這個 group");
 
     try {
       const rows = await listFragmentsByGroup(session.user.id, group as KindGroup);

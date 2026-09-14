@@ -13,7 +13,7 @@ import { OverviewItem } from "@/utils/overview";
 import { fragmentHref, fragmentMeta, fragmentTitle, recordItem } from "@/utils/overview-items";
 
 /**
- * 年報、週報、日報共用的骨架：三堆各自按類型分節。紀錄跟紀錄概覽同一套
+ * 年報、週報、日報共用的骨架：三個 group 各自按類型分節。紀錄跟紀錄概覽同一套
  * CoverCard 月份格線；片段、書寫跟片段概覽同一套 FragmentCard 卡片牆——
  * 同一種東西全站只有一種畫法，差在哪一種而已，範圍報告不另外發明版面。
  *

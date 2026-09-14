@@ -6,7 +6,7 @@ import { OverviewTotalStats } from "@/components/ui/overview-layout/overview-rai
 import { OverviewItem, pickHeadline } from "@/utils/overview";
 
 /**
- * 一堆東西的概覽：跟書籍概覽共用同一套骨架（OverviewLayout），
+ * 整個 group 的概覽：跟書籍概覽共用同一套骨架（OverviewLayout），
  * 差別只有右側窄欄——這裡收的是 OverviewItem 而不是 Book，紀錄那頁要把
  * 書籍、文章、電影混在同一份清單裡排，沒有共通的量化指標可以做統計區塊，
  * 右欄是統計／進行／想要，標籤全站固定，不開放呼叫端自訂。

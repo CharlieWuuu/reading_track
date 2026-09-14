@@ -19,7 +19,7 @@ import { useUrlParams } from "@/hooks/use-url-param";
  * 這裡不是 layout.tsx：五條是兄弟路由，中間沒有共同路段可以掛；
  * 而 /reading 那層的 layout 會連單筆頁也套上分頁列，那不是單筆頁要的。
  *
- * 手機不放類型切換：那是堆概覽頁（/records、/fragments）頁首那排 tab 在做的事，
+ * 手機不放類型切換：那是group 概覽頁（/records、/fragments）頁首那排 tab 在做的事，
  * 單一類型頁只講自己這一種。省下來的寬度給搜尋框常駐。
  */
 
@@ -58,7 +58,7 @@ export function ReadingHeader({
 
   const newHref = NEW_HREF[current];
   const currentTab = READING_TABS.find((tab) => tab.key === current);
-  // 麵包屑：這個分頁掛在側欄哪一堆底下，字跟側欄同一份設定，不重複維護
+  // 麵包屑：這個分頁掛在側欄哪個 group 底下，字跟側欄同一份設定，不重複維護
   const parent = NAV_GROUPS.find((group) => group.kindGroup === currentTab?.group)?.label;
 
   return (

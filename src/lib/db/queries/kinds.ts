@@ -20,7 +20,7 @@ export type Kind = {
   name: string;
   /** 網址上的那一段 */
   slug: string;
-  /** 屬於側欄哪一堆 */
+  /** 屬於側欄哪個 group */
   group: KindGroup;
   sortOrder: number;
   amountUnit: string;
@@ -108,7 +108,7 @@ export async function listKinds(userId: string): Promise<Kind[]> {
   }));
 }
 
-/** 這個 slug 在這一堆底下是不是已經被占走了，給新增表單即時檢查用 */
+/** 這個 slug 在這個 group 底下是不是已經被占走了，給新增表單即時檢查用 */
 export async function slugTaken(userId: string, group: KindGroup, slug: string): Promise<boolean> {
   const [row] = await db
     .select({ id: kindsTable.id })
@@ -123,7 +123,7 @@ export async function slugTaken(userId: string, group: KindGroup, slug: string):
   return Boolean(row);
 }
 
-/** 這個類型屬於哪一堆。寫入時要靠它決定進哪張表 */
+/** 這個類型屬於哪個 group。寫入時要靠它決定進哪張表 */
 export async function kindGroupOf(userId: string, kindId: string): Promise<KindGroup | null> {
   const [row] = await db
     .select({ group: kindsTable.groupKey })

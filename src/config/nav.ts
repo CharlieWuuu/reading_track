@@ -18,9 +18,9 @@ export type NavType = {
 export type NavGroup = {
   key: string;
   label: string;
-  /** 對到資料庫那一堆。沒有的就沒有「新增類型」——統計是回頭看，不新增東西 */
+  /** 對到資料庫那個 group。沒有的就沒有「新增類型」——統計是回頭看，不新增東西 */
   kindGroup?: KindGroup;
-  /** 這一堆的概覽頁。沒有的話標題就只是標題，點不下去 */
+  /** 這個 group 的概覽頁。沒有的話標題就只是標題，點不下去 */
   href?: string;
   types: NavType[];
 };
@@ -32,7 +32,7 @@ export const NAV_GROUPS: NavGroup[] = [
 ];
 
 /**
- * 報頭右側的工具區。統計與設定不是內容類型，不跟三堆並列——
+ * 報頭右側的工具區。統計與設定不是內容類型，不跟三個 group 並列——
  * 統計是副產品，設定是後台。
  */
 export const TOOL_ITEMS: NavType[] = [

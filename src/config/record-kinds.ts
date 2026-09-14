@@ -14,15 +14,15 @@ export type FieldSpec = {
   hidden?: boolean;
 };
 
-/** 哪一堆吃欄位庫的哪幾層。紀錄有作品那一層，片段沒有——一句話不會被讀第二次。
- * 外部連結（externalLink）走 external_links，三堆都能用 */
+/** 哪個 group 吃欄位庫的哪幾層。紀錄有作品那一層，片段沒有——一句話不會被讀第二次。
+ * 外部連結（externalLink）走 external_links，三個 group 都能用 */
 export const GROUP_LAYERS: Record<KindGroup, FieldLayer[]> = {
   records: ["work", "record", "externalLink"],
   fragments: ["fragment", "externalLink"],
   writings: ["fragment", "externalLink"],
 };
 
-/** 側欄那三堆。同一套類型機制，資料落在三張形狀不同的表 */
+/** 側欄那三個 group。同一套類型機制，資料落在三張形狀不同的表 */
 export type KindGroup = "records" | "fragments" | "writings";
 
 export type KindSpec = {

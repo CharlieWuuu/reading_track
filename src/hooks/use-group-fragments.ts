@@ -4,7 +4,7 @@ import useSWR from "swr";
 import { KindGroup } from "@/config/record-kinds";
 import { FragmentRow } from "@/lib/db/queries/catalog";
 
-/** 片段與書寫共用：兩者同一張表，只差類型屬於哪一堆 */
+/** 片段與書寫共用：兩者同一張表，只差類型屬於哪個 group */
 async function fetcher(url: string): Promise<{ fragments: FragmentRow[] }> {
   const res = await fetch(url);
   const data = await res.json();

@@ -30,7 +30,7 @@ export interface Writing {
   /** 出處本身的類型（書籍／文章），跟這則書寫自己的 kind 是兩件事——
    * 不要拿這欄去湊「類型」顯示，那正是之前把兩者混在一起的錯誤做法 */
   sourceKind: string;
-  /** 這則自己的類型。書寫堆底下不只「書寫」一種，範本庫還有論述、每日計畫 */
+  /** 這則自己的類型。書寫 group 底下不只「書寫」一種，範本庫還有論述、每日計畫 */
   kindId: string;
   kindName: string;
   kindSlug: string;

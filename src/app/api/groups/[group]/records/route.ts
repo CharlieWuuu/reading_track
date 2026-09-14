@@ -15,7 +15,7 @@ import {
 import { requestPrivacy } from "@/utils/privacy";
 import { hideSelfPrivate } from "@/utils/privacy-rows";
 
-/** 整堆的紀錄。概覽頁要把書籍、文章、電影混在同一份清單裡排 */
+/** 整個 group 的紀錄。概覽頁要把書籍、文章、電影混在同一份清單裡排 */
 const GROUPS: KindGroup[] = ["records", "fragments", "writings"];
 
 const DEFAULT_LIMIT = 30;
@@ -27,7 +27,7 @@ export const GET = guarded(
     if (!session) return unauthorized();
 
     const { group } = await ctx.params;
-    if (!GROUPS.includes(group as KindGroup)) return badRequest("沒有這一堆");
+    if (!GROUPS.includes(group as KindGroup)) return badRequest("沒有這個 group");
 
     const scope = req.nextUrl.searchParams.get("scope");
     const { unlocked } = await requestPrivacy(session.user.id, req);

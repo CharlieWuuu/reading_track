@@ -2,11 +2,11 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 /**
- * 堆概覽頁（紀錄／片段／書寫）的檢視方式。只有兩種——SPEC 定案卡片檢視已砍，
+ * group 概覽頁（紀錄／片段／書寫）的檢視方式。只有兩種——SPEC 定案卡片檢視已砍，
  * 表格上的多選是表格的一個開關，不是第三種檢視。
  *
  * 跟書籍那邊的 view store 分開：那邊是類型概覽（單一類型，可能有書封牆），
- * 這裡是堆概覽（混排多種類型），選項不一樣不共用同一個 key。
+ * 這裡是group 概覽（混排多種類型），選項不一樣不共用同一個 key。
  */
 export type GroupViewMode = "overview" | "table";
 
