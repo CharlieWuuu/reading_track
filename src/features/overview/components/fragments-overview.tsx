@@ -57,8 +57,9 @@ export function FragmentsOverview({
   // 佳句是句子不是卡片，切成兩欄會把長句擠成一行三四個字
   const allQuotes = fragments.every((row) => row.kindSlug === "quotes");
 
+  // PageBody 收到 scroll={false}，捲動歸這裡——不開的話整頁卡住捲不動
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto">
       <OverviewHeadline
         item={fragmentItem(headline)}
         label="最新一則"

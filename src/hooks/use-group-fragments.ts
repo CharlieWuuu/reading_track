@@ -3,6 +3,7 @@
 import useSWR from "swr";
 import { KindGroup } from "@/config/record-kinds";
 import { FragmentRow } from "@/lib/db/queries/catalog";
+import { usePrivacyStore } from "@/stores/use-privacy-store";
 
 /** 片段與書寫共用：兩者同一張表，只差類型屬於哪個 group */
 async function fetcher(url: string): Promise<{ fragments: FragmentRow[] }> {
@@ -13,7 +14,9 @@ async function fetcher(url: string): Promise<{ fragments: FragmentRow[] }> {
 }
 
 export function useGroupFragments(group: KindGroup) {
-  const { data, error, isLoading, mutate } = useSWR(`/api/groups/${group}/fragments`, fetcher);
+  const unlock = usePrivacyStore((s) => s.token);
+  const key = `/api/groups/${group}/fragments${unlock ? `?unlock=${unlock}` : ""}`;
+  const { data, error, isLoading, mutate } = useSWR(key, fetcher);
 
   return {
     fragments: data?.fragments ?? [],
