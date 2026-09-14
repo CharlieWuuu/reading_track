@@ -23,6 +23,8 @@ const styles = {
   // 不要因為其中一邊比較長就把另一邊也拖走
   main: "flex min-w-0 flex-1 flex-col gap-5 overflow-y-auto",
   rail: "border-rule-strong hidden w-64 shrink-0 flex-col gap-8 self-stretch overflow-y-auto border-l pl-6 lg:flex",
+  // 窄螢幕沒有右欄，同一份內容改插在頭條下面——「現在在讀什麼」比「上個月讀完什麼」先看到
+  railInline: "flex flex-col gap-5 lg:hidden",
   meta: "text-meta text-ink-faint tabular-nums",
   monthList: "flex flex-col gap-5",
   month: "border-rule-strong border-b pb-1.5",
@@ -64,7 +66,12 @@ export type OverviewLayoutProps = {
   done: readonly OverviewItem[];
   /** 每格底色依這個字串決定色相；不給就用 item.id（每筆不同色） */
   tintSeed?: (item: OverviewItem) => string | undefined;
-  /** 右側窄欄——各頁自己的統計、Rail 清單都放這裡；沒有就不留這塊區域 */
+  /**
+   * 右側窄欄——各頁自己的統計、Rail 清單都放這裡；沒有就不留這塊區域。
+   *
+   * 窄螢幕收掉右欄，同一份內容改插在頭條與月份格線之間：手機看不到右欄，
+   * 「在讀」「想要」就等於消失了，但那正是最常想確認的一段。
+   */
   rail?: ReactNode;
   /**
    * 月份格線裡一格怎麼畫。預設用 CoverCard（書籍、紀錄那種有封面的清單）；
@@ -131,6 +138,8 @@ export function OverviewLayout({
         {headline && (
           <OverviewHeadline item={headline} label={headlineLabel} summary={headlineSummary} />
         )}
+
+        {rail && <div className={styles.railInline}>{rail}</div>}
 
         <div className={styles.monthList}>
           {byMonth(done).map((group) => (
