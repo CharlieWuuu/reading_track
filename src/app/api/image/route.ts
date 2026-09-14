@@ -30,8 +30,11 @@ export const POST = guarded("image upload", async (req: NextRequest) => {
   const check = checkImage(file.type, file.size);
   if (!check.ok) return badRequest(check.error);
 
+  const bucket = storage();
+  if (!bucket) return NextResponse.json({ error: "還沒設定圖片儲存" }, { status: 503 });
+
   const key = imageKey(session.user.id, check.ext);
-  const { error } = await storage.upload(key, file, {
+  const { error } = await bucket.upload(key, file, {
     contentType: file.type,
     // key 是隨機的，不會撞；真的撞了寧可失敗也不要蓋掉別人的圖
     upsert: false,
@@ -56,7 +59,10 @@ export const GET = guarded("image read", async (req: NextRequest) => {
     return NextResponse.json({ error: "找不到這張圖" }, { status: 404 });
   }
 
-  const { data, error } = await storage.createSignedUrl(key, SIGNED_SECONDS);
+  const bucket = storage();
+  if (!bucket) return NextResponse.json({ error: "還沒設定圖片儲存" }, { status: 503 });
+
+  const { data, error } = await bucket.createSignedUrl(key, SIGNED_SECONDS);
   if (error || !data) {
     return NextResponse.json({ error: "找不到這張圖" }, { status: 404 });
   }

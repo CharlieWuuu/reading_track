@@ -9,10 +9,21 @@ import {
   requireWriter,
   unauthorized,
 } from "@/app/api/_lib/respond";
+import { ingestImage } from "@/lib/storage/ingest";
 import { PrivateRow, requestPrivacy, withPrivacy } from "@/utils/privacy";
 
 /** 有 private 欄位才過得了 withPrivacy，三種紀錄都符合 */
 type Row = PrivateRow;
+
+/**
+ * 抓回來的書封是別人家的網址，存之前先轉進自己的 bucket。
+ * 轉不成就原樣留著——比整筆寫不進去好。
+ */
+async function withIngestedCover<T extends Row>(userId: string, item: T): Promise<T> {
+  const cover = (item as { coverUrl?: unknown }).coverUrl;
+  if (typeof cover !== "string" || !cover) return item;
+  return { ...item, coverUrl: await ingestImage(userId, cover) };
+}
 
 type Handler = (req: NextRequest) => Promise<NextResponse>;
 
@@ -58,7 +69,7 @@ export function createCollectionRoute<T extends Row>(config: CollectionConfig<T>
     if (!item) return badRequest("缺少必要欄位");
 
     try {
-      await add(session.user.id, item);
+      await add(session.user.id, await withIngestedCover(session.user.id, item));
       return NextResponse.json({ ok: true });
     } catch (err) {
       return dataFailure("寫入", `add ${key}`, err);
