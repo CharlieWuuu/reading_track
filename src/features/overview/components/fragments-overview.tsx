@@ -58,7 +58,7 @@ export function FragmentsOverview({
 
   // PageBody 收到 scroll={false}，捲動歸這裡——不開的話整頁卡住捲不動
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto">
+    <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto pb-6">
       <OverviewHeadline
         item={fragmentItem(headline)}
         label="最新一則"
