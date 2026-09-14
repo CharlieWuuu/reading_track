@@ -229,8 +229,9 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
       pronunciation: fragment.pronunciation,
       date: fragment.date,
       createdAt: fragment.createdAt.toISOString(),
-      // 自己沒填示意圖就用出處的封面——一句佳句本來就長在某本書上
-      coverUrl: fragment.coverUrl || work?.coverUrl || "",
+      // 佳句、單字沒填示意圖就用出處的封面——那句話本來就長在那本書上。
+      // 關鍵字不退：一個詞不屬於任何一本書，掛書封只是誤導
+      coverUrl: fragment.coverUrl || (kind.slug === "keywords" ? "" : (work?.coverUrl ?? "")),
     };
   });
 }
@@ -267,8 +268,9 @@ export async function listFragmentsByKind(userId: string, kindId: string): Promi
       pronunciation: fragment.pronunciation,
       date: fragment.date,
       createdAt: fragment.createdAt.toISOString(),
-      // 自己沒填示意圖就用出處的封面——一句佳句本來就長在某本書上
-      coverUrl: fragment.coverUrl || work?.coverUrl || "",
+      // 佳句、單字沒填示意圖就用出處的封面——那句話本來就長在那本書上。
+      // 關鍵字不退：一個詞不屬於任何一本書，掛書封只是誤導
+      coverUrl: fragment.coverUrl || (kind.slug === "keywords" ? "" : (work?.coverUrl ?? "")),
     };
   });
 }
