@@ -49,9 +49,9 @@ export function KeywordsSection({ books, view }: { books: Book[]; view: KeywordV
   const { byName } = useKeywordInfos();
   const router = useRouter();
 
-  const entries = getKeywordEntries(books);
+  const entries = getKeywordEntries(books, [...byName.keys()]);
   if (entries.length === 0) {
-    return <PageMessage fill>還沒有任何關鍵字，先到書籍的「關鍵字」欄記幾個</PageMessage>;
+    return <PageMessage fill>還沒有任何關鍵字</PageMessage>;
   }
 
   return (

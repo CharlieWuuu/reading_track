@@ -50,10 +50,10 @@ function KeywordsRail({ entries, books }: { entries: KeywordEntry[]; books: Book
  */
 export function KeywordCards({ books }: { books: Book[] }) {
   const { byName } = useKeywordInfos();
-  const entries = getKeywordEntries(books);
+  const entries = getKeywordEntries(books, [...byName.keys()]);
 
   if (entries.length === 0) {
-    return <div className={styles.empty}>還沒有任何關鍵字，先到書籍的「關鍵字」欄記幾個</div>;
+    return <div className={styles.empty}>還沒有任何關鍵字</div>;
   }
 
   const toItem = (entry: KeywordEntry): OverviewItem => {
