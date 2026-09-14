@@ -4,8 +4,11 @@ import { FieldKey } from "./record-fields";
  * 模組庫。使用者看到的是這一層，不是資料表的欄位——「進度與狀態」一個模組
  * 對到狀態、開始、結束三欄，勾一次就好。
  *
- * 新模組的門檻：至少三個類型會用到。只有一個類型用得到的，那是那個類型的欄位，
- * 不是模組。這條規則擋的是模組庫被單一需求撐大。
+ * 通用表單畫的是「勾了哪些模組」，所以模組庫要蓋得住三個 group 的全部欄位——
+ * 蓋不住的那幾欄就只能另外寫一支專用表單，同一個類型的新增與編輯也就長不一樣。
+ *
+ * 新模組的門檻本來寫「至少三個類型會用到」。那條擋的是憑空發明新欄位，
+ * 不是禁止把 record-fields 已經有的欄位接上來——那些欄位資料表裡本來就在。
  */
 
 export type ModuleDef = {
@@ -38,6 +41,20 @@ export const MODULES = [
   { key: "keywords", label: "關鍵字", hint: "多對多，指向另一個片段", fields: [] },
   { key: "amount", label: "量＋單位", hint: "頁／字／分鐘，統計讀這個", fields: ["amount"] },
   { key: "private", label: "私人", hint: "鎖起來，別人看不出存在", fields: ["isPrivate"] },
+  { key: "pronunciation", label: "發音", hint: "怎麼唸", fields: ["pronunciation"] },
+  { key: "context", label: "例句", hint: "這個詞用在句子裡長什麼樣", fields: ["context"] },
+  {
+    key: "contextTranslation",
+    label: "例句翻譯",
+    hint: "例句的意思",
+    fields: ["contextTranslation"],
+  },
+  { key: "tags", label: "標籤", hint: "純文字，一行一個", fields: ["tags"] },
+  { key: "span", label: "起訖", hint: "生卒、存續的那段年份", fields: ["span"] },
+  { key: "coordinates", label: "座標", hint: "地圖上的位置", fields: ["coordinates"] },
+  { key: "wiki", label: "維基連結", hint: "條目網址", fields: ["wikiUrl"] },
+  { key: "language", label: "語言", hint: "這一筆是什麼語言", fields: ["language"] },
+  { key: "externalId", label: "外部編號", hint: "ISBN、DOI 之類", fields: ["externalId"] },
 ] as const satisfies readonly ModuleDef[];
 
 export type ModuleKey = (typeof MODULES)[number]["key"];
