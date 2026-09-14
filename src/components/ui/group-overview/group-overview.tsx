@@ -92,14 +92,12 @@ export function GroupOverview({
   // 文章沒有中間狀態也沒有頭條，headlineLabel 傳空字串代表故意不要
   const fallbackToDone = active.length === 0 && headlineLabel !== "";
   const headline = fallbackToDone ? pickHeadline(done) : pickHeadline(active);
-  const rest = active.filter((item) => item.id !== headline?.id);
-  const restDone = fallbackToDone ? done.filter((item) => item.id !== headline?.id) : done;
 
   return (
     <OverviewLayout
       headline={headline}
       headlineLabel={headlineLabel}
-      done={restDone}
+      done={done}
       tintSeed={(item) => item.kindLabel}
       onLoadMore={onLoadMore}
       hasMore={hasMore}
@@ -110,7 +108,8 @@ export function GroupOverview({
             count={active.length + pending.length + (doneTotal ?? done.length)}
             unit={unit}
           />
-          <Rail label="進行" items={rest} limit={5} />
+          {/* 頭條那本也留在清單裡：這份是「現在在讀什麼」，少一本就不是全部了 */}
+          <Rail label="進行" items={active} limit={5} />
           <Rail label="想要" items={pending} limit={5} />
           {extraRail}
         </>

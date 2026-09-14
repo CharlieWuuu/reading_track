@@ -78,7 +78,7 @@ function QuotesGrid({
         return (
           <Link key={record.id} href={quoteHref(record.id)} className={quoteStyles.row}>
             <blockquote className={quoteStyles.text}>{record.text}</blockquote>
-            {record.bookTitle && <p className={quoteStyles.meta}>{record.bookTitle}</p>}
+            {record.bookTitle && <p className={quoteStyles.meta}>— {record.bookTitle}</p>}
           </Link>
         );
       }}
@@ -86,11 +86,14 @@ function QuotesGrid({
   );
 }
 
-/** 一句一列的版式，跟 QuoteWall 同一套——佳句是句子不是卡片 */
+/**
+ * 引用版式：左邊一條灰線、襯線字縮排，出處靠右當署名——照書裡的樣子排。
+ * 這是 RecordItems.QuoteBlock（7a2af24）原本的長相，重構時掉了，貼回來。
+ */
 const quoteStyles = {
-  row: "border-rule flex flex-col gap-1.5 border-b py-4 first:pt-0 last:border-b-0",
-  text: "font-serif text-[15px] leading-relaxed whitespace-pre-wrap text-gray-800 md:text-base",
-  meta: "text-meta text-ink-faint truncate",
+  row: "flex flex-col gap-1.5 py-4 first:pt-0",
+  text: "border-l-2 border-gray-300 pl-4 font-serif text-[15px] leading-relaxed whitespace-pre-wrap text-gray-800 md:text-base",
+  meta: "text-meta text-ink-faint truncate pl-4 text-right",
 };
 
 /**
