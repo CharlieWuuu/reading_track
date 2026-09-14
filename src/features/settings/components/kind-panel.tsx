@@ -79,7 +79,9 @@ export function KindPanel() {
             {rows.map((kind) => (
               <div key={kind.id} className={styles.row}>
                 <span className={styles.name}>{kind.name}</span>
-                <span className={styles.count}>{kind.count.toLocaleString()}</span>
+                <span className={styles.count}>
+                  {kind.count.toLocaleString()} {nav.unit}
+                </span>
                 <button
                   type="button"
                   onClick={() => remove(kind.id)}

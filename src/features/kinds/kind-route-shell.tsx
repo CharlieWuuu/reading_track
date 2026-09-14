@@ -13,7 +13,7 @@ import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { QuoteWall } from "@/components/ui/quote-wall";
 import { SearchBar } from "@/components/ui/search-bar/search-bar";
 import { groupBasePath, kindHref } from "@/config/kind-routes";
-import { NAV_GROUPS } from "@/config/nav";
+import { NAV_GROUPS, unitOfGroup } from "@/config/nav";
 import { KindGroup } from "@/config/record-kinds";
 import { variantFor } from "@/features/kinds/variant-registry";
 import { ModuleForm } from "@/features/overview/components/module-form";
@@ -85,7 +85,8 @@ function GenericKindList({ kind, query }: { kind: Kind; query: string }) {
         pending={[]}
         done={shownRecords.map(recordItem)}
         headlineLabel=""
-        unit={kind.amountUnit || "筆"}
+        // amountUnit 是份量（頁、分鐘），這裡要的是個數
+        unit={unitOfGroup(kind.group)}
       />
     );
   }
@@ -98,7 +99,7 @@ function GenericKindList({ kind, query }: { kind: Kind; query: string }) {
         pending={[]}
         done={shownFragments.map(fragmentItem)}
         headlineLabel="最新一則"
-        unit={kind.amountUnit || "則"}
+        unit={unitOfGroup(kind.group)}
       />
     );
   }

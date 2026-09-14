@@ -25,10 +25,12 @@ const styles = {
 function Rail({
   label,
   items,
+  unit,
   limit,
 }: {
   label: string;
   items: readonly OverviewItem[];
+  unit: string;
   limit?: number;
 }) {
   if (items.length === 0) return null;
@@ -39,7 +41,9 @@ function Rail({
     <div>
       <div className={styles.railHead}>
         <span className={styles.labelInk}>{label}</span>
-        <span className={styles.meta}>{items.length}</span>
+        <span className={styles.meta}>
+          {items.length} {unit}
+        </span>
       </div>
       {shown.map((item) => (
         <div key={item.id} className={styles.railItem}>
@@ -56,7 +60,9 @@ function Rail({
         </div>
       ))}
       {hidden > 0 && (
-        <span className={`${styles.meta} block pt-2`}>看全部 {items.length} 筆 →</span>
+        <span className={`${styles.meta} block pt-2`}>
+          看全部 {items.length} {unit} →
+        </span>
       )}
     </div>
   );
@@ -106,6 +112,7 @@ export function GroupOverview({
       headline={headline}
       headlineLabel={headlineLabel}
       done={done}
+      unit={unit}
       tintSeed={(item) => item.kindLabel}
       onLoadMore={onLoadMore}
       hasMore={hasMore}
@@ -117,8 +124,8 @@ export function GroupOverview({
             unit={unit}
           />
           {/* 頭條那本也留在清單裡：這份是「現在在讀什麼」，少一本就不是全部了 */}
-          <Rail label="進行" items={active} limit={5} />
-          <Rail label="想要" items={pending} limit={5} />
+          <Rail label="進行" items={active} unit={unit} limit={5} />
+          <Rail label="想要" items={pending} unit={unit} limit={5} />
           {extraRail}
         </>
       }

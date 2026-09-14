@@ -3,6 +3,7 @@ import { CardGrid } from "@/components/ui/card-grid";
 import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { QuoteWall } from "@/components/ui/quote-wall";
 import { kindHref } from "@/config/kind-routes";
+import { unitOfGroup } from "@/config/nav";
 import { KindGroup } from "@/config/record-kinds";
 import { fragmentBody, fragmentHref, fragmentMeta, fragmentTitle } from "@/utils/overview-items";
 import { KindSection } from "@/utils/overview-sections";
@@ -31,7 +32,9 @@ export function KindSectionBlock({ group, section }: { group: KindGroup; section
     <section className="min-w-0">
       <div className={styles.head}>
         <h2 className={styles.title}>{section.name}</h2>
-        <span className={styles.total}>{section.total.toLocaleString()}</span>
+        <span className={styles.total}>
+          {section.total.toLocaleString()} {unitOfGroup(group)}
+        </span>
       </div>
 
       {isQuotes ? (

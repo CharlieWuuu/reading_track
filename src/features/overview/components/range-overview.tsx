@@ -5,6 +5,7 @@ import { PageMessage } from "@/components/layout/page-message";
 import { CardGrid } from "@/components/ui/card-grid";
 import { COVER_CARD_GRID, CoverCard } from "@/components/ui/cover-card/cover-card";
 import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
+import { unitOfGroup } from "@/config/nav";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { useGroupRecords } from "@/hooks/use-group-records";
 import { FragmentRow, RecordRow } from "@/lib/db/queries/catalog";
@@ -28,13 +29,23 @@ const styles = {
   empty: "text-meta text-ink-faint py-8 text-center",
 };
 
-function RecordSection({ label, items }: { label: string; items: readonly OverviewItem[] }) {
+function RecordSection({
+  label,
+  items,
+  unit,
+}: {
+  label: string;
+  items: readonly OverviewItem[];
+  unit: string;
+}) {
   if (items.length === 0) return null;
   return (
     <div className="flex flex-col gap-3">
       <div className={`${styles.section} flex items-baseline justify-between`}>
         <span className={styles.sectionLabel}>{label}</span>
-        <span className={styles.meta}>{items.length}</span>
+        <span className={styles.meta}>
+          {items.length} {unit}
+        </span>
       </div>
       <div className={COVER_CARD_GRID}>
         {items.map((item) => (
@@ -54,13 +65,23 @@ function RecordSection({ label, items }: { label: string; items: readonly Overvi
   );
 }
 
-function FragmentSection({ label, rows }: { label: string; rows: readonly FragmentRow[] }) {
+function FragmentSection({
+  label,
+  rows,
+  unit,
+}: {
+  label: string;
+  rows: readonly FragmentRow[];
+  unit: string;
+}) {
   if (rows.length === 0) return null;
   return (
     <div className="flex flex-col gap-3">
       <div className={`${styles.section} flex items-baseline justify-between`}>
         <span className={styles.sectionLabel}>{label}</span>
-        <span className={styles.meta}>{rows.length}</span>
+        <span className={styles.meta}>
+          {rows.length} {unit}
+        </span>
       </div>
       <CardGrid>
         {rows.map((row) => (
@@ -105,9 +126,9 @@ export function RangeOverview({
 
   return (
     <div className="flex flex-col gap-6">
-      <RecordSection label="紀錄" items={recordItems} />
-      <FragmentSection label="片段" rows={fragmentRows} />
-      <FragmentSection label="書寫" rows={writingRows} />
+      <RecordSection label="紀錄" items={recordItems} unit={unitOfGroup("records")} />
+      <FragmentSection label="片段" rows={fragmentRows} unit={unitOfGroup("fragments")} />
+      <FragmentSection label="書寫" rows={writingRows} unit={unitOfGroup("writings")} />
     </div>
   );
 }
