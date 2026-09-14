@@ -4,7 +4,7 @@ import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { QuoteWall } from "@/components/ui/quote-wall";
 import { kindHref } from "@/config/kind-routes";
 import { KindGroup } from "@/config/record-kinds";
-import { fragmentHref, fragmentMeta, fragmentTitle } from "@/utils/overview-items";
+import { fragmentBody, fragmentHref, fragmentMeta, fragmentTitle } from "@/utils/overview-items";
 import { KindSection } from "@/utils/overview-sections";
 
 /**
@@ -44,7 +44,7 @@ export function KindSectionBlock({ group, section }: { group: KindGroup; section
               href={fragmentHref(row)}
               title={fragmentTitle(row)}
               label={row.kindName}
-              body={row.body}
+              body={fragmentBody(row)}
               meta={fragmentMeta(row)}
               coverUrl={row.coverUrl}
             />

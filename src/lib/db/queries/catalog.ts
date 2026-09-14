@@ -183,6 +183,8 @@ export type FragmentRow = {
   body: string;
   locator: string;
   note: string;
+  /** 例句。單字的卡片要秀這個——「這個字長什麼樣」比字義本身好記 */
+  context: string;
   date: string | null;
   createdAt: string;
   coverUrl: string;
@@ -220,6 +222,7 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
       body: fragment.body,
       locator: fragment.locator,
       note: fragment.body,
+      context: fragment.context,
       date: fragment.date,
       createdAt: fragment.createdAt.toISOString(),
       coverUrl: fragment.coverUrl,
@@ -255,6 +258,7 @@ export async function listFragmentsByKind(userId: string, kindId: string): Promi
       body: fragment.body,
       locator: fragment.locator,
       note: fragment.body,
+      context: fragment.context,
       date: fragment.date,
       createdAt: fragment.createdAt.toISOString(),
       coverUrl: fragment.coverUrl,
@@ -286,6 +290,7 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       body: writing.note,
       locator: "",
       note: writing.note,
+      context: "", // 書寫沒有例句這回事
       date: writing.date,
       createdAt: writing.createdAt,
       coverUrl: writing.coverUrl,

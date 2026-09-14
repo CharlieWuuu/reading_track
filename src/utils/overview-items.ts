@@ -83,6 +83,12 @@ export const fragmentHref = (row: FragmentRow): string =>
 /** 片段的標題：有名字就用名字，沒有就用整段內文——一句佳句沒有標題，硬留白只剩出處看得見 */
 export const fragmentTitle = (row: FragmentRow): string => row.name || row.body;
 
+/**
+ * 卡片上那段內文。有例句就秀例句——「這個字長什麼樣」比字義本身好記，
+ * 單字專屬頁（VocabularySection）本來就這樣畫，通用清單跟上。
+ */
+export const fragmentBody = (row: FragmentRow): string => row.context || row.body;
+
 /** 片段的出處：書名・頁碼之類 */
 export const fragmentMeta = (row: FragmentRow): string => joinByline([row.workTitle, row.locator]);
 
