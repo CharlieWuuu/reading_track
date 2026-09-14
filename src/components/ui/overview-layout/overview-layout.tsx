@@ -65,6 +65,8 @@ export type OverviewLayoutProps = {
   headlineSummary?: string;
   /** 完成的，照月份排成多欄 */
   done: readonly OverviewItem[];
+  /** 數量的單位：一「筆」紀錄、一「則」片段。月份標題右邊那個數字要接它 */
+  unit?: string;
   /** 每格底色依這個字串決定色相；不給就用 item.id（每筆不同色） */
   tintSeed?: (item: OverviewItem) => string | undefined;
   /**
@@ -95,6 +97,7 @@ export function OverviewLayout({
   headlineLabel,
   headlineSummary,
   done,
+  unit = "筆",
   tintSeed,
   rail,
   renderItem,
@@ -147,7 +150,9 @@ export function OverviewLayout({
             <div key={group.label || "no-date"} className="flex flex-col gap-3">
               <div className={`${styles.month} flex items-baseline justify-between`}>
                 {group.label && <span className={styles.monthLabel}>{group.label}</span>}
-                <span className={styles.meta}>{group.items.length}</span>
+                <span className={styles.meta}>
+                  {group.items.length} {unit}
+                </span>
               </div>
               <div className={gridClassName}>
                 {group.items.map((item) =>
