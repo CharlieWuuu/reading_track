@@ -34,8 +34,13 @@ const styles = {
   moduleLabel: "font-serif text-item-sm font-semibold",
   moduleHint: "text-meta text-ink-faint",
   count: "text-meta text-ink-faint tabular-nums ml-auto",
-  chip: "rounded-control border-rule border px-3 py-1.5 text-sm font-medium hover:bg-gray-50",
-  chipActive: "bg-accent border-accent text-white hover:bg-accent",
+  // 範本一行一列，跟側欄同一種長相：整行可點，不畫框不上底色，
+  // 選中的那一列靠字本身放大變粗表示——一排 chip 每顆只有幾個字寬，不好點
+  pickRow: "border-rule-soft flex w-full items-baseline border-b py-[7px] pl-3 text-left",
+  pickLabel: "text-ui truncate",
+  pickActive: "font-serif text-item-sm text-ink font-semibold",
+  pickIdle: "text-ink-muted",
+  pickHint: "text-meta text-ink-faint ml-auto pl-2",
 };
 
 /** 依勾選的模組組出示意內容：紀錄用 CoverCard，片段／書寫用 FragmentCard——跟畫面上真正的畫法一致 */
@@ -50,11 +55,7 @@ function TypePreview({
 }) {
   const has = (key: string) => picked.includes(key);
   const title = name.trim() || "（類型名稱）";
-  const body = has("longText")
-    ? "這裡是長文內容，支援分欄……"
-    : has("oneLine")
-      ? "這裡是一句話的內容"
-      : undefined;
+  const body = has("longText") ? "這裡是長文內容，支援分欄……" : undefined;
 
   if (group === "records") {
     const caption = has("longText")
@@ -194,18 +195,26 @@ export function TypeBuilder({
         </Section>
 
         <Section step="02" label="選擇類型">
-          <div className="flex flex-wrap gap-2">
-            {templates.map((template) => (
-              <button
-                key={template.key}
-                type="button"
-                onClick={() => applyTemplate(template)}
-                aria-pressed={name === template.name}
-                className={`${styles.chip} ${name === template.name ? styles.chipActive : ""}`}
-              >
-                {template.name}
-              </button>
-            ))}
+          <div>
+            {templates.map((template) => {
+              const on = name === template.name;
+              return (
+                <button
+                  key={template.key}
+                  type="button"
+                  onClick={() => applyTemplate(template)}
+                  aria-pressed={on}
+                  className={styles.pickRow}
+                >
+                  <span
+                    className={`${styles.pickLabel} ${on ? styles.pickActive : styles.pickIdle}`}
+                  >
+                    {template.name}
+                  </span>
+                  <span className={styles.pickHint}>{template.modules.length} 個模組</span>
+                </button>
+              );
+            })}
             <button
               type="button"
               onClick={() => {
@@ -216,9 +225,13 @@ export function TypeBuilder({
                 setLabels({});
               }}
               aria-pressed={!name}
-              className={`${styles.chip} ${!name ? styles.chipActive : ""}`}
+              className={styles.pickRow}
             >
-              空白開始
+              <span
+                className={`${styles.pickLabel} ${!name ? styles.pickActive : styles.pickIdle}`}
+              >
+                空白開始
+              </span>
             </button>
           </div>
         </Section>
