@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useSidebarStore } from "@/stores/use-sidebar-store";
 import { BottomNav } from "./bottom-nav";
@@ -29,13 +30,16 @@ export function AppShell({
   const resolved = status !== "loading";
   const signedIn = status === "authenticated";
   const collapsed = useSidebarStore((s) => s.collapsed);
+  const isHome = usePathname() === "/";
 
   return (
     <div className="flex h-full w-full flex-col">
       {/* 瀏海／狀態列的高度，只有手機需要 */}
       <div className="shrink-0 md:hidden" style={{ height: "env(safe-area-inset-top)" }} />
 
-      <div className="hidden shrink-0 md:block">
+      {/* 手機只有首頁掛報頭：其餘頁面的 PageHeader 麵包屑最前面已經有站名，
+          兩個一起出現等於同一個識別畫兩次。首頁沒有 PageHeader，那裡是報頭的位置 */}
+      <div className={`shrink-0 md:block ${isHome ? "" : "hidden"}`}>
         <Masthead authSlot={authSlot} />
       </div>
 
