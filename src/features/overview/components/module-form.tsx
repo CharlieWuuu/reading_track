@@ -83,7 +83,18 @@ export function ModuleForm({
   initial?: Record<string, string>;
 }) {
   const router = useRouter();
-  const [values, setValues] = useState<Record<string, string>>(initial ?? {});
+  /**
+   * 新增時日期預設今天：記一筆的當下就是那一天，要改再改。
+   *
+   * 只補新增（沒有 recordId）那條，編輯既有的不動——那一筆的日期是它自己的事。
+   */
+  const [values, setValues] = useState<Record<string, string>>(() => {
+    if (initial) return initial;
+    const today = new Date().toISOString().slice(0, 10);
+    // 只補「單一日期」那個模組。進行中的起訖日不補——還沒讀完就標成今天讀完了
+    const single = resolveFormModules(kind.modules).find((module) => module.key === "date");
+    return single ? Object.fromEntries(fieldsOf([single]).map((f) => [f.key, today])) : {};
+  });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
   const [fetching, setFetching] = useState(false);
