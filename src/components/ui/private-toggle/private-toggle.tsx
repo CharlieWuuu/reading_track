@@ -16,20 +16,23 @@ import { PRIVATE_MARK } from "@/config/privacy";
 export function PrivateToggle({
   value,
   onChange,
+  label = "私人",
 }: {
   value: string;
   onChange: (value: string) => void;
+  /** 通用表單用類型自己給的名字；書籍那些寫死的表單就是「私人」 */
+  label?: string;
 }) {
   const checked = value.trim() === PRIVATE_MARK;
   return (
     <div className={FIELD_ROW_CLASS}>
-      <FieldLabel label="私人" />
+      <FieldLabel label={label} />
       <label
         className={`${FIELD_CONTROL_CLASS} ${FIELD_INPUT_CLASS} flex items-center gap-2 text-sm`}
       >
         <input
           type="checkbox"
-          aria-label="私人"
+          aria-label={label}
           checked={checked}
           onChange={(e) => onChange(e.target.checked ? PRIVATE_MARK : "")}
           className="accent-accent size-4"
