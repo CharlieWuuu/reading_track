@@ -25,7 +25,6 @@ export const MODULES = [
   { key: "title", label: "標題", hint: "一行字，清單上顯示的那個", fields: ["title"] },
   { key: "creator", label: "作者／來源人", hint: "誰講的、誰寫的", fields: ["creator"] },
   { key: "longText", label: "長文", hint: "多段落，支援分欄", fields: ["body"] },
-  { key: "oneLine", label: "一句話", hint: "單段，不折行的短內容", fields: ["body"] },
   { key: "gloss", label: "解釋", hint: "對這個東西本身的說明", fields: ["translation"] },
   { key: "source", label: "出處", hint: "指向另一筆條目", fields: [] },
   { key: "locator", label: "位置", hint: "出處裡的頁碼或時間點", fields: ["locator"] },
