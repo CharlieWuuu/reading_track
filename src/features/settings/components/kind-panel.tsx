@@ -15,6 +15,9 @@ import { useKinds } from "@/hooks/use-kinds";
  * 換一組，反而看不到全貌。
  *
  * 移除只是關掉：預設與自訂一視同仁，資料與定義都不動，想再用就重新加回來。
+ *
+ * 兩個類型其實是同一種的時候，把名字改成一樣就好——欄位一致的話伺服器會併過去，
+ * 不用另外一個「合併」動作。
  */
 
 const styles = {
@@ -30,9 +33,6 @@ const styles = {
   remove: "text-meta pl-3 text-red-700 hover:text-red-800 disabled:text-ink-faint/40",
   empty: "text-meta text-ink-faint py-[7px] pl-3",
   error: "text-meta text-red-700",
-  merge: "text-meta text-ink-faint hover:text-ink pl-3",
-  mergeList: "flex flex-col items-start gap-0.5 py-1 pl-3",
-  mergeItem: "text-meta text-ink-muted hover:text-ink",
   builder: "pl-3",
 };
 
@@ -42,20 +42,8 @@ export function KindPanel() {
   /** 正在改哪一個類型，null 就是沒在改 */
   const [editing, setEditing] = useState<string | null>(null);
   const [removing, setRemoving] = useState<string | null>(null);
-  /** 正在選要把哪一個併到哪裡去，null 就是沒在併 */
-  const [merging, setMerging] = useState<string | null>(null);
   const [error, setError] = useState<string>();
-  const { kinds, removeKind, mergeKind } = useKinds();
-
-  async function merge(fromId: string, intoId: string) {
-    setError(undefined);
-    try {
-      await mergeKind(fromId, intoId);
-      setMerging(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "合併失敗");
-    }
-  }
+  const { kinds, removeKind } = useKinds();
 
   async function remove(kindId: string) {
     setRemoving(kindId);
@@ -113,16 +101,6 @@ export function KindPanel() {
                   <span className={styles.count}>
                     {kind.count.toLocaleString()} {nav.unit}
                   </span>
-                  {/* 有資料的才需要併——空的直接移除就好 */}
-                  {kind.count > 0 && rows.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => setMerging(merging === kind.id ? null : kind.id)}
-                      className={styles.merge}
-                    >
-                      合併
-                    </button>
-                  )}
                   <button
                     type="button"
                     onClick={() => remove(kind.id)}
@@ -134,22 +112,6 @@ export function KindPanel() {
                     移除
                   </button>
                 </div>
-                {merging === kind.id && (
-                  <div className={styles.mergeList}>
-                    {rows
-                      .filter((other) => other.id !== kind.id)
-                      .map((other) => (
-                        <button
-                          key={other.id}
-                          type="button"
-                          onClick={() => merge(kind.id, other.id)}
-                          className={styles.mergeItem}
-                        >
-                          併到「{other.name}」
-                        </button>
-                      ))}
-                  </div>
-                )}
                 {editing === kind.id && (
                   <div className={styles.builder}>
                     <TypeBuilder
