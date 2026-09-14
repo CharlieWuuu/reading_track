@@ -1,9 +1,12 @@
-import { ChartPie, Library, PenLine, Settings, Sparkles } from "lucide-react";
+import { Library, PenLine, Settings, Sparkles } from "lucide-react";
 
 /**
  * 底部導覽列的項目。跟桌機側欄（NAV_GROUPS + TOOL_ITEMS，見 config/nav.ts）
  * 分開維護——側欄是可捲動的完整清單，底部只放得下五格，是側欄的精簡版，
  * 不是同一份資料硬塞兩種畫法，兩邊各自照自己的空間限制決定要列哪些。
+ *
+ * 統計不在這裡：它是回頭看的東西，不是每天要點的，收進設定頁。
+ * 中間那格是「新增」，由 BottomNav 自己插——它不是一條路由。
  */
 
 type IconProps = { active?: boolean };
@@ -42,6 +45,5 @@ export const NAV_ITEMS: NavItem[] = [
     label: "書寫",
     Icon: () => <PenLine size={20} strokeWidth={1.5} />,
   },
-  { href: "/stats", label: "統計", Icon: () => <ChartPie size={20} strokeWidth={1.5} /> },
   { href: "/settings", label: "設定", Icon: () => <Settings size={20} strokeWidth={1.5} /> },
 ];

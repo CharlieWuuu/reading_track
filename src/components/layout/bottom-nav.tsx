@@ -33,8 +33,8 @@ export function BottomNav() {
             const active = isNavActive(item, pathname);
             return (
               <Fragment key={item.href}>
-                {/* 記一筆是隨時想做的事，排在三個內容分類的後面、回顧與後台的前面 */}
-                {item.href === "/stats" && (
+                {/* 記一筆是隨時想做的事，放正中間——拇指最好按到的位置 */}
+                {item.href === "/writings" && (
                   <li className="flex-1">
                     <button
                       type="button"
