@@ -38,6 +38,18 @@ export function useKinds() {
     await mutate();
   }
 
+  /** 改一個類型。共用類型會在伺服器端複製成自己的，回傳的編號可能跟傳進去的不同 */
+  async function editKind(kindId: string, kind: NewKindInput) {
+    const res = await fetch(`/api/kinds/${kindId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(kind),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error ?? "儲存類型失敗");
+    await mutate();
+  }
+
   /** 關掉一個類型。底下還有資料時伺服器會擋，錯誤訊息直接丟給呼叫端顯示 */
   async function removeKind(kindId: string) {
     const res = await fetch(`/api/kinds/${kindId}`, { method: "DELETE" });
@@ -51,6 +63,7 @@ export function useKinds() {
     isLoading,
     error: error instanceof Error ? error.message : undefined,
     addKind,
+    editKind,
     removeKind,
   };
 }
