@@ -5,7 +5,7 @@ import { QuoteWall } from "@/components/ui/quote-wall";
 import { kindHref } from "@/config/kind-routes";
 import { unitOfGroup } from "@/config/nav";
 import { KindGroup } from "@/config/record-kinds";
-import { fragmentBody, fragmentHref, fragmentMeta, fragmentTitle } from "@/utils/overview-items";
+import { fragmentCard, fragmentHref } from "@/utils/overview-items";
 import { KindSection } from "@/utils/overview-sections";
 
 /**
@@ -42,16 +42,7 @@ export function KindSectionBlock({ group, section }: { group: KindGroup; section
       ) : (
         <CardGrid>
           {section.rows.map((row) => (
-            <FragmentCard
-              key={row.id}
-              href={fragmentHref(row)}
-              title={fragmentTitle(row)}
-              label={row.kindName}
-              body={fragmentBody(row)}
-              detail={row.pronunciation || undefined}
-              meta={fragmentMeta(row)}
-              coverUrl={row.coverUrl}
-            />
+            <FragmentCard key={row.id} {...fragmentCard(row)} />
           ))}
         </CardGrid>
       )}

@@ -99,6 +99,22 @@ export const fragmentMeta = (row: FragmentRow): string =>
   row.kindGroup === "writings" ? row.body : joinByline([row.workTitle, row.locator]);
 
 /**
+ * 片段的一筆攤成卡片要的 props。
+ *
+ * 通用清單、片段概覽的分區、單字專屬頁本來各自組一份，欄位給得不一樣——
+ * 同一張單字卡在片段頁有出處、在單字頁沒有。一支說了算。
+ */
+export const fragmentCard = (row: FragmentRow) => ({
+  href: fragmentHref(row),
+  title: fragmentTitle(row),
+  label: row.kindName,
+  body: fragmentBody(row),
+  detail: row.pronunciation || undefined,
+  meta: fragmentMeta(row),
+  coverUrl: row.coverUrl,
+});
+
+/**
  * 片段與書寫的一筆，攤平成概覽用的形狀。
  */
 export const fragmentItem = (row: FragmentRow): OverviewItem => {

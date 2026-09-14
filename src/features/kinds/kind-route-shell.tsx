@@ -21,14 +21,7 @@ import { useKindRecords } from "@/hooks/use-kind-records";
 import { useKinds } from "@/hooks/use-kinds";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { Kind } from "@/lib/db/queries/kinds";
-import {
-  fragmentBody,
-  fragmentHref,
-  fragmentItem,
-  fragmentMeta,
-  fragmentTitle,
-  recordItem,
-} from "@/utils/overview-items";
+import { fragmentCard, fragmentHref, fragmentItem, recordItem } from "@/utils/overview-items";
 import { matchesSearch, searchTerms } from "@/utils/search";
 
 /**
@@ -109,16 +102,7 @@ function GenericKindList({ kind, query }: { kind: Kind; query: string }) {
   return (
     <CardGrid>
       {shownFragments.map((row) => (
-        <FragmentCard
-          key={row.id}
-          href={fragmentHref(row)}
-          title={fragmentTitle(row)}
-          label={row.kindName}
-          body={fragmentBody(row)}
-          detail={row.pronunciation || undefined}
-          meta={fragmentMeta(row)}
-          coverUrl={row.coverUrl}
-        />
+        <FragmentCard key={row.id} {...fragmentCard(row)} />
       ))}
     </CardGrid>
   );
