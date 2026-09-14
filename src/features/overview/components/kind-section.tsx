@@ -45,6 +45,7 @@ export function KindSectionBlock({ group, section }: { group: KindGroup; section
               title={fragmentTitle(row)}
               label={row.kindName}
               body={fragmentBody(row)}
+              detail={row.pronunciation || undefined}
               meta={fragmentMeta(row)}
               coverUrl={row.coverUrl}
             />

@@ -16,7 +16,9 @@ const styles = {
   railHead: "border-rule-strong flex items-baseline justify-between border-b pb-2",
   labelInk: "text-label text-ink tracking-label",
   meta: "text-meta text-ink-faint tabular-nums",
-  railItem: "border-rule border-b py-[7px]",
+  railItem: "border-rule flex items-start gap-2.5 border-b py-[7px]",
+  railCover: "rounded-surface h-11 w-8 shrink-0 object-cover",
+  railBody: "min-w-0 flex-1",
   railTitle: "font-serif text-item-sm leading-snug font-semibold line-clamp-2",
 };
 
@@ -41,10 +43,16 @@ function Rail({
       </div>
       {shown.map((item) => (
         <div key={item.id} className={styles.railItem}>
-          <Link href={item.href} className={styles.railTitle}>
-            {item.title}
-          </Link>
-          <div className={styles.meta}>{item.byline}</div>
+          {item.coverUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={item.coverUrl} alt="" loading="lazy" className={styles.railCover} />
+          )}
+          <div className={styles.railBody}>
+            <Link href={item.href} className={styles.railTitle}>
+              {item.title}
+            </Link>
+            <div className={styles.meta}>{item.byline}</div>
+          </div>
         </div>
       ))}
       {hidden > 0 && (

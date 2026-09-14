@@ -115,6 +115,7 @@ function GenericKindList({ kind, query }: { kind: Kind; query: string }) {
           title={fragmentTitle(row)}
           label={row.kindName}
           body={fragmentBody(row)}
+          detail={row.pronunciation || undefined}
           meta={fragmentMeta(row)}
           coverUrl={row.coverUrl}
         />

@@ -105,5 +105,6 @@ export const fragmentItem = (row: FragmentRow): OverviewItem => {
     startDate: day,
     endDate: day,
     kindLabel: row.kindName,
+    coverUrl: row.coverUrl,
   };
 };
