@@ -1,8 +1,10 @@
 /**
- * 首頁頭條右邊那格：本月三個數字與連續天數。
+ * 首頁頭條右邊那格：今天記了幾筆。
  *
  * 頭條本身走共用的 OverviewHeadline，這裡只管統計——兩件事分開，
  * 首頁與概覽頁的頭條才不會各長各的。
+ *
+ * 這一頁叫「今天」，數字就是今天的。原本算的是這個月，跟標題對不起來。
  */
 
 const styles = {
@@ -14,9 +16,9 @@ const styles = {
   number: "font-serif text-lede tracking-tight leading-none font-semibold",
 };
 
-export type MonthCount = { label: string; unit: string; value: number };
+export type DayCount = { label: string; unit: string; value: number };
 
-function Count({ count }: { count: MonthCount }) {
+function Count({ count }: { count: DayCount }) {
   return (
     <div className="flex-1">
       <div className="flex items-baseline gap-1">
@@ -28,27 +30,18 @@ function Count({ count }: { count: MonthCount }) {
   );
 }
 
-export function MonthPanel({
-  month,
-  counts,
-  streak,
-}: {
-  month: string;
-  counts: MonthCount[];
-  streak: number;
-}) {
+export function TodayPanel({ date, counts }: { date: string; counts: DayCount[] }) {
   return (
     <div className={styles.frame}>
       <div className={styles.head}>
-        <span className={styles.label}>這個月</span>
-        <span className={styles.meta}>{month}</span>
+        <span className={styles.label}>今天</span>
+        <span className={styles.meta}>{date}</span>
       </div>
       <div className="flex gap-5 pt-3">
         {counts.map((count) => (
           <Count key={count.label} count={count} />
         ))}
       </div>
-      <p className={`${styles.meta} pt-3`}>連續 {streak} 天有紀錄</p>
     </div>
   );
 }

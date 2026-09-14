@@ -22,32 +22,9 @@ export function recentBy<T>(rows: T[], getDate: (row: T) => string | null, take:
   return [...rows].sort(byDateDesc(getDate)).slice(0, take);
 }
 
-/** month 是 "YYYY-MM"；沒有日期的不算進任何月份 */
-export function countInMonth(dates: (string | null)[], month: string): number {
-  return dates.filter((date) => date?.startsWith(month)).length;
-}
-
-const dayBefore = (date: string): string => {
-  const [y, m, d] = date.split("-").map(Number);
-  const prev = new Date(Date.UTC(y, m - 1, d - 1));
-  return prev.toISOString().slice(0, 10);
-};
-
-/**
- * 連續幾天有紀錄。今天還沒記不算斷——一天還沒過完，
- * 所以從今天或昨天起算都可以，往回數到第一個空著的日子為止。
- */
-export function streakDays(dates: (string | null)[], today: string): number {
-  const seen = new Set(dates.filter((date): date is string => date !== null));
-  let cursor = seen.has(today) ? today : dayBefore(today);
-  let days = 0;
-
-  while (seen.has(cursor)) {
-    days += 1;
-    cursor = dayBefore(cursor);
-  }
-
-  return days;
+/** date 是 "YYYY-MM-DD"；沒有日期的不算 */
+export function countOnDate(dates: (string | null)[], date: string): number {
+  return dates.filter((day) => day === date).length;
 }
 
 /**
