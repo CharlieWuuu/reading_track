@@ -51,7 +51,6 @@ function ModuleFields({
         <Field
           key={field.key}
           label={index === 0 ? module.label : field.defaultLabel}
-          hint={index === 0 ? module.hint : undefined}
           type={INPUT_TYPE[field.type] ?? "text"}
           value={values[field.key] ?? ""}
           onChange={(value) => onChange(field.key, value)}

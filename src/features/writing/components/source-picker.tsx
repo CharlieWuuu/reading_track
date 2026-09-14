@@ -66,7 +66,6 @@ export function SourcePicker({
       <label className={styles.label}>
         <BookOpen size={14} strokeWidth={1.5} className="shrink-0 text-gray-400" aria-hidden />
         延伸自
-        <span className={styles.hint}>讀了什麼之後寫的</span>
       </label>
 
       <div className={styles.field}>
