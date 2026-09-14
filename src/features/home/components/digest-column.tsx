@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { imageSrc } from "@/utils/image-key";
 
 /**
  * 「最近的紀錄／片段／書寫」共用的一欄。三筆加一條「看全部」，
@@ -55,7 +56,7 @@ export function DigestColumn({
         <div key={item.id} className={styles.row}>
           {item.coverUrl && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={item.coverUrl} alt="" loading="lazy" className={styles.cover} />
+            <img src={imageSrc(item.coverUrl)} alt="" loading="lazy" className={styles.cover} />
           )}
           <div className={styles.rowBody}>
             <div className={styles.rowHead}>

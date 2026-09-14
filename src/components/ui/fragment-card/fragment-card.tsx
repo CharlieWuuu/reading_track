@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ReactNode } from "react";
+import { imageSrc } from "@/utils/image-key";
 
 export type FragmentCardProps = {
   /** 點了去哪一頁——跟 onClick 二選一，導覽用途給 href */
@@ -66,7 +67,7 @@ export function FragmentCard({
     <>
       {coverUrl && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={coverUrl} alt="" loading="lazy" className={styles.cover} />
+        <img src={imageSrc(coverUrl)} alt="" loading="lazy" className={styles.cover} />
       )}
       <div className={styles.head}>
         <span className={styles.nameGroup}>

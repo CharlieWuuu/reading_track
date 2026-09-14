@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { BookCover } from "@/components/ui/book-cover";
 import { FormActions } from "@/components/ui/form-actions";
+import { ImageField } from "@/components/ui/image-field";
 import { useCategories } from "@/hooks/use-categories";
 import { VocabularyRow } from "@/types/record";
 import { VocabularyEncounter, VocabularyEntry } from "@/utils/stats/vocabulary-stats";
@@ -184,12 +185,10 @@ export function VocabularyForm({ writings, onSave, onDone }: VocabularyFormProps
             </div>
 
             <div className={styles.field}>
-              <label className={styles.label}>封面圖網址</label>
-              <input
+              <ImageField
+                label="封面圖"
                 value={edit.coverUrl}
-                onChange={(e) => update(i, { coverUrl: e.target.value })}
-                placeholder="https://..."
-                className={styles.input}
+                onChange={(v) => update(i, { coverUrl: v })}
               />
             </div>
           </div>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { BookOpen, X } from "lucide-react";
 import { useArticles } from "@/hooks/use-articles";
 import { useBooks } from "@/hooks/use-books";
+import { imageSrc } from "@/utils/image-key";
 
 const styles = {
   root: "relative min-w-0",
@@ -105,7 +106,7 @@ export function SourcePicker({
               >
                 {c.coverUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={c.coverUrl} alt="" className={styles.cover} />
+                  <img src={imageSrc(c.coverUrl)} alt="" className={styles.cover} />
                 ) : (
                   <div className={styles.blank} />
                 )}
