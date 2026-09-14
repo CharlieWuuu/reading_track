@@ -22,7 +22,13 @@ import { useKindRecords } from "@/hooks/use-kind-records";
 import { useKinds } from "@/hooks/use-kinds";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { Kind } from "@/lib/db/queries/kinds";
-import { fragmentHref, fragmentMeta, fragmentTitle, recordItem } from "@/utils/overview-items";
+import {
+  fragmentHref,
+  fragmentItem,
+  fragmentMeta,
+  fragmentTitle,
+  recordItem,
+} from "@/utils/overview-items";
 import { matchesSearch, searchTerms } from "@/utils/search";
 
 /**
@@ -79,6 +85,19 @@ function GenericKindList({ kind, query }: { kind: Kind; query: string }) {
         done={shownRecords.map(recordItem)}
         headlineLabel=""
         unit={kind.amountUnit || "筆"}
+      />
+    );
+  }
+
+  // 書寫跟紀錄一樣照月份排：一篇心得是一件完成的事，有日期、值得回頭找
+  if (kind.group === "writings") {
+    return (
+      <GroupOverview
+        active={[]}
+        pending={[]}
+        done={shownFragments.map(fragmentItem)}
+        headlineLabel="最新一則"
+        unit={kind.amountUnit || "則"}
       />
     );
   }
