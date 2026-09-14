@@ -289,6 +289,12 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
+/** 某一種書寫類型底下的全部。書寫不在 fragments 表，走 listFragmentsByKind 會永遠是空的 */
+export async function listWritingsByKind(userId: string, kindId: string): Promise<FragmentRow[]> {
+  const rows = await listWritingsAsFragments(userId);
+  return rows.filter((row) => row.kindId === kindId);
+}
+
 export async function listFragmentsByGroup(
   userId: string,
   group: KindGroup,
