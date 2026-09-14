@@ -22,16 +22,13 @@ export type KindSection = {
  *
  * 區的順序照「這個類型最近一筆有多新」——久沒動的類型自己沉下去，
  * 不用另外設排序欄位。同一份資料裡類型的原始順序不影響結果。
- *
- * `exclude` 是已經當頭條的那一則：同一則在頭條與底下各出現一次會很怪。
+
  */
 export function sectionsByKind(
   rows: FragmentRow[],
-  { take = SECTION_SIZE, exclude }: { take?: number; exclude?: string } = {},
+  { take = SECTION_SIZE }: { take?: number } = {},
 ): KindSection[] {
-  const kept = exclude ? rows.filter((row) => row.id !== exclude) : rows;
-
-  const byKind = kept.reduce((acc, row) => {
+  const byKind = rows.reduce((acc, row) => {
     const section = acc.get(row.kindSlug) ?? {
       slug: row.kindSlug,
       name: row.kindName,

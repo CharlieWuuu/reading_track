@@ -53,9 +53,10 @@ export function FragmentsOverview({
     );
   }
 
-  // 一頁一個主角：最新記下的那一則提到最上面，底下按類型分區
+  // 一頁一個主角：最新記下的那一則提到最上面。底下的分區照樣列它——
+  // 頭條是「這一頁在講什麼」，清單是「有哪些」，兩件事
   const [headline] = fragments;
-  const sections = sectionsByKind(fragments, { exclude: headline.id });
+  const sections = sectionsByKind(fragments);
 
   // PageBody 收到 scroll={false}，捲動歸這裡——不開的話整頁卡住捲不動
   return (

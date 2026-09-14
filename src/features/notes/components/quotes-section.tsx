@@ -64,13 +64,12 @@ function QuotesGrid({
   const router = useRouter();
   const items = records.map(toItem);
   const headline = pickHeadline(items);
-  const rest = items.filter((item) => item.id !== headline?.id);
 
   return (
     <OverviewLayout
       headline={headline}
       headlineLabel={headlineLabel}
-      done={rest}
+      done={items}
       rail={rail}
       gridClassName="flex flex-col"
       onLoadMore={onLoadMore}

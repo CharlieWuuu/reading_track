@@ -31,16 +31,6 @@ describe("sectionsByKind", () => {
     expect(sections.map((s) => s.slug)).toEqual(["words", "quotes"]);
   });
 
-  it("當頭條的那一則不重複出現", () => {
-    const sections = sectionsByKind(
-      [row({ id: "head", date: "2026-03-01" }), row({ id: "rest", date: "2026-02-01" })],
-      { exclude: "head" },
-    );
-
-    expect(sections[0].rows.map((r) => r.id)).toEqual(["rest"]);
-    expect(sections[0].total).toBe(1);
-  });
-
   it("沒填日期的排最後，不影響分區", () => {
     const sections = sectionsByKind([
       row({ id: "a", date: null, createdAt: "2026-01-01T00:00:00.000Z" }),

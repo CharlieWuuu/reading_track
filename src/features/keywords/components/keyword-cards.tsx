@@ -71,13 +71,12 @@ export function KeywordCards({ books }: { books: Book[] }) {
 
   const items = entries.map(toItem);
   const headline = pickHeadline(items);
-  const rest = items.filter((item) => item.id !== headline?.id);
 
   return (
     <OverviewLayout
       headline={headline}
       headlineLabel="最近記的"
-      done={rest}
+      done={items}
       rail={<KeywordsRail entries={entries} books={books} />}
       gridClassName={FRAGMENT_CARD_GRID}
       renderItem={(item) => {
