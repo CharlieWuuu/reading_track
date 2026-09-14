@@ -15,12 +15,17 @@ export type VocabularyEntry = {
  * 書名與語言都以書籍表為準：紀錄表上的書名只是給人看的快照，
  * 書改名之後那一欄可能還是舊的，顯示要用活的那一份。
  */
-function withBook<T extends { bookId: string; bookTitle: string }>(
+function withBook<T extends { bookId: string; bookTitle: string; coverUrl?: string }>(
   row: T,
   books: Map<string, Book>,
 ): T & { bookCover: string } {
   const book = books.get(row.bookId);
-  return { ...row, bookTitle: book?.title || row.bookTitle, bookCover: book?.coverUrl ?? "" };
+  return {
+    ...row,
+    bookTitle: book?.title || row.bookTitle,
+    // 自己填了示意圖就用那張，沒填就退回出處的書封——總比一塊空方格好
+    bookCover: row.coverUrl || book?.coverUrl || "",
+  };
 }
 
 export function getVocabularyEntries(rows: VocabularyRow[], books: Book[]): VocabularyEntry[] {

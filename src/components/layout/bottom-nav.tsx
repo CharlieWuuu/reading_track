@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Plus } from "lucide-react";
 import { kindHref } from "@/config/kind-routes";
 import { useKinds } from "@/hooks/use-kinds";
@@ -32,31 +32,35 @@ export function BottomNav() {
           {NAV_ITEMS.map((item) => {
             const active = isNavActive(item, pathname);
             return (
-              <li key={item.href} className="flex-1">
-                <Link
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  className={`flex flex-col items-center gap-0.5 px-1 py-2 text-[10px] ${
-                    active ? "text-gray-900" : "text-gray-400"
-                  }`}
-                >
-                  <item.Icon active={active} />
-                  <span className="leading-none">{item.label}</span>
-                </Link>
-              </li>
+              <Fragment key={item.href}>
+                {/* 記一筆是隨時想做的事，排在三個內容分類的後面、回顧與後台的前面 */}
+                {item.href === "/stats" && (
+                  <li className="flex-1">
+                    <button
+                      type="button"
+                      onClick={() => setAdding(true)}
+                      className="text-accent flex w-full flex-col items-center gap-0.5 px-1 py-2 text-[10px]"
+                    >
+                      <Plus size={20} strokeWidth={1.5} />
+                      <span className="leading-none">新增</span>
+                    </button>
+                  </li>
+                )}
+                <li className="flex-1">
+                  <Link
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex flex-col items-center gap-0.5 px-1 py-2 text-[10px] ${
+                      active ? "text-gray-900" : "text-gray-400"
+                    }`}
+                  >
+                    <item.Icon active={active} />
+                    <span className="leading-none">{item.label}</span>
+                  </Link>
+                </li>
+              </Fragment>
             );
           })}
-          {/* 記一筆是隨時想做的事，跟切分類同一排——不做浮在畫面上的圓鈕，那會蓋住內容 */}
-          <li className="flex-1">
-            <button
-              type="button"
-              onClick={() => setAdding(true)}
-              className="text-accent flex w-full flex-col items-center gap-0.5 px-1 py-2 text-[10px]"
-            >
-              <Plus size={20} strokeWidth={1.5} />
-              <span className="leading-none">新增</span>
-            </button>
-          </li>
         </ul>
       </nav>
     </>
