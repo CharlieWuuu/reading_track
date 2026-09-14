@@ -4,7 +4,10 @@ import { moduleDef } from "@/config/modules";
 import { KindGroup } from "@/config/record-kinds";
 import { db, type Tx } from "@/lib/db/client";
 import { fields } from "@/lib/db/schema/fields";
+import { fragments } from "@/lib/db/schema/fragments";
 import { kinds, mapKindField, userKinds } from "@/lib/db/schema/kinds";
+import { works } from "@/lib/db/schema/works";
+import { writings } from "@/lib/db/schema/writings";
 
 /**
  * 類型的寫入。
@@ -117,6 +120,44 @@ export async function addKind(userId: string, group: KindGroup, kind: NewKind): 
 /** 套一份範本。跟自己勾的走同一條路，套完就是他的了 */
 export async function addKindFromTemplate(userId: string, template: KindTemplate): Promise<string> {
   return addKind(userId, template.group, fromTemplate(template));
+}
+
+/**
+ * 把一個類型底下的資料整批搬到另一個，然後關掉來源。
+ *
+ * 「顯化」與「週計劃」其實是同一件事，想併成「札記」——改名做不到，兩個類型
+ * 不能共用一個網址。搬資料才是真正要做的事。
+ *
+ * 只在同一個 group 內搬：紀錄有作品那一層、片段沒有，跨 group 的欄位對不起來。
+ * 三張表都試，不是這個 group 的那幾張什麼也不會做。
+ */
+export async function mergeKinds(userId: string, fromId: string, toId: string): Promise<void> {
+  if (fromId === toId) throw new Error("不能併到自己身上");
+
+  const [from] = await db.select().from(kinds).where(eq(kinds.id, fromId));
+  const [to] = await db.select().from(kinds).where(eq(kinds.id, toId));
+  if (!from || !to) throw new Error("找不到這個類型");
+  if (from.groupKey !== to.groupKey) throw new Error("只能併到同一個分類底下的類型");
+
+  await db.transaction(async (tx) => {
+    await tx
+      .update(works)
+      .set({ kindId: toId })
+      .where(and(eq(works.userId, userId), eq(works.kindId, fromId)));
+    await tx
+      .update(fragments)
+      .set({ kindId: toId })
+      .where(and(eq(fragments.userId, userId), eq(fragments.kindId, fromId)));
+    await tx
+      .update(writings)
+      .set({ kindId: toId })
+      .where(and(eq(writings.userId, userId), eq(writings.kindId, fromId)));
+
+    // 搬完就空了，來源從「我在用」移掉
+    await tx
+      .delete(userKinds)
+      .where(and(eq(userKinds.userId, userId), eq(userKinds.kindId, fromId)));
+  });
 }
 
 /**
