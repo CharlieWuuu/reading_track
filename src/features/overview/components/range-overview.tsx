@@ -3,8 +3,9 @@
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { CardGrid } from "@/components/ui/card-grid";
-import { COVER_CARD_GRID, CoverCard } from "@/components/ui/cover-card/cover-card";
+import { COVER_CARD_GRID } from "@/components/ui/cover-card/cover-card";
 import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
+import { OverviewCoverCard } from "@/components/ui/overview-layout/overview-layout";
 import { unitOfGroup } from "@/config/nav";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { useGroupRecords } from "@/hooks/use-group-records";
@@ -49,16 +50,7 @@ function RecordSection({
       </div>
       <div className={COVER_CARD_GRID}>
         {items.map((item) => (
-          <CoverCard
-            key={item.id}
-            id={item.id}
-            href={item.href}
-            title={item.title}
-            coverUrl={item.coverUrl}
-            meta={item.endDate}
-            label={item.kindLabel}
-            caption={item.byline}
-          />
+          <OverviewCoverCard key={item.id} item={item} tintSeed={(row) => row.kindLabel} />
         ))}
       </div>
     </div>

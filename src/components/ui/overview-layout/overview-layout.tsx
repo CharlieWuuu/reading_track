@@ -34,8 +34,11 @@ const styles = {
   loadingMore: "text-meta text-ink-faint py-4 text-center",
 };
 
-/** 月份格線裡一格的預設畫法：書籍、紀錄用這個 */
-function DefaultItem({
+/**
+ * 一筆 OverviewItem 畫成封面卡。月份格線與範圍報告共用——本來各寫一次，
+ * 範圍報告少給 tintSeed，同一本書在兩頁的色帶就不同色。
+ */
+export function OverviewCoverCard({
   item,
   tintSeed,
 }: {
@@ -159,7 +162,7 @@ export function OverviewLayout({
                   renderItem ? (
                     <div key={item.id}>{renderItem(item)}</div>
                   ) : (
-                    <DefaultItem key={item.id} item={item} tintSeed={tintSeed} />
+                    <OverviewCoverCard key={item.id} item={item} tintSeed={tintSeed} />
                   ),
                 )}
               </div>

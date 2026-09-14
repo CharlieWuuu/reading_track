@@ -114,6 +114,7 @@ export function VocabularySection({
             label={translation}
             detail={pronunciation}
             body={latest.sentence}
+            meta={[latest.bookTitle, latest.chapter].filter(Boolean).join("・")}
           />
         );
       }}
