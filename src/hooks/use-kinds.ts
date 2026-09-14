@@ -50,6 +50,18 @@ export function useKinds() {
     await mutate();
   }
 
+  /** 把一個類型底下的資料整批搬到另一個，來源跟著關掉 */
+  async function mergeKind(kindId: string, into: string) {
+    const res = await fetch(`/api/kinds/${kindId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ into }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error ?? "合併失敗");
+    await mutate();
+  }
+
   /** 關掉一個類型。底下還有資料時伺服器會擋，錯誤訊息直接丟給呼叫端顯示 */
   async function removeKind(kindId: string) {
     const res = await fetch(`/api/kinds/${kindId}`, { method: "DELETE" });
@@ -64,6 +76,7 @@ export function useKinds() {
     error: error instanceof Error ? error.message : undefined,
     addKind,
     editKind,
+    mergeKind,
     removeKind,
   };
 }
