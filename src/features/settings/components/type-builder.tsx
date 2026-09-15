@@ -13,6 +13,9 @@ import { KindGroup } from "@/config/record-kinds";
 import { useKinds } from "@/hooks/use-kinds";
 import { Kind } from "@/lib/db/queries/kinds";
 
+/** 每個類型都有的那幾個不列出來——列了也不能取消勾，只會讓人以為關得掉 */
+const PICKABLE = MODULES.filter((module) => !("always" in module));
+
 /**
  * 新增類型。類型是資料不是程式——勾完就有清單、詳情、表單三頁，不用寫 code。
  *
@@ -241,12 +244,12 @@ export function TypeBuilder({
           label="要哪些模組"
           hint={
             <span className={styles.count}>
-              勾了 {picked.length} 個，共 {MODULES.length} 個
+              勾了 {picked.length} 個，共 {PICKABLE.length} 個
             </span>
           }
         >
           <div>
-            {MODULES.map((module) => (
+            {PICKABLE.map((module) => (
               <label key={module.key} className={styles.row}>
                 <input
                   type="checkbox"

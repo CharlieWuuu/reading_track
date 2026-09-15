@@ -237,9 +237,9 @@ export async function seedDemo(email: string): Promise<string> {
   if (allKeywords.size) {
     const rows = await db
       .insert(fragments)
-      .values([...allKeywords].map((name) => ({ userId, kindId: keywordKindId, name })))
-      .returning({ id: fragments.id, name: fragments.name });
-    for (const row of rows) keywordFragmentId.set(row.name, row.id);
+      .values([...allKeywords].map((name) => ({ userId, kindId: keywordKindId, title: name })))
+      .returning({ id: fragments.id, title: fragments.title });
+    for (const row of rows) keywordFragmentId.set(row.title, row.id);
   }
 
   const bookIds: string[] = [];
@@ -305,7 +305,7 @@ export async function seedDemo(email: string): Promise<string> {
       .values({
         userId,
         kindId: writingKindId,
-        name: title,
+        title,
         body: NOTES[title] ?? "",
         date: daysAgo(300 - i * 25),
       })
@@ -326,7 +326,7 @@ export async function seedDemo(email: string): Promise<string> {
   }
 
   const quoteFragments = QUOTES.map(([bookIndex, text, chapter]) => ({
-    row: { id: crypto.randomUUID(), userId, kindId: quoteKindId, phrase: text, locator: chapter },
+    row: { id: crypto.randomUUID(), userId, kindId: quoteKindId, title: text, locator: chapter },
     workId: bookIds[bookIndex],
   }));
   await db.insert(fragments).values(quoteFragments.map(({ row }) => row));
@@ -340,7 +340,7 @@ export async function seedDemo(email: string): Promise<string> {
         id: crypto.randomUUID(),
         userId,
         kindId: vocabularyKindId,
-        name: word,
+        title: word,
         pronunciation,
         translation: wordTranslation,
         context: sentence,

@@ -84,7 +84,7 @@ export async function replaceBookQuotes(
         id: item.id || crypto.randomUUID(),
         userId,
         kindId,
-        phrase: item.text,
+        title: item.text,
         locator: item.chapter,
         body: item.note,
         date: item.date,
@@ -108,7 +108,7 @@ export async function replaceBookVocabulary(
         id: item.id || crypto.randomUUID(),
         userId,
         kindId,
-        name: item.word,
+        title: item.word,
         pronunciation: item.pronunciation,
         translation: item.wordTranslation,
         context: item.sentence,
@@ -156,7 +156,7 @@ export async function addQuote(userId: string, readingId: string, item: QuoteRow
       id,
       userId,
       kindId: await kindIdBySlug(tx, userId, "quotes"),
-      phrase: item.text,
+      title: item.text,
       locator: item.chapter,
       body: item.note,
       date: item.date,
@@ -180,7 +180,7 @@ export async function addVocabulary(
       id,
       userId,
       kindId: await kindIdBySlug(tx, userId, "vocabulary"),
-      name: item.word,
+      title: item.word,
       pronunciation: item.pronunciation,
       translation: item.wordTranslation,
       context: item.sentence,
@@ -200,13 +200,13 @@ export async function keywordFragmentId(tx: Tx, userId: string, name: string): P
     .select({ id: fragments.id })
     .from(fragments)
     .where(
-      and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.name, name)),
+      and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.title, name)),
     );
   if (existing) return existing.id;
 
   const [row] = await tx
     .insert(fragments)
-    .values({ userId, kindId, name })
+    .values({ userId, kindId, title: name })
     .returning({ id: fragments.id });
   return row.id;
 }
@@ -270,7 +270,7 @@ export async function saveKeywordInfos(userId: string, infos: KeywordInfo[]): Pr
           and(
             eq(fragments.userId, userId),
             eq(fragments.kindId, kindId),
-            eq(fragments.name, info.name),
+            eq(fragments.title, info.name),
           ),
         );
 
@@ -279,7 +279,7 @@ export async function saveKeywordInfos(userId: string, infos: KeywordInfo[]): Pr
         : (
             await tx
               .insert(fragments)
-              .values({ userId, kindId, name: info.name, ...values })
+              .values({ userId, kindId, title: info.name, ...values })
               .returning({ id: fragments.id })
           )[0].id;
       if (existing) await tx.update(fragments).set(values).where(eq(fragments.id, fragmentId));
@@ -309,7 +309,7 @@ export async function renameKeyword(userId: string, from: string, to: string): P
       .select({ id: fragments.id })
       .from(fragments)
       .where(
-        and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.name, from)),
+        and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.title, from)),
       );
     if (!oldFragment) return 0;
 
@@ -319,7 +319,7 @@ export async function renameKeyword(userId: string, from: string, to: string): P
       .select({ id: fragments.id })
       .from(fragments)
       .where(
-        and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.name, to)),
+        and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.title, to)),
       );
 
     if (existing) {
@@ -328,7 +328,7 @@ export async function renameKeyword(userId: string, from: string, to: string): P
       await tx.delete(fragments).where(eq(fragments.id, oldFragment.id));
       await setFragmentSourceUrl(tx, userId, oldFragment.id, "");
     } else {
-      await tx.update(fragments).set({ name: to }).where(eq(fragments.id, oldFragment.id));
+      await tx.update(fragments).set({ title: to }).where(eq(fragments.id, oldFragment.id));
     }
 
     return affected.length;
@@ -343,7 +343,7 @@ export async function deleteKeyword(userId: string, name: string): Promise<numbe
       .select({ id: fragments.id })
       .from(fragments)
       .where(
-        and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.name, name)),
+        and(eq(fragments.userId, userId), eq(fragments.kindId, kindId), eq(fragments.title, name)),
       );
     if (!old) return 0;
 

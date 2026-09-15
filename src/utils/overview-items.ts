@@ -73,15 +73,15 @@ export const recordItem = (row: RecordRow): OverviewItem => ({
  * 認 slug 不認名字——名字使用者改得掉，改完這張表就對不上了。
  */
 const FRAGMENT_HREF: Record<string, (row: FragmentRow) => string> = {
-  vocabulary: (row) => `${kindHref(row.kindGroup, row.kindSlug)}/${encodeURIComponent(row.name)}`,
-  keywords: (row) => `${kindHref(row.kindGroup, row.kindSlug)}/${encodeURIComponent(row.name)}`,
+  vocabulary: (row) => `${kindHref(row.kindGroup, row.kindSlug)}/${encodeURIComponent(row.title)}`,
+  keywords: (row) => `${kindHref(row.kindGroup, row.kindSlug)}/${encodeURIComponent(row.title)}`,
 };
 
 export const fragmentHref = (row: FragmentRow): string =>
   FRAGMENT_HREF[row.kindSlug]?.(row) ?? `${kindHref(row.kindGroup, row.kindSlug)}/${row.id}`;
 
 /** 片段的標題：有名字就用名字，沒有就用整段內文——一句佳句沒有標題，硬留白只剩出處看得見 */
-export const fragmentTitle = (row: FragmentRow): string => row.name || row.body;
+export const fragmentTitle = (row: FragmentRow): string => row.title || row.body;
 
 /**
  * 卡片上那段內文。有例句就秀例句——「這個字長什麼樣」比字義本身好記，

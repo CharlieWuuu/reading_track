@@ -52,7 +52,7 @@ function GenericKindList({ kind, query }: { kind: Kind; query: string }) {
     matchesSearch(terms, row.title, row.creator, row.source),
   );
   const shownFragments = fragments.filter((row) =>
-    matchesSearch(terms, row.name, row.body, row.workTitle),
+    matchesSearch(terms, row.title, row.body, row.workTitle),
   );
 
   if (terms.length > 0 && (isRecords ? shownRecords.length : shownFragments.length) === 0) {

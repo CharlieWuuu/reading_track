@@ -21,14 +21,7 @@ export type KindTemplate = {
   labels?: Partial<Record<ModuleKey, string>>;
 };
 
-const RECORD_BASE: ModuleKey[] = [
-  "title",
-  "creator",
-  "externalUrl",
-  "startDate",
-  "endDate",
-  "private",
-];
+const RECORD_BASE: ModuleKey[] = ["title", "creator", "externalUrl", "startDate", "endDate"];
 
 export const KIND_TEMPLATES: KindTemplate[] = [
   {
@@ -102,7 +95,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "fragments",
     name: "佳句",
     amountUnit: "",
-    modules: ["title", "locator", "endDate", "private"],
+    modules: ["title", "locator", "endDate"],
     labels: { title: "原文" },
   },
   {
@@ -118,7 +111,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
       "contextTranslation",
       "locator",
       "endDate",
-      "private",
     ],
     labels: { title: "單字", translation: "字義" },
   },
@@ -127,16 +119,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "fragments",
     name: "關鍵字",
     amountUnit: "",
-    modules: [
-      "title",
-      "translation",
-      "longText",
-      "tags",
-      "years",
-      "coordinates",
-      "externalUrl",
-      "private",
-    ],
+    modules: ["title", "translation", "longText", "tags", "years", "coordinates", "externalUrl"],
     labels: {
       title: "詞條",
       translation: "一句話說明",
@@ -150,35 +133,35 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "writings",
     name: "心得",
     amountUnit: "字",
-    modules: ["title", "longText", "endDate", "private"],
+    modules: ["title", "longText", "endDate"],
   },
   {
     key: "thoughts",
     group: "writings",
     name: "思緒",
     amountUnit: "字",
-    modules: ["title", "longText", "endDate", "private"],
+    modules: ["title", "longText", "endDate"],
   },
   {
     key: "weekly-plan",
     group: "writings",
     name: "週計劃",
     amountUnit: "字",
-    modules: ["title", "longText", "endDate", "private"],
+    modules: ["title", "longText", "endDate"],
   },
   {
     key: "essay",
     group: "writings",
     name: "論述",
     amountUnit: "字",
-    modules: ["title", "longText", "externalUrl", "endDate", "private"],
+    modules: ["title", "longText", "externalUrl", "endDate"],
   },
   {
     key: "plan",
     group: "writings",
     name: "每日計畫",
     amountUnit: "字",
-    modules: ["title", "longText", "endDate", "private"],
+    modules: ["title", "longText", "endDate"],
   },
 ];
 

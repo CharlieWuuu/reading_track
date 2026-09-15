@@ -49,7 +49,7 @@ async function linkedKeywordNames(ownerId: string): Promise<string[]> {
   const rows = await db.select().from(fragments).where(eq(fragments.userId, userId));
   return rows
     .filter((f) => otherIds.includes(f.id))
-    .map((f) => f.name)
+    .map((f) => f.title)
     .sort();
 }
 

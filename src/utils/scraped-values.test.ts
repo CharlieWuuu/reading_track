@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { fillFromBook } from "./scraped-values";
 
-const ALL = new Set(["title", "creator", "source", "externalId", "coverUrl", "amount"]);
+const ALL = new Set(["title", "creator", "publisher", "externalId", "coverUrl", "amount"]);
 
 describe("fillFromBook", () => {
   it("爬回來的舊欄名換成表單認得的欄位鍵", () => {
@@ -11,7 +11,7 @@ describe("fillFromBook", () => {
       ALL,
     );
     expect(values.creator).toBe("村上春樹");
-    expect(values.source).toBe("時報");
+    expect(values.publisher).toBe("時報");
     expect(values.externalId).toBe("978");
   });
 

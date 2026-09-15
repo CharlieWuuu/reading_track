@@ -26,7 +26,7 @@ export function QuoteWall({
     <div className={styles.wall}>
       {rows.map((row) => (
         <Link key={row.id} href={hrefOf(row)} className={styles.row}>
-          <Quote text={row.body || row.name} source={source(row)} />
+          <Quote text={row.body || row.title} source={source(row)} />
         </Link>
       ))}
     </div>

@@ -52,7 +52,7 @@ async function toWritings(userId: string, rows: WritingJoinRow[]): Promise<Writi
       id: writing.id,
       createdAt: writing.createdAt.toISOString(),
       date: writing.date,
-      title: writing.name,
+      title: writing.title,
       topic: kindName, // 分類已經是 kind，topic 欄留著給篩選與統計沿用同一個名字
       keywords: keywords.get(writing.id) ?? "",
       note: writing.body,

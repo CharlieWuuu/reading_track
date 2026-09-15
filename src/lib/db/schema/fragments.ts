@@ -37,8 +37,9 @@ export const fragments = pgTable("domain_fragments", {
     .references(() => kinds.id, { onDelete: "restrict" }),
   /** 這件事發生在哪一天。記下的時間看 created_at，兩者不是同一件事 */
   date: date("date"),
-  name: text("name").notNull().default(""), // 單字、詞條
-  phrase: text("phrase").notNull().default(""), // 佳句本文
+  // 這一筆的標題：單字是那個字、關鍵字是詞條、佳句是整句話。
+  // 本來分成 name 與 phrase 兩欄，但從來沒有一筆兩個都有值
+  title: text("title").notNull().default(""),
   body: text("body").notNull().default(""), // 原文、維基摘要、佳句的心得
   locator: text("locator").notNull().default(""), // 章節、頁碼
   pronunciation: text("pronunciation").notNull().default(""),

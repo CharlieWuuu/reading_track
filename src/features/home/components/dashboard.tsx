@@ -40,7 +40,7 @@ const fragmentItem = (row: FragmentRow): DigestItem => ({
   id: row.id,
   kind: row.kindName,
   date: (fragmentDate(row) ?? "").slice(5),
-  title: row.name || row.body,
+  title: row.title || row.body,
   meta: [row.workTitle, row.locator].filter(Boolean).join("・"),
   coverUrl: row.coverUrl,
 });

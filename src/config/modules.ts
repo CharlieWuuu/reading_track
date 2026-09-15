@@ -18,10 +18,19 @@ export type ModuleDef = {
   hint: string;
   /** 這個模組佔資料表哪幾欄 */
   fields: FieldKey[];
+  /**
+   * 每個類型都有，不用勾——所以也不出現在設定頁的勾選清單裡。
+   *
+   * 標準是「少了它那個類型就不完整」：任何一筆都可能想連到別的東西，
+   * 也都可能不想被同事瞄到。其餘一律讓使用者自己決定，不要替他預設。
+   */
+  always?: true;
 };
 
 export const MODULES = [
   // 紀錄存在 works.title，片段存在 fragments.name——同一個模組，兩張表的欄名不同
+  // 關聯不佔自己的欄位：一律落在 links_internal，連到什麼由 chip 上的種類說
+  { key: "links", label: "內部連結", hint: "連到站內任何一筆", fields: [], always: true },
   { key: "title", label: "標題", hint: "一行字，清單上顯示的那個", fields: ["title"] },
   { key: "creator", label: "作者／來源人", hint: "誰講的、誰寫的", fields: ["creator"] },
   { key: "longText", label: "長文", hint: "多段落，支援分欄", fields: ["body"] },
@@ -40,7 +49,13 @@ export const MODULES = [
   { key: "startDate", label: "開始日期", hint: "開始的那一天", fields: ["startDate"] },
   { key: "endDate", label: "完成日期", hint: "完成的那一天", fields: ["endDate"] },
   { key: "amount", label: "量＋單位", hint: "頁／字／分鐘，統計讀這個", fields: ["amount"] },
-  { key: "private", label: "私人", hint: "鎖起來，別人看不出存在", fields: ["isPrivate"] },
+  {
+    key: "private",
+    label: "私人",
+    hint: "鎖起來，別人看不出存在",
+    fields: ["isPrivate"],
+    always: true,
+  },
   { key: "pronunciation", label: "發音", hint: "怎麼唸", fields: ["pronunciation"] },
   { key: "context", label: "例句", hint: "這個詞用在句子裡長什麼樣", fields: ["context"] },
   {
@@ -55,7 +70,7 @@ export const MODULES = [
   { key: "coordinates", label: "座標", hint: "地圖上的位置", fields: ["latitude", "longitude"] },
   { key: "language", label: "語言", hint: "這一筆是什麼語言", fields: ["language"] },
   { key: "externalId", label: "外部編號", hint: "ISBN、DOI 之類", fields: ["externalId"] },
-  { key: "publisher", label: "出版社", hint: "出版社／頻道／製作單位", fields: ["source"] },
+  { key: "publisher", label: "出版社", hint: "出版社／頻道／製作單位", fields: ["publisher"] },
   { key: "platform", label: "平台", hint: "在哪讀的、在哪看的", fields: ["platform"] },
   // 一個模組兩格：主題樹有父子，領域選完次領域才知道要列哪幾個
   {
@@ -64,7 +79,7 @@ export const MODULES = [
     hint: "為什麼讀這一筆，含次領域",
     fields: ["domain", "subDomain"],
   },
-  { key: "attribute", label: "屬性", hint: "小說／論述／散文這種分法", fields: ["attributeId"] },
+  { key: "attribute", label: "屬性", hint: "小說／論述／散文這種分法", fields: ["attribute"] },
 ] as const satisfies readonly ModuleDef[];
 
 export type ModuleKey = (typeof MODULES)[number]["key"];

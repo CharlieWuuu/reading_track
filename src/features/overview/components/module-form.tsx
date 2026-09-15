@@ -120,7 +120,7 @@ function ModuleFields({
             type={INPUT_TYPE[field.type] ?? "text"}
             value={values[field.key] ?? ""}
             onChange={(value) => onChange(field.key, value)}
-            onPaste={field.key === "sourceUrl" ? onUrlPaste : undefined}
+            onPaste={field.key === "externalUrl" ? onUrlPaste : undefined}
           />
         ),
       )}
@@ -176,7 +176,7 @@ export function ModuleForm({
    * 兩邊都只補空欄位，也只補這個類型勾了的——手動改過的比抓回來的可信。
    */
   const fieldKeys = new Set(fields.map((f) => f.key));
-  const canScrape = fieldKeys.has("sourceUrl") && fieldKeys.has("title");
+  const canScrape = fieldKeys.has("externalUrl") && fieldKeys.has("title");
   // 有 ISBN 這一格的就是書：走各平台專用的書籍爬蟲，補得比通用剖析器完整
   const hasIsbn = fieldKeys.has("externalId");
 
@@ -194,7 +194,7 @@ export function ModuleForm({
       }
       let filled = 0;
       setValues((v) => {
-        const result = fillFromBook({ ...v, sourceUrl: trimmed }, found, fieldKeys);
+        const result = fillFromBook({ ...v, externalUrl: trimmed }, found, fieldKeys);
         filled = result.filled;
         return result.values;
       });
@@ -354,11 +354,10 @@ export function ModuleForm({
       {fetching && <p className="text-xs text-gray-500">抓取中…</p>}
       {!fetching && fetchNote && <p className="text-xs text-gray-500">{fetchNote}</p>}
 
-      {/* 每個類型都有，不用勾：任何一筆都可能想連到別的東西，週計劃連到某本書
-          跟佳句連到那本書是同一件事。連到什麼由 chip 上的種類說，這一格不分方向。
+      {/* 關聯不佔資料表的欄位，所以 ModuleFields 畫不出來，由這裡補。
           新增時還沒有編號，選的先收在 pending，存檔後補上 */}
       <ContentLinkInput
-        label="內部連結"
+        label={modules.find((module) => module.key === "links")?.label ?? "內部連結"}
         excludeId={linkId || undefined}
         linked={linked}
         onLink={link}

@@ -76,7 +76,7 @@ export async function keywordNamesByOwner(
   if (!keywordIds.length) return new Map();
 
   const rows = await defaultDb
-    .select({ id: fragments.id, name: fragments.name })
+    .select({ id: fragments.id, name: fragments.title })
     .from(fragments)
     .innerJoin(kinds, eq(kinds.id, fragments.kindId))
     .where(

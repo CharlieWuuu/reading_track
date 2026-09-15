@@ -15,3 +15,22 @@ export function toInt(value: string | undefined | null): number | null {
   const n = Number(String(value ?? "").replace(/[^\d]/g, ""));
   return Number.isFinite(n) && n > 0 ? n : null;
 }
+
+/**
+ * 年份：負數是西元前，所以不能用 toInt（那支把負號也抽掉，而且 0 與負數一律當沒填）。
+ * 0 年不存在，拿它當「沒填」是安全的。
+ */
+export function toYear(value: string | undefined | null): number | null {
+  const trimmed = (value ?? "").trim();
+  if (!trimmed) return null;
+  const n = Number(trimmed);
+  return Number.isInteger(n) && n !== 0 ? n : null;
+}
+
+/** 經緯度：負數與小數點都是有意義的，0 也是合法座標（赤道、本初子午線） */
+export function toFloat(value: string | undefined | null): number | null {
+  const trimmed = (value ?? "").trim();
+  if (!trimmed) return null;
+  const n = Number(trimmed);
+  return Number.isFinite(n) ? n : null;
+}

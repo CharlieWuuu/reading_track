@@ -23,7 +23,7 @@ describe("addVocabulary", () => {
   it("不掛書也存得下來", async () => {
     await addVocabulary(userId, "", makeWord({ word: "邂逅" }));
 
-    const [row] = await db.select().from(fragments).where(eq(fragments.name, "邂逅"));
+    const [row] = await db.select().from(fragments).where(eq(fragments.title, "邂逅"));
     expect(await linkedIdsOf(userId, row.id)).toHaveLength(0);
   });
 
@@ -33,14 +33,14 @@ describe("addVocabulary", () => {
 
     await addVocabulary(userId, book.id, makeWord({ word: "剩餘價值" }));
 
-    const [row] = await db.select().from(fragments).where(eq(fragments.name, "剩餘價值"));
+    const [row] = await db.select().from(fragments).where(eq(fragments.title, "剩餘價值"));
     expect(await linkedIdsOf(userId, row.id)).not.toHaveLength(0);
   });
 
   it("空白的字不留列", async () => {
     await addVocabulary(userId, "", makeWord({ word: "   " }));
 
-    const rows = await db.select().from(fragments).where(eq(fragments.name, "   "));
+    const rows = await db.select().from(fragments).where(eq(fragments.title, "   "));
     expect(rows).toHaveLength(0);
   });
 });

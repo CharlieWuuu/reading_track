@@ -186,7 +186,7 @@ export type FragmentRow = {
   kindSlug: string;
   workId: string | null;
   workTitle: string;
-  name: string;
+  title: string;
   body: string;
   locator: string;
   note: string;
@@ -228,7 +228,7 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
       kindSlug: kind.slug,
       workId: work?.id ?? null,
       workTitle: work?.title ?? "",
-      name: fragment.name,
+      title: fragment.title,
       body: fragment.body,
       locator: fragment.locator,
       note: fragment.body,
@@ -268,7 +268,7 @@ export async function listFragmentsByKind(userId: string, kindId: string): Promi
       kindSlug: kind.slug,
       workId: work?.id ?? null,
       workTitle: work?.title ?? "",
-      name: fragment.name,
+      title: fragment.title,
       body: fragment.body,
       locator: fragment.locator,
       note: fragment.body,
@@ -304,7 +304,7 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       kindSlug: writing.kindSlug,
       workId: writing.sourceId || null,
       workTitle: writing.sourceTitle,
-      name: writing.title,
+      title: writing.title,
       body: writing.note,
       locator: "",
       note: writing.note,
@@ -366,7 +366,7 @@ export async function getRecordValues(
       startDate: record.startDate ?? "",
       endDate: record.endDate ?? "",
       amount: work.amount?.toString() ?? "",
-      source: work.source,
+      publisher: work.source,
       platform: work.platform,
       externalId: work.externalId,
       externalUrl: await sourceUrlOfRecord(userId, id),
@@ -375,7 +375,7 @@ export async function getRecordValues(
       // 表單的選單認名字不認編號（選項是從既有資料 group 出來的）
       domain: topic.domain,
       subDomain: topic.subDomain,
-      attributeId: attribute,
+      attribute,
     },
   };
 }
@@ -439,7 +439,7 @@ export async function getWritingValues(
     // 片段與書寫沒有作品層，關聯就掛自己身上
     linkId: row.id,
     values: {
-      title: row.name,
+      title: row.title,
       body: row.body,
       endDate: row.date ?? "",
       coverUrl: row.coverUrl,
@@ -462,12 +462,18 @@ export async function getFragmentValues(
     // 片段與書寫沒有作品層，關聯就掛自己身上
     linkId: row.id,
     values: {
-      title: row.name,
+      title: row.title,
       body: row.body,
       locator: row.locator,
       translation: row.translation,
       context: row.context,
       contextTranslation: row.contextTranslation,
+      tags: row.tags,
+      // 數字欄回字串：表單的 input 一律吃字串，null 就是空的那一格
+      startYear: row.startYear?.toString() ?? "",
+      endYear: row.endYear?.toString() ?? "",
+      latitude: row.latitude?.toString() ?? "",
+      longitude: row.longitude?.toString() ?? "",
       endDate: row.date ?? "",
       externalUrl: await sourceUrlOfFragment(userId, id),
       coverUrl: row.coverUrl,

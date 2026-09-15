@@ -53,7 +53,7 @@ export async function addRecord(
         title: pick(values, allowed, "title"),
         creator: pick(values, allowed, "creator"),
         language: pick(values, allowed, "language"),
-        source: pick(values, allowed, "source"),
+        source: pick(values, allowed, "publisher"),
         platform: pick(values, allowed, "platform"),
         externalId: pick(values, allowed, "externalId"),
         coverUrl: pick(values, allowed, "coverUrl"),
@@ -65,7 +65,7 @@ export async function addRecord(
           pick(values, allowed, "domain"),
           pick(values, allowed, "subDomain"),
         ),
-        attributeId: await attributeIdFor(tx, userId, pick(values, allowed, "attributeId")),
+        attributeId: await attributeIdFor(tx, userId, pick(values, allowed, "attribute")),
       })
       .returning({ id: works.id });
 
@@ -102,7 +102,7 @@ export async function updateRecord(userId: string, id: string, values: FieldValu
   if (has("title")) workPatch.title = values.title;
   if (has("creator")) workPatch.creator = values.creator;
   if (has("language")) workPatch.language = values.language;
-  if (has("source")) workPatch.source = values.source;
+  if (has("publisher")) workPatch.source = values.publisher;
   if (has("platform")) workPatch.platform = values.platform;
   if (has("externalId")) workPatch.externalId = values.externalId;
   if (has("coverUrl")) workPatch.coverUrl = values.coverUrl;
@@ -117,8 +117,8 @@ export async function updateRecord(userId: string, id: string, values: FieldValu
     // 分類要在交易裡換編號：沒有的順手建，跟這次更新同生共死
     if (has("domain") || has("subDomain"))
       workPatch.topicId = await typeIdFor(tx, userId, values.domain ?? "", values.subDomain ?? "");
-    if (has("attributeId"))
-      workPatch.attributeId = await attributeIdFor(tx, userId, values.attributeId);
+    if (has("attribute"))
+      workPatch.attributeId = await attributeIdFor(tx, userId, values.attribute);
 
     if (Object.keys(workPatch).length)
       await tx.update(works).set(workPatch).where(eq(works.id, target.workId));

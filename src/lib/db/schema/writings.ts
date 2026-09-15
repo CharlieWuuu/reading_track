@@ -24,7 +24,7 @@ export const writings = pgTable("domain_writings", {
     .references(() => kinds.id, { onDelete: "restrict" }),
   topicId: uuid("topic_id").references(() => writingTopics.id, { onDelete: "set null" }),
   date: date("date"),
-  name: text("name").notNull().default(""), // 標題
+  title: text("title").notNull().default(""),
   body: text("body").notNull().default(""), // 內文
   coverUrl: text("cover_url").notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
