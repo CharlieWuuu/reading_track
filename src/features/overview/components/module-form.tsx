@@ -9,12 +9,17 @@ import { FormActions } from "@/components/ui/form-actions";
 import { PrivateToggle } from "@/components/ui/private-toggle/private-toggle";
 import { kindHref } from "@/config/kind-routes";
 import { FieldDef } from "@/config/record-fields";
+import { scrapeBook } from "@/features/books/api/lookup-book";
+import { RepeatSuggestions } from "@/features/overview/components/repeat-suggestions";
 import { useAutoSave } from "@/hooks/use-auto-save";
 import { useContentLinks } from "@/hooks/use-content-links";
+import { useKindRecords } from "@/hooks/use-kind-records";
+import type { RecordRow } from "@/lib/db/queries/catalog";
 import { Kind } from "@/lib/db/queries/kinds";
 import { scrapeUrl } from "@/lib/scrape-url";
 import type { Linkable } from "@/types/record";
 import { fieldsOf, FormModule, resolveFormModules } from "@/utils/record-form";
+import { fillFromBook, pickFilled } from "@/utils/scraped-values";
 
 /**
  * 照類型勾的模組畫出來的表單。
@@ -50,12 +55,15 @@ function ModuleFields({
   values,
   onChange,
   onUrlPaste,
+  titleSlot,
 }: {
   module: FormModule;
   values: Record<string, string>;
   onChange: (key: string, value: string) => void;
   /** 貼進「外部連結」欄的訊號，抓取器接不接看類型有沒有這個欄位 */
   onUrlPaste?: (url: string) => void;
+  /** 掛在標題欄底下的浮層（重讀建議）。定位要靠標題那一格當錨點 */
+  titleSlot?: React.ReactNode;
 }) {
   const fields = fieldsOf([module]);
 
@@ -80,6 +88,16 @@ function ModuleFields({
             // 次領域只列選到的那個領域底下的；領域還沒選就列全部
             parentValue={field.type === "topicChild" ? values.domain : undefined}
           />
+        ) : field.key === "title" && titleSlot ? (
+          <div key={field.key} className="relative">
+            <Field
+              label={index === 0 ? module.label : field.defaultLabel}
+              type={INPUT_TYPE[field.type] ?? "text"}
+              value={values[field.key] ?? ""}
+              onChange={(value) => onChange(field.key, value)}
+            />
+            {titleSlot}
+          </div>
         ) : (
           <Field
             key={field.key}
@@ -136,12 +154,16 @@ export function ModuleForm({
   const set = (key: string, value: string) => setValues((v) => ({ ...v, [key]: value }));
 
   /**
-   * 貼上外部連結時帶入標題與作者。用的是通用的 OG／JSON-LD 剖析器，不是
-   * 各平台專用的書籍爬蟲——自訂類型沒有專屬剖析器，能拿到多少算多少。
-   * 只補空欄位：手動改過的內容比抓回來的可信。
+   * 貼上外部連結時把抓得到的欄位補進來。
+   *
+   * 有 ISBN 那一格的走書籍專用爬蟲（作者、出版社、ISBN、封面都抓得到），
+   * 其餘類型走通用的 OG／JSON-LD 剖析器，能拿到多少算多少。
+   * 兩邊都只補空欄位，也只補這個類型勾了的——手動改過的比抓回來的可信。
    */
-  const canScrape =
-    fields.some((f) => f.key === "sourceUrl") && fields.some((f) => f.key === "title");
+  const fieldKeys = new Set(fields.map((f) => f.key));
+  const canScrape = fieldKeys.has("sourceUrl") && fieldKeys.has("title");
+  // 有 ISBN 這一格的就是書：走各平台專用的書籍爬蟲，補得比通用剖析器完整
+  const hasIsbn = fieldKeys.has("externalId");
 
   async function handleUrlPaste(url: string) {
     const trimmed = url.trim();
@@ -150,19 +172,16 @@ export function ModuleForm({
     setFetching(true);
     setFetchNote("");
     try {
-      const found = await scrapeUrl(trimmed);
+      const found = hasIsbn ? await scrapeBook(trimmed) : await scrapeUrl(trimmed);
+      if (!found) {
+        setFetchNote("查不到這個網址");
+        return;
+      }
       let filled = 0;
       setValues((v) => {
-        const next: Record<string, string> = { ...v, sourceUrl: trimmed };
-        if (found.title && !next.title?.trim()) {
-          next.title = found.title;
-          filled += 1;
-        }
-        if (found.author && !next.creator?.trim()) {
-          next.creator = found.author;
-          filled += 1;
-        }
-        return next;
+        const result = fillFromBook({ ...v, sourceUrl: trimmed }, found, fieldKeys);
+        filled = result.filled;
+        return result.values;
       });
       setFetchNote(filled ? `補上 ${filled} 個欄位` : "沒有可補的欄位");
     } catch (err) {
@@ -241,6 +260,30 @@ export function ModuleForm({
   };
 
   /**
+   * 再讀一次：打標題時列出同類型已完成的那幾筆，選了就帶上次填的。
+   *
+   * 只有新增要——編輯既有的那筆本來就有值，跳一個「帶入別筆」的浮層只會誤觸。
+   * 日期不帶：這一次讀是這一次的事，帶過來等於一新增就標成讀完了。
+   */
+  const { records: sameKind } = useKindRecords(recordId ? "" : kind.id);
+
+  async function pickRepeat(row: RecordRow) {
+    setFetchNote("");
+    try {
+      const res = await fetch(`/api/catalog/${row.id}`);
+      if (!res.ok) throw new Error("帶入失敗");
+      const data = (await res.json()) as { values?: Record<string, string> };
+      const { startDate, endDate, ...rest } = data.values ?? {};
+      void startDate;
+      void endDate;
+      setValues((v) => ({ ...rest, ...pickFilled(v) }));
+      setFetchNote("已帶入上次的資料，日期留空");
+    } catch (err) {
+      setFetchNote(err instanceof Error ? err.message : "帶入失敗");
+    }
+  }
+
+  /**
    * 站內關聯要有編號才存得起來，但新增中的那筆還沒有。
    *
    * 所以先收在這裡，等存檔拿到編號再一次送出——選的當下就看得到，
@@ -281,6 +324,15 @@ export function ModuleForm({
           values={values}
           onChange={set}
           onUrlPaste={canScrape ? handleUrlPaste : undefined}
+          titleSlot={
+            recordId ? undefined : (
+              <RepeatSuggestions
+                rows={sameKind}
+                query={values.title ?? ""}
+                onPick={(row) => void pickRepeat(row)}
+              />
+            )
+          }
         />
       ))}
       {fetching && <p className="text-xs text-gray-500">抓取中…</p>}

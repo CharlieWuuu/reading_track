@@ -15,10 +15,11 @@ async function fetcher(url: string): Promise<{ records?: RecordRow[]; fragments?
   return data;
 }
 
+/** kindId 給空的就不發請求——呼叫端用它表示「這個情境不需要」（例如編輯頁不要重讀建議） */
 export function useKindRecords(kindId: string) {
   // 這個 group 裡也有標私人的紀錄，解鎖了就要帶權杖，不然解了還是看不到
   const unlock = usePrivacyStore((s) => s.token);
-  const key = `/api/kinds/${kindId}/records${unlock ? `?unlock=${unlock}` : ""}`;
+  const key = kindId ? `/api/kinds/${kindId}/records${unlock ? `?unlock=${unlock}` : ""}` : null;
   const { data, error, isLoading, mutate } = useSWR(key, fetcher);
 
   return {
