@@ -166,9 +166,6 @@ export function ModuleForm({
 
   const modules = resolveFormModules(kind.modules);
   const fields = fieldsOf(modules);
-  // 這一格連得到站內任何一筆，所以名字就叫內部連結——照勾到的模組拼成
-  // 「關鍵字」會讓人以為只能連關鍵字
-  const hasLinks = modules.some((module) => module.links);
   const set = (key: string, value: string) => setValues((v) => ({ ...v, [key]: value }));
 
   /**
@@ -357,17 +354,16 @@ export function ModuleForm({
       {fetching && <p className="text-xs text-gray-500">抓取中…</p>}
       {!fetching && fetchNote && <p className="text-xs text-gray-500">{fetchNote}</p>}
 
-      {/* 出處與關鍵字都是站內關聯，共用這一格——連到書還是連到關鍵字，chip 上標種類就分得出來。
-          沒勾任何關聯模組的類型不畫這一格。新增時還沒有編號，選的先收在 pending，存檔後補上 */}
-      {hasLinks && (
-        <ContentLinkInput
-          label="內部連結"
-          excludeId={linkId || undefined}
-          linked={linked}
-          onLink={link}
-          onUnlink={unlink}
-        />
-      )}
+      {/* 每個類型都有，不用勾：任何一筆都可能想連到別的東西，週計劃連到某本書
+          跟佳句連到那本書是同一件事。連到什麼由 chip 上的種類說，這一格不分方向。
+          新增時還沒有編號，選的先收在 pending，存檔後補上 */}
+      <ContentLinkInput
+        label="內部連結"
+        excludeId={linkId || undefined}
+        linked={linked}
+        onLink={link}
+        onUnlink={unlink}
+      />
 
       <FormActions
         saving={saving}
