@@ -3,13 +3,37 @@
  * 一樣是「一份文件」而不是「十張小卡」，所以共用同一套。
  */
 
-/** 章節標題：字比內文小但深且粗，配一條細線——淡灰的小標會被內文蓋過去 */
-export function DetailSection({ title, children }: { title: string; children: React.ReactNode }) {
+/**
+ * 章節標題列。照設計稿：全大寫小標的字級與字距，配一條實線，右邊放數量。
+ *
+ * 小標自己不搶戲——它比內文小得多，靠字距與那條線撐出段落感。
+ * 書籍詳情那一頁的欄位不成段（基本資料、佳句預覽各自排版），只要這一列。
+ */
+export function DetailHeading({ title, count }: { title: string; count?: string | number }) {
+  return (
+    <div className="border-rule-strong flex items-baseline justify-between border-b pb-1.5">
+      <h3 className="text-label text-ink tracking-label font-semibold uppercase">{title}</h3>
+      {count !== undefined && (
+        <span className="text-meta text-ink-faint tabular-nums">{count}</span>
+      )}
+    </div>
+  );
+}
+
+/** 一段：標題列加底下的內容 */
+export function DetailSection({
+  title,
+  count,
+  children,
+}: {
+  title: string;
+  /** 這一段有幾筆。給字串是為了讓呼叫端自己接量詞（「11 則」「3 個」） */
+  count?: string | number;
+  children: React.ReactNode;
+}) {
   return (
     <section className="flex flex-col gap-3">
-      <h3 className="border-rule-soft border-b pb-1.5 text-sm font-semibold text-gray-900">
-        {title}
-      </h3>
+      <DetailHeading title={title} count={count} />
       {children}
     </section>
   );

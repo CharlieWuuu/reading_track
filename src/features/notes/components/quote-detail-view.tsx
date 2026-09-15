@@ -87,7 +87,7 @@ export function QuoteDetailView() {
               )}
 
               {notes.length > 0 && (
-                <DetailSection title="這本書的紀事">
+                <DetailSection title="這本書的紀事" count={notes.length}>
                   <RelatedNotes notes={notes} />
                 </DetailSection>
               )}

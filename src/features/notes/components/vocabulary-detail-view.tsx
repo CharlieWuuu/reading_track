@@ -72,7 +72,7 @@ export function VocabularyDetailView() {
                 )}
               </div>
 
-              <DetailSection title={`遇過 ${entry.encounters.length} 次`}>
+              <DetailSection title="遇過" count={`${entry.encounters.length} 次`}>
                 <ul className="divide-rule-soft flex flex-col divide-y">
                   {entry.encounters.map((encounter, i) => (
                     <li key={i} className="flex flex-col gap-1 py-3 first:pt-0">
@@ -104,7 +104,7 @@ export function VocabularyDetailView() {
               </DetailSection>
 
               {notes.length > 0 && (
-                <DetailSection title="這些書的紀事">
+                <DetailSection title="這些書的紀事" count={notes.length}>
                   <RelatedNotes notes={notes} />
                 </DetailSection>
               )}

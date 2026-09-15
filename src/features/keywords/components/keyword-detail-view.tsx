@@ -98,7 +98,7 @@ export function KeywordDetailView() {
             )}
 
             {mentions.books.length > 0 && (
-              <DetailSection title="書">
+              <DetailSection title="書" count={mentions.books.length}>
                 <div className={styles.list}>
                   {mentions.books.map((book) => (
                     <Link key={book.id} href={bookHref(book.id)} className={styles.row}>
@@ -111,7 +111,7 @@ export function KeywordDetailView() {
             )}
 
             {mentions.articles.length > 0 && (
-              <DetailSection title="文章">
+              <DetailSection title="文章" count={mentions.articles.length}>
                 <div className={styles.list}>
                   {mentions.articles.map((article) => (
                     <Link key={article.id} href={articleHref(article.id)} className={styles.row}>
@@ -123,7 +123,7 @@ export function KeywordDetailView() {
             )}
 
             {mentions.writings.length > 0 && (
-              <DetailSection title="書寫">
+              <DetailSection title="書寫" count={mentions.writings.length}>
                 <div className={styles.list}>
                   {mentions.writings.map((writing) => (
                     <Link key={writing.id} href={writingHref(writing.id)} className={styles.row}>

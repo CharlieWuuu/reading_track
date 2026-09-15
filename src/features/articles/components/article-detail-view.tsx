@@ -86,7 +86,7 @@ export function ArticleDetailView() {
               </DetailFields>
 
               {keywords.length > 0 && (
-                <DetailSection title="關鍵字">
+                <DetailSection title="關鍵字" count={keywords.length}>
                   <div className="flex flex-wrap gap-1.5">
                     {keywords.map((name) => (
                       <KeywordTag key={name} name={name} className={KEYWORD_TAG} />
@@ -102,7 +102,7 @@ export function ArticleDetailView() {
               )}
 
               {notes.length > 0 && (
-                <DetailSection title="紀事">
+                <DetailSection title="紀事" count={notes.length}>
                   <RelatedNotes notes={notes} />
                 </DetailSection>
               )}

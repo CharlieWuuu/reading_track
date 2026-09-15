@@ -8,7 +8,7 @@ import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
-import { DetailField } from "@/components/ui/detail";
+import { DetailField, DetailHeading } from "@/components/ui/detail";
 import { NoteBlock } from "@/components/ui/note-block";
 import { Quote } from "@/components/ui/quote";
 import { RelatedNotes } from "@/components/ui/related-notes";
@@ -57,21 +57,11 @@ function CountStats({
   );
 }
 
-/** 每一節的標題列：粗分隔線＋大寫小標，右邊可選擇放數量 */
-function SectionHeading({ title, count }: { title: string; count?: string }) {
-  return (
-    <div className="border-rule-strong flex items-baseline justify-between border-b pb-1.5">
-      <h3 className="text-label text-ink tracking-label font-semibold uppercase">{title}</h3>
-      {count && <span className="text-meta text-ink-faint tabular-nums">{count}</span>}
-    </div>
-  );
-}
-
 /** 右欄的固定資料卡：狀態、開始、讀完、語言、來源、私人 */
 function FactsCard({ book }: { book: Book }) {
   return (
     <div className="w-full shrink-0 md:w-52 md:border-l md:pl-6">
-      <SectionHeading title="基本資料" />
+      <DetailHeading title="基本資料" />
       <DetailField label="狀態" align="right">
         <StatusBadge status={book.status} />
       </DetailField>
@@ -110,7 +100,7 @@ function QuotePreview({ quotes }: { quotes: QuoteRow[] }) {
   const preview = quotes.slice(0, 3);
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      <SectionHeading title="佳句" count={`${quotes.length} 則`} />
+      <DetailHeading title="佳句" count={`${quotes.length} 則`} />
       <ul className="divide-rule flex flex-col divide-y">
         {preview.map((row) => (
           <li key={row.id} className="py-3 first:pt-0">
@@ -132,7 +122,7 @@ function VocabularyPreview({ vocabulary }: { vocabulary: VocabularyRow[] }) {
   const preview = vocabulary.slice(0, 4);
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      <SectionHeading title="單字" count={`${vocabulary.length} 個`} />
+      <DetailHeading title="單字" count={`${vocabulary.length} 個`} />
       <ul className="divide-rule flex flex-col divide-y">
         {preview.map((row) => (
           <VocabularyItem key={row.id} row={row} />
@@ -244,7 +234,7 @@ export function BookDetailView() {
             <div className="flex min-w-0 flex-1 flex-col gap-3">
               {noteCount > 0 && (
                 <>
-                  <SectionHeading title="心得・紀事" count={`${noteCount} 則`} />
+                  <DetailHeading title="心得・紀事" count={`${noteCount} 則`} />
                   {note && <NoteBlock note={note} />}
                   {notes.length > 0 && <RelatedNotes notes={notes} />}
                 </>

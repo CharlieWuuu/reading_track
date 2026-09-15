@@ -1,1 +1,1 @@
-export { DetailField, DetailFields, DetailSection } from "./detail";
+export { DetailField, DetailFields, DetailHeading, DetailSection } from "./detail";
