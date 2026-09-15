@@ -81,8 +81,8 @@ export function makeVocabulary(overrides: Partial<VocabularyRow> = {}): Vocabula
     word: "測試單字",
     pronunciation: "",
     wordTranslation: "",
-    sentence: "",
-    sentenceTranslation: "",
+    example: "",
+    exampleTranslation: "",
     chapter: "",
     language: "", // 空字串代表跟著書走
     createdAt: "",

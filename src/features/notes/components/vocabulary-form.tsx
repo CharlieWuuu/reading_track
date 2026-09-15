@@ -23,7 +23,7 @@ const styles = {
   field: "flex flex-col gap-1",
   label: FIELD_LABEL_TEXT,
   input: "w-full rounded-control border border-rule bg-transparent px-3 py-1.5 text-sm text-ink",
-  sentence:
+  example:
     "min-h-28 w-full resize-none rounded-control border border-rule bg-transparent px-3 py-1.5 font-serif text-sm text-ink",
   actions: "flex items-center gap-2 pt-1",
   save: "rounded-control bg-control-bg text-control-ink px-4 py-2 text-sm font-medium hover:bg-control-bg-hover disabled:opacity-50",
@@ -161,18 +161,18 @@ export function VocabularyForm({ writings, onSave, onDone }: VocabularyFormProps
             <div className={styles.field}>
               <label className={styles.label}>例句</label>
               <textarea
-                value={edit.sentence}
-                onChange={(e) => update(i, { sentence: e.target.value })}
-                className={styles.sentence}
+                value={edit.example}
+                onChange={(e) => update(i, { example: e.target.value })}
+                className={styles.example}
               />
             </div>
 
             <div className={styles.field}>
               <label className={styles.label}>例句（翻譯）</label>
               <textarea
-                value={edit.sentenceTranslation}
-                onChange={(e) => update(i, { sentenceTranslation: e.target.value })}
-                className={styles.sentence}
+                value={edit.exampleTranslation}
+                onChange={(e) => update(i, { exampleTranslation: e.target.value })}
+                className={styles.example}
               />
             </div>
 

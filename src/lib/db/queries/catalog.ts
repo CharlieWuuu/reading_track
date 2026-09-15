@@ -191,7 +191,7 @@ export type FragmentRow = {
   locator: string;
   note: string;
   /** 例句。單字的卡片要秀這個——「這個字長什麼樣」比字義本身好記 */
-  context: string;
+  example: string;
   /** 讀音。單字卡標題上方那行小字 */
   pronunciation: string;
   date: string | null;
@@ -232,7 +232,7 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
       body: fragment.body,
       locator: fragment.locator,
       note: fragment.body,
-      context: fragment.context,
+      example: fragment.example,
       pronunciation: fragment.pronunciation,
       date: fragment.createdAt.toISOString().slice(0, 10),
       createdAt: fragment.createdAt.toISOString(),
@@ -272,7 +272,7 @@ export async function listFragmentsByKind(userId: string, kindId: string): Promi
       body: fragment.body,
       locator: fragment.locator,
       note: fragment.body,
-      context: fragment.context,
+      example: fragment.example,
       pronunciation: fragment.pronunciation,
       date: fragment.createdAt.toISOString().slice(0, 10),
       createdAt: fragment.createdAt.toISOString(),
@@ -308,7 +308,7 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       body: writing.note,
       locator: "",
       note: writing.note,
-      context: "", // 書寫沒有例句這回事
+      example: "", // 書寫沒有例句這回事
       pronunciation: "",
       date: writing.endDate,
       createdAt: writing.createdAt,
@@ -465,8 +465,8 @@ export async function getFragmentValues(
       body: row.body,
       locator: row.locator,
       translation: row.translation,
-      context: row.context,
-      contextTranslation: row.contextTranslation,
+      example: row.example,
+      exampleTranslation: row.exampleTranslation,
       tags: row.tags,
       // 數字欄回字串：表單的 input 一律吃字串，null 就是空的那一格
       startYear: row.startYear?.toString() ?? "",

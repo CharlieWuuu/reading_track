@@ -87,14 +87,14 @@ export function VocabularyDetailView({ recordId }: { recordId: string }) {
                         {encounter.bookTitle}
                         {encounter.chapter && <span>・{encounter.chapter}</span>}
                       </Link>
-                      {encounter.sentence && (
+                      {encounter.example && (
                         <p className="text-sm leading-loose whitespace-pre-wrap text-gray-800">
-                          {encounter.sentence}
+                          {encounter.example}
                         </p>
                       )}
-                      {encounter.sentenceTranslation && (
+                      {encounter.exampleTranslation && (
                         <p className="text-xs leading-relaxed whitespace-pre-wrap text-gray-400">
-                          {encounter.sentenceTranslation}
+                          {encounter.exampleTranslation}
                         </p>
                       )}
                     </li>

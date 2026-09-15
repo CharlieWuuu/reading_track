@@ -87,7 +87,7 @@ export const fragmentTitle = (row: FragmentRow): string => row.title || row.body
  * 卡片上那段內文。有例句就秀例句——「這個字長什麼樣」比字義本身好記，
  * 單字專屬頁（VocabularySection）本來就這樣畫，通用清單跟上。
  */
-export const fragmentBody = (row: FragmentRow): string => row.context || row.body;
+export const fragmentBody = (row: FragmentRow): string => row.example || row.body;
 
 /**
  * 片段的出處：書名・頁碼之類。

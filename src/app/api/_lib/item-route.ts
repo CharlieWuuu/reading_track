@@ -10,7 +10,7 @@ import {
 
 type Context = { params: Promise<{ id: string }> };
 
-type Handler = (req: NextRequest, context: Context) => Promise<NextResponse>;
+type Handler = (req: NextRequest, example: Context) => Promise<NextResponse>;
 
 export type ItemRoute = { PATCH: Handler; DELETE: Handler };
 

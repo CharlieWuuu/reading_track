@@ -57,12 +57,12 @@ export const MODULES = [
     always: true,
   },
   { key: "pronunciation", label: "發音", hint: "怎麼唸", fields: ["pronunciation"] },
-  { key: "context", label: "例句", hint: "這個詞用在句子裡長什麼樣", fields: ["context"] },
+  { key: "example", label: "例句", hint: "這個詞用在句子裡長什麼樣", fields: ["example"] },
   {
-    key: "contextTranslation",
+    key: "exampleTranslation",
     label: "例句翻譯",
     hint: "例句的意思",
-    fields: ["contextTranslation"],
+    fields: ["exampleTranslation"],
   },
   { key: "tags", label: "標籤", hint: "純文字，一行一個", fields: ["tags"] },
   // 兩格各存一個數字：一欄塞 "1818－1883" 得靠剖析拆，破折號、西元前的負號都是坑

@@ -34,8 +34,8 @@ export const fragments = pgTable("domain_fragments", {
   locator: text("locator").notNull().default(""), // 章節、頁碼
   pronunciation: text("pronunciation").notNull().default(""),
   translation: text("translation").notNull().default(""),
-  context: text("context").notNull().default(""), // 例句
-  contextTranslation: text("context_translation").notNull().default(""),
+  example: text("example").notNull().default(""), // 例句：這個詞用在句子裡長什麼樣
+  exampleTranslation: text("example_translation").notNull().default(""),
   tags: text("tags").notNull().default(""), // 自己貼的標籤，多個以頓號相接，跟 domain_topics 的主題樹是兩回事
   // 生卒或存續的那段年份。一欄塞 "1818－1883" 要靠剖析拆，破折號、西元前的
   // 負號、只有單邊都得各自處理；兩欄各存一個數字，這些情況全部消失。

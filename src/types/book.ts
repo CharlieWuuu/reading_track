@@ -181,8 +181,8 @@ export interface VocabularyItem {
   word: string;
   /** 詞的翻譯／解釋，沒有就是空字串 */
   wordTranslation: string;
-  sentence: string;
-  sentenceTranslation: string;
+  example: string;
+  exampleTranslation: string;
   chapter: string;
   /** 這個詞是什麼語言。空字串代表跟著書的語言走 */
   language: string;
@@ -202,14 +202,14 @@ export function parseVocabulary(raw: string | undefined | null): VocabularyItem[
     // 舊格式「詞：例句（章節）」還讀得到，不用手動改表
     if (!line.includes(VOCABULARY_SEPARATOR)) return parseLegacyVocabulary(line);
 
-    const [word, wordTranslation, sentence, sentenceTranslation, chapter, language] = line
+    const [word, wordTranslation, example, exampleTranslation, chapter, language] = line
       .split(VOCABULARY_SEPARATOR)
       .map((part) => part.trim());
     return {
       word: word ?? "",
       wordTranslation: wordTranslation ?? "",
-      sentence: sentence ?? "",
-      sentenceTranslation: sentenceTranslation ?? "",
+      example: example ?? "",
+      exampleTranslation: exampleTranslation ?? "",
       chapter: chapter ?? "",
       language: language ?? "",
     };
@@ -223,8 +223,8 @@ function parseLegacyVocabulary(line: string): VocabularyItem {
   return {
     word: head.trim(),
     wordTranslation: "",
-    sentence: quote?.text ?? "",
-    sentenceTranslation: "",
+    example: quote?.text ?? "",
+    exampleTranslation: "",
     chapter: quote?.chapter ?? "",
     language: "",
   };

@@ -31,8 +31,8 @@ export async function addFragment(
         body: pick(values, allowed, "body"),
         locator: pick(values, allowed, "locator"),
         translation: pick(values, allowed, "translation"),
-        context: pick(values, allowed, "context"),
-        contextTranslation: pick(values, allowed, "contextTranslation"),
+        example: pick(values, allowed, "example"),
+        exampleTranslation: pick(values, allowed, "exampleTranslation"),
         tags: pick(values, allowed, "tags"),
         startYear: toYear(pick(values, allowed, "startYear")),
         endYear: toYear(pick(values, allowed, "endYear")),
@@ -66,8 +66,8 @@ export async function updateFragment(
   if (has("body")) patch.body = values.body;
   if (has("locator")) patch.locator = values.locator;
   if (has("translation")) patch.translation = values.translation;
-  if (has("context")) patch.context = values.context;
-  if (has("contextTranslation")) patch.contextTranslation = values.contextTranslation;
+  if (has("example")) patch.example = values.example;
+  if (has("exampleTranslation")) patch.exampleTranslation = values.exampleTranslation;
   if (has("tags")) patch.tags = values.tags;
   if (has("startYear")) patch.startYear = toYear(values.startYear);
   if (has("endYear")) patch.endYear = toYear(values.endYear);

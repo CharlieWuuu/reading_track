@@ -335,7 +335,7 @@ export async function seedDemo(email: string): Promise<string> {
     .values(quoteFragments.map(({ row, workId }) => ({ userId, aId: row.id, bId: workId })));
 
   const vocabularyFragments = VOCABULARY.map(
-    ([bookIndex, word, pronunciation, wordTranslation, sentence, sentenceTranslation]) => ({
+    ([bookIndex, word, pronunciation, wordTranslation, example, exampleTranslation]) => ({
       row: {
         id: crypto.randomUUID(),
         userId,
@@ -343,8 +343,8 @@ export async function seedDemo(email: string): Promise<string> {
         title: word,
         pronunciation,
         translation: wordTranslation,
-        context: sentence,
-        contextTranslation: sentenceTranslation,
+        example: example,
+        exampleTranslation: exampleTranslation,
       },
       workId: bookIds[bookIndex],
     }),

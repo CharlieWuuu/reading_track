@@ -19,14 +19,14 @@ export function VocabularyItem({ row }: { row: VocabularyRow }) {
         )}
         {row.chapter && <span className="text-xs text-gray-400">{row.chapter}</span>}
       </p>
-      {row.sentence && (
+      {row.example && (
         <p className="pl-4 text-xs leading-relaxed whitespace-pre-wrap text-gray-600">
-          {row.sentence}
+          {row.example}
         </p>
       )}
-      {row.sentenceTranslation && (
+      {row.exampleTranslation && (
         <p className="pl-4 text-xs leading-relaxed whitespace-pre-wrap text-gray-400">
-          {row.sentenceTranslation}
+          {row.exampleTranslation}
         </p>
       )}
     </li>

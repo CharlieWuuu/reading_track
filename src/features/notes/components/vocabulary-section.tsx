@@ -60,7 +60,7 @@ function toItem(entry: VocabularyEntry): OverviewItem {
   return {
     id: entry.word,
     title: entry.word,
-    byline: latest.sentence,
+    byline: latest.example,
     href: vocabularyHref(entry.word),
     startDate: latest.date,
     endDate: latest.date,
@@ -113,7 +113,7 @@ export function VocabularySection({
             title={entry.word}
             label={translation}
             detail={pronunciation}
-            body={latest.sentence}
+            body={latest.example}
             meta={[latest.bookTitle, latest.chapter].filter(Boolean).join("・")}
           />
         );
