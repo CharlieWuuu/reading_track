@@ -132,10 +132,16 @@ function ModuleFields({
 export function ModuleForm({
   kind,
   recordId,
+  linkId: linkIdProp,
   initial,
 }: {
   kind: Kind;
   recordId?: string;
+  /**
+   * 站內關聯掛在哪個 id 上。紀錄掛在作品，不是掛在「某一次讀」——
+   * 沒給就退回這一筆自己的編號（片段與書寫沒有作品層，本來就是自己）。
+   */
+  linkId?: string;
   initial?: Record<string, string>;
 }) {
   const router = useRouter();
@@ -214,7 +220,7 @@ export function ModuleForm({
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error ?? fallback);
-    return data as { id?: string };
+    return data as { id?: string; linkId?: string };
   }
 
   /**
@@ -234,11 +240,12 @@ export function ModuleForm({
         { values: payload },
         "新增失敗",
       );
-      // 自動存檔先建了那筆，選好的關聯這時就補得上去，不用等按儲存
-      if (data.id) {
-        await flushPending(data.id);
+      // 自動存檔先建了那筆，選好的關聯這時就補得上去，不用等按儲存。
+      // 關聯掛的是 linkId（紀錄的話是作品），不是這一筆自己的編號
+      if (data.linkId) {
+        await flushPending(data.linkId);
         setPending([]);
-        setSavedId(data.id);
+        setSavedId(data.linkId);
       }
       return data.id; // 編號由伺服器產，回傳給 hook 記住
     },
@@ -252,7 +259,7 @@ export function ModuleForm({
     try {
       const data = await request(url, method, body, fallback);
       autoSave.markSaved(values, data.id);
-      if (data.id) await flushPending(data.id);
+      if (data.linkId) await flushPending(data.linkId);
       // 直接開網址進來時沒有上一格可退，回這一種的清單
       if (window.history.length > 1) router.back();
       else router.replace(kindHref(kind.group, kind.slug));
@@ -304,7 +311,7 @@ export function ModuleForm({
    * 所以先收在這裡，等存檔拿到編號再一次送出——選的當下就看得到，
    * 不用先存一次再回來連。已經有編號的（編輯、或自動存檔給過了）直接走 hook。
    */
-  const linkId = recordId || savedId;
+  const linkId = linkIdProp || recordId || savedId;
   const remote = useContentLinks(linkId || null);
   const [pending, setPending] = useState<Linkable[]>([]);
 

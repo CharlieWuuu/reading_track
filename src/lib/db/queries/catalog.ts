@@ -340,7 +340,7 @@ export async function listFragmentsByGroup(
 export async function getRecordValues(
   userId: string,
   id: string,
-): Promise<{ kindId: string; values: Record<string, string> } | null> {
+): Promise<{ kindId: string; linkId: string; values: Record<string, string> } | null> {
   const [row] = await db
     .select({ record: records, work: works })
     .from(records)
@@ -356,6 +356,9 @@ export async function getRecordValues(
 
   return {
     kindId: work.kindId,
+    // 站內關聯掛在作品上，不是掛在「某一次讀」——同一本書讀兩次，
+    // 連到它的佳句與心得是同一批，不該跟著哪一次分家
+    linkId: work.id,
     values: {
       title: work.title,
       creator: work.creator,
@@ -424,7 +427,7 @@ async function attributeNameOf(userId: string, attributeId: string | null): Prom
 export async function getWritingValues(
   userId: string,
   id: string,
-): Promise<{ kindId: string; values: Record<string, string> } | null> {
+): Promise<{ kindId: string; linkId: string; values: Record<string, string> } | null> {
   const [row] = await db
     .select()
     .from(writings)
@@ -433,6 +436,8 @@ export async function getWritingValues(
 
   return {
     kindId: row.kindId,
+    // 片段與書寫沒有作品層，關聯就掛自己身上
+    linkId: row.id,
     values: {
       title: row.name,
       body: row.body,
@@ -445,7 +450,7 @@ export async function getWritingValues(
 export async function getFragmentValues(
   userId: string,
   id: string,
-): Promise<{ kindId: string; values: Record<string, string> } | null> {
+): Promise<{ kindId: string; linkId: string; values: Record<string, string> } | null> {
   const [row] = await db
     .select()
     .from(fragments)
@@ -454,6 +459,8 @@ export async function getFragmentValues(
 
   return {
     kindId: row.kindId,
+    // 片段與書寫沒有作品層，關聯就掛自己身上
+    linkId: row.id,
     values: {
       title: row.name,
       body: row.body,

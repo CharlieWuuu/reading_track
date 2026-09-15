@@ -32,12 +32,16 @@ export async function allowedFields(userId: string, kindId: string): Promise<Set
 export const pick = (values: FieldValues, allowed: Set<string>, key: string) =>
   allowed.has(key) ? (values[key] ?? "") : "";
 
-/** 新增一筆紀錄。作品與紀錄一起開——先有一次紀錄才有作品，反過來是空殼 */
+/**
+ * 新增一筆紀錄。作品與紀錄一起開——先有一次紀錄才有作品，反過來是空殼。
+ *
+ * 兩個編號都回傳：紀錄那個是這一筆的身分，作品那個是站內關聯要掛的地方。
+ */
 export async function addRecord(
   userId: string,
   kindId: string,
   values: FieldValues,
-): Promise<string> {
+): Promise<{ id: string; linkId: string }> {
   const allowed = await allowedFields(userId, kindId);
 
   return db.transaction(async (tx) => {
@@ -78,7 +82,7 @@ export async function addRecord(
 
     await setRecordSourceUrl(tx, userId, record.id, pick(values, allowed, "sourceUrl"));
 
-    return record.id;
+    return { id: record.id, linkId: work.id };
   });
 }
 

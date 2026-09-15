@@ -81,14 +81,19 @@ export const POST = guarded(
       const group = await kindGroupOf(session.user.id, id);
       if (!group) return badRequest("找不到這個類型");
 
-      // 三個 group 三張表，跟 GET 同一套規則——書寫寫進 fragments 的話存了讀不到
-      const newId =
+      // 三個 group 三張表，跟 GET 同一套規則——書寫寫進 fragments 的話存了讀不到。
+      // 紀錄那條的關聯掛在作品上，所以它多回一個 linkId；另外兩張表沒有作品層，
+      // 關聯就掛自己身上
+      const created =
         group === "records"
           ? await addRecord(session.user.id, id, values)
           : group === "writings"
-            ? await addWritingFromValues(session.user.id, id, values)
-            : await addFragment(session.user.id, id, values);
-      return NextResponse.json({ id: newId });
+            ? { id: await addWritingFromValues(session.user.id, id, values) }
+            : { id: await addFragment(session.user.id, id, values) };
+      return NextResponse.json({
+        id: created.id,
+        linkId: "linkId" in created ? created.linkId : created.id,
+      });
     } catch (err) {
       return dataFailure("新增", "addRecord", err);
     }

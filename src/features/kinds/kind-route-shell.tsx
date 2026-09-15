@@ -294,7 +294,12 @@ export function KindEditPage({
         ) : Form ? (
           <Form kind={kind} recordId={recordId} initial={record.values} />
         ) : (
-          <ModuleForm kind={kind} recordId={recordId} initial={record.values} />
+          <ModuleForm
+            kind={kind}
+            recordId={recordId}
+            linkId={record.linkId}
+            initial={record.values}
+          />
         )}
       </PageBody>
     </>
