@@ -188,12 +188,14 @@ export function KindRecordPage({
   recordId: string;
 }) {
   const { kind, isLoading: kindLoading } = useKindBySlug(group, slug);
-  const Detail = kind ? variantFor(kind.slug).detail : undefined;
+  // 認網址上那一段，不認 kind.slug——書寫那條路（/writings/writing）在
+  // setting_kinds 裡沒有對應的類型，等 kind 會永遠等不到
+  const Detail = variantFor(slug).detail;
   const groupLabel = NAV_GROUPS.find((g) => g.kindGroup === group)?.label;
 
   // 有專屬詳情的類型自己撈資料、自己畫頁首——它們的 recordId 不一定是編號
   // （單字與關鍵字是詞本身），拿去查 catalog 永遠查不到，會卡在載入中
-  if (Detail) return kind ? <Detail kind={kind} recordId={recordId} /> : <PageLoading />;
+  if (Detail) return <Detail recordId={recordId} />;
 
   return <GenericRecordPage {...{ group, slug, recordId, kind, kindLoading, groupLabel }} />;
 }

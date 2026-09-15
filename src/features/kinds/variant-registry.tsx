@@ -18,7 +18,8 @@ import { Kind } from "@/lib/db/queries/kinds";
  */
 export type KindVariant = {
   list?: ComponentType<{ kind: Kind }>;
-  detail?: ComponentType<{ kind: Kind; recordId: string }>;
+  /** 詳情只收網址上那一段：專屬元件自己撈資料，不需要 kind，書寫那條路也根本沒有對應的 kind */
+  detail?: ComponentType<{ recordId: string }>;
   form?: ComponentType<{ kind: Kind; recordId?: string; initial?: Record<string, string> }>;
 };
 
