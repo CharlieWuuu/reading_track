@@ -18,6 +18,12 @@ export type ModuleDef = {
   hint: string;
   /** 這個模組佔資料表哪幾欄 */
   fields: FieldKey[];
+  /**
+   * 這個模組存的是站內關聯，不是自己的欄位（所以 fields 是空的）。
+   * 關聯一律落在 links_internal，表單上共用同一格——出處是書、關鍵字是片段，
+   * 差別只在連到哪一種，chip 上標種類就分得出來，不必各給一個搜尋框。
+   */
+  links?: true;
 };
 
 export const MODULES = [
@@ -26,7 +32,7 @@ export const MODULES = [
   { key: "creator", label: "作者／來源人", hint: "誰講的、誰寫的", fields: ["creator"] },
   { key: "longText", label: "長文", hint: "多段落，支援分欄", fields: ["body"] },
   { key: "gloss", label: "解釋", hint: "對這個東西本身的說明", fields: ["translation"] },
-  { key: "source", label: "出處", hint: "指向另一筆條目", fields: [] },
+  { key: "source", label: "出處", hint: "指向另一筆條目", fields: [], links: true },
   { key: "locator", label: "位置", hint: "出處裡的頁碼或時間點", fields: ["locator"] },
   { key: "cover", label: "封面圖", hint: "清單上的縮圖", fields: ["coverUrl"] },
   { key: "link", label: "外部連結", hint: "原始頁面，要有外開圖示", fields: ["sourceUrl"] },
@@ -37,7 +43,7 @@ export const MODULES = [
     fields: ["startDate", "endDate"],
   },
   { key: "date", label: "單一日期", hint: "發生在哪一天", fields: ["endDate"] },
-  { key: "keywords", label: "關鍵字", hint: "多對多，指向另一個片段", fields: [] },
+  { key: "keywords", label: "關鍵字", hint: "多對多，指向另一個片段", fields: [], links: true },
   { key: "amount", label: "量＋單位", hint: "頁／字／分鐘，統計讀這個", fields: ["amount"] },
   { key: "private", label: "私人", hint: "鎖起來，別人看不出存在", fields: ["isPrivate"] },
   { key: "pronunciation", label: "發音", hint: "怎麼唸", fields: ["pronunciation"] },

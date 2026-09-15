@@ -1,13 +1,12 @@
 "use client";
 
-import { Newspaper, Plus, Rows3 } from "lucide-react";
+import { Newspaper, Rows3 } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
-import { ActionButton, SelectMenu } from "@/components/ui/controls";
+import { SelectMenu } from "@/components/ui/controls";
 import { SearchBar } from "@/components/ui/search-bar";
 import { NAV_GROUPS } from "@/config/nav";
 import { useWritingView } from "@/features/writing/use-writing-view";
 import { useWritingViewStore, WRITING_VIEWS } from "@/features/writing/views";
-import { useKinds } from "@/hooks/use-kinds";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useWritings } from "@/hooks/use-writings";
 import { Writing } from "@/types/writing";
@@ -29,13 +28,13 @@ const VIEW_ITEMS = [
 /** 書寫的頁首。跟清單一樣自己讀網址，不用把狀態繞一圈從 page 傳下來 */
 export function WritingHeader() {
   const { writings } = useWritings();
-  const { kinds } = useKinds();
   const { searchParams, setParams } = useUrlParams();
   const query = searchParams.get("q") ?? "";
   const topic = searchParams.get("topic") ?? "";
   const view = useWritingView();
   const saveView = useWritingViewStore((s) => s.setView);
-  const title = kinds.find((k) => k.slug === "writing")?.name;
+  // 這一頁是整個 group 的總覽，不是某一種——書寫底下有心得、思緒、工作…，
+  // 沒有一個 slug 叫 writing 的類型，拿去 kinds 找只會找到 undefined
   const parent = NAV_GROUPS.find((group) => group.kindGroup === "writings")?.label;
   const topicItems = [
     { key: "", label: "全部" },
@@ -44,7 +43,7 @@ export function WritingHeader() {
 
   return (
     <PageHeader
-      title={title}
+      title="全部書寫"
       parent={parent}
       action={
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-5 gap-y-2 md:flex-nowrap">
@@ -66,9 +65,6 @@ export function WritingHeader() {
             label="主題"
             onChange={(next) => setParams({ topic: next || null })}
           />
-          <ActionButton href={`${"/writings/writing"}/new`} label="新增" text="新增">
-            <Plus size={16} strokeWidth={2} aria-hidden />
-          </ActionButton>
         </div>
       }
     />

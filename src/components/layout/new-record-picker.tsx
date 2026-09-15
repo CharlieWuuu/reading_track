@@ -6,7 +6,7 @@ import { kindHref } from "@/config/kind-routes";
 import { Kind } from "@/lib/db/queries/kinds";
 
 /**
- * 要記什麼：桌機彈中間，手機從底下推上來。
+ * 新增：桌機彈中間，手機從底下推上來。
  *
  * 兩邊清單完全一樣，只有外框不同——內容各寫一份的話，加一個類型就要改兩個地方。
  */
@@ -51,7 +51,7 @@ export function NewRecordSheet({ kinds, onClose }: { kinds: Kind[]; onClose: () 
 /** 桌機：置中彈窗，跟站上其他彈窗同一套（Esc 與點背景都關得掉） */
 export function NewRecordDialog({ kinds, onClose }: { kinds: Kind[]; onClose: () => void }) {
   return (
-    <Dialog title="要記什麼" onClose={onClose}>
+    <Dialog title="新增" onClose={onClose}>
       <KindList kinds={kinds} onPick={onClose} />
     </Dialog>
   );
