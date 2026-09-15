@@ -16,7 +16,21 @@ import postgres from "postgres";
  */
 
 const APPLY = process.argv.includes("--apply");
+const OLD_NAME = "work_id";
 const NEW_NAME = "_work_id_deprecated_20260915";
+
+/**
+ * 外鍵的名字照查不照猜：drizzle 產的叫 writings_work_id_works_id_fk，
+ * 手寫 migration 產的叫 domain_writings_work_id_fkey，兩邊都存在過。
+ * 猜錯的話 DROP 靜靜地沒做事，外鍵留著繼續擋刪書。
+ */
+const foreignKeyOn = async (sql: postgres.Sql, column: string): Promise<string[]> => {
+  const rows = await sql<{ conname: string }[]>`
+    select c.conname from pg_constraint c
+    join pg_attribute a on a.attrelid = c.conrelid and a.attnum = any(c.conkey)
+    where c.conrelid = 'domain_writings'::regclass and c.contype = 'f' and a.attname = ${column}`;
+  return rows.map((row) => row.conname);
+};
 
 const url = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
 if (!url) throw new Error("DIRECT_URL 或 DATABASE_URL 沒設");
@@ -28,9 +42,24 @@ async function run() {
 
   const has = await sql`
     select 1 from information_schema.columns
-    where table_name = 'domain_writings' and column_name = 'work_id'`;
+    where table_name = 'domain_writings' and column_name = ${OLD_NAME}`;
+
+  // 改過名了還要再查一次外鍵：第一版腳本猜錯外鍵名字，改了欄位卻沒拆掉外鍵，
+  // 那條外鍵留著會擋住刪書。已經改名的庫走這條把外鍵補拆掉
   if (has.length === 0) {
-    console.log("work_id 已經不在了，不用做");
+    const stale = await foreignKeyOn(sql, NEW_NAME);
+    if (stale.length === 0) {
+      console.log("work_id 已經退休，外鍵也拆乾淨了，不用做");
+      return sql.end();
+    }
+    console.log(`欄位已改名，但外鍵還在：${stale.join(", ")}`);
+    if (!APPLY) {
+      console.log("\n（乾跑結束）");
+      return sql.end();
+    }
+    for (const name of stale)
+      await sql.unsafe(`ALTER TABLE domain_writings DROP CONSTRAINT "${name}"`);
+    console.log(`\n✅ 拆掉 ${stale.length} 條外鍵`);
     return sql.end();
   }
 
@@ -63,10 +92,9 @@ async function run() {
     return sql.end();
   }
 
-  await sql.unsafe(`
-    ALTER TABLE domain_writings
-      DROP CONSTRAINT IF EXISTS domain_writings_work_id_domain_works_id_fk`);
-  await sql.unsafe(`ALTER TABLE domain_writings RENAME COLUMN work_id TO "${NEW_NAME}"`);
+  for (const name of await foreignKeyOn(sql, OLD_NAME))
+    await sql.unsafe(`ALTER TABLE domain_writings DROP CONSTRAINT "${name}"`);
+  await sql.unsafe(`ALTER TABLE domain_writings RENAME COLUMN ${OLD_NAME} TO "${NEW_NAME}"`);
 
   const after = await sql`
     select column_name from information_schema.columns
