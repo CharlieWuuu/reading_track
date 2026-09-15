@@ -7,15 +7,12 @@ import { RecordGate } from "@/components/layout/record-gate";
 import { ActionButton } from "@/components/ui/controls";
 import { DetailField, DetailFields, DetailSection } from "@/components/ui/detail";
 import { NoteBlock } from "@/components/ui/note-block";
+import { RelatedLinks } from "@/components/ui/related-links";
 import { writingEditHref } from "@/config/routes";
-import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { useWritings } from "@/hooks/use-writings";
-import { splitLines } from "@/types/book";
 import { isUrl } from "@/utils/reflections";
 import { tagColorClass } from "@/utils/tag-colors";
 
-const KEYWORD_TAG =
-  "rounded-control bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200";
 const KIND_TAG = "rounded-control px-1.5 py-0.5 text-xs font-medium";
 
 /** 一則紀事的詳細頁。內文是主體，其餘欄位都是為了讓它好找 */
@@ -23,7 +20,6 @@ export function WritingDetailView({ recordId }: { recordId: string }) {
   const id = recordId;
   const { writings, isLoading, error } = useWritings();
   const writing = writings.find((w) => w.id === id);
-  const keywords = splitLines(writing?.keywords);
 
   return (
     <>
@@ -50,7 +46,6 @@ export function WritingDetailView({ recordId }: { recordId: string }) {
                   )}
                 </div>
                 <div>
-                  <DetailField label="延伸自">{writing.sourceTitle}</DetailField>
                   <DetailField label="放在哪">
                     {writing.link &&
                       (isUrl(writing.link) ? (
@@ -71,15 +66,8 @@ export function WritingDetailView({ recordId }: { recordId: string }) {
                 </div>
               </DetailFields>
 
-              {keywords.length > 0 && (
-                <DetailSection title="關鍵字" count={keywords.length}>
-                  <div className="flex flex-wrap gap-1.5">
-                    {keywords.map((name) => (
-                      <KeywordTag key={name} name={name} className={KEYWORD_TAG} />
-                    ))}
-                  </div>
-                </DetailSection>
-              )}
+              {/* 跟哪些資料有關：一個類型一區，出處與關鍵字都在裡面，不另外分方向 */}
+              <RelatedLinks recordId={writing.id} />
 
               {writing.note.trim() && (
                 <DetailSection title="內文">
