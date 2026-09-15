@@ -51,6 +51,7 @@ export async function addRecord(
         userId,
         kindId,
         title: pick(values, allowed, "title"),
+        body: pick(values, allowed, "body"),
         creator: pick(values, allowed, "creator"),
         language: pick(values, allowed, "language"),
         platform: pick(values, allowed, "platform"),
@@ -99,6 +100,7 @@ export async function updateRecord(userId: string, id: string, values: FieldValu
 
   const workPatch: Record<string, unknown> = {};
   if (has("title")) workPatch.title = values.title;
+  if (has("body")) workPatch.body = values.body;
   if (has("creator")) workPatch.creator = values.creator;
   if (has("language")) workPatch.language = values.language;
   if (has("platform")) workPatch.platform = values.platform;

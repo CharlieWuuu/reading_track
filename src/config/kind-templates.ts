@@ -31,6 +31,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     amountUnit: "頁",
     modules: [
       ...RECORD_BASE,
+      "longText",
       "cover",
       "amount",
       "externalId",
@@ -39,15 +40,15 @@ export const KIND_TEMPLATES: KindTemplate[] = [
       "topic",
       "attribute",
     ],
-    labels: { creator: "作者", amount: "頁數", externalId: "ISBN" },
+    labels: { creator: "作者", amount: "頁數", externalId: "ISBN", longText: "摘要" },
   },
   {
     key: "articles",
     group: "records",
     name: "文章",
     amountUnit: "字",
-    modules: [...RECORD_BASE, "amount", "platform", "language", "topic", "attribute"],
-    labels: { creator: "作者", amount: "字數", platform: "媒體" },
+    modules: [...RECORD_BASE, "longText", "amount", "platform", "language", "topic", "attribute"],
+    labels: { creator: "作者", amount: "字數", platform: "媒體", longText: "摘要" },
   },
   {
     key: "movie",

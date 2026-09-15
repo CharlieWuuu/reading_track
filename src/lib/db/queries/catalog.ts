@@ -361,6 +361,7 @@ export async function getRecordValues(
     linkId: work.id,
     values: {
       title: work.title,
+      body: work.body,
       creator: work.creator,
       language: work.language,
       startDate: record.startDate ?? "",

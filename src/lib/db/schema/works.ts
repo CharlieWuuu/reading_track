@@ -38,6 +38,9 @@ export const works = pgTable("domain_works", {
     .notNull()
     .references(() => kinds.id, { onDelete: "restrict" }), // 還有作品掛著就不准刪類型
   title: text("title").notNull(),
+  // 這一筆在講什麼。客觀的內容摘要，不是讀後的感想——感想是書寫 group 的「心得」，
+  // 那種要單獨列出來看、會想發布；摘要只是作品的附註，跟著作品走不跟著哪一次讀
+  body: text("body").notNull().default(""),
   creator: text("creator").notNull().default(""),
   topicId: uuid("topic_id").references(() => recordTopics.id, { onDelete: "set null" }),
   attributeId: uuid("attribute_id").references(() => attributes.id, { onDelete: "set null" }),
