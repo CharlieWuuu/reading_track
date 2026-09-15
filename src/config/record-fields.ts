@@ -12,7 +12,16 @@
 export type FieldLayer = "work" | "record" | "fragment" | "externalLink";
 
 export type FieldType =
-  "text" | "longText" | "date" | "number" | "url" | "flag" | "topic" | "topicChild" | "attribute";
+  | "text"
+  | "longText"
+  | "date"
+  | "number"
+  | "url"
+  | "flag"
+  | "topic"
+  | "topicChild"
+  | "image"
+  | "attribute";
 
 export type FieldDef = {
   key: string;
@@ -39,7 +48,8 @@ export const RECORD_FIELDS = [
   { key: "platform", layer: "work", type: "text", defaultLabel: "平台" },
   { key: "sourceUrl", layer: "externalLink", type: "url", defaultLabel: "連結" },
   { key: "externalId", layer: "work", type: "text", defaultLabel: "外部編號" },
-  { key: "coverUrl", layer: "work", type: "url", defaultLabel: "封面" },
+  // 存的是圖片 key 不是網址（舊資料可能還是外部網址），畫成上傳格不是文字框
+  { key: "coverUrl", layer: "work", type: "image", defaultLabel: "封面" },
   { key: "isPrivate", layer: "record", type: "flag", defaultLabel: "私人" },
   // 片段：佳句、單字、關鍵字共用這幾欄，用不到的類型設成不顯示
   { key: "name", layer: "fragment", type: "text", defaultLabel: "名稱" },

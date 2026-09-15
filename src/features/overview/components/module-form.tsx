@@ -6,6 +6,7 @@ import { CategorySelect } from "@/components/ui/category-select";
 import { ContentLinkInput } from "@/components/ui/content-link-input";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
+import { ImageField } from "@/components/ui/image-field";
 import { PrivateToggle } from "@/components/ui/private-toggle/private-toggle";
 import { kindHref } from "@/config/kind-routes";
 import { FieldDef } from "@/config/record-fields";
@@ -27,8 +28,8 @@ import { fillFromBook, pickFilled } from "@/utils/scraped-values";
  * 一套渲染器服務所有類型——欄位不是寫死的，是模組展開來的。沒勾的模組不留空位，
  * 所以「旅遊」不會出現「頁數」，「書籍」不會出現「維基連結」。
  *
- * 一個模組可能對到好幾欄（狀態＝開始＋結束），標籤掛在模組上，
- * 所以多欄的模組第一欄用模組名，其餘用欄位自己的預設名。
+ * 一個模組可能對到好幾欄（狀態＝開始＋結束）。標籤掛在模組上，所以單欄的
+ * 用模組名，多欄的每一欄用自己的預設名——不然「狀態」那一組第一格會叫「狀態」。
  */
 
 const INPUT_TYPE: Partial<Record<FieldDef["type"], string>> = {
@@ -66,22 +67,36 @@ function ModuleFields({
   titleSlot?: React.ReactNode;
 }) {
   const fields = fieldsOf([module]);
+  /**
+   * 只有一欄的模組用模組名（使用者在設定頁改的就是那個名字）；
+   * 多欄的模組每一欄用自己的預設名——「狀態」展開成開始與結束兩格，
+   * 把第一格叫成「狀態」會讓人以為那一格要填狀態。
+   */
+  const labelOf = (field: FieldDef) => (fields.length === 1 ? module.label : field.defaultLabel);
 
   return (
     <>
-      {fields.map((field, index) =>
+      {fields.map((field) =>
         // 開關不是輸入框：flag 走勾選，畫成 input 會叫人自己打「是」
         field.type === "flag" ? (
           <PrivateToggle
             key={field.key}
-            label={index === 0 ? module.label : field.defaultLabel}
+            label={labelOf(field)}
+            value={values[field.key] ?? ""}
+            onChange={(value) => onChange(field.key, value)}
+          />
+        ) : field.type === "image" ? (
+          // 封面存的是圖片 key，畫成文字框只會看到一串亂碼
+          <ImageField
+            key={field.key}
+            label={labelOf(field)}
             value={values[field.key] ?? ""}
             onChange={(value) => onChange(field.key, value)}
           />
         ) : CATEGORY_KEY[field.type] ? (
           <CategorySelect
             key={field.key}
-            label={index === 0 ? module.label : field.defaultLabel}
+            label={labelOf(field)}
             categoryKey={CATEGORY_KEY[field.type]!}
             value={values[field.key] ?? ""}
             onChange={(value) => onChange(field.key, value)}
@@ -91,7 +106,7 @@ function ModuleFields({
         ) : field.key === "title" && titleSlot ? (
           <div key={field.key} className="relative">
             <Field
-              label={index === 0 ? module.label : field.defaultLabel}
+              label={labelOf(field)}
               type={INPUT_TYPE[field.type] ?? "text"}
               value={values[field.key] ?? ""}
               onChange={(value) => onChange(field.key, value)}
@@ -101,7 +116,7 @@ function ModuleFields({
         ) : (
           <Field
             key={field.key}
-            label={index === 0 ? module.label : field.defaultLabel}
+            label={labelOf(field)}
             type={INPUT_TYPE[field.type] ?? "text"}
             value={values[field.key] ?? ""}
             onChange={(value) => onChange(field.key, value)}
