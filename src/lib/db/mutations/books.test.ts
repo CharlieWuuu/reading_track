@@ -27,6 +27,18 @@ describe("addBookRow", () => {
     expect(row[0].title).toBe("資本論");
   });
 
+  // 手動填表那條路不送 originId（那是從書單挑「再讀一次」才有的）。
+  // 型別上它必填，所以只有實際送一份缺欄位的資料才抓得到
+  it("沒有 originId 也存得進去", async () => {
+    const { originId, ...withoutOrigin } = makeBook();
+    void originId;
+
+    await addBookRow(userId, withoutOrigin as Parameters<typeof addBookRow>[1]);
+
+    const reading = await db.select().from(records).where(eq(records.id, withoutOrigin.id));
+    expect(reading).toHaveLength(1);
+  });
+
   it("沒填日期存得進去——空字串要變成 null，不是丟給 date 欄位", async () => {
     const book = makeBook({ startDate: "", endDate: "" });
     await addBookRow(userId, book);

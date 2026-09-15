@@ -4,9 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment, useState } from "react";
 import { Plus } from "lucide-react";
-import { kindHref } from "@/config/kind-routes";
+import { NewRecordSheet } from "@/components/layout/new-record-picker";
 import { useKinds } from "@/hooks/use-kinds";
-import { Kind } from "@/lib/db/queries/kinds";
 import { isNavActive, NAV_ITEMS } from "./nav-items";
 
 /**
@@ -63,27 +62,6 @@ export function BottomNav() {
           })}
         </ul>
       </nav>
-    </>
-  );
-}
-
-/** 點了新增之後從下面推上來的類型清單：要記什麼在這裡選 */
-function NewRecordSheet({ kinds, onClose }: { kinds: Kind[]; onClose: () => void }) {
-  return (
-    <>
-      <div className="fixed inset-0 z-40 bg-black/20 md:hidden" onClick={onClose} />
-      <div className="border-shell-rule fixed right-0 bottom-0 left-0 z-50 flex max-h-[70vh] flex-col overflow-y-auto rounded-t-2xl border-t bg-white pb-[env(safe-area-inset-bottom)] md:hidden">
-        {kinds.map((kind) => (
-          <Link
-            key={kind.id}
-            href={`${kindHref(kind.group, kind.slug)}/new`}
-            onClick={onClose}
-            className="border-rule text-ui border-b px-4 py-3 last:border-b-0"
-          >
-            {kind.name}
-          </Link>
-        ))}
-      </div>
     </>
   );
 }

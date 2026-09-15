@@ -63,6 +63,8 @@ function toPayload(form: FormState, book?: Book) {
     vocabulary: book?.vocabulary ?? "",
     // 關鍵字搬到站內關聯了，這一欄不再由 app 寫入，但也不主動清掉——遷移完再自己刪
     keywords: book?.keywords ?? "",
+    // 「再讀一次」指回第一次那一列；手動新增沒有這回事，但欄位要在，不然寫入端讀不到
+    originId: book?.originId ?? "",
   };
 }
 
