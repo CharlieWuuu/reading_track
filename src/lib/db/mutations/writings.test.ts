@@ -12,6 +12,7 @@ vi.mock("@/lib/db/client", async () => {
 
 const { addWritingRow, updateWritingRow } = await import("./writings");
 const { addBookRow } = await import("./books");
+const { sourceWorkOfWritings } = await import("../queries/internal-links");
 const { db } = await import("@/lib/db/client");
 const userId = await seedUser(db);
 
@@ -72,8 +73,9 @@ describe("addWritingRow", () => {
     const writing = makeWriting({ sourceId: reading });
     await addWritingRow(userId, writing);
 
-    const [row] = await db.select().from(writings).where(eq(writings.id, writing.id));
-    expect(row.workId).toBeTruthy();
+    // 出處落在 links_internal，不是 writings 自己的欄位
+    const linked = await sourceWorkOfWritings(userId, [writing.id]);
+    expect(linked.get(writing.id)?.title).toBe("來源書");
   });
 });
 

@@ -1,14 +1,12 @@
 import { and, asc, desc, eq, isNull, or, sql } from "drizzle-orm";
-import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db/client";
 import { kinds } from "@/lib/db/schema/kinds";
-import { works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
 import { Writing } from "@/types/writing";
 import { decodeCursor, encodeCursor } from "@/utils/pagination";
 import { firstReadingIdByBookId } from "./books";
 import { sourceUrlOfWritings } from "./external-links";
-import { keywordNamesByOwner } from "./internal-links";
+import { keywordNamesByOwner, sourceWorkOfWritings } from "./internal-links";
 
 /**
  * 書寫讀回舊形狀。
@@ -18,9 +16,6 @@ import { keywordNamesByOwner } from "./internal-links";
  * 同一份內容因為「有沒有連結出處」就顯示不同類型，沒辦法拿來做篩選或統計。
  */
 
-/** 出處的類型：這一則掛在書上還是文章上，舊形狀的 kind 欄要它 */
-const sourceKind = alias(kinds, "source_kind");
-
 const baseSelect = () =>
   db
     .select({
@@ -28,64 +23,51 @@ const baseSelect = () =>
       kindName: kinds.name,
       kindCountUnit: kinds.countUnit,
       kindSlug: kinds.slug,
-      workTitle: works.title,
-      workKind: sourceKind.name,
-      workCoverUrl: works.coverUrl,
     })
     .from(writings)
-    .innerJoin(kinds, eq(kinds.id, writings.kindId))
-    .leftJoin(works, eq(works.id, writings.workId))
-    .leftJoin(sourceKind, eq(sourceKind.id, works.kindId));
+    .innerJoin(kinds, eq(kinds.id, writings.kindId));
 
 type WritingJoinRow = {
   writing: typeof writings.$inferSelect;
   kindName: string;
   kindCountUnit: string;
   kindSlug: string;
-  workTitle: string | null;
-  workKind: string | null;
-  workCoverUrl: string | null;
 };
 
 /** 撈出來的原始列轉成 Writing——出處連結、關鍵字這些批次查詢一起做，跟分不分頁無關 */
 async function toWritings(userId: string, rows: WritingJoinRow[]): Promise<Writing[]> {
-  const [firstReading, links, keywords] = await Promise.all([
+  const ids = rows.map(({ writing }) => writing.id);
+  const [firstReading, links, keywords, sourceWork] = await Promise.all([
     firstReadingIdByBookId(userId),
-    sourceUrlOfWritings(
-      userId,
-      rows.map(({ writing }) => writing.id),
-    ),
-    keywordNamesByOwner(
-      userId,
-      rows.map(({ writing }) => writing.id),
-    ),
+    sourceUrlOfWritings(userId, ids),
+    keywordNamesByOwner(userId, ids),
+    sourceWorkOfWritings(userId, ids),
   ]);
 
-  return rows.map(
-    ({ writing, kindName, kindCountUnit, kindSlug, workTitle, workKind, workCoverUrl }) => {
-      // 畫面上的書籍編號是「某一次讀」，所以指回第一次讀的那個
-      const sourceId = writing.workId ? (firstReading.get(writing.workId) ?? writing.workId) : "";
-      return {
-        id: writing.id,
-        createdAt: writing.createdAt.toISOString(),
-        date: writing.date,
-        title: writing.name,
-        topic: kindName, // 分類已經是 kind，topic 欄留著給篩選與統計沿用同一個名字
-        keywords: keywords.get(writing.id) ?? "",
-        note: writing.body,
-        link: links.get(writing.id) ?? "",
-        sourceTitle: workTitle ?? "",
-        sourceKind: workKind ?? "",
-        kindId: writing.kindId,
-        kindName,
-        kindCountUnit,
-        kindSlug,
-        sourceId,
-        private: "", // 書寫不帶私人旗標，藏東西一律從主題與類型下手
-        coverUrl: writing.coverUrl || (workCoverUrl ?? ""), // 自己沒填就用出處那本書的封面
-      };
-    },
-  );
+  return rows.map(({ writing, kindName, kindCountUnit, kindSlug }) => {
+    const work = sourceWork.get(writing.id);
+    // 畫面上的書籍編號是「某一次讀」，所以指回第一次讀的那個
+    const sourceId = work ? (firstReading.get(work.id) ?? work.id) : "";
+    return {
+      id: writing.id,
+      createdAt: writing.createdAt.toISOString(),
+      date: writing.date,
+      title: writing.name,
+      topic: kindName, // 分類已經是 kind，topic 欄留著給篩選與統計沿用同一個名字
+      keywords: keywords.get(writing.id) ?? "",
+      note: writing.body,
+      link: links.get(writing.id) ?? "",
+      sourceTitle: work?.title ?? "",
+      sourceKind: work?.kindName ?? "",
+      kindId: writing.kindId,
+      kindName,
+      kindCountUnit,
+      kindSlug,
+      sourceId,
+      private: "", // 書寫不帶私人旗標，藏東西一律從主題與類型下手
+      coverUrl: writing.coverUrl || (work?.coverUrl ?? ""), // 自己沒填就用出處那本書的封面
+    };
+  });
 }
 
 export async function listWritings(userId: string): Promise<Writing[]> {

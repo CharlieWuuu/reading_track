@@ -305,12 +305,15 @@ export async function seedDemo(email: string): Promise<string> {
       .values({
         userId,
         kindId: writingKindId,
-        workId: bookIndex === null ? null : bookIds[bookIndex],
         name: title,
         body: NOTES[title] ?? "",
         date: daysAgo(300 - i * 25),
       })
       .returning({ id: writings.id });
+
+    // 出處跟關鍵字同一張表：這則延伸自哪本書也是一條站內關聯
+    if (bookIndex !== null)
+      await db.insert(internalLinks).values({ userId, aId: writing.id, bId: bookIds[bookIndex] });
 
     if (names.length)
       await db.insert(internalLinks).values(

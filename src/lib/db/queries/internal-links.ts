@@ -1,8 +1,9 @@
-import { and, eq, inArray, or } from "drizzle-orm";
+import { and, asc, eq, inArray, or } from "drizzle-orm";
 import { db as defaultDb, type Tx } from "@/lib/db/client";
 import { fragments } from "@/lib/db/schema/fragments";
 import { internalLinks } from "@/lib/db/schema/internal-links";
 import { kinds } from "@/lib/db/schema/kinds";
+import { works } from "@/lib/db/schema/works";
 
 /**
  * 站內連結查詢。a_id／b_id 不分方向，查一筆東西跟誰有關要兩邊都看，
@@ -92,6 +93,66 @@ export async function keywordNamesByOwner(
     const names = ids.map((id) => nameById.get(id)).filter((name): name is string => Boolean(name));
     if (names.length)
       result.set(ownerId, [...names].sort((a, b) => a.localeCompare(b, "zh-Hant")).join("\n"));
+  }
+  return result;
+}
+
+/** 一則書寫延伸自哪個作品：作品編號、標題、它自己的類型名、封面 */
+export type LinkedWork = {
+  id: string;
+  title: string;
+  kindName: string;
+  coverUrl: string;
+};
+
+/**
+ * 一批書寫各自連到哪個作品，回傳「書寫 id → 那個作品」。
+ *
+ * 出處原本是 domain_writings.work_id 單獨一欄，關聯搬進 links_internal 之後
+ * 改從這裡查。名下也可能連著關鍵字、佳句那些片段，join works 就篩掉了——
+ * 只有作品那張表才有東西對得上。
+ *
+ * 連到多個作品時取建立最早的那一個：畫面上的「延伸自」是一格，
+ * 而 work_id 時代本來就只存得下一個，取最早的跟舊行為對得起來。
+ */
+export async function sourceWorkOfWritings(
+  userId: string,
+  writingIds: string[],
+): Promise<Map<string, LinkedWork>> {
+  const linked = await linkedIdsOfMany(userId, writingIds);
+  const workIds = [...new Set([...linked.values()].flat())];
+  if (!workIds.length) return new Map();
+
+  const rows = await defaultDb
+    .select({
+      id: works.id,
+      title: works.title,
+      kindName: kinds.name,
+      coverUrl: works.coverUrl,
+      createdAt: works.createdAt,
+    })
+    .from(works)
+    .innerJoin(kinds, eq(kinds.id, works.kindId))
+    .where(and(eq(works.userId, userId), inArray(works.id, workIds)))
+    .orderBy(asc(works.createdAt));
+
+  // 照建立時間排名次，多個作品時挑得出最早的那一個。
+  // ids 是關聯的順序，直接取第一個拿到的會是「最早連上的」，不是最早建立的
+  const rankById = new Map(rows.map((row, index) => [row.id, index]));
+  const workById = new Map(rows.map((row) => [row.id, row]));
+  const result = new Map<string, LinkedWork>();
+  for (const [writingId, ids] of linked) {
+    const found = ids
+      .filter((id) => rankById.has(id))
+      .sort((a, b) => rankById.get(a)! - rankById.get(b)!)
+      .map((id) => workById.get(id))[0];
+    if (found)
+      result.set(writingId, {
+        id: found.id,
+        title: found.title,
+        kindName: found.kindName,
+        coverUrl: found.coverUrl ?? "",
+      });
   }
   return result;
 }

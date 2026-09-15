@@ -1,14 +1,15 @@
 import { randomUUID } from "crypto";
-import { and, eq, isNull, or } from "drizzle-orm";
+import { and, eq, inArray, isNull, or } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db/client";
 import { kinds } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
 import { splitLines } from "@/types/book";
 import { Writing } from "@/types/writing";
+import { linkedIdsOf } from "../queries/internal-links";
 import { setWritingSourceUrl } from "./external-links";
 import { setKeywordLinks } from "./fragments";
-import { unlinkAll } from "./internal-links";
+import { link, unlink, unlinkAll } from "./internal-links";
 import { toDate } from "./values";
 
 /**
@@ -58,6 +59,29 @@ async function workIdFor(userId: string, sourceId: string): Promise<string | nul
   return work?.id ?? null;
 }
 
+/**
+ * 出處落在 links_internal，不是 writings 自己的欄位。
+ *
+ * 舊形狀一則書寫只有一個出處，所以先拆掉既有的作品關聯再連新的——
+ * 關鍵字那些片段關聯不能動，它們跟出處同住一張表。
+ */
+async function setSourceWork(
+  tx: Tx,
+  userId: string,
+  writingId: string,
+  workId: string | null,
+): Promise<void> {
+  const linkedIds = await linkedIdsOf(userId, writingId, tx);
+  if (linkedIds.length) {
+    const linkedWorks = await tx
+      .select({ id: works.id })
+      .from(works)
+      .where(and(eq(works.userId, userId), inArray(works.id, linkedIds)));
+    for (const work of linkedWorks) await unlink(tx, userId, writingId, work.id);
+  }
+  if (workId) await link(tx, userId, writingId, workId);
+}
+
 export async function addWritingRow(userId: string, writing: Writing): Promise<void> {
   const workId = await workIdFor(userId, writing.sourceId);
   await db.transaction(async (tx) => {
@@ -65,12 +89,12 @@ export async function addWritingRow(userId: string, writing: Writing): Promise<v
       id: writing.id,
       userId,
       kindId: await writingKindIdFor(tx, userId, writing.topic),
-      workId,
       name: writing.title,
       body: writing.note,
       date: toDate(writing.date),
       coverUrl: writing.coverUrl,
     });
+    await setSourceWork(tx, userId, writing.id, workId);
     await setWritingSourceUrl(tx, userId, writing.id, writing.link);
     await setKeywordLinks(tx, userId, writing.id, splitLines(writing.keywords));
   });
@@ -116,8 +140,8 @@ export async function updateWritingRow(
   if (patch.title !== undefined) values.name = patch.title;
   if (patch.note !== undefined) values.body = patch.note;
   if (patch.date !== undefined) values.date = toDate(patch.date);
-  if (patch.sourceId !== undefined) values.workId = await workIdFor(userId, patch.sourceId);
   if (patch.coverUrl !== undefined) values.coverUrl = patch.coverUrl;
+  const workId = patch.sourceId === undefined ? undefined : await workIdFor(userId, patch.sourceId);
 
   await db.transaction(async (tx) => {
     if (patch.topic !== undefined) values.kindId = await writingKindIdFor(tx, userId, patch.topic);
@@ -127,6 +151,7 @@ export async function updateWritingRow(
         .update(writings)
         .set(values)
         .where(and(eq(writings.userId, userId), eq(writings.id, id)));
+    if (workId !== undefined) await setSourceWork(tx, userId, id, workId);
     if (patch.link !== undefined) await setWritingSourceUrl(tx, userId, id, patch.link);
     if (patch.keywords !== undefined)
       await setKeywordLinks(tx, userId, id, splitLines(patch.keywords));
