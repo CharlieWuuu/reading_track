@@ -21,7 +21,7 @@ export type KindTemplate = {
   labels?: Partial<Record<ModuleKey, string>>;
 };
 
-const RECORD_BASE: ModuleKey[] = ["title", "creator", "link", "progress", "private"];
+const RECORD_BASE: ModuleKey[] = ["title", "creator", "link", "startDate", "endDate", "private"];
 
 export const KIND_TEMPLATES: KindTemplate[] = [
   {
@@ -47,7 +47,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "records",
     name: "文章",
     amountUnit: "字",
-    modules: [...RECORD_BASE, "date", "amount", "publisher", "language", "topic", "attribute"],
+    modules: [...RECORD_BASE, "amount", "publisher", "language", "topic", "attribute"],
     labels: { creator: "作者", amount: "字數", publisher: "媒體" },
   },
   {
@@ -55,7 +55,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "records",
     name: "電影",
     amountUnit: "分鐘",
-    modules: [...RECORD_BASE, "cover", "date", "amount"],
+    modules: [...RECORD_BASE, "cover", "amount"],
     labels: { creator: "導演", amount: "片長" },
   },
   {
@@ -63,7 +63,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "records",
     name: "Podcast",
     amountUnit: "分鐘",
-    modules: [...RECORD_BASE, "date", "amount"],
+    modules: [...RECORD_BASE, "amount"],
     labels: { creator: "主持人", amount: "時長" },
   },
   {
@@ -71,7 +71,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "records",
     name: "YouTube",
     amountUnit: "分鐘",
-    modules: [...RECORD_BASE, "cover", "date", "amount"],
+    modules: [...RECORD_BASE, "cover", "amount"],
     labels: { creator: "頻道", amount: "片長" },
   },
   {
@@ -79,7 +79,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "records",
     name: "展覽",
     amountUnit: "小時",
-    modules: [...RECORD_BASE, "cover", "date"],
+    modules: [...RECORD_BASE, "cover"],
     labels: { creator: "策展人", link: "官網" },
   },
   {
@@ -87,7 +87,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "records",
     name: "線上課程",
     amountUnit: "小時",
-    modules: [...RECORD_BASE, "date", "amount"],
+    modules: [...RECORD_BASE, "amount"],
     labels: { creator: "講師", amount: "時數" },
   },
   {
@@ -95,7 +95,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "fragments",
     name: "佳句",
     amountUnit: "",
-    modules: ["title", "locator", "date", "private"],
+    modules: ["title", "locator", "endDate", "private"],
     labels: { title: "原文" },
   },
   {
@@ -110,7 +110,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
       "context",
       "contextTranslation",
       "locator",
-      "date",
+      "endDate",
       "private",
     ],
     labels: { title: "單字", gloss: "字義" },
@@ -134,35 +134,35 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "writings",
     name: "心得",
     amountUnit: "字",
-    modules: ["title", "longText", "date", "private"],
+    modules: ["title", "longText", "endDate", "private"],
   },
   {
     key: "thoughts",
     group: "writings",
     name: "思緒",
     amountUnit: "字",
-    modules: ["title", "longText", "date", "private"],
+    modules: ["title", "longText", "endDate", "private"],
   },
   {
     key: "weekly-plan",
     group: "writings",
     name: "週計劃",
     amountUnit: "字",
-    modules: ["title", "longText", "date", "private"],
+    modules: ["title", "longText", "endDate", "private"],
   },
   {
     key: "essay",
     group: "writings",
     name: "論述",
     amountUnit: "字",
-    modules: ["title", "longText", "link", "date", "private"],
+    modules: ["title", "longText", "link", "endDate", "private"],
   },
   {
     key: "plan",
     group: "writings",
     name: "每日計畫",
     amountUnit: "字",
-    modules: ["title", "longText", "date", "private"],
+    modules: ["title", "longText", "endDate", "private"],
   },
 ];
 

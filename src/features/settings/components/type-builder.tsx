@@ -67,7 +67,7 @@ function TypePreview({
           id="preview"
           title={title}
           caption={caption || undefined}
-          meta={has("progress") || has("date") ? "2026-01-01" : undefined}
+          meta={has("startDate") || has("endDate") ? "2026-01-01" : undefined}
           coverUrl={has("cover") ? "" : undefined}
         />
       </div>

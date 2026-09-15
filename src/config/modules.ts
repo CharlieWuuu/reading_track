@@ -29,13 +29,11 @@ export const MODULES = [
   { key: "locator", label: "位置", hint: "出處裡的頁碼或時間點", fields: ["locator"] },
   { key: "cover", label: "封面圖", hint: "清單上的縮圖", fields: ["coverUrl"] },
   { key: "link", label: "外部連結", hint: "原始頁面，要有外開圖示", fields: ["sourceUrl"] },
-  {
-    key: "progress",
-    label: "狀態",
-    hint: "想／在／完，含日期區間",
-    fields: ["startDate", "endDate"],
-  },
-  { key: "date", label: "單一日期", hint: "發生在哪一天", fields: ["endDate"] },
+  // 兩格日期各自是一個模組。合成一個「狀態」的話它其實只是兩格日期——
+  // 狀態是從日期推出來的（見 types/book 的 inferStatus），不是自己存的一欄。
+  // 而且舊的「單一日期」也寫 endDate，跟「狀態」勾在一起會兩格寫同一欄
+  { key: "startDate", label: "開始日期", hint: "開始的那一天", fields: ["startDate"] },
+  { key: "endDate", label: "完成日期", hint: "完成的那一天", fields: ["endDate"] },
   { key: "amount", label: "量＋單位", hint: "頁／字／分鐘，統計讀這個", fields: ["amount"] },
   { key: "private", label: "私人", hint: "鎖起來，別人看不出存在", fields: ["isPrivate"] },
   { key: "pronunciation", label: "發音", hint: "怎麼唸", fields: ["pronunciation"] },

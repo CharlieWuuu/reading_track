@@ -28,7 +28,7 @@ for (const block of source.split(/\n  \{\n/).slice(1)) {
   if (!key || !modules) continue;
   const keys = [...modules.matchAll(/"([^"]+)"/g)].map((m) => m[1]);
   const base = modules.includes("...RECORD_BASE")
-    ? ["title", "creator", "link", "progress", "keywords", "private"]
+    ? ["title", "creator", "link", "startDate", "endDate", "private"]
     : [];
   TEMPLATES[key] = [...base, ...keys];
 }

@@ -40,19 +40,27 @@ describe("resolveFormModules", () => {
 
 describe("fieldsOf", () => {
   it("一個模組展開成好幾欄", () => {
-    const keys = fieldsOf(resolveFormModules([{ key: "progress", label: "狀態" }])).map(
-      (f) => f.key,
-    );
+    const keys = fieldsOf(resolveFormModules([{ key: "topic", label: "領域" }])).map((f) => f.key);
+    expect(keys).toEqual(["domain", "subDomain"]);
+  });
+
+  it("兩格日期是兩個模組，要哪個勾哪個", () => {
+    const keys = fieldsOf(
+      resolveFormModules([
+        { key: "startDate", label: "開始日期" },
+        { key: "endDate", label: "完成日期" },
+      ]),
+    ).map((f) => f.key);
     expect(keys).toEqual(["startDate", "endDate"]);
   });
 
   it("兩個模組指到同一欄只留一次", () => {
     const keys = fieldsOf(
       resolveFormModules([
-        { key: "progress", label: "狀態" },
-        { key: "date", label: "單一日期" },
+        { key: "publisher", label: "出版社" },
+        { key: "publisher", label: "又一個出版社" },
       ]),
     ).map((f) => f.key);
-    expect(keys.filter((k) => k === "endDate")).toHaveLength(1);
+    expect(keys.filter((k) => k === "source")).toHaveLength(1);
   });
 });
