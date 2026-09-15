@@ -33,9 +33,9 @@ const styles = {
 };
 
 /** 一個關鍵字自己的一頁：這是什麼、我在哪看過它——讀的動作，要改再按編輯 */
-export function KeywordDetailView() {
-  const { name: rawName } = useParams<{ name: string }>();
-  const name = decodeURIComponent(rawName);
+export function KeywordDetailView({ recordId }: { recordId: string }) {
+  // 關鍵字的網址那一段是字本身不是編號——名字就是它的身分
+  const name = decodeURIComponent(recordId);
   const { byName, isLoading: loadingInfos } = useKeywordInfos();
   const { books, isLoading: loadingBooks } = useBooks();
   const { articles, isLoading: loadingArticles } = useArticles();

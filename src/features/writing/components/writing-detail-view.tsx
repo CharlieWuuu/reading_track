@@ -20,8 +20,8 @@ const KEYWORD_TAG =
 const KIND_TAG = "rounded-control px-1.5 py-0.5 text-xs font-medium";
 
 /** 一則紀事的詳細頁。內文是主體，其餘欄位都是為了讓它好找 */
-export function WritingDetailView() {
-  const { id } = useParams<{ id: string }>();
+export function WritingDetailView({ recordId }: { recordId: string }) {
+  const id = recordId;
   const { writings, isLoading, error } = useWritings();
   const writing = writings.find((w) => w.id === id);
   const keywords = splitLines(writing?.keywords);

@@ -25,8 +25,8 @@ import { getQuoteRecords } from "@/utils/stats/vocabulary-stats";
  * 存在的理由不是「看一句話要一整頁」，是它要有網址：從書、從搜尋、從別人的
  * 分享連進來都指得到同一句，之後「相關筆記」也才有地方放。
  */
-export function QuoteDetailView() {
-  const { id } = useParams<{ id: string }>();
+export function QuoteDetailView({ recordId }: { recordId: string }) {
+  const id = recordId;
   const { books, isLoading: loadingBooks } = useBooks();
   const { quotes, isLoading, error } = useRecords();
   const { writings } = useWritings();

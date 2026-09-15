@@ -23,8 +23,8 @@ const KEYWORD_TAG =
   "rounded-control bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200";
 
 /** 一篇文章的詳細頁。跟書籍那一頁同一種排版，只是欄位少很多 */
-export function ArticleDetailView() {
-  const { id } = useParams<{ id: string }>();
+export function ArticleDetailView({ recordId }: { recordId: string }) {
+  const id = recordId;
   const { articles, isLoading, error } = useArticles();
   const { writings } = useWritings();
   const article = articles.find((a) => a.id === id);

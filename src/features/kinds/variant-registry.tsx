@@ -1,11 +1,20 @@
 import { ComponentType } from "react";
+import { ArticleDetailView } from "@/features/articles/components/article-detail-view";
+import { BookDetailView } from "@/features/books/components/book-detail-view";
+import { KeywordDetailView } from "@/features/keywords/components/keyword-detail-view";
+import { QuoteDetailView } from "@/features/notes/components/quote-detail-view";
+import { VocabularyDetailView } from "@/features/notes/components/vocabulary-detail-view";
+import { WritingDetailView } from "@/features/writing/components/writing-detail-view";
 import { Kind } from "@/lib/db/queries/kinds";
 
 /**
  * 內建類型的專屬呈現，用 slug 對照。
  *
  * 沒有列在這裡的（含所有自訂類型）用通用表單／通用列表——不是每種都要換皮，
- * 佳句、單字外觀跟通用表單差不多，直接退回去就好。
+ * 通用那套已經夠用的就不必自己寫一份。
+ *
+ * recordId 那一段代表什麼由類型自己解讀：大部分是編號，單字與關鍵字是
+ * 「詞」本身——同一個詞在不同書各有一列，那一頁要一次列完，用編號就拆散了。
  */
 export type KindVariant = {
   list?: ComponentType<{ kind: Kind }>;
@@ -13,6 +22,13 @@ export type KindVariant = {
   form?: ComponentType<{ kind: Kind; recordId?: string; initial?: Record<string, string> }>;
 };
 
-const REGISTRY: Record<string, KindVariant> = {};
+const REGISTRY: Record<string, KindVariant> = {
+  books: { detail: BookDetailView },
+  articles: { detail: ArticleDetailView },
+  quotes: { detail: QuoteDetailView },
+  vocabulary: { detail: VocabularyDetailView },
+  keywords: { detail: KeywordDetailView },
+  writing: { detail: WritingDetailView },
+};
 
 export const variantFor = (slug: string): KindVariant => REGISTRY[slug] ?? {};
