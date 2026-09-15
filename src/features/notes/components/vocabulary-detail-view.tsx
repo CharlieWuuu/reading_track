@@ -24,9 +24,9 @@ import { getVocabularyEntries } from "@/utils/stats/vocabulary-stats";
  * 認的是詞不是編號：同一個詞在不同書各有一列，這一頁把每一次相遇列在一起，
  * 那正是「我在哪些書遇過這個字」——拆成一列一頁就看不到這件事。
  */
-export function VocabularyDetailView() {
-  const { word } = useParams<{ word: string }>();
-  const name = decodeURIComponent(word);
+export function VocabularyDetailView({ recordId }: { recordId: string }) {
+  // 單字的網址那一段是詞本身不是編號：同一個詞在不同書各有一列，這一頁一次列完
+  const name = decodeURIComponent(recordId);
   const { books, isLoading: loadingBooks } = useBooks();
   const { vocabulary, isLoading, error } = useRecords();
   const { writings } = useWritings();

@@ -137,8 +137,8 @@ function VocabularyPreview({ vocabulary }: { vocabulary: VocabularyRow[] }) {
   );
 }
 
-export function BookDetailView() {
-  const { id } = useParams<{ id: string }>();
+export function BookDetailView({ recordId }: { recordId: string }) {
+  const id = recordId;
   const { books, isLoading, error } = useBooks();
   const { quotes, vocabulary } = useRecords();
   const { writings } = useWritings();

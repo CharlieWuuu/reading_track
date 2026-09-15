@@ -188,10 +188,34 @@ export function KindRecordPage({
   recordId: string;
 }) {
   const { kind, isLoading: kindLoading } = useKindBySlug(group, slug);
-  const { record, isLoading: recordLoading, error } = useCatalogRecord(recordId);
   const Detail = kind ? variantFor(kind.slug).detail : undefined;
-  const isLoading = kindLoading || recordLoading;
   const groupLabel = NAV_GROUPS.find((g) => g.kindGroup === group)?.label;
+
+  // 有專屬詳情的類型自己撈資料、自己畫頁首——它們的 recordId 不一定是編號
+  // （單字與關鍵字是詞本身），拿去查 catalog 永遠查不到，會卡在載入中
+  if (Detail) return kind ? <Detail kind={kind} recordId={recordId} /> : <PageLoading />;
+
+  return <GenericRecordPage {...{ group, slug, recordId, kind, kindLoading, groupLabel }} />;
+}
+
+/** 沒有專屬詳情的類型：照模組畫，頁首與外框由這裡給 */
+function GenericRecordPage({
+  group,
+  slug,
+  recordId,
+  kind,
+  kindLoading,
+  groupLabel,
+}: {
+  group: KindGroup;
+  slug: string;
+  recordId: string;
+  kind?: Kind;
+  kindLoading: boolean;
+  groupLabel?: string;
+}) {
+  const { record, isLoading: recordLoading, error } = useCatalogRecord(recordId);
+  const isLoading = kindLoading || recordLoading;
 
   return (
     <>
@@ -218,8 +242,6 @@ export function KindRecordPage({
           <PageMessage tone="error">{error}</PageMessage>
         ) : isLoading || !kind || !record ? (
           <PageLoading />
-        ) : Detail ? (
-          <Detail kind={kind} recordId={recordId} />
         ) : (
           <ModuleDetail kind={kind} values={record.values} />
         )}

@@ -25,6 +25,17 @@ export const GROUP_LAYERS: Record<KindGroup, FieldLayer[]> = {
 /** 側欄那三個 group。同一套類型機制，資料落在三張形狀不同的表 */
 export type KindGroup = "records" | "fragments" | "writings";
 
+export const KIND_GROUPS: readonly KindGroup[] = ["records", "fragments", "writings"] as const;
+
+/**
+ * 網址上那一段是不是合法的 group。
+ *
+ * 路由用 slug 只是不想把同一份程式碼抄三遍——第二層仍然是封閉的，
+ * 認不出來就是打錯字。怎麼處理（404 還是別的）交給呼叫端，這一層不碰 next。
+ */
+export const isKindGroup = (value: string): value is KindGroup =>
+  (KIND_GROUPS as readonly string[]).includes(value);
+
 export type KindSpec = {
   key: string;
   group: KindGroup;
