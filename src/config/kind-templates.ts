@@ -21,7 +21,7 @@ export type KindTemplate = {
   labels?: Partial<Record<ModuleKey, string>>;
 };
 
-const RECORD_BASE: ModuleKey[] = ["title", "creator", "link", "progress", "keywords", "private"];
+const RECORD_BASE: ModuleKey[] = ["title", "creator", "link", "progress", "private"];
 
 export const KIND_TEMPLATES: KindTemplate[] = [
   {
@@ -95,7 +95,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "fragments",
     name: "佳句",
     amountUnit: "",
-    modules: ["title", "source", "locator", "date", "keywords", "private"],
+    modules: ["title", "locator", "date", "private"],
     labels: { title: "原文" },
   },
   {
@@ -109,10 +109,8 @@ export const KIND_TEMPLATES: KindTemplate[] = [
       "gloss",
       "context",
       "contextTranslation",
-      "source",
       "locator",
       "date",
-      "keywords",
       "private",
     ],
     labels: { title: "單字", gloss: "字義" },
@@ -122,22 +120,28 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "fragments",
     name: "關鍵字",
     amountUnit: "",
-    modules: ["title", "gloss", "longText", "tags", "span", "coordinates", "wiki", "private"],
-    labels: { title: "詞條", gloss: "一句話說明", longText: "維基摘要", tags: "學科" },
+    modules: ["title", "gloss", "longText", "tags", "span", "coordinates", "link", "private"],
+    labels: {
+      title: "詞條",
+      gloss: "一句話說明",
+      longText: "維基摘要",
+      tags: "學科",
+      link: "維基連結",
+    },
   },
   {
     key: "reflection",
     group: "writings",
     name: "心得",
     amountUnit: "字",
-    modules: ["title", "longText", "source", "date", "keywords", "private"],
+    modules: ["title", "longText", "date", "private"],
   },
   {
     key: "thoughts",
     group: "writings",
     name: "思緒",
     amountUnit: "字",
-    modules: ["title", "longText", "date", "keywords", "private"],
+    modules: ["title", "longText", "date", "private"],
   },
   {
     key: "weekly-plan",
@@ -151,7 +155,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "writings",
     name: "論述",
     amountUnit: "字",
-    modules: ["title", "longText", "link", "date", "keywords", "private"],
+    modules: ["title", "longText", "link", "date", "private"],
   },
   {
     key: "plan",

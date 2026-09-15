@@ -18,12 +18,6 @@ export type ModuleDef = {
   hint: string;
   /** 這個模組佔資料表哪幾欄 */
   fields: FieldKey[];
-  /**
-   * 這個模組存的是站內關聯，不是自己的欄位（所以 fields 是空的）。
-   * 關聯一律落在 links_internal，表單上共用同一格——出處是書、關鍵字是片段，
-   * 差別只在連到哪一種，chip 上標種類就分得出來，不必各給一個搜尋框。
-   */
-  links?: true;
 };
 
 export const MODULES = [
@@ -32,7 +26,6 @@ export const MODULES = [
   { key: "creator", label: "作者／來源人", hint: "誰講的、誰寫的", fields: ["creator"] },
   { key: "longText", label: "長文", hint: "多段落，支援分欄", fields: ["body"] },
   { key: "gloss", label: "解釋", hint: "對這個東西本身的說明", fields: ["translation"] },
-  { key: "source", label: "出處", hint: "指向另一筆條目", fields: [], links: true },
   { key: "locator", label: "位置", hint: "出處裡的頁碼或時間點", fields: ["locator"] },
   { key: "cover", label: "封面圖", hint: "清單上的縮圖", fields: ["coverUrl"] },
   { key: "link", label: "外部連結", hint: "原始頁面，要有外開圖示", fields: ["sourceUrl"] },
@@ -43,7 +36,6 @@ export const MODULES = [
     fields: ["startDate", "endDate"],
   },
   { key: "date", label: "單一日期", hint: "發生在哪一天", fields: ["endDate"] },
-  { key: "keywords", label: "關鍵字", hint: "多對多，指向另一個片段", fields: [], links: true },
   { key: "amount", label: "量＋單位", hint: "頁／字／分鐘，統計讀這個", fields: ["amount"] },
   { key: "private", label: "私人", hint: "鎖起來，別人看不出存在", fields: ["isPrivate"] },
   { key: "pronunciation", label: "發音", hint: "怎麼唸", fields: ["pronunciation"] },
@@ -57,10 +49,8 @@ export const MODULES = [
   { key: "tags", label: "標籤", hint: "純文字，一行一個", fields: ["tags"] },
   { key: "span", label: "起訖", hint: "生卒、存續的那段年份", fields: ["span"] },
   { key: "coordinates", label: "座標", hint: "地圖上的位置", fields: ["coordinates"] },
-  { key: "wiki", label: "維基連結", hint: "條目網址", fields: ["wikiUrl"] },
   { key: "language", label: "語言", hint: "這一筆是什麼語言", fields: ["language"] },
   { key: "externalId", label: "外部編號", hint: "ISBN、DOI 之類", fields: ["externalId"] },
-  // key 不叫 source：那個給了「出處」那個關聯模組，這裡是自己打字的欄位
   { key: "publisher", label: "出版社", hint: "出版社／頻道／製作單位", fields: ["source"] },
   { key: "platform", label: "平台", hint: "在哪讀的、在哪看的", fields: ["platform"] },
   // 一個模組兩格：主題樹有父子，領域選完次領域才知道要列哪幾個
