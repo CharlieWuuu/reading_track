@@ -80,7 +80,7 @@ export function QuoteDetailView() {
 
               {quote.note.trim() && (
                 <DetailSection title="想法">
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-gray-700">
+                  <p className="text-sm leading-loose whitespace-pre-wrap text-gray-700">
                     {quote.note}
                   </p>
                 </DetailSection>

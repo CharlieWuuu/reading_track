@@ -89,7 +89,7 @@ export function VocabularyDetailView() {
                         {encounter.chapter && <span>・{encounter.chapter}</span>}
                       </Link>
                       {encounter.sentence && (
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap text-gray-800">
+                        <p className="text-sm leading-loose whitespace-pre-wrap text-gray-800">
                           {encounter.sentence}
                         </p>
                       )}
