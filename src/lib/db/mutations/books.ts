@@ -34,8 +34,9 @@ export async function addBookRow(userId: string, book: Book): Promise<void> {
   const names = splitLines(book.keywords);
 
   await db.transaction(async (tx) => {
-    // 重讀：originId 指的是「第一次讀」那一列，找出它屬於哪本書
-    const origin = book.originId.trim();
+    // 重讀：originId 指的是「第一次讀」那一列，找出它屬於哪本書。
+    // 手動填表不會送這一欄——那是從書單挑「再讀一次」才有的，所以不能假設它在
+    const origin = book.originId?.trim() ?? "";
     const existing = origin
       ? await tx
           .select({ workId: records.workId })
