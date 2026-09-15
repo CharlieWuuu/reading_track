@@ -1,52 +1,33 @@
 import { describe, expect, it } from "vitest";
-import { formatSpan, parseSpan } from "./keyword";
+import { formatSpan } from "./keyword";
 
-describe("parseSpan", () => {
-  it("一般的生卒", () => {
-    expect(parseSpan("1818－1883")).toEqual({ from: 1818, to: 1883 });
-  });
-
-  it("破折號有好幾種寫法", () => {
-    for (const dash of ["－", "–", "—", "-"]) {
-      expect(parseSpan(`1818${dash}1883`)).toEqual({ from: 1818, to: 1883 });
-    }
-  });
-
-  it("只有一個年份時，起訖相同", () => {
-    expect(parseSpan("1949")).toEqual({ from: 1949, to: 1949 });
-  });
-
-  it("月日忽略掉，只取年", () => {
-    expect(parseSpan("1949/4/6－2020/1/1")).toEqual({ from: 1949, to: 2020 });
-  });
-
-  // 分隔符前面必須是數字，「日－」不算，所以整串當成一個年份。
-  // 這是原本就有的行為，不是 lookbehind 改寫時弄出來的
-  it("破折號前面是中文字時不切", () => {
-    expect(parseSpan("1949年4月6日－2020年1月1日")).toEqual({ from: 1949, to: 1949 });
-  });
-
-  it("西元前用「前」或負號都認得", () => {
-    expect(parseSpan("前384－前322")).toEqual({ from: -384, to: -322 });
-    expect(parseSpan("-384–-322")).toEqual({ from: -384, to: -322 });
-  });
-
-  it("開頭的負號不是分隔符——負號前面要有數字才算", () => {
-    expect(parseSpan("-384")).toEqual({ from: -384, to: -384 });
-  });
-
-  it("空白與純文字回 null", () => {
-    expect(parseSpan("")).toBeNull();
-    expect(parseSpan("不知道")).toBeNull();
-  });
-});
-
+/**
+ * 起訖年拆成兩個數字欄之後，原本那一整組剖析測試（破折號四種寫法、西元前的
+ * 負號跟分隔符撞在一起、月日要忽略、iOS 舊版 Safari 不支援 lookbehind）
+ * 全部沒有對象了——那些情況只存在於「一欄塞兩個值」的世界。
+ */
 describe("formatSpan", () => {
   it("兩邊都有就用破折號接起來", () => {
-    expect(formatSpan("1818", "1883")).toBe("1818－1883");
+    expect(formatSpan(1818, 1883)).toBe("1818－1883");
   });
 
   it("兩邊都空就是空字串", () => {
-    expect(formatSpan("", "")).toBe("");
+    expect(formatSpan(null, null)).toBe("");
+  });
+
+  it("只有起沒有訖（還活著、還在）就留後面空著", () => {
+    expect(formatSpan(1935, null)).toBe("1935－");
+  });
+
+  it("起訖同一年就不重複寫兩次", () => {
+    expect(formatSpan(1949, 1949)).toBe("1949");
+  });
+
+  it("負數是西元前", () => {
+    expect(formatSpan(-384, -322)).toBe("前384－前322");
+  });
+
+  it("只有訖沒有起", () => {
+    expect(formatSpan(null, 2008)).toBe("－2008");
   });
 });

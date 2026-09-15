@@ -46,7 +46,7 @@ export const RECORD_FIELDS = [
   { key: "amount", layer: "record", type: "number", defaultLabel: "份量" },
   { key: "source", layer: "work", type: "text", defaultLabel: "來源" },
   { key: "platform", layer: "work", type: "text", defaultLabel: "平台" },
-  { key: "sourceUrl", layer: "externalLink", type: "url", defaultLabel: "連結" },
+  { key: "externalUrl", layer: "externalLink", type: "url", defaultLabel: "外部連結" },
   { key: "externalId", layer: "work", type: "text", defaultLabel: "外部編號" },
   // 存的是圖片 key 不是網址（舊資料可能還是外部網址），畫成上傳格不是文字框
   { key: "coverUrl", layer: "work", type: "image", defaultLabel: "封面" },
@@ -56,12 +56,14 @@ export const RECORD_FIELDS = [
   { key: "body", layer: "fragment", type: "longText", defaultLabel: "內文" },
   { key: "locator", layer: "fragment", type: "text", defaultLabel: "章節" },
   { key: "pronunciation", layer: "fragment", type: "text", defaultLabel: "發音" },
-  { key: "translation", layer: "fragment", type: "text", defaultLabel: "翻譯" },
+  { key: "translation", layer: "fragment", type: "text", defaultLabel: "解釋" },
   { key: "context", layer: "fragment", type: "longText", defaultLabel: "例句" },
   { key: "contextTranslation", layer: "fragment", type: "text", defaultLabel: "例句翻譯" },
   { key: "tags", layer: "fragment", type: "text", defaultLabel: "標籤" },
-  { key: "span", layer: "fragment", type: "text", defaultLabel: "起訖" },
-  { key: "coordinates", layer: "fragment", type: "text", defaultLabel: "座標" },
+  { key: "startYear", layer: "fragment", type: "number", defaultLabel: "起" },
+  { key: "endYear", layer: "fragment", type: "number", defaultLabel: "訖" },
+  { key: "latitude", layer: "fragment", type: "number", defaultLabel: "緯度" },
+  { key: "longitude", layer: "fragment", type: "number", defaultLabel: "經度" },
 ] as const satisfies readonly FieldDef[];
 
 export type FieldKey = (typeof RECORD_FIELDS)[number]["key"];

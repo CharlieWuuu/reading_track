@@ -1,12 +1,14 @@
-/** 關鍵字主檔的一列。全部存純文字，直接查資料庫也要看得懂 */
+/** 關鍵字主檔的一列。年份與座標存數字，其餘存純文字 */
 export interface KeywordInfo {
   name: string;
   /** 自己貼的標籤，多個以頓號相接；跟維基查詢無關，見 lookup 裡的說明 */
   tags: string;
-  /** "25.033,121.565"，沒有座標就是空字串 */
-  coordinates: string;
-  /** 生卒或起訖，"1809－1882"；只有其中一邊就留另一邊空白 */
-  span: string;
+  /** 經緯度分開存；沒有座標就是 null */
+  latitude: number | null;
+  longitude: number | null;
+  /** 生卒或存續的那段年份。負數是西元前；還在的話訖是 null */
+  startYear: number | null;
+  endYear: number | null;
   wikiUrl: string;
   summary: string;
   /** 這個字第一次被記下的時間（ISO）。概覽頁的頭條、排序用這個 */
@@ -15,58 +17,26 @@ export interface KeywordInfo {
 
 export const EMPTY_KEYWORD_INFO: Omit<KeywordInfo, "name" | "createdAt"> = {
   tags: "",
-  coordinates: "",
-  span: "",
+  latitude: null,
+  longitude: null,
+  startYear: null,
+  endYear: null,
   wikiUrl: "",
   summary: "",
 };
 
-export function parseCoordinates(value: string): { lat: number; lon: number } | null {
-  const [lat, lon] = value.split(",").map((n) => Number(n.trim()));
-  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
-  return { lat, lon };
-}
+/** 一年顯示成字串；負數是西元前 */
+const year = (value: number): string => (value < 0 ? `前${-value}` : String(value));
 
 /**
- * 起訖畫成數線要的是數字；只有單邊也回得出來，另一邊給 null。
+ * 起訖年顯示成一行。拆欄之前這裡是一整組剖析器——破折號有四種寫法、
+ * 西元前的負號跟破折號長得一樣、iOS 舊版 Safari 不支援 lookbehind。
+ * 現在兩個數字直接組字串就好。
  *
- * 手打的寫法很雜（1949／1949年4月6日／1949/4/6），一律只取年，
- * 後面的月日忽略——數線本來就以年為單位。沒有破折號就當成單一年份。
+ * 只有起沒有訖（還活著、還在）就留破折號後面空著。
  */
-export function parseSpan(value: string): { from: number | null; to: number | null } | null {
-  const [left, right] = splitSpan(value);
-  const from = parseYear(left);
-  const to = right === undefined ? from : parseYear(right);
-  if (from === null && to === null) return null;
-  return { from, to };
-}
-
-/**
- * 只切最外層的起訖破折號；西元前的負號長得一樣，所以負號前面要有數字才算分隔。
- *
- * 不用 lookbehind：WebKit 要 iOS 16.4 以後才支援，舊版 Safari 連這個檔都
- * 載不進去——整頁只剩一行 "The string did not match the expected pattern."。
- * 改成連數字一起比對，再把破折號的位置算回去。
- */
-function splitSpan(value: string): [string, string?] {
-  const match = value.match(/\d\s*[－–—-]/);
-  if (!match || match.index === undefined) return [value];
-
-  const index = match.index + match[0].length - 1; // 破折號本身的位置
-  return [value.slice(0, index), value.slice(index + 1)];
-}
-
-/** 取開頭的年份，吃得下 "前384"、"-384"、"1949年4月6日"、"1949/4/6" */
-function parseYear(value: string): number | null {
-  const match = value.trim().match(/^(前\s*)?(-?\d+)/);
-  if (!match) return null;
-  const year = Number(match[2]);
-  return match[1] ? -Math.abs(year) : year;
-}
-
-/** 兩個年份欄併回原本那一格；兩邊都空就是空字串 */
-export function formatSpan(from: string, to: string): string {
-  const a = from.trim();
-  const b = to.trim();
-  return a || b ? `${a}－${b}` : "";
+export function formatSpan(from: number | null, to: number | null): string {
+  if (from === null && to === null) return "";
+  if (from !== null && from === to) return year(from);
+  return `${from === null ? "" : year(from)}－${to === null ? "" : year(to)}`;
 }

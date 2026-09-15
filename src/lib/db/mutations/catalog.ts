@@ -80,7 +80,7 @@ export async function addRecord(
       })
       .returning({ id: records.id });
 
-    await setRecordSourceUrl(tx, userId, record.id, pick(values, allowed, "sourceUrl"));
+    await setRecordSourceUrl(tx, userId, record.id, pick(values, allowed, "externalUrl"));
 
     return { id: record.id, linkId: work.id };
   });
@@ -124,7 +124,7 @@ export async function updateRecord(userId: string, id: string, values: FieldValu
       await tx.update(works).set(workPatch).where(eq(works.id, target.workId));
     if (Object.keys(recordPatch).length)
       await tx.update(records).set(recordPatch).where(eq(records.id, id));
-    if (has("sourceUrl")) await setRecordSourceUrl(tx, userId, id, values.sourceUrl);
+    if (has("externalUrl")) await setRecordSourceUrl(tx, userId, id, values.externalUrl);
   });
 }
 

@@ -8,6 +8,7 @@ import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { getKeywordEntries, KeywordEntry } from "@/features/keywords/utils/keyword-stats";
 import { topicLabel } from "@/features/keywords/utils/topic-labels";
 import { Book } from "@/types/book";
+import { formatSpan } from "@/types/keyword";
 import { OverviewItem, pickHeadline, topKeywordsFromBooks } from "@/utils/overview";
 import { tagColorClass } from "@/utils/tag-colors";
 
@@ -99,7 +100,7 @@ export function KeywordCards({ books }: { books: Book[] }) {
                 )}
               </>
             }
-            detail={info?.span}
+            detail={info ? formatSpan(info.startYear, info.endYear) : ""}
             body={info?.summary}
           />
         );

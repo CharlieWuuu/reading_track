@@ -4,7 +4,7 @@ import Link from "next/link";
 import { BookCover } from "@/components/ui/book-cover";
 import { keywordHref } from "@/config/routes";
 import { KeywordEntry } from "@/features/keywords/utils/keyword-stats";
-import { KeywordInfo, parseSpan } from "@/types/keyword";
+import { KeywordInfo } from "@/types/keyword";
 import { CATEGORICAL, SERIES_OVERFLOW } from "@/utils/chart-palette";
 
 const styles = {
@@ -202,9 +202,9 @@ function toSpans(entries: KeywordEntry[], infos: Map<string, KeywordInfo>): Span
   for (const entry of entries) {
     const info = infos.get(entry.name);
     // 有座標的畫在地圖上就好，年代仍然記在主檔裡，只是不上數線
-    if (info?.coordinates) continue;
-    const span = parseSpan(info?.span ?? "");
-    if (!span) continue;
+    if (info?.latitude !== null && info?.latitude !== undefined) continue;
+    if (!info || (info.startYear === null && info.endYear === null)) continue;
+    const span = { from: info.startYear, to: info.endYear };
 
     // 只有開頭沒有結尾（還活著、或還在持續）就一路畫到今年，不要縮成一個點
     const open = span.from !== null && span.to === null;

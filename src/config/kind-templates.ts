@@ -21,7 +21,14 @@ export type KindTemplate = {
   labels?: Partial<Record<ModuleKey, string>>;
 };
 
-const RECORD_BASE: ModuleKey[] = ["title", "creator", "link", "startDate", "endDate", "private"];
+const RECORD_BASE: ModuleKey[] = [
+  "title",
+  "creator",
+  "externalUrl",
+  "startDate",
+  "endDate",
+  "private",
+];
 
 export const KIND_TEMPLATES: KindTemplate[] = [
   {
@@ -80,7 +87,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     name: "展覽",
     amountUnit: "小時",
     modules: [...RECORD_BASE, "cover"],
-    labels: { creator: "策展人", link: "官網" },
+    labels: { creator: "策展人", externalUrl: "官網" },
   },
   {
     key: "course",
@@ -106,27 +113,36 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     modules: [
       "title",
       "pronunciation",
-      "gloss",
+      "translation",
       "context",
       "contextTranslation",
       "locator",
       "endDate",
       "private",
     ],
-    labels: { title: "單字", gloss: "字義" },
+    labels: { title: "單字", translation: "字義" },
   },
   {
     key: "keywords",
     group: "fragments",
     name: "關鍵字",
     amountUnit: "",
-    modules: ["title", "gloss", "longText", "tags", "span", "coordinates", "link", "private"],
+    modules: [
+      "title",
+      "translation",
+      "longText",
+      "tags",
+      "years",
+      "coordinates",
+      "externalUrl",
+      "private",
+    ],
     labels: {
       title: "詞條",
-      gloss: "一句話說明",
+      translation: "一句話說明",
       longText: "維基摘要",
       tags: "學科",
-      link: "維基連結",
+      externalUrl: "維基連結",
     },
   },
   {
@@ -155,7 +171,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "writings",
     name: "論述",
     amountUnit: "字",
-    modules: ["title", "longText", "link", "endDate", "private"],
+    modules: ["title", "longText", "externalUrl", "endDate", "private"],
   },
   {
     key: "plan",

@@ -255,8 +255,10 @@ export async function listKeywords(userId: string): Promise<KeywordInfo[]> {
     .map(({ fragment }) => ({
       name: fragment.name,
       tags: fragment.tags,
-      coordinates: fragment.coordinates,
-      span: fragment.span,
+      latitude: fragment.latitude,
+      longitude: fragment.longitude,
+      startYear: fragment.startYear,
+      endYear: fragment.endYear,
       wikiUrl: wikiUrls.get(fragment.id) ?? "",
       summary: fragment.body,
       createdAt: fragment.createdAt.toISOString(),

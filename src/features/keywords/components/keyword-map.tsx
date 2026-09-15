@@ -8,7 +8,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { BookCover } from "@/components/ui/book-cover";
 import { keywordHref } from "@/config/routes";
 import { Book, splitLines } from "@/types/book";
-import { KeywordInfo, parseCoordinates } from "@/types/keyword";
+import { KeywordInfo } from "@/types/keyword";
 import { CATEGORICAL, SERIES_OVERFLOW } from "@/utils/chart-palette";
 
 const styles = {
@@ -168,7 +168,14 @@ function toRoutesKey(books: Book[], infos: Map<string, KeywordInfo>): string {
   const routes = books
     .map((book) => {
       const points = splitLines(book.keywords)
-        .map((name) => ({ name, at: parseCoordinates(infos.get(name)?.coordinates ?? "") }))
+        .map((name) => {
+          const info = infos.get(name);
+          const at =
+            info?.latitude !== null && info?.latitude !== undefined && info.longitude !== null
+              ? { lat: info.latitude, lon: info.longitude }
+              : null;
+          return { name, at };
+        })
         .filter((p) => p.at)
         .map((p) => [p.name, p.at!.lat, p.at!.lon].join(FIELD));
       return { title: book.title, cover: book.coverUrl, points };

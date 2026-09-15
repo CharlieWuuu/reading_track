@@ -258,8 +258,10 @@ export async function saveKeywordInfos(userId: string, infos: KeywordInfo[]): Pr
       const values = {
         body: info.summary,
         tags: info.tags,
-        coordinates: info.coordinates,
-        span: info.span,
+        latitude: info.latitude,
+        longitude: info.longitude,
+        startYear: info.startYear,
+        endYear: info.endYear,
       };
       const [existing] = await tx
         .select({ id: fragments.id })

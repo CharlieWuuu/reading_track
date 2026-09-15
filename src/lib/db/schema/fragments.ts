@@ -1,4 +1,12 @@
-import { date, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  date,
+  doublePrecision,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { kinds } from "./kinds";
 import { users } from "./users";
 
@@ -38,8 +46,16 @@ export const fragments = pgTable("domain_fragments", {
   context: text("context").notNull().default(""), // 例句
   contextTranslation: text("context_translation").notNull().default(""),
   tags: text("tags").notNull().default(""), // 自己貼的標籤，多個以頓號相接，跟 domain_topics 的主題樹是兩回事
-  span: text("span").notNull().default(""), // 生卒或起訖
-  coordinates: text("coordinates").notNull().default(""), // "25.033,121.565"
+  // 舊的一欄塞兩個值，資料搬完就退休（見 scripts/split-span-coordinates.ts）
+  span: text("span").notNull().default(""),
+  coordinates: text("coordinates").notNull().default(""),
+  // 生卒或存續的那段年份。一欄塞 "1818－1883" 要靠剖析拆，破折號、西元前的
+  // 負號、只有單邊都得各自處理；兩欄各存一個數字，這些情況全部消失。
+  // 負數是西元前。只有起沒有訖（還活著、還在）就留空
+  startYear: integer("start_year"),
+  endYear: integer("end_year"),
+  latitude: doublePrecision("latitude"),
+  longitude: doublePrecision("longitude"),
   coverUrl: text("cover_url").notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

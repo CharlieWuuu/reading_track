@@ -369,7 +369,7 @@ export async function getRecordValues(
       source: work.source,
       platform: work.platform,
       externalId: work.externalId,
-      sourceUrl: await sourceUrlOfRecord(userId, id),
+      externalUrl: await sourceUrlOfRecord(userId, id),
       coverUrl: work.coverUrl,
       isPrivate: record.isPrivate ? "是" : "",
       // 表單的選單認名字不認編號（選項是從既有資料 group 出來的）
@@ -469,7 +469,7 @@ export async function getFragmentValues(
       context: row.context,
       contextTranslation: row.contextTranslation,
       endDate: row.date ?? "",
-      sourceUrl: await sourceUrlOfFragment(userId, id),
+      externalUrl: await sourceUrlOfFragment(userId, id),
       coverUrl: row.coverUrl,
     },
   };

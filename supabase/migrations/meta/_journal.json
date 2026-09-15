@@ -36,6 +36,13 @@
       "when": 1789398695036,
       "tag": "0004_deep_omega_flight",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789477014003,
+      "tag": "0005_split_span_and_coordinates",
+      "breakpoints": true
     }
   ]
 }

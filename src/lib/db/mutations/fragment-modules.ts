@@ -9,7 +9,7 @@ import { toDate } from "./values";
  * 片段與書寫照模組寫入。兩者同一張表，差別只在類型屬於哪個 group。
  *
  * 欄位名跟紀錄那邊不一樣（標題叫 name、連結走 external_links），換算只在這一層做——
- * 模組那層一律用 title、sourceUrl。
+ * 模組那層一律用 title、externalUrl。
  */
 
 /** 新增一則片段或書寫。兩者同一張表，差別只在類型屬於哪個 group */
@@ -37,7 +37,7 @@ export async function addFragment(
       })
       .returning({ id: fragments.id });
 
-    await setFragmentSourceUrl(tx, userId, row.id, pick(values, allowed, "sourceUrl"));
+    await setFragmentSourceUrl(tx, userId, row.id, pick(values, allowed, "externalUrl"));
 
     return row.id;
   });
@@ -72,7 +72,7 @@ export async function updateFragment(
         .update(fragments)
         .set(patch)
         .where(and(eq(fragments.userId, userId), eq(fragments.id, id)));
-    if (has("sourceUrl")) await setFragmentSourceUrl(tx, userId, id, values.sourceUrl);
+    if (has("externalUrl")) await setFragmentSourceUrl(tx, userId, id, values.externalUrl);
   });
 }
 

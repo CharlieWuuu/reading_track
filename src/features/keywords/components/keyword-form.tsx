@@ -5,7 +5,7 @@ import { FIELD_LABEL_TEXT } from "@/components/ui/field-label";
 import { FormActions } from "@/components/ui/form-actions";
 import { OptionSelect } from "@/components/ui/option-select";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
-import { formatSpan, KeywordInfo, parseSpan } from "@/types/keyword";
+import { KeywordInfo } from "@/types/keyword";
 
 const styles = {
   form: "flex min-h-0 flex-1 flex-col gap-3",
@@ -31,9 +31,6 @@ const styles = {
   cancelSmall:
     "rounded-control border border-control-border px-3 py-1.5 text-control-ink-secondary hover:bg-control-ghost-hover",
 };
-
-/** 名稱與領域同一列，座標自己一列；領域要配建議清單，不走這個迴圈 */
-const ROWS = [[{ key: "name", label: "名稱" }], [{ key: "coordinates", label: "座標" }]] as const;
 
 /**
  * 領域的選項就是「已經用過的領域」，不另外維護一份清單。
@@ -77,11 +74,11 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
 
   const set = (key: keyof KeywordInfo, value: string) => setForm((f) => ({ ...f, [key]: value }));
 
-  // 起訖存的是「1809－1882」一格，這裡拆成兩欄填，存回去再併起來
-  const span = parseSpan(form.span);
-  const spanFrom = span?.from == null ? "" : String(span.from);
-  const spanTo = span?.to == null ? "" : String(span.to);
-  const setSpan = (from: string, to: string) => set("span", formatSpan(from, to));
+  /** 數字欄：空白存 null，不存 0——沒填跟填 0 是兩回事 */
+  const setNumber = (key: keyof KeywordInfo, value: string) =>
+    setForm((f) => ({ ...f, [key]: value.trim() === "" ? null : Number(value) }));
+
+  const show = (value: number | null) => (value === null ? "" : String(value));
 
   async function handleDelete() {
     if (!onDelete) return;
@@ -135,20 +132,30 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
         </div>
       </div>
 
-      {ROWS.slice(1).map((row, i) => (
-        <div key={i} className={styles.row}>
-          {row.map((field) => (
-            <div key={field.key} className={styles.field}>
-              <label className={styles.label}>{field.label}</label>
-              <input
-                value={form[field.key]}
-                onChange={(e) => set(field.key, e.target.value)}
-                className={styles.input}
-              />
-            </div>
-          ))}
+      {/* 經緯度各自一格。以前是一格打 "25.033,121.565"，少打逗號就整個失效，
+          而且沒有任何提示 */}
+      <div className={styles.row}>
+        <div className={styles.field}>
+          <label className={styles.label}>緯度</label>
+          <input
+            type="number"
+            inputMode="decimal"
+            value={show(form.latitude)}
+            onChange={(e) => setNumber("latitude", e.target.value)}
+            className={styles.input}
+          />
         </div>
-      ))}
+        <div className={styles.field}>
+          <label className={styles.label}>經度</label>
+          <input
+            type="number"
+            inputMode="decimal"
+            value={show(form.longitude)}
+            onChange={(e) => setNumber("longitude", e.target.value)}
+            className={styles.input}
+          />
+        </div>
+      </div>
 
       <div className={styles.row}>
         <div className={styles.field}>
@@ -156,8 +163,8 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
           <input
             type="number"
             inputMode="numeric"
-            value={spanFrom}
-            onChange={(e) => setSpan(e.target.value, spanTo)}
+            value={show(form.startYear)}
+            onChange={(e) => setNumber("startYear", e.target.value)}
             className={styles.input}
           />
         </div>
@@ -166,8 +173,8 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
           <input
             type="number"
             inputMode="numeric"
-            value={spanTo}
-            onChange={(e) => setSpan(spanFrom, e.target.value)}
+            value={show(form.endYear)}
+            onChange={(e) => setNumber("endYear", e.target.value)}
             className={styles.input}
           />
         </div>

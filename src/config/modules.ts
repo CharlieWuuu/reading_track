@@ -25,10 +25,15 @@ export const MODULES = [
   { key: "title", label: "標題", hint: "一行字，清單上顯示的那個", fields: ["title"] },
   { key: "creator", label: "作者／來源人", hint: "誰講的、誰寫的", fields: ["creator"] },
   { key: "longText", label: "長文", hint: "多段落，支援分欄", fields: ["body"] },
-  { key: "gloss", label: "解釋", hint: "對這個東西本身的說明", fields: ["translation"] },
+  { key: "translation", label: "解釋", hint: "對這個東西本身的說明", fields: ["translation"] },
   { key: "locator", label: "位置", hint: "出處裡的頁碼或時間點", fields: ["locator"] },
   { key: "cover", label: "封面圖", hint: "清單上的縮圖", fields: ["coverUrl"] },
-  { key: "link", label: "外部連結", hint: "原始頁面，要有外開圖示", fields: ["sourceUrl"] },
+  {
+    key: "externalUrl",
+    label: "外部連結",
+    hint: "原始頁面，要有外開圖示",
+    fields: ["externalUrl"],
+  },
   // 兩格日期各自是一個模組。合成一個「狀態」的話它其實只是兩格日期——
   // 狀態是從日期推出來的（見 types/book 的 inferStatus），不是自己存的一欄。
   // 而且舊的「單一日期」也寫 endDate，跟「狀態」勾在一起會兩格寫同一欄
@@ -45,8 +50,9 @@ export const MODULES = [
     fields: ["contextTranslation"],
   },
   { key: "tags", label: "標籤", hint: "純文字，一行一個", fields: ["tags"] },
-  { key: "span", label: "起訖", hint: "生卒、存續的那段年份", fields: ["span"] },
-  { key: "coordinates", label: "座標", hint: "地圖上的位置", fields: ["coordinates"] },
+  // 兩格各存一個數字：一欄塞 "1818－1883" 得靠剖析拆，破折號、西元前的負號都是坑
+  { key: "years", label: "起訖年", hint: "生卒、存續的那段年份", fields: ["startYear", "endYear"] },
+  { key: "coordinates", label: "座標", hint: "地圖上的位置", fields: ["latitude", "longitude"] },
   { key: "language", label: "語言", hint: "這一筆是什麼語言", fields: ["language"] },
   { key: "externalId", label: "外部編號", hint: "ISBN、DOI 之類", fields: ["externalId"] },
   { key: "publisher", label: "出版社", hint: "出版社／頻道／製作單位", fields: ["source"] },

@@ -16,7 +16,7 @@ import { topicLabel } from "@/features/keywords/utils/topic-labels";
 import { useArticles } from "@/hooks/use-articles";
 import { useBooks } from "@/hooks/use-books";
 import { useWritings } from "@/hooks/use-writings";
-import { formatSpan, parseSpan } from "@/types/keyword";
+import { formatSpan } from "@/types/keyword";
 import { tagColorClass } from "@/utils/tag-colors";
 
 const styles = {
@@ -43,7 +43,7 @@ export function KeywordDetailView({ recordId }: { recordId: string }) {
 
   const info = byName.get(name);
   const tags = info?.tags ? info.tags.split("、").filter(Boolean).map(topicLabel) : [];
-  const span = parseSpan(info?.span ?? "");
+  const span = info ? { from: info.startYear, to: info.endYear } : null;
   const mentions = getKeywordMentions(name, books, articles, writings);
   const nothing =
     !info?.summary &&
@@ -72,11 +72,7 @@ export function KeywordDetailView({ recordId }: { recordId: string }) {
                   {tag}
                 </span>
               ))}
-              {span && (
-                <span className={styles.span}>
-                  {formatSpan(String(span.from ?? ""), String(span.to ?? ""))}
-                </span>
-              )}
+              {span && <span className={styles.span}>{formatSpan(span.from, span.to)}</span>}
               {info?.wikiUrl && (
                 <a
                   href={info.wikiUrl}
