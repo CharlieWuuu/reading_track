@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull, or } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { seedKinds } from "@/lib/db/mutations/kinds";
 import { fragments } from "@/lib/db/schema/fragments";
@@ -95,15 +95,15 @@ const BOOKS = [
 ] as const;
 
 const WRITINGS = [
-  ["讀《原子習慣》：複利是怎麼發生的", "書籍", 0, "讀後感", ["習慣", "行為改變"]],
-  ["理財書為什麼都在講心態", "隨筆", null, "隨筆", ["理財"]],
-  ["存在主義是一種心情嗎", "隨筆", null, "隨筆", ["存在主義", "卡繆"]],
-  ["《快思慢想》的兩個系統，我用了三年才懂", "書籍", 9, "讀後感", ["行為經濟學", "康納曼"]],
-  ["格林的三本書讀下來", "書籍", 1, "讀後感", ["格林", "權力"]],
-  ["《活出意義來》與集中營裡的選擇", "書籍", 18, "讀後感", ["意義"]],
-  ["卡夫卡的早晨", "書籍", 13, "讀後感", ["卡夫卡"]],
-  ["奇幻小說是逃避嗎", "隨筆", null, "隨筆", ["奇幻"]],
-  ["一年讀了幾本書這件事", "隨筆", null, "隨筆", []],
+  ["讀《原子習慣》：複利是怎麼發生的", "書籍", 0, "心得", ["習慣", "行為改變"]],
+  ["理財書為什麼都在講心態", "隨筆", null, "思緒", ["理財"]],
+  ["存在主義是一種心情嗎", "隨筆", null, "思緒", ["存在主義", "卡繆"]],
+  ["《快思慢想》的兩個系統，我用了三年才懂", "書籍", 9, "心得", ["行為經濟學", "康納曼"]],
+  ["格林的三本書讀下來", "書籍", 1, "心得", ["格林", "權力"]],
+  ["《活出意義來》與集中營裡的選擇", "書籍", 18, "心得", ["意義"]],
+  ["卡夫卡的早晨", "書籍", 13, "心得", ["卡夫卡"]],
+  ["奇幻小說是逃避嗎", "隨筆", null, "思緒", ["奇幻"]],
+  ["一年讀了幾本書這件事", "隨筆", null, "思緒", []],
 ] as const;
 
 const NOTES: Record<string, string> = {
@@ -193,13 +193,16 @@ export async function seedDemo(email: string): Promise<string> {
   }
   await seedKinds(userId); // 類型是資料，demo 帳號也要有
 
-  const kindId = async (name: string) =>
-    (
-      await db
-        .select({ id: kinds.id })
-        .from(kinds)
-        .where(and(eq(kinds.userId, userId), eq(kinds.name, name)))
-    )[0].id;
+  // 內建類型的 user_id 是 null（全站共用），自訂的才掛在帳號底下——兩種都要認，
+  // 只看 userId 會在只有內建類型的資料庫上找不到，然後炸在 [0].id
+  const kindId = async (name: string) => {
+    const rows = await db
+      .select({ id: kinds.id })
+      .from(kinds)
+      .where(and(or(eq(kinds.userId, userId), isNull(kinds.userId)), eq(kinds.name, name)));
+    if (!rows.length) throw new Error(`找不到類型「${name}」，seedKinds 沒建起來`);
+    return rows[0].id;
+  };
 
   const bookKindId = await kindId("書籍");
   const quoteKindId = await kindId("佳句");
@@ -296,15 +299,22 @@ export async function seedDemo(email: string): Promise<string> {
     });
   }
 
-  const writingKindId = await kindId("書寫");
+  // 「書寫」是 group 不是 kind——每則自己帶著類型（第 4 欄），照它走
+  const writingKindIds = new Map(
+    await Promise.all(
+      [...new Set(WRITINGS.map((w) => w[3]))].map(
+        async (name) => [name, await kindId(name)] as const,
+      ),
+    ),
+  );
 
   for (const [i, entry] of WRITINGS.entries()) {
-    const [title, , bookIndex, , names] = entry;
+    const [title, , bookIndex, kindName, names] = entry;
     const [writing] = await db
       .insert(writings)
       .values({
         userId,
-        kindId: writingKindId,
+        kindId: writingKindIds.get(kindName)!,
         title,
         body: NOTES[title] ?? "",
         endDate: daysAgo(300 - i * 25),

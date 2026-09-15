@@ -58,15 +58,19 @@ export async function seedUser(db: typeof Db, email = "test@example.com"): Promi
  * 呼叫第二次不重複灌。
  */
 async function seedKindsInto(db: typeof Db): Promise<void> {
-  const [existing] = await db.select({ id: kinds.id }).from(kinds).limit(1);
-  if (existing) return;
-
   const starters = KIND_TEMPLATES.filter((template) => STARTER_KEYS.has(template.key));
+
+  // 只跳過「這幾種都灌過了」的情況。migration 自己也會建幾種類型（書寫那三個），
+  // 看「表裡有沒有東西」會被那幾列騙過去，書籍、關鍵字就永遠建不起來
+  const done = await db.select({ slug: kinds.slug }).from(kinds);
+  const have = new Set(done.map((row) => row.slug));
+  if (starters.every((template) => have.has(template.key))) return;
   const orders = new Map<string, number>();
 
   for (const template of starters) {
     const sortOrder = orders.get(template.group) ?? 0;
     orders.set(template.group, sortOrder + 1);
+    if (have.has(template.key)) continue; // migration 已經建過的那幾種
 
     const [kind] = await db
       .insert(kinds)
