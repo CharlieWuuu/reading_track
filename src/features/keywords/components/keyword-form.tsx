@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FIELD_LABEL_TEXT } from "@/components/ui/field-label";
 import { FormActions } from "@/components/ui/form-actions";
 import { OptionSelect } from "@/components/ui/option-select";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
@@ -10,8 +11,8 @@ const styles = {
   form: "flex min-h-0 flex-1 flex-col gap-3",
   row: "grid grid-cols-2 gap-3",
   field: "flex min-w-0 flex-col gap-1",
-  label: "flex items-center gap-1.5 text-label font-medium tracking-label text-ink-faint uppercase",
-  hint: "text-meta font-normal tracking-normal text-ink-faint normal-case",
+  label: `flex items-center gap-1.5 ${FIELD_LABEL_TEXT}`,
+  hint: "text-meta font-normal text-ink-faint",
   // py-2 跟 OptionSelect 的觸發鈕一樣高，名稱與領域並排才不會一高一矮
   input: "w-full rounded-control border border-rule bg-transparent px-3 py-2 text-sm text-ink",
   // 摘要是整頁最長的一欄，給它一個真的打得下去的高度

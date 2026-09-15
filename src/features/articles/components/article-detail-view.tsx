@@ -1,6 +1,5 @@
 "use client";
 
-import { useParams } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";

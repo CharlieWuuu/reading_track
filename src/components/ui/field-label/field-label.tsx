@@ -3,9 +3,14 @@
  *
  * 寬度固定、文字靠右：欄名長短不一，靠右才會緊貼著自己的輸入框，
  * 不然兩個字的欄名跟框中間會空一段。四個中文字剛好塞得下。
+ *
+ * 用 byline 尺寸與 secondary 墨色，不用 label 那套全大寫小標籤——那套是給
+ * meta 與區塊標題的，10.5px 的 neutral-400 在表單上要瞇著眼睛找欄名。
+ * 中文也沒有大寫可言，uppercase 只會把 tracking 撐開更難讀。
  */
-export const FIELD_LABEL_CLASS =
-  "mb-1 flex items-center gap-1.5 text-label font-medium tracking-label text-ink-faint uppercase md:mb-0 md:justify-end md:text-right";
+export const FIELD_LABEL_TEXT = "text-byline font-medium text-ink-secondary";
+
+export const FIELD_LABEL_CLASS = `mb-1 flex items-center gap-1.5 ${FIELD_LABEL_TEXT} md:mb-0 md:justify-end md:text-right`;
 
 /** 固定寬的那一欄。四個中文字剛好塞得下 */
 const FIXED_WIDTH = "md:w-16 md:shrink-0";

@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { PenLine } from "lucide-react";
+import { FIELD_LABEL_TEXT } from "@/components/ui/field-label";
 import { writingEditHref } from "@/config/routes";
 import { useWritings } from "@/hooks/use-writings";
 import { notesForSource } from "@/utils/related-notes";
 
 const styles = {
   wrap: "flex min-h-0 flex-col gap-1",
-  label: "flex shrink-0 items-center gap-1.5 text-sm font-medium",
+  label: `flex shrink-0 items-center gap-1.5 ${FIELD_LABEL_TEXT}`,
   list: "flex min-h-0 flex-1 flex-col divide-y overflow-y-auto rounded-control border",
   row: "flex flex-col gap-0.5 px-3 py-2 hover:bg-gray-50",
   // 標題與時間同一行：時間靠右，長標題自己截斷，不擠掉日期

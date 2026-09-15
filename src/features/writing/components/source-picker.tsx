@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { BookOpen, X } from "lucide-react";
+import { FIELD_LABEL_TEXT } from "@/components/ui/field-label";
 import { useArticles } from "@/hooks/use-articles";
 import { useBooks } from "@/hooks/use-books";
 import { imageSrc } from "@/utils/image-key";
 
 const styles = {
   root: "relative min-w-0",
-  label: "mb-1 flex items-center gap-1.5 text-sm font-medium",
+  label: `mb-1 flex items-center gap-1.5 ${FIELD_LABEL_TEXT}`,
   hint: "text-xs font-normal text-gray-400",
   field: "flex items-center gap-1 rounded-control border px-3 py-2",
   input: "min-w-0 flex-1 text-sm outline-none",

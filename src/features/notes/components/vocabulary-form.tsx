@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { BookCover } from "@/components/ui/book-cover";
+import { FIELD_LABEL_TEXT } from "@/components/ui/field-label";
 import { FormActions } from "@/components/ui/form-actions";
 import { ImageField } from "@/components/ui/image-field";
 import { useCategories } from "@/hooks/use-categories";
@@ -20,7 +21,7 @@ const styles = {
   undo: "ml-auto rounded-control px-2 py-0.5 text-meta text-ink-muted no-underline hover:bg-control-ghost-hover",
   pair: "grid grid-cols-2 gap-2",
   field: "flex flex-col gap-1",
-  label: "text-label font-medium tracking-label text-ink-faint uppercase",
+  label: FIELD_LABEL_TEXT,
   input: "w-full rounded-control border border-rule bg-transparent px-3 py-1.5 text-sm text-ink",
   sentence:
     "min-h-28 w-full resize-none rounded-control border border-rule bg-transparent px-3 py-1.5 font-serif text-sm text-ink",
