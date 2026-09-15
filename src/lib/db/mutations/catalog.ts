@@ -53,7 +53,6 @@ export async function addRecord(
         title: pick(values, allowed, "title"),
         creator: pick(values, allowed, "creator"),
         language: pick(values, allowed, "language"),
-        source: pick(values, allowed, "publisher"),
         platform: pick(values, allowed, "platform"),
         externalId: pick(values, allowed, "externalId"),
         coverUrl: pick(values, allowed, "coverUrl"),
@@ -102,7 +101,6 @@ export async function updateRecord(userId: string, id: string, values: FieldValu
   if (has("title")) workPatch.title = values.title;
   if (has("creator")) workPatch.creator = values.creator;
   if (has("language")) workPatch.language = values.language;
-  if (has("publisher")) workPatch.source = values.publisher;
   if (has("platform")) workPatch.platform = values.platform;
   if (has("externalId")) workPatch.externalId = values.externalId;
   if (has("coverUrl")) workPatch.coverUrl = values.coverUrl;

@@ -8,7 +8,7 @@ import {
   getDomainGroups,
   getKpis,
   getMonthlyTrend,
-  getPublisherRanking,
+  getPlatformRanking,
   getQuarterlyTrend,
   getRereadRanking,
   getYearlyTrend,
@@ -195,12 +195,12 @@ describe("排行", () => {
   // 出現一次的佔長尾的絕大多數，全列出來只是把圖表塞滿無法比較的長條
   it("只上榜累積 2 本以上的", () => {
     const books = [
-      makeBook({ publisher: "早安財經" }),
-      makeBook({ publisher: "早安財經" }),
-      makeBook({ publisher: "只出現一次" }),
+      makeBook({ platform: "早安財經" }),
+      makeBook({ platform: "早安財經" }),
+      makeBook({ platform: "只出現一次" }),
     ];
 
-    expect(getPublisherRanking(books)).toEqual([
+    expect(getPlatformRanking(books)).toEqual([
       { name: "早安財經", value: 2, coverUrl: undefined },
     ]);
   });
@@ -223,11 +223,11 @@ describe("排行", () => {
 
   it("代表書封取第一本有封面的", () => {
     const books = [
-      makeBook({ publisher: "早安財經", coverUrl: "" }),
-      makeBook({ publisher: "早安財經", coverUrl: "https://example.com/2.jpg" }),
+      makeBook({ platform: "早安財經", coverUrl: "" }),
+      makeBook({ platform: "早安財經", coverUrl: "https://example.com/2.jpg" }),
     ];
 
-    expect(getPublisherRanking(books)[0].coverUrl).toBe("https://example.com/2.jpg");
+    expect(getPlatformRanking(books)[0].coverUrl).toBe("https://example.com/2.jpg");
   });
 
   // 每讀一次就是新增一列，重讀那列的 originId 指回第一次
@@ -266,11 +266,11 @@ describe("排行", () => {
 
   it("超過名額就截斷", () => {
     const books = ["A", "B", "C"].flatMap((p) => [
-      makeBook({ publisher: p }),
-      makeBook({ publisher: p }),
+      makeBook({ platform: p }),
+      makeBook({ platform: p }),
     ]);
 
-    expect(getPublisherRanking(books, 2)).toHaveLength(2);
+    expect(getPlatformRanking(books, 2)).toHaveLength(2);
   });
 });
 

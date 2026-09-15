@@ -63,7 +63,6 @@ export interface Book {
   title: string;
   author: string;
   coverUrl: string;
-  publisher: string;
   /** 版本的號碼不是書的身分：紙本與電子書各有一組。認「同一本書」請用 originId */
   isbn: string;
   /** 平台是可自訂的選項，不再限定在 BOOK_PLATFORMS 裡 */

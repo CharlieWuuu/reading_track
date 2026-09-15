@@ -20,7 +20,7 @@ function makeWriting(patch: Partial<Writing> = {}): Writing {
   return {
     id: crypto.randomUUID(),
     createdAt: "2026-01-01T00:00:00.000Z",
-    date: "2026-03-03",
+    endDate: "2026-03-03",
     title: "一則書寫",
     topic: "",
     keywords: "",
@@ -84,9 +84,9 @@ describe("updateWritingRow", () => {
     const writing = makeWriting();
     await addWritingRow(userId, writing);
 
-    await updateWritingRow(userId, writing.id, { date: "" });
+    await updateWritingRow(userId, writing.id, { endDate: "" });
 
     const [row] = await db.select().from(writings).where(eq(writings.id, writing.id));
-    expect(row.date).toBeNull();
+    expect(row.endDate).toBeNull();
   });
 });

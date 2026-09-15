@@ -40,7 +40,6 @@ export const readmooProvider: MetadataProvider = {
     const metadata: BookMetadata = {
       title,
       author: stripFollow(labelValue(text, "作者")),
-      publisher: stripFollow(labelValue(text, "出版社")),
       language: normalizeLanguage(labelValue(text, "語言")),
       wordCount: digitsOnly(labelValue(text, "字數")),
       // 電子書頁常常只有 EISBN，那也是這個版本的號碼，一樣收

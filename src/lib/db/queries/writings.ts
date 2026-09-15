@@ -51,7 +51,7 @@ async function toWritings(userId: string, rows: WritingJoinRow[]): Promise<Writi
     return {
       id: writing.id,
       createdAt: writing.createdAt.toISOString(),
-      date: writing.date,
+      endDate: writing.endDate,
       title: writing.title,
       topic: kindName, // 分類已經是 kind，topic 欄留著給篩選與統計沿用同一個名字
       keywords: keywords.get(writing.id) ?? "",
@@ -99,17 +99,17 @@ export async function listWritingsPaged(
   const keysetCondition = after
     ? after.date !== null
       ? or(
-          sql`${writings.date} < ${after.date}`,
-          and(eq(writings.date, after.date), sql`${writings.id} < ${after.id}`),
-          isNull(writings.date),
+          sql`${writings.endDate} < ${after.date}`,
+          and(eq(writings.endDate, after.date), sql`${writings.id} < ${after.id}`),
+          isNull(writings.endDate),
         )
-      : and(isNull(writings.date), sql`${writings.id} < ${after.id}`)
+      : and(isNull(writings.endDate), sql`${writings.id} < ${after.id}`)
     : undefined;
 
   const [rows, [{ count }]] = await Promise.all([
     baseSelect()
       .where(and(eq(writings.userId, userId), keysetCondition))
-      .orderBy(sql`${writings.date} DESC NULLS LAST`, desc(writings.id))
+      .orderBy(sql`${writings.endDate} DESC NULLS LAST`, desc(writings.id))
       .limit(limit + 1),
     db
       .select({ count: sql<number>`count(*)::int` })
@@ -122,7 +122,7 @@ export async function listWritingsPaged(
   const last = page.at(-1);
   const nextCursor =
     hasMore && last
-      ? encodeCursor({ date: last.writing.date, id: last.writing.id } satisfies WritingCursor)
+      ? encodeCursor({ date: last.writing.endDate, id: last.writing.id } satisfies WritingCursor)
       : null;
 
   return { rows: await toWritings(userId, page), nextCursor, hasMore, total: count };

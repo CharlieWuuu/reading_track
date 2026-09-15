@@ -53,7 +53,6 @@ export interface ReadingRow {
   endDate: string | null;
   isbn: string;
   platform: string;
-  publisher: string;
   pageCount: number | null;
   wordCount: number | null;
   sourceUrl: string;
@@ -92,7 +91,6 @@ export function toBookAndReadings(group: BookGroup): { book: BookRow; readings: 
       endDate: toDate(row.endDate),
       isbn: row.isbn.trim(),
       platform: row.platform.trim(),
-      publisher: row.publisher.trim(),
       pageCount: toInt(row.pageCount),
       wordCount: toInt(row.wordCount),
       sourceUrl: row.sourceUrl.trim(),
@@ -117,7 +115,7 @@ export function toWriting(row: Writing): WritingRow {
   return {
     title: row.title.trim(),
     note: row.note,
-    date: toDate(row.date),
+    date: toDate(row.endDate),
     link: row.link.trim(),
     typeName: "", // 書寫不再分類型，分類一律交給主題與關鍵字
     isPrivate: row.private.trim() === PRIVATE_MARK,
@@ -132,7 +130,7 @@ export function toArticle(row: Article) {
     author: row.author.trim(),
     platform: row.platform.trim(),
     sourceUrl: row.sourceUrl.trim(),
-    endDate: toDate(row.endDate),
+    date: toDate(row.endDate),
     language: row.language.trim(),
     typeName: (row.subDomain.trim() || row.domain.trim()).trim(),
     attributeName: splitLines(row.type)[0]?.trim() ?? "",

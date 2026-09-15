@@ -70,7 +70,6 @@ export const MODULES = [
   { key: "coordinates", label: "座標", hint: "地圖上的位置", fields: ["latitude", "longitude"] },
   { key: "language", label: "語言", hint: "這一筆是什麼語言", fields: ["language"] },
   { key: "externalId", label: "外部編號", hint: "ISBN、DOI 之類", fields: ["externalId"] },
-  { key: "publisher", label: "出版社", hint: "出版社／頻道／製作單位", fields: ["publisher"] },
   { key: "platform", label: "平台", hint: "在哪讀的、在哪看的", fields: ["platform"] },
   // 一個模組兩格：主題樹有父子，領域選完次領域才知道要列哪幾個
   {

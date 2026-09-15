@@ -45,7 +45,7 @@ export function useFilteredBooks(): FilteredBooks {
   const found = allBooks.filter(
     (b) =>
       (!keyword || splitLines(b.keywords).includes(keyword)) &&
-      matchesSearch(terms, b.title, b.author, b.publisher, b.keywords, b.note),
+      matchesSearch(terms, b.title, b.author, b.platform, b.keywords, b.note),
   );
   const books = found.filter((b) => matchesStatus(b, status));
   const heading =

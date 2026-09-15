@@ -91,7 +91,7 @@ export async function addWritingRow(userId: string, writing: Writing): Promise<v
       kindId: await writingKindIdFor(tx, userId, writing.topic),
       title: writing.title,
       body: writing.note,
-      date: toDate(writing.date),
+      endDate: toDate(writing.endDate),
       coverUrl: writing.coverUrl,
     });
     await setSourceWork(tx, userId, writing.id, workId);
@@ -120,7 +120,7 @@ export async function addWritingFromValues(
       kindId,
       title: values.title ?? "",
       body: values.body ?? "",
-      date: toDate(values.endDate ?? ""),
+      endDate: toDate(values.endDate ?? ""),
       coverUrl: values.coverUrl ?? "",
     })
     .returning({ id: writings.id });
@@ -137,9 +137,9 @@ export async function updateWritingRow(
   patch: Partial<Writing>,
 ): Promise<void> {
   const values: Record<string, unknown> = {};
-  if (patch.title !== undefined) values.name = patch.title;
+  if (patch.title !== undefined) values.title = patch.title;
   if (patch.note !== undefined) values.body = patch.note;
-  if (patch.date !== undefined) values.date = toDate(patch.date);
+  if (patch.endDate !== undefined) values.endDate = toDate(patch.endDate);
   if (patch.coverUrl !== undefined) values.coverUrl = patch.coverUrl;
   const workId = patch.sourceId === undefined ? undefined : await workIdFor(userId, patch.sourceId);
 

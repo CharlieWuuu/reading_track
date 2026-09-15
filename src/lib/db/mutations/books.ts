@@ -55,7 +55,6 @@ export async function addBookRow(userId: string, book: Book): Promise<void> {
             title: book.title,
             creator: book.author,
             language: book.language,
-            source: book.publisher,
             platform: book.platform,
             externalId: book.isbn,
             coverUrl: book.coverUrl,
@@ -97,7 +96,6 @@ export async function updateBookRow(
   if (patch.isbn !== undefined) workPatch.externalId = patch.isbn;
   if (patch.coverUrl !== undefined) workPatch.coverUrl = patch.coverUrl;
   if (patch.pageCount !== undefined) workPatch.amount = toInt(patch.pageCount);
-  if (patch.publisher !== undefined) workPatch.source = patch.publisher;
   if (patch.platform !== undefined) workPatch.platform = patch.platform;
 
   const recordPatch: Record<string, unknown> = {};

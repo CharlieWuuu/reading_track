@@ -9,10 +9,10 @@
  */
 export interface Writing {
   id: string;
-  /** 記下這一則的時間（ISO）。date 只到日，同一天的先後只有它分得出來 */
+  /** 記下這一則的時間（ISO）。endDate 只到日，同一天的先後只有它分得出來 */
   createdAt: string;
-  /** 只有一個日期：這件事發生／我想到它的那天 */
-  date: string | null;
+  /** 這篇完成在哪天，跟紀錄的 endDate 同一個概念。沒寫完就留空 */
+  endDate: string | null;
   title: string;
   /** 週計劃／顯化／思緒——這件事屬於我生活的哪一塊，跟關鍵字是不同層次的分類 */
   topic: string;

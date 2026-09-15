@@ -176,12 +176,11 @@ export function BookDetailView({ recordId }: { recordId: string }) {
   const note = book.note.trim();
   const noteCount = (note ? 1 : 0) + notes.length;
 
-  // 量化資訊行：領域、子領域、頁數、出版社、平台，缺的項目自動不留空隙
+  // 量化資訊行：領域、子領域、頁數、平台，缺的項目自動不留空隙
   const quantLine = [
     book.domain,
     book.subDomain,
     formatCount(book.pageCount) && `${formatCount(book.pageCount)} 頁`,
-    book.publisher,
     book.platform,
   ]
     .filter(Boolean)

@@ -44,7 +44,7 @@ const styles = {
 const inputClass = "border-rule-strong w-full rounded-control border bg-white px-1.5 py-1 text-xs";
 
 type EditForm = {
-  date: string;
+  endDate: string;
   topic: string;
   title: string;
   keywords: string;
@@ -52,7 +52,7 @@ type EditForm = {
 
 function toEditForm(writing: Writing): EditForm {
   return {
-    date: writing.date ?? "",
+    endDate: writing.endDate ?? "",
     topic: writing.topic,
     title: writing.title,
     keywords: writing.keywords,
@@ -75,7 +75,7 @@ export function WritingTable({
 
   // 每一列屬於第幾組（＝上面換過幾次日期）。相鄰同一天的共用一個組號
   const groupIndex = writings.reduce<number[]>((acc, e, i) => {
-    const changed = i > 0 && e.date !== writings[i - 1].date;
+    const changed = i > 0 && e.endDate !== writings[i - 1].endDate;
     acc.push(i === 0 ? 0 : acc[i - 1] + (changed ? 1 : 0));
     return acc;
   }, []);
@@ -92,7 +92,7 @@ export function WritingTable({
 
   async function submit(id: string) {
     if (!form) return;
-    await save(id, { ...form, date: form.date || null });
+    await save(id, { ...form, endDate: form.endDate || null });
     setForm(null);
   }
 
@@ -128,12 +128,12 @@ export function WritingTable({
                     <input
                       type="date"
                       className={inputClass}
-                      value={form.date}
-                      onChange={(ev) => setForm({ ...form, date: ev.target.value })}
+                      value={form.endDate}
+                      onChange={(ev) => setForm({ ...form, endDate: ev.target.value })}
                       onClick={(ev) => ev.stopPropagation()}
                     />
                   ) : (
-                    shortDate(e.date) || "—"
+                    shortDate(e.endDate) || "—"
                   )}
                 </td>
                 <td className="max-w-0 overflow-hidden px-2 py-1.5">

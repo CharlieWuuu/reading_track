@@ -224,7 +224,7 @@ export function ModuleForm({
    * 新增這一筆的編號由伺服器給，所以 create 拿回傳的 id 回填，之後都是改同一筆。
    */
   const autoSave = useAutoSave({
-    ready: Boolean(values.title?.trim() || values.name?.trim() || values.body?.trim()),
+    ready: Boolean(values.title?.trim() || values.body?.trim()),
     existingId: recordId ?? "",
     payload: values,
     create: async (_id, payload) => {

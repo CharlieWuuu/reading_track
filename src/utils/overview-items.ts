@@ -43,8 +43,8 @@ export const writingItem = (writing: Writing): OverviewItem => ({
   byline: writing.note,
   href: `${"/writings/writing"}/${writing.id}`,
   coverUrl: writing.coverUrl,
-  startDate: writing.date,
-  endDate: writing.date && `${writing.date}`,
+  startDate: writing.endDate,
+  endDate: writing.endDate && `${writing.endDate}`,
   kindLabel: writing.topic,
 });
 

@@ -38,7 +38,6 @@ export async function addFragment(
         endYear: toYear(pick(values, allowed, "endYear")),
         latitude: toFloat(pick(values, allowed, "latitude")),
         longitude: toFloat(pick(values, allowed, "longitude")),
-        date: toDate(pick(values, allowed, "endDate")),
       })
       .returning({ id: fragments.id });
 

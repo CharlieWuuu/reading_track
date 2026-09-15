@@ -31,7 +31,6 @@ export function makeBook(overrides: Partial<Book> = {}): Book {
     title: "測試書名",
     author: "測試作者",
     coverUrl: "",
-    publisher: "",
     platform: "紙本",
     sourceUrl: "",
     status: "完成",
@@ -111,7 +110,7 @@ export function makeWriting(overrides: Partial<Writing> = {}): Writing {
   return {
     id: nextId("writings"),
     createdAt: "2026-01-01T00:00:00.000Z",
-    date: "2026-08-10",
+    endDate: "2026-08-10",
     title: "測試紀事",
     topic: "",
     keywords: "",

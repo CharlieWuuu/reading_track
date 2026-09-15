@@ -87,7 +87,6 @@ export async function replaceBookQuotes(
         title: item.text,
         locator: item.chapter,
         body: item.note,
-        date: item.date,
         coverUrl: item.coverUrl,
       })),
   );
@@ -114,7 +113,6 @@ export async function replaceBookVocabulary(
         context: item.sentence,
         contextTranslation: item.sentenceTranslation,
         locator: item.chapter,
-        date: item.date,
         coverUrl: item.coverUrl,
       })),
   );
@@ -159,7 +157,6 @@ export async function addQuote(userId: string, readingId: string, item: QuoteRow
       title: item.text,
       locator: item.chapter,
       body: item.note,
-      date: item.date,
       coverUrl: item.coverUrl,
     });
     if (workId) await link(tx, userId, id, workId);
@@ -186,7 +183,6 @@ export async function addVocabulary(
       context: item.sentence,
       contextTranslation: item.sentenceTranslation,
       locator: item.chapter,
-      date: item.date,
       coverUrl: item.coverUrl,
     });
     if (workId) await link(tx, userId, id, workId);

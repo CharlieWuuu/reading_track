@@ -77,10 +77,10 @@ describe("fieldsOf", () => {
   it("兩個模組指到同一欄只留一次", () => {
     const keys = fieldsOf(
       resolveFormModules([
-        { key: "publisher", label: "出版社" },
-        { key: "publisher", label: "又一個出版社" },
+        { key: "platform", label: "平台" },
+        { key: "platform", label: "又一個平台" },
       ]),
     ).map((f) => f.key);
-    expect(keys.filter((k) => k === "publisher")).toHaveLength(1);
+    expect(keys.filter((k) => k === "platform")).toHaveLength(1);
   });
 });

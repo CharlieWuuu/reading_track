@@ -10,9 +10,9 @@ import { Writing } from "@/types/writing";
 
 /** 由新到舊；沒有日期的排最後（它們多半是還沒整理的舊資料） */
 function byNewest(a: Writing, b: Writing): number {
-  if (!a.date) return 1;
-  if (!b.date) return -1;
-  return b.date.localeCompare(a.date);
+  if (!a.endDate) return 1;
+  if (!b.endDate) return -1;
+  return b.endDate.localeCompare(a.endDate);
 }
 
 /**

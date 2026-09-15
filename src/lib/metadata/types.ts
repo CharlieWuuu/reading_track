@@ -4,7 +4,6 @@ import { Book } from "@/types/book";
 export const ENRICHABLE_FIELDS = [
   "title",
   "author",
-  "publisher",
   "coverUrl",
   "language",
   "pageCount",

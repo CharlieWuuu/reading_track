@@ -45,7 +45,7 @@ export function buildMonthGrid(
 ): CalendarDay[] {
   const booksByDay = groupByDay(books, (b) => b.endDate);
   const articlesByDay = groupByDay(articles, (a) => a.endDate);
-  const writingsByDay = groupByDay(writings, (w) => w.date);
+  const writingsByDay = groupByDay(writings, (w) => w.endDate);
 
   const firstOfMonth = new Date(year, month, 1);
   const startWeekday = firstOfMonth.getDay();

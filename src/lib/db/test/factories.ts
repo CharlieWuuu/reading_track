@@ -15,7 +15,6 @@ export function makeBook(patch: Partial<Book> = {}): Book {
     createdAt: "2026-01-01T00:00:00.000Z",
     title: "資本論",
     author: "馬克思",
-    publisher: "",
     language: "中文",
     domain: "人文社科",
     subDomain: "歷史",

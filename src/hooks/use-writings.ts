@@ -18,7 +18,7 @@ import { Writing } from "@/types/writing";
 function sortWriting(writings: Writing[]): Writing[] {
   return [...writings].sort(
     (a, b) =>
-      (b.date ?? "").localeCompare(a.date ?? "") ||
+      (b.endDate ?? "").localeCompare(a.endDate ?? "") ||
       (a.createdAt ?? "").localeCompare(b.createdAt ?? ""),
   );
 }

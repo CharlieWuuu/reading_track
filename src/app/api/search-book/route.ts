@@ -5,7 +5,6 @@ export interface BookSearchResult {
   title: string;
   author: string;
   coverUrl: string;
-  publisher: string;
   language: string;
   pageCount: string;
   wordCount: string;
@@ -27,7 +26,6 @@ export async function GET(req: NextRequest) {
     title: item.title ?? "",
     author: item.author ?? "",
     coverUrl: item.coverUrl ?? "",
-    publisher: item.publisher ?? "",
     language: item.language ?? "",
     pageCount: item.pageCount ?? "",
     wordCount: item.wordCount ?? "",

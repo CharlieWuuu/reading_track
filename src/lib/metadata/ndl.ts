@@ -96,7 +96,6 @@ export const ndlProvider: MetadataProvider = {
       remember(url, {
         title,
         author: authors.join(", "),
-        publisher: item.find("dc\\:publisher").first().text().trim(),
         pageCount: extentToPageCount(item.find("dc\\:extent").first().text()),
         language: "日文",
         source: "國立國會圖書館",

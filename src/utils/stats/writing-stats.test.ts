@@ -17,7 +17,10 @@ describe("getWritingKpis", () => {
   it("沒填日期的不算", () => {
     freeze("2026-08-19T10:00:00");
 
-    const kpis = getWritingKpis([makeWriting({ date: "2026-08-01" }), makeWriting({ date: "" })]);
+    const kpis = getWritingKpis([
+      makeWriting({ endDate: "2026-08-01" }),
+      makeWriting({ endDate: "" }),
+    ]);
 
     expect(kpis).toMatchObject({ completed: 1, thisYear: 1 });
   });
@@ -25,7 +28,7 @@ describe("getWritingKpis", () => {
   it("帶時間的日期照樣算", () => {
     freeze("2026-08-19T10:00:00");
 
-    expect(getWritingKpis([makeWriting({ date: "2026-08-18 14:32" })]).completed).toBe(1);
+    expect(getWritingKpis([makeWriting({ endDate: "2026-08-18 14:32" })]).completed).toBe(1);
   });
 });
 
@@ -33,7 +36,7 @@ describe("getWritingMonthlyTrend", () => {
   it("落到月份上，空月補零", () => {
     freeze("2026-08-19T10:00:00");
 
-    expect(getWritingMonthlyTrend([makeWriting({ date: "2026-08-05" })], 2)).toEqual([
+    expect(getWritingMonthlyTrend([makeWriting({ endDate: "2026-08-05" })], 2)).toEqual([
       { month: "2026-07", count: 0 },
       { month: "2026-08", count: 1 },
     ]);

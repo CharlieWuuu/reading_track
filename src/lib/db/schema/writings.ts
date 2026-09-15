@@ -23,7 +23,8 @@ export const writings = pgTable("domain_writings", {
     .notNull()
     .references(() => kinds.id, { onDelete: "restrict" }),
   topicId: uuid("topic_id").references(() => writingTopics.id, { onDelete: "set null" }),
-  date: date("date"),
+  // 這篇完成在哪天，跟紀錄的 end_date 同一個概念。建檔日看 created_at，兩者常常不同天
+  endDate: date("end_date"),
   title: text("title").notNull().default(""),
   body: text("body").notNull().default(""), // 內文
   coverUrl: text("cover_url").notNull().default(""),

@@ -6,7 +6,6 @@ interface VolumeInfo {
   title?: string;
   subtitle?: string;
   authors?: string[];
-  publisher?: string;
   pageCount?: number;
   language?: string;
   imageLinks?: { thumbnail?: string; smallThumbnail?: string };
@@ -55,7 +54,6 @@ function toMetadata(info: VolumeInfo, url: string): BookMetadata {
   return {
     title: info.title ?? "",
     author: info.authors?.join(", ") ?? "",
-    publisher: info.publisher ?? "",
     pageCount: info.pageCount ? String(info.pageCount) : "",
     language: info.language ? (LANGUAGE_NAMES[info.language] ?? "") : "",
     isbn: pickIsbn(info.industryIdentifiers),

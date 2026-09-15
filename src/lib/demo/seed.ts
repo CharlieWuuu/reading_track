@@ -255,7 +255,7 @@ export async function seedDemo(email: string): Promise<string> {
         title,
         creator: author,
         language: "中文",
-        source: publisher,
+        platform: publisher,
         topicId: typeId.get(subDomain ? `${domain}/${subDomain}` : domain) ?? null,
         attributeId: attributeId.get(attribute) ?? null,
         amount: 200 + ((i * 37) % 300),
@@ -307,7 +307,7 @@ export async function seedDemo(email: string): Promise<string> {
         kindId: writingKindId,
         title,
         body: NOTES[title] ?? "",
-        date: daysAgo(300 - i * 25),
+        endDate: daysAgo(300 - i * 25),
       })
       .returning({ id: writings.id });
 

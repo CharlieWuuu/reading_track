@@ -40,7 +40,7 @@ async function toArticles(userId: string, rows: ArticleJoinRow[]): Promise<Artic
       createdAt: record.createdAt.toISOString(),
       title: work.title,
       author: work.creator,
-      platform: work.source,
+      platform: work.platform,
       sourceUrl: sourceUrls.get(record.id) ?? "",
       endDate: record.endDate,
       domain: type?.domain ?? "",

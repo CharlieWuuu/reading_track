@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { fragments } from "@/lib/db/schema/fragments";
 import { kinds } from "@/lib/db/schema/kinds";
@@ -70,13 +70,13 @@ export async function listQuoteRows(userId: string): Promise<QuoteRow[]> {
       text: fragment.title,
       chapter: fragment.locator,
       note: fragment.body,
-      date: fragment.date,
+      date: fragment.createdAt.toISOString().slice(0, 10),
       coverUrl: fragment.coverUrl,
     };
   });
 }
 
-type FragmentCursor = { date: string | null; id: string };
+type FragmentCursor = { createdAt: string; id: string };
 
 export type PagedQuoteRows = {
   rows: QuoteRow[];
@@ -93,11 +93,10 @@ export type PagedVocabularyRows = {
 };
 
 /**
- * 分頁版的一批片段，date 新到舊、沒填日期的排最後（NULLS LAST）。
+ * 分頁版的一批片段，建檔時間新到舊。
  *
- * date 可能是 null，一般的 (date, id) tuple keyset 沒辦法直接處理 null 比較，
- * 拆成兩段：游標本身有日期時，「日期更小」或「同日期但 id 更小」或「沒填日期的」
- * 都算後面；游標本身就在沒填日期那一段時，只剩「沒填日期且 id 更小」算後面。
+ * created_at 是 NOT NULL，(created_at, id) 直接就是一組完整的 keyset——
+ * 抄下一句話沒有起訖，片段本來就沒有自己的日期欄。
  */
 async function pagedRowsOfKind(
   userId: string,
@@ -107,13 +106,10 @@ async function pagedRowsOfKind(
   const after = decodeCursor<FragmentCursor>(cursor);
 
   const keysetCondition = after
-    ? after.date !== null
-      ? or(
-          sql`${fragments.date} < ${after.date}`,
-          and(eq(fragments.date, after.date), sql`${fragments.id} < ${after.id}`),
-          isNull(fragments.date),
-        )
-      : and(isNull(fragments.date), sql`${fragments.id} < ${after.id}`)
+    ? or(
+        sql`${fragments.createdAt} < ${after.createdAt}`,
+        and(eq(fragments.createdAt, new Date(after.createdAt)), sql`${fragments.id} < ${after.id}`),
+      )
     : undefined;
 
   const [rows, [{ count }]] = await Promise.all([
@@ -122,7 +118,7 @@ async function pagedRowsOfKind(
       .from(fragments)
       .innerJoin(kinds, eq(kinds.id, fragments.kindId))
       .where(and(eq(fragments.userId, userId), eq(kinds.name, kindName), keysetCondition))
-      .orderBy(sql`${fragments.date} DESC NULLS LAST`, desc(fragments.id))
+      .orderBy(desc(fragments.createdAt), desc(fragments.id))
       .limit(limit + 1),
     db
       .select({ count: sql<number>`count(*)::int` })
@@ -136,7 +132,10 @@ async function pagedRowsOfKind(
   const last = page.at(-1);
   const nextCursor =
     hasMore && last
-      ? encodeCursor({ date: last.fragment.date, id: last.fragment.id } satisfies FragmentCursor)
+      ? encodeCursor({
+          createdAt: last.fragment.createdAt.toISOString(),
+          id: last.fragment.id,
+        } satisfies FragmentCursor)
       : null;
 
   return { page, nextCursor, hasMore, total: count };
@@ -165,7 +164,7 @@ export async function listDoneQuoteRows(
         text: fragment.title,
         chapter: fragment.locator,
         note: fragment.body,
-        date: fragment.date,
+        date: fragment.createdAt.toISOString().slice(0, 10),
         coverUrl: fragment.coverUrl,
       };
     }),
@@ -203,7 +202,7 @@ export async function listDoneVocabularyRows(
         chapter: fragment.locator,
         language: "",
         createdAt: fragment.createdAt.toISOString(),
-        date: fragment.date,
+        date: fragment.createdAt.toISOString().slice(0, 10),
         coverUrl: fragment.coverUrl,
       };
     }),
@@ -237,7 +236,7 @@ export async function listVocabularyRows(userId: string): Promise<VocabularyRow[
       chapter: fragment.locator,
       language: "", // 語言在作品那一層，單字自己不帶
       createdAt: fragment.createdAt.toISOString(),
-      date: fragment.date,
+      date: fragment.createdAt.toISOString().slice(0, 10),
       coverUrl: fragment.coverUrl,
     };
   });

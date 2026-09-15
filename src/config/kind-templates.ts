@@ -33,7 +33,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
       ...RECORD_BASE,
       "cover",
       "amount",
-      "publisher",
       "externalId",
       "language",
       "platform",
@@ -47,8 +46,8 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "records",
     name: "文章",
     amountUnit: "字",
-    modules: [...RECORD_BASE, "amount", "publisher", "language", "topic", "attribute"],
-    labels: { creator: "作者", amount: "字數", publisher: "媒體" },
+    modules: [...RECORD_BASE, "amount", "platform", "language", "topic", "attribute"],
+    labels: { creator: "作者", amount: "字數", platform: "媒體" },
   },
   {
     key: "movie",

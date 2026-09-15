@@ -66,7 +66,7 @@ const toRecordRow = ({
   createdAt: record.createdAt.toISOString(),
   amount: work.amount,
   amountUnit: kind.amountUnit,
-  source: work.source,
+  source: work.platform,
   coverUrl: work.coverUrl,
   isPrivate: record.isPrivate,
 });
@@ -234,7 +234,7 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
       note: fragment.body,
       context: fragment.context,
       pronunciation: fragment.pronunciation,
-      date: fragment.date,
+      date: fragment.createdAt.toISOString().slice(0, 10),
       createdAt: fragment.createdAt.toISOString(),
       // 佳句、單字沒填示意圖就用出處的封面——那句話本來就長在那本書上。
       // 關鍵字不退：一個詞不屬於任何一本書，掛書封只是誤導
@@ -274,7 +274,7 @@ export async function listFragmentsByKind(userId: string, kindId: string): Promi
       note: fragment.body,
       context: fragment.context,
       pronunciation: fragment.pronunciation,
-      date: fragment.date,
+      date: fragment.createdAt.toISOString().slice(0, 10),
       createdAt: fragment.createdAt.toISOString(),
       // 佳句、單字沒填示意圖就用出處的封面——那句話本來就長在那本書上。
       // 關鍵字不退：一個詞不屬於任何一本書，掛書封只是誤導
@@ -310,7 +310,7 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       note: writing.note,
       context: "", // 書寫沒有例句這回事
       pronunciation: "",
-      date: writing.date,
+      date: writing.endDate,
       createdAt: writing.createdAt,
       coverUrl: writing.coverUrl,
     }))
@@ -366,7 +366,6 @@ export async function getRecordValues(
       startDate: record.startDate ?? "",
       endDate: record.endDate ?? "",
       amount: work.amount?.toString() ?? "",
-      publisher: work.source,
       platform: work.platform,
       externalId: work.externalId,
       externalUrl: await sourceUrlOfRecord(userId, id),
@@ -441,7 +440,7 @@ export async function getWritingValues(
     values: {
       title: row.title,
       body: row.body,
-      endDate: row.date ?? "",
+      endDate: row.endDate ?? "",
       coverUrl: row.coverUrl,
     },
   };
@@ -474,7 +473,6 @@ export async function getFragmentValues(
       endYear: row.endYear?.toString() ?? "",
       latitude: row.latitude?.toString() ?? "",
       longitude: row.longitude?.toString() ?? "",
-      endDate: row.date ?? "",
       externalUrl: await sourceUrlOfFragment(userId, id),
       coverUrl: row.coverUrl,
     },

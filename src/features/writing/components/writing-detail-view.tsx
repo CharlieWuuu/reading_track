@@ -36,7 +36,7 @@ export function WritingDetailView({ recordId }: { recordId: string }) {
             <div className="flex flex-col gap-6">
               <DetailFields>
                 <div>
-                  <DetailField label="日期">{writing.date}</DetailField>
+                  <DetailField label="日期">{writing.endDate}</DetailField>
                   {writing.topic && (
                     <DetailField label="主題">
                       <span className={`${KIND_TAG} ${tagColorClass(writing.topic, [])}`}>

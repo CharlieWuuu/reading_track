@@ -62,7 +62,6 @@ export async function listBooks(userId: string): Promise<Book[]> {
       title: work.title,
       author: work.creator,
       coverUrl: work.coverUrl,
-      publisher: work.source,
       isbn: work.externalId,
       platform: work.platform,
       sourceUrl: sourceUrls.get(record.id) ?? "",

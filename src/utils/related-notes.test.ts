@@ -7,18 +7,18 @@ beforeEach(resetIds);
 describe("notesForSource", () => {
   it("重讀的兩列是兩個編號，心得要一起看得到", () => {
     const writings = [
-      makeWriting({ sourceId: "book-1", date: "2026-01-01" }),
-      makeWriting({ sourceId: "book-2", date: "2026-05-01" }),
-      makeWriting({ sourceId: "book-9", date: "2026-06-01" }),
+      makeWriting({ sourceId: "book-1", endDate: "2026-01-01" }),
+      makeWriting({ sourceId: "book-2", endDate: "2026-05-01" }),
+      makeWriting({ sourceId: "book-9", endDate: "2026-06-01" }),
     ];
     expect(notesForSource(writings, ["book-1", "book-2"])).toHaveLength(2);
   });
 
   it("由新到舊，沒有日期的排最後", () => {
     const writings = [
-      makeWriting({ sourceId: "b", date: null, title: "沒日期" }),
-      makeWriting({ sourceId: "b", date: "2026-01-01", title: "舊" }),
-      makeWriting({ sourceId: "b", date: "2026-08-01", title: "新" }),
+      makeWriting({ sourceId: "b", endDate: null, title: "沒日期" }),
+      makeWriting({ sourceId: "b", endDate: "2026-01-01", title: "舊" }),
+      makeWriting({ sourceId: "b", endDate: "2026-08-01", title: "新" }),
     ];
     expect(notesForSource(writings, ["b"]).map((w) => w.title)).toEqual(["新", "舊", "沒日期"]);
   });

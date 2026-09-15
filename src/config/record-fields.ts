@@ -44,7 +44,6 @@ export const RECORD_FIELDS = [
   { key: "startDate", layer: "record", type: "date", defaultLabel: "開始" },
   { key: "endDate", layer: "record", type: "date", defaultLabel: "結束" },
   { key: "amount", layer: "record", type: "number", defaultLabel: "份量" },
-  { key: "publisher", layer: "work", type: "text", defaultLabel: "出版社" },
   { key: "platform", layer: "work", type: "text", defaultLabel: "平台" },
   { key: "externalUrl", layer: "externalLink", type: "url", defaultLabel: "外部連結" },
   { key: "externalId", layer: "work", type: "text", defaultLabel: "外部編號" },
@@ -52,7 +51,6 @@ export const RECORD_FIELDS = [
   { key: "coverUrl", layer: "work", type: "image", defaultLabel: "封面" },
   { key: "isPrivate", layer: "record", type: "flag", defaultLabel: "私人" },
   // 片段：佳句、單字、關鍵字共用這幾欄，用不到的類型設成不顯示
-  { key: "name", layer: "fragment", type: "text", defaultLabel: "名稱" },
   { key: "body", layer: "fragment", type: "longText", defaultLabel: "內文" },
   { key: "locator", layer: "fragment", type: "text", defaultLabel: "章節" },
   { key: "pronunciation", layer: "fragment", type: "text", defaultLabel: "發音" },

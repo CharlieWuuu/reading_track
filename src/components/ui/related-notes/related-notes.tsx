@@ -36,7 +36,7 @@ export function RelatedNotes({
         <Link key={note.id} href={writingHref(note.id)} className={styles.row}>
           <span className={styles.head}>
             <span className={styles.title}>{note.title || "（沒有標題）"}</span>
-            <span className={styles.meta}>{shortDate(note.date)}</span>
+            <span className={styles.meta}>{shortDate(note.endDate)}</span>
           </span>
           {note.note.trim() && <span className={styles.note}>{note.note}</span>}
         </Link>

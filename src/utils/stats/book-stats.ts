@@ -273,13 +273,13 @@ export interface RankingItem extends DistributionSlice {
 }
 
 /**
- * 出版社／作者／重讀排行：只有累積 2 本（次）以上的才上榜——出現一次的佔了長尾的
+ * 平台／作者／重讀排行：只有累積 2 本（次）以上的才上榜——出現一次的佔了長尾的
  * 絕大多數，全列出來只是把圖表塞滿無法比較的長條。
  */
-export function getPublisherRanking(books: Book[], limit = 5): RankingItem[] {
+export function getPlatformRanking(books: Book[], limit = 5): RankingItem[] {
   return rank(
     completedBooks(books).map((b) => ({
-      names: b.publisher.trim() ? [b.publisher.trim()] : [],
+      names: b.platform.trim() ? [b.platform.trim()] : [],
       book: b,
     })),
     limit,

@@ -59,7 +59,7 @@ export function RelatedWriting({
             <Link key={e.id} href={writingEditHref(e.id)} className={styles.row}>
               <div className={styles.head}>
                 <span className={styles.title}>{e.title}</span>
-                {e.date && <span className={styles.date}>{e.date}</span>}
+                {e.endDate && <span className={styles.date}>{e.endDate}</span>}
               </div>
               {/* 類型不畫：這一區底下的每一則都是同一種，標了也分不出誰是誰 */}
               <span className={styles.excerpt}>{e.note.split(/\r?\n/)[0]}</span>

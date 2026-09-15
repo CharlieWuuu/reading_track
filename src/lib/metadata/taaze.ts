@@ -79,7 +79,6 @@ export const taazeProvider: MetadataProvider = {
         .map((_, a) => $(a).text().trim())
         .get()
         .join(", "),
-      publisher: info.get("出版社") ?? "",
       language: normalizeLanguage(info.get("語言") ?? ""),
       pageCount: digitsOnly(info.get("頁數") ?? ""),
       isbn: normalizeIsbn(info.get("ISBN") ?? info.get("EISBN") ?? ""),

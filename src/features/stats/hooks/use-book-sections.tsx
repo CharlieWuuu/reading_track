@@ -19,7 +19,7 @@ import {
   getLanguageDistribution,
   getMonthlyTrend,
   getPlatformDistribution,
-  getPublisherRanking,
+  getPlatformRanking,
   getQuarterlyTrend,
   getRereadRanking,
   getTypeDistribution,
@@ -50,7 +50,7 @@ export function useBookSections(books: Book[], quotes: QuoteRow[]): Section[] {
     const rankings = [
       reread,
       { key: "author", label: "常讀作者 Top 5", data: getAuthorRanking(books), unit: "本" },
-      { key: "publisher", label: "常讀出版社 Top 5", data: getPublisherRanking(books), unit: "本" },
+      { key: "platform", label: "常讀平台 Top 5", data: getPlatformRanking(books), unit: "本" },
     ];
 
     /**

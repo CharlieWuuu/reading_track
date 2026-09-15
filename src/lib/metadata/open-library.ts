@@ -5,7 +5,6 @@ import { BookMetadata, Candidate, MetadataProvider } from "./types";
 interface OpenLibraryDoc {
   title?: string;
   author_name?: string[];
-  publisher?: string[];
   number_of_pages_median?: number;
   language?: string[];
   cover_i?: number;
@@ -23,7 +22,6 @@ const LANGUAGE_NAMES: Record<string, string> = {
 const SEARCH_FIELDS = [
   "title",
   "author_name",
-  "publisher",
   "number_of_pages_median",
   "language",
   "cover_i",
@@ -50,7 +48,6 @@ function toMetadata(doc: OpenLibraryDoc, url: string): BookMetadata {
   return {
     title: doc.title ?? "",
     author: doc.author_name?.join(", ") ?? "",
-    publisher: doc.publisher?.[0] ?? "",
     pageCount: doc.number_of_pages_median ? String(doc.number_of_pages_median) : "",
     language: doc.language?.length ? (LANGUAGE_NAMES[doc.language[0]] ?? "") : "",
     // 一筆 work 底下所有版本的號碼都在這，13 碼優先（都是同一部作品的不同版本）

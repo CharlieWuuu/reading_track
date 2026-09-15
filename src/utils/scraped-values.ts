@@ -4,13 +4,12 @@ import { Book } from "@/types/book";
  * 爬回來的書籍資料換成通用表單的欄位鍵。
  *
  * 爬蟲回的是 Book 那套舊欄名（author／publisher／isbn），通用表單認的是
- * 欄位庫那套（creator／publisher／externalId）——兩邊對照寫在這裡一份，
+ * 欄位庫那套（creator／externalId）——兩邊對照寫在這裡一份，
  * 不散在呼叫端。
  */
 const BOOK_TO_FIELD: Record<string, string> = {
   title: "title",
   author: "creator",
-  publisher: "publisher",
   isbn: "externalId",
   coverUrl: "coverUrl",
   language: "language",

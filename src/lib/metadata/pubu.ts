@@ -8,7 +8,6 @@ interface BookJsonLd {
   "@type"?: string;
   name?: string;
   author?: string;
-  publisher?: string;
   inLanguage?: string;
   image?: string;
 }
@@ -132,7 +131,6 @@ export const pubuProvider: MetadataProvider = {
       pageCount: pick(specs, ["頁數", "Pages"]),
       isbn: normalizeIsbn(pick(specs, ["ISBN", "EISBN"])),
       author: data.author?.trim() ?? "",
-      publisher: data.publisher?.trim() ?? "",
       language: data.inLanguage
         ? (LANGUAGE_BY_TAG[data.inLanguage] ?? normalizeLanguage(data.inLanguage))
         : "",

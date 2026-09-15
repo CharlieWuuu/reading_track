@@ -1,17 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { fillFromBook } from "./scraped-values";
 
-const ALL = new Set(["title", "creator", "publisher", "externalId", "coverUrl", "amount"]);
+const ALL = new Set(["title", "creator", "externalId", "coverUrl", "amount"]);
 
 describe("fillFromBook", () => {
   it("爬回來的舊欄名換成表單認得的欄位鍵", () => {
-    const { values } = fillFromBook(
-      {},
-      { author: "村上春樹", publisher: "時報", isbn: "978" },
-      ALL,
-    );
+    const { values } = fillFromBook({}, { author: "村上春樹", isbn: "978" }, ALL);
     expect(values.creator).toBe("村上春樹");
-    expect(values.publisher).toBe("時報");
     expect(values.externalId).toBe("978");
   });
 
@@ -28,7 +23,7 @@ describe("fillFromBook", () => {
   });
 
   it("空字串不算抓到", () => {
-    const { filled } = fillFromBook({}, { author: "  ", publisher: "" }, ALL);
+    const { filled } = fillFromBook({}, { author: "  " }, ALL);
     expect(filled).toBe(0);
   });
 

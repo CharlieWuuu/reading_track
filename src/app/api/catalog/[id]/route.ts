@@ -75,7 +75,7 @@ export const PATCH = guarded(
         await updateWritingRow(session.user.id, id, {
           title: values.title,
           note: values.body,
-          date: values.endDate,
+          endDate: values.endDate,
           coverUrl: values.coverUrl,
         });
       }
