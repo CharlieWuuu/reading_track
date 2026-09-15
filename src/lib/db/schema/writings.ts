@@ -1,6 +1,5 @@
 import { date, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { kinds } from "./kinds";
-import { writingTopics } from "./taxonomy";
 import { users } from "./users";
 
 /**
@@ -8,9 +7,6 @@ import { users } from "./users";
  *
  * 出處（這則延伸自哪本書）走 links_internal，跟關鍵字同一張表——
  * 舊的 work_id 欄還在資料庫裡，但已經沒人讀寫，等著改名退休。
- *
- * topic_id 指向 writing_topics——書寫自己的主題樹（思緒、工作），
- * 跟書/文章的 record_topics 是兩棵不相干的樹。
  *
  * 外部連結（發布網址）走 external_links，掛在自己的 writing_id 欄位上。
  */
@@ -22,7 +18,6 @@ export const writings = pgTable("domain_writings", {
   kindId: uuid("kind_id")
     .notNull()
     .references(() => kinds.id, { onDelete: "restrict" }),
-  topicId: uuid("topic_id").references(() => writingTopics.id, { onDelete: "set null" }),
   // 這篇完成在哪天，跟紀錄的 end_date 同一個概念。建檔日看 created_at，兩者常常不同天
   endDate: date("end_date"),
   title: text("title").notNull().default(""),

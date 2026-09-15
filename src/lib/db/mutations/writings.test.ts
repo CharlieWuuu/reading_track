@@ -48,7 +48,6 @@ describe("addWritingRow", () => {
     const [row] = await db.select().from(writings).where(eq(writings.id, writing.id));
     const [kind] = await db.select().from(kinds).where(eq(kinds.id, row.kindId));
     expect(kind.name).toBe("思緒");
-    expect(row.topicId).toBeNull(); // 主題那層不再參與分類
   });
 
   it("沒給類型就當心得", async () => {

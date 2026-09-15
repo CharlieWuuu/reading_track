@@ -12,8 +12,8 @@ import { users } from "./users";
 /**
  * 主題樹。書、文章共用同一套分類——子類型就是子節點，深度不限兩層。
  *
- * 書寫有自己獨立的一份（見 writingTopics），不跟這裡混在一起：
- * 兩邊的樹是不同的分類體系，共用一張表反而看不出誰是誰的。
+ * 書寫沒有主題：那套分類後來整個變成 kind（思緒、工作、隨筆都是類型了），
+ * 舊的 writing_topic 表 71 筆全沒指過，已經退休。
  */
 export const recordTopics = pgTable("domain_record_topic", {
   userId: uuid("user_id")
@@ -23,22 +23,6 @@ export const recordTopics = pgTable("domain_record_topic", {
   parentId: uuid("parent_id").references((): AnyPgColumn => recordTopics.id, {
     onDelete: "cascade",
   }), // 刪掉一個類型，底下的子類型跟著走
-  name: text("name").notNull(),
-  isPrivate: boolean("is_private").notNull().default(false),
-});
-
-/**
- * 書寫的主題樹。跟書/文章那份（recordTopics）結構一樣，但是獨立的分類體系——
- * 「思緒」「工作」這種書寫主題跟「文學」「歷史」這種書籍分類是兩回事。
- */
-export const writingTopics = pgTable("domain_writing_topic", {
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  id: uuid("id").primaryKey().defaultRandom(),
-  parentId: uuid("parent_id").references((): AnyPgColumn => writingTopics.id, {
-    onDelete: "cascade",
-  }),
   name: text("name").notNull(),
   isPrivate: boolean("is_private").notNull().default(false),
 });

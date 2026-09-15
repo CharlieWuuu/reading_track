@@ -78,6 +78,13 @@
       "when": 1789485500000,
       "tag": "0010_example",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1789486000000,
+      "tag": "0011_drop_writing_topic",
+      "breakpoints": true
     }
   ]
 }
