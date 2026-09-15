@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { CategorySelect } from "@/components/ui/category-select";
 import { ContentLinkInput } from "@/components/ui/content-link-input";
 import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
@@ -32,6 +33,18 @@ const INPUT_TYPE: Partial<Record<FieldDef["type"], string>> = {
   longText: "textarea", // 內文、例句這種，畫成單行根本寫不完
 };
 
+/**
+ * 選單型欄位對到 useCategories 的哪一組選項。
+ *
+ * 選項不是另外維護的清單，是從既有資料 group 出來的，所以值存名字不是編號——
+ * 換成 topic_id／attribute_id 是寫入那一層的事（見 mutations/taxonomy）。
+ */
+const CATEGORY_KEY: Partial<Record<FieldDef["type"], "domain" | "subDomain" | "type">> = {
+  topic: "domain",
+  topicChild: "subDomain",
+  attribute: "type",
+};
+
 function ModuleFields({
   module,
   values,
@@ -56,6 +69,16 @@ function ModuleFields({
             label={index === 0 ? module.label : field.defaultLabel}
             value={values[field.key] ?? ""}
             onChange={(value) => onChange(field.key, value)}
+          />
+        ) : CATEGORY_KEY[field.type] ? (
+          <CategorySelect
+            key={field.key}
+            label={index === 0 ? module.label : field.defaultLabel}
+            categoryKey={CATEGORY_KEY[field.type]!}
+            value={values[field.key] ?? ""}
+            onChange={(value) => onChange(field.key, value)}
+            // 次領域只列選到的那個領域底下的；領域還沒選就列全部
+            parentValue={field.type === "topicChild" ? values.domain : undefined}
           />
         ) : (
           <Field

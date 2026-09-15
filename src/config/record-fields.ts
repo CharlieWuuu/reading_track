@@ -12,7 +12,7 @@
 export type FieldLayer = "work" | "record" | "fragment" | "externalLink";
 
 export type FieldType =
-  "text" | "longText" | "date" | "number" | "url" | "flag" | "topic" | "attribute";
+  "text" | "longText" | "date" | "number" | "url" | "flag" | "topic" | "topicChild" | "attribute";
 
 export type FieldDef = {
   key: string;
@@ -26,7 +26,10 @@ export type FieldDef = {
 export const RECORD_FIELDS = [
   { key: "title", layer: "work", type: "text", defaultLabel: "標題" },
   { key: "creator", layer: "work", type: "text", defaultLabel: "創作者" },
-  { key: "topicId", layer: "work", type: "topic", defaultLabel: "主題" },
+  // 主題樹在表單上是兩格：領域挑父節點、次領域挑它底下的子節點。
+  // 存的時候兩個一起換成 topic_id 那一個編號（見 mutations/taxonomy 的 typeIdFor）
+  { key: "domain", layer: "work", type: "topic", defaultLabel: "領域" },
+  { key: "subDomain", layer: "work", type: "topicChild", defaultLabel: "次領域" },
   { key: "attributeId", layer: "work", type: "attribute", defaultLabel: "屬性" },
   { key: "language", layer: "work", type: "text", defaultLabel: "語言" },
   { key: "startDate", layer: "record", type: "date", defaultLabel: "開始" },

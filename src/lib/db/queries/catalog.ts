@@ -3,6 +3,7 @@ import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
 import { fragments } from "@/lib/db/schema/fragments";
 import { kinds } from "@/lib/db/schema/kinds";
+import { attributes, recordTopics } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
 import { inferStatusKey } from "@/types/book";
@@ -348,6 +349,11 @@ export async function getRecordValues(
   if (!row) return null;
 
   const { record, work } = row;
+  const [topic, attribute] = await Promise.all([
+    topicNamesOf(userId, work.topicId),
+    attributeNameOf(userId, work.attributeId),
+  ]);
+
   return {
     kindId: work.kindId,
     values: {
@@ -363,8 +369,47 @@ export async function getRecordValues(
       sourceUrl: await sourceUrlOfRecord(userId, id),
       coverUrl: work.coverUrl,
       isPrivate: record.isPrivate ? "是" : "",
+      // 表單的選單認名字不認編號（選項是從既有資料 group 出來的）
+      domain: topic.domain,
+      subDomain: topic.subDomain,
+      attributeId: attribute,
     },
   };
+}
+
+/**
+ * topic_id 拆回表單上那兩格。
+ *
+ * 主題樹只有兩層：指到子節點就是「領域＝父、次領域＝自己」，
+ * 指到父節點就是只填了領域。
+ */
+async function topicNamesOf(
+  userId: string,
+  topicId: string | null,
+): Promise<{ domain: string; subDomain: string }> {
+  if (!topicId) return { domain: "", subDomain: "" };
+
+  const [node] = await db
+    .select({ name: recordTopics.name, parentId: recordTopics.parentId })
+    .from(recordTopics)
+    .where(and(eq(recordTopics.userId, userId), eq(recordTopics.id, topicId)));
+  if (!node) return { domain: "", subDomain: "" };
+  if (!node.parentId) return { domain: node.name, subDomain: "" };
+
+  const [parent] = await db
+    .select({ name: recordTopics.name })
+    .from(recordTopics)
+    .where(and(eq(recordTopics.userId, userId), eq(recordTopics.id, node.parentId)));
+  return { domain: parent?.name ?? "", subDomain: node.name };
+}
+
+async function attributeNameOf(userId: string, attributeId: string | null): Promise<string> {
+  if (!attributeId) return "";
+  const [row] = await db
+    .select({ name: attributes.name })
+    .from(attributes)
+    .where(and(eq(attributes.userId, userId), eq(attributes.id, attributeId)));
+  return row?.name ?? "";
 }
 
 /** 片段與書寫的單筆。欄位名跟紀錄那邊不一樣，攤平時一起對回模組認得的鍵 */

@@ -63,6 +63,14 @@ export const MODULES = [
   // key 不叫 source：那個給了「出處」那個關聯模組，這裡是自己打字的欄位
   { key: "publisher", label: "出版社", hint: "出版社／頻道／製作單位", fields: ["source"] },
   { key: "platform", label: "平台", hint: "在哪讀的、在哪看的", fields: ["platform"] },
+  // 一個模組兩格：主題樹有父子，領域選完次領域才知道要列哪幾個
+  {
+    key: "topic",
+    label: "領域",
+    hint: "為什麼讀這一筆，含次領域",
+    fields: ["domain", "subDomain"],
+  },
+  { key: "attribute", label: "屬性", hint: "小說／論述／散文這種分法", fields: ["attributeId"] },
 ] as const satisfies readonly ModuleDef[];
 
 export type ModuleKey = (typeof MODULES)[number]["key"];

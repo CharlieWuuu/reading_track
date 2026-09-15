@@ -4,6 +4,7 @@ import { db } from "@/lib/db/client";
 import { mapKindField } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
 import { setRecordSourceUrl } from "./external-links";
+import { attributeIdFor, typeIdFor } from "./taxonomy";
 import { toDate, toInt } from "./values";
 
 /**
@@ -53,6 +54,14 @@ export async function addRecord(
         externalId: pick(values, allowed, "externalId"),
         coverUrl: pick(values, allowed, "coverUrl"),
         amount: toInt(pick(values, allowed, "amount")),
+        // 選單存的是名字，這裡換成編號；沒有的分類順手建起來
+        topicId: await typeIdFor(
+          tx,
+          userId,
+          pick(values, allowed, "domain"),
+          pick(values, allowed, "subDomain"),
+        ),
+        attributeId: await attributeIdFor(tx, userId, pick(values, allowed, "attributeId")),
       })
       .returning({ id: works.id });
 
@@ -101,6 +110,12 @@ export async function updateRecord(userId: string, id: string, values: FieldValu
   if (has("isPrivate")) recordPatch.isPrivate = values.isPrivate === "是";
 
   await db.transaction(async (tx) => {
+    // 分類要在交易裡換編號：沒有的順手建，跟這次更新同生共死
+    if (has("domain") || has("subDomain"))
+      workPatch.topicId = await typeIdFor(tx, userId, values.domain ?? "", values.subDomain ?? "");
+    if (has("attributeId"))
+      workPatch.attributeId = await attributeIdFor(tx, userId, values.attributeId);
+
     if (Object.keys(workPatch).length)
       await tx.update(works).set(workPatch).where(eq(works.id, target.workId));
     if (Object.keys(recordPatch).length)
