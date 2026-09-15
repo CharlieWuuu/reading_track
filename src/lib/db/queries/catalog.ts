@@ -358,6 +358,7 @@ export async function getRecordValues(
       endDate: record.endDate ?? "",
       amount: work.amount?.toString() ?? "",
       source: work.source,
+      platform: work.platform,
       externalId: work.externalId,
       sourceUrl: await sourceUrlOfRecord(userId, id),
       coverUrl: work.coverUrl,

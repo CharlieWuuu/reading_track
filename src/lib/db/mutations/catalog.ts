@@ -49,6 +49,7 @@ export async function addRecord(
         creator: pick(values, allowed, "creator"),
         language: pick(values, allowed, "language"),
         source: pick(values, allowed, "source"),
+        platform: pick(values, allowed, "platform"),
         externalId: pick(values, allowed, "externalId"),
         coverUrl: pick(values, allowed, "coverUrl"),
         amount: toInt(pick(values, allowed, "amount")),
@@ -89,6 +90,7 @@ export async function updateRecord(userId: string, id: string, values: FieldValu
   if (has("creator")) workPatch.creator = values.creator;
   if (has("language")) workPatch.language = values.language;
   if (has("source")) workPatch.source = values.source;
+  if (has("platform")) workPatch.platform = values.platform;
   if (has("externalId")) workPatch.externalId = values.externalId;
   if (has("coverUrl")) workPatch.coverUrl = values.coverUrl;
   if (has("amount")) workPatch.amount = toInt(values.amount);

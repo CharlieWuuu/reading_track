@@ -33,6 +33,7 @@ export const RECORD_FIELDS = [
   { key: "endDate", layer: "record", type: "date", defaultLabel: "結束" },
   { key: "amount", layer: "record", type: "number", defaultLabel: "份量" },
   { key: "source", layer: "work", type: "text", defaultLabel: "來源" },
+  { key: "platform", layer: "work", type: "text", defaultLabel: "平台" },
   { key: "sourceUrl", layer: "externalLink", type: "url", defaultLabel: "連結" },
   { key: "externalId", layer: "work", type: "text", defaultLabel: "外部編號" },
   { key: "coverUrl", layer: "work", type: "url", defaultLabel: "封面" },

@@ -60,6 +60,9 @@ export const MODULES = [
   { key: "wiki", label: "維基連結", hint: "條目網址", fields: ["wikiUrl"] },
   { key: "language", label: "語言", hint: "這一筆是什麼語言", fields: ["language"] },
   { key: "externalId", label: "外部編號", hint: "ISBN、DOI 之類", fields: ["externalId"] },
+  // key 不叫 source：那個給了「出處」那個關聯模組，這裡是自己打字的欄位
+  { key: "publisher", label: "出版社", hint: "出版社／頻道／製作單位", fields: ["source"] },
+  { key: "platform", label: "平台", hint: "在哪讀的、在哪看的", fields: ["platform"] },
 ] as const satisfies readonly ModuleDef[];
 
 export type ModuleKey = (typeof MODULES)[number]["key"];

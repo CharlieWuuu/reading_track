@@ -37,31 +37,20 @@ for (const block of source.split(/\n  \{\n/).slice(1)) {
  * setting_map_kind_field.field_key 存的是**模組名**不是欄位名——resolveFormModules
  * 拿它去查 moduleDef，查不到就整個丟掉。第一版腳本補了欄位名，那些是查不到的垃圾。
  */
-const LABELS = {
-  title: "標題",
-  creator: "作者／來源人",
-  longText: "長文",
-  oneLine: "一句話",
-  gloss: "解釋",
-  source: "出處",
-  locator: "位置",
-  cover: "封面圖",
-  link: "外部連結",
-  progress: "狀態",
-  date: "單一日期",
-  keywords: "關鍵字",
-  amount: "量＋單位",
-  private: "私人",
-  pronunciation: "發音",
-  context: "例句",
-  contextTranslation: "例句翻譯",
-  tags: "標籤",
-  span: "起訖",
-  coordinates: "座標",
-  wiki: "維基連結",
-  language: "語言",
-  externalId: "外部編號",
-};
+/** 跟範本一樣從原始檔讀，不在這裡抄第二份——抄的那份漏掉新模組時，
+ *  新模組會被當成「查不到的垃圾」刪掉，而且刪得無聲無息 */
+const LABELS = Object.fromEntries(
+  [...readFileSync("src/config/modules.ts", "utf8").matchAll(/key: "([^"]+)", label: "([^"]+)"/g)]
+    .map((m) => [m[1], m[2]])
+    .concat(
+      [
+        ...readFileSync("src/config/modules.ts", "utf8").matchAll(
+          /\{\s*\n\s*key: "([^"]+)",\s*\n\s*label: "([^"]+)"/g,
+        ),
+      ].map((m) => [m[1], m[2]]),
+    ),
+);
+if (Object.keys(LABELS).length < 20) throw new Error("模組庫解析失敗，只讀到幾個，先別動資料");
 
 const sql = postgres(url, { ssl: "require" });
 
