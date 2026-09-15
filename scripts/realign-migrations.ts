@@ -25,13 +25,15 @@ if (!url) throw new Error("DIRECT_URL 或 DATABASE_URL 沒設");
 const sql = postgres(url, { prepare: false, max: 2 });
 
 /**
- * 已經反映在 schema 上的，標記成已套用。
+ * 已經反映在 schema 上的，標記成已套用。全部五支都在裡面。
  *
- * 0001 不在裡面：它要 DROP domain_fragments.work_id，那個欄位還在，
- * 關聯已經搬進 links_internal 了，所以留給 drizzle 去跑。
+ * 0001 要 DROP domain_fragments.work_id——那個欄位已經改名成
+ * _work_id_deprecated_20260915 留著當備份（見 retire-work-id.ts），
+ * 所以這支不用跑，直接標記掉。
  */
 const ALREADY_APPLIED = [
   "0000_init",
+  "0001_wandering_titanium_man",
   "0002_shallow_gamma_corps",
   "0003_rare_norrin_radd",
   "0004_deep_omega_flight",
