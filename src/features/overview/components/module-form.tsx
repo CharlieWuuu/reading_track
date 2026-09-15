@@ -166,12 +166,9 @@ export function ModuleForm({
 
   const modules = resolveFormModules(kind.modules);
   const fields = fieldsOf(modules);
-  // 關聯模組共用一格，標籤就用勾到的那幾個的名字——只勾出處叫「出處」，
-  // 兩個都勾叫「出處與關鍵字」，使用者才知道這一格該放什麼
-  const linkLabel = modules
-    .filter((module) => module.links)
-    .map((module) => module.label)
-    .join("與");
+  // 這一格連得到站內任何一筆，所以名字就叫內部連結——照勾到的模組拼成
+  // 「關鍵字」會讓人以為只能連關鍵字
+  const hasLinks = modules.some((module) => module.links);
   const set = (key: string, value: string) => setValues((v) => ({ ...v, [key]: value }));
 
   /**
@@ -362,9 +359,9 @@ export function ModuleForm({
 
       {/* 出處與關鍵字都是站內關聯，共用這一格——連到書還是連到關鍵字，chip 上標種類就分得出來。
           沒勾任何關聯模組的類型不畫這一格。新增時還沒有編號，選的先收在 pending，存檔後補上 */}
-      {linkLabel && (
+      {hasLinks && (
         <ContentLinkInput
-          label={linkLabel}
+          label="內部連結"
           excludeId={linkId || undefined}
           linked={linked}
           onLink={link}
