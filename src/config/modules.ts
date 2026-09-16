@@ -32,7 +32,21 @@ export type ModuleDef = {
    * 但畫出來是同一張樹狀圖，照欄位跑會變成兩張。
    */
   stat?: StatKind;
+  /**
+   * 勾了這個模組，統計頁就多一種看法。
+   *
+   * 跟 stat 同一個道理：「關鍵字有地圖」不是因為它叫關鍵字，是因為它有座標。
+   * 影集哪天勾了座標，地圖自己就出現了。
+   */
+  view?: StatsExtraView;
 };
+
+/** 圖表以外的看法。圖表每個類型都有，不用宣告 */
+export type StatsExtraView =
+  | "calendar" // 哪天做了什麼——有完成日就畫得出來
+  | "timeline" // 一段一段的區間，要有開始與完成
+  | "map" // 地圖，要有經緯度
+  | "era"; // 年代軸，要有起訖年
 
 /**
  * 統計圖的種類。一個類型勾了哪些模組，統計頁就自動有哪幾張圖——
@@ -70,8 +84,21 @@ export const MODULES = [
   // 兩格日期各自是一個模組。合成一個「狀態」的話它其實只是兩格日期——
   // 狀態是從日期推出來的（見 types/book 的 inferStatus），不是自己存的一欄。
   // 而且舊的「單一日期」也寫 endDate，跟「狀態」勾在一起會兩格寫同一欄
-  { key: "startDate", label: "開始日期", hint: "開始的那一天", fields: ["startDate"] },
-  { key: "endDate", label: "完成日期", hint: "完成的那一天", fields: ["endDate"], stat: "trend" },
+  {
+    key: "startDate",
+    label: "開始日期",
+    hint: "開始的那一天",
+    fields: ["startDate"],
+    view: "timeline",
+  },
+  {
+    key: "endDate",
+    label: "完成日期",
+    hint: "完成的那一天",
+    fields: ["endDate"],
+    stat: "trend",
+    view: "calendar",
+  },
   {
     key: "amount",
     label: "量＋單位",
@@ -96,8 +123,20 @@ export const MODULES = [
   },
   { key: "tags", label: "標籤", hint: "純文字，一行一個", fields: ["tags"], stat: "ranking" },
   // 兩格各存一個數字：一欄塞 "1818－1883" 得靠剖析拆，破折號、西元前的負號都是坑
-  { key: "years", label: "起訖年", hint: "生卒、存續的那段年份", fields: ["startYear", "endYear"] },
-  { key: "coordinates", label: "座標", hint: "地圖上的位置", fields: ["latitude", "longitude"] },
+  {
+    key: "years",
+    label: "起訖年",
+    hint: "生卒、存續的那段年份",
+    fields: ["startYear", "endYear"],
+    view: "era",
+  },
+  {
+    key: "coordinates",
+    label: "座標",
+    hint: "地圖上的位置",
+    fields: ["latitude", "longitude"],
+    view: "map",
+  },
   {
     key: "language",
     label: "語言",
