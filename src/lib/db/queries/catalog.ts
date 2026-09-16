@@ -81,7 +81,7 @@ const toRecordRow = ({
   amountUnit: kind.amountUnit,
   platform: work.platform,
   // topic_id 指到的可能是父也可能是子：有父就是「領域／次領域」兩層，沒有就只有領域
-  domain: (parentTopic?.name ?? topic?.name) ?? "",
+  domain: parentTopic?.name ?? topic?.name ?? "",
   subDomain: parentTopic ? (topic?.name ?? "") : "",
   attribute: attribute?.name ?? "",
   language: work.language,
@@ -225,6 +225,8 @@ export type FragmentRow = {
   example: string;
   /** 讀音。單字卡標題上方那行小字 */
   pronunciation: string;
+  /** 自己貼的標籤，多個以頓號相接。關鍵字的統計看這一欄 */
+  tags: string;
   date: string | null;
   createdAt: string;
   coverUrl: string;
@@ -265,6 +267,7 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
       note: fragment.body,
       example: fragment.example,
       pronunciation: fragment.pronunciation,
+      tags: fragment.tags,
       date: fragment.createdAt.toISOString().slice(0, 10),
       createdAt: fragment.createdAt.toISOString(),
       // 佳句、單字沒填示意圖就用出處的封面——那句話本來就長在那本書上。
@@ -305,6 +308,7 @@ export async function listFragmentsByKind(userId: string, kindId: string): Promi
       note: fragment.body,
       example: fragment.example,
       pronunciation: fragment.pronunciation,
+      tags: fragment.tags,
       date: fragment.createdAt.toISOString().slice(0, 10),
       createdAt: fragment.createdAt.toISOString(),
       // 佳句、單字沒填示意圖就用出處的封面——那句話本來就長在那本書上。
@@ -341,6 +345,7 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       note: writing.note,
       example: "", // 書寫沒有例句這回事
       pronunciation: "",
+      tags: "", // 書寫用關鍵字關聯，不貼標籤
       date: writing.endDate,
       createdAt: writing.createdAt,
       coverUrl: "",
