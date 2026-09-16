@@ -9,7 +9,6 @@ import { Panel } from "@/features/stats/components/panel";
 import { RankingBar } from "@/features/stats/components/ranking-bar";
 import { Section } from "@/features/stats/components/section-list";
 import { YearlyTrendChart } from "@/features/stats/components/yearly-trend-chart";
-import { useIsMobile } from "@/hooks/use-is-mobile";
 import { statsOfModules } from "@/utils/stats/from-modules";
 import {
   distribution,
@@ -29,7 +28,7 @@ import type { DistributionGroup, DistributionSlice } from "@/utils/stats/types";
  * 「看哪幾個欄位、單位叫什麼」，那兩件事現在都從模組庫讀得到。
  * 開「影集」勾了導演與片長，不用寫程式就有常看導演與總時數。
  *
- * 手機把數字與趨勢拆成兩頁、圓餅一頁一張：擠在一起圖會被壓扁。
+ * 一張圖一塊，並排與否交給 SectionList——這裡只管「有哪幾張圖、各畫什麼」。
  */
 export function useModuleSections({
   moduleKeys,
@@ -61,8 +60,6 @@ export function useModuleSections({
   /** 列表帶了 linkCount 時打開，概覽多一張「有延伸」的數字卡 */
   showLinks?: boolean;
 }): Section[] {
-  const isMobile = useIsMobile();
-
   return useMemo(() => {
     const data = statData(statsOfModules(moduleKeys, labels), rows);
 
@@ -139,7 +136,6 @@ export function useModuleSections({
             {
               key: "cumulative",
               label: `累積${unit}數`,
-              ...(isMobile ? { scrollHeight: "h-70 sm:h-[32rem]" } : {}),
               node: (
                 <CumulativeChart
                   title={`累積${unit}數`}
@@ -172,79 +168,39 @@ export function useModuleSections({
       );
 
     return [
-      ...(isMobile
+      // 數字卡橫著擺、自己會換行：不需要外面給高度，但要整排寬
+      { key: "overview", label: "概覽", needsHeight: false, fullWidth: true, node: summary },
+      // label 跟著圖走：跨兩年以上畫的是每季，叫「每月」會對不上圖上的標題
+      ...(trend
         ? [
-            { key: "overview", label: "概覽", needsHeight: false, node: summary },
-            ...(trend
-              ? [
-                  {
-                    key: "trend",
-                    label: `每月${unit}數`,
-                    scrollHeight: "h-70 sm:h-[32rem]",
-                    node: trendChart(),
-                  },
-                ]
-              : []),
-          ]
-        : [
             {
-              key: "overview",
-              label: "概覽",
-              node: (
-                <div className="flex min-h-0 flex-1 flex-col gap-3">
-                  {summary}
-                  {trend && trendChart()}
-                </div>
-              ),
+              key: "trend",
+              label: `${quarters.length > 8 ? "每季" : "每月"}${unit}數`,
+              node: trendChart(),
             },
-          ]),
+          ]
+        : []),
       ...cumulativeSection,
 
-      ...(pies.length
-        ? isMobile
-          ? pies.map((item) => ({
-              key: item.key,
-              label: item.label,
-              scrollHeight: "aspect-square",
-              node: <Panel title={item.label}>{pieNode(item)}</Panel>,
-            }))
-          : [
-              {
-                key: "distribution",
-                label: "分布",
-                node: (
-                  <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
-                    {pies.map((item) => (
-                      <Panel key={item.key} title={item.label}>
-                        {pieNode(item)}
-                      </Panel>
-                    ))}
-                  </div>
-                ),
-              },
-            ]
-        : []),
+      // 一張圖一塊，並排交給 SectionList 的 grid——這裡不管版面
+      ...pies.map((item) => ({
+        key: item.key,
+        label: item.label,
+        node: <Panel title={item.label}>{pieNode(item)}</Panel>,
+      })),
 
-      ...(rankings.length
-        ? [
-            {
-              key: "ranking",
-              label: "排行",
-              needsHeight: false,
-              node: (
-                <div className="grid gap-4 md:grid-cols-2">
-                  {rankings.map((item) => (
-                    <Panel key={item.key} title={`${item.label} Top 5`}>
-                      <RankingBar data={item.slices ?? []} unit={unit} />
-                    </Panel>
-                  ))}
-                </div>
-              ),
-            },
-          ]
-        : []),
+      ...rankings.map((item) => ({
+        key: item.key,
+        label: `${item.label} Top 5`,
+        needsHeight: false,
+        node: (
+          <Panel title={`${item.label} Top 5`}>
+            <RankingBar data={item.slices ?? []} unit={unit} />
+          </Panel>
+        ),
+      })),
     ];
-  }, [moduleKeys, labels, rows, unit, groupBy, showRepeats, showLinks, isMobile]);
+  }, [moduleKeys, labels, rows, unit, groupBy, showRepeats, showLinks]);
 }
 
 /** 圓餅那一區的一格：一層用 slices，兩層（領域）用 groups */
