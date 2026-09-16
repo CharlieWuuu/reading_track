@@ -10,10 +10,8 @@ import { RankingBar } from "@/features/stats/components/ranking-bar";
 import { Section } from "@/features/stats/components/section-list";
 import { YearlyTrendChart } from "@/features/stats/components/yearly-trend-chart";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import type { DistributionGroup, DistributionSlice } from "@/utils/stats/types";
 import { statsOfModules } from "@/utils/stats/from-modules";
 import {
-  cumulative,
   distribution,
   quarterly,
   repeats,
@@ -22,6 +20,7 @@ import {
   type StatRow,
 } from "@/utils/stats/generic-stats";
 import { getRecordKpis, getRecordMonthlyTrend } from "@/utils/stats/record-stats";
+import type { DistributionGroup, DistributionSlice } from "@/utils/stats/types";
 
 /**
  * 一個類型勾了哪些模組，統計頁就有哪幾張圖。

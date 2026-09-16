@@ -1,7 +1,7 @@
 import { splitTags } from "@/types/book";
 import { parseDate } from "@/utils/date";
-import type { DistributionGroup, DistributionSlice } from "@/utils/stats/types";
 import type { StatSpec } from "@/utils/stats/from-modules";
+import type { DistributionGroup, DistributionSlice } from "@/utils/stats/types";
 
 /**
  * 照 StatSpec 算出圖表要的數字。任何類型都走這一支——
