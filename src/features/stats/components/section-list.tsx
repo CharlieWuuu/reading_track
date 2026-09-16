@@ -12,42 +12,34 @@ export type Section = {
    * 排行那種高度隨內容的清單要設 false，不然會被硬撐成一個固定高度。
    */
   needsHeight?: boolean;
-  /**
-   * 這個區塊要多高。趨勢圖只要看得出形狀就夠，給滿版高度會讓手機捲很久；
-   * 圓餅圖的標籤要位置，維持預設。
-   */
-  scrollHeight?: string;
+  /** 佔滿一整排而不是半排。概覽那排數字卡橫著擺，擠進半排會折成好幾列 */
+  fullWidth?: boolean;
 };
 
 /**
- * 統計頁的區塊一路往下排。每個區塊要給明確高度——圖表是 height="100%"，
- * 父層沒高度會縮成 0。
+ * 統計頁的區塊，桌機兩欄、手機一欄。
  *
- * 區塊之間一條線而不只是空白：一頁有六七塊，只靠空白看不出「這裡換了一個主題」。
- * 線畫在外層的包裝上，高度留在內層——`h-[26rem]` 是 border-box，
- * padding 加在同一層會把圖表壓小。
+ * 兩欄是因為這些圖多半是成對在看的——每月與累積、領域與語言、作者與平台。
+ * 單欄的時候要捲很久才對得起來，並排一眼就比得出。
  *
- * 標題不畫在這裡：一個區塊裡可能並排兩張圖（兩個樹狀圖、兩個圓餅），
- * 共用一行「分布」等於兩張圖都沒有名字。改成每張卡自己寫，見 Panel。
+ * 高度統一在這裡給：圖表是 height="100%"，父層沒高度會縮成 0。
+ * 每一格自己畫框線而不是用分隔線——兩欄之下一條橫線分不出它屬於左邊還右邊。
  */
 export function SectionList({ sections }: { sections: Section[] }) {
   return (
-    <div className="flex shrink-0 flex-col">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       {sections.map((section) => (
-        <div key={section.key} className="shrink-0 border-t py-6 first:border-t-0 first:pt-0">
-          <div
-            className={`flex flex-col gap-3.5 ${
-              section.needsHeight === false
-                ? ""
-                : (section.scrollHeight ?? "h-[26rem] sm:h-[32rem]")
-            }`}
-          >
-            {section.needsHeight === false ? (
-              section.node
-            ) : (
-              <div className="flex min-h-0 flex-1 flex-col">{section.node}</div>
-            )}
-          </div>
+        <div
+          key={section.key}
+          className={`flex min-w-0 flex-col ${section.fullWidth ? "lg:col-span-2" : ""} ${
+            section.needsHeight === false ? "" : "h-[26rem] sm:h-[30rem]"
+          }`}
+        >
+          {section.needsHeight === false ? (
+            section.node
+          ) : (
+            <div className="flex min-h-0 flex-1 flex-col">{section.node}</div>
+          )}
         </div>
       ))}
     </div>
