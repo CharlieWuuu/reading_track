@@ -1,4 +1,4 @@
-import { moduleDef, type StatKind } from "@/config/modules";
+import { moduleDef, type StatKind, type StatsExtraView } from "@/config/modules";
 import type { FieldKey } from "@/config/record-fields";
 
 /**
@@ -20,6 +20,23 @@ export type StatSpec = {
   /** 要看資料表的哪幾欄。tree 是兩欄（領域、次領域），其餘一欄 */
   fields: FieldKey[];
 };
+
+/**
+ * 這個類型的統計頁有哪幾種看法。圖表永遠第一個，其餘照模組有沒有勾。
+ *
+ * 數線要兩格日期都有：只有開始沒有完成，畫出來每一條都沒有盡頭。
+ * 其餘一個模組對一種看法，模組庫的 view 說了算。
+ */
+export function viewsOfModules(moduleKeys: readonly string[]): ("chart" | StatsExtraView)[] {
+  const has = new Set(moduleKeys);
+  const extra = moduleKeys.flatMap((key) => {
+    const view = moduleDef(key)?.view;
+    if (!view) return [];
+    if (view === "timeline" && !(has.has("startDate") && has.has("endDate"))) return [];
+    return [view];
+  });
+  return ["chart", ...new Set(extra)];
+}
 
 /** 出圖的順序：先看整體趨勢，再看分布，最後才是名次 */
 const ORDER: StatKind[] = ["trend", "sum", "tree", "distribution", "ranking"];
