@@ -265,6 +265,24 @@ export function KindEditPage({
   slug: string;
   recordId: string;
 }) {
+  // 跟詳情頁同一個道理：有專屬編輯頁的類型自己撈自己畫。單字與關鍵字的
+  // recordId 是「詞」不是編號，底下那支 useCatalogRecord 查不到，會卡在載入中
+  const Edit = variantFor(slug).edit;
+  if (Edit) return <Edit recordId={recordId} />;
+
+  return <GenericEditPage {...{ group, slug, recordId }} />;
+}
+
+/** 沒有專屬編輯頁的類型：照模組畫，頁首與外框由這裡給 */
+function GenericEditPage({
+  group,
+  slug,
+  recordId,
+}: {
+  group: KindGroup;
+  slug: string;
+  recordId: string;
+}) {
   const { kind, isLoading: kindLoading } = useKindBySlug(group, slug);
   const { record, isLoading: recordLoading, error } = useCatalogRecord(recordId);
   const Form = kind ? variantFor(kind.slug).form : undefined;

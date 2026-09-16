@@ -1,0 +1,60 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { PageBody } from "@/components/layout/page-body";
+import { PageHeader } from "@/components/layout/page-header";
+import { RecordGate } from "@/components/layout/record-gate";
+import { kindHref } from "@/config/kind-routes";
+import { vocabularyHref } from "@/config/routes";
+import { VocabularyForm } from "@/features/notes/components/vocabulary-form";
+import { useBooks } from "@/hooks/use-books";
+import { useRecordEdits } from "@/hooks/use-record-edits";
+import { useRecords } from "@/hooks/use-records";
+import { getVocabularyEntries } from "@/utils/stats/vocabulary-stats";
+
+/**
+ * 一個詞自己的編輯頁。
+ *
+ * 網址上那一段是詞本身而不是編號：同一個詞在不同書各有一列，這一頁一次改完，
+ * 所以通用編輯頁接不住它——拿詞去查 catalog 永遠查不到，會卡在載入中。
+ */
+export function VocabularyEditView({ recordId }: { recordId: string }) {
+  const router = useRouter();
+  const name = decodeURIComponent(recordId);
+  const { books, isLoading: loadingBooks } = useBooks();
+  const { vocabulary, isLoading, error } = useRecords();
+  const { saveVocabulary } = useRecordEdits(books);
+
+  const entry = getVocabularyEntries(vocabulary, books).find((e) => e.word === name);
+  const listHref = kindHref("fragments", "vocabulary");
+
+  return (
+    <>
+      <PageHeader
+        title="編輯"
+        size="compact"
+        parent={[
+          { label: "片段", href: "/fragments" },
+          { label: "單字", href: listHref },
+          { label: name, href: vocabularyHref(name) },
+        ]}
+        backHref={vocabularyHref(name)}
+      />
+      <PageBody>
+        <RecordGate
+          loading={isLoading || loadingBooks}
+          error={error}
+          missing={!entry && "找不到這個詞"}
+        >
+          {entry && (
+            <VocabularyForm
+              writings={entry}
+              onSave={saveVocabulary}
+              onDone={() => router.push(vocabularyHref(name))}
+            />
+          )}
+        </RecordGate>
+      </PageBody>
+    </>
+  );
+}

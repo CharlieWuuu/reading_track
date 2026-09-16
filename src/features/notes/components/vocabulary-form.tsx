@@ -1,0 +1,196 @@
+"use client";
+
+import { useState } from "react";
+import { BookCover } from "@/components/ui/book-cover";
+import { FormActions } from "@/components/ui/form-actions";
+import { ImageField } from "@/components/ui/image-field";
+import { useCategories } from "@/hooks/use-categories";
+import { type VocabularyEdit } from "@/hooks/use-record-edits";
+import { VocabularyRow } from "@/types/record";
+import { VocabularyEncounter, VocabularyEntry } from "@/utils/stats/vocabulary-stats";
+
+const styles = {
+  form: "flex flex-col gap-3",
+  group: "border-rule-soft flex flex-col gap-2 border-b pb-3 last:border-b-0",
+  head: "flex items-center gap-2",
+  title: "min-w-0 flex-1 truncate text-meta text-ink-muted",
+  select: "shrink-0 rounded-control border border-rule bg-transparent px-2 py-1 text-xs text-ink",
+  remove:
+    "shrink-0 rounded-control px-2 py-1 text-meta text-ink-faint hover:bg-control-ghost-hover hover:text-danger",
+  removed: "flex items-center gap-2 text-meta text-ink-faint line-through",
+  undo: "ml-auto rounded-control px-2 py-0.5 text-meta text-ink-muted no-underline hover:bg-control-ghost-hover",
+  pair: "grid grid-cols-2 gap-2",
+  field: "flex flex-col gap-1",
+  label: "text-label font-medium tracking-label text-ink-faint uppercase",
+  input: "w-full rounded-control border border-rule bg-transparent px-3 py-1.5 text-sm text-ink",
+  sentence:
+    "min-h-28 w-full resize-none rounded-control border border-rule bg-transparent px-3 py-1.5 font-serif text-sm text-ink",
+  actions: "flex items-center gap-2 pt-1",
+  save: "rounded-control bg-control-bg text-control-ink px-4 py-2 text-sm font-medium hover:bg-control-bg-hover disabled:opacity-50",
+  cancel:
+    "rounded-control border border-control-border px-4 py-2 text-sm font-medium text-control-ink-secondary hover:bg-control-ghost-hover",
+  error: "text-meta text-danger",
+};
+
+/** 從畫面用的相遇取回那一列紀錄本身：封面是顯示用的，不屬於紀錄 */
+function toRow(encounter: VocabularyEncounter): VocabularyRow {
+  const { bookCover, ...row } = encounter;
+  void bookCover;
+  return row;
+}
+
+type VocabularyFormProps = {
+  writings: VocabularyEntry;
+  onSave: (edits: VocabularyEdit[]) => Promise<void>;
+  /** 存完或按取消之後要去哪 */
+  onDone: () => void;
+};
+
+/** 單字存在各自的書裡，所以在同一個詞底下一本書一組，分別改回去 */
+export function VocabularyForm({ writings, onSave, onDone }: VocabularyFormProps) {
+  const { categories } = useCategories();
+  const [edits, setEdits] = useState<VocabularyEdit[]>(() =>
+    // bookCover 只是顯示用的，不屬於那一列紀錄，寫回去時不該跟著跑
+    writings.encounters.map((encounter) => toRow(encounter)),
+  );
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const update = (i: number, patch: Partial<VocabularyEdit>) =>
+    setEdits((list) => list.map((edit, j) => (j === i ? { ...edit, ...patch } : edit)));
+
+  async function handleSave() {
+    setSaving(true);
+    setError("");
+    try {
+      await onSave(edits);
+      onDone();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "儲存失敗");
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className={styles.form}>
+      {edits.map((edit, i) => {
+        const encounter = writings.encounters[i];
+        // 主檔的語言選項可能沒有這一筆現在填的值，補進去才不會一開啟就被改掉
+        const languages = categories.language.includes(edit.language)
+          ? categories.language
+          : [edit.language, ...categories.language].filter(Boolean);
+
+        if (edit.deleted) {
+          return (
+            // 刪掉的先留一列可以反悔，按了儲存才真的寫回去
+            <p key={edit.id} className={styles.removed}>
+              {encounter.bookTitle}
+              <button
+                type="button"
+                onClick={() => update(i, { deleted: false })}
+                className={styles.undo}
+              >
+                復原
+              </button>
+            </p>
+          );
+        }
+
+        return (
+          <div key={edit.id} className={styles.group}>
+            <div className={styles.head}>
+              <BookCover url={encounter.bookCover} title={encounter.bookTitle} size="md" />
+              <span className={styles.title}>{encounter.bookTitle}</span>
+              <select
+                value={edit.language}
+                onChange={(e) => update(i, { language: e.target.value })}
+                className={styles.select}
+              >
+                <option value="">語言</option>
+                {languages.map((language) => (
+                  <option key={language} value={language}>
+                    {language}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => update(i, { deleted: true })}
+                className={styles.remove}
+              >
+                刪除
+              </button>
+            </div>
+
+            <div className={styles.pair}>
+              <div className={styles.field}>
+                <label className={styles.label}>詞</label>
+                <input
+                  value={edit.word}
+                  onChange={(e) => update(i, { word: e.target.value })}
+                  className={styles.input}
+                />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.label}>讀音</label>
+                <input
+                  value={edit.pronunciation}
+                  onChange={(e) => update(i, { pronunciation: e.target.value })}
+                  className={styles.input}
+                />
+              </div>
+            </div>
+
+            <div className={styles.pair}>
+              <div className={styles.field}>
+                <label className={styles.label}>詞（翻譯）</label>
+                <input
+                  value={edit.wordTranslation}
+                  onChange={(e) => update(i, { wordTranslation: e.target.value })}
+                  className={styles.input}
+                />
+              </div>
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label}>例句</label>
+              <textarea
+                value={edit.example}
+                onChange={(e) => update(i, { example: e.target.value })}
+                className={styles.sentence}
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label}>例句（翻譯）</label>
+              <textarea
+                value={edit.exampleTranslation}
+                onChange={(e) => update(i, { exampleTranslation: e.target.value })}
+                className={styles.sentence}
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label}>章節</label>
+              <input
+                value={edit.chapter}
+                onChange={(e) => update(i, { chapter: e.target.value })}
+                className={styles.input}
+              />
+            </div>
+
+            <div className={styles.field}>
+              <ImageField
+                label="封面圖"
+                value={edit.coverUrl}
+                onChange={(v) => update(i, { coverUrl: v })}
+              />
+            </div>
+          </div>
+        );
+      })}
+
+      <FormActions onSave={handleSave} saving={saving} onCancel={onDone} error={error} />
+    </div>
+  );
+}
