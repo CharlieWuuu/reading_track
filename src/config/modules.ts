@@ -150,7 +150,9 @@ export const MODULES = [
     label: "平台",
     hint: "在哪讀的、在哪看的",
     fields: ["platform"],
-    stat: "ranking",
+    // 圓餅不是排行：平台的值就那幾個（實體書、Kobo、HyRead），
+    // 想知道的是「電子書佔多少」，不是「第幾名」
+    stat: "distribution",
   },
   // 一個模組兩格：主題樹有父子，領域選完次領域才知道要列哪幾個
   {
