@@ -25,7 +25,8 @@ export function RankingBar({
   const max = Math.max(1, ...data.map((d) => d.value));
 
   return (
-    // 高度隨內容，不撐滿面板——排行的列數本來就少，硬撐只會在下面留一大片空白
+    // 列由上往下排，多出來的高度留在下面：兩欄並排時隔壁是圓餅，
+    // 高度隨內容會差一大截；靠上而不是平均撐開，第一列的位置才不會浮動
     <div className="flex flex-col gap-3.5">
       {data.length === 0 ? (
         // 每個都只出現一次時榜單會是空的，說清楚原因比留一張空圖好

@@ -85,7 +85,7 @@ export function useModuleSections({
         ? [{ key: "repeats", label: "重複最多", slices: repeatRows }]
         : []),
     ];
-    // 能拆的維度就是那幾張分布圖看的欄位：領域、屬性、語言
+    // 能拆的維度就是那幾張分布圖看的欄位：領域、屬性、語言、平台
     const cumulativeSplits = data.flatMap((d) =>
       d.kind === "tree" || d.kind === "distribution"
         ? [{ key: d.spec.fields[0], label: d.spec.label }]
@@ -189,10 +189,10 @@ export function useModuleSections({
         node: <Panel title={item.label}>{pieNode(item)}</Panel>,
       })),
 
+      // 跟圖表一樣吃高度：兩欄並排時隔壁是圓餅，高度隨內容會差一大截
       ...rankings.map((item) => ({
         key: item.key,
         label: `${item.label} Top 5`,
-        needsHeight: false,
         node: (
           <Panel title={`${item.label} Top 5`}>
             <RankingBar data={item.slices ?? []} unit={unit} />
