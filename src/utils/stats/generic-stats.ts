@@ -86,7 +86,10 @@ export function sum(rows: StatRow[], field: string): { total: number; average: n
 
 /** 一張圖算好的資料。畫面照 kind 決定要畫哪一種元件 */
 export type StatData =
-  | { spec: StatSpec; kind: "ranking" | "distribution"; slices: DistributionSlice[] }
+  // 排行與分布資料形狀一樣，但分成兩個 variant：合成一個的話 filter 之後
+  // TypeScript 收不窄，畫面拿不到 slices
+  | { spec: StatSpec; kind: "ranking"; slices: DistributionSlice[] }
+  | { spec: StatSpec; kind: "distribution"; slices: DistributionSlice[] }
   | { spec: StatSpec; kind: "tree"; groups: DistributionGroup[] }
   | { spec: StatSpec; kind: "sum"; total: number; average: number }
   | { spec: StatSpec; kind: "trend"; field: string };

@@ -1,0 +1,198 @@
+"use client";
+
+import { useMemo } from "react";
+import { DistributionPie } from "@/features/stats/components/distribution-pie";
+import { DistributionTreemap } from "@/features/stats/components/distribution-treemap";
+import { MonthlyTrendChart } from "@/features/stats/components/monthly-trend-chart";
+import { Panel } from "@/features/stats/components/panel";
+import { RankingBar } from "@/features/stats/components/ranking-bar";
+import { Section } from "@/features/stats/components/section-list";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import type { DistributionGroup, DistributionSlice } from "@/utils/stats/book-stats";
+import { statsOfModules } from "@/utils/stats/from-modules";
+import { distribution, statData, type StatRow } from "@/utils/stats/generic-stats";
+import { getRecordKpis, getRecordMonthlyTrend } from "@/utils/stats/record-stats";
+
+/**
+ * 一個類型勾了哪些模組，統計頁就有哪幾張圖。
+ *
+ * 取代 use-book/article/writing-sections 那三份——它們的差別其實只有
+ * 「看哪幾個欄位、單位叫什麼」，那兩件事現在都從模組庫讀得到。
+ * 開「影集」勾了導演與片長，不用寫程式就有常看導演與總時數。
+ *
+ * 手機把數字與趨勢拆成兩頁、圓餅一頁一張：擠在一起圖會被壓扁。
+ */
+export function useModuleSections({
+  moduleKeys,
+  labels,
+  rows,
+  unit,
+  groupBy,
+}: {
+  moduleKeys: readonly string[];
+  /** 這個類型替模組取的名字（書籍把 creator 叫「作者」） */
+  labels?: Readonly<Record<string, string>>;
+  rows: StatRow[];
+  /** 「本」「篇」「筆」——類型自己的量詞 */
+  unit: string;
+  /**
+   * 額外拿某一欄再分一張圖。給的是欄位名與標題。
+   *
+   * 「類型分布」推不出來：kind 不是模組，是那一筆屬於哪一種——
+   * 一次看好幾種書寫（心得、思緒、札記）時，這張圖才說得出比例。
+   */
+  groupBy?: { field: string; label: string };
+}): Section[] {
+  const isMobile = useIsMobile();
+
+  return useMemo(() => {
+    const data = statData(statsOfModules(moduleKeys, labels), rows);
+
+    const trend = data.find((d) => d.kind === "trend");
+    const kpis = getRecordKpis(
+      rows.map((row) => ({ date: row[trend?.field ?? "endDate"] ?? null })),
+    );
+    const monthly = trend
+      ? getRecordMonthlyTrend(rows.map((row) => ({ date: row[trend.field] ?? null })))
+      : [];
+
+    const sums = data.filter((d) => d.kind === "sum");
+    const rankings = data.filter((d) => d.kind === "ranking");
+    const pies: PieItem[] = [
+      ...(groupBy
+        ? [
+            {
+              key: groupBy.field,
+              label: groupBy.label,
+              slices: distribution(rows, groupBy.field),
+            },
+          ]
+        : []),
+      ...data.flatMap<PieItem>((d) => {
+        if (d.kind === "distribution")
+          return [{ key: d.spec.moduleKey, label: d.spec.label, slices: d.slices }];
+        if (d.kind === "tree")
+          return [{ key: d.spec.moduleKey, label: d.spec.label, groups: d.groups }];
+        return [];
+      }),
+    ];
+
+    const trendChart = () => (
+      <MonthlyTrendChart
+        title={`每月${unit}數`}
+        data={monthly}
+        unit={unit}
+        seriesLabel={`${unit}數`}
+        height="100%"
+      />
+    );
+
+    const summary = (
+      <div className="flex flex-wrap gap-3">
+        <Kpi label={`累計${unit}數`} value={kpis.completed} />
+        <Kpi label="今年" value={kpis.thisYear} />
+        <Kpi label="每月平均" value={kpis.avgPerMonth} />
+        {sums.map((s) => (
+          <Kpi key={s.spec.moduleKey} label={`總${s.spec.label}`} value={s.total} />
+        ))}
+      </div>
+    );
+
+    const pieNode = (item: PieItem) =>
+      item.groups ? (
+        <DistributionTreemap groups={item.groups} unit={unit} />
+      ) : (
+        <DistributionPie data={item.slices ?? []} unit={unit} height="100%" />
+      );
+
+    return [
+      ...(isMobile
+        ? [
+            { key: "overview", label: "概覽", needsHeight: false, node: summary },
+            ...(trend
+              ? [
+                  {
+                    key: "trend",
+                    label: `每月${unit}數`,
+                    scrollHeight: "h-70 sm:h-[32rem]",
+                    node: trendChart(),
+                  },
+                ]
+              : []),
+          ]
+        : [
+            {
+              key: "overview",
+              label: "概覽",
+              node: (
+                <div className="flex min-h-0 flex-1 flex-col gap-3">
+                  {summary}
+                  {trend && trendChart()}
+                </div>
+              ),
+            },
+          ]),
+
+      ...(pies.length
+        ? isMobile
+          ? pies.map((item) => ({
+              key: item.key,
+              label: item.label,
+              scrollHeight: "aspect-square",
+              node: <Panel title={item.label}>{pieNode(item)}</Panel>,
+            }))
+          : [
+              {
+                key: "distribution",
+                label: "分布",
+                node: (
+                  <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
+                    {pies.map((item) => (
+                      <Panel key={item.key} title={item.label}>
+                        {pieNode(item)}
+                      </Panel>
+                    ))}
+                  </div>
+                ),
+              },
+            ]
+        : []),
+
+      ...(rankings.length
+        ? [
+            {
+              key: "ranking",
+              label: "排行",
+              needsHeight: false,
+              node: (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {rankings.map((item) => (
+                    <Panel key={item.spec.moduleKey} title={`常見${item.spec.label} Top 5`}>
+                      <RankingBar data={item.slices} unit={unit} />
+                    </Panel>
+                  ))}
+                </div>
+              ),
+            },
+          ]
+        : []),
+    ];
+  }, [moduleKeys, labels, rows, unit, groupBy, isMobile]);
+}
+
+/** 圓餅那一區的一格：一層用 slices，兩層（領域）用 groups */
+type PieItem = {
+  key: string;
+  label: string;
+  slices?: DistributionSlice[];
+  groups?: DistributionGroup[];
+};
+
+function Kpi({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-surface flex-1 border bg-white px-4 py-3">
+      <p className="text-meta text-ink-muted">{label}</p>
+      <p className="text-xl font-medium">{value.toLocaleString("zh-Hant")}</p>
+    </div>
+  );
+}
