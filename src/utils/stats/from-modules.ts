@@ -34,14 +34,14 @@ export function statsOfModules(
   labels: Readonly<Record<string, string>> = {},
 ): StatSpec[] {
   const specs = moduleKeys.flatMap((key) => {
-    const module = moduleDef(key);
-    if (!module?.stat) return [];
+    const def = moduleDef(key); // 不叫 module：Next.js 那條規則擋這個名字
+    if (!def?.stat) return [];
     return [
       {
         moduleKey: key,
-        kind: module.stat,
-        label: labels[key] || module.label,
-        fields: [...module.fields],
+        kind: def.stat,
+        label: labels[key] || def.label,
+        fields: [...def.fields],
       },
     ];
   });
