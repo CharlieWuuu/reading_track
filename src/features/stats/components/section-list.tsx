@@ -17,6 +17,16 @@ export type Section = {
 };
 
 /**
+ * 沒有伴的那一塊。半排的塊數是奇數時，最後一塊右邊會空一個洞，讓它跨滿整排。
+ *
+ * 只看半排的那幾塊：fullWidth 本來就佔一整排，不參與配對。
+ */
+export function lonelySectionKey(sections: readonly Section[]): string | undefined {
+  const halves = sections.filter((section) => !section.fullWidth);
+  return halves.length % 2 === 1 ? halves.at(-1)?.key : undefined;
+}
+
+/**
  * 統計頁的區塊，桌機兩欄、手機一欄。
  *
  * 兩欄是因為這些圖多半是成對在看的——每月與累積、領域與語言、作者與平台。
@@ -26,14 +36,17 @@ export type Section = {
  * 每一格自己畫框線而不是用分隔線——兩欄之下一條橫線分不出它屬於左邊還右邊。
  */
 export function SectionList({ sections }: { sections: Section[] }) {
+  // 算在這裡而不是 hook：塊數是版面的事，hook 只管有哪幾張圖
+  const lonelyKey = lonelySectionKey(sections);
+
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       {sections.map((section) => (
         <div
           key={section.key}
-          className={`flex min-w-0 flex-col ${section.fullWidth ? "lg:col-span-2" : ""} ${
-            section.needsHeight === false ? "" : "h-[26rem] sm:h-[30rem]"
-          }`}
+          className={`flex min-w-0 flex-col ${
+            section.fullWidth || section.key === lonelyKey ? "lg:col-span-2" : ""
+          } ${section.needsHeight === false ? "" : "h-[26rem] sm:h-[30rem]"}`}
         >
           {section.needsHeight === false ? (
             section.node
