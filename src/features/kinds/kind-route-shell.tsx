@@ -49,7 +49,7 @@ function GenericKindList({ kind, query }: { kind: Kind; query: string }) {
 
   const isRecords = kind.group === "records";
   const shownRecords = records.filter((row) =>
-    matchesSearch(terms, row.title, row.creator, row.source),
+    matchesSearch(terms, row.title, row.creator, row.platform),
   );
   const shownFragments = fragments.filter((row) =>
     matchesSearch(terms, row.title, row.body, row.workTitle),

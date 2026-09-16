@@ -1,4 +1,5 @@
 import { and, asc, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
 import { fragments } from "@/lib/db/schema/fragments";
@@ -37,7 +38,13 @@ export type RecordRow = {
   createdAt: string;
   amount: number | null;
   amountUnit: string;
-  source: string;
+  /** 在哪讀的、在哪看的。本來叫 source，跟資料表對齊之後改叫 platform */
+  platform: string;
+  /** 統計要的那幾欄：領域是父節點、次領域是子節點，沒填就是空字串 */
+  domain: string;
+  subDomain: string;
+  attribute: string;
+  language: string;
   coverUrl: string;
   isPrivate: boolean;
 };
@@ -46,10 +53,16 @@ const toRecordRow = ({
   record,
   work,
   kind,
+  topic,
+  parentTopic,
+  attribute,
 }: {
   record: typeof records.$inferSelect;
   work: typeof works.$inferSelect;
   kind: typeof kinds.$inferSelect;
+  topic?: { name: string; parentId: string | null } | null;
+  parentTopic?: { name: string } | null;
+  attribute?: { name: string } | null;
 }): RecordRow => ({
   id: record.id,
   workId: work.id,
@@ -66,18 +79,44 @@ const toRecordRow = ({
   createdAt: record.createdAt.toISOString(),
   amount: work.amount,
   amountUnit: kind.amountUnit,
-  source: work.platform,
+  platform: work.platform,
+  // topic_id 指到的可能是父也可能是子：有父就是「領域／次領域」兩層，沒有就只有領域
+  domain: (parentTopic?.name ?? topic?.name) ?? "",
+  subDomain: parentTopic ? (topic?.name ?? "") : "",
+  attribute: attribute?.name ?? "",
+  language: work.language,
   coverUrl: work.coverUrl,
   isPrivate: record.isPrivate,
 });
 
-/** kindId 不給就是整個 group 都要——概覽頁要把書籍與文章混在一起排 */
-export async function listRecordsByKind(userId: string, kindId?: string): Promise<RecordRow[]> {
-  const rows = await db
-    .select({ record: records, work: works, kind: kinds })
+/**
+ * 紀錄列表共用的 select 與 join。
+ *
+ * 領域與屬性一起 join 回來，不另外一筆一查——列表頁一次幾十上百筆，
+ * 每筆再查兩次就是 N+1。parentTopic 是自我 join：topic 指到子節點時才有值。
+ */
+const parentTopics = alias(recordTopics, "parent_topic");
+
+const recordSelect = () =>
+  db
+    .select({
+      record: records,
+      work: works,
+      kind: kinds,
+      topic: { name: recordTopics.name, parentId: recordTopics.parentId },
+      parentTopic: { name: parentTopics.name },
+      attribute: { name: attributes.name },
+    })
     .from(records)
     .innerJoin(works, eq(works.id, records.workId))
     .innerJoin(kinds, eq(kinds.id, works.kindId))
+    .leftJoin(recordTopics, eq(recordTopics.id, works.topicId))
+    .leftJoin(parentTopics, eq(parentTopics.id, recordTopics.parentId))
+    .leftJoin(attributes, eq(attributes.id, works.attributeId));
+
+/** kindId 不給就是整個 group 都要——概覽頁要把書籍與文章混在一起排 */
+export async function listRecordsByKind(userId: string, kindId?: string): Promise<RecordRow[]> {
+  const rows = await recordSelect()
     .where(and(eq(records.userId, userId), kindId ? eq(works.kindId, kindId) : undefined))
     .orderBy(asc(records.createdAt));
 
@@ -86,11 +125,7 @@ export async function listRecordsByKind(userId: string, kindId?: string): Promis
 
 /** 整個 group 的紀錄。概覽頁要把同一個 group 底下所有類型混在一起排 */
 export async function listRecordsByGroup(userId: string, group: KindGroup): Promise<RecordRow[]> {
-  const rows = await db
-    .select({ record: records, work: works, kind: kinds })
-    .from(records)
-    .innerJoin(works, eq(works.id, records.workId))
-    .innerJoin(kinds, eq(kinds.id, works.kindId))
+  const rows = await recordSelect()
     .where(and(eq(records.userId, userId), eq(kinds.groupKey, group)))
     .orderBy(asc(records.createdAt));
 
@@ -105,11 +140,7 @@ export async function listActiveRecordsByGroup(
   userId: string,
   group: KindGroup,
 ): Promise<RecordRow[]> {
-  const rows = await db
-    .select({ record: records, work: works, kind: kinds })
-    .from(records)
-    .innerJoin(works, eq(works.id, records.workId))
-    .innerJoin(kinds, eq(kinds.id, works.kindId))
+  const rows = await recordSelect()
     .where(and(eq(records.userId, userId), eq(kinds.groupKey, group), isNull(records.endDate)))
     .orderBy(asc(records.createdAt));
 

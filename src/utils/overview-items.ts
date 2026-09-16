@@ -58,7 +58,7 @@ export const writingItem = (writing: Writing): OverviewItem => ({
 export const recordItem = (row: RecordRow): OverviewItem => ({
   id: row.id,
   title: row.title,
-  byline: joinByline([row.creator, row.source, row.amount && `${row.amount} ${row.amountUnit}`]),
+  byline: joinByline([row.creator, row.platform, row.amount && `${row.amount} ${row.amountUnit}`]),
   href: `${kindHref(row.kindGroup, row.kindSlug)}/${row.id}`,
   coverUrl: row.coverUrl || undefined,
   startDate: row.startDate,
