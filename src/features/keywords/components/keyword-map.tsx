@@ -76,7 +76,8 @@ export function KeywordMap({ books, infos }: KeywordMapProps) {
           color: "#fff",
           weight: 2,
           fillColor: route.color,
-          fillOpacity: 0.9,
+          // 不透明：半透明的點會透出底圖，同一種顏色落在深淺不同的地方看起來就變兩色
+          fillOpacity: 1,
         })
           .addTo(map)
           // 地名常駐顯示：不點開就看不出這個點是哪裡，等於少了一半資訊。
