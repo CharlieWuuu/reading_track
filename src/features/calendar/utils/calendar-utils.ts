@@ -1,13 +1,18 @@
-import { Article } from "@/types/article";
-import { Book } from "@/types/book";
-import { Writing } from "@/types/writing";
+/** 月曆格子裡的一筆。哪一種類型都攤成這個形狀，月曆只認這個 */
+export interface CalendarEntry {
+  id: string;
+  title: string;
+  /** 有封面就在格子裡畫封面，沒有就畫一條標題——差別在這一欄，不在類型 */
+  coverUrl: string;
+  href: string;
+  /** 配色跟著類型走，同一天有兩種類型才分得出來 */
+  kindSlug: string;
+}
 
 export interface CalendarDay {
   date: Date;
   inCurrentMonth: boolean;
-  books: Book[];
-  articles: Article[];
-  writings: Writing[];
+  entries: CalendarEntry[];
 }
 
 function dateKey(d: Date): string {
@@ -16,36 +21,35 @@ function dateKey(d: Date): string {
   ).padStart(2, "0")}`;
 }
 
+/** 一筆資料加上它落在哪一天。日期由呼叫端決定要看完成日還是記下的那天 */
+export type DatedEntry = CalendarEntry & { date: string | null };
+
 /** 依日期分堆。日期空著或格式壞掉的落在月曆外面，直接跳過 */
-function groupByDay<T>(items: T[], getDate: (item: T) => string | null): Map<string, T[]> {
-  const byDay = new Map<string, T[]>();
-  for (const item of items) {
-    const raw = getDate(item);
+function groupByDay(entries: readonly DatedEntry[]): Map<string, CalendarEntry[]> {
+  const byDay = new Map<string, CalendarEntry[]>();
+  for (const { date: raw, ...entry } of entries) {
     if (!raw) continue;
     const date = new Date(raw);
     if (Number.isNaN(date.getTime())) continue;
     const key = dateKey(date);
-    byDay.set(key, [...(byDay.get(key) ?? []), item]);
+    byDay.set(key, [...(byDay.get(key) ?? []), entry]);
   }
   return byDay;
 }
 
 /**
- * 三種東西共用同一張月曆：書與文章看「哪一天讀完」，紀事看「哪一天寫的」。
+ * 任何類型共用同一張月曆。
  *
- * 沒有合併成一個 entries 陣列，是因為畫法差很多——書有封面、文章是一條標題、
- * 紀事還有類型。合併之後每個地方都要再 switch 一次，不會比較短。
+ * 原本收 books／articles／writings 三個具名陣列，各自一套畫法——開「影集」
+ * 就得再加一個。改成一律攤成 entries：畫法的差別只有「有沒有封面」，
+ * 那是一筆資料自己的屬性，不是它屬於哪一種類型。
  */
 export function buildMonthGrid(
   year: number,
   month: number,
-  books: Book[],
-  articles: Article[] = [],
-  writings: Writing[] = [],
+  entries: readonly DatedEntry[] = [],
 ): CalendarDay[] {
-  const booksByDay = groupByDay(books, (b) => b.endDate);
-  const articlesByDay = groupByDay(articles, (a) => a.endDate);
-  const writingsByDay = groupByDay(writings, (w) => w.endDate);
+  const byDay = groupByDay(entries);
 
   const firstOfMonth = new Date(year, month, 1);
   const startWeekday = firstOfMonth.getDay();
@@ -59,13 +63,10 @@ export function buildMonthGrid(
   for (let i = 0; i < weekCount * 7; i++) {
     const date = new Date(gridStart);
     date.setDate(gridStart.getDate() + i);
-    const key = dateKey(date);
     days.push({
       date,
       inCurrentMonth: date.getMonth() === month,
-      books: booksByDay.get(key) ?? [],
-      articles: articlesByDay.get(key) ?? [],
-      writings: writingsByDay.get(key) ?? [],
+      entries: byDay.get(dateKey(date)) ?? [],
     });
   }
 

@@ -9,6 +9,7 @@
  */
 
 import { kindHref } from "@/config/kind-routes";
+import type { KindGroup } from "@/config/record-kinds";
 
 /** 存完要回到原本的畫面，所以把當時的 query 一路帶著走 */
 const withBack = (href: string, back?: string | null): string => {
@@ -106,4 +107,23 @@ type WritingSource = {
 /** 從書籍／文章頁去寫一則心得：帶著出處過去，新的那則才知道自己延伸自哪一筆 */
 export const writingNewHref = (source: WritingSource): string => {
   return `${writingsListHref}/new?${new URLSearchParams(source)}`;
+};
+
+/**
+ * 網址那一段放的是「詞」而不是編號的類型。
+ *
+ * 單字與關鍵字都靠名字認人：同一個詞在不同書各有一列，詳情頁要一次列完，
+ * 用編號就拆散了。`variant-registry` 替這兩種掛了專屬的詳情與編輯頁，
+ * 這裡是同一件事的另一半——連過去的時候也要用詞。
+ */
+const WORD_KEYED = new Set(["vocabulary", "keywords"]);
+
+/** 任何一筆的詳情頁。認不得的類型走通用路由，那是絕大多數 */
+export const entryHref = (
+  group: KindGroup,
+  slug: string,
+  entry: { id: string; title: string },
+): string => {
+  const segment = WORD_KEYED.has(slug) ? encodeURIComponent(entry.title) : entry.id;
+  return `${kindHref(group, slug)}/${segment}`;
 };

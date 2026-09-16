@@ -1,11 +1,21 @@
-import { Book } from "@/types/book";
+/**
+ * 數線上的一筆。任何類型都攤成這個形狀——數線只認起訖與標題，
+ * 不認「這是書還是影集」。
+ */
+export interface TimelineItem {
+  id: string;
+  title: string;
+  startDate: string | null;
+  endDate: string | null;
+  href: string;
+}
 
-/** 一本書在數線上佔的期間。日期只留年月日，帶時分秒去比較會多算一天 */
+/** 一筆在數線上佔的期間。日期只留年月日，帶時分秒去比較會多算一天 */
 export interface Span {
-  book: Book;
+  item: TimelineItem;
   start: Date;
   end: Date;
-  /** 還沒讀完：線畫到今天，但尾端不封口 */
+  /** 還沒完成：線畫到今天，但尾端不封口 */
   ongoing: boolean;
 }
 
@@ -30,18 +40,18 @@ export function daysBetween(from: Date, to: Date): number {
 }
 
 /**
- * 兩個日期都沒有的書畫不出期間，直接跳過。
- * 只有讀完日期的當成那一天的一個點；還在讀的畫到今天為止。
+ * 兩個日期都沒有的畫不出期間，直接跳過。
+ * 只有完成日期的當成那一天的一個點；還沒完成的畫到今天為止。
  */
-export function toSpans(books: Book[], today: Date): Span[] {
+export function toSpans(items: readonly TimelineItem[], today: Date): Span[] {
   const now = startOfDay(today);
-  return books.flatMap((book) => {
-    const finished = parseDay(book.endDate);
-    const start = parseDay(book.startDate) ?? finished;
+  return items.flatMap((item) => {
+    const finished = parseDay(item.endDate);
+    const start = parseDay(item.startDate) ?? finished;
     if (!start) return [];
     const end = finished ?? now;
     // 資料打錯（完成早於開始）就當成一天，不要畫出負寬度
-    return [{ book, start, end: end < start ? start : end, ongoing: !finished }];
+    return [{ item, start, end: end < start ? start : end, ongoing: !finished }];
   });
 }
 
