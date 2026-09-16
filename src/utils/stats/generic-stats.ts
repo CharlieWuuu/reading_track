@@ -1,5 +1,6 @@
 import { splitTags } from "@/types/book";
-import type { DistributionGroup, DistributionSlice } from "@/utils/stats/book-stats";
+import { parseDate } from "@/utils/date";
+import type { DistributionGroup, DistributionSlice } from "@/utils/stats/types";
 import type { StatSpec } from "@/utils/stats/from-modules";
 
 /**
@@ -82,6 +83,99 @@ export function sum(rows: StatRow[], field: string): { total: number; average: n
   if (!numbers.length) return { total: 0, average: 0 };
   const t = numbers.reduce((a, b) => a + b, 0);
   return { total: t, average: Math.round(t / numbers.length) };
+}
+
+/**
+ * 重複做過幾次：同一個作品有好幾筆紀錄就是重讀（重看、重聽）。
+ *
+ * 全部都只做過一次就回空陣列——那張圖畫出來會是一排一模一樣的長條，
+ * 沒說出任何事。文章與影集現在就是這樣，自動不出現。
+ *
+ * 不另外查資料庫：列表本來就帶著 workId，在記憶體裡分組就好（143 筆約 0ms）。
+ */
+export function repeats(
+  rows: StatRow[],
+  { groupField = "workId", titleField = "title", limit = 5 } = {},
+): DistributionSlice[] {
+  const counts = new Map<string, { name: string; value: number }>();
+  for (const row of rows) {
+    const key = String(row[groupField] ?? "");
+    if (!key) continue;
+    const found = counts.get(key);
+    if (found) found.value += 1;
+    else counts.set(key, { name: String(row[titleField] ?? ""), value: 1 });
+  }
+
+  const repeated = [...counts.values()].filter((item) => item.value > 1);
+  if (!repeated.length) return [];
+  return repeated
+    .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name, "zh-Hant"))
+    .slice(0, limit);
+}
+
+/** 一季一格的完成數。累積圖與每季趨勢都吃這個 */
+export function quarterly(
+  rows: StatRow[],
+  dateField = "endDate",
+): { quarter: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const row of rows) {
+    const date = parseDate(row[dateField] ?? null);
+    if (!date || isNaN(+date)) continue;
+    const key = `${date.getFullYear()}-Q${Math.floor(date.getMonth() / 3) + 1}`;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([quarter, count]) => ({ quarter, count }));
+}
+
+/**
+ * 累積曲線：一季一格，數字是「到這一季為止總共幾筆」。
+ *
+ * splitBy 給了就拆成好幾條線（照領域、照屬性看組成），沒給就一條「總計」。
+ * 區間永遠是全部——累積曲線切掉前面就不叫累積了。
+ */
+export function cumulative(
+  rows: StatRow[],
+  { dateField = "endDate", splitBy }: { dateField?: string; splitBy?: string } = {},
+): { keys: string[]; rows: Record<string, number | string>[] } {
+  const quarters = quarterly(rows, dateField).map((q) => q.quarter);
+  if (!quarters.length) return { keys: [], rows: [] };
+
+  const perQuarter = new Map<string, Map<string, number>>();
+  const totals = new Map<string, number>();
+  for (const row of rows) {
+    const date = parseDate(row[dateField] ?? null);
+    if (!date || isNaN(+date)) continue;
+    const key = `${date.getFullYear()}-Q${Math.floor(date.getMonth() / 3) + 1}`;
+    const raw = splitBy ? valuesOf(row, splitBy) : [];
+    const names = splitBy ? (raw.length ? raw : ["未分類"]) : ["總計"];
+    for (const name of names) {
+      const bucket = perQuarter.get(key) ?? new Map<string, number>();
+      bucket.set(name, (bucket.get(name) ?? 0) + 1);
+      perQuarter.set(key, bucket);
+      totals.set(name, (totals.get(name) ?? 0) + 1);
+    }
+  }
+
+  const keys = [...totals.entries()].sort((a, b) => b[1] - a[1]).map(([name]) => name);
+  const running = new Map<string, number>();
+  const out = quarters.map((quarter) => {
+    const bucket = perQuarter.get(quarter);
+    const point: Record<string, number | string> = { quarter };
+    for (const key of keys) {
+      running.set(key, (running.get(key) ?? 0) + (bucket?.get(key) ?? 0));
+      point[key] = running.get(key)!;
+    }
+    return point;
+  });
+  return { keys, rows: out };
+}
+
+/** 有幾筆留下了延伸（心得、佳句……）。不分種類，就是「這一筆後來被我寫過嗎」 */
+export function withLinks(rows: StatRow[], field = "linkCount"): number {
+  return rows.filter((row) => Number(row[field] ?? 0) > 0).length;
 }
 
 /** 一張圖算好的資料。畫面照 kind 決定要畫哪一種元件 */

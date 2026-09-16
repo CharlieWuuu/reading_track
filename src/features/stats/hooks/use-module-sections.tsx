@@ -1,16 +1,26 @@
 "use client";
 
 import { useMemo } from "react";
+import { CumulativeChart } from "@/features/stats/components/cumulative-chart";
 import { DistributionPie } from "@/features/stats/components/distribution-pie";
 import { DistributionTreemap } from "@/features/stats/components/distribution-treemap";
 import { MonthlyTrendChart } from "@/features/stats/components/monthly-trend-chart";
 import { Panel } from "@/features/stats/components/panel";
 import { RankingBar } from "@/features/stats/components/ranking-bar";
 import { Section } from "@/features/stats/components/section-list";
+import { YearlyTrendChart } from "@/features/stats/components/yearly-trend-chart";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import type { DistributionGroup, DistributionSlice } from "@/utils/stats/book-stats";
+import type { DistributionGroup, DistributionSlice } from "@/utils/stats/types";
 import { statsOfModules } from "@/utils/stats/from-modules";
-import { distribution, statData, type StatRow } from "@/utils/stats/generic-stats";
+import {
+  cumulative,
+  distribution,
+  quarterly,
+  repeats,
+  statData,
+  withLinks,
+  type StatRow,
+} from "@/utils/stats/generic-stats";
 import { getRecordKpis, getRecordMonthlyTrend } from "@/utils/stats/record-stats";
 
 /**
@@ -28,6 +38,8 @@ export function useModuleSections({
   rows,
   unit,
   groupBy,
+  showRepeats,
+  showLinks,
 }: {
   moduleKeys: readonly string[];
   /** 這個類型替模組取的名字（書籍把 creator 叫「作者」） */
@@ -42,6 +54,13 @@ export function useModuleSections({
    * 一次看好幾種書寫（心得、思緒、札記）時，這張圖才說得出比例。
    */
   groupBy?: { field: string; label: string };
+  /**
+   * 列表帶得出「同一個作品有幾筆紀錄」時打開，出重讀排行。
+   * 全部都只做過一次會自動不顯示——文章與影集現在就是那樣。
+   */
+  showRepeats?: boolean;
+  /** 列表帶了 linkCount 時打開，概覽多一張「有延伸」的數字卡 */
+  showLinks?: boolean;
 }): Section[] {
   const isMobile = useIsMobile();
 
@@ -57,7 +76,25 @@ export function useModuleSections({
       : [];
 
     const sums = data.filter((d) => d.kind === "sum");
-    const rankings = data.filter((d) => d.kind === "ranking");
+    const repeatRows = showRepeats ? repeats(rows) : [];
+    const quarters = quarterly(rows, trend?.field ?? "endDate");
+    const rankings: PieItem[] = [
+      ...data.flatMap<PieItem>((d) =>
+        d.kind === "ranking"
+          ? [{ key: d.spec.moduleKey, label: d.spec.label, slices: d.slices }]
+          : [],
+      ),
+      // 重讀放最後：它問的是「哪幾本值得再讀一次」，跟其他排行不是同一種問題
+      ...(showRepeats && repeatRows.length
+        ? [{ key: "repeats", label: "重複最多", slices: repeatRows }]
+        : []),
+    ];
+    // 能拆的維度就是那幾張分布圖看的欄位：領域、屬性、語言
+    const cumulativeSplits = data.flatMap((d) =>
+      d.kind === "tree" || d.kind === "distribution"
+        ? [{ key: d.spec.fields[0], label: d.spec.label }]
+        : [],
+    );
     const pies: PieItem[] = [
       ...(groupBy
         ? [
@@ -77,21 +114,51 @@ export function useModuleSections({
       }),
     ];
 
-    const trendChart = () => (
-      <MonthlyTrendChart
-        title={`每月${unit}數`}
-        data={monthly}
-        unit={unit}
-        seriesLabel={`${unit}數`}
-        height="100%"
-      />
-    );
+    // 跨了兩年以上才用季當刻度：只看半年的話，兩根季長條看不出這半年發生什麼事
+    const trendChart = () =>
+      quarters.length > 8 ? (
+        <YearlyTrendChart
+          title={`每季${unit}數`}
+          quarterlyData={quarters}
+          monthlyData={monthly}
+          height="100%"
+        />
+      ) : (
+        <MonthlyTrendChart
+          title={`每月${unit}數`}
+          data={monthly}
+          unit={unit}
+          seriesLabel={`${unit}數`}
+          height="100%"
+        />
+      );
+
+    // 累積曲線只在有足夠季數時才有意義——兩三格看不出「一路長上來」
+    const cumulativeSection =
+      quarters.length > 4
+        ? [
+            {
+              key: "cumulative",
+              label: `累積${unit}數`,
+              ...(isMobile ? { scrollHeight: "h-70 sm:h-[32rem]" } : {}),
+              node: (
+                <CumulativeChart
+                  title={`累積${unit}數`}
+                  rows={rows}
+                  splits={cumulativeSplits}
+                  height="100%"
+                />
+              ),
+            },
+          ]
+        : [];
 
     const summary = (
       <div className="flex flex-wrap gap-3">
         <Kpi label={`累計${unit}數`} value={kpis.completed} />
         <Kpi label="今年" value={kpis.thisYear} />
         <Kpi label="每月平均" value={kpis.avgPerMonth} />
+        {showLinks && <Kpi label="有延伸" value={withLinks(rows)} />}
         {sums.map((s) => (
           <Kpi key={s.spec.moduleKey} label={`總${s.spec.label}`} value={s.total} />
         ))}
@@ -132,6 +199,7 @@ export function useModuleSections({
               ),
             },
           ]),
+      ...cumulativeSection,
 
       ...(pies.length
         ? isMobile
@@ -167,8 +235,8 @@ export function useModuleSections({
               node: (
                 <div className="grid gap-4 md:grid-cols-2">
                   {rankings.map((item) => (
-                    <Panel key={item.spec.moduleKey} title={`常見${item.spec.label} Top 5`}>
-                      <RankingBar data={item.slices} unit={unit} />
+                    <Panel key={item.key} title={`${item.label} Top 5`}>
+                      <RankingBar data={item.slices ?? []} unit={unit} />
                     </Panel>
                   ))}
                 </div>
@@ -177,7 +245,7 @@ export function useModuleSections({
           ]
         : []),
     ];
-  }, [moduleKeys, labels, rows, unit, groupBy, isMobile]);
+  }, [moduleKeys, labels, rows, unit, groupBy, showRepeats, showLinks, isMobile]);
 }
 
 /** 圓餅那一區的一格：一層用 slices，兩層（領域）用 groups */

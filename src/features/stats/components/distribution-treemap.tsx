@@ -2,7 +2,7 @@
 
 import { ResponsiveContainer, Tooltip, Treemap } from "recharts";
 import { CATEGORICAL, SERIES_OVERFLOW, SERIES_PRIMARY } from "@/utils/chart-palette";
-import { DistributionGroup, DistributionSlice } from "@/utils/stats/book-stats";
+import { DistributionGroup, DistributionSlice } from "@/utils/stats/types";
 
 const styles = {
   root: "viz-root flex h-full min-h-0 flex-col gap-3.5",

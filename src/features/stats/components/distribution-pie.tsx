@@ -2,7 +2,7 @@
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { CATEGORICAL } from "@/utils/chart-palette";
-import { DistributionSlice } from "@/utils/stats/book-stats";
+import { DistributionSlice } from "@/utils/stats/types";
 
 /**
  * 佔比太小的區塊不拉線標示——線和字會互相疊在一起，反而什麼都看不清楚。

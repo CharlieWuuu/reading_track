@@ -12,9 +12,8 @@ import {
   YAxis,
 } from "recharts";
 import { SegmentedControl } from "@/components/ui/controls";
-import { Book } from "@/types/book";
 import { CATEGORICAL, SERIES_PRIMARY } from "@/utils/chart-palette";
-import { getCumulativeSeries } from "@/utils/stats/book-stats";
+import { cumulative, type StatRow } from "@/utils/stats/generic-stats";
 
 /** 每一季只在第一季標出年份，其餘留刻度線就好，不然 X 軸會擠成一團 */
 function quarterTick(value: string) {
@@ -27,13 +26,8 @@ function quarterLabel(label: unknown) {
   return `${year} 年 ${endMonth - 2}–${endMonth} 月`;
 }
 
-const SPLITS = [
-  { key: "all", label: "總計" },
-  { key: "domain", label: "領域" },
-  { key: "type", label: "屬性" },
-] as const;
-
-type Split = (typeof SPLITS)[number]["key"];
+/** 可以拆的維度由呼叫端給——單字沒有領域，硬列出來只會是一片「未分類」 */
+export type CumulativeSplit = { key: string; label: string };
 
 /**
  * 累積完成本數。
@@ -45,16 +39,22 @@ type Split = (typeof SPLITS)[number]["key"];
  * 所以切換時整體形狀不會變，變的只是「這些量是由什麼組成的」。
  */
 export function CumulativeChart({
-  books,
+  rows: source,
+  splits = [],
   height = 260,
-  title = "累積完成本數",
+  title,
 }: {
-  books: Book[];
+  rows: StatRow[];
+  /** 「總計」永遠在最前面，這裡給的是它後面那幾個 */
+  splits?: CumulativeSplit[];
   height?: number | `${number}%`;
   title?: string;
 }) {
-  const [split, setSplit] = useState<Split>("all");
-  const { keys, rows } = getCumulativeSeries(books, split === "all" ? undefined : split);
+  const [split, setSplit] = useState("all");
+  const options = [{ key: "all", label: "總計" }, ...splits];
+  const { keys, rows } = cumulative(source, {
+    splitBy: split === "all" ? undefined : split,
+  });
 
   if (rows.length === 0) {
     return (
@@ -74,7 +74,9 @@ export function CumulativeChart({
     >
       <div className="flex shrink-0 items-center justify-between gap-3">
         {title ? <p className="text-sm font-medium">{title}</p> : <span />}
-        <SegmentedControl size="sm" items={SPLITS} value={split} onChange={setSplit} />
+        {splits.length > 0 && (
+          <SegmentedControl size="sm" items={options} value={split} onChange={setSplit} />
+        )}
       </div>
       <div className="min-h-0 flex-1">
         <ResponsiveContainer width="100%" height={height}>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { statsOfModules } from "./from-modules";
-import { distribution, ranking, statData, sum, tree } from "./generic-stats";
+import { distribution, ranking, repeats, statData, sum, tree, withLinks } from "./generic-stats";
 
 const rows = [
   { creator: "村上春樹", language: "日文", domain: "文學", subDomain: "小說", amount: "300" },
@@ -55,6 +55,31 @@ describe("sum", () => {
 
   it("全部空白給 0，不是 NaN", () => {
     expect(sum([{ amount: "" }], "amount")).toEqual({ total: 0, average: 0 });
+  });
+});
+
+describe("repeats", () => {
+  it("全部只做過一次就不出圖——一排一樣長的長條說不出任何事", () => {
+    expect(repeats([{ workId: "a" }, { workId: "b" }])).toEqual([]);
+  });
+
+  it("做過兩次以上的才上榜，照次數排", () => {
+    const rows = [
+      { workId: "a", title: "原子習慣" },
+      { workId: "a", title: "原子習慣" },
+      { workId: "b", title: "小王子" },
+    ];
+    expect(repeats(rows)).toEqual([{ name: "原子習慣", value: 2 }]);
+  });
+
+  it("沒有 workId 的列跳過，不會併成同一組", () => {
+    expect(repeats([{ workId: "" }, { workId: "" }])).toEqual([]);
+  });
+});
+
+describe("withLinks", () => {
+  it("數有留下延伸的那幾筆", () => {
+    expect(withLinks([{ linkCount: "2" }, { linkCount: "0" }, {}])).toBe(1);
   });
 });
 

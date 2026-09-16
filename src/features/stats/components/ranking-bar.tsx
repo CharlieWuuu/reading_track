@@ -2,7 +2,7 @@
 
 import { BookCover } from "@/components/ui/book-cover";
 import { SEQUENTIAL } from "@/utils/chart-palette";
-import { RankingItem } from "@/utils/stats/book-stats";
+import { RankingItem } from "@/utils/stats/types";
 
 /**
  * 排行用純 CSS 長條，不走 recharts。
