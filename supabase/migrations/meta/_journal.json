@@ -106,6 +106,13 @@
       "when": 1789487500000,
       "tag": "0014_drop_fragment_writing_cover",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1789488000000,
+      "tag": "0015_rename_module_keys",
+      "breakpoints": true
     }
   ]
 }
