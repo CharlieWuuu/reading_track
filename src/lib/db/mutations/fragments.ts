@@ -87,7 +87,6 @@ export async function replaceBookQuotes(
         title: item.text,
         locator: item.chapter,
         body: item.note,
-        coverUrl: item.coverUrl,
       })),
   );
 }
@@ -113,7 +112,6 @@ export async function replaceBookVocabulary(
         example: item.example,
         exampleTranslation: item.exampleTranslation,
         locator: item.chapter,
-        coverUrl: item.coverUrl,
       })),
   );
 }
@@ -157,7 +155,6 @@ export async function addQuote(userId: string, readingId: string, item: QuoteRow
       title: item.text,
       locator: item.chapter,
       body: item.note,
-      coverUrl: item.coverUrl,
     });
     if (workId) await link(tx, userId, id, workId);
   });
@@ -183,7 +180,6 @@ export async function addVocabulary(
       example: item.example,
       exampleTranslation: item.exampleTranslation,
       locator: item.chapter,
-      coverUrl: item.coverUrl,
     });
     if (workId) await link(tx, userId, id, workId);
   });

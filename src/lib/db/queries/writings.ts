@@ -65,7 +65,7 @@ async function toWritings(userId: string, rows: WritingJoinRow[]): Promise<Writi
       kindSlug,
       sourceId,
       private: "", // 書寫不帶私人旗標，藏東西一律從主題與類型下手
-      coverUrl: writing.coverUrl || (work?.coverUrl ?? ""), // 自己沒填就用出處那本書的封面
+      coverUrl: work?.coverUrl ?? "", // 封面跟著出處那本書走，書寫自己不存
     };
   });
 }

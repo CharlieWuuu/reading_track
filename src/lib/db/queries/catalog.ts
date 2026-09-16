@@ -238,7 +238,7 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
       createdAt: fragment.createdAt.toISOString(),
       // 佳句、單字沒填示意圖就用出處的封面——那句話本來就長在那本書上。
       // 關鍵字不退：一個詞不屬於任何一本書，掛書封只是誤導
-      coverUrl: fragment.coverUrl || (kind.slug === "keywords" ? "" : (work?.coverUrl ?? "")),
+      coverUrl: kind.slug === "keywords" ? "" : (work?.coverUrl ?? ""),
     };
   });
 }
@@ -278,7 +278,7 @@ export async function listFragmentsByKind(userId: string, kindId: string): Promi
       createdAt: fragment.createdAt.toISOString(),
       // 佳句、單字沒填示意圖就用出處的封面——那句話本來就長在那本書上。
       // 關鍵字不退：一個詞不屬於任何一本書，掛書封只是誤導
-      coverUrl: fragment.coverUrl || (kind.slug === "keywords" ? "" : (work?.coverUrl ?? "")),
+      coverUrl: kind.slug === "keywords" ? "" : (work?.coverUrl ?? ""),
     };
   });
 }
@@ -312,7 +312,7 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       pronunciation: "",
       date: writing.endDate,
       createdAt: writing.createdAt,
-      coverUrl: writing.coverUrl,
+      coverUrl: "",
     }))
     .sort(byDateThenNewest((row) => row.date));
 }
@@ -442,7 +442,6 @@ export async function getWritingValues(
       title: row.title,
       body: row.body,
       endDate: row.endDate ?? "",
-      coverUrl: row.coverUrl,
     },
   };
 }
@@ -475,7 +474,6 @@ export async function getFragmentValues(
       latitude: row.latitude?.toString() ?? "",
       longitude: row.longitude?.toString() ?? "",
       externalUrl: await sourceUrlOfFragment(userId, id),
-      coverUrl: row.coverUrl,
     },
   };
 }

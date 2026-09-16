@@ -71,7 +71,7 @@ export async function listQuoteRows(userId: string): Promise<QuoteRow[]> {
       chapter: fragment.locator,
       note: fragment.body,
       date: fragment.createdAt.toISOString().slice(0, 10),
-      coverUrl: fragment.coverUrl,
+      coverUrl: work?.coverUrl ?? "",
     };
   });
 }
@@ -165,7 +165,7 @@ export async function listDoneQuoteRows(
         chapter: fragment.locator,
         note: fragment.body,
         date: fragment.createdAt.toISOString().slice(0, 10),
-        coverUrl: fragment.coverUrl,
+        coverUrl: work?.coverUrl ?? "",
       };
     }),
     nextCursor,
@@ -203,7 +203,7 @@ export async function listDoneVocabularyRows(
         language: "",
         createdAt: fragment.createdAt.toISOString(),
         date: fragment.createdAt.toISOString().slice(0, 10),
-        coverUrl: fragment.coverUrl,
+        coverUrl: work?.coverUrl ?? "",
       };
     }),
     nextCursor,
@@ -237,7 +237,7 @@ export async function listVocabularyRows(userId: string): Promise<VocabularyRow[
       language: "", // 語言在作品那一層，單字自己不帶
       createdAt: fragment.createdAt.toISOString(),
       date: fragment.createdAt.toISOString().slice(0, 10),
-      coverUrl: fragment.coverUrl,
+      coverUrl: work?.coverUrl ?? "",
     };
   });
 }

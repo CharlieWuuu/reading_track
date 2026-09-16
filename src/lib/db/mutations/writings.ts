@@ -92,7 +92,6 @@ export async function addWritingRow(userId: string, writing: Writing): Promise<v
       title: writing.title,
       body: writing.note,
       endDate: toDate(writing.endDate),
-      coverUrl: writing.coverUrl,
     });
     await setSourceWork(tx, userId, writing.id, workId);
     await setWritingSourceUrl(tx, userId, writing.id, writing.link);
@@ -121,7 +120,6 @@ export async function addWritingFromValues(
       title: values.title ?? "",
       body: values.body ?? "",
       endDate: toDate(values.endDate ?? ""),
-      coverUrl: values.coverUrl ?? "",
     })
     .returning({ id: writings.id });
   return row.id;
@@ -140,7 +138,6 @@ export async function updateWritingRow(
   if (patch.title !== undefined) values.title = patch.title;
   if (patch.note !== undefined) values.body = patch.note;
   if (patch.endDate !== undefined) values.endDate = toDate(patch.endDate);
-  if (patch.coverUrl !== undefined) values.coverUrl = patch.coverUrl;
   const workId = patch.sourceId === undefined ? undefined : await workIdFor(userId, patch.sourceId);
 
   await db.transaction(async (tx) => {

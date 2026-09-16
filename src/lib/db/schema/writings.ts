@@ -22,6 +22,5 @@ export const writings = pgTable("domain_writings", {
   endDate: date("end_date"),
   title: text("title").notNull().default(""),
   body: text("body").notNull().default(""), // 內文
-  coverUrl: text("cover_url").notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

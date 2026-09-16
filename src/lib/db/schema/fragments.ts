@@ -44,6 +44,5 @@ export const fragments = pgTable("domain_fragments", {
   endYear: integer("end_year"),
   latitude: doublePrecision("latitude"),
   longitude: doublePrecision("longitude"),
-  coverUrl: text("cover_url").notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
