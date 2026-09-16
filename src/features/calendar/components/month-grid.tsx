@@ -3,40 +3,41 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { PagerButton } from "@/components/ui/pager-button";
-import { articleHref, bookEditHref, bookHref, writingHref } from "@/config/routes";
-import { buildMonthGrid, CalendarDay } from "@/features/calendar/utils/calendar-utils";
+import {
+  buildMonthGrid,
+  CalendarDay,
+  CalendarEntry,
+  DatedEntry,
+} from "@/features/calendar/utils/calendar-utils";
 import { cellBorder } from "@/features/calendar/utils/cell-border";
-import { Article } from "@/types/article";
-import { Book } from "@/types/book";
-import { Writing } from "@/types/writing";
 import { imageSrc } from "@/utils/image-key";
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
-/** 手機格子裡的數量徽章：顏色跟該類型在明細裡的標籤同一套 */
-const COUNT =
-  "inline-flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full px-1 text-[10px] leading-none font-medium tabular-nums";
-const styles = {
-  count: {
-    article: `${COUNT} bg-blue-50 text-blue-900`,
-    writing: `${COUNT} bg-gold-100 text-gold-800`,
-  },
-};
+/**
+ * 格子裡怎麼畫，看的是這一筆有沒有封面，不是它屬於哪一種類型——
+ * 有封面就畫封面（書、影集），沒有就畫一條標題（文章、札記、單字）。
+ *
+ * 原本按 books／articles／writings 各寫一套，連顏色都寫死；開一種新類型
+ * 沒地方擺，只能再加一個分支。
+ */
+const withCover = (entries: readonly CalendarEntry[]) => entries.filter((e) => e.coverUrl);
+const withoutCover = (entries: readonly CalendarEntry[]) => entries.filter((e) => !e.coverUrl);
 
-/** 格子裡只列第一篇文章，其餘用右邊的「+N」表示，完整清單看下方明細 */
-function DayArticles({ articles }: { articles: Article[] }) {
-  if (articles.length === 0) return null;
+/** 格子裡只列第一條，其餘用右邊的「+N」表示，完整清單看下方明細 */
+function DayTitles({ entries }: { entries: CalendarEntry[] }) {
+  if (entries.length === 0) return null;
 
-  const first = articles[0];
-  const hidden = articles.length - 1;
+  const [first] = entries;
+  const hidden = entries.length - 1;
 
   return (
     <div className="mt-1 flex items-center gap-1">
       <Link
-        href={articleHref(first.id)}
+        href={first.href}
         onClick={(e) => e.stopPropagation()}
         title={first.title}
-        className="rounded-thumb min-w-0 flex-1 truncate bg-blue-50 px-1 py-0.5 text-[10px] text-blue-900 hover:bg-blue-100"
+        className="rounded-thumb text-ink-muted min-w-0 flex-1 truncate bg-gray-100 px-1 py-0.5 text-[10px] hover:bg-gray-200"
       >
         {first.title}
       </Link>
@@ -47,86 +48,39 @@ function DayArticles({ articles }: { articles: Article[] }) {
   );
 }
 
-/** 格子裡只列第一則紀事，其餘用「+N」表示，完整清單看下方明細 */
-function DayWritings({ writings }: { writings: Writing[] }) {
-  if (writings.length === 0) return null;
-
-  const first = writings[0];
-  const hidden = writings.length - 1;
-
-  return (
-    <div className="mt-1 flex items-center gap-1">
-      <Link
-        href={writingHref(first.id)}
-        onClick={(e) => e.stopPropagation()}
-        title={first.title}
-        className="rounded-thumb bg-gold-100 text-gold-800 hover:bg-gold-200 min-w-0 flex-1 truncate px-1 py-0.5 text-[10px]"
-      >
-        {first.title}
-      </Link>
-      {hidden > 0 && (
-        <span className="shrink-0 text-[10px] font-medium text-gray-500">+{hidden}</span>
-      )}
-    </div>
-  );
-}
-
-/** 某一天的完整書籍、文章與紀事清單，手機下方明細與桌機彈窗共用 */
+/** 某一天的完整清單，手機下方明細與桌機彈窗共用 */
 function DayDetail({ day }: { day?: CalendarDay }) {
-  if (!day || (day.books.length === 0 && day.articles.length === 0 && day.writings.length === 0)) {
+  if (!day || day.entries.length === 0) {
     return <p className="text-xs text-gray-400">這天沒有紀錄</p>;
   }
 
   return (
     <div className="space-y-2">
-      {day.books.map((b) => (
+      {day.entries.map((entry) => (
         <Link
-          key={b.id}
-          href={bookEditHref(b.id)}
+          key={entry.id}
+          href={entry.href}
+          title={entry.title}
           className="rounded-control flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50"
         >
-          {b.coverUrl ? (
+          {entry.coverUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={imageSrc(b.coverUrl)} alt="" className="rounded-thumb h-9 w-6 object-cover" />
+            <img
+              src={imageSrc(entry.coverUrl)}
+              alt=""
+              className="rounded-thumb h-9 w-6 shrink-0 object-cover"
+            />
           ) : (
-            <div className="rounded-thumb h-9 w-6 bg-gray-200" />
+            <span className="rounded-thumb h-9 w-6 shrink-0 bg-gray-200" />
           )}
-          <span className="min-w-0 flex-1 truncate text-xs">{b.title}</span>
-        </Link>
-      ))}
-      {day.articles.map((a) => (
-        <Link
-          key={a.id}
-          href={articleHref(a.id)}
-          title={a.title}
-          className="rounded-control block truncate bg-blue-50 px-2 py-1.5 text-xs text-blue-900 hover:bg-blue-100"
-        >
-          {a.title}
-        </Link>
-      ))}
-      {day.writings.map((w) => (
-        <Link
-          key={w.id}
-          href={writingHref(w.id)}
-          title={w.title}
-          className="rounded-control bg-gold-100 text-gold-800 hover:bg-gold-200 block truncate px-2 py-1.5 text-xs"
-        >
-          {w.title}
+          <span className="min-w-0 flex-1 truncate text-xs">{entry.title}</span>
         </Link>
       ))}
     </div>
   );
 }
 
-export function MonthGrid({
-  books,
-  articles = [],
-  writings = [],
-}: {
-  books?: Book[];
-  articles?: Article[];
-  writings?: Writing[];
-}) {
+export function MonthGrid({ entries = [] }: { entries?: readonly DatedEntry[] }) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -136,10 +90,7 @@ export function MonthGrid({
   // 桌機版點格子開的彈窗，null 表示沒開；不佔月曆高度所以不會產生捲動
   const [popupTime, setPopupTime] = useState<number | null>(null);
 
-  const days = useMemo(
-    () => buildMonthGrid(year, month, books ?? [], articles, writings),
-    [year, month, books, articles, writings],
-  );
+  const days = useMemo(() => buildMonthGrid(year, month, entries), [year, month, entries]);
 
   const selectedDay = days.find((d) => d.date.toDateString() === selected.toDateString());
 
@@ -200,6 +151,8 @@ export function MonthGrid({
         {days.map((day, i) => {
           const isToday = day.date.toDateString() === today.toDateString();
           const isSelected = day.date.toDateString() === selected.toDateString();
+          const covered = withCover(day.entries);
+          const plain = withoutCover(day.entries);
           return (
             <button
               key={i}
@@ -225,38 +178,33 @@ export function MonthGrid({
               </span>
 
               {/*
-                書封只放第一本，其餘用 +N；文章與紀事沒有圖，用數字說「這天有幾則」。
-                原本是一顆圓點，但圓點只說得出「有」，說不出幾則，也分不出是哪一種。
+                有封面的放第一張，其餘用 +N；沒封面的用數字說「這天有幾則」。
+                原本是一顆圓點，但圓點只說得出「有」，說不出幾則。
               */}
               <span
                 className={`flex min-h-0 flex-1 items-center justify-center gap-0.5 ${
                   day.inCurrentMonth ? "" : "opacity-50"
                 }`}
               >
-                {day.books.length > 0 && (
+                {covered.length > 0 && (
                   <span className="relative flex h-full max-h-8 w-[1.35rem] shrink-0 items-center justify-center">
-                    {day.books[0].coverUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={imageSrc(day.books[0].coverUrl)}
-                        alt=""
-                        className="rounded-thumb h-full w-full object-cover shadow-sm"
-                      />
-                    ) : (
-                      <span className="rounded-thumb h-full w-full bg-gray-300" />
-                    )}
-                    {day.books.length > 1 && (
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={imageSrc(covered[0].coverUrl)}
+                      alt=""
+                      className="rounded-thumb h-full w-full object-cover shadow-sm"
+                    />
+                    {covered.length > 1 && (
                       <span className="absolute -top-1 -right-1 rounded-full bg-gray-900 px-1 text-[8px] leading-[1.2] text-white">
-                        +{day.books.length - 1}
+                        +{covered.length - 1}
                       </span>
                     )}
                   </span>
                 )}
-                {day.articles.length > 0 && (
-                  <span className={styles.count.article}>{day.articles.length}</span>
-                )}
-                {day.writings.length > 0 && (
-                  <span className={styles.count.writing}>{day.writings.length}</span>
+                {plain.length > 0 && (
+                  <span className="text-ink-muted inline-flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full bg-gray-100 px-1 text-[10px] leading-none font-medium tabular-nums">
+                    {plain.length}
+                  </span>
                 )}
               </span>
             </button>
@@ -269,8 +217,10 @@ export function MonthGrid({
         {days.map((day, i) => {
           const isToday = day.date.toDateString() === today.toDateString();
           const border = cellBorder(i, days.length);
+          const covered = withCover(day.entries);
+          const plain = withoutCover(day.entries);
           return (
-            // 點整格開這天的彈窗；格內的書封／文章連結照常可點
+            // 點整格開這天的彈窗；格內的封面與標題連結照常可點
             <div
               key={i}
               role="button"
@@ -287,7 +237,7 @@ export function MonthGrid({
                 day.inCurrentMonth ? "bg-white hover:bg-gray-50" : "bg-gray-50 hover:bg-gray-100"
               }`}
             >
-              {/* 日期壓在左上角，書封才能對整個格子置中，不會被日期推偏 */}
+              {/* 日期壓在左上角，封面才能對整個格子置中，不會被日期推偏 */}
               <span
                 className={`absolute top-1.5 left-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full text-xs ${
                   isToday
@@ -300,36 +250,30 @@ export function MonthGrid({
                 {day.date.getDate()}
               </span>
 
-              {/* 一格只放第一本書封，其餘用 +N 表示，完整清單在彈窗裡 */}
+              {/* 一格只放第一張封面，其餘用 +N 表示，完整清單在彈窗裡 */}
               <div
                 className={`flex min-h-0 flex-1 items-center justify-center ${
                   day.inCurrentMonth ? "" : "opacity-50"
                 }`}
               >
-                {day.books.length > 0 && (
+                {covered.length > 0 && (
                   <span className="relative flex shrink-0">
                     <Link
-                      href={bookHref(day.books[0].id)}
-                      title={day.books[0].title}
+                      href={covered[0].href}
+                      title={covered[0].title}
                       onClick={(e) => e.stopPropagation()}
                       className="block"
                     >
-                      {day.books[0].coverUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={imageSrc(day.books[0].coverUrl)}
-                          alt={day.books[0].title}
-                          className="rounded-thumb h-12 w-8 object-cover shadow-sm lg:h-14 lg:w-10"
-                        />
-                      ) : (
-                        <span className="rounded-thumb flex h-12 w-8 items-center justify-center bg-gray-200 text-[10px] leading-tight text-gray-500 lg:h-14 lg:w-10">
-                          {day.books[0].title.slice(0, 2)}
-                        </span>
-                      )}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={imageSrc(covered[0].coverUrl)}
+                        alt={covered[0].title}
+                        className="rounded-thumb h-12 w-8 object-cover shadow-sm lg:h-14 lg:w-10"
+                      />
                     </Link>
-                    {day.books.length > 1 && (
+                    {covered.length > 1 && (
                       <span className="absolute -top-1 -right-1 rounded-full bg-gray-900 px-1 text-[9px] leading-[1.3] text-white">
-                        +{day.books.length - 1}
+                        +{covered.length - 1}
                       </span>
                     )}
                   </span>
@@ -338,8 +282,7 @@ export function MonthGrid({
 
               {/* 非當月只淡化內容，格子底色與日期維持原樣 */}
               <div className={day.inCurrentMonth ? "" : "opacity-50"}>
-                <DayArticles articles={day.articles} />
-                <DayWritings writings={day.writings} />
+                <DayTitles entries={plain} />
               </div>
             </div>
           );

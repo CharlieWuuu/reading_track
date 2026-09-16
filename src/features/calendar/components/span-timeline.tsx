@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { bookEditHref } from "@/config/routes";
-import { Book } from "@/types/book";
 import {
   daysBetween,
   monthTicks,
@@ -12,47 +10,48 @@ import {
   spanRange,
   startOfDay,
   toSpans,
+  type TimelineItem,
 } from "@/utils/timeline";
 
 /** 一天多寬。一個月大約 300px，月份刻度才寫得下、線也看得出長短 */
 const DAY_PX = 10;
-/** 書名一個字大約這麼寬（text-[10px] 的漢字），用來估這一段實際佔多寬 */
+/** 標題一個字大約這麼寬（text-[10px] 的漢字），用來估這一段實際佔多寬 */
 const CHAR_PX = 10;
 const LANE_PX = 26;
 
 /**
- * 閱讀期間：一條連續的日期軸，每本書是一段橫線。
+ * 一段一段的期間：一條連續的日期軸，每一筆是一段橫線。
  *
  * 刻意不切月份——一本書讀三個月，切月份要翻三次才看得完，
- * 而「讀了多久」正是這張圖唯一在講的事。橫向捲，寬度隨期間長度。
+ * 而「做了多久」正是這張圖唯一在講的事。橫向捲，寬度隨期間長度。
  *
  * 顏色統一：線的位置與長度已經說完全部的資訊，
  * 再按分類上色只會讓人以為顏色另有含意。
  */
-export function ReadingTimeline({ books }: { books: Book[] }) {
+export function SpanTimeline({ items }: { items: readonly TimelineItem[] }) {
   const scroller = useRef<HTMLDivElement>(null);
   const today = startOfDay(new Date());
-  const spans = toSpans(books, today);
+  const spans = toSpans(items, today);
   const range = spanRange(spans);
 
   // 開起來先看最近的。整條軸可能橫跨好幾年，從最早那一頭開始等於一片空白
   useEffect(() => {
     const el = scroller.current;
     if (el) el.scrollLeft = el.scrollWidth;
-  }, [books]);
+  }, [items]);
 
   if (!range) {
     return (
       <div className="rounded-surface flex min-h-0 flex-1 items-center justify-center border bg-white p-8 text-sm text-gray-500">
-        還沒有填了日期的書
+        還沒有填了日期的紀錄
       </div>
     );
   }
 
-  // 一段實際佔多寬＝線與書名取長的那一個。只看線的話，讀一天的書
-  // 線只有 10px、書名卻有好幾個字，兩個名字會疊在一起
+  // 一段實際佔多寬＝線與標題取長的那一個。只看線的話，一天做完的
+  // 線只有 10px、標題卻有好幾個字，兩個名字會疊在一起
   const lanes = packLanes(spans, (span) =>
-    Math.max(spanDays(span), Math.ceil((span.book.title.length * CHAR_PX + 8) / DAY_PX)),
+    Math.max(spanDays(span), Math.ceil((span.item.title.length * CHAR_PX + 8) / DAY_PX)),
   );
   const totalDays = daysBetween(range.from, range.to) + 1;
   const width = totalDays * DAY_PX;
@@ -107,17 +106,17 @@ export function ReadingTimeline({ books }: { books: Book[] }) {
                 const days = daysBetween(span.start, span.end) + 1;
                 return (
                   <Link
-                    key={span.book.id}
-                    href={bookEditHref(span.book.id)}
-                    title={`${span.book.title}｜${span.book.startDate} ～ ${
-                      span.book.endDate ?? "閱讀中"
+                    key={span.item.id}
+                    href={span.item.href}
+                    title={`${span.item.title}｜${span.item.startDate} ～ ${
+                      span.item.endDate ?? "進行中"
                     }`}
                     style={{ left: offset * DAY_PX, top: laneIndex * LANE_PX + 6 }}
                     className="absolute flex h-5 flex-col justify-end"
                   >
-                    {/* 書名不關在線的寬度裡：讀一天的書只有 6px，關進去等於看不到名字 */}
+                    {/* 標題不關在線的寬度裡：一天做完的只有 6px，關進去等於看不到名字 */}
                     <span className="text-series-1 pointer-events-none absolute bottom-2.5 left-1 whitespace-nowrap">
-                      <span className="text-[10px] leading-none">{span.book.title}</span>
+                      <span className="text-[10px] leading-none">{span.item.title}</span>
                     </span>
                     <span
                       style={{ width: Math.max(days * DAY_PX, DAY_PX) }}

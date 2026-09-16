@@ -179,7 +179,7 @@ function place(spans: Span[], first: number, step: number): Segment[] {
   });
 }
 
-/** 互不重疊就共用一排，排數才不會等於關鍵字數（做法同 ReadingTimeline） */
+/** 互不重疊就共用一排，排數才不會等於關鍵字數（做法同 SpanTimeline） */
 function packLanes(segments: Segment[]): Segment[][] {
   const sorted = [...segments].sort((a, b) => b.slot - a.slot || a.start - b.start);
   const lanes: Segment[][] = [];

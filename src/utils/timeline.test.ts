@@ -1,30 +1,38 @@
-import { beforeEach, describe, expect, it } from "vitest";
-import { makeBook, resetIds } from "@/testing/factories";
-import { monthTicks, packLanes, spanRange, toSpans } from "./timeline";
+import { describe, expect, it } from "vitest";
+import { monthTicks, packLanes, spanRange, toSpans, type TimelineItem } from "./timeline";
 
 const TODAY = new Date(2026, 7, 23); // 2026-08-23
 
-beforeEach(resetIds);
+let seq = 0;
+/** 數線只認起訖與標題，所以這裡不用真的 Book——餵一筆就夠 */
+const item = (over: Partial<TimelineItem> = {}): TimelineItem => ({
+  id: `i${seq++}`,
+  title: "標題",
+  startDate: null,
+  endDate: null,
+  href: "/x",
+  ...over,
+});
 
 describe("toSpans", () => {
   it("兩個日期都沒有的畫不出期間", () => {
-    expect(toSpans([makeBook({ startDate: null, endDate: null })], TODAY)).toHaveLength(0);
+    expect(toSpans([item({ startDate: null, endDate: null })], TODAY)).toHaveLength(0);
   });
 
   it("只有完成日期就是那一天的一個點", () => {
-    const [span] = toSpans([makeBook({ startDate: null, endDate: "2026-08-10" })], TODAY);
+    const [span] = toSpans([item({ startDate: null, endDate: "2026-08-10" })], TODAY);
     expect(span.start).toEqual(span.end);
     expect(span.ongoing).toBe(false);
   });
 
-  it("還在讀的畫到今天，而且標成未完成", () => {
-    const [span] = toSpans([makeBook({ startDate: "2026-08-01", endDate: null })], TODAY);
+  it("還沒完成的畫到今天，而且標成未完成", () => {
+    const [span] = toSpans([item({ startDate: "2026-08-01", endDate: null })], TODAY);
     expect(span.end).toEqual(TODAY);
     expect(span.ongoing).toBe(true);
   });
 
   it("完成早於開始的壞資料收成一天，不畫負寬度", () => {
-    const [span] = toSpans([makeBook({ startDate: "2026-08-10", endDate: "2026-08-01" })], TODAY);
+    const [span] = toSpans([item({ startDate: "2026-08-10", endDate: "2026-08-01" })], TODAY);
     expect(span.start).toEqual(span.end);
   });
 });
@@ -33,8 +41,8 @@ describe("packLanes", () => {
   it("不重疊的期間排進同一列", () => {
     const spans = toSpans(
       [
-        makeBook({ startDate: "2026-01-01", endDate: "2026-01-10" }),
-        makeBook({ startDate: "2026-03-01", endDate: "2026-03-10" }),
+        item({ startDate: "2026-01-01", endDate: "2026-01-10" }),
+        item({ startDate: "2026-03-01", endDate: "2026-03-10" }),
       ],
       TODAY,
     );
@@ -44,36 +52,36 @@ describe("packLanes", () => {
   it("重疊的期間各佔一列", () => {
     const spans = toSpans(
       [
-        makeBook({ startDate: "2026-01-01", endDate: "2026-02-01" }),
-        makeBook({ startDate: "2026-01-15", endDate: "2026-02-15" }),
+        item({ startDate: "2026-01-01", endDate: "2026-02-01" }),
+        item({ startDate: "2026-01-15", endDate: "2026-02-15" }),
       ],
       TODAY,
     );
     expect(packLanes(spans)).toHaveLength(2);
   });
 
-  it("書名比線長時就換列，不讓兩個名字疊在一起", () => {
+  it("標題比線長時就換列，不讓兩個名字疊在一起", () => {
     const spans = toSpans(
       [
-        makeBook({ startDate: "2026-01-01", endDate: "2026-01-10" }),
-        makeBook({ startDate: "2026-01-12", endDate: "2026-01-20" }),
+        item({ startDate: "2026-01-01", endDate: "2026-01-10" }),
+        item({ startDate: "2026-01-12", endDate: "2026-01-20" }),
       ],
       TODAY,
     );
     expect(packLanes(spans)).toHaveLength(1);
-    // 每一段都當成 30 天寬（書名很長），兩段就疊到了
+    // 每一段都當成 30 天寬（標題很長），兩段就疊到了
     expect(packLanes(spans, () => 30)).toHaveLength(2);
   });
 
   it("寬的排在最上面那一列", () => {
     const spans = toSpans(
       [
-        makeBook({ title: "短", startDate: "2026-01-01", endDate: "2026-01-05" }),
-        makeBook({ title: "長", startDate: "2026-01-01", endDate: "2026-06-01" }),
+        item({ title: "短", startDate: "2026-01-01", endDate: "2026-01-05" }),
+        item({ title: "長", startDate: "2026-01-01", endDate: "2026-06-01" }),
       ],
       TODAY,
     );
-    expect(packLanes(spans)[0][0].book.title).toBe("長");
+    expect(packLanes(spans)[0][0].item.title).toBe("長");
   });
 });
 
@@ -85,8 +93,8 @@ describe("spanRange", () => {
   it("涵蓋最早的開始到最晚的結束", () => {
     const spans = toSpans(
       [
-        makeBook({ startDate: "2026-03-01", endDate: "2026-03-10" }),
-        makeBook({ startDate: "2026-01-05", endDate: "2026-05-20" }),
+        item({ startDate: "2026-03-01", endDate: "2026-03-10" }),
+        item({ startDate: "2026-01-05", endDate: "2026-05-20" }),
       ],
       TODAY,
     );

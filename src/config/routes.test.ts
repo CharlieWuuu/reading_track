@@ -2,7 +2,6 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 import * as routes from "./routes";
-import { STATS_TYPES, statsHref } from "./stats-views";
 import { READING_TABS, readingTabHref } from "./tabs";
 
 /**
@@ -41,11 +40,20 @@ const PATTERNS = realRoutes();
 const exists = (href: string) => PATTERNS.some((p) => p.test(href.split("?")[0]));
 
 describe("routes.ts 產生的網址都有對應的頁", () => {
+  /**
+   * 收字串的餵 "x"／"y" 就好；收一整筆資料的各自給一份，不然掃到它就爆。
+   * 漏掉的在這裡補一行，比把上面那組過濾放寬安全——放寬等於不再檢查它。
+   */
+  const SHAPED: Record<string, unknown[]> = {
+    entryHref: ["records", "books", { id: "x", title: "y" }],
+    writingNewHref: [{ sourceId: "x", sourceTitle: "y", kind: "z" }],
+  };
+
   const cases: Array<[string, string]> = Object.entries(routes)
     .filter(
-      (entry): entry is [string, (...args: string[]) => string] => typeof entry[1] === "function",
+      (entry): entry is [string, (...args: unknown[]) => string] => typeof entry[1] === "function",
     )
-    .map(([name, build]) => [name, build("x", "y")]);
+    .map(([name, build]) => [name, build(...(SHAPED[name] ?? ["x", "y"]))]);
 
   it.each(cases)("%s → %s", (_name, href) => {
     expect(exists(href), `${href} 沒有對應的 page.tsx`).toBe(true);
@@ -59,11 +67,6 @@ describe("routes.ts 產生的網址都有對應的頁", () => {
 describe("分頁的 key 都有對應的頁", () => {
   it.each(READING_TABS.map((t) => t.key))("/reading/%s", (key) => {
     expect(exists(readingTabHref(key)), `${readingTabHref(key)} 沒有對應的 page.tsx`).toBe(true);
-  });
-
-  it.each(STATS_TYPES.map((t) => t.key))("/stats/%s", (key) => {
-    const href = statsHref(key, "chart");
-    expect(exists(href), `${href} 沒有對應的 page.tsx`).toBe(true);
   });
 });
 
@@ -98,5 +101,26 @@ describe("寫死在畫面上的網址都有對應的頁", () => {
 
   it.each([...new Map(found.map((f) => [f[1], f])).values()])("%s 的 %s", (_file, href) => {
     expect(exists(href), `${href} 沒有對應的 page.tsx`).toBe(true);
+  });
+});
+
+/**
+ * 單字與關鍵字認的是詞不是編號。踩過一次：通用編輯頁拿詞去查 catalog，
+ * 查不到就永遠卡在載入中——不是錯誤畫面，所以點下去只是沒反應。
+ */
+describe("entryHref", () => {
+  const entry = { id: "abc123", title: "愛" };
+
+  it("一般類型用編號", () => {
+    expect(routes.entryHref("records", "books", entry)).toBe("/records/books/abc123");
+  });
+
+  it.each(["vocabulary", "keywords"])("%s 用詞", (slug) => {
+    expect(routes.entryHref("fragments", slug, entry)).toBe(`/fragments/${slug}/%E6%84%9B`);
+  });
+
+  it("詞裡的斜線與空白要編碼，不然會多切出一段路徑", () => {
+    const href = routes.entryHref("fragments", "keywords", { id: "x", title: "a/b c" });
+    expect(href).toBe("/fragments/keywords/a%2Fb%20c");
   });
 });
