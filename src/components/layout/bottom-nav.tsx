@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { MastheadMark } from "@/components/ui/masthead-mark";
 import { isNavActive, NAV_ITEMS } from "./nav-items";
 
 /**
@@ -28,8 +29,7 @@ export function BottomNav() {
               pathname === "/" ? "text-gray-900" : "text-gray-400"
             }`}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/masthead-mark.svg" alt="" width={20} height={20} />
+            <MastheadMark />
             <span className="leading-none">首頁</span>
           </Link>
         </li>

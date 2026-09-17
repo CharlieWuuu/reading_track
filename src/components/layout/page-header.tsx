@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MastheadMark } from "@/components/ui/masthead-mark";
 import { BackLink } from "./back-link";
 
 const styles = {
@@ -65,9 +66,7 @@ export function PageHeader({
               麵包屑最前面放站名，才回得去「今天」 */}
           <span className={styles.home}>
             <Link href="/" aria-label="首頁" className={styles.homeLink}>
-              {/* 專用的透明版：icon.svg 有白底，那是分頁圖示要的，鋪在紙色頁首上會浮成方框 */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/masthead-mark.svg" alt="" width={18} height={18} />
+              <MastheadMark size={18} />
             </Link>
             <span className={`${styles.divider} ml-2`}>/</span>
           </span>
