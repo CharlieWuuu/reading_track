@@ -8,6 +8,7 @@ import { GroupTable } from "@/components/ui/group-table/group-table";
 import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headline";
 import { KindGroup } from "@/config/record-kinds";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
+import { useMounted } from "@/hooks/use-mounted";
 import { fragmentItem } from "@/utils/overview-items";
 import { sectionsByKind } from "@/utils/overview-sections";
 import { KindSectionBlock } from "./kind-section";
@@ -34,6 +35,10 @@ export function FragmentsOverview({
 }) {
   const { fragments, isLoading, error, mutate } = useGroupFragments(group);
 
+  // 掛載前不判斷資料狀態：靜態那份 HTML 一定是空的，會先閃一下「空的」
+  const mounted = useMounted();
+
+  if (!mounted) return null;
   if (error) return <PageMessage tone="error">{error}</PageMessage>;
   if (isLoading) return <PageLoading />;
 

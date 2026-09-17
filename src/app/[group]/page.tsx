@@ -9,7 +9,6 @@ import { FragmentsOverview } from "@/features/overview/components/fragments-over
 import { GroupViewMenu } from "@/features/overview/components/group-view-menu";
 import { RecordsOverview } from "@/features/overview/components/records-overview";
 import { useGroupView } from "@/hooks/use-group-view";
-import { useMounted } from "@/hooks/use-mounted";
 
 /**
  * 三個 group 的概覽共用這一頁：/records、/fragments、/writings。
@@ -22,7 +21,6 @@ import { useMounted } from "@/hooks/use-mounted";
  */
 export default function GroupPage() {
   const { group } = useParams<{ group: string }>();
-  const mounted = useMounted();
   const view = useGroupView();
 
   const nav = NAV_GROUPS.find((item) => item.kindGroup === group);
@@ -34,12 +32,11 @@ export default function GroupPage() {
     <>
       <PageHeader title={nav.label} action={<GroupViewMenu />} />
       <PageBody scroll={view === "table"}>
-        {mounted &&
-          (nav.kindGroup === "records" ? (
-            <RecordsOverview view={view} />
-          ) : (
-            <FragmentsOverview group={nav.kindGroup as KindGroup} view={view} />
-          ))}
+        {nav.kindGroup === "records" ? (
+          <RecordsOverview view={view} />
+        ) : (
+          <FragmentsOverview group={nav.kindGroup as KindGroup} view={view} />
+        )}
       </PageBody>
     </>
   );

@@ -6,6 +6,7 @@ import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { GroupTable } from "@/components/ui/group-table/group-table";
 import { useGroupRecords } from "@/hooks/use-group-records";
 import { useGroupRecordsOverview } from "@/hooks/use-group-records-overview";
+import { useMounted } from "@/hooks/use-mounted";
 import { recordItem } from "@/utils/overview-items";
 
 /**
@@ -20,6 +21,10 @@ export function RecordsOverview({ view = "overview" }: { view?: "overview" | "ta
   const table = useGroupRecords("records");
   const overview = useGroupRecordsOverview("records");
 
+  // 掛載前不判斷資料狀態：靜態那份 HTML 一定是空的，會先閃一下「空的」
+  const mounted = useMounted();
+
+  if (!mounted) return null;
   if (view === "table") {
     if (table.error) return <PageMessage tone="error">{table.error}</PageMessage>;
     if (table.isLoading) return <PageLoading />;
