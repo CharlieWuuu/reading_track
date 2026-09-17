@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { SCROLL_BOTTOM, SCROLL_BOTTOM_MD } from "@/components/layout/page-body";
+import { SCROLL_BOTTOM } from "@/components/layout/page-body";
 import { PageMessage } from "@/components/layout/page-message";
 import { Favicon } from "@/components/ui/favicon";
 import { TagList } from "@/components/ui/tag-badge";
@@ -12,9 +12,8 @@ import { Article } from "@/types/article";
 import { splitLines, splitTags } from "@/types/book";
 
 const styles = {
-  // 桌機只捲清單本身，外框留在原地；手機仍是整頁捲。跟書籍表格同一套細線風格，
-  // 不用圓角卡片框
-  list: `border-rule-strong shrink-0 border-t md:min-h-0 md:flex-1 md:overflow-y-auto ${SCROLL_BOTTOM_MD}`,
+  // 手機才出現（外面掛 md:hidden），跟著整頁捲。跟書籍表格同一套細線風格，不用圓角卡片框
+  list: "border-rule-strong shrink-0 border-t",
   row: "border-rule flex items-center gap-3 border-b py-3",
   body: "flex min-w-0 flex-1 flex-col gap-1",
   title: "font-serif text-item-sm truncate font-semibold tracking-tight",
