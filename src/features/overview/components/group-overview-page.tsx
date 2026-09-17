@@ -6,13 +6,27 @@ import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { GroupTable } from "@/components/ui/group-table/group-table";
 import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headline";
 import { KindGroup } from "@/config/record-kinds";
+import {
+  fragmentThreadRow,
+  WRITING_THREAD_GRID,
+  WritingThreadRow,
+} from "@/features/writing/components/writing-thread-row";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { useGroupRecords } from "@/hooks/use-group-records";
 import { useGroupRecordsOverview } from "@/hooks/use-group-records-overview";
 import { useMounted } from "@/hooks/use-mounted";
+import { FragmentRow } from "@/lib/db/queries/catalog";
+import { OverviewItem } from "@/utils/overview";
 import { fragmentItem, recordItem } from "@/utils/overview-items";
 import { sectionsByKind } from "@/utils/overview-sections";
 import { KindSectionBlock } from "./kind-section";
+
+/** 書寫一律走 threads 那種一路往下讀的流，不是卡片牆 */
+function threadRow(byId: Map<string, FragmentRow>, item: OverviewItem) {
+  const row = byId.get(item.id);
+  if (!row) return null;
+  return <WritingThreadRow {...fragmentThreadRow(row)} />;
+}
 
 const styles = {
   empty: "text-meta text-ink-faint py-8 text-center",
@@ -69,6 +83,7 @@ export function GroupOverviewPage({ group, view = "overview" }: GroupOverviewPag
 
   // 書寫照月份排，跟底下的書寫子頁一致；沒有進行中，全部當成完成的排
   if (group === "writings") {
+    const byId = new Map(fragments.map((row) => [row.id, row]));
     return (
       <GroupOverview
         active={[]}
@@ -76,6 +91,8 @@ export function GroupOverviewPage({ group, view = "overview" }: GroupOverviewPag
         done={fragments.map(fragmentItem)}
         headlineLabel="最新一則"
         unit="則"
+        renderItem={(item) => threadRow(byId, item)}
+        gridClassName={WRITING_THREAD_GRID}
       />
     );
   }
