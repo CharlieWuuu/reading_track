@@ -19,6 +19,20 @@ export function BottomNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <ul className="flex items-stretch">
+        {/* 站名擺最左：手機沒有報頭，這是唯一回得去首頁的地方 */}
+        <li className="flex-1">
+          <Link
+            href="/"
+            aria-current={pathname === "/" ? "page" : undefined}
+            className={`flex flex-col items-center gap-0.5 px-1 py-2 text-[10px] ${
+              pathname === "/" ? "text-gray-900" : "text-gray-400"
+            }`}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/masthead-mark.svg" alt="" width={20} height={20} />
+            <span className="leading-none">首頁</span>
+          </Link>
+        </li>
         {NAV_ITEMS.map((item) => {
           const active = isNavActive(item, pathname);
           return (
