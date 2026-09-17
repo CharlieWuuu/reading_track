@@ -96,7 +96,6 @@ function GenericKindList({ kind }: { kind: Kind }) {
 
 export function KindListPage({ group, slug }: { group: KindGroup; slug: string }) {
   const { kind, isLoading } = useKindBySlug(group, slug);
-  const List = kind ? variantFor(kind.slug).list : undefined;
   // 麵包屑指回這個 group 的概覽，字跟側欄同一份設定
   const parent = NAV_GROUPS.find((nav) => nav.kindGroup === group);
 
@@ -111,8 +110,6 @@ export function KindListPage({ group, slug }: { group: KindGroup; slug: string }
           <PageLoading />
         ) : !kind ? (
           <PageMessage>找不到這個類型</PageMessage>
-        ) : List ? (
-          <List kind={kind} />
         ) : (
           <GenericKindList kind={kind} />
         )}
