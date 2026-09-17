@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactNode, useEffect, useRef } from "react";
-import { SCROLL_BOTTOM } from "@/components/layout/page-body";
 import { COVER_CARD_GRID, CoverCard } from "@/components/ui/cover-card/cover-card";
 import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headline";
 import { byMonth, OverviewItem } from "@/utils/overview";
@@ -22,7 +21,7 @@ const styles = {
   frame: "flex min-h-0 min-w-0 flex-1 items-stretch gap-8",
   // 自己的捲動條：中間月份格線很長，右邊窄欄通常很短，兩邊各捲各的，
   // 不要因為其中一邊比較長就把另一邊也拖走
-  main: `flex min-w-0 flex-1 flex-col gap-5 overflow-y-auto ${SCROLL_BOTTOM}`,
+  main: "flex min-w-0 flex-1 flex-col gap-5 overflow-y-auto",
   rail: "border-rule-strong hidden w-64 shrink-0 flex-col gap-8 self-stretch overflow-y-auto border-l pl-6 lg:flex",
   // 窄螢幕沒有右欄，同一份內容改插在頭條下面——「現在在讀什麼」比「上個月讀完什麼」先看到
   railInline: "flex flex-col gap-5 lg:hidden",
