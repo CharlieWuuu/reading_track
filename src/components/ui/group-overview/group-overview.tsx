@@ -31,6 +31,10 @@ export type GroupOverviewProps = {
   isLoadingMore?: boolean;
   /** 「進行」「想要」底下要多放的統計——書寫沒有這兩種狀態，右欄靠這個補內容 */
   extraRail?: React.ReactNode;
+  /** 中間那格怎麼畫，直接轉給 OverviewLayout；不給就是封面卡 */
+  renderItem?: (item: OverviewItem) => React.ReactNode;
+  /** 月份格線的欄數斷點，直接轉給 OverviewLayout */
+  gridClassName?: string;
 };
 
 export function GroupOverview({
@@ -44,6 +48,8 @@ export function GroupOverview({
   hasMore,
   isLoadingMore,
   extraRail,
+  renderItem,
+  gridClassName,
 }: GroupOverviewProps) {
   // active 沒東西、但呼叫端有給頭條標籤時（例如書寫，記下就算完成，沒有
   // 進行中這個狀態，仍想秀「最新一則」），頭條改從 done 挑最新一筆；
@@ -61,6 +67,8 @@ export function GroupOverview({
       onLoadMore={onLoadMore}
       hasMore={hasMore}
       isLoadingMore={isLoadingMore}
+      renderItem={renderItem}
+      gridClassName={gridClassName}
       rail={
         <>
           <OverviewTotalStats
