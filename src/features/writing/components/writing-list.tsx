@@ -6,6 +6,10 @@ import { PageMessage } from "@/components/layout/page-message";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { OverviewRailList } from "@/components/ui/overview-layout/overview-rail-stats";
 import { WritingTable } from "@/features/writing/components/writing-table";
+import {
+  WRITING_THREAD_GRID,
+  WritingThreadRow,
+} from "@/features/writing/components/writing-thread-row";
 import { useWritingView } from "@/features/writing/use-writing-view";
 import { useMounted } from "@/hooks/use-mounted";
 import { useUrlParams } from "@/hooks/use-url-param";
@@ -13,11 +17,25 @@ import { useWritings } from "@/hooks/use-writings";
 import { useWritingsOverview } from "@/hooks/use-writings-overview";
 import { splitLines } from "@/types/book";
 import { Writing } from "@/types/writing";
-import { tally } from "@/utils/overview";
+import { OverviewItem, tally } from "@/utils/overview";
 import { writingItem } from "@/utils/overview-items";
 import { matchesSearch, searchTerms } from "@/utils/search";
 
 const RAIL_LIST_SIZE = 5;
+
+/**
+ * 概覽中間那格畫成 threads 那種一路往下讀的流。
+ *
+ * OverviewItem 只帶得動標題與一行小字，這裡要整段內文與關鍵字，
+ * 所以照 id 把原始那一筆找回來——關鍵字卡片牆也是同一個做法。
+ */
+const writingsById = (writings: readonly Writing[]) => new Map(writings.map((w) => [w.id, w]));
+
+function threadItem(byId: Map<string, Writing>, item: OverviewItem) {
+  const writing = byId.get(item.id);
+  if (!writing) return null;
+  return <WritingThreadRow writing={writing} href={item.href} />;
+}
 
 /** 右欄補的排行：主題、關鍵字——書寫沒有進行中／想要可以列 */
 function WritingRail({ writings }: { writings: readonly Writing[] }) {
@@ -79,6 +97,8 @@ function WritingListFull({ view, topic, q }: { view: string; topic: string; q: s
     );
   if (writings.length === 0) return <PageMessage fill>符合條件的書寫是空的</PageMessage>;
 
+  const byId = writingsById(writings);
+
   return (
     <PageBody>
       {view === "table" ? (
@@ -90,6 +110,8 @@ function WritingListFull({ view, topic, q }: { view: string; topic: string; q: s
           done={writings.map(writingItem)}
           headlineLabel="最新一則"
           unit="則"
+          renderItem={(item) => threadItem(byId, item)}
+          gridClassName={WRITING_THREAD_GRID}
           extraRail={<WritingRail writings={writings} />}
         />
       )}
@@ -109,6 +131,8 @@ function WritingListPaged() {
     );
   if (overview.writings.length === 0) return <PageMessage fill>符合條件的書寫是空的</PageMessage>;
 
+  const byId = writingsById(overview.writings);
+
   return (
     <PageBody>
       <GroupOverview
@@ -121,6 +145,8 @@ function WritingListPaged() {
         onLoadMore={overview.loadMore}
         hasMore={overview.hasMore}
         isLoadingMore={overview.isLoadingMore}
+        renderItem={(item) => threadItem(byId, item)}
+        gridClassName={WRITING_THREAD_GRID}
         extraRail={<WritingRail writings={overview.writings} />}
       />
     </PageBody>
