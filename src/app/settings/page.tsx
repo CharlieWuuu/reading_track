@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { PageBody, SCROLL_BOTTOM } from "@/components/layout/page-body";
+import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { styles as controlStyles } from "@/components/ui/controls/styles";
 import { AccountPanel } from "@/features/settings/components/account-panel";
@@ -81,7 +81,7 @@ function Settings() {
         }
       />
       <PageBody>
-        <div className={`shrink-0 md:min-h-0 md:flex-1 md:overflow-y-auto ${SCROLL_BOTTOM}`}>
+        <div className="shrink-0 md:min-h-0 md:flex-1 md:overflow-y-auto">
           {tab === "categories" && <CategoryManager />}
           {tab === "kinds" && <KindPanel />}
           {tab === "stats" && <StatsTypeCards />}

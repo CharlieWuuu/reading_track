@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { SCROLL_BOTTOM } from "@/components/layout/page-body";
 import { CoverCard } from "@/components/ui/cover-card/cover-card";
 import { Field } from "@/components/ui/field/field";
 import { FormActions } from "@/components/ui/form-actions";
@@ -25,7 +24,7 @@ const PICKABLE = MODULES.filter((module) => !("always" in module));
 
 const styles = {
   frame: "flex min-h-0 min-w-0 flex-1 gap-10",
-  main: `flex min-w-0 flex-1 flex-col overflow-y-auto ${SCROLL_BOTTOM}`,
+  main: "flex min-w-0 flex-1 flex-col overflow-y-auto",
   rail: "border-rule-strong hidden w-72 shrink-0 flex-col gap-4 overflow-y-auto border-l pl-6 lg:flex",
   railLabel: "text-label text-accent tracking-label font-medium",
   section: "flex flex-col gap-3 pt-6 first:pt-0",
