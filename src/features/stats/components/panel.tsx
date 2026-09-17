@@ -21,7 +21,7 @@ export function Panel({
           {titleAction && <div className="ml-auto flex shrink-0 items-center">{titleAction}</div>}
         </div>
       )}
-      <div className="min-h-0 flex-1">{children}</div>
+      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
     </div>
   );
 }
