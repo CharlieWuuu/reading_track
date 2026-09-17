@@ -3,7 +3,6 @@
 import { Newspaper, Rows3 } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { SelectMenu } from "@/components/ui/controls";
-import { SearchBar } from "@/components/ui/search-bar";
 import { NAV_GROUPS } from "@/config/nav";
 import { useWritingView } from "@/features/writing/use-writing-view";
 import { useWritingViewStore, WRITING_VIEWS } from "@/features/writing/views";
@@ -29,7 +28,6 @@ const VIEW_ITEMS = [
 export function WritingHeader() {
   const { writings } = useWritings();
   const { searchParams, setParams } = useUrlParams();
-  const query = searchParams.get("q") ?? "";
   const topic = searchParams.get("topic") ?? "";
   const view = useWritingView();
   const saveView = useWritingViewStore((s) => s.setView);
@@ -47,7 +45,6 @@ export function WritingHeader() {
       parent={parent}
       action={
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-5 gap-y-2 md:flex-nowrap">
-          <SearchBar value={query} onChange={(next) => setParams({ q: next || null })} />
           <SelectMenu
             bare
             label="顯示方式"
