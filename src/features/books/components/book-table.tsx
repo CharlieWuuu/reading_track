@@ -71,7 +71,7 @@ function completionNumbers(books: Book[]): Map<string, number> {
 
 export function BookTable() {
   const mounted = useMounted();
-  const { allBooks, isLoading, error, found, books, keyword, terms, heading } = useFilteredBooks();
+  const { allBooks, isLoading, error, found, books, keyword, heading } = useFilteredBooks();
   const { mutate } = useBooks();
   const { writings } = useWritings();
   const { quotes, vocabulary } = useRecords();
@@ -105,13 +105,7 @@ export function BookTable() {
         {/* 0 本也要說出來：沒有標題列的話，看起來像篩選沒生效 */}
         <ListHeading label={heading} count={0} />
         {keyword && <KeywordFilter keyword={keyword} count={0} onClear={clearKeyword} />}
-        <PageMessage fill>
-          {terms.length > 0
-            ? "沒有符合的書"
-            : keyword
-              ? "沒有書提到這個關鍵字"
-              : "尚未新增任何書籍"}
-        </PageMessage>
+        <PageMessage fill>{keyword ? "沒有書提到這個關鍵字" : "尚未新增任何書籍"}</PageMessage>
       </div>
     );
   }

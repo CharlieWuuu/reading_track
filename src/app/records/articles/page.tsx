@@ -11,9 +11,7 @@ import { ReadingList } from "@/features/reading/components/reading-list";
 import { useArticles } from "@/hooks/use-articles";
 import { useBookView } from "@/hooks/use-book-view";
 import { useMounted } from "@/hooks/use-mounted";
-import { useUrlParams } from "@/hooks/use-url-param";
 import { Article } from "@/types/article";
-import { matchesSearch, searchTerms } from "@/utils/search";
 
 const ARTICLE_MODES = ["overview", "table", "card"] as const;
 
@@ -25,14 +23,8 @@ function articleMeta(articles: Article[]): string {
 function ArticlesBody() {
   const mounted = useMounted();
   const { articles, isLoading, error } = useArticles();
-  const { searchParams } = useUrlParams();
   // 檢視方式跟書籍共用一組狀態：切分頁時看到的排列方式不會突然變
   const view = useBookView();
-
-  const terms = searchTerms(searchParams.get("q") ?? "");
-  const found = articles.filter((a) =>
-    matchesSearch(terms, a.title, a.author, a.platform, a.keywords, a.note),
-  );
 
   if (!mounted) return null;
   if (isLoading) return <PageLoading />;
@@ -42,11 +34,8 @@ function ArticlesBody() {
         {error}
       </PageMessage>
     );
-  if (found.length === 0 && terms.length > 0) return <PageMessage fill>沒有符合的文章</PageMessage>;
-
-  if (view === "overview")
-    return <ArticlesOverview q={searchParams.get("q") ?? ""} filtered={found} />;
-  return <ReadingList articles={found} view={view} />;
+  if (view === "overview") return <ArticlesOverview />;
+  return <ReadingList articles={articles} view={view} />;
 }
 
 /** 讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */

@@ -19,7 +19,6 @@ import { splitLines } from "@/types/book";
 import { Writing } from "@/types/writing";
 import { OverviewItem, tally } from "@/utils/overview";
 import { writingItem } from "@/utils/overview-items";
-import { matchesSearch, searchTerms } from "@/utils/search";
 
 const RAIL_LIST_SIZE = 5;
 
@@ -59,9 +58,9 @@ function WritingRail({ writings }: { writings: readonly Writing[] }) {
 }
 
 /**
- * 書寫清單。搜尋、篩選、看哪一種都在網址上，所以這裡自己讀。
+ * 書寫清單。篩選、看哪一種都在網址上，所以這裡自己讀。
  *
- * 有 topic／q 篩選時要整包資料在前端 filter，套不了分頁，退回整包抓取；
+ * 有 topic 篩選時要整包資料在前端 filter，套不了分頁，退回整包抓取；
  * 沒有篩選條件的概覽模式才用分頁。table 檢視永遠要整包（排序、篩選都在前端做）。
  */
 export function WritingList() {
@@ -70,23 +69,15 @@ export function WritingList() {
 
   const topic = searchParams.get("topic") ?? "";
   const view = useWritingView();
-  const q = searchParams.get("q") ?? "";
-  const filtered = Boolean(topic || q);
 
   if (!mounted) return null;
-  if (view === "table" || filtered) return <WritingListFull view={view} topic={topic} q={q} />;
+  if (view === "table" || topic) return <WritingListFull view={view} topic={topic} />;
   return <WritingListPaged />;
 }
 
-function WritingListFull({ view, topic, q }: { view: string; topic: string; q: string }) {
+function WritingListFull({ view, topic }: { view: string; topic: string }) {
   const { writings: allWriting, isLoading, error, mutate } = useWritings();
-  const terms = searchTerms(q);
-  // 標題、內文、關鍵字都算：想得起來的可能是任何一個，內文更是常常只記得半句
-  const writings = allWriting.filter(
-    (e) =>
-      (!topic || e.topic === topic) &&
-      matchesSearch(terms, e.title, e.note, e.keywords, e.sourceTitle),
-  );
+  const writings = allWriting.filter((e) => !topic || e.topic === topic);
 
   if (isLoading) return <PageLoading />;
   if (error)

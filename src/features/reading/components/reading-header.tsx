@@ -2,11 +2,9 @@
 
 import { usePathname } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
-import { SearchBar } from "@/components/ui/search-bar";
 import { kindGroupSlugFromPath } from "@/config/kind-routes";
 import { NAV_GROUPS } from "@/config/nav";
 import { READING_TABS, ReadingTab } from "@/config/tabs";
-import { useUrlParams } from "@/hooks/use-url-param";
 
 /**
  * 閱讀底下五個分頁共用的頁首。
@@ -18,12 +16,12 @@ import { useUrlParams } from "@/hooks/use-url-param";
  * 而 /reading 那層的 layout 會連單筆頁也套上分頁列，那不是單筆頁要的。
  *
  * 手機不放類型切換：那是group 概覽頁（/records、/fragments）頁首那排 tab 在做的事，
- * 單一類型頁只講自己這一種。省下來的寬度給搜尋框常駐。
+ * 單一類型頁只講自己這一種。
  */
 
 /** 佳句單字關鍵字是從書裡摘出來的，不單獨新增 */
 type ReadingHeaderProps = {
-  /** 搜尋框右邊、views 左邊的插槽——表格才有意義的操作放這裡（BookEditModeButton） */
+  /** views 左邊的插槽——表格才有意義的操作放這裡（BookEditModeButton） */
   beforeViews?: React.ReactNode;
   /** 這一頁有幾種看法時放進來（BookViewMenu、KeywordViewMenu）；頁首不該認得任何一個 feature */
   views?: React.ReactNode;
@@ -38,9 +36,6 @@ export function ReadingHeader({ beforeViews, views, filters, meta }: ReadingHead
   // 在哪一個分頁看網址就知道，不用各頁再傳一次——收斂過的類型看 [slug]，其餘看 /reading/<tab>
   const segment = kindGroupSlugFromPath(pathname)?.slug ?? pathname.split("/")[2];
   const current = (READING_TABS.some((t) => t.key === segment) ? segment : "books") as ReadingTab;
-  const { searchParams, setParams } = useUrlParams();
-  const query = searchParams.get("q") ?? "";
-
   const currentTab = READING_TABS.find((tab) => tab.key === current);
   // 麵包屑：這個分頁掛在側欄哪個 group 底下，字跟側欄同一份設定，不重複維護
   const parent = NAV_GROUPS.find((group) => group.kindGroup === currentTab?.group)?.label;
@@ -52,7 +47,6 @@ export function ReadingHeader({ beforeViews, views, filters, meta }: ReadingHead
       meta={meta}
       action={
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-5 gap-y-2 md:flex-nowrap">
-          <SearchBar value={query} onChange={(next) => setParams({ q: next || null })} />
           {beforeViews}
           {views}
           {filters}
