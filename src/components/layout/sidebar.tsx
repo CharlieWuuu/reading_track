@@ -2,13 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { Plus } from "lucide-react";
-import { NewRecordDialog } from "@/components/layout/new-record-picker";
 import { kindGroupSlugFromPath, kindHref } from "@/config/kind-routes";
 import { activeNavKey, NAV_GROUPS, NavGroup, NavType } from "@/config/nav";
 import { useKinds } from "@/hooks/use-kinds";
-import { Kind } from "@/lib/db/queries/kinds";
 
 /**
  * 桌機側欄。四個分類各配一條實線小標，底下的類型一行一條細線分隔——
@@ -28,8 +24,6 @@ const styles = {
   nav: "flex h-full w-[180px] shrink-0 flex-col overflow-y-auto gap-6",
   rule: "bg-shell-rule w-px shrink-0",
   group: "border-rule-strong flex items-baseline justify-between border-b-2 pb-1.5",
-  newButton:
-    "rounded-control border-rule text-ui text-ink-muted mt-2 flex w-full items-center justify-center gap-1 border border-dashed py-2 hover:bg-gray-50",
   groupLabel: "block w-full font-serif text-ui font-semibold tracking-section",
   row: "border-rule-soft flex items-baseline border-b py-[7px] pl-3",
   count: "text-meta text-ink-faint ml-auto pl-2 tabular-nums",
@@ -77,23 +71,6 @@ function GroupHeading({ group }: { group: NavGroup }) {
   );
 }
 
-/** 一顆新增：點了彈出全部類型，選一種進那一種的新增頁。跟手機同一份清單 */
-function NewRecordLink({ kinds }: { kinds: Kind[] }) {
-  const [open, setOpen] = useState(false);
-
-  if (kinds.length === 0) return null;
-
-  return (
-    <>
-      <button type="button" onClick={() => setOpen(true)} className={styles.newButton}>
-        <Plus size={14} strokeWidth={2} aria-hidden />
-        新增
-      </button>
-      {open && <NewRecordDialog kinds={kinds} onClose={() => setOpen(false)} />}
-    </>
-  );
-}
-
 export function Sidebar() {
   const pathname = usePathname();
   const currentSlug = activeNavKey(pathname) ?? kindGroupSlugFromPath(pathname)?.slug ?? null;
@@ -136,7 +113,6 @@ export function Sidebar() {
             </div>
           );
         })}
-        <NewRecordLink kinds={kinds} />
       </nav>
       <div className={styles.rule} />
     </div>
