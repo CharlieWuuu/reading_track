@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Plus } from "lucide-react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageLoading } from "@/components/layout/page-loading";
@@ -56,28 +57,15 @@ function GenericKindList({ kind }: { kind: Kind }) {
     );
   }
 
-  if (isRecords) {
-    return (
-      <GroupOverview
-        active={[]}
-        pending={[]}
-        done={records.map(recordItem)}
-        headlineLabel=""
-        // amountUnit 是份量（頁、分鐘），這裡要的是個數
-        unit={unitOfKind(kind)}
-      />
-    );
-  }
-
   // 書寫跟紀錄一樣照月份排：一篇心得是一件完成的事，有日期、值得回頭找
-  if (kind.group === "writings") {
+  if (isRecords || kind.group === "writings") {
     return (
       <GroupOverview
         active={[]}
         pending={[]}
-        done={fragments.map(fragmentItem)}
-        headlineLabel="最新一則"
-        unit={unitOfKind(kind)}
+        done={isRecords ? records.map(recordItem) : fragments.map(fragmentItem)}
+        headlineLabel={isRecords ? "" : "最新一則"}
+        unit={unitOfKind(kind)} // amountUnit 是份量（頁、分鐘），這裡要的是個數
       />
     );
   }
@@ -94,7 +82,12 @@ function GenericKindList({ kind }: { kind: Kind }) {
   );
 }
 
-export function KindListPage({ group, slug }: { group: KindGroup; slug: string }) {
+type KindRouteProps = {
+  group: KindGroup;
+  slug: string;
+};
+
+export function KindListPage({ group, slug }: KindRouteProps) {
   const { kind, isLoading } = useKindBySlug(group, slug);
   // 麵包屑指回這個 group 的概覽，字跟側欄同一份設定
   const parent = NAV_GROUPS.find((nav) => nav.kindGroup === group);
@@ -104,6 +97,13 @@ export function KindListPage({ group, slug }: { group: KindGroup; slug: string }
       <PageHeader
         title={kind?.name ?? ""}
         parent={parent ? [{ label: parent.label, href: parent.href }] : undefined}
+        action={
+          kind && (
+            <ActionButton href={`${kindHref(kind.group, kind.slug)}/new`} text="新增">
+              <Plus size={16} strokeWidth={2} aria-hidden />
+            </ActionButton>
+          )
+        }
       />
       <PageBody>
         {isLoading ? (
@@ -118,7 +118,7 @@ export function KindListPage({ group, slug }: { group: KindGroup; slug: string }
   );
 }
 
-export function KindNewPage({ group, slug }: { group: KindGroup; slug: string }) {
+export function KindNewPage({ group, slug }: KindRouteProps) {
   const { kind, isLoading } = useKindBySlug(group, slug);
   const Form = kind ? variantFor(kind.slug).form : undefined;
   const groupLabel = NAV_GROUPS.find((g) => g.kindGroup === group)?.label;
@@ -149,15 +149,11 @@ export function KindNewPage({ group, slug }: { group: KindGroup; slug: string })
   );
 }
 
-export function KindRecordPage({
-  group,
-  slug,
-  recordId,
-}: {
-  group: KindGroup;
-  slug: string;
+type RecordRouteProps = KindRouteProps & {
   recordId: string;
-}) {
+};
+
+export function KindRecordPage({ group, slug, recordId }: RecordRouteProps) {
   const { kind, isLoading: kindLoading } = useKindBySlug(group, slug);
   // 認網址上那一段，不認 kind.slug——書寫那條路（/writings/writing）在
   // setting_kinds 裡沒有對應的類型，等 kind 會永遠等不到
@@ -172,6 +168,12 @@ export function KindRecordPage({
 }
 
 /** 沒有專屬詳情的類型：照模組畫，頁首與外框由這裡給 */
+type GenericPageProps = RecordRouteProps & {
+  kind?: Kind;
+  kindLoading: boolean;
+  groupLabel?: string;
+};
+
 function GenericRecordPage({
   group,
   slug,
@@ -179,14 +181,7 @@ function GenericRecordPage({
   kind,
   kindLoading,
   groupLabel,
-}: {
-  group: KindGroup;
-  slug: string;
-  recordId: string;
-  kind?: Kind;
-  kindLoading: boolean;
-  groupLabel?: string;
-}) {
+}: GenericPageProps) {
   const { record, isLoading: recordLoading, error } = useCatalogRecord(recordId);
   const isLoading = kindLoading || recordLoading;
 
@@ -227,15 +222,7 @@ function GenericRecordPage({
  * 一筆紀錄的編輯頁。詳情頁按了「編輯」才會到這裡——看跟改是兩件事，
  * 點進一筆不該直接掉進表單。
  */
-export function KindEditPage({
-  group,
-  slug,
-  recordId,
-}: {
-  group: KindGroup;
-  slug: string;
-  recordId: string;
-}) {
+export function KindEditPage({ group, slug, recordId }: RecordRouteProps) {
   // 跟詳情頁同一個道理：有專屬編輯頁的類型自己撈自己畫。單字與關鍵字的
   // recordId 是「詞」不是編號，底下那支 useCatalogRecord 查不到，會卡在載入中
   const Edit = variantFor(slug).edit;
@@ -245,15 +232,7 @@ export function KindEditPage({
 }
 
 /** 沒有專屬編輯頁的類型：照模組畫，頁首與外框由這裡給 */
-function GenericEditPage({
-  group,
-  slug,
-  recordId,
-}: {
-  group: KindGroup;
-  slug: string;
-  recordId: string;
-}) {
+function GenericEditPage({ group, slug, recordId }: RecordRouteProps) {
   const { kind, isLoading: kindLoading } = useKindBySlug(group, slug);
   const { record, isLoading: recordLoading, error } = useCatalogRecord(recordId);
   const Form = kind ? variantFor(kind.slug).form : undefined;
