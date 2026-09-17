@@ -27,7 +27,7 @@ export function Masthead({ authSlot }: { authSlot: React.ReactNode }) {
       <div className="bg-rule-strong mt-[3px]" style={{ height: "var(--stroke-solid)" }} />
 
       <div className={styles.row}>
-        <div className={`${styles.side} flex items-center gap-3`}>
+        <div className={`${styles.side} hidden items-center gap-3 md:flex`}>
           {/* 手機走底部導覽，側欄本來就不出現，這顆只給桌機看；沒登入沒有側欄可收合 */}
           {signedIn && (
             <button
@@ -40,14 +40,19 @@ export function Masthead({ authSlot }: { authSlot: React.ReactNode }) {
               <PanelLeft size={16} strokeWidth={1.5} aria-hidden />
             </button>
           )}
-          <IssueLinks />
+          {/* 手機把日期挪到右邊，左欄只剩收合鍵（本來就只給桌機） */}
+          <IssueLinks className="hidden md:flex" />
         </div>
-        <div className="flex-1 basis-0 text-center whitespace-nowrap">
+        <div className="min-w-0 flex-1 basis-0 whitespace-nowrap md:text-center">
           <Link href="/" className={styles.title}>
             Archivum
           </Link>
         </div>
-        <div className={`${styles.side} flex items-center justify-end gap-3.5`}>{authSlot}</div>
+        <div className={`${styles.side} flex items-center justify-end gap-3.5`}>
+          {/* 手機的統計／設定／帳號走底部導覽，報頭不重複放一次 */}
+          <span className="hidden items-center gap-3.5 md:flex">{authSlot}</span>
+          <IssueLinks className="md:hidden" />
+        </div>
       </div>
 
       <div className="bg-rule-strong" style={{ height: "var(--stroke-solid)" }} />
