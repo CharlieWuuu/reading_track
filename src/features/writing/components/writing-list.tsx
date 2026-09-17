@@ -9,6 +9,7 @@ import { WritingTable } from "@/features/writing/components/writing-table";
 import {
   WRITING_THREAD_GRID,
   WritingThreadRow,
+  writingThreadRow,
 } from "@/features/writing/components/writing-thread-row";
 import { useWritingView } from "@/features/writing/use-writing-view";
 import { useMounted } from "@/hooks/use-mounted";
@@ -33,7 +34,7 @@ const writingsById = (writings: readonly Writing[]) => new Map(writings.map((w) 
 function threadItem(byId: Map<string, Writing>, item: OverviewItem) {
   const writing = byId.get(item.id);
   if (!writing) return null;
-  return <WritingThreadRow writing={writing} href={item.href} />;
+  return <WritingThreadRow {...writingThreadRow(writing)} />;
 }
 
 /** 右欄補的排行：主題、關鍵字——書寫沒有進行中／想要可以列 */

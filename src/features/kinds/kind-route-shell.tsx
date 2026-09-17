@@ -17,6 +17,11 @@ import { KindGroup } from "@/config/record-kinds";
 import { variantFor } from "@/features/kinds/variant-registry";
 import { ModuleDetail } from "@/features/overview/components/module-detail";
 import { ModuleForm } from "@/features/overview/components/module-form";
+import {
+  fragmentThreadRow,
+  WRITING_THREAD_GRID,
+  WritingThreadRow,
+} from "@/features/writing/components/writing-thread-row";
 import { useCatalogRecord } from "@/hooks/use-catalog-record";
 import { useKindRecords } from "@/hooks/use-kind-records";
 import { useKinds } from "@/hooks/use-kinds";
@@ -59,6 +64,7 @@ function GenericKindList({ kind }: { kind: Kind }) {
 
   // 書寫跟紀錄一樣照月份排：一篇心得是一件完成的事，有日期、值得回頭找
   if (isRecords || kind.group === "writings") {
+    const byId = new Map(fragments.map((row) => [row.id, row]));
     return (
       <GroupOverview
         active={[]}
@@ -66,6 +72,16 @@ function GenericKindList({ kind }: { kind: Kind }) {
         done={isRecords ? records.map(recordItem) : fragments.map(fragmentItem)}
         headlineLabel={isRecords ? "" : "最新一則"}
         unit={unitOfKind(kind)} // amountUnit 是份量（頁、分鐘），這裡要的是個數
+        // 書寫一路往下讀，不是卡片牆；紀錄仍然是封面格線
+        renderItem={
+          isRecords
+            ? undefined
+            : (item) => {
+                const row = byId.get(item.id);
+                return row ? <WritingThreadRow {...fragmentThreadRow(row)} /> : null;
+              }
+        }
+        gridClassName={isRecords ? undefined : WRITING_THREAD_GRID}
       />
     );
   }

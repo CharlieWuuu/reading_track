@@ -2,11 +2,35 @@
 
 import Link from "next/link";
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
-import { splitLines } from "@/types/book";
+import { FragmentRow } from "@/lib/db/queries/catalog";
+import { splitLines, splitTags } from "@/types/book";
 import { Writing } from "@/types/writing";
 import { whenLabel } from "@/utils/date";
 import { imageSrc } from "@/utils/image-key";
+import { fragmentHref } from "@/utils/overview-items";
 import { tagColorClass } from "@/utils/tag-colors";
+
+/** 書寫那張表的一筆 → 這一列要的形狀 */
+export const writingThreadRow = (w: Writing) => ({
+  href: `/writings/writing/${w.id}`,
+  title: w.title,
+  topic: w.topic || w.kindName,
+  note: w.note,
+  date: w.endDate || w.createdAt,
+  keywords: splitLines(w.keywords),
+  coverUrl: w.coverUrl || undefined,
+});
+
+/** 片段那張表的一筆（書寫 group 也走這張）→ 這一列要的形狀 */
+export const fragmentThreadRow = (row: FragmentRow) => ({
+  href: fragmentHref(row),
+  title: row.title,
+  topic: row.kindName,
+  note: row.body || row.note,
+  date: row.date ?? row.createdAt,
+  keywords: splitTags(row.tags),
+  coverUrl: row.coverUrl || undefined,
+});
 
 const styles = {
   row: "flex w-full min-w-0 items-start gap-3 text-left",
@@ -30,22 +54,40 @@ const styles = {
 /** 一欄到底：這是一路往下讀的流，不是卡片牆，不分欄 */
 export const WRITING_THREAD_GRID = "flex flex-col gap-6";
 
+type WritingThreadRowProps = {
+  href: string;
+  title: string;
+  topic: string; // 頭像與色塊看這個：書寫用 topic，片段那邊用類型名
+  note: string;
+  date: string; // 空的就不顯示時間
+  keywords: readonly string[];
+  coverUrl?: string;
+};
+
 /**
- * 書寫概覽的一則：左邊一張小圖講來源，右邊標題、整段內文、關鍵字。
+ * 書寫的一則：左邊一張小圖講來源，右邊標題、整段內文、關鍵字。
  *
  * 內文不截斷——內文才是主體，摺在「更多」後面等於每一則都要多按一次
  * 才知道值不值得讀。
+ *
+ * 吃攤平過的形狀，不綁 Writing 或 FragmentRow——三個書寫頁資料來源不同，
+ * 各自轉成這個介面就共用同一種畫法。
  */
-export function WritingThreadRow({ writing, href }: { writing: Writing; href: string }) {
-  const topic = writing.topic || writing.kindName;
-  const keywords = splitLines(writing.keywords);
-
+export function WritingThreadRow({
+  href,
+  title,
+  topic,
+  note,
+  date,
+  keywords,
+  coverUrl,
+}: WritingThreadRowProps) {
   return (
     <div className={styles.row}>
       <div className={styles.avatar}>
-        {writing.coverUrl ? (
+        {coverUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageSrc(writing.coverUrl)} alt="" loading="lazy" className={styles.cover} />
+          <img src={imageSrc(coverUrl)} alt="" loading="lazy" className={styles.cover} />
         ) : (
           topic && (
             <span className={`${styles.initial} ${tagColorClass(topic, [])}`}>{topic[0]}</span>
@@ -57,13 +99,13 @@ export function WritingThreadRow({ writing, href }: { writing: Writing; href: st
         {/* 標題連同內文整塊是連結：點哪裡都是進詳情頁 */}
         <Link href={href} className={styles.noteLink}>
           <span className={styles.head}>
-            <span className={styles.title}>{writing.title || writing.note}</span>
+            <span className={styles.title}>{title || note}</span>
             {topic && (
               <span className={`${styles.topic} ${tagColorClass(topic, [])}`}>{topic}</span>
             )}
-            <span className={styles.time}>{whenLabel(writing.endDate || writing.createdAt)}</span>
+            {date && <span className={styles.time}>{whenLabel(date)}</span>}
           </span>
-          {writing.note.trim() && <span className={styles.note}>{writing.note}</span>}
+          {note.trim() && <span className={styles.note}>{note}</span>}
         </Link>
 
         {keywords.length > 0 && (
