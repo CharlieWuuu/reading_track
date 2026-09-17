@@ -25,18 +25,18 @@ export function RankingBar({
   const max = Math.max(1, ...data.map((d) => d.value));
 
   return (
-    // 列由上往下排，多出來的高度留在下面：兩欄並排時隔壁是圓餅，
-    // 高度隨內容會差一大截；靠上而不是平均撐開，第一列的位置才不會浮動
-    <div className="flex flex-col gap-3.5">
+    // 撐滿卡片：兩欄並排時隔壁是圓餅，高度隨內容會差一大截
+    <div className="flex min-h-0 flex-1 flex-col gap-3.5">
       {data.length === 0 ? (
         // 每個都只出現一次時榜單會是空的，說清楚原因比留一張空圖好
         <div className="py-6 text-center text-xs text-gray-400">
           {emptyHint ?? `還沒有累積 2 ${unit}以上的項目`}
         </div>
       ) : (
-        // 由上往下排：原本 justify-center 會讓清單在剩餘空間裡置中，
-        // 標題到第一列的距離就隨面板高度浮動，看起來像標題的間距不一致
-        <ul className="flex flex-col gap-2.5">
+        // 列與列之間撐開，第一列仍然貼著標題、最後一列貼著底。
+        // 不用 justify-center：那是整團往中間靠，標題到第一列的距離
+        // 會隨面板高度浮動，看起來像標題的間距不一致
+        <ul className="flex min-h-0 flex-1 flex-col justify-between gap-2.5">
           {data.map((item, i) => (
             <li key={item.name} className="flex items-center gap-2">
               {showCover && <BookCover url={item.coverUrl ?? ""} title={item.name} size="md" />}
