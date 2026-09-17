@@ -13,8 +13,10 @@
 
 const styles = {
   wrap: "flex flex-col gap-1.5",
-  text: "relative pl-6 font-serif text-[15px] leading-relaxed whitespace-pre-wrap text-gray-800 md:text-base",
-  mark: "absolute top-0 left-0 font-serif text-3xl leading-none text-gray-300 select-none",
+  text: "relative pl-5 font-serif text-[15px] leading-relaxed text-gray-800 md:text-base",
+  body: "whitespace-pre-wrap",
+  // 掛在第一行的高度上，不是整塊的頂——top-0 配大字級會浮在文字上面一行
+  mark: "absolute top-[0.15em] left-0 font-serif text-2xl leading-none text-gray-300 select-none",
   source: "text-meta text-ink-faint truncate pl-4 text-right",
   note: "text-meta text-ink-faint leading-relaxed whitespace-pre-wrap",
 };
@@ -26,7 +28,8 @@ export function Quote({ text, source, note }: { text: string; source?: string; n
         <span aria-hidden className={styles.mark}>
           &ldquo;
         </span>
-        {text}
+        {/* 內文自己一層：pre-wrap 只能套在內文上，套在外層會把 JSX 的縮排也印出來 */}
+        <span className={styles.body}>{text}</span>
       </blockquote>
       {source && <p className={styles.source}>— {source}</p>}
       {note && <p className={styles.note}>{note}</p>}
