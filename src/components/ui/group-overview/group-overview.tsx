@@ -12,29 +12,19 @@ import { OverviewItem, pickHeadline } from "@/utils/overview";
  * 右欄是統計／進行／想要，標籤全站固定，不開放呼叫端自訂。
  */
 
-export type GroupOverviewProps = {
-  /** 進行中的，頭條從這裡挑 */
-  active: readonly OverviewItem[];
-  /** 待辦，只進窄欄 */
-  pending: readonly OverviewItem[];
-  /** 完成的，照月份排成多欄 */
-  done: readonly OverviewItem[];
-  /** 頭條上方那行小字，說明為什麼是它 */
-  headlineLabel: string;
-  /** 統計區塊大數字後面接的量詞，跟數字同一行，例如「筆」「篇」「則」 */
-  unit: string;
-  /** done 的真實總數——分頁時 done 只是目前已載入的那幾頁，統計數字要用這個而不是 done.length */
-  doneTotal?: number;
-  /** 捲到底時呼叫，不給就是原本的整包展示 */
-  onLoadMore?: () => void;
+type GroupOverviewProps = {
+  active: readonly OverviewItem[]; // 頭條從這裡挑
+  pending: readonly OverviewItem[]; // 只進窄欄
+  done: readonly OverviewItem[]; // 照月份排成多欄
+  headlineLabel: string; // 頭條上方那行小字
+  unit: string; // 接在大數字後面：筆、篇、則
+  doneTotal?: number; // 分頁時 done 只是已載入的，統計數字用這個
+  onLoadMore?: () => void; // 捲到底時呼叫，不給就是整包展示
   hasMore?: boolean;
   isLoadingMore?: boolean;
-  /** 「進行」「想要」底下要多放的統計——書寫沒有這兩種狀態，右欄靠這個補內容 */
-  extraRail?: React.ReactNode;
-  /** 中間那格怎麼畫，直接轉給 OverviewLayout；不給就是封面卡 */
-  renderItem?: (item: OverviewItem) => React.ReactNode;
-  /** 月份格線的欄數斷點，直接轉給 OverviewLayout */
-  gridClassName?: string;
+  extraRail?: React.ReactNode; // 右欄補的內容，書寫沒有進行／想要
+  renderItem?: (item: OverviewItem) => React.ReactNode; // 中間那格怎麼畫，不給就是封面卡
+  gridClassName?: string; // 月份格線的欄數斷點
 };
 
 export function GroupOverview({
