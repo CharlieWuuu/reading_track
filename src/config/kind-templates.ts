@@ -17,6 +17,8 @@ export type KindTemplate = {
   /** 量的單位，統計讀它自己長句子 */
   amountUnit: string;
   modules: ModuleKey[];
+  /** 自己沒封面時用出處的封面。佳句與書寫是從某本書長出來的，單字關鍵字不是 */
+  inheritsCover?: boolean;
   /** 模組在這個類型叫什麼。沒寫就用模組庫的預設名 */
   labels?: Partial<Record<ModuleKey, string>>;
 };
@@ -92,6 +94,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
   },
   {
     key: "quotes",
+    inheritsCover: true,
     group: "fragments",
     name: "佳句",
     amountUnit: "",
@@ -130,6 +133,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
   },
   {
     key: "reflection",
+    inheritsCover: true,
     group: "writings",
     name: "心得",
     amountUnit: "字",
@@ -137,6 +141,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
   },
   {
     key: "thoughts",
+    inheritsCover: true,
     group: "writings",
     name: "思緒",
     amountUnit: "字",
@@ -144,6 +149,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
   },
   {
     key: "weekly-plan",
+    inheritsCover: true,
     group: "writings",
     name: "週計劃",
     amountUnit: "字",
@@ -151,6 +157,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
   },
   {
     key: "essay",
+    inheritsCover: true,
     group: "writings",
     name: "論述",
     amountUnit: "字",
@@ -158,6 +165,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
   },
   {
     key: "plan",
+    inheritsCover: true,
     group: "writings",
     name: "每日計畫",
     amountUnit: "字",

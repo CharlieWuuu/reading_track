@@ -45,6 +45,7 @@ export const POST = guarded("kinds POST", async (req: NextRequest) => {
     slug?: unknown;
     modules?: unknown;
     amountUnit?: unknown;
+    inheritsCover?: unknown;
     labels?: unknown;
   }>(req, "kinds POST");
   if (!body) return badRequest("看不懂的內容");
@@ -64,6 +65,7 @@ export const POST = guarded("kinds POST", async (req: NextRequest) => {
       )
     : [];
   const amountUnit = typeof body.amountUnit === "string" ? body.amountUnit.trim() : "";
+  const inheritsCover = body.inheritsCover === true;
   const labels =
     body.labels && typeof body.labels === "object"
       ? Object.fromEntries(
@@ -83,6 +85,7 @@ export const POST = guarded("kinds POST", async (req: NextRequest) => {
       slug,
       modules,
       amountUnit,
+      inheritsCover,
       labels,
     });
     return NextResponse.json({ id });

@@ -26,6 +26,8 @@ export type Kind = {
   amountUnit: string;
   /** 個數的單位。空字串代表沒指定，顯示時退回「筆」 */
   countUnit: string;
+  /** 自己沒封面時要不要用連到的作品的封面 */
+  inheritsCover: boolean;
   /** 底下有幾筆。側欄用它決定要不要列 */
   count: number;
   /** 勾了哪些模組，以及它們在這個類型叫什麼。交給 resolveFormModules */
@@ -106,6 +108,7 @@ export async function listKinds(userId: string): Promise<Kind[]> {
     group: kind.groupKey as KindGroup,
     amountUnit: kind.amountUnit,
     countUnit: kind.countUnit,
+    inheritsCover: kind.inheritsCover,
     count: counts.get(kind.id) ?? 0,
     sortOrder,
     modules: (fieldsByKind.get(kind.id) ?? [])
