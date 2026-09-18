@@ -82,6 +82,7 @@ function GenericKindList({ kind }: { kind: Kind }) {
               }
         }
         gridClassName={isRecords ? undefined : WRITING_THREAD_GRID}
+        railDesktopOnly={!isRecords} // 書寫的統計手機版不顯示；紀錄照舊
       />
     );
   }
