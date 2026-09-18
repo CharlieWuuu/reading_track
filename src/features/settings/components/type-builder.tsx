@@ -133,6 +133,7 @@ export function TypeBuilder({
   const [name, setName] = useState(editing?.name ?? "");
   const [slug, setSlug] = useState(editing?.slug ?? "");
   const [unit, setUnit] = useState(editing?.amountUnit ?? "");
+  const [inheritsCover, setInheritsCover] = useState(editing?.inheritsCover ?? false);
   const [picked, setPicked] = useState<string[]>(
     editing ? editing.modules.map((m) => m.key) : ["title"],
   );
@@ -154,6 +155,7 @@ export function TypeBuilder({
     setName(template.name);
     setSlug(template.key);
     setUnit(template.amountUnit);
+    setInheritsCover(template.inheritsCover ?? false);
     setPicked([...template.modules]);
     setLabels({ ...template.labels });
   }
@@ -166,6 +168,7 @@ export function TypeBuilder({
       slug: slug.trim(),
       modules: picked,
       amountUnit: unit.trim(),
+      inheritsCover,
       labels,
     };
 
@@ -193,6 +196,20 @@ export function TypeBuilder({
             <Field label="名稱" value={name} onChange={setName} />
             <Field label="網址" value={slug} onChange={setSlug} />
             <Field label="量的單位" value={unit} onChange={setUnit} />
+            <label className={styles.row}>
+              <input
+                type="checkbox"
+                checked={inheritsCover}
+                onChange={() => setInheritsCover((on) => !on)}
+                className="mt-1"
+              />
+              <span className="min-w-0">
+                <span className={styles.moduleLabel}>沿用出處的封面</span>
+                <span className={`${styles.moduleHint} block`}>
+                  自己沒填圖時，顯示它連到的那本書的封面
+                </span>
+              </span>
+            </label>
           </div>
         </Section>
 

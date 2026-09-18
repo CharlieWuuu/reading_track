@@ -23,6 +23,8 @@ export type NewKind = {
   /** 勾了哪些模組 */
   modules: string[];
   amountUnit: string;
+  /** 自己沒封面時要不要用連到的作品的封面 */
+  inheritsCover: boolean;
   /** 模組在這個類型叫什麼 */
   labels?: Record<string, string>;
 };
@@ -57,6 +59,7 @@ async function insertKind(
       name: kind.name,
       slug: kind.slug,
       amountUnit: kind.amountUnit,
+      inheritsCover: kind.inheritsCover,
       sortOrder,
     })
     .returning({ id: kinds.id });
@@ -92,6 +95,7 @@ const fromTemplate = (template: KindTemplate): NewKind => ({
   slug: template.key,
   modules: [...template.modules],
   amountUnit: template.amountUnit,
+  inheritsCover: template.inheritsCover ?? false,
   labels: template.labels,
 });
 
@@ -192,7 +196,12 @@ export async function updateKind(userId: string, kindId: string, patch: NewKind)
   return db.transaction(async (tx) => {
     await tx
       .update(kinds)
-      .set({ name: patch.name, slug: patch.slug, amountUnit: patch.amountUnit })
+      .set({
+        name: patch.name,
+        slug: patch.slug,
+        amountUnit: patch.amountUnit,
+        inheritsCover: patch.inheritsCover,
+      })
       .where(and(eq(kinds.id, kindId), eq(kinds.userId, userId)));
 
     await tx.delete(mapKindField).where(eq(mapKindField.kindId, kindId));

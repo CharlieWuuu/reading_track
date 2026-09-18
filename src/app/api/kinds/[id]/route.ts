@@ -34,6 +34,7 @@ export const PATCH = guarded(
       slug?: unknown;
       modules?: unknown;
       amountUnit?: unknown;
+      inheritsCover?: unknown;
       labels?: unknown;
     }>(req, "kind PATCH");
     if (!body) return badRequest("看不懂的內容");
@@ -54,6 +55,7 @@ export const PATCH = guarded(
         )
       : [];
     const amountUnit = typeof body.amountUnit === "string" ? body.amountUnit.trim() : "";
+    const inheritsCover = body.inheritsCover === true;
     const labels =
       body.labels && typeof body.labels === "object"
         ? (Object.fromEntries(
@@ -97,6 +99,7 @@ export const PATCH = guarded(
         slug,
         modules,
         amountUnit,
+        inheritsCover,
         labels,
       });
       return NextResponse.json({ id: newId });

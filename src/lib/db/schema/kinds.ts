@@ -27,6 +27,14 @@ export const kinds = pgTable(
     amountUnit: text("amount_unit").notNull().default(""),
     /** 個數的單位：則、篇、部。跟 amount_unit 不同——那個是份量，這個是「幾件」。沒填就是「筆」 */
     countUnit: text("count_unit").notNull().default(""),
+    /**
+     * 自己沒有封面時，要不要用連到的那個作品的封面。
+     *
+     * 佳句、心得是從某本書長出來的，掛那本書的封面對得起來；單字與關鍵字不是——
+     * 一個詞不屬於任何一本書，掛書封只是誤導。本來寫死判斷 slug === "keywords"，
+     * 自訂類型就沒得選，改成類型自己說。
+     */
+    inheritsCover: boolean("inherits_cover").notNull().default(false),
     /** @deprecated 排序搬到 setting_user_kinds 了——共用列上調順序會動到所有人。查詢全切過去後刪掉 */
     sortOrder: integer("sort_order").notNull().default(0),
   },
