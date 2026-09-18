@@ -27,7 +27,7 @@ export function Masthead({ authSlot }: { authSlot: React.ReactNode }) {
       <div className="bg-rule-strong mt-[3px]" style={{ height: "var(--stroke-solid)" }} />
 
       <div className={styles.row}>
-        <div className={`${styles.side} hidden items-center gap-3 md:flex`}>
+        <div className={`${styles.side} flex items-center gap-3`}>
           {/* 手機走底部導覽，側欄本來就不出現，這顆只給桌機看；沒登入沒有側欄可收合 */}
           {signedIn && (
             <button
@@ -40,10 +40,11 @@ export function Masthead({ authSlot }: { authSlot: React.ReactNode }) {
               <PanelLeft size={16} strokeWidth={1.5} aria-hidden />
             </button>
           )}
-          {/* 年份在左，日期與週次在右邊那欄 */}
-          <IssueLinks parts="year" className="hidden md:flex" />
+          {/* 桌機三段一起擺左欄（照舊）；手機拆成年份在左、日期週次在右 */}
+          <IssueLinks className="hidden md:flex" />
+          <IssueLinks parts="year" className="md:hidden" />
         </div>
-        <div className="min-w-0 flex-1 basis-0 whitespace-nowrap md:text-center">
+        <div className="min-w-0 flex-1 basis-0 text-center whitespace-nowrap">
           <Link href="/" className={styles.title}>
             Archivum
           </Link>
@@ -51,8 +52,8 @@ export function Masthead({ authSlot }: { authSlot: React.ReactNode }) {
         <div className={`${styles.side} flex items-center justify-end gap-3.5`}>
           {/* 手機的統計／設定／帳號走底部導覽，報頭不重複放一次 */}
           <span className="hidden items-center gap-3.5 md:flex">{authSlot}</span>
-          {/* 手機沒有左欄，年份也擠不下，兩種寬度都只放日期與週次 */}
-          <IssueLinks parts="dayWeek" />
+          {/* 日期與週次之間不留空隙，唸起來是一段而不是兩個分開的連結 */}
+          <IssueLinks parts="dayWeek" gap="gap-1" className="md:hidden" />
         </div>
       </div>
 
