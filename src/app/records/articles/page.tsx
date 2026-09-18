@@ -43,7 +43,6 @@ function ArticlesBody() {
 /** 讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */
 export default function ArticlesPage() {
   const { articles } = useArticles();
-  const view = useBookView();
 
   return (
     <Suspense fallback={null}>
@@ -51,8 +50,7 @@ export default function ArticlesPage() {
         views={<BookViewMenu cardLabel="卡片" modes={[...ARTICLE_MODES]} />}
         meta={articles.length > 0 ? articleMeta(articles) : undefined}
       />
-      {/* 概覽自己開兩欄各自的捲動條（月份格線＋窄欄），其餘檢視照舊交給 PageBody */}
-      <PageBody scroll={view !== "overview"}>
+      <PageBody>
         <ArticlesBody />
       </PageBody>
     </Suspense>

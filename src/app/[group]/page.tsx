@@ -20,7 +20,7 @@ export default function GroupPage() {
   return (
     <>
       <PageHeader title={nav.label} action={<GroupViewMenu />} />
-      <PageBody scroll={view === "table"}>
+      <PageBody>
         <GroupOverviewPage group={nav.kindGroup} view={view} />
       </PageBody>
     </>
