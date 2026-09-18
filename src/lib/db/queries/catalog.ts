@@ -215,6 +215,8 @@ export type FragmentRow = {
   kindCountUnit: string;
   kindGroup: KindGroup;
   kindSlug: string;
+  /** 這一種要不要跟著出處走（封面、書名）。單字與關鍵字不屬於任何一本書 */
+  inheritsCover: boolean;
   workId: string | null;
   workTitle: string;
   title: string;
@@ -259,6 +261,7 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
       kindCountUnit: kind.countUnit,
       kindGroup: kind.groupKey as KindGroup,
       kindSlug: kind.slug,
+      inheritsCover: kind.inheritsCover,
       workId: work?.id ?? null,
       workTitle: work?.title ?? "",
       title: fragment.title,
@@ -299,6 +302,7 @@ export async function listFragmentsByKind(userId: string, kindId: string): Promi
       kindCountUnit: kind.countUnit,
       kindGroup: kind.groupKey as KindGroup,
       kindSlug: kind.slug,
+      inheritsCover: kind.inheritsCover,
       workId: work?.id ?? null,
       workTitle: work?.title ?? "",
       title: fragment.title,
@@ -332,6 +336,7 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       id: writing.id,
       kindId: writing.kindId,
       kindName: writing.kindName,
+      inheritsCover: true, // 書寫從某本書長出來，跟著出處走
       kindCountUnit: writing.kindCountUnit,
       kindGroup: "writings" as const,
       kindSlug: writing.kindSlug,
