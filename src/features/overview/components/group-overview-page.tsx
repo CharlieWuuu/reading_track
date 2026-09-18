@@ -95,7 +95,7 @@ export function GroupOverviewPage({ group, view = "overview" }: GroupOverviewPag
         active={[]}
         pending={[]}
         done={fragments.map(fragmentItem)}
-        headlineLabel="最新一則"
+        headlineLabel="" // 不要頭條：一路往下讀的流，頭條會把最新那則講兩次
         unit="則"
         renderItem={(item) => threadRow(byId, item)}
         gridClassName={WRITING_THREAD_GRID}

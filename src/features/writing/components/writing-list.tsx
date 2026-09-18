@@ -100,11 +100,12 @@ function WritingListFull({ view, topic }: { view: string; topic: string }) {
           active={[]}
           pending={[]}
           done={writings.map(writingItem)}
-          headlineLabel="最新一則"
+          headlineLabel="" // 不要頭條：這一頁是一路往下讀的流，頭條會把最新那則講兩次
           unit="則"
           renderItem={(item) => threadItem(byId, item)}
           gridClassName={WRITING_THREAD_GRID}
           extraRail={<WritingRail writings={writings} />}
+          railDesktopOnly
         />
       )}
     </PageBody>
@@ -132,7 +133,7 @@ function WritingListPaged() {
         pending={[]}
         done={overview.writings.map(writingItem)}
         doneTotal={overview.total}
-        headlineLabel="最新一則"
+        headlineLabel=""
         unit="則"
         onLoadMore={overview.loadMore}
         hasMore={overview.hasMore}
@@ -140,6 +141,7 @@ function WritingListPaged() {
         renderItem={(item) => threadItem(byId, item)}
         gridClassName={WRITING_THREAD_GRID}
         extraRail={<WritingRail writings={overview.writings} />}
+        railDesktopOnly
       />
     </PageBody>
   );

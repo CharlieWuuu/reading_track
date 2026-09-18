@@ -23,6 +23,7 @@ type GroupOverviewProps = {
   hasMore?: boolean;
   isLoadingMore?: boolean;
   extraRail?: React.ReactNode; // 右欄補的內容，書寫沒有進行／想要
+  railDesktopOnly?: boolean; // 窄螢幕不插進內容裡
   renderItem?: (item: OverviewItem) => React.ReactNode; // 中間那格怎麼畫，不給就是封面卡
   gridClassName?: string; // 月份格線的欄數斷點
 };
@@ -38,6 +39,7 @@ export function GroupOverview({
   hasMore,
   isLoadingMore,
   extraRail,
+  railDesktopOnly,
   renderItem,
   gridClassName,
 }: GroupOverviewProps) {
@@ -57,6 +59,7 @@ export function GroupOverview({
       onLoadMore={onLoadMore}
       hasMore={hasMore}
       isLoadingMore={isLoadingMore}
+      railDesktopOnly={railDesktopOnly}
       renderItem={renderItem}
       gridClassName={gridClassName}
       rail={

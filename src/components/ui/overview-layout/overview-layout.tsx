@@ -78,6 +78,8 @@ export type OverviewLayoutProps = {
    * 「在讀」「想要」就等於消失了，但那正是最常想確認的一段。
    */
   rail?: ReactNode;
+  /** 窄螢幕不把 rail 插進內容裡。書寫那頁的統計在手機上只是把內容往下推 */
+  railDesktopOnly?: boolean;
   /**
    * 月份格線裡一格怎麼畫。預設用 CoverCard（書籍、紀錄那種有封面的清單）；
    * 片段、書寫這種一則一張卡的頁面換成 FragmentCard，骨架（頭條、月份分段、
@@ -102,6 +104,7 @@ export function OverviewLayout({
   unit = "筆",
   tintSeed,
   rail,
+  railDesktopOnly,
   renderItem,
   gridClassName = COVER_CARD_GRID,
   onLoadMore,
@@ -145,7 +148,7 @@ export function OverviewLayout({
           <OverviewHeadline item={headline} label={headlineLabel} summary={headlineSummary} />
         )}
 
-        {rail && <div className={styles.railInline}>{rail}</div>}
+        {rail && !railDesktopOnly && <div className={styles.railInline}>{rail}</div>}
 
         <div className={styles.monthList}>
           {byMonth(done).map((group) => (

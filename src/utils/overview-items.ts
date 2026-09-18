@@ -94,9 +94,15 @@ export const fragmentBody = (row: FragmentRow): string => row.example || row.bod
  *
  * 書寫沒有出處那一層，改用內文開頭——卡片上總要看得出這則在寫什麼，
  * 只有標題的話一整面卡片長得都一樣。
+ *
+ * 不繼承封面的類型也不寫出處：單字、關鍵字不屬於任何一本書，掛上書名
+ * 跟掛上書封是同一種誤導。判斷跟封面共用 inheritsCover，不另外開欄位。
  */
-export const fragmentMeta = (row: FragmentRow): string =>
-  row.kindGroup === "writings" ? row.body : joinByline([row.workTitle, row.locator]);
+export const fragmentMeta = (row: FragmentRow): string => {
+  if (row.kindGroup === "writings") return row.body;
+  if (!row.inheritsCover) return "";
+  return joinByline([row.workTitle, row.locator]);
+};
 
 /**
  * 片段的一筆攤成卡片要的 props。
