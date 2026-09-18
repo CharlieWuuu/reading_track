@@ -33,3 +33,19 @@ export function notesForKeyword(writings: Writing[], name: string): Writing[] {
   if (!keyword) return [];
   return writings.filter((w) => splitLines(w.keywords).includes(keyword)).sort(byNewest);
 }
+
+/**
+ * 照類型分組，組內維持原本的排序。
+ *
+ * 詳情頁底下那一區本來掛一條寫死的「心得・紀事」，但那幾則各有各的類型
+ * （心得、思緒、週計劃…），思緒掛在寫著「心得」的標題底下對不起來。
+ * 類型名使用者改得掉，所以標題從資料來，不寫死。
+ */
+export function notesByKind(notes: Writing[]): { kindName: string; notes: Writing[] }[] {
+  return notes.reduce<{ kindName: string; notes: Writing[] }[]>((groups, note) => {
+    const name = note.kindName || "紀事";
+    const found = groups.find((g) => g.kindName === name);
+    if (found) return groups.map((g) => (g === found ? { ...g, notes: [...g.notes, note] } : g));
+    return [...groups, { kindName: name, notes: [note] }];
+  }, []);
+}

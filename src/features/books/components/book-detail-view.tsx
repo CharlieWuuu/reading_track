@@ -24,7 +24,7 @@ import { useWritings } from "@/hooks/use-writings";
 import { Book, formatCount, splitLines } from "@/types/book";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { sameBook } from "@/utils/book-reads";
-import { notesForSource } from "@/utils/related-notes";
+import { notesByKind, notesForSource } from "@/utils/related-notes";
 
 /** 一次讀完就知道的四個數字：書裡留下了多少東西，緊接在量化資訊行下面 */
 function CountStats({
@@ -227,16 +227,24 @@ export function BookDetailView({ recordId }: { recordId: string }) {
             <FactsCard book={book} />
           </header>
 
-          {/* 主內容雙欄：左邊心得紀事（含關鍵字），右邊佳句／單字清單 */}
+          {/* 主內容雙欄：左邊書寫（含關鍵字），右邊佳句／單字清單 */}
           <div className="flex flex-col gap-8 md:flex-row">
             <div className="flex min-w-0 flex-1 flex-col gap-3">
-              {noteCount > 0 && (
+              {/* 這本書自己那欄心得，跟連過來的書寫是兩回事，各自一區 */}
+              {note && (
                 <>
-                  <DetailHeading title="心得・紀事" count={`${noteCount} 則`} />
-                  {note && <NoteBlock note={note} />}
-                  {notes.length > 0 && <RelatedNotes notes={notes} />}
+                  <DetailHeading title="心得" count="1 則" />
+                  <NoteBlock note={note} />
                 </>
               )}
+
+              {/* 一種類型一區：思緒掛在寫著「心得」的標題底下對不起來 */}
+              {notesByKind(notes).map((group) => (
+                <div key={group.kindName} className="flex flex-col gap-3">
+                  <DetailHeading title={group.kindName} count={`${group.notes.length} 則`} />
+                  <RelatedNotes notes={group.notes} />
+                </div>
+              ))}
 
               {keywords.length > 0 && (
                 <div className="flex flex-col gap-2 pt-2">

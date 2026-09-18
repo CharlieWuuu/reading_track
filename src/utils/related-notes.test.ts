@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { makeWriting, resetIds } from "@/testing/factories";
-import { notesForKeyword, notesForSource } from "./related-notes";
+import { notesByKind, notesForKeyword, notesForSource } from "./related-notes";
 
 beforeEach(resetIds);
 
@@ -40,5 +40,27 @@ describe("notesForKeyword", () => {
 
   it("空字串不撈東西", () => {
     expect(notesForKeyword([makeWriting({ keywords: "正念" })], "  ")).toEqual([]);
+  });
+});
+
+describe("notesByKind", () => {
+  it("照類型分組，組內維持原本的排序", () => {
+    const notes = [
+      makeWriting({ kindName: "心得", title: "一" }),
+      makeWriting({ kindName: "思緒", title: "二" }),
+      makeWriting({ kindName: "心得", title: "三" }),
+    ];
+    expect(notesByKind(notes).map((g) => [g.kindName, g.notes.map((n) => n.title)])).toEqual([
+      ["心得", ["一", "三"]],
+      ["思緒", ["二"]],
+    ]);
+  });
+
+  it("沒有類型名的退回「紀事」", () => {
+    expect(notesByKind([makeWriting({ kindName: "" })])[0].kindName).toBe("紀事");
+  });
+
+  it("空陣列就沒有分組", () => {
+    expect(notesByKind([])).toEqual([]);
   });
 });
