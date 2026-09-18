@@ -15,7 +15,7 @@ export default function KeywordsPage() {
     <Suspense fallback={null}>
       <ReadingHeader />
       <PageBody>
-        <BooksGate>{(books) => <KeywordsSection books={books} view="card" />}</BooksGate>
+        <BooksGate>{(books) => <KeywordsSection books={books} />}</BooksGate>
       </PageBody>
     </Suspense>
   );

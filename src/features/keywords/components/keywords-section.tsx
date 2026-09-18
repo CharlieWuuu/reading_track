@@ -1,52 +1,20 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
 import { PageMessage } from "@/components/layout/page-message";
-import { Spinner } from "@/components/ui/spinner";
-import { keywordHref } from "@/config/routes";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { KeywordCards } from "@/features/keywords/components/keyword-cards";
-import { KeywordTimeline } from "@/features/keywords/components/keyword-timeline";
-import { KeywordTreemap } from "@/features/keywords/components/keyword-treemap";
 import { getKeywordEntries } from "@/features/keywords/utils/keyword-stats";
 import { Book } from "@/types/book";
 
-/** leaflet 直接碰 window，不能在伺服器端預先產生 */
-const KeywordMap = dynamic(
-  () => import("@/features/keywords/components/keyword-map").then((m) => m.KeywordMap),
-  {
-    ssr: false,
-    loading: () => (
-      <div className={styles.loading}>
-        <Spinner size={20} className="text-gray-400" />
-      </div>
-    ),
-  },
-);
-
-const styles = {
-  wrap: "flex min-h-0 flex-1 flex-col gap-3",
-  panel: "flex min-h-0 flex-1 flex-col gap-3 rounded-surface border bg-white p-4 md:p-5",
-  // 地圖自己就是一整面內容，留白只會讓它變小；底圖直接貼到框線
-  mapPanel: "flex min-h-0 flex-1 flex-col overflow-hidden rounded-surface border bg-white",
-  chart: "min-h-0 flex-1",
-  cards: "min-h-0 flex-1 overflow-y-auto",
-  loading: "flex h-full items-center justify-center text-xs text-gray-400",
-};
-
-export type KeywordView = "card" | "chart" | "map" | "timeline";
-
 /**
- * 關鍵字的四種看法。分析型的三種（圖表、地圖、年代）掛在統計底下，
- * 卡片留在閱讀——那一頁是拿來翻的，不是拿來看分布的。
+ * 關鍵字的卡片牆。閱讀那一頁是拿來翻的，不是拿來看分布的。
  *
- * 兩邊共用同一個元件，差別只在 view 由誰決定：閱讀那邊固定卡片，
- * 統計那邊由頁首的「顯示方式」給。
+ * 分析型的三種（圖表、地圖、年代）搬進統計了：地圖與年代現在讀的是
+ * 這個類型自己的座標與起訖年（見 utils/stats/geo-stats），一筆一個點，
+ * 不再是「一本書一個顏色」——影集哪天勾了座標，一樣畫得出來。
  */
-export function KeywordsSection({ books, view }: { books: Book[]; view: KeywordView }) {
+export function KeywordsSection({ books }: { books: Book[] }) {
   const { byName } = useKeywordInfos();
-  const router = useRouter();
 
   const entries = getKeywordEntries(books, [...byName.keys()]);
   if (entries.length === 0) {
@@ -54,32 +22,8 @@ export function KeywordsSection({ books, view }: { books: Book[]; view: KeywordV
   }
 
   return (
-    <div className={styles.wrap}>
-      {view === "chart" ? (
-        <div className={styles.panel}>
-          <div className={styles.chart}>
-            <KeywordTreemap
-              entries={entries}
-              infos={byName}
-              onSelect={(name) => router.push(keywordHref(name))}
-            />
-          </div>
-        </div>
-      ) : view === "timeline" ? (
-        <div className={styles.panel}>
-          <div className={styles.chart}>
-            <KeywordTimeline entries={entries} infos={byName} />
-          </div>
-        </div>
-      ) : view === "map" ? (
-        <div className={styles.mapPanel}>
-          <KeywordMap books={books} infos={byName} />
-        </div>
-      ) : (
-        <div className={styles.cards}>
-          <KeywordCards books={books} />
-        </div>
-      )}
+    <div className="min-h-0 flex-1 overflow-y-auto">
+      <KeywordCards books={books} />
     </div>
   );
 }
