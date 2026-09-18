@@ -7,7 +7,7 @@ import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
-import { DetailField, DetailHeading } from "@/components/ui/detail";
+import { DetailField, DetailHeader, DetailHeading, DetailTitle } from "@/components/ui/detail";
 import { NoteBlock } from "@/components/ui/note-block";
 import { Quote } from "@/components/ui/quote";
 import { RelatedNotes } from "@/components/ui/related-notes";
@@ -24,7 +24,7 @@ import { useWritings } from "@/hooks/use-writings";
 import { Book, formatCount, splitLines } from "@/types/book";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { sameBook } from "@/utils/book-reads";
-import { notesForSource } from "@/utils/related-notes";
+import { notesByKind, notesForSource } from "@/utils/related-notes";
 
 /** 一次讀完就知道的四個數字：書裡留下了多少東西，緊接在量化資訊行下面 */
 function CountStats({
@@ -57,10 +57,9 @@ function CountStats({
 }
 
 /** 右欄的固定資料卡：狀態、開始、讀完、語言、來源、私人 */
-function FactsCard({ book }: { book: Book }) {
+function BookFacts({ book }: { book: Book }) {
   return (
-    <div className="w-full shrink-0 md:w-52 md:border-l md:pl-6">
-      <DetailHeading title="基本資料" />
+    <>
       <DetailField label="狀態" align="right">
         <StatusBadge status={book.status} />
       </DetailField>
@@ -90,7 +89,7 @@ function FactsCard({ book }: { book: Book }) {
       <DetailField label="私人" align="right">
         {book.private === PRIVATE_MARK ? "是" : "否"}
       </DetailField>
-    </div>
+    </>
   );
 }
 
@@ -201,42 +200,43 @@ export function BookDetailView({ recordId }: { recordId: string }) {
       <PageBody>
         <article className="flex w-full flex-col gap-8">
           {/* 書名頁：封面＋書名／作者／量化資訊／統計數字在左，固定資料卡在右 */}
-          <header className="border-rule-strong flex flex-col gap-6 border-b pb-6 md:flex-row">
-            <div className="flex gap-4 sm:flex-1 md:gap-10">
-              <BookCover
-                url={book.coverUrl}
-                title={book.title}
-                size="detail"
-                className="shrink-0 self-start"
+          <DetailHeader facts={<BookFacts book={book} />}>
+            <BookCover
+              url={book.coverUrl}
+              title={book.title}
+              size="detail"
+              className="shrink-0 self-start"
+            />
+            <div className="flex min-w-0 flex-1 flex-col gap-2.5">
+              <DetailTitle title={book.title} subtitle={book.author} />
+              {quantLine && <p className="text-meta text-ink-faint">{quantLine}</p>}
+              <CountStats
+                quotes={bookQuotes.length}
+                vocabulary={bookVocabulary.length}
+                notes={noteCount}
+                keywords={keywords.length}
               />
-              <div className="flex min-w-0 flex-1 flex-col gap-2.5">
-                <h2 className="font-serif text-2xl leading-tight font-semibold break-words text-gray-900 md:text-3xl">
-                  {book.title}
-                </h2>
-                {book.author && <p className="font-serif text-base text-gray-500">{book.author}</p>}
-                {quantLine && <p className="text-meta text-ink-faint">{quantLine}</p>}
-                <CountStats
-                  quotes={bookQuotes.length}
-                  vocabulary={bookVocabulary.length}
-                  notes={noteCount}
-                  keywords={keywords.length}
-                />
-              </div>
             </div>
+          </DetailHeader>
 
-            <FactsCard book={book} />
-          </header>
-
-          {/* 主內容雙欄：左邊心得紀事（含關鍵字），右邊佳句／單字清單 */}
+          {/* 主內容雙欄：左邊書寫（含關鍵字），右邊佳句／單字清單 */}
           <div className="flex flex-col gap-8 md:flex-row">
             <div className="flex min-w-0 flex-1 flex-col gap-3">
-              {noteCount > 0 && (
+              {/* 這本書自己那欄心得，跟連過來的書寫是兩回事，各自一區 */}
+              {note && (
                 <>
-                  <DetailHeading title="心得・紀事" count={`${noteCount} 則`} />
-                  {note && <NoteBlock note={note} />}
-                  {notes.length > 0 && <RelatedNotes notes={notes} />}
+                  <DetailHeading title="心得" count="1 則" />
+                  <NoteBlock note={note} />
                 </>
               )}
+
+              {/* 一種類型一區：思緒掛在寫著「心得」的標題底下對不起來 */}
+              {notesByKind(notes).map((group) => (
+                <div key={group.kindName} className="flex flex-col gap-3">
+                  <DetailHeading title={group.kindName} count={`${group.notes.length} 則`} />
+                  <RelatedNotes notes={group.notes} />
+                </div>
+              ))}
 
               {keywords.length > 0 && (
                 <div className="flex flex-col gap-2 pt-2">

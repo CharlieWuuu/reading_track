@@ -5,7 +5,7 @@ import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
 import { ActionButton } from "@/components/ui/controls";
-import { DetailField, DetailFields, DetailSection } from "@/components/ui/detail";
+import { DetailField, DetailHeader, DetailSection, DetailTitle } from "@/components/ui/detail";
 import { NoteBlock } from "@/components/ui/note-block";
 import { RelatedLinks } from "@/components/ui/related-links";
 import { writingEditHref } from "@/config/routes";
@@ -33,38 +33,47 @@ export function WritingDetailView({ recordId }: { recordId: string }) {
       <PageBody>
         <RecordGate loading={isLoading} error={error} missing={!writing && "找不到這則紀事"}>
           {writing && (
-            <div className="flex flex-col gap-6">
-              <DetailFields>
-                <div>
-                  <DetailField label="日期">{writing.endDate}</DetailField>
+            <div className="flex flex-col gap-8">
+              <DetailHeader
+                facts={
+                  <>
+                    <DetailField label="日期" align="right">
+                      {writing.endDate}
+                    </DetailField>
+                    <DetailField label="類型" align="right">
+                      {writing.kindName}
+                    </DetailField>
+                    <DetailField label="放在哪" align="right">
+                      {writing.link &&
+                        (isUrl(writing.link) ? (
+                          <a
+                            href={writing.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title={writing.link}
+                            className="inline-flex items-center gap-1 text-blue-700 underline underline-offset-2 hover:text-blue-900"
+                          >
+                            打開
+                            <ExternalLink size={12} strokeWidth={1.5} aria-hidden />
+                          </a>
+                        ) : (
+                          writing.link
+                        ))}
+                    </DetailField>
+                  </>
+                }
+              >
+                <div className="flex min-w-0 flex-1 flex-col gap-2.5">
+                  <DetailTitle title={writing.title} />
                   {writing.topic && (
-                    <DetailField label="主題">
+                    <span className="flex">
                       <span className={`${KIND_TAG} ${tagColorClass(writing.topic, [])}`}>
                         {writing.topic}
                       </span>
-                    </DetailField>
+                    </span>
                   )}
                 </div>
-                <div>
-                  <DetailField label="放在哪">
-                    {writing.link &&
-                      (isUrl(writing.link) ? (
-                        <a
-                          href={writing.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title={writing.link}
-                          className="inline-flex items-center gap-1 text-blue-700 underline underline-offset-2 hover:text-blue-900"
-                        >
-                          打開
-                          <ExternalLink size={12} strokeWidth={1.5} aria-hidden />
-                        </a>
-                      ) : (
-                        writing.link
-                      ))}
-                  </DetailField>
-                </div>
-              </DetailFields>
+              </DetailHeader>
 
               {/* 跟哪些資料有關：一個類型一區，出處與關鍵字都在裡面，不另外分方向 */}
               <RelatedLinks recordId={writing.id} />

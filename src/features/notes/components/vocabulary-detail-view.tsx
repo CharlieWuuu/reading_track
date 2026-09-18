@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
 import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
-import { DetailSection } from "@/components/ui/detail";
+import { DetailField, DetailHeader, DetailSection, DetailTitle } from "@/components/ui/detail";
 import { RelatedNotes } from "@/components/ui/related-notes";
 import { kindHref } from "@/config/kind-routes";
 import { bookHref, vocabularyEditHref } from "@/config/routes";
@@ -14,7 +14,7 @@ import { useBooks } from "@/hooks/use-books";
 import { useRecords } from "@/hooks/use-records";
 import { useWritings } from "@/hooks/use-writings";
 import { sameBook } from "@/utils/book-reads";
-import { notesForSource } from "@/utils/related-notes";
+import { notesByKind, notesForSource } from "@/utils/related-notes";
 import { getVocabularyEntries } from "@/utils/stats/vocabulary-stats";
 
 /**
@@ -62,14 +62,26 @@ export function VocabularyDetailView({ recordId }: { recordId: string }) {
           missing={!entry && "找不到這個詞"}
         >
           {entry && (
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-1">
-                <p className="text-2xl font-semibold">{name}</p>
-                {pronunciation && <p className="text-sm text-gray-400">{pronunciation}</p>}
-                {translations.length > 0 && (
-                  <p className="text-sm text-gray-600">{translations.join("、")}</p>
-                )}
-              </div>
+            <div className="flex flex-col gap-8">
+              <DetailHeader
+                facts={
+                  <>
+                    <DetailField label="讀音" align="right">
+                      {pronunciation}
+                    </DetailField>
+                    <DetailField label="字義" align="right">
+                      {translations.join("、")}
+                    </DetailField>
+                    <DetailField label="遇過" align="right">
+                      {`${entry.encounters.length} 次`}
+                    </DetailField>
+                  </>
+                }
+              >
+                <div className="flex min-w-0 flex-1 flex-col gap-2.5">
+                  <DetailTitle title={name} />
+                </div>
+              </DetailHeader>
 
               <DetailSection title="遇過" count={`${entry.encounters.length} 次`}>
                 <ul className="divide-rule-soft flex flex-col divide-y">
@@ -102,11 +114,15 @@ export function VocabularyDetailView({ recordId }: { recordId: string }) {
                 </ul>
               </DetailSection>
 
-              {notes.length > 0 && (
-                <DetailSection title="這些書的紀事" count={notes.length}>
-                  <RelatedNotes notes={notes} />
+              {notesByKind(notes).map((group) => (
+                <DetailSection
+                  key={group.kindName}
+                  title={`這些書的${group.kindName}`}
+                  count={`${group.notes.length} 則`}
+                >
+                  <RelatedNotes notes={group.notes} />
                 </DetailSection>
-              )}
+              ))}
             </div>
           )}
         </RecordGate>

@@ -5,7 +5,7 @@ import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
 import { ActionButton } from "@/components/ui/controls";
-import { DetailField, DetailFields, DetailSection } from "@/components/ui/detail";
+import { DetailField, DetailHeader, DetailSection, DetailTitle } from "@/components/ui/detail";
 import { Favicon } from "@/components/ui/favicon";
 import { NoteBlock } from "@/components/ui/note-block";
 import { RelatedNotes } from "@/components/ui/related-notes";
@@ -15,11 +15,48 @@ import { articleEditHref } from "@/config/routes";
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { useArticles } from "@/hooks/use-articles";
 import { useWritings } from "@/hooks/use-writings";
+import { Article } from "@/types/article";
 import { splitLines } from "@/types/book";
-import { notesForSource } from "@/utils/related-notes";
+import { notesByKind, notesForSource } from "@/utils/related-notes";
 
 const KEYWORD_TAG =
   "rounded-control bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200";
+
+/** 右欄的固定資料卡：站台、語言、讀完、來源 */
+function ArticleFacts({ article }: { article: Article }) {
+  return (
+    <>
+      <DetailField label="站台" align="right">
+        {article.platform && (
+          <span className="inline-flex items-center gap-1.5">
+            <Favicon url={article.sourceUrl} fallback={article.platform} className="size-4" />
+            {article.platform}
+          </span>
+        )}
+      </DetailField>
+      <DetailField label="語言" align="right">
+        {article.language}
+      </DetailField>
+      <DetailField label="讀完" align="right">
+        {article.endDate}
+      </DetailField>
+      <DetailField label="來源" align="right">
+        {article.sourceUrl && (
+          <a
+            href={article.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={article.sourceUrl}
+            className="inline-flex items-center gap-1 text-blue-700 underline underline-offset-2 hover:text-blue-900"
+          >
+            原始頁面
+            <ExternalLink size={12} strokeWidth={1.5} aria-hidden />
+          </a>
+        )}
+      </DetailField>
+    </>
+  );
+}
 
 /** 一篇文章的詳細頁。跟書籍那一頁同一種排版，只是欄位少很多 */
 export function ArticleDetailView({ recordId }: { recordId: string }) {
@@ -45,44 +82,16 @@ export function ArticleDetailView({ recordId }: { recordId: string }) {
       <PageBody>
         <RecordGate loading={isLoading} error={error} missing={!article && "找不到這篇文章"}>
           {article && (
-            <div className="flex flex-col gap-6">
-              <DetailFields>
-                <div>
-                  <DetailField label="作者">{article.author}</DetailField>
-                  <DetailField label="站台">
-                    <span className="inline-flex items-center gap-1.5">
-                      <Favicon
-                        url={article.sourceUrl}
-                        fallback={article.platform}
-                        className="size-4"
-                      />
-                      {article.platform}
-                    </span>
-                  </DetailField>
-                  <DetailField label="語言">{article.language}</DetailField>
-                </div>
-                <div>
-                  <DetailField label="讀完">{article.endDate}</DetailField>
-                  <DetailField label="領域">
+            <div className="flex flex-col gap-8">
+              <DetailHeader facts={<ArticleFacts article={article} />}>
+                <div className="flex min-w-0 flex-1 flex-col gap-2.5">
+                  <DetailTitle title={article.title} subtitle={article.author} />
+                  <div className="flex flex-wrap items-center gap-1.5">
                     <TagList values={[article.domain]} tone="domain" />
                     <TagList values={[article.subDomain]} tone="subDomain" />
-                  </DetailField>
-                  <DetailField label="來源">
-                    {article.sourceUrl && (
-                      <a
-                        href={article.sourceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={article.sourceUrl}
-                        className="inline-flex items-center gap-1 text-blue-700 underline underline-offset-2 hover:text-blue-900"
-                      >
-                        原始頁面
-                        <ExternalLink size={12} strokeWidth={1.5} aria-hidden />
-                      </a>
-                    )}
-                  </DetailField>
+                  </div>
                 </div>
-              </DetailFields>
+              </DetailHeader>
 
               {keywords.length > 0 && (
                 <DetailSection title="關鍵字" count={keywords.length}>
@@ -100,11 +109,15 @@ export function ArticleDetailView({ recordId }: { recordId: string }) {
                 </DetailSection>
               )}
 
-              {notes.length > 0 && (
-                <DetailSection title="紀事" count={notes.length}>
-                  <RelatedNotes notes={notes} />
+              {notesByKind(notes).map((group) => (
+                <DetailSection
+                  key={group.kindName}
+                  title={group.kindName}
+                  count={`${group.notes.length} 則`}
+                >
+                  <RelatedNotes notes={group.notes} />
                 </DetailSection>
-              )}
+              ))}
             </div>
           )}
         </RecordGate>
