@@ -70,7 +70,7 @@ function GenericKindList({ kind }: { kind: Kind }) {
         active={[]}
         pending={[]}
         done={isRecords ? records.map(recordItem) : fragments.map(fragmentItem)}
-        headlineLabel={isRecords ? "" : "最新一則"}
+        headlineLabel="" // 書寫不要頭條；紀錄本來就沒有
         unit={unitOfKind(kind)} // amountUnit 是份量（頁、分鐘），這裡要的是個數
         // 書寫一路往下讀，不是卡片牆；紀錄仍然是封面格線
         renderItem={
