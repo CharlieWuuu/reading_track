@@ -16,16 +16,19 @@ const LINK = "text-ink-faint hover:text-ink shrink-0";
 export function IssueLinks({
   className = "",
   parts = "all",
+  gap = "gap-3",
 }: {
   className?: string;
   parts?: "all" | "year" | "dayWeek";
+  /** 間距要當參數收：寫在 className 裡蓋不掉——同權重下後出現的那條贏，跟 class 順序無關 */
+  gap?: string;
 }) {
   const today = new Date().toISOString().slice(0, 10);
   const [year, month, day] = today.split("-").map(Number);
   const { week } = isoWeekOf(today);
 
   return (
-    <span suppressHydrationWarning className={`flex items-center gap-3 ${className}`}>
+    <span suppressHydrationWarning className={`flex items-center ${gap} ${className}`}>
       {parts !== "dayWeek" && (
         <Link href={`/year/${year}`} className={LINK}>
           {year} 年
