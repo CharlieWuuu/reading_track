@@ -77,8 +77,6 @@ export function BookTable() {
   const { quotes, vocabulary } = useRecords();
   const numbers = useMemo(() => completionNumbers(allBooks), [allBooks]);
   const { searchParams, setParams } = useUrlParams();
-  // 編輯模式的開關搬到頁首（BookEditModeButton），這裡只讀網址上的狀態
-  const editAll = searchParams.get("edit") === "1";
   const view = useBookView();
   const clearKeyword = () => setParams({ keyword: null });
   // 帶著目前的檢視進詳細頁，一路傳到編輯頁，存檔後才回得到同一個畫面
@@ -222,13 +220,7 @@ export function BookTable() {
 
       {/* 不自己開捲動容器：捲動一律交給 PageBody，sticky 的表頭改黏在那一層。
           自己捲的話這一頁的「捲到底」會跟其他頁不一樣（底部留白也吃不到） */}
-      <BookTableGrid
-        books={books}
-        numbers={numbers}
-        detailHref={detailHref}
-        onSaved={mutate}
-        editAll={editAll}
-      />
+      <BookTableGrid books={books} numbers={numbers} detailHref={detailHref} onSaved={mutate} />
 
       {/* 翻頁列放在框外，跟詳細檢視一致 */}
     </div>
