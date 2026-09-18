@@ -51,15 +51,17 @@ export function statsOfModules(
   const specs = moduleKeys.flatMap((key) => {
     const def = moduleDef(key); // 不叫 module：Next.js 那條規則擋這個名字
     if (!def?.stat) return [];
-    return def.stat
-      // 數線要兩格日期都有：只有開始沒有完成，畫出來每一條都沒有盡頭
-      .filter((kind) => kind !== "timeline" || (has.has("startDate") && has.has("endDate")))
-      .map((kind) => ({
-        moduleKey: key,
-        kind,
-        label: labels[key] || def.label,
-        fields: [...def.fields],
-      }));
+    return (
+      def.stat
+        // 數線要兩格日期都有：只有開始沒有完成，畫出來每一條都沒有盡頭
+        .filter((kind) => kind !== "timeline" || (has.has("startDate") && has.has("endDate")))
+        .map((kind) => ({
+          moduleKey: key,
+          kind,
+          label: labels[key] || def.label,
+          fields: [...def.fields],
+        }))
+    );
   });
 
   // 同一種圖之間保持勾選的順序，種類之間照 ORDER

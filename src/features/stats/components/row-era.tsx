@@ -1,8 +1,15 @@
 "use client";
 
-import { EraSegment, packLanes, place, TICK_WIDTH, ticksOf, yearLabel } from "@/utils/stats/era-scale";
-import { eraSpans } from "@/utils/stats/geo-stats";
+import {
+  EraSegment,
+  packLanes,
+  place,
+  TICK_WIDTH,
+  ticksOf,
+  yearLabel,
+} from "@/utils/stats/era-scale";
 import type { StatRow } from "@/utils/stats/generic-stats";
+import { eraSpans } from "@/utils/stats/geo-stats";
 
 const styles = {
   wrap: "flex h-full min-h-0 flex-col gap-2",

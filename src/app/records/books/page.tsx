@@ -3,9 +3,9 @@
 import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { BookTable } from "@/features/books/components/book-table";
+import { KindStatsBySlug } from "@/features/kinds/kind-stats-by-slug";
 import { BookViewMenu } from "@/features/reading/components/book-view-menu";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
-import { KindStatsBySlug } from "@/features/kinds/kind-stats-by-slug";
 import { useBookView } from "@/hooks/use-book-view";
 import { useFilteredBooks } from "@/hooks/use-filtered-books";
 import { useMounted } from "@/hooks/use-mounted";

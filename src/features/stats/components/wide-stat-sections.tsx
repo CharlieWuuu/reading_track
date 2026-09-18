@@ -8,17 +8,14 @@ import { Section } from "@/features/stats/components/section-list";
 import type { StatData, StatRow } from "@/utils/stats/generic-stats";
 
 /** leaflet 直接碰 window，不能在伺服器端預先產生 */
-const RowMap = dynamic(
-  () => import("@/features/stats/components/row-map").then((m) => m.RowMap),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex h-full items-center justify-center">
-        <Spinner size={20} className="text-gray-400" />
-      </div>
-    ),
-  },
-);
+const RowMap = dynamic(() => import("@/features/stats/components/row-map").then((m) => m.RowMap), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center">
+      <Spinner size={20} className="text-gray-400" />
+    </div>
+  ),
+});
 
 /**
  * 佔一整排的那幾張圖。

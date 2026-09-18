@@ -3,8 +3,8 @@
 import { useMemo } from "react";
 import { DataGate } from "@/components/layout/data-gate";
 import { SectionList } from "@/features/stats/components/section-list";
-import { useModuleSections } from "@/features/stats/hooks/use-module-sections";
 import type { WideSlots } from "@/features/stats/components/wide-stat-sections";
+import { useModuleSections } from "@/features/stats/hooks/use-module-sections";
 import { useKindRecords } from "@/hooks/use-kind-records";
 import type { Kind } from "@/lib/db/queries/kinds";
 

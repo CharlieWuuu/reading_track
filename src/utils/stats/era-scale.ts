@@ -31,7 +31,11 @@ export function yearLabel(year: number): string {
 }
 
 /** 整條數線的刻度：把起訖年往外對齊到級距的整數倍 */
-export function ticksOf(spans: readonly EraSpan[]): { ticks: number[]; first: number; step: number } {
+export function ticksOf(spans: readonly EraSpan[]): {
+  ticks: number[];
+  first: number;
+  step: number;
+} {
   const min = Math.min(...spans.map((s) => s.from));
   const max = Math.max(...spans.map((s) => s.to));
   const step = pickStep(max - min);
@@ -65,7 +69,9 @@ export function packLanes(segments: readonly EraSegment[]): EraSegment[][] {
 
   for (const segment of sorted) {
     const lane = lanes.find((row) =>
-      row.every((s) => segment.start >= s.start + s.slot || segment.start + segment.slot <= s.start),
+      row.every(
+        (s) => segment.start >= s.start + s.slot || segment.start + segment.slot <= s.start,
+      ),
     );
     if (lane) lane.push(segment);
     else lanes.push([segment]);
