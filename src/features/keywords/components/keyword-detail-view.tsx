@@ -73,7 +73,7 @@ export function KeywordDetailView({ recordId }: { recordId: string }) {
                     {span && formatSpan(span.from, span.to)}
                   </DetailField>
                   <DetailField label="提到" align="right">
-                    {mentions.books.length > 0 && `${mentions.books.length} 本`}
+                    {mentions.books.length > 0 && `${mentions.books.length} 項`}
                   </DetailField>
                   <DetailField label="維基" align="right">
                     {info?.wikiUrl && (
@@ -112,7 +112,7 @@ export function KeywordDetailView({ recordId }: { recordId: string }) {
             )}
 
             {mentions.books.length > 0 && (
-              <DetailSection title="書" count={mentions.books.length}>
+              <DetailSection title="書" count={`${mentions.books.length} 項`}>
                 <div className={styles.list}>
                   {mentions.books.map((book) => (
                     <Link key={book.id} href={bookHref(book.id)} className={styles.row}>
@@ -125,7 +125,7 @@ export function KeywordDetailView({ recordId }: { recordId: string }) {
             )}
 
             {mentions.articles.length > 0 && (
-              <DetailSection title="文章" count={mentions.articles.length}>
+              <DetailSection title="文章" count={`${mentions.articles.length} 項`}>
                 <div className={styles.list}>
                   {mentions.articles.map((article) => (
                     <Link key={article.id} href={articleHref(article.id)} className={styles.row}>
@@ -137,7 +137,7 @@ export function KeywordDetailView({ recordId }: { recordId: string }) {
             )}
 
             {mentions.writings.length > 0 && (
-              <DetailSection title="書寫" count={mentions.writings.length}>
+              <DetailSection title="書寫" count={`${mentions.writings.length} 項`}>
                 <div className={styles.list}>
                   {mentions.writings.map((writing) => (
                     <Link key={writing.id} href={writingHref(writing.id)} className={styles.row}>

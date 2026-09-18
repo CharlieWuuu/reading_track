@@ -94,7 +94,7 @@ export function ArticleDetailView({ recordId }: { recordId: string }) {
               </DetailHeader>
 
               {keywords.length > 0 && (
-                <DetailSection title="關鍵字" count={keywords.length}>
+                <DetailSection title="關鍵字" count={`${keywords.length} 項`}>
                   <div className="flex flex-wrap gap-1.5">
                     {keywords.map((name) => (
                       <KeywordTag key={name} name={name} className={KEYWORD_TAG} />
@@ -113,7 +113,7 @@ export function ArticleDetailView({ recordId }: { recordId: string }) {
                 <DetailSection
                   key={group.kindName}
                   title={group.kindName}
-                  count={`${group.notes.length} 則`}
+                  count={`${group.notes.length} 項`}
                 >
                   <RelatedNotes notes={group.notes} />
                 </DetailSection>
