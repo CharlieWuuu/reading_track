@@ -17,10 +17,11 @@ import { useKinds } from "@/hooks/use-kinds";
  */
 
 const styles = {
-  // 捲軸整條藏起來：留著的話高度會隨「有沒有捲軸」變一次，
-  // macOS 設成一律顯示捲動列時更明顯——這一條是導覽，高度不能跳
+  // 高度寫死，不讓捲軸決定：捲軸佔不佔位子各家瀏覽器不一樣（macOS 設成
+  // 一律顯示捲動列就會佔），這一條是導覽，類型多一個少一個都不該跳高度。
+  // 捲軸本身也藏起來，橫捲照樣能捲
   strip:
-    "border-shell-rule flex gap-1 overflow-x-auto border-t bg-white px-3 py-2 md:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+    "border-shell-rule flex h-11 items-center gap-1 overflow-x-auto border-t bg-white px-3 md:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
   tab: "text-ui shrink-0 rounded-full px-3 py-1 whitespace-nowrap",
   on: "bg-accent/10 text-accent font-medium",
   off: "text-ink-faint",
