@@ -64,7 +64,7 @@ export function BookCover({
   url: string;
   title: string;
   size?: BookCoverSize;
-  /** 不畫外框與陰影：圖例外面已經有一圈顏色，再加一圈只會變髒 */
+  /** 不畫外框：圖例外面已經有一圈顏色，再加一圈只會變髒 */
   flat?: boolean;
   /** 額外的定位或效果，例如書封牆的 hover 陰影 */
   className?: string;
@@ -81,7 +81,7 @@ export function BookCover({
         alt=""
         loading="lazy"
         title={title}
-        className={`${shape} object-cover ${flat ? "" : "shadow-sm ring-1 ring-black/10"}`}
+        className={`${shape} object-cover ${flat ? "" : "border border-neutral-300"}`}
       />
     );
   }
