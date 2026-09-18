@@ -40,9 +40,8 @@ export function Masthead({ authSlot }: { authSlot: React.ReactNode }) {
               <PanelLeft size={16} strokeWidth={1.5} aria-hidden />
             </button>
           )}
-          {/* 桌機三段一起擺左欄（照舊）；手機拆成年份在左、日期週次在右 */}
+          {/* 只有桌機放：手機報頭只在首頁出現，而那一頁的「今天」旁邊已經有同一份 */}
           <IssueLinks className="hidden md:flex" />
-          <IssueLinks parts="year" className="md:hidden" />
         </div>
         <div className="min-w-0 flex-1 basis-0 text-center whitespace-nowrap">
           <Link href="/" className={styles.title}>
@@ -52,8 +51,6 @@ export function Masthead({ authSlot }: { authSlot: React.ReactNode }) {
         <div className={`${styles.side} flex items-center justify-end gap-3.5`}>
           {/* 手機的統計／設定／帳號走底部導覽，報頭不重複放一次 */}
           <span className="hidden items-center gap-3.5 md:flex">{authSlot}</span>
-          {/* 日期與週次之間不留空隙，唸起來是一段而不是兩個分開的連結 */}
-          <IssueLinks parts="dayWeek" gap="gap-1" className="md:hidden" />
         </div>
       </div>
 
