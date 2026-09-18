@@ -105,6 +105,7 @@ function WritingListFull({ view, topic }: { view: string; topic: string }) {
           renderItem={(item) => threadItem(byId, item)}
           gridClassName={WRITING_THREAD_GRID}
           extraRail={<WritingRail writings={writings} />}
+          railDesktopOnly
         />
       )}
     </PageBody>
@@ -140,6 +141,7 @@ function WritingListPaged() {
         renderItem={(item) => threadItem(byId, item)}
         gridClassName={WRITING_THREAD_GRID}
         extraRail={<WritingRail writings={overview.writings} />}
+        railDesktopOnly
       />
     </PageBody>
   );
