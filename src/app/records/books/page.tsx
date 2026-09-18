@@ -3,7 +3,6 @@
 import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { BookEditModeButton } from "@/features/books/components/book-edit-mode-button";
-import { BookStatusMenu } from "@/features/books/components/book-status-menu";
 import { BookTable } from "@/features/books/components/book-table";
 import { BookViewMenu } from "@/features/reading/components/book-view-menu";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
@@ -39,14 +38,6 @@ function BooksPageBody() {
   );
 }
 
-/** 頁首篩選：概覽頁本來就把在讀／想讀／讀完攤在同一頁，狀態篩選對它不生效，
- * 顯示出來卻點了沒反應會讓人以為壞掉，乾脆不給點 */
-function BooksHeaderFilters() {
-  const view = useBookView();
-  if (view === "overview") return null;
-  return <BookStatusMenu />;
-}
-
 /** 編輯模式只有表格檢視能一次改多列，書封／概覽點了沒反應，一樣不給看 */
 function BooksHeaderBeforeViews() {
   const view = useBookView();
@@ -63,7 +54,6 @@ export default function BooksPage() {
       <ReadingHeader
         beforeViews={<BooksHeaderBeforeViews />}
         views={<BookViewMenu />}
-        filters={<BooksHeaderFilters />}
         meta={books.length > 0 ? bookMeta(books) : undefined}
       />
       <BooksPageBody />
