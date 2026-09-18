@@ -5,7 +5,7 @@ import { ReactNode } from "react";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { OverviewLayout } from "@/components/ui/overview-layout/overview-layout";
-import { OverviewRailList } from "@/components/ui/overview-layout/overview-rail-stats";
+import { OverviewTotalStats } from "@/components/ui/overview-layout/overview-rail-stats";
 import { Quote } from "@/components/ui/quote";
 import { RecordCard } from "@/components/ui/record-card/record-card";
 import { quoteHref } from "@/config/routes";
@@ -13,7 +13,7 @@ import { useQuotesOverview } from "@/hooks/use-fragments-overview";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { Book } from "@/types/book";
-import { OverviewItem, pickHeadline, topBookSources, topKeywordsFromBooks } from "@/utils/overview";
+import { OverviewItem, pickHeadline } from "@/utils/overview";
 import {
   filterQuotesByLanguage,
   getQuoteRecords,
@@ -29,22 +29,6 @@ const toItem = (record: QuoteRecord): OverviewItem => ({
   startDate: record.date,
   endDate: record.date,
 });
-
-const RAIL_LIST_SIZE = 5;
-
-function QuotesRail({ records, books }: { records: QuoteRecord[]; books: Book[] }) {
-  // 一則佳句只對一本書，天生不會重複，直接攤平傳給共用聚合就好
-  const bookIds = records.map((r) => r.bookId);
-  const sources = topBookSources(bookIds, books, "則", RAIL_LIST_SIZE);
-  const keywords = topKeywordsFromBooks(bookIds, books, "則", RAIL_LIST_SIZE);
-
-  return (
-    <>
-      <OverviewRailList label="出處排行" count={sources.length} items={sources} />
-      <OverviewRailList label="常一起出現的關鍵字" count={keywords.length} items={keywords} />
-    </>
-  );
-}
 
 function QuotesGrid({
   records,
@@ -118,7 +102,7 @@ function QuotesSectionFiltered({ books, language }: { books: Book[]; language: s
     <QuotesGrid
       records={records}
       headlineLabel="最新一句"
-      rail={<QuotesRail records={records} books={books} />}
+      rail={<OverviewTotalStats count={records.length} unit="則" />}
     />
   );
 }
@@ -135,7 +119,8 @@ function QuotesSectionPaged({ books }: { books: Book[] }) {
     <QuotesGrid
       records={records}
       headlineLabel="最新一句"
-      rail={<QuotesRail records={records} books={books} />}
+      // 分頁時 records 只是已載入的那幾頁，數字要用真實總數
+      rail={<OverviewTotalStats count={overview.total} unit="則" />}
       onLoadMore={overview.loadMore}
       hasMore={overview.hasMore}
       isLoadingMore={overview.isLoadingMore}
