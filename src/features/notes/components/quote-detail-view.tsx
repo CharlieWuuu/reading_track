@@ -95,7 +95,7 @@ export function QuoteDetailView({ recordId }: { recordId: string }) {
                 <DetailSection
                   key={group.kindName}
                   title={`這本書的${group.kindName}`}
-                  count={`${group.notes.length} 則`}
+                  count={`${group.notes.length} 項`}
                 >
                   <RelatedNotes notes={group.notes} />
                 </DetailSection>

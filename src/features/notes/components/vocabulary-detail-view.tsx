@@ -73,7 +73,7 @@ export function VocabularyDetailView({ recordId }: { recordId: string }) {
                       {translations.join("、")}
                     </DetailField>
                     <DetailField label="遇過" align="right">
-                      {`${entry.encounters.length} 次`}
+                      {`${entry.encounters.length} 項`}
                     </DetailField>
                   </>
                 }
@@ -83,7 +83,7 @@ export function VocabularyDetailView({ recordId }: { recordId: string }) {
                 </div>
               </DetailHeader>
 
-              <DetailSection title="遇過" count={`${entry.encounters.length} 次`}>
+              <DetailSection title="遇過" count={`${entry.encounters.length} 項`}>
                 <ul className="divide-rule-soft flex flex-col divide-y">
                   {entry.encounters.map((encounter, i) => (
                     <li key={i} className="flex flex-col gap-1 py-3 first:pt-0">
@@ -118,7 +118,7 @@ export function VocabularyDetailView({ recordId }: { recordId: string }) {
                 <DetailSection
                   key={group.kindName}
                   title={`這些書的${group.kindName}`}
-                  count={`${group.notes.length} 則`}
+                  count={`${group.notes.length} 項`}
                 >
                   <RelatedNotes notes={group.notes} />
                 </DetailSection>
