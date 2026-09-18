@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { kindHref } from "@/config/kind-routes";
 import { NAV_GROUPS } from "@/config/nav";
 import { useKinds } from "@/hooks/use-kinds";
 
 /**
- * 每一種類型各一張卡，點進去才是圖表。
+ * 每一種類型各一張卡，點進去是那一種的統計檢視（?view=stats）。
+ *
+ * 統計不再是自己一條路由：一種類型的清單與它的統計是同一批資料的兩種看法。
  *
  * 原本進 /stats 直接被導去書籍圖表，類型只能靠頁首那顆選單切換——手機上那顆
  * 選單縮成純圖示，第一次進來根本看不出還有其他幾種可以看。改成卡片牆。
@@ -43,7 +46,7 @@ export function StatsTypeCards() {
             {section.kinds.map((kind) => (
               <Link
                 key={kind.id}
-                href={`/stats/${kind.slug}`}
+                href={`${kindHref(kind.group, kind.slug)}?view=stats`}
                 className="rounded-surface border-rule-strong truncate border p-4 text-center transition hover:bg-gray-50"
               >
                 <span className="text-item font-serif font-semibold">{kind.name}</span>

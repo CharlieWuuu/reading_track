@@ -8,7 +8,7 @@ import { ReadingHeader } from "@/features/reading/components/reading-header";
 
 /**
  * 閱讀底下的關鍵字只有卡片：這一頁是拿來翻的。
- * 圖表、地圖、年代搬到統計了（`/stats/keywords`）。
+ * 圖表、地圖、年代搬到統計了（`/fragments/keywords?view=stats`）。
  */
 export default function KeywordsPage() {
   return (

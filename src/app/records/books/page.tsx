@@ -5,6 +5,7 @@ import { PageBody } from "@/components/layout/page-body";
 import { BookTable } from "@/features/books/components/book-table";
 import { BookViewMenu } from "@/features/reading/components/book-view-menu";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
+import { KindStatsBySlug } from "@/features/kinds/kind-stats-by-slug";
 import { useBookView } from "@/hooks/use-book-view";
 import { useFilteredBooks } from "@/hooks/use-filtered-books";
 import { useMounted } from "@/hooks/use-mounted";
@@ -32,7 +33,7 @@ function BooksPageBody() {
     // 概覽自己開兩欄各自的捲動條（月份格線＋窄欄），其餘檢視照舊交給 PageBody
     <PageBody scroll={view !== "overview"}>
       {/* 表格／書封兩種檢視都在 BookTable 裡，搜尋也是它自己讀網址 */}
-      {mounted && <BookTable />}
+      {mounted && (view === "stats" ? <KindStatsBySlug slug="books" /> : <BookTable />)}
     </PageBody>
   );
 }

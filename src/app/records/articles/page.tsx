@@ -8,12 +8,13 @@ import { ArticlesOverview } from "@/features/articles/components/articles-overvi
 import { BookViewMenu } from "@/features/reading/components/book-view-menu";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
 import { ReadingList } from "@/features/reading/components/reading-list";
+import { KindStatsBySlug } from "@/features/kinds/kind-stats-by-slug";
 import { useArticles } from "@/hooks/use-articles";
 import { useBookView } from "@/hooks/use-book-view";
 import { useMounted } from "@/hooks/use-mounted";
 import { Article } from "@/types/article";
 
-const ARTICLE_MODES = ["overview", "table", "card"] as const;
+const ARTICLE_MODES = ["overview", "table", "card", "stats"] as const;
 
 /** 頁首那行小字：133 篇——文章沒有重讀這回事，只有一個數字 */
 function articleMeta(articles: Article[]): string {
@@ -34,6 +35,7 @@ function ArticlesBody() {
         {error}
       </PageMessage>
     );
+  if (view === "stats") return <KindStatsBySlug slug="articles" />;
   if (view === "overview") return <ArticlesOverview />;
   return <ReadingList articles={articles} view={view} />;
 }

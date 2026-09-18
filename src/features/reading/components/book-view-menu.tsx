@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { LayoutGrid, Newspaper, Rows3 } from "lucide-react";
+import { ChartPie, LayoutGrid, Newspaper, Rows3 } from "lucide-react";
 import { SelectMenu } from "@/components/ui/controls";
 import { useUrlParams } from "@/hooks/use-url-param";
 import {
@@ -15,6 +15,7 @@ const ALL_ITEMS = {
   overview: { label: "概覽", Icon: () => <Newspaper size={16} strokeWidth={1.5} /> },
   table: { label: "表格", Icon: () => <Rows3 size={16} strokeWidth={1.5} /> },
   card: { label: "書封", Icon: () => <LayoutGrid size={16} strokeWidth={1.5} /> },
+  stats: { label: "統計", Icon: () => <ChartPie size={16} strokeWidth={1.5} /> },
 } as const;
 
 /**

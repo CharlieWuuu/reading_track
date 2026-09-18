@@ -26,38 +26,34 @@ export type ModuleDef = {
    */
   always?: true;
   /**
-   * 這個模組在統計頁出哪一種圖。沒寫就不出——標題、內文那些沒有統計的意義。
+   * 這個模組在統計頁出哪幾張圖。沒寫就不出——標題、內文那些沒有統計的意義。
+   *
+   * 一個模組出好幾張是常態：完成日既是月度趨勢也是月曆，同一欄兩種問法。
    *
    * 標在模組不標在欄位：領域是一個模組佔 domain 與 subDomain 兩欄，
    * 但畫出來是同一張樹狀圖，照欄位跑會變成兩張。
    */
-  stat?: StatKind;
-  /**
-   * 勾了這個模組，統計頁就多一種看法。
-   *
-   * 跟 stat 同一個道理：「關鍵字有地圖」不是因為它叫關鍵字，是因為它有座標。
-   * 影集哪天勾了座標，地圖自己就出現了。
-   */
-  view?: StatsExtraView;
+  stat?: readonly StatKind[];
 };
-
-/** 圖表以外的看法。圖表每個類型都有，不用宣告 */
-export type StatsExtraView =
-  | "calendar" // 哪天做了什麼——有完成日就畫得出來
-  | "timeline" // 一段一段的區間，要有開始與完成
-  | "map" // 地圖，要有經緯度
-  | "era"; // 年代軸，要有起訖年
 
 /**
  * 統計圖的種類。一個類型勾了哪些模組，統計頁就自動有哪幾張圖——
  * 開「影集」勾了導演、片長、領域，不用寫程式就有「常看導演 Top 5」與「領域分布」。
+ *
+ * 月曆、數線、地圖、年代原本是平行的「看法」（StatsExtraView），要換頁才看得到。
+ * 它們跟其他圖沒有本質差別——一樣是「勾了這個模組就畫得出來」，只是畫得大張些。
+ * 併回來之後統計頁就是一整面，不必再選「怎麼看」。
  */
 export type StatKind =
   | "ranking" // 出現最多的前幾名（作者、平台）
   | "distribution" // 佔比，圓餅或長條（語言、屬性）
   | "tree" // 有父子兩層的佔比（領域＋次領域）
   | "sum" // 總和與平均（頁數、字數）
-  | "trend"; // 月度趨勢（完成日）
+  | "trend" // 月度趨勢（完成日）
+  | "calendar" // 哪天做了什麼——有完成日就畫得出來
+  | "timeline" // 一段一段的區間，要有開始與完成
+  | "map" // 地圖，要有經緯度
+  | "era"; // 年代軸，要有起訖年
 
 export const MODULES = [
   // 紀錄存在 works.title，片段存在 fragments.name——同一個模組，兩張表的欄名不同
@@ -69,7 +65,7 @@ export const MODULES = [
     label: "作者／來源人",
     hint: "誰講的、誰寫的",
     fields: ["creator"],
-    stat: "ranking",
+    stat: ["ranking"],
   },
   { key: "longText", label: "長文", hint: "多段落，支援分欄", fields: ["body"] },
   { key: "translation", label: "解釋", hint: "對這個東西本身的說明", fields: ["translation"] },
@@ -89,22 +85,21 @@ export const MODULES = [
     label: "開始日期",
     hint: "開始的那一天",
     fields: ["startDate"],
-    view: "timeline",
+    stat: ["timeline"],
   },
   {
     key: "endDate",
     label: "完成日期",
     hint: "完成的那一天",
     fields: ["endDate"],
-    stat: "trend",
-    view: "calendar",
+    stat: ["trend", "calendar"],
   },
   {
     key: "amount",
     label: "量＋單位",
     hint: "頁／字／分鐘，統計讀這個",
     fields: ["amount"],
-    stat: "sum",
+    stat: ["sum"],
   },
   {
     key: "private",
@@ -121,28 +116,28 @@ export const MODULES = [
     hint: "例句的意思",
     fields: ["exampleTranslation"],
   },
-  { key: "tags", label: "標籤", hint: "純文字，一行一個", fields: ["tags"], stat: "ranking" },
+  { key: "tags", label: "標籤", hint: "純文字，一行一個", fields: ["tags"], stat: ["ranking"] },
   // 兩格各存一個數字：一欄塞 "1818－1883" 得靠剖析拆，破折號、西元前的負號都是坑
   {
     key: "years",
     label: "起訖年",
     hint: "生卒、存續的那段年份",
     fields: ["startYear", "endYear"],
-    view: "era",
+    stat: ["era"],
   },
   {
     key: "coordinates",
     label: "座標",
     hint: "地圖上的位置",
     fields: ["latitude", "longitude"],
-    view: "map",
+    stat: ["map"],
   },
   {
     key: "language",
     label: "語言",
     hint: "這一筆是什麼語言",
     fields: ["language"],
-    stat: "distribution",
+    stat: ["distribution"],
   },
   { key: "externalId", label: "外部編號", hint: "ISBN、DOI 之類", fields: ["externalId"] },
   {
@@ -152,7 +147,7 @@ export const MODULES = [
     fields: ["platform"],
     // 圓餅不是排行：平台的值就那幾個（實體書、Kobo、HyRead），
     // 想知道的是「電子書佔多少」，不是「第幾名」
-    stat: "distribution",
+    stat: ["distribution"],
   },
   // 一個模組兩格：主題樹有父子，領域選完次領域才知道要列哪幾個
   {
@@ -160,14 +155,14 @@ export const MODULES = [
     label: "領域",
     hint: "為什麼讀這一筆，含次領域",
     fields: ["domain", "subDomain"],
-    stat: "tree",
+    stat: ["tree"],
   },
   {
     key: "attribute",
     label: "屬性",
     hint: "小說／論述／散文這種分法",
     fields: ["attribute"],
-    stat: "distribution",
+    stat: ["distribution"],
   },
 ] as const satisfies readonly ModuleDef[];
 
