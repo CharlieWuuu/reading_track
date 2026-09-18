@@ -99,6 +99,7 @@ export function GroupOverviewPage({ group, view = "overview" }: GroupOverviewPag
         unit="則"
         renderItem={(item) => threadRow(byId, item)}
         gridClassName={WRITING_THREAD_GRID}
+        railDesktopOnly
       />
     );
   }
