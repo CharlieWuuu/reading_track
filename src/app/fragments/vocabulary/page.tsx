@@ -3,24 +3,36 @@
 import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { BooksGate } from "@/features/books/components/books-gate";
+import { KindStatsBySlug } from "@/features/kinds/kind-stats-by-slug";
+import { KindViewMenu } from "@/features/kinds/kind-view-menu";
 import { VocabularySection } from "@/features/notes/components/vocabulary-section";
-import { GroupViewMenu } from "@/features/overview/components/group-view-menu";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
-import { useUrlParams } from "@/hooks/use-url-param";
-import { isGroupViewMode, useGroupViewStore } from "@/stores/use-group-view-store";
+import { useBookView } from "@/hooks/use-book-view";
 
-/** 讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */
+/**
+ * 單字的概覽／表格／統計。
+ *
+ * 原本用 GroupViewMenu（概覽／表格）——那顆是 group 概覽在用的，
+ * 一整個 group 沒有「哪一種的統計」可言。單字是一個類型，跟其他類型頁同一顆選單。
+ */
 export default function VocabularyPage() {
-  const { searchParams } = useUrlParams();
-  const { view: savedView } = useGroupViewStore();
-  const urlView = searchParams.get("view");
-  const view = isGroupViewMode(urlView) ? urlView : savedView;
+  const view = useBookView();
 
   return (
     <Suspense fallback={null}>
-      <ReadingHeader views={<GroupViewMenu />} />
+      <ReadingHeader
+        views={<KindViewMenu modes={["overview", "table", "stats"]} overviewLabel="概覽" />}
+      />
       <PageBody>
-        <BooksGate>{(books) => <VocabularySection books={books} view={view} />}</BooksGate>
+        {view === "stats" ? (
+          <KindStatsBySlug slug="vocabulary" />
+        ) : (
+          <BooksGate>
+            {(books) => (
+              <VocabularySection books={books} view={view === "table" ? "table" : "overview"} />
+            )}
+          </BooksGate>
+        )}
       </PageBody>
     </Suspense>
   );
