@@ -2,7 +2,6 @@
 
 import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
-import { BookEditModeButton } from "@/features/books/components/book-edit-mode-button";
 import { BookTable } from "@/features/books/components/book-table";
 import { BookViewMenu } from "@/features/reading/components/book-view-menu";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
@@ -38,13 +37,6 @@ function BooksPageBody() {
   );
 }
 
-/** 編輯模式只有表格檢視能一次改多列，書封／概覽點了沒反應，一樣不給看 */
-function BooksHeaderBeforeViews() {
-  const view = useBookView();
-  if (view !== "table") return null;
-  return <BookEditModeButton />;
-}
-
 /** 讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */
 export default function BooksPage() {
   const { books } = useFilteredBooks();
@@ -52,7 +44,6 @@ export default function BooksPage() {
   return (
     <Suspense fallback={null}>
       <ReadingHeader
-        beforeViews={<BooksHeaderBeforeViews />}
         views={<BookViewMenu />}
         meta={books.length > 0 ? bookMeta(books) : undefined}
       />
