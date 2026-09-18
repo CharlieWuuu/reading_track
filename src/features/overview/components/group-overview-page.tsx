@@ -21,6 +21,13 @@ import { fragmentItem, recordItem } from "@/utils/overview-items";
 import { sectionsByKind } from "@/utils/overview-sections";
 import { KindSectionBlock } from "./kind-section";
 
+/** 錯誤與載入中先擋下來，兩個 group 同一套；擋掉就回那一塊畫面，沒事回 null */
+function gate({ error, isLoading }: { error?: string; isLoading: boolean }) {
+  if (error) return <PageMessage tone="error">{error}</PageMessage>;
+  if (isLoading) return <PageLoading />;
+  return null;
+}
+
 /** 書寫一律走 threads 那種一路往下讀的流，不是卡片牆 */
 function threadRow(byId: Map<string, FragmentRow>, item: OverviewItem) {
   const row = byId.get(item.id);
@@ -53,9 +60,8 @@ export function GroupOverviewPage({ group, view = "overview" }: GroupOverviewPag
   if (!mounted) return null; // 靜態那份 HTML 一定是空的，先判斷資料狀態會閃一下「空的」
 
   if (isRecords) {
-    const source = view === "table" ? table : recordsOverview;
-    if (source.error) return <PageMessage tone="error">{source.error}</PageMessage>;
-    if (source.isLoading) return <PageLoading />;
+    const blocked = gate(view === "table" ? table : recordsOverview);
+    if (blocked) return blocked;
 
     if (view === "table")
       return <GroupTable items={table.records.map(recordItem)} onSaved={table.mutate} />;
@@ -75,9 +81,9 @@ export function GroupOverviewPage({ group, view = "overview" }: GroupOverviewPag
     );
   }
 
-  const { fragments, isLoading, error, mutate } = fragmentsData;
-  if (error) return <PageMessage tone="error">{error}</PageMessage>;
-  if (isLoading) return <PageLoading />;
+  const { fragments, mutate } = fragmentsData;
+  const blocked = gate(fragmentsData);
+  if (blocked) return blocked;
   if (view === "table") return <GroupTable items={fragments.map(fragmentItem)} onSaved={mutate} />;
   if (fragments.length === 0) return <div className={styles.empty}>還沒有任何紀錄</div>;
 
