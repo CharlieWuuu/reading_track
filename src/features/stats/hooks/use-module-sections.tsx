@@ -8,6 +8,7 @@ import { MonthlyTrendChart } from "@/features/stats/components/monthly-trend-cha
 import { Panel } from "@/features/stats/components/panel";
 import { RankingBar } from "@/features/stats/components/ranking-bar";
 import { Section } from "@/features/stats/components/section-list";
+import { wideSections, type WideSlots } from "@/features/stats/components/wide-stat-sections";
 import { YearlyTrendChart } from "@/features/stats/components/yearly-trend-chart";
 import { statsOfModules } from "@/utils/stats/from-modules";
 import {
@@ -38,6 +39,8 @@ export function useModuleSections({
   groupBy,
   showRepeats,
   showLinks,
+  wide,
+  onSelect,
 }: {
   moduleKeys: readonly string[];
   /** 這個類型替模組取的名字（書籍把 creator 叫「作者」） */
@@ -59,6 +62,10 @@ export function useModuleSections({
   showRepeats?: boolean;
   /** 列表帶了 linkCount 時打開，概覽多一張「有延伸」的數字卡 */
   showLinks?: boolean;
+  /** 月曆與數線由呼叫端給——那兩支住在 features/calendar，這裡 import 不到 */
+  wide?: WideSlots;
+  /** 地圖或數線上點一筆要去哪。沒給就不做成可點的 */
+  onSelect?: (name: string) => void;
 }): Section[] {
   return useMemo(() => {
     const data = statData(statsOfModules(moduleKeys, labels), rows);
@@ -199,8 +206,11 @@ export function useModuleSections({
           </Panel>
         ),
       })),
+
+      // 月曆、數線、地圖、年代排最後：各自佔一整排，夾在小圖中間會把版面切碎
+      ...wideSections({ data, rows, slots: wide ?? {}, onSelect }),
     ];
-  }, [moduleKeys, labels, rows, unit, groupBy, showRepeats, showLinks]);
+  }, [moduleKeys, labels, rows, unit, groupBy, showRepeats, showLinks, wide, onSelect]);
 }
 
 /** 圓餅那一區的一格：一層用 slices，兩層（領域）用 groups */

@@ -14,14 +14,19 @@ import { QuoteWall } from "@/components/ui/quote-wall";
 import { groupBasePath, kindHref } from "@/config/kind-routes";
 import { NAV_GROUPS, unitOfKind } from "@/config/nav";
 import { KindGroup } from "@/config/record-kinds";
+import { KindCalendar } from "@/features/calendar/components/kind-calendar";
+import { KindTimeline } from "@/features/calendar/components/kind-timeline";
+import { KindViewMenu } from "@/features/kinds/kind-view-menu";
 import { variantFor } from "@/features/kinds/variant-registry";
 import { ModuleDetail } from "@/features/overview/components/module-detail";
 import { ModuleForm } from "@/features/overview/components/module-form";
+import { KindStats } from "@/features/stats/components/kind-stats";
 import {
   fragmentThreadRow,
   WRITING_THREAD_GRID,
   WritingThreadRow,
 } from "@/features/writing/components/writing-thread-row";
+import { useBookView } from "@/hooks/use-book-view";
 import { useCatalogRecord } from "@/hooks/use-catalog-record";
 import { useKindRecords } from "@/hooks/use-kind-records";
 import { useKinds } from "@/hooks/use-kinds";
@@ -108,6 +113,7 @@ export function KindListPage({ group, slug }: KindRouteProps) {
   const { kind, isLoading } = useKindBySlug(group, slug);
   // 麵包屑指回這個 group 的概覽，字跟側欄同一份設定
   const parent = NAV_GROUPS.find((nav) => nav.kindGroup === group);
+  const view = useBookView();
 
   return (
     <>
@@ -116,9 +122,14 @@ export function KindListPage({ group, slug }: KindRouteProps) {
         parent={parent ? [{ label: parent.label, href: parent.href }] : undefined}
         action={
           kind && (
-            <ActionButton href={`${kindHref(kind.group, kind.slug)}/new`} text="新增">
-              <Plus size={16} strokeWidth={2} aria-hidden />
-            </ActionButton>
+            <div className="flex min-w-0 items-center gap-2">
+              {/* 自訂類型也要有統計：清單與統計是同一批資料的兩種看法。
+                  概覽與表格是紀錄那一套的排法，通用清單還沒有，所以只給這兩項 */}
+              <KindViewMenu />
+              <ActionButton href={`${kindHref(kind.group, kind.slug)}/new`} text="新增">
+                <Plus size={16} strokeWidth={2} aria-hidden />
+              </ActionButton>
+            </div>
           )
         }
       />
@@ -127,6 +138,16 @@ export function KindListPage({ group, slug }: KindRouteProps) {
           <PageLoading />
         ) : !kind ? (
           <PageMessage>找不到這個類型</PageMessage>
+        ) : view === "stats" ? (
+          <KindStats
+            kind={kind}
+            // 月曆與數線住在 features/calendar，統計那邊 import 不到；
+            // kinds 不在 eslint 的 feature 區裡，兩邊的交會點就落在這裡
+            wide={{
+              calendar: <KindCalendar kind={kind} />,
+              timeline: <KindTimeline kind={kind} />,
+            }}
+          />
         ) : (
           <GenericKindList kind={kind} />
         )}

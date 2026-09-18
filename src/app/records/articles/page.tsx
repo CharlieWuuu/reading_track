@@ -5,6 +5,7 @@ import { PageBody } from "@/components/layout/page-body";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { ArticlesOverview } from "@/features/articles/components/articles-overview";
+import { KindStatsBySlug } from "@/features/kinds/kind-stats-by-slug";
 import { BookViewMenu } from "@/features/reading/components/book-view-menu";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
 import { ReadingList } from "@/features/reading/components/reading-list";
@@ -13,7 +14,7 @@ import { useBookView } from "@/hooks/use-book-view";
 import { useMounted } from "@/hooks/use-mounted";
 import { Article } from "@/types/article";
 
-const ARTICLE_MODES = ["overview", "table", "card"] as const;
+const ARTICLE_MODES = ["overview", "table", "card", "stats"] as const;
 
 /** 頁首那行小字：133 篇——文章沒有重讀這回事，只有一個數字 */
 function articleMeta(articles: Article[]): string {
@@ -34,6 +35,7 @@ function ArticlesBody() {
         {error}
       </PageMessage>
     );
+  if (view === "stats") return <KindStatsBySlug slug="articles" />;
   if (view === "overview") return <ArticlesOverview />;
   return <ReadingList articles={articles} view={view} />;
 }
@@ -41,7 +43,6 @@ function ArticlesBody() {
 /** 讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */
 export default function ArticlesPage() {
   const { articles } = useArticles();
-  const view = useBookView();
 
   return (
     <Suspense fallback={null}>
@@ -49,8 +50,7 @@ export default function ArticlesPage() {
         views={<BookViewMenu cardLabel="卡片" modes={[...ARTICLE_MODES]} />}
         meta={articles.length > 0 ? articleMeta(articles) : undefined}
       />
-      {/* 概覽自己開兩欄各自的捲動條（月份格線＋窄欄），其餘檢視照舊交給 PageBody */}
-      <PageBody scroll={view !== "overview"}>
+      <PageBody>
         <ArticlesBody />
       </PageBody>
     </Suspense>

@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { BookTable } from "@/features/books/components/book-table";
+import { KindStatsBySlug } from "@/features/kinds/kind-stats-by-slug";
 import { BookViewMenu } from "@/features/reading/components/book-view-menu";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
 import { useBookView } from "@/hooks/use-book-view";
@@ -29,10 +30,9 @@ function BooksPageBody() {
   const view = useBookView();
 
   return (
-    // 概覽自己開兩欄各自的捲動條（月份格線＋窄欄），其餘檢視照舊交給 PageBody
-    <PageBody scroll={view !== "overview"}>
+    <PageBody>
       {/* 表格／書封兩種檢視都在 BookTable 裡，搜尋也是它自己讀網址 */}
-      {mounted && <BookTable />}
+      {mounted && (view === "stats" ? <KindStatsBySlug slug="books" /> : <BookTable />)}
     </PageBody>
   );
 }

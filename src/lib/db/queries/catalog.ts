@@ -232,7 +232,45 @@ export type FragmentRow = {
   date: string | null;
   createdAt: string;
   coverUrl: string;
+  /** 座標與起訖年：勾了那兩個模組才有值，統計的地圖與年代讀這裡 */
+  latitude: number | null;
+  longitude: number | null;
+  startYear: number | null;
+  endYear: number | null;
 };
+
+type FragmentJoin = { fragment: typeof fragments.$inferSelect; kind: typeof kinds.$inferSelect };
+type WorkOfFragment = { id: string; title: string; coverUrl: string } | undefined;
+
+/** 兩支查詢（整個 group、單一類型）攤平的形狀一樣，轉換抽在這裡，改欄位只改一處 */
+function toFragmentRow({ fragment, kind }: FragmentJoin, work: WorkOfFragment): FragmentRow {
+  return {
+    id: fragment.id,
+    kindId: kind.id,
+    kindName: kind.name,
+    kindCountUnit: kind.countUnit,
+    kindGroup: kind.groupKey as KindGroup,
+    kindSlug: kind.slug,
+    inheritsCover: kind.inheritsCover,
+    workId: work?.id ?? null,
+    workTitle: work?.title ?? "",
+    title: fragment.title,
+    body: fragment.body,
+    locator: fragment.locator,
+    note: fragment.body,
+    example: fragment.example,
+    pronunciation: fragment.pronunciation,
+    tags: fragment.tags,
+    date: fragment.createdAt.toISOString().slice(0, 10),
+    createdAt: fragment.createdAt.toISOString(),
+    // 繼承與否由類型自己說（setting_kinds.inherits_cover），不再寫死判斷 slug
+    coverUrl: kind.inheritsCover ? (work?.coverUrl ?? "") : "",
+    latitude: fragment.latitude,
+    longitude: fragment.longitude,
+    startYear: fragment.startYear,
+    endYear: fragment.endYear,
+  };
+}
 
 /**
  * 整個 group 的片段。片段（佳句、單字、關鍵字）都在 fragments 表裡，靠類型屬於哪個 group 分。
@@ -252,31 +290,7 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
     rows.map(({ fragment }) => fragment.id),
   );
 
-  return rows.map(({ fragment, kind }) => {
-    const work = worksByFragment.get(fragment.id);
-    return {
-      id: fragment.id,
-      kindId: kind.id,
-      kindName: kind.name,
-      kindCountUnit: kind.countUnit,
-      kindGroup: kind.groupKey as KindGroup,
-      kindSlug: kind.slug,
-      inheritsCover: kind.inheritsCover,
-      workId: work?.id ?? null,
-      workTitle: work?.title ?? "",
-      title: fragment.title,
-      body: fragment.body,
-      locator: fragment.locator,
-      note: fragment.body,
-      example: fragment.example,
-      pronunciation: fragment.pronunciation,
-      tags: fragment.tags,
-      date: fragment.createdAt.toISOString().slice(0, 10),
-      createdAt: fragment.createdAt.toISOString(),
-      // 繼承與否由類型自己說（setting_kinds.inherits_cover），不再寫死判斷 slug
-      coverUrl: kind.inheritsCover ? (work?.coverUrl ?? "") : "",
-    };
-  });
+  return rows.map((row) => toFragmentRow(row, worksByFragment.get(row.fragment.id)));
 }
 
 /** 某一種片段類型底下的全部。自訂類型的清單頁走這條——紀錄那個 group 走 listRecordsByKind */
@@ -293,31 +307,7 @@ export async function listFragmentsByKind(userId: string, kindId: string): Promi
     rows.map(({ fragment }) => fragment.id),
   );
 
-  return rows.map(({ fragment, kind }) => {
-    const work = worksByFragment.get(fragment.id);
-    return {
-      id: fragment.id,
-      kindId: kind.id,
-      kindName: kind.name,
-      kindCountUnit: kind.countUnit,
-      kindGroup: kind.groupKey as KindGroup,
-      kindSlug: kind.slug,
-      inheritsCover: kind.inheritsCover,
-      workId: work?.id ?? null,
-      workTitle: work?.title ?? "",
-      title: fragment.title,
-      body: fragment.body,
-      locator: fragment.locator,
-      note: fragment.body,
-      example: fragment.example,
-      pronunciation: fragment.pronunciation,
-      tags: fragment.tags,
-      date: fragment.createdAt.toISOString().slice(0, 10),
-      createdAt: fragment.createdAt.toISOString(),
-      // 繼承與否由類型自己說（setting_kinds.inherits_cover），不再寫死判斷 slug
-      coverUrl: kind.inheritsCover ? (work?.coverUrl ?? "") : "",
-    };
-  });
+  return rows.map((row) => toFragmentRow(row, worksByFragment.get(row.fragment.id)));
 }
 
 /**
@@ -352,6 +342,11 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       date: writing.endDate,
       createdAt: writing.createdAt,
       coverUrl: "",
+      // 書寫獨立成表，沒有座標與起訖年那幾欄——一篇心得不落在地圖上
+      latitude: null,
+      longitude: null,
+      startYear: null,
+      endYear: null,
     }))
     .sort(byDateThenNewest((row) => row.date));
 }

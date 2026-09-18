@@ -186,7 +186,10 @@ export type StatData =
   | { spec: StatSpec; kind: "distribution"; slices: DistributionSlice[] }
   | { spec: StatSpec; kind: "tree"; groups: DistributionGroup[] }
   | { spec: StatSpec; kind: "sum"; total: number; average: number }
-  | { spec: StatSpec; kind: "trend"; field: string };
+  | { spec: StatSpec; kind: "trend"; field: string }
+  // 月曆、數線、地圖、年代自己讀原始的列：一筆是一個格子／一條線／一個點，
+  // 沒有可以先算好的彙總。這裡只是把「有這張圖」傳下去
+  | { spec: StatSpec; kind: "calendar" | "timeline" | "map" | "era" };
 
 /** 一組 spec 算成一組資料。trend 的月份序列交給既有的 getRecordMonthlyTrend，這裡只轉交欄位 */
 export function statData(specs: StatSpec[], rows: StatRow[]): StatData[] {
@@ -203,6 +206,8 @@ export function statData(specs: StatSpec[], rows: StatRow[]): StatData[] {
         return { spec, kind: "sum" as const, ...sum(rows, first) };
       case "trend":
         return { spec, kind: "trend" as const, field: first };
+      default:
+        return { spec, kind: spec.kind };
     }
   });
 }

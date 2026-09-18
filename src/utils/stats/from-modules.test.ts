@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { statsOfModules, viewsOfModules } from "./from-modules";
+import { statsOfModules } from "./from-modules";
 
 describe("statsOfModules", () => {
   it("沒有 stat 的模組不出圖", () => {
@@ -29,25 +29,28 @@ describe("statsOfModules", () => {
 
   it("趨勢排在名次前面——先看整體再看細節", () => {
     const kinds = statsOfModules(["creator", "endDate"]).map((s) => s.kind);
-    expect(kinds).toEqual(["trend", "ranking"]);
+    expect(kinds).toEqual(["trend", "ranking", "calendar"]);
   });
 });
 
-describe("viewsOfModules", () => {
-  it("圖表永遠有，而且排第一個", () => {
-    expect(viewsOfModules(["title"])).toEqual(["chart"]);
-  });
-
-  it("有完成日就有月曆", () => {
-    expect(viewsOfModules(["endDate"])).toEqual(["chart", "calendar"]);
+describe("月曆、數線、地圖、年代", () => {
+  it("一個模組出好幾張：完成日既是趨勢也是月曆", () => {
+    const kinds = statsOfModules(["endDate"]).map((s) => s.kind);
+    expect(kinds).toEqual(["trend", "calendar"]);
   });
 
   it("數線要兩格日期都有——只有開始沒有完成，每條線都沒有盡頭", () => {
-    expect(viewsOfModules(["startDate"])).not.toContain("timeline");
-    expect(viewsOfModules(["startDate", "endDate"])).toContain("timeline");
+    expect(statsOfModules(["startDate"]).map((s) => s.kind)).not.toContain("timeline");
+    expect(statsOfModules(["startDate", "endDate"]).map((s) => s.kind)).toContain("timeline");
   });
 
   it("座標給地圖、起訖年給年代", () => {
-    expect(viewsOfModules(["coordinates", "years"])).toEqual(["chart", "map", "era"]);
+    const kinds = statsOfModules(["coordinates", "years"]).map((s) => s.kind);
+    expect(kinds).toEqual(["era", "map"]);
+  });
+
+  it("佔整面的排在小圖後面", () => {
+    const kinds = statsOfModules(["coordinates", "creator", "endDate"]).map((s) => s.kind);
+    expect(kinds).toEqual(["trend", "ranking", "calendar", "map"]);
   });
 });
