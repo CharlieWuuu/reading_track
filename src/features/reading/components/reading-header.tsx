@@ -1,8 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { Plus } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
-import { kindGroupSlugFromPath } from "@/config/kind-routes";
+import { ActionButton } from "@/components/ui/controls";
+import { kindGroupSlugFromPath, kindHref } from "@/config/kind-routes";
 import { NAV_GROUPS } from "@/config/nav";
 import { READING_TABS, ReadingTab } from "@/config/tabs";
 
@@ -50,6 +52,12 @@ export function ReadingHeader({ beforeViews, views, filters, meta }: ReadingHead
           {beforeViews}
           {views}
           {filters}
+          {/* 這幾種有自己的實體路由，走不到 KindListPage，那顆新增要自己補 */}
+          {currentTab && (
+            <ActionButton href={`${kindHref(currentTab.group, currentTab.key)}/new`} text="新增">
+              <Plus size={16} strokeWidth={2} aria-hidden />
+            </ActionButton>
+          )}
         </div>
       }
     />
