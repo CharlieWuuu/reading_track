@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
 import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
-import { DetailField, DetailFields, DetailSection } from "@/components/ui/detail";
+import { DetailField, DetailHeader, DetailSection } from "@/components/ui/detail";
 import { Quote } from "@/components/ui/quote";
 import { RelatedNotes } from "@/components/ui/related-notes";
 import { kindHref } from "@/config/kind-routes";
@@ -15,7 +15,7 @@ import { useBooks } from "@/hooks/use-books";
 import { useRecords } from "@/hooks/use-records";
 import { useWritings } from "@/hooks/use-writings";
 import { sameBook } from "@/utils/book-reads";
-import { notesForSource } from "@/utils/related-notes";
+import { notesByKind, notesForSource } from "@/utils/related-notes";
 import { getQuoteRecords } from "@/utils/stats/vocabulary-stats";
 
 /**
@@ -54,28 +54,34 @@ export function QuoteDetailView({ recordId }: { recordId: string }) {
           missing={!quote && "找不到這一句"}
         >
           {quote && (
-            <div className="flex flex-col gap-6">
-              {/* 出處與想法底下各有自己的欄位，這裡只留句子 */}
-              <Quote text={quote.text} />
-
-              <DetailFields>
-                <div>
-                  <DetailField label="出自">
-                    {quote.bookId ? (
-                      <Link
-                        href={bookHref(quote.bookId)}
-                        className="inline-flex items-center gap-2 hover:underline"
-                      >
-                        <BookCover url={quote.bookCover} title={quote.bookTitle} size="xs" />
-                        {quote.bookTitle}
-                      </Link>
-                    ) : (
-                      quote.bookTitle
-                    )}
-                  </DetailField>
-                  <DetailField label="章節">{quote.chapter}</DetailField>
+            <div className="flex flex-col gap-8">
+              {/* 主角是句子本身，所以標題的位置放引用版式 */}
+              <DetailHeader
+                facts={
+                  <>
+                    <DetailField label="出自" align="right">
+                      {quote.bookId ? (
+                        <Link
+                          href={bookHref(quote.bookId)}
+                          className="inline-flex items-center gap-2 hover:underline"
+                        >
+                          <BookCover url={quote.bookCover} title={quote.bookTitle} size="xs" />
+                          {quote.bookTitle}
+                        </Link>
+                      ) : (
+                        quote.bookTitle
+                      )}
+                    </DetailField>
+                    <DetailField label="章節" align="right">
+                      {quote.chapter}
+                    </DetailField>
+                  </>
+                }
+              >
+                <div className="min-w-0 flex-1">
+                  <Quote text={quote.text} />
                 </div>
-              </DetailFields>
+              </DetailHeader>
 
               {quote.note.trim() && (
                 <DetailSection title="想法">
@@ -85,11 +91,15 @@ export function QuoteDetailView({ recordId }: { recordId: string }) {
                 </DetailSection>
               )}
 
-              {notes.length > 0 && (
-                <DetailSection title="這本書的紀事" count={notes.length}>
-                  <RelatedNotes notes={notes} />
+              {notesByKind(notes).map((group) => (
+                <DetailSection
+                  key={group.kindName}
+                  title={`這本書的${group.kindName}`}
+                  count={`${group.notes.length} 則`}
+                >
+                  <RelatedNotes notes={group.notes} />
                 </DetailSection>
-              )}
+              ))}
             </div>
           )}
         </RecordGate>

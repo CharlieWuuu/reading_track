@@ -7,7 +7,7 @@ import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
-import { DetailField, DetailHeading } from "@/components/ui/detail";
+import { DetailField, DetailHeader, DetailHeading, DetailTitle } from "@/components/ui/detail";
 import { NoteBlock } from "@/components/ui/note-block";
 import { Quote } from "@/components/ui/quote";
 import { RelatedNotes } from "@/components/ui/related-notes";
@@ -57,10 +57,9 @@ function CountStats({
 }
 
 /** 右欄的固定資料卡：狀態、開始、讀完、語言、來源、私人 */
-function FactsCard({ book }: { book: Book }) {
+function BookFacts({ book }: { book: Book }) {
   return (
-    <div className="w-full shrink-0 md:w-52 md:border-l md:pl-6">
-      <DetailHeading title="基本資料" />
+    <>
       <DetailField label="狀態" align="right">
         <StatusBadge status={book.status} />
       </DetailField>
@@ -90,7 +89,7 @@ function FactsCard({ book }: { book: Book }) {
       <DetailField label="私人" align="right">
         {book.private === PRIVATE_MARK ? "是" : "否"}
       </DetailField>
-    </div>
+    </>
   );
 }
 
@@ -201,31 +200,24 @@ export function BookDetailView({ recordId }: { recordId: string }) {
       <PageBody>
         <article className="flex w-full flex-col gap-8">
           {/* 書名頁：封面＋書名／作者／量化資訊／統計數字在左，固定資料卡在右 */}
-          <header className="border-rule-strong flex flex-col gap-6 border-b pb-6 md:flex-row">
-            <div className="flex gap-4 sm:flex-1 md:gap-10">
-              <BookCover
-                url={book.coverUrl}
-                title={book.title}
-                size="detail"
-                className="shrink-0 self-start"
+          <DetailHeader facts={<BookFacts book={book} />}>
+            <BookCover
+              url={book.coverUrl}
+              title={book.title}
+              size="detail"
+              className="shrink-0 self-start"
+            />
+            <div className="flex min-w-0 flex-1 flex-col gap-2.5">
+              <DetailTitle title={book.title} subtitle={book.author} />
+              {quantLine && <p className="text-meta text-ink-faint">{quantLine}</p>}
+              <CountStats
+                quotes={bookQuotes.length}
+                vocabulary={bookVocabulary.length}
+                notes={noteCount}
+                keywords={keywords.length}
               />
-              <div className="flex min-w-0 flex-1 flex-col gap-2.5">
-                <h2 className="font-serif text-2xl leading-tight font-semibold break-words text-gray-900 md:text-3xl">
-                  {book.title}
-                </h2>
-                {book.author && <p className="font-serif text-base text-gray-500">{book.author}</p>}
-                {quantLine && <p className="text-meta text-ink-faint">{quantLine}</p>}
-                <CountStats
-                  quotes={bookQuotes.length}
-                  vocabulary={bookVocabulary.length}
-                  notes={noteCount}
-                  keywords={keywords.length}
-                />
-              </div>
             </div>
-
-            <FactsCard book={book} />
-          </header>
+          </DetailHeader>
 
           {/* 主內容雙欄：左邊書寫（含關鍵字），右邊佳句／單字清單 */}
           <div className="flex flex-col gap-8 md:flex-row">

@@ -80,3 +80,42 @@ export function DetailFields({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
+/**
+ * 詳情頁的頭：左邊主角（封面、標題、副標、統計），右邊一張固定資料卡。
+ *
+ * 書籍那一頁先長出來的版式，其餘詳情頁共用——每一頁的欄位不同，但「主角在左、
+ * 屬性靠右」是同一件事。facts 沒給就不畫右欄，整條線也跟著收掉。
+ */
+export function DetailHeader({
+  children,
+  facts,
+}: {
+  children: React.ReactNode;
+  /** 右邊那張資料卡的內容，通常是一串 align="right" 的 DetailField */
+  facts?: React.ReactNode;
+}) {
+  return (
+    <header className="border-rule-strong flex flex-col gap-6 border-b pb-6 md:flex-row">
+      <div className="flex gap-4 sm:flex-1 md:gap-10">{children}</div>
+      {facts && (
+        <div className="w-full shrink-0 md:w-52 md:border-l md:pl-6">
+          <DetailHeading title="基本資料" />
+          {facts}
+        </div>
+      )}
+    </header>
+  );
+}
+
+/** 詳情頁的大標題。主角是誰就放誰——書名、文章標題、那個詞 */
+export function DetailTitle({ title, subtitle }: { title: string; subtitle?: React.ReactNode }) {
+  return (
+    <>
+      <h2 className="font-serif text-2xl leading-tight font-semibold break-words text-gray-900 md:text-3xl">
+        {title}
+      </h2>
+      {subtitle && <p className="font-serif text-base text-gray-500">{subtitle}</p>}
+    </>
+  );
+}

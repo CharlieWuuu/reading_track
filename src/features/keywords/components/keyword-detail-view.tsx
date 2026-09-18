@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
 import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
-import { DetailSection } from "@/components/ui/detail";
+import { DetailField, DetailHeader, DetailSection, DetailTitle } from "@/components/ui/detail";
 import { kindHref } from "@/config/kind-routes";
 import { articleHref, bookHref, keywordEditHref, writingHref } from "@/config/routes";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
@@ -65,26 +65,45 @@ export function KeywordDetailView({ recordId }: { recordId: string }) {
       />
       <PageBody>
         <RecordGate loading={loading}>
-          <div className="flex flex-col gap-6">
-            <div className={styles.head}>
-              {tags.map((tag) => (
-                <span key={tag} className={`${styles.topic} ${tagColorClass(tag, [])}`}>
-                  {tag}
-                </span>
-              ))}
-              {span && <span className={styles.span}>{formatSpan(span.from, span.to)}</span>}
-              {info?.wikiUrl && (
-                <a
-                  href={info.wikiUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${styles.wiki} ml-auto`}
-                >
-                  <ExternalLink size={13} strokeWidth={1.5} />
-                  維基
-                </a>
-              )}
-            </div>
+          <div className="flex flex-col gap-8">
+            <DetailHeader
+              facts={
+                <>
+                  <DetailField label="起訖" align="right">
+                    {span && formatSpan(span.from, span.to)}
+                  </DetailField>
+                  <DetailField label="提到" align="right">
+                    {mentions.books.length > 0 && `${mentions.books.length} 本`}
+                  </DetailField>
+                  <DetailField label="維基" align="right">
+                    {info?.wikiUrl && (
+                      <a
+                        href={info.wikiUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.wiki}
+                      >
+                        <ExternalLink size={13} strokeWidth={1.5} />
+                        維基
+                      </a>
+                    )}
+                  </DetailField>
+                </>
+              }
+            >
+              <div className="flex min-w-0 flex-1 flex-col gap-2.5">
+                <DetailTitle title={name} />
+                {tags.length > 0 && (
+                  <div className={styles.head}>
+                    {tags.map((tag) => (
+                      <span key={tag} className={`${styles.topic} ${tagColorClass(tag, [])}`}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </DetailHeader>
 
             {info?.summary ? (
               <p className={styles.summary}>{info.summary}</p>
