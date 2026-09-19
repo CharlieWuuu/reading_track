@@ -34,7 +34,6 @@ const styles = {
   hint: "text-meta text-ink-faint",
   row: "border-rule flex items-start gap-3 border-b py-2.5",
   moduleLabel: "font-serif text-item-sm font-semibold",
-  moduleHint: "text-meta text-ink-faint",
   count: "text-meta text-ink-faint tabular-nums ml-auto",
   // 範本一行一列，跟側欄同一種長相：整行可點，不畫框不上底色，
   // 選中的那一列靠字本身放大變粗表示——一排 chip 每顆只有幾個字寬，不好點
@@ -203,12 +202,7 @@ export function TypeBuilder({
                 onChange={() => setInheritsCover((on) => !on)}
                 className="mt-1"
               />
-              <span className="min-w-0">
-                <span className={styles.moduleLabel}>沿用出處的封面</span>
-                <span className={`${styles.moduleHint} block`}>
-                  自己沒填圖時，顯示它連到的那本書的封面
-                </span>
-              </span>
+              <span className={styles.moduleLabel}>沿用出處的封面</span>
             </label>
           </div>
         </Section>
