@@ -14,8 +14,6 @@ import { FieldKey } from "./record-fields";
 export type ModuleDef = {
   key: string;
   label: string;
-  /** 勾選畫面上的一行說明 */
-  hint: string;
   /** 這個模組佔資料表哪幾欄 */
   fields: FieldKey[];
   /**
@@ -58,23 +56,21 @@ export type StatKind =
 export const MODULES = [
   // 紀錄存在 works.title，片段存在 fragments.name——同一個模組，兩張表的欄名不同
   // 關聯不佔自己的欄位：一律落在 links_internal，連到什麼由 chip 上的種類說
-  { key: "links", label: "內部連結", hint: "連到站內任何一筆", fields: [], always: true },
-  { key: "title", label: "標題", hint: "一行字，清單上顯示的那個", fields: ["title"] },
+  { key: "links", label: "內部連結", fields: [], always: true },
+  { key: "title", label: "標題", fields: ["title"] },
   {
     key: "creator",
     label: "作者／來源人",
-    hint: "誰講的、誰寫的",
     fields: ["creator"],
     stat: ["ranking"],
   },
-  { key: "longText", label: "長文", hint: "多段落，支援分欄", fields: ["body"] },
-  { key: "translation", label: "解釋", hint: "對這個東西本身的說明", fields: ["translation"] },
-  { key: "locator", label: "位置", hint: "出處裡的頁碼或時間點", fields: ["locator"] },
-  { key: "cover", label: "封面圖", hint: "清單上的縮圖", fields: ["coverUrl"] },
+  { key: "longText", label: "長文", fields: ["body"] },
+  { key: "translation", label: "解釋", fields: ["translation"] },
+  { key: "locator", label: "位置", fields: ["locator"] },
+  { key: "cover", label: "封面圖", fields: ["coverUrl"] },
   {
     key: "externalUrl",
     label: "外部連結",
-    hint: "原始頁面，要有外開圖示",
     fields: ["externalUrl"],
   },
   // 兩格日期各自是一個模組。合成一個「狀態」的話它其實只是兩格日期——
@@ -83,67 +79,58 @@ export const MODULES = [
   {
     key: "startDate",
     label: "開始日期",
-    hint: "開始的那一天",
     fields: ["startDate"],
     stat: ["timeline"],
   },
   {
     key: "endDate",
     label: "完成日期",
-    hint: "完成的那一天",
     fields: ["endDate"],
     stat: ["trend", "calendar"],
   },
   {
     key: "amount",
     label: "量＋單位",
-    hint: "頁／字／分鐘，統計讀這個",
     fields: ["amount"],
     stat: ["sum"],
   },
   {
     key: "private",
     label: "私人",
-    hint: "鎖起來，別人看不出存在",
     fields: ["isPrivate"],
     always: true,
   },
-  { key: "pronunciation", label: "發音", hint: "怎麼唸", fields: ["pronunciation"] },
-  { key: "example", label: "例句", hint: "這個詞用在句子裡長什麼樣", fields: ["example"] },
+  { key: "pronunciation", label: "發音", fields: ["pronunciation"] },
+  { key: "example", label: "例句", fields: ["example"] },
   {
     key: "exampleTranslation",
     label: "例句翻譯",
-    hint: "例句的意思",
     fields: ["exampleTranslation"],
   },
-  { key: "tags", label: "標籤", hint: "純文字，一行一個", fields: ["tags"], stat: ["ranking"] },
+  { key: "tags", label: "標籤", fields: ["tags"], stat: ["ranking"] },
   // 兩格各存一個數字：一欄塞 "1818－1883" 得靠剖析拆，破折號、西元前的負號都是坑
   {
     key: "years",
     label: "起訖年",
-    hint: "生卒、存續的那段年份",
     fields: ["startYear", "endYear"],
     stat: ["era"],
   },
   {
     key: "coordinates",
     label: "座標",
-    hint: "地圖上的位置",
     fields: ["latitude", "longitude"],
     stat: ["map"],
   },
   {
     key: "language",
     label: "語言",
-    hint: "這一筆是什麼語言",
     fields: ["language"],
     stat: ["distribution"],
   },
-  { key: "externalId", label: "外部編號", hint: "ISBN、DOI 之類", fields: ["externalId"] },
+  { key: "externalId", label: "外部編號", fields: ["externalId"] },
   {
     key: "platform",
     label: "平台",
-    hint: "在哪讀的、在哪看的",
     fields: ["platform"],
     // 圓餅不是排行：平台的值就那幾個（實體書、Kobo、HyRead），
     // 想知道的是「電子書佔多少」，不是「第幾名」
@@ -153,14 +140,12 @@ export const MODULES = [
   {
     key: "topic",
     label: "領域",
-    hint: "為什麼讀這一筆，含次領域",
     fields: ["domain", "subDomain"],
     stat: ["tree"],
   },
   {
     key: "attribute",
     label: "屬性",
-    hint: "小說／論述／散文這種分法",
     fields: ["attribute"],
     stat: ["distribution"],
   },
