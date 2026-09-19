@@ -273,17 +273,19 @@ export function TypeBuilder({
                   onChange={() => toggle(module.key)}
                   className="mt-1"
                 />
-                <span className="min-w-0">
-                  <span className={styles.moduleLabel}>{module.label}</span>
-                  <span className={`${styles.moduleHint} block`}>{module.hint}</span>
-                </span>
+                <span className={styles.moduleLabel}>{module.label}</span>
               </label>
             ))}
           </div>
         </Section>
 
         <div className="pt-6">
-          <FormActions saving={saving} saveLabel="建立" onCancel={done} error={error} />
+          <FormActions
+            saving={saving}
+            saveLabel={editing ? "儲存" : "建立"}
+            onCancel={done}
+            error={error}
+          />
         </div>
       </div>
 
