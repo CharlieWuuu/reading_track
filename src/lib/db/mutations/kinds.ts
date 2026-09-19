@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, inArray, isNull, or } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, or } from "drizzle-orm";
 import { KindTemplate, STARTER_KEYS } from "@/config/kind-templates";
 import { moduleDef } from "@/config/modules";
 import { KindGroup } from "@/config/record-kinds";
@@ -302,90 +302,4 @@ export async function seedKinds(userId: string): Promise<number> {
     .onConflictDoNothing();
 
   return starters.length;
-}
-
-export type StuckKind = {
-  sharedId: string;
-  name: string;
-  group: KindGroup;
-  n: number;
-  /** 自己那一份，剛好一份才搬得動 */
-  targets: { id: string; name: string }[];
-};
-
-/**
- * 掛在共用類型上、但自己已經不在用它的資料。
- *
- * 舊版 forkKind 複製了一列自己的卻沒把資料搬過去，就會留下這種：
- * 數量照 kind_id 數所以是 0，內容照類型名字找所以還看得到。
- */
-export async function findStuckKinds(userId: string): Promise<StuckKind[]> {
-  const using = await db
-    .select({ kindId: userKinds.kindId })
-    .from(userKinds)
-    .where(eq(userKinds.userId, userId));
-  const usingIds = new Set(using.map((row) => row.kindId));
-
-  const perTable = await Promise.all(
-    [works, fragments, writings].map((table) =>
-      db
-        .select({ kindId: table.kindId, n: count() })
-        .from(table)
-        .innerJoin(kinds, eq(kinds.id, table.kindId))
-        .where(and(eq(table.userId, userId), isNull(kinds.userId)))
-        .groupBy(table.kindId),
-    ),
-  );
-
-  const stuck = new Map<string, number>();
-  for (const row of perTable.flat()) {
-    if (usingIds.has(row.kindId)) continue;
-    stuck.set(row.kindId, (stuck.get(row.kindId) ?? 0) + row.n);
-  }
-  if (stuck.size === 0) return [];
-
-  const shared = await db
-    .select()
-    .from(kinds)
-    .where(inArray(kinds.id, [...stuck.keys()]));
-  const owned = await db
-    .select({ id: kinds.id, name: kinds.name, slug: kinds.slug, groupKey: kinds.groupKey })
-    .from(kinds)
-    .innerJoin(userKinds, eq(userKinds.kindId, kinds.id))
-    .where(and(eq(kinds.userId, userId), eq(userKinds.userId, userId)));
-
-  return shared.map((row) => ({
-    sharedId: row.id,
-    name: row.name,
-    group: row.groupKey as KindGroup,
-    n: stuck.get(row.id) ?? 0,
-    // 同 group 且網址或名字對得上，才算是同一種的自己那一份
-    targets: owned
-      .filter(
-        (mine) =>
-          mine.groupKey === row.groupKey && (mine.slug === row.slug || mine.name === row.name),
-      )
-      .map((mine) => ({ id: mine.id, name: mine.name })),
-  }));
-}
-
-/** 把卡住的接回自己那一份。對不出唯一一份的不動，回傳搬了幾筆 */
-export async function relinkStuckKinds(userId: string): Promise<number> {
-  const stuck = await findStuckKinds(userId);
-  const movable = stuck.filter((row) => row.targets.length === 1);
-  if (movable.length === 0) return 0;
-
-  await db.transaction(async (tx) => {
-    for (const row of movable) {
-      const targetId = row.targets[0].id;
-      for (const table of [works, fragments, writings]) {
-        await tx
-          .update(table)
-          .set({ kindId: targetId })
-          .where(and(eq(table.userId, userId), eq(table.kindId, row.sharedId)));
-      }
-    }
-  });
-
-  return movable.reduce((sum, row) => sum + row.n, 0);
 }
