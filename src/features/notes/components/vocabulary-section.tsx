@@ -80,6 +80,7 @@ export function VocabularySection({
             detail={pronunciation}
             body={latest.example}
             meta={[latest.bookTitle, latest.chapter].filter(Boolean).join("・")}
+            coverUrl={latest.bookCover}
           />
         );
       }}
