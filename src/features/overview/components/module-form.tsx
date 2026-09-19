@@ -247,7 +247,13 @@ export function ModuleForm({
       request(`/api/catalog/${id}`, "PATCH", { values: payload }, "儲存失敗"),
   });
 
-  async function send(url: string, method: string, body: object, fallback: string) {
+  async function send(
+    url: string,
+    method: string,
+    body: object,
+    fallback: string,
+    goTo?: string, // 給了就去那裡，不退上一格
+  ) {
     setSaving(true);
     setError(undefined);
     try {
@@ -255,7 +261,8 @@ export function ModuleForm({
       autoSave.markSaved(values, data.id);
       if (data.linkId) await flushPending(data.linkId);
       // 直接開網址進來時沒有上一格可退，回這一種的清單
-      if (window.history.length > 1) router.back();
+      if (goTo) router.replace(goTo);
+      else if (window.history.length > 1) router.back();
       else router.replace(kindHref(kind.group, kind.slug));
     } catch (err) {
       setError(err instanceof Error ? err.message : fallback);
@@ -270,9 +277,16 @@ export function ModuleForm({
       : send(`/api/kinds/${kind.id}/records`, "POST", { values }, "新增失敗");
   };
 
+  // 刪完不退上一格：那是這筆自己的詳情頁，已經不存在了
   const remove = () => {
     autoSave.markDeleted();
-    return send(`/api/catalog/${recordId}`, "DELETE", {}, "刪除失敗");
+    return send(
+      `/api/catalog/${recordId}`,
+      "DELETE",
+      {},
+      "刪除失敗",
+      kindHref(kind.group, kind.slug),
+    );
   };
 
   /**

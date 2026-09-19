@@ -56,8 +56,10 @@ type KeywordFormProps = {
   onSave: (info: KeywordInfo, previousName: string) => Promise<void>;
   /** 給了就能刪；刪掉主檔那一列，引用它的書也會拿掉這個關鍵字 */
   onDelete?: (name: string) => Promise<unknown>;
-  /** 存完、刪完、或按取消之後要去哪：對話框是關掉，整頁是回上一頁 */
+  /** 存完或按取消之後要去哪：對話框是關掉，整頁是回上一頁 */
   onDone: () => void;
+  /** 刪完要去哪。沒給就跟 onDone 一樣——刪掉的那個字自己那一頁不能回 */
+  onDeleted?: () => void;
 };
 
 /**
@@ -65,7 +67,7 @@ type KeywordFormProps = {
  *
  * 不自己畫外框：它同時長在整頁的編輯頁與表單裡的對話框上，兩邊只差外面那一層。
  */
-export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps) {
+export function KeywordForm({ info, onSave, onDelete, onDone, onDeleted }: KeywordFormProps) {
   const { infos } = useKeywordInfos();
   const tagCounts = usedTags(infos);
   const [form, setForm] = useState<KeywordInfo>(info);
@@ -86,7 +88,7 @@ export function KeywordForm({ info, onSave, onDelete, onDone }: KeywordFormProps
     setError("");
     try {
       await onDelete(info.name);
-      onDone();
+      (onDeleted ?? onDone)();
     } catch (err) {
       setError(err instanceof Error ? err.message : "刪除失敗");
       setSaving(false);

@@ -46,6 +46,7 @@ function KeywordEdit({ recordId }: { recordId: string }) {
             onSave={save}
             onDelete={remove}
             onDone={() => router.push(from)}
+            onDeleted={() => router.push(kindHref("fragments", "keywords"))}
           />
         </RecordGate>
       </PageBody>
