@@ -122,10 +122,9 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "fragments",
     name: "關鍵字",
     amountUnit: "",
-    modules: ["title", "translation", "longText", "tags", "years", "coordinates", "externalUrl"],
+    modules: ["title", "longText", "tags", "years", "coordinates", "externalUrl"],
     labels: {
       title: "詞條",
-      translation: "一句話說明",
       longText: "維基摘要",
       tags: "學科",
       externalUrl: "維基連結",
