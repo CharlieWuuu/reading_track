@@ -6,7 +6,7 @@ const styles = {
   // 不畫框，改用分隔線隔開：一頁很多則的時候，滿版的框線比內容還搶眼
   // 左右各留一點：外層是捲動容器（overflow-y 一旦不是 visible，橫向也會裁），
   // 封面貼著邊的話光暈與外框線會被切掉一條
-  card: "flex cursor-pointer items-start gap-3 px-1 py-3 hover:bg-gray-50 md:py-4",
+  card: "flex cursor-pointer items-start gap-2 px-1 py-3 hover:bg-gray-50 md:py-4",
   body: "flex min-w-0 flex-1 flex-col gap-2",
   head: "flex min-w-0 items-baseline gap-2",
   // 書名是這一則的標題，不是附註，所以比內文大一級也粗一點

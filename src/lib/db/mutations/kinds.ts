@@ -210,7 +210,12 @@ export async function updateKind(userId: string, kindId: string, patch: NewKind)
   });
 }
 
-/** 共用類型改成自己的：複製一列、把「我在用」指過去，原本那列留給別人 */
+/**
+ * 共用類型改成自己的：複製一列、把「我在用」指過去，原本那列留給別人。
+ *
+ * 自己名下已經記的那些也要跟著搬——數量是照 kind_id 數的，留在舊那列
+ * 就變成「內容看得到、數量是 0」。只搬自己的，別人的還掛在共用那列。
+ */
 async function forkKind(
   userId: string,
   shared: typeof kinds.$inferSelect,
@@ -223,6 +228,13 @@ async function forkKind(
       .where(and(eq(userKinds.userId, userId), eq(userKinds.kindId, shared.id)));
 
     const created = await insertKind(tx, userId, shared.groupKey as KindGroup, patch, sortOrder);
+
+    const mine = (table: typeof works | typeof fragments | typeof writings) =>
+      and(eq(table.userId, userId), eq(table.kindId, shared.id));
+    await tx.update(works).set({ kindId: created }).where(mine(works));
+    await tx.update(fragments).set({ kindId: created }).where(mine(fragments));
+    await tx.update(writings).set({ kindId: created }).where(mine(writings));
+
     await tx
       .delete(userKinds)
       .where(and(eq(userKinds.userId, userId), eq(userKinds.kindId, shared.id)));
