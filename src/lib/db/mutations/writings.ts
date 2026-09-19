@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { and, eq, inArray, isNull, or } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db/client";
 import { kinds } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
@@ -30,13 +30,7 @@ async function writingKindIdFor(tx: Tx, userId: string, topic: string): Promise<
   const [kind] = await tx
     .select({ id: kinds.id })
     .from(kinds)
-    .where(
-      and(
-        or(eq(kinds.userId, userId), isNull(kinds.userId)),
-        eq(kinds.groupKey, "writings"),
-        eq(kinds.name, name),
-      ),
-    );
+    .where(and(eq(kinds.userId, userId), eq(kinds.groupKey, "writings"), eq(kinds.name, name)));
   if (!kind) throw new Error(`書寫底下沒有「${name}」這個類型`);
   return kind.id;
 }

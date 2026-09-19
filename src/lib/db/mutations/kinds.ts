@@ -1,5 +1,5 @@
-import { and, asc, desc, eq, inArray, isNull, or } from "drizzle-orm";
-import { KindTemplate, STARTER_KEYS } from "@/config/kind-templates";
+import { and, desc, eq } from "drizzle-orm";
+import { KIND_TEMPLATES, KindTemplate, STARTER_KEYS } from "@/config/kind-templates";
 import { moduleDef } from "@/config/modules";
 import { KindGroup } from "@/config/record-kinds";
 import { db, type Tx } from "@/lib/db/client";
@@ -180,18 +180,12 @@ export async function hideKind(userId: string, kindId: string): Promise<void> {
 /**
  * 改一個類型：名字、網址、單位、勾哪些模組。
  *
- * 共用列（user_id 是 NULL）不能直接改——那是全體共用的定義，改了會動到別人。
- * 遇到共用列就先複製一份成自己的，再把「我在用」指過去：對使用者來說就是改了，
- * 別人看到的還是原本那個。
- *
  * 改網址等於改路由，舊連結會失效——這是使用者自己按的，不特別擋。
  * 紀錄照 kind_id 關聯，不受影響。
  */
 export async function updateKind(userId: string, kindId: string, patch: NewKind): Promise<string> {
   const [existing] = await db.select().from(kinds).where(eq(kinds.id, kindId));
   if (!existing) throw new Error("找不到這個類型");
-
-  if (existing.userId === null) return forkKind(userId, existing, patch);
 
   return db.transaction(async (tx) => {
     await tx
@@ -211,44 +205,12 @@ export async function updateKind(userId: string, kindId: string, patch: NewKind)
 }
 
 /**
- * 共用類型改成自己的：複製一列、把「我在用」指過去，原本那列留給別人。
- *
- * 自己名下已經記的那些也要跟著搬——數量是照 kind_id 數的，留在舊那列
- * 就變成「內容看得到、數量是 0」。只搬自己的，別人的還掛在共用那列。
- */
-async function forkKind(
-  userId: string,
-  shared: typeof kinds.$inferSelect,
-  patch: NewKind,
-): Promise<string> {
-  return db.transaction(async (tx) => {
-    const [{ sortOrder }] = await tx
-      .select({ sortOrder: userKinds.sortOrder })
-      .from(userKinds)
-      .where(and(eq(userKinds.userId, userId), eq(userKinds.kindId, shared.id)));
-
-    const created = await insertKind(tx, userId, shared.groupKey as KindGroup, patch, sortOrder);
-
-    const mine = (table: typeof works | typeof fragments | typeof writings) =>
-      and(eq(table.userId, userId), eq(table.kindId, shared.id));
-    await tx.update(works).set({ kindId: created }).where(mine(works));
-    await tx.update(fragments).set({ kindId: created }).where(mine(fragments));
-    await tx.update(writings).set({ kindId: created }).where(mine(writings));
-
-    await tx
-      .delete(userKinds)
-      .where(and(eq(userKinds.userId, userId), eq(userKinds.kindId, shared.id)));
-    return created;
-  });
-}
-
-/**
  * 目錄裡已經有這個 slug 的話就重新啟用它，不要另外建一列。
  *
  * 關掉「書籍」再套一次範本，走 addKind 會插一列新的同名類型，原本那列
  * （系統共用的）沒人用卻還在——目錄會慢慢長出一堆重複。這支先撿現成的。
  *
- * 只認共用列與自己建的：別人的自訂類型不該被撿來用。
+ * 只認自己的：類型定義一人一份。
  * 回傳 kindId，沒有現成的就回 null，呼叫端再走 addKind。
  */
 export async function reuseKind(
@@ -262,7 +224,7 @@ export async function reuseKind(
     .from(kinds)
     .where(
       and(
-        or(eq(kinds.userId, userId), isNull(kinds.userId)),
+        eq(kinds.userId, userId),
         eq(kinds.groupKey, group),
         eq(kinds.slug, slug),
         // 名字也要一樣才算「同一種」：自己填的剛好撞到 slug，該建新的而不是撿舊的
@@ -282,24 +244,19 @@ export async function reuseKind(
 /**
  * 開帳號時先給的那幾種。
  *
- * 類型的定義是共用目錄（user_id 是 NULL 那幾列），不用各自建一份；要給的是
- * 「我在用哪些」——沒有這幾列，新帳號登進來會是一片空白。
+ * 一人一份：照範本各建一列自己的，不再指向共用目錄。沒有這幾列，
+ * 新帳號登進來會是一片空白。
  *
  * 只認 STARTER_KEYS：範本庫裡還有電影、Podcast、線上課程，那些要用再自己套。
  */
 export async function seedKinds(userId: string): Promise<number> {
-  const starters = await db
-    .select({ id: kinds.id })
-    .from(kinds)
-    .where(and(isNull(kinds.userId), inArray(kinds.slug, [...STARTER_KEYS])))
-    .orderBy(asc(kinds.sortOrder));
+  const starters = KIND_TEMPLATES.filter((template) => STARTER_KEYS.has(template.key));
 
-  if (starters.length === 0) return 0;
-
-  await db
-    .insert(userKinds)
-    .values(starters.map((kind, index) => ({ userId, kindId: kind.id, sortOrder: index })))
-    .onConflictDoNothing();
+  for (const template of starters) {
+    // 重跑不要長出第二份：同名同網址的已經在就跳過
+    if (!(await reuseKind(userId, template.group, template.key, template.name)))
+      await addKindFromTemplate(userId, template);
+  }
 
   return starters.length;
 }

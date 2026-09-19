@@ -3,7 +3,7 @@ import { KIND_TEMPLATES, STARTER_KEYS } from "@/config/kind-templates";
 import { moduleDef } from "@/config/modules";
 import type { db as Db } from "@/lib/db/client";
 import { fields } from "@/lib/db/schema/fields";
-import { kinds, mapKindField } from "@/lib/db/schema/kinds";
+import { kinds, mapKindField, userKinds } from "@/lib/db/schema/kinds";
 import { users } from "@/lib/db/schema/users";
 import type { Book } from "@/types/book";
 
@@ -46,23 +46,19 @@ export function makeBook(patch: Partial<Book> = {}): Book {
  */
 export async function seedUser(db: typeof Db, email = "test@example.com"): Promise<string> {
   const [row] = await db.insert(users).values({ email }).returning({ id: users.id });
-  await seedKindsInto(db);
+  await seedKindsInto(db, row.id);
   return row.id;
 }
 
 /**
  * seedKinds 綁在正式的 db 上，測試用的是另一個實例，所以這裡重寫一份。
  *
- * 書籍、文章、佳句、單字、關鍵字、書寫是系統共用的類型（user_id 是 NULL），
- * 每個測試檔的 pglite 是全新的資料庫，第一次呼叫時灌一份共用的進去就好，
- * 呼叫第二次不重複灌。
+ * 類型一人一份，所以灌的是這個人自己那幾列；同一個人呼叫第二次不重複灌。
  */
-async function seedKindsInto(db: typeof Db): Promise<void> {
+async function seedKindsInto(db: typeof Db, userId: string): Promise<void> {
   const starters = KIND_TEMPLATES.filter((template) => STARTER_KEYS.has(template.key));
 
-  // 只跳過「這幾種都灌過了」的情況。migration 自己也會建幾種類型（書寫那三個），
-  // 看「表裡有沒有東西」會被那幾列騙過去，書籍、關鍵字就永遠建不起來
-  const done = await db.select({ slug: kinds.slug }).from(kinds);
+  const done = await db.select({ slug: kinds.slug }).from(kinds).where(eq(kinds.userId, userId));
   const have = new Set(done.map((row) => row.slug));
   if (starters.every((template) => have.has(template.key))) return;
   const orders = new Map<string, number>();
@@ -70,12 +66,12 @@ async function seedKindsInto(db: typeof Db): Promise<void> {
   for (const template of starters) {
     const sortOrder = orders.get(template.group) ?? 0;
     orders.set(template.group, sortOrder + 1);
-    if (have.has(template.key)) continue; // migration 已經建過的那幾種
+    if (have.has(template.key)) continue;
 
     const [kind] = await db
       .insert(kinds)
       .values({
-        userId: null,
+        userId,
         groupKey: template.group,
         name: template.name,
         slug: template.key,
@@ -96,9 +92,10 @@ async function seedKindsInto(db: typeof Db): Promise<void> {
           (await db.insert(fields).values({ fieldKey: key, label }).returning({ id: fields.id }))[0]
             .id;
 
-        return { userId: null, kindId: kind.id, fieldKey: key, fieldId, sortOrder: index };
+        return { userId, kindId: kind.id, fieldKey: key, fieldId, sortOrder: index };
       }),
     );
     await db.insert(mapKindField).values(fieldRows);
+    await db.insert(userKinds).values({ userId, kindId: kind.id, sortOrder });
   }
 }
