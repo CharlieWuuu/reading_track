@@ -33,6 +33,8 @@ const styles = {
   sectionLabel: "font-serif text-item-sm font-semibold tracking-wide",
   hint: "text-meta text-ink-faint",
   row: "border-rule flex items-start gap-3 border-b py-2.5",
+  // 模組名字都很短，一欄一列把整頁拉得很長；兩欄一眼看得完
+  moduleGrid: "grid grid-cols-2 gap-x-6",
   moduleLabel: "font-serif text-item-sm font-semibold",
   count: "text-meta text-ink-faint tabular-nums ml-auto",
   // 範本一行一列，跟側欄同一種長相：整行可點，不畫框不上底色，
@@ -252,7 +254,7 @@ export function TypeBuilder({
             </span>
           }
         >
-          <div>
+          <div className={styles.moduleGrid}>
             {PICKABLE.map((module) => (
               <Fragment key={module.key}>
                 <label className={styles.row}>
