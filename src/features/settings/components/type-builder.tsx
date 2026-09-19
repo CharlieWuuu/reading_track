@@ -198,50 +198,53 @@ export function TypeBuilder({
           </div>
         </Section>
 
-        <Section step="02" label="選擇類型">
-          <div>
-            {templates.map((template) => {
-              const on = name === template.name;
-              return (
-                <button
-                  key={template.key}
-                  type="button"
-                  onClick={() => applyTemplate(template)}
-                  aria-pressed={on}
-                  className={styles.pickRow}
-                >
-                  <span
-                    className={`${styles.pickLabel} ${on ? styles.pickActive : styles.pickIdle}`}
+        {/* 套範本會把現在的設定蓋掉，所以只在新增時出現 */}
+        {!editing && (
+          <Section step="02" label="選擇類型">
+            <div>
+              {templates.map((template) => {
+                const on = name === template.name;
+                return (
+                  <button
+                    key={template.key}
+                    type="button"
+                    onClick={() => applyTemplate(template)}
+                    aria-pressed={on}
+                    className={styles.pickRow}
                   >
-                    {template.name}
-                  </span>
-                  <span className={styles.pickHint}>{template.modules.length} 個模組</span>
-                </button>
-              );
-            })}
-            <button
-              type="button"
-              onClick={() => {
-                setName("");
-                setSlug("");
-                setUnit("");
-                setPicked([]);
-                setLabels({});
-              }}
-              aria-pressed={!name}
-              className={styles.pickRow}
-            >
-              <span
-                className={`${styles.pickLabel} ${!name ? styles.pickActive : styles.pickIdle}`}
+                    <span
+                      className={`${styles.pickLabel} ${on ? styles.pickActive : styles.pickIdle}`}
+                    >
+                      {template.name}
+                    </span>
+                    <span className={styles.pickHint}>{template.modules.length} 個模組</span>
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                onClick={() => {
+                  setName("");
+                  setSlug("");
+                  setUnit("");
+                  setPicked([]);
+                  setLabels({});
+                }}
+                aria-pressed={!name}
+                className={styles.pickRow}
               >
-                空白開始
-              </span>
-            </button>
-          </div>
-        </Section>
+                <span
+                  className={`${styles.pickLabel} ${!name ? styles.pickActive : styles.pickIdle}`}
+                >
+                  空白開始
+                </span>
+              </button>
+            </div>
+          </Section>
+        )}
 
         <Section
-          step="03"
+          step={editing ? "02" : "03"}
           label="要哪些模組"
           hint={
             <span className={styles.count}>
