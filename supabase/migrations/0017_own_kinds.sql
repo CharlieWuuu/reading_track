@@ -7,11 +7,15 @@
 --
 -- 這支做三件事：替每個人複製一份、把資料重指過去、刪掉沒人再用的共用列。
 -- 順便收拾已經 fork 過但資料留在共用列上的那些。
+--
+-- 可回復：對照表與被刪的共用列都留成檔案表，反向 SQL 在 docs/rollback-0017.sql。
 
+-- created 分得出「這次新建的」與「他本來就有的」——退回去只能刪前者
 CREATE TABLE _kind_fork_map (
 	user_id uuid NOT NULL,
 	old_id uuid NOT NULL,
-	new_id uuid NOT NULL
+	new_id uuid NOT NULL,
+	created boolean NOT NULL
 );
 --> statement-breakpoint
 
@@ -30,16 +34,16 @@ WITH ins AS (
 	)
 	RETURNING id, user_id, group_key, slug
 )
-INSERT INTO _kind_fork_map (user_id, old_id, new_id)
-SELECT ins.user_id, k.id, ins.id
+INSERT INTO _kind_fork_map (user_id, old_id, new_id, created)
+SELECT ins.user_id, k.id, ins.id, true
 FROM ins
 JOIN setting_kinds k ON k.user_id IS NULL AND k.group_key = ins.group_key AND k.slug = ins.slug;
 --> statement-breakpoint
 
 -- 已經有自己那一份、但資料還留在共用列上的（舊版 forkKind 漏搬的那些）。
 -- 同 group 且網址或名字對得上，而且只對到一份才接
-INSERT INTO _kind_fork_map (user_id, old_id, new_id)
-SELECT u.id, k.id, mine.id
+INSERT INTO _kind_fork_map (user_id, old_id, new_id, created)
+SELECT u.id, k.id, mine.id, false
 FROM users u
 JOIN setting_kinds k ON k.user_id IS NULL
 JOIN setting_kinds mine ON mine.user_id = u.id AND mine.group_key = k.group_key
@@ -93,25 +97,25 @@ UPDATE domain_writings d SET kind_id = f.new_id
 FROM _kind_fork_map f WHERE d.user_id = f.user_id AND d.kind_id = f.old_id;
 --> statement-breakpoint
 
--- 沒人再指的共用列才刪。還有人指著就留著，寧可留垃圾也不要砍到資料
-DELETE FROM setting_map_kind_field mk
-WHERE mk.kind_id IN (
-	SELECT k.id FROM setting_kinds k
-	WHERE k.user_id IS NULL
-	  AND NOT EXISTS (SELECT 1 FROM setting_user_kinds uk WHERE uk.kind_id = k.id)
-	  AND NOT EXISTS (SELECT 1 FROM domain_works d WHERE d.kind_id = k.id)
-	  AND NOT EXISTS (SELECT 1 FROM domain_fragments d WHERE d.kind_id = k.id)
-	  AND NOT EXISTS (SELECT 1 FROM domain_writings d WHERE d.kind_id = k.id)
-);
---> statement-breakpoint
-
-DELETE FROM setting_kinds k
+-- 沒人再指的共用列才刪，而且刪之前整列留一份檔案。
+-- 還有人指著的就留著，寧可留垃圾也不要砍到資料
+CREATE TABLE _kind_shared_archive AS
+SELECT k.* FROM setting_kinds k
 WHERE k.user_id IS NULL
   AND NOT EXISTS (SELECT 1 FROM setting_user_kinds uk WHERE uk.kind_id = k.id)
   AND NOT EXISTS (SELECT 1 FROM domain_works d WHERE d.kind_id = k.id)
   AND NOT EXISTS (SELECT 1 FROM domain_fragments d WHERE d.kind_id = k.id)
-  AND NOT EXISTS (SELECT 1 FROM domain_writings d WHERE d.kind_id = k.id)
-  AND NOT EXISTS (SELECT 1 FROM setting_map_kind_field mk WHERE mk.kind_id = k.id);
+  AND NOT EXISTS (SELECT 1 FROM domain_writings d WHERE d.kind_id = k.id);
 --> statement-breakpoint
 
-DROP TABLE _kind_fork_map;
+CREATE TABLE _kind_shared_field_archive AS
+SELECT mk.* FROM setting_map_kind_field mk
+WHERE mk.kind_id IN (SELECT id FROM _kind_shared_archive);
+--> statement-breakpoint
+
+DELETE FROM setting_map_kind_field mk
+WHERE mk.kind_id IN (SELECT id FROM _kind_shared_archive);
+--> statement-breakpoint
+
+DELETE FROM setting_kinds k
+WHERE k.id IN (SELECT id FROM _kind_shared_archive);
