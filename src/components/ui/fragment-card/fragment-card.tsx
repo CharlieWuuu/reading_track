@@ -30,7 +30,7 @@ export const FRAGMENT_CARD_GRID = "grid grid-cols-2 gap-3 2xl:grid-cols-3";
 
 const styles = {
   // 外框用 rule 不用 rule-strong：rule-strong 是區段實線與報頭那條，壓在卡片四周太重
-  card: "flex h-full min-w-0 cursor-pointer flex-col gap-2 rounded-surface border border-rule bg-white p-4 hover:bg-gray-50",
+  card: "flex h-full min-w-0 cursor-pointer flex-col gap-2 rounded-surface border border-rule bg-white p-3 hover:bg-gray-50",
   // 高度固定讓同列等高，object-contain 不裁切——使用者自己挑的圖，切掉一半就不是他挑的那張了
   cover: "block h-24 w-full rounded-surface object-contain md:h-40", // 手機一頁放得下更多則
   head: "flex min-w-0 flex-wrap items-end justify-between gap-x-2",
