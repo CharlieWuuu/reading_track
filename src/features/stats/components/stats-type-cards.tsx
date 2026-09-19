@@ -47,7 +47,7 @@ export function StatsTypeCards() {
               <Link
                 key={kind.id}
                 href={`${kindHref(kind.group, kind.slug)}?view=stats`}
-                className="rounded-surface border-rule-strong truncate border p-4 text-center transition hover:bg-gray-50"
+                className="rounded-surface border-rule truncate border p-4 text-center transition hover:bg-gray-50"
               >
                 <span className="text-item font-serif font-semibold">{kind.name}</span>
               </Link>
