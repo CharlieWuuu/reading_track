@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { CoverCard } from "@/components/ui/cover-card/cover-card";
 import { Field } from "@/components/ui/field/field";
 import { FormActions } from "@/components/ui/form-actions";
@@ -195,15 +195,6 @@ export function TypeBuilder({
             <Field label="名稱" value={name} onChange={setName} />
             <Field label="網址" value={slug} onChange={setSlug} />
             <Field label="量的單位" value={unit} onChange={setUnit} />
-            <label className={styles.row}>
-              <input
-                type="checkbox"
-                checked={inheritsCover}
-                onChange={() => setInheritsCover((on) => !on)}
-                className="mt-1"
-              />
-              <span className={styles.moduleLabel}>沿用出處的封面</span>
-            </label>
           </div>
         </Section>
 
@@ -260,15 +251,30 @@ export function TypeBuilder({
         >
           <div>
             {PICKABLE.map((module) => (
-              <label key={module.key} className={styles.row}>
-                <input
-                  type="checkbox"
-                  checked={picked.includes(module.key)}
-                  onChange={() => toggle(module.key)}
-                  className="mt-1"
-                />
-                <span className={styles.moduleLabel}>{module.label}</span>
-              </label>
+              <Fragment key={module.key}>
+                <label className={styles.row}>
+                  <input
+                    type="checkbox"
+                    checked={picked.includes(module.key)}
+                    onChange={() => toggle(module.key)}
+                    className="mt-1"
+                  />
+                  <span className={styles.moduleLabel}>{module.label}</span>
+                </label>
+                {/* 不是封面圖的子選項，是它的替代：自己放圖的類型不繼承，繼承的不自己放圖。
+                    排在它後面只是因為兩個都在講圖，所以不縮排 */}
+                {module.key === "cover" && (
+                  <label className={styles.row}>
+                    <input
+                      type="checkbox"
+                      checked={inheritsCover}
+                      onChange={() => setInheritsCover((on) => !on)}
+                      className="mt-1"
+                    />
+                    <span className={styles.moduleLabel}>沿用出處的封面</span>
+                  </label>
+                )}
+              </Fragment>
             ))}
           </div>
         </Section>
