@@ -33,6 +33,10 @@ const styles = {
   sectionLabel: "font-serif text-item-sm font-semibold tracking-wide",
   hint: "text-meta text-ink-faint",
   row: "border-rule flex items-start gap-3 border-b py-2.5",
+  // 模組名字都很短，一欄一列把整頁拉得很長。不寫死兩欄：放得下就併排，
+  // 放不下自己換行——最長的是「沿用出處的封面」，窄螢幕硬擠兩欄會斷字
+  moduleGrid: "flex flex-wrap gap-x-6",
+  moduleCell: "min-w-40 flex-1",
   moduleLabel: "font-serif text-item-sm font-semibold",
   count: "text-meta text-ink-faint tabular-nums ml-auto",
   // 範本一行一列，跟側欄同一種長相：整行可點，不畫框不上底色，
@@ -198,50 +202,53 @@ export function TypeBuilder({
           </div>
         </Section>
 
-        <Section step="02" label="選擇類型">
-          <div>
-            {templates.map((template) => {
-              const on = name === template.name;
-              return (
-                <button
-                  key={template.key}
-                  type="button"
-                  onClick={() => applyTemplate(template)}
-                  aria-pressed={on}
-                  className={styles.pickRow}
-                >
-                  <span
-                    className={`${styles.pickLabel} ${on ? styles.pickActive : styles.pickIdle}`}
+        {/* 套範本會把現在的設定蓋掉，所以只在新增時出現 */}
+        {!editing && (
+          <Section step="02" label="選擇類型">
+            <div>
+              {templates.map((template) => {
+                const on = name === template.name;
+                return (
+                  <button
+                    key={template.key}
+                    type="button"
+                    onClick={() => applyTemplate(template)}
+                    aria-pressed={on}
+                    className={styles.pickRow}
                   >
-                    {template.name}
-                  </span>
-                  <span className={styles.pickHint}>{template.modules.length} 個模組</span>
-                </button>
-              );
-            })}
-            <button
-              type="button"
-              onClick={() => {
-                setName("");
-                setSlug("");
-                setUnit("");
-                setPicked([]);
-                setLabels({});
-              }}
-              aria-pressed={!name}
-              className={styles.pickRow}
-            >
-              <span
-                className={`${styles.pickLabel} ${!name ? styles.pickActive : styles.pickIdle}`}
+                    <span
+                      className={`${styles.pickLabel} ${on ? styles.pickActive : styles.pickIdle}`}
+                    >
+                      {template.name}
+                    </span>
+                    <span className={styles.pickHint}>{template.modules.length} 個模組</span>
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                onClick={() => {
+                  setName("");
+                  setSlug("");
+                  setUnit("");
+                  setPicked([]);
+                  setLabels({});
+                }}
+                aria-pressed={!name}
+                className={styles.pickRow}
               >
-                空白開始
-              </span>
-            </button>
-          </div>
-        </Section>
+                <span
+                  className={`${styles.pickLabel} ${!name ? styles.pickActive : styles.pickIdle}`}
+                >
+                  空白開始
+                </span>
+              </button>
+            </div>
+          </Section>
+        )}
 
         <Section
-          step="03"
+          step={editing ? "02" : "03"}
           label="要哪些模組"
           hint={
             <span className={styles.count}>
@@ -249,10 +256,10 @@ export function TypeBuilder({
             </span>
           }
         >
-          <div>
+          <div className={styles.moduleGrid}>
             {PICKABLE.map((module) => (
               <Fragment key={module.key}>
-                <label className={styles.row}>
+                <label className={`${styles.row} ${styles.moduleCell}`}>
                   <input
                     type="checkbox"
                     checked={picked.includes(module.key)}
@@ -264,7 +271,7 @@ export function TypeBuilder({
                 {/* 不是封面圖的子選項，是它的替代：自己放圖的類型不繼承，繼承的不自己放圖。
                     排在它後面只是因為兩個都在講圖，所以不縮排 */}
                 {module.key === "cover" && (
-                  <label className={styles.row}>
+                  <label className={`${styles.row} ${styles.moduleCell}`}>
                     <input
                       type="checkbox"
                       checked={inheritsCover}

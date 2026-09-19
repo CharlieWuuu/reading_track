@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import useSWR from "swr";
 import { NAV_GROUPS } from "@/config/nav";
 import { KindGroup } from "@/config/record-kinds";
 import { TypeBuilder } from "@/features/settings/components/type-builder";
@@ -34,8 +33,6 @@ const styles = {
   remove: "text-meta pl-3 text-red-700 hover:text-red-800 disabled:text-ink-faint/40",
   empty: "text-meta text-ink-faint py-[7px] pl-3",
   error: "text-meta text-red-700",
-  stuck: "border-rule text-meta text-ink-muted flex flex-wrap items-center gap-2 border-t pt-4",
-  relink: "text-meta text-accent font-medium hover:underline disabled:opacity-50",
   builder: "pl-3",
 };
 
@@ -46,26 +43,7 @@ export function KindPanel() {
   const [editing, setEditing] = useState<string | null>(null);
   const [removing, setRemoving] = useState<string | null>(null);
   const [error, setError] = useState<string>();
-  const { kinds, removeKind, relinkStuck } = useKinds();
-  const [relinking, setRelinking] = useState(false);
-  const stuck = useSWR<{ stuck: { name: string; n: number; movable: boolean }[] }>(
-    "/api/kinds/relink",
-    (url: string) => fetch(url).then((res) => res.json()),
-  );
-  const movable = (stuck.data?.stuck ?? []).filter((row) => row.movable);
-
-  async function relink() {
-    setRelinking(true);
-    setError(undefined);
-    try {
-      await relinkStuck();
-      await stuck.mutate();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "接回失敗");
-    } finally {
-      setRelinking(false);
-    }
-  }
+  const { kinds, removeKind } = useKinds();
 
   async function remove(kindId: string) {
     setRemoving(kindId);
@@ -155,20 +133,6 @@ export function KindPanel() {
           </div>
         );
       })}
-
-      {/* 舊版改共用類型時資料沒跟著搬，會變成「內容看得到、數量是 0」。
-          有卡住的才出現，接回去就消失 */}
-      {movable.length > 0 && (
-        <div className={styles.stuck}>
-          <span>
-            {movable.map((row) => `${row.name} ${row.n}`).join("、")} 筆資料還掛在舊的類型定義上，
-            所以數量顯示 0。
-          </span>
-          <button type="button" onClick={relink} disabled={relinking} className={styles.relink}>
-            {relinking ? "接回中…" : "接回來"}
-          </button>
-        </div>
-      )}
 
       {error && <span className={styles.error}>{error}</span>}
     </div>
