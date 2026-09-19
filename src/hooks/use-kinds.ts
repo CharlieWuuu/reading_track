@@ -61,6 +61,15 @@ export function useKinds() {
     await mutate();
   }
 
+  /** 接回卡在共用類型上的資料，回傳搬了幾筆。數量重算過才重讀清單 */
+  async function relinkStuck() {
+    const res = await fetch("/api/kinds/relink", { method: "POST" });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error ?? "接回失敗");
+    await mutate();
+    return body.moved as number;
+  }
+
   return {
     kinds: data?.kinds ?? [],
     isLoading,
@@ -68,5 +77,6 @@ export function useKinds() {
     addKind,
     editKind,
     removeKind,
+    relinkStuck,
   };
 }
