@@ -6,14 +6,12 @@ import { OverviewTotalStats } from "@/components/ui/overview-layout/overview-rai
 import { keywordHref } from "@/config/routes";
 import { useKeywordInfos } from "@/features/keywords/api/use-keyword-infos";
 import { getKeywordEntries, KeywordEntry } from "@/features/keywords/utils/keyword-stats";
-import { topicLabel } from "@/features/keywords/utils/topic-labels";
 import { Book } from "@/types/book";
 import { OverviewItem, pickHeadline } from "@/utils/overview";
-import { tagColorClass } from "@/utils/tag-colors";
 
 const styles = {
   empty: "py-6 text-center text-xs text-gray-400",
-  topic: "rounded-control px-1.5 py-0.5 text-[11px] font-medium",
+  count: "shrink-0 text-xs text-gray-400 tabular-nums",
 };
 
 /**
@@ -60,17 +58,16 @@ export function KeywordCards({ books }: { books: Book[] }) {
       renderItem={(item) => {
         const entry = entries.find((e) => e.name === item.id)!;
         const info = byName.get(entry.name);
-        const tags = info?.tags ? info.tags.split("、").filter(Boolean).map(topicLabel) : [];
 
         return (
           <FragmentCard
             title={entry.name}
             href={keywordHref(entry.name)}
-            labelExtra={tags.map((tag) => (
-              <span key={tag} className={`${styles.topic} ${tagColorClass(tag, [])}`}>
-                {tag}
-              </span>
-            ))}
+            labelExtra={
+              entry.books.length > 1 ? (
+                <span className={styles.count}>{entry.books.length} 本</span>
+              ) : undefined
+            }
             body={info?.summary}
           />
         );
