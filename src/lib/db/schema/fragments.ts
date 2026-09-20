@@ -1,4 +1,13 @@
-import { doublePrecision, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  date,
+  doublePrecision,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { kinds } from "./kinds";
 import { users } from "./users";
 
@@ -13,8 +22,6 @@ import { users } from "./users";
  * 欄位刻意寬而稀疏：一句話沒有發音，一個單字沒有座標。這是共用一組欄位的代價，
  * 換來的是新增一種片段不用開表。
  *
- * 不帶私人旗標，跟舊的關鍵字主檔同一個理由：「馬克思」本身不敏感，敏感的是那本書
- * 屬於哪個領域。藏東西一律從主題與類型下手。
  *
  * 連結（關鍵字的維基連結、書寫的發布連結）不在這裡，走 external_links——
  * 跟紀錄共用同一張表，一筆可以有多個連結。
@@ -44,5 +51,16 @@ export const fragments = pgTable("domain_fragments", {
   endYear: integer("end_year"),
   latitude: doublePrecision("latitude"),
   longitude: doublePrecision("longitude"),
+  // 三個 group 同一組欄位（0019）。設定頁的模組庫是一套，資料表卻各有各的欄位，
+  // 結果 57 格裡有 33 格勾了不生效——補齊之後勾什麼就存得下什麼
+  creator: text("creator").notNull().default(""),
+  coverUrl: text("cover_url").notNull().default(""),
+  startDate: date("start_date"),
+  endDate: date("end_date"),
+  amount: integer("amount"),
+  isPrivate: boolean("is_private").notNull().default(false),
+  language: text("language").notNull().default(""),
+  externalId: text("external_id").notNull().default(""),
+  platform: text("platform").notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

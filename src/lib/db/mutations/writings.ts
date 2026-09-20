@@ -8,9 +8,11 @@ import { splitLines } from "@/types/book";
 import { Writing } from "@/types/writing";
 import { linkedIdsOf } from "../queries/internal-links";
 import { assertKindGroup } from "./assert-group";
+import { allowedFields } from "./catalog";
 import { setWritingSourceUrl } from "./external-links";
 import { setKeywordLinks } from "./fragments";
 import { link, unlink, unlinkAll } from "./internal-links";
+import { insertValues } from "./module-values";
 import { toDate } from "./values";
 
 /**
@@ -107,16 +109,10 @@ export async function addWritingFromValues(
   await assertKindGroup(kindId, "writings");
   // id 自己產：這張表的欄位沒有 default，靠資料庫給會撞 not-null（舊的 addWritingRow 也是自己帶）
   const id = randomUUID();
+  const allowed = await allowedFields(userId, kindId);
   const [row] = await db
     .insert(writings)
-    .values({
-      id,
-      userId,
-      kindId,
-      title: values.title ?? "",
-      body: values.body ?? "",
-      endDate: toDate(values.endDate ?? ""),
-    })
+    .values({ id, userId, kindId, ...insertValues(values, allowed) })
     .returning({ id: writings.id });
   return row.id;
 }

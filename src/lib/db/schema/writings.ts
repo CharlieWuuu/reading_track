@@ -1,4 +1,13 @@
-import { date, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  date,
+  doublePrecision,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { kinds } from "./kinds";
 import { users } from "./users";
 
@@ -22,5 +31,25 @@ export const writings = pgTable("domain_writings", {
   endDate: date("end_date"),
   title: text("title").notNull().default(""),
   body: text("body").notNull().default(""), // 內文
+  // 三個 group 同一組欄位（0019）。原本這張表只有標題、長文、完成日期三個模組
+  // 存得下，其餘 16 個勾了不生效——一套模組庫配三種形狀的表，必然對不上
+  creator: text("creator").notNull().default(""),
+  translation: text("translation").notNull().default(""),
+  locator: text("locator").notNull().default(""),
+  coverUrl: text("cover_url").notNull().default(""),
+  startDate: date("start_date"),
+  amount: integer("amount"),
+  isPrivate: boolean("is_private").notNull().default(false),
+  pronunciation: text("pronunciation").notNull().default(""),
+  example: text("example").notNull().default(""),
+  exampleTranslation: text("example_translation").notNull().default(""),
+  tags: text("tags").notNull().default(""),
+  startYear: integer("start_year"),
+  endYear: integer("end_year"),
+  latitude: doublePrecision("latitude"),
+  longitude: doublePrecision("longitude"),
+  language: text("language").notNull().default(""),
+  externalId: text("external_id").notNull().default(""),
+  platform: text("platform").notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

@@ -5,7 +5,7 @@ import { FRAGMENT_CARD_GRID, FragmentCard } from "@/components/ui/fragment-card/
 import { GroupTable } from "@/components/ui/group-table/group-table";
 import { OverviewLayout } from "@/components/ui/overview-layout/overview-layout";
 import { OverviewTotalStats } from "@/components/ui/overview-layout/overview-rail-stats";
-import { vocabularyHref } from "@/config/routes";
+import { kindHref } from "@/config/kind-routes";
 import { useKinds } from "@/hooks/use-kinds";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
@@ -17,6 +17,16 @@ import {
   VocabularyEntry,
 } from "@/utils/stats/vocabulary-stats";
 
+/**
+ * 連到那一列自己的編號，不是用詞當網址。
+ *
+ * 詞網址配的是已經拆掉的專屬頁（手寫七格、不讀模組設定）；通用詳情頁拿詞
+ * 去查會查不到，畫面卡在載入中。資料本來就一列一筆，直接用它的 id。
+ */
+function hrefOf(entry: VocabularyEntry): string {
+  return `${kindHref("fragments", "vocabulary")}/${entry.encounters[0]?.id ?? ""}`;
+}
+
 function latestOf(entry: VocabularyEntry) {
   return [...entry.encounters].sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))[0];
 }
@@ -27,7 +37,7 @@ function toItem(entry: VocabularyEntry): OverviewItem {
     id: entry.word,
     title: entry.word,
     byline: latest.example,
-    href: vocabularyHref(entry.word),
+    href: hrefOf(entry),
     startDate: latest.date,
     endDate: latest.date,
   };
@@ -79,12 +89,14 @@ export function VocabularySection({
 
         return (
           <FragmentCard
-            href={vocabularyHref(entry.word)}
+            href={hrefOf(entry)}
             title={entry.word}
             label={translation}
             detail={pronunciation}
             body={latest.example}
-            meta={inheritsCover ? [latest.bookTitle, latest.chapter].filter(Boolean).join("・") : ""}
+            meta={
+              inheritsCover ? [latest.bookTitle, latest.chapter].filter(Boolean).join("・") : ""
+            }
             coverUrl={inheritsCover ? latest.bookCover : undefined}
           />
         );
