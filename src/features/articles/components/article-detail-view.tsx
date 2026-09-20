@@ -11,19 +11,30 @@ import { NoteBlock } from "@/components/ui/note-block";
 import { RelatedNotes } from "@/components/ui/related-notes";
 import { TagList } from "@/components/ui/tag-badge";
 import { kindHref } from "@/config/kind-routes";
+import { PRIVATE_MARK } from "@/config/privacy";
 import { articleEditHref } from "@/config/routes";
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { useArticles } from "@/hooks/use-articles";
+import { useKinds } from "@/hooks/use-kinds";
 import { useWritings } from "@/hooks/use-writings";
+import { Kind } from "@/lib/db/queries/kinds";
 import { Article } from "@/types/article";
 import { splitLines } from "@/types/book";
+import { detailFields } from "@/utils/detail-fields";
 import { notesByKind, notesForSource } from "@/utils/related-notes";
 
 const KEYWORD_TAG =
   "rounded-control bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200";
 
-/** 右欄的固定資料卡：站台、語言、讀完、來源 */
-function ArticleFacts({ article }: { article: Article }) {
+/**
+ * 右欄的資料卡。站台與來源自己畫（一個要配 favicon、一個要開新分頁），
+ * 其餘照類型勾的模組列——本來四格全寫死，設定頁改了這裡不會變。
+ */
+function ArticleFacts({ article, kind }: { article: Article; kind?: Kind }) {
+  const { shorts } = kind
+    ? detailFields(kind, articleValues(article), SKIP_IN_FACTS)
+    : { shorts: [] as ReturnType<typeof detailFields>["shorts"] };
+
   return (
     <>
       <DetailField label="站台" align="right">
@@ -34,12 +45,11 @@ function ArticleFacts({ article }: { article: Article }) {
           </span>
         )}
       </DetailField>
-      <DetailField label="語言" align="right">
-        {article.language}
-      </DetailField>
-      <DetailField label="讀完" align="right">
-        {article.endDate}
-      </DetailField>
+      {shorts.map((field) => (
+        <DetailField key={field.key} label={field.label} align="right">
+          {field.value}
+        </DetailField>
+      ))}
       <DetailField label="來源" align="right">
         {article.sourceUrl && (
           <a
@@ -58,11 +68,40 @@ function ArticleFacts({ article }: { article: Article }) {
   );
 }
 
+/** 標題那一區與量化資訊行已經講過的，右欄不重複列 */
+const SKIP_IN_FACTS = new Set([
+  "title",
+  "creator",
+  "body",
+  "domain",
+  "subDomain",
+  "platform",
+  "externalUrl",
+]);
+
+/** Article 的舊形狀攤成模組那層的欄位名 */
+function articleValues(article: Article): Record<string, string> {
+  return {
+    title: article.title,
+    creator: article.author,
+    platform: article.platform,
+    endDate: article.endDate ?? "",
+    language: article.language,
+    domain: article.domain,
+    subDomain: article.subDomain,
+    attribute: article.type,
+    body: article.note,
+    isPrivate: article.private === PRIVATE_MARK ? "是" : "否",
+  };
+}
+
 /** 一篇文章的詳細頁。跟書籍那一頁同一種排版，只是欄位少很多 */
 export function ArticleDetailView({ recordId }: { recordId: string }) {
   const id = recordId;
   const { articles, isLoading, error } = useArticles();
   const { writings } = useWritings();
+  const { kinds } = useKinds();
+  const articleKind = kinds.find((k) => k.slug === "articles");
   const article = articles.find((a) => a.id === id);
   const notes = notesForSource(writings, article ? [article.id] : []);
   const keywords = splitLines(article?.keywords);
@@ -83,7 +122,7 @@ export function ArticleDetailView({ recordId }: { recordId: string }) {
         <RecordGate loading={isLoading} error={error} missing={!article && "找不到這篇文章"}>
           {article && (
             <div className="flex flex-col gap-8">
-              <DetailHeader facts={<ArticleFacts article={article} />}>
+              <DetailHeader facts={<ArticleFacts article={article} kind={articleKind} />}>
                 <div className="flex min-w-0 flex-1 flex-col gap-2.5">
                   <DetailTitle title={article.title} subtitle={article.author} />
                   <div className="flex flex-wrap items-center gap-1.5">
