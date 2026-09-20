@@ -1,3 +1,10 @@
 # 只跑 lint + format + types（約 16 秒）。測試在 CI 上跑——
 # 三分鐘的 pre-push 會讓人養成 --no-verify 的習慣，那比沒有 hook 更糟
 npm run check:fast
+
+# schema 沒跟上就別推。0016 推上去之後全站 502（查詢讀一個不存在的欄位），
+# 0017 推上去之後新增整個失效——兩次都是使用者先撞到才發現。
+#
+# db:check:prod 自己讀 .env.prod，不用先 source——要擋的是「正式機會不會壞」
+# 檔案不在就跳過，別人 clone 下來不該因為沒有正式庫憑證而推不了
+npm run db:check:prod
