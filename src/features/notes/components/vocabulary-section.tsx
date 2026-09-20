@@ -6,6 +6,7 @@ import { GroupTable } from "@/components/ui/group-table/group-table";
 import { OverviewLayout } from "@/components/ui/overview-layout/overview-layout";
 import { OverviewTotalStats } from "@/components/ui/overview-layout/overview-rail-stats";
 import { vocabularyHref } from "@/config/routes";
+import { useKinds } from "@/hooks/use-kinds";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { Book } from "@/types/book";
@@ -41,7 +42,11 @@ export function VocabularySection({
   view?: "overview" | "table";
 }) {
   const { vocabulary, isLoading, mutate } = useRecords();
+  const { kinds } = useKinds();
   const { searchParams } = useUrlParams();
+  // 出處與書封都看同一個開關：類型自己說要不要沿用出處的東西，不在畫面層寫死。
+  // 單字預設不繼承——一個詞不屬於任何一本書，掛書名跟掛書封是同一種誤導
+  const inheritsCover = kinds.find((kind) => kind.slug === "vocabulary")?.inheritsCover ?? false;
   const entries = filterVocabularyByLanguage(
     getVocabularyEntries(vocabulary, books),
     searchParams.get("lang") ?? "",
@@ -79,8 +84,8 @@ export function VocabularySection({
             label={translation}
             detail={pronunciation}
             body={latest.example}
-            meta={[latest.bookTitle, latest.chapter].filter(Boolean).join("・")}
-            coverUrl={latest.bookCover}
+            meta={inheritsCover ? [latest.bookTitle, latest.chapter].filter(Boolean).join("・") : ""}
+            coverUrl={inheritsCover ? latest.bookCover : undefined}
           />
         );
       }}
