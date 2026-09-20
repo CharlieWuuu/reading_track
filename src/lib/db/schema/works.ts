@@ -1,4 +1,13 @@
-import { boolean, date, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  date,
+  doublePrecision,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { kinds } from "./kinds";
 import { attributes, recordTopics } from "./taxonomy";
 import { users } from "./users";
@@ -49,6 +58,18 @@ export const works = pgTable("domain_works", {
   externalId: text("external_id").notNull().default(""),
   coverUrl: text("cover_url").notNull().default(""),
   amount: integer("amount"), // 頁數／分鐘／集數，單位跟著類型查
+  // 三個 group 同一組欄位（0019）。掛在作品不掛紀錄：這個詞怎麼唸、出自哪一頁，
+  // 是作品本身的屬性，不是「這一次讀」的屬性
+  translation: text("translation").notNull().default(""),
+  locator: text("locator").notNull().default(""),
+  pronunciation: text("pronunciation").notNull().default(""),
+  example: text("example").notNull().default(""),
+  exampleTranslation: text("example_translation").notNull().default(""),
+  tags: text("tags").notNull().default(""),
+  startYear: integer("start_year"),
+  endYear: integer("end_year"),
+  latitude: doublePrecision("latitude"),
+  longitude: doublePrecision("longitude"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

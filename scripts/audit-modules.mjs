@@ -13,7 +13,6 @@
  *   node scripts/audit-modules.mjs          比對 .env.local（測試庫）
  *   node scripts/audit-modules.mjs prod     比對 .env.prod（正式庫）
  */
-
 import { existsSync, readFileSync } from "node:fs";
 import postgres from "postgres";
 
@@ -39,7 +38,7 @@ if (!env?.DIRECT_URL) {
 const src = readFileSync("src/config/modules.ts", "utf8");
 const modules = [];
 const re = /\{\s*key:\s*"(\w+)"[^}]*?label:\s*"([^"]+)"[^}]*?fields:\s*\[([^\]]*)\]/gs;
-for (let m; (m = re.exec(src)); ) {
+for (let m; (m = re.exec(src));) {
   modules.push({
     key: m[1],
     label: m[2],

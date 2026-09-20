@@ -4,7 +4,7 @@ import { fragments } from "@/lib/db/schema/fragments";
 import { assertKindGroup } from "./assert-group";
 import { allowedFields, FieldValues, pick } from "./catalog";
 import { setFragmentSourceUrl } from "./external-links";
-import { toDate, toFloat, toYear } from "./values";
+import { insertValues, updateValues } from "./module-values";
 
 /**
  * 片段照模組寫入。書寫早就獨立成 domain_writings，不在這裡。
@@ -28,18 +28,7 @@ export async function addFragment(
       .values({
         userId,
         kindId,
-        // 片段的標題欄叫 name，模組那層一律用 title
-        title: pick(values, allowed, "title"),
-        body: pick(values, allowed, "body"),
-        locator: pick(values, allowed, "locator"),
-        translation: pick(values, allowed, "translation"),
-        example: pick(values, allowed, "example"),
-        exampleTranslation: pick(values, allowed, "exampleTranslation"),
-        tags: pick(values, allowed, "tags"),
-        startYear: toYear(pick(values, allowed, "startYear")),
-        endYear: toYear(pick(values, allowed, "endYear")),
-        latitude: toFloat(pick(values, allowed, "latitude")),
-        longitude: toFloat(pick(values, allowed, "longitude")),
+        ...insertValues(values, allowed),
       })
       .returning({ id: fragments.id });
 
@@ -63,19 +52,7 @@ export async function updateFragment(
   const allowed = await allowedFields(userId, target.kindId);
   const has = (key: string) => allowed.has(key) && values[key] !== undefined;
 
-  const patch: Record<string, unknown> = {};
-  if (has("title")) patch.title = values.title;
-  if (has("body")) patch.body = values.body;
-  if (has("locator")) patch.locator = values.locator;
-  if (has("translation")) patch.translation = values.translation;
-  if (has("example")) patch.example = values.example;
-  if (has("exampleTranslation")) patch.exampleTranslation = values.exampleTranslation;
-  if (has("tags")) patch.tags = values.tags;
-  if (has("startYear")) patch.startYear = toYear(values.startYear);
-  if (has("endYear")) patch.endYear = toYear(values.endYear);
-  if (has("latitude")) patch.latitude = toFloat(values.latitude);
-  if (has("longitude")) patch.longitude = toFloat(values.longitude);
-  if (has("endDate")) patch.date = toDate(values.endDate);
+  const patch = updateValues(values, allowed);
 
   await db.transaction(async (tx) => {
     if (Object.keys(patch).length)
