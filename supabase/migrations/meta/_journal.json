@@ -127,6 +127,13 @@
       "when": 1789489000000,
       "tag": "0017_own_kinds",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1789891158129,
+      "tag": "0018_group_table_guard",
+      "breakpoints": true
     }
   ]
 }

@@ -3,6 +3,7 @@ import { fieldsOfModules } from "@/config/modules";
 import { db } from "@/lib/db/client";
 import { mapKindField } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
+import { assertKindGroup } from "./assert-group";
 import { setRecordSourceUrl } from "./external-links";
 import { attributeIdFor, typeIdFor } from "./taxonomy";
 import { toDate, toInt } from "./values";
@@ -42,6 +43,7 @@ export async function addRecord(
   kindId: string,
   values: FieldValues,
 ): Promise<{ id: string; linkId: string }> {
+  await assertKindGroup(kindId, "records");
   const allowed = await allowedFields(userId, kindId);
 
   return db.transaction(async (tx) => {

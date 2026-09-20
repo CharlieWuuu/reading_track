@@ -7,6 +7,7 @@ import { writings } from "@/lib/db/schema/writings";
 import { splitLines } from "@/types/book";
 import { Writing } from "@/types/writing";
 import { linkedIdsOf } from "../queries/internal-links";
+import { assertKindGroup } from "./assert-group";
 import { setWritingSourceUrl } from "./external-links";
 import { setKeywordLinks } from "./fragments";
 import { link, unlink, unlinkAll } from "./internal-links";
@@ -103,6 +104,7 @@ export async function addWritingFromValues(
   kindId: string,
   values: Record<string, string>,
 ): Promise<string> {
+  await assertKindGroup(kindId, "writings");
   // id 自己產：這張表的欄位沒有 default，靠資料庫給會撞 not-null（舊的 addWritingRow 也是自己帶）
   const id = randomUUID();
   const [row] = await db

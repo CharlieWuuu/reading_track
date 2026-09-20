@@ -1,23 +1,25 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { fragments } from "@/lib/db/schema/fragments";
+import { assertKindGroup } from "./assert-group";
 import { allowedFields, FieldValues, pick } from "./catalog";
 import { setFragmentSourceUrl } from "./external-links";
 import { toDate, toFloat, toYear } from "./values";
 
 /**
- * 片段與書寫照模組寫入。兩者同一張表，差別只在類型屬於哪個 group。
+ * 片段照模組寫入。書寫早就獨立成 domain_writings，不在這裡。
  *
  * 欄位名跟紀錄那邊不一樣（標題叫 name、連結走 external_links），換算只在這一層做——
  * 模組那層一律用 title、externalUrl。
  */
 
-/** 新增一則片段或書寫。兩者同一張表，差別只在類型屬於哪個 group */
+/** 新增一則片段。書寫早就獨立成 domain_writings，走 addWritingFromValues */
 export async function addFragment(
   userId: string,
   kindId: string,
   values: FieldValues,
 ): Promise<string> {
+  await assertKindGroup(kindId, "fragments");
   const allowed = await allowedFields(userId, kindId);
 
   return db.transaction(async (tx) => {
