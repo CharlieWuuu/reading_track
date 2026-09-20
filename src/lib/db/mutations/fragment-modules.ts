@@ -4,7 +4,7 @@ import { fragments } from "@/lib/db/schema/fragments";
 import { assertKindGroup } from "./assert-group";
 import { allowedFields, FieldValues, pick } from "./catalog";
 import { setFragmentSourceUrl } from "./external-links";
-import { insertValues, updateValues } from "./module-values";
+import { insertValues, taxonomyValues, updateValues } from "./module-values";
 
 /**
  * 片段照模組寫入。書寫早就獨立成 domain_writings，不在這裡。
@@ -29,6 +29,7 @@ export async function addFragment(
         userId,
         kindId,
         ...insertValues(values, allowed),
+        ...(await taxonomyValues(tx, userId, values, allowed)),
       })
       .returning({ id: fragments.id });
 
@@ -52,9 +53,11 @@ export async function updateFragment(
   const allowed = await allowedFields(userId, target.kindId);
   const has = (key: string) => allowed.has(key) && values[key] !== undefined;
 
-  const patch = updateValues(values, allowed);
-
   await db.transaction(async (tx) => {
+    const patch = {
+      ...updateValues(values, allowed),
+      ...(await taxonomyValues(tx, userId, values, allowed, true)),
+    };
     if (Object.keys(patch).length)
       await tx
         .update(fragments)

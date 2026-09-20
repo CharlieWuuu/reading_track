@@ -237,13 +237,32 @@ export type FragmentRow = {
   longitude: number | null;
   startYear: number | null;
   endYear: number | null;
+  /** 領域是父節點、次領域是子節點，沒填就是空字串——跟紀錄那邊同一套 */
+  domain: string;
+  subDomain: string;
+  attribute: string;
 };
 
-type FragmentJoin = { fragment: typeof fragments.$inferSelect; kind: typeof kinds.$inferSelect };
+/** 片段的領域可能指到父或子節點，父那層要另外 alias 一次（同紀錄那邊的 parent_topic） */
+const fragmentTopic = alias(recordTopics, "fragment_topic");
+const fragmentParentTopic = alias(recordTopics, "fragment_parent_topic");
+const fragmentAttribute = alias(attributes, "fragment_attribute");
+
+type FragmentJoin = {
+  fragment: typeof fragments.$inferSelect;
+  kind: typeof kinds.$inferSelect;
+  topicName?: string | null;
+  topicParentId?: string | null;
+  parentName?: string | null;
+  attributeName?: string | null;
+};
 type WorkOfFragment = { id: string; title: string; coverUrl: string } | undefined;
 
 /** 兩支查詢（整個 group、單一類型）攤平的形狀一樣，轉換抽在這裡，改欄位只改一處 */
-function toFragmentRow({ fragment, kind }: FragmentJoin, work: WorkOfFragment): FragmentRow {
+function toFragmentRow(
+  { fragment, kind, topicName, topicParentId, parentName, attributeName }: FragmentJoin,
+  work: WorkOfFragment,
+): FragmentRow {
   return {
     id: fragment.id,
     kindId: kind.id,
@@ -269,6 +288,10 @@ function toFragmentRow({ fragment, kind }: FragmentJoin, work: WorkOfFragment): 
     longitude: fragment.longitude,
     startYear: fragment.startYear,
     endYear: fragment.endYear,
+    // topic_id 指到的可能是父也可能是子：有父就是「領域／次領域」兩層，沒有就只有領域
+    domain: (topicParentId ? parentName : topicName) ?? "",
+    subDomain: topicParentId ? (topicName ?? "") : "",
+    attribute: attributeName ?? "",
   };
 }
 
@@ -279,9 +302,19 @@ function toFragmentRow({ fragment, kind }: FragmentJoin, work: WorkOfFragment): 
  */
 async function listFragmentsOnly(userId: string, group: KindGroup): Promise<FragmentRow[]> {
   const rows = await db
-    .select({ fragment: fragments, kind: kinds })
+    .select({
+      fragment: fragments,
+      kind: kinds,
+      topicName: fragmentTopic.name,
+      topicParentId: fragmentTopic.parentId,
+      parentName: fragmentParentTopic.name,
+      attributeName: fragmentAttribute.name,
+    })
     .from(fragments)
     .innerJoin(kinds, eq(kinds.id, fragments.kindId))
+    .leftJoin(fragmentTopic, eq(fragmentTopic.id, fragments.topicId))
+    .leftJoin(fragmentParentTopic, eq(fragmentParentTopic.id, fragmentTopic.parentId))
+    .leftJoin(fragmentAttribute, eq(fragmentAttribute.id, fragments.attributeId))
     .where(and(eq(fragments.userId, userId), eq(kinds.groupKey, group)))
     .orderBy(desc(fragments.createdAt));
 
@@ -296,9 +329,19 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
 /** 某一種片段類型底下的全部。自訂類型的清單頁走這條——紀錄那個 group 走 listRecordsByKind */
 export async function listFragmentsByKind(userId: string, kindId: string): Promise<FragmentRow[]> {
   const rows = await db
-    .select({ fragment: fragments, kind: kinds })
+    .select({
+      fragment: fragments,
+      kind: kinds,
+      topicName: fragmentTopic.name,
+      topicParentId: fragmentTopic.parentId,
+      parentName: fragmentParentTopic.name,
+      attributeName: fragmentAttribute.name,
+    })
     .from(fragments)
     .innerJoin(kinds, eq(kinds.id, fragments.kindId))
+    .leftJoin(fragmentTopic, eq(fragmentTopic.id, fragments.topicId))
+    .leftJoin(fragmentParentTopic, eq(fragmentParentTopic.id, fragmentTopic.parentId))
+    .leftJoin(fragmentAttribute, eq(fragmentAttribute.id, fragments.attributeId))
     .where(and(eq(fragments.userId, userId), eq(fragments.kindId, kindId)))
     .orderBy(desc(fragments.createdAt));
 
@@ -347,6 +390,10 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       longitude: null,
       startYear: null,
       endYear: null,
+      // 書寫走 listWritings 那條舊路，還沒帶出分類——欄位在（0020），讀還沒接上
+      domain: "",
+      subDomain: "",
+      attribute: "",
     }))
     .sort(byDateThenNewest((row) => row.date));
 }

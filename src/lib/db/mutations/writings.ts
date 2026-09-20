@@ -12,7 +12,7 @@ import { allowedFields } from "./catalog";
 import { setWritingSourceUrl } from "./external-links";
 import { setKeywordLinks } from "./fragments";
 import { link, unlink, unlinkAll } from "./internal-links";
-import { insertValues } from "./module-values";
+import { insertValues, taxonomyValues } from "./module-values";
 import { toDate } from "./values";
 
 /**
@@ -110,11 +110,19 @@ export async function addWritingFromValues(
   // id 自己產：這張表的欄位沒有 default，靠資料庫給會撞 not-null（舊的 addWritingRow 也是自己帶）
   const id = randomUUID();
   const allowed = await allowedFields(userId, kindId);
-  const [row] = await db
-    .insert(writings)
-    .values({ id, userId, kindId, ...insertValues(values, allowed) })
-    .returning({ id: writings.id });
-  return row.id;
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .insert(writings)
+      .values({
+        id,
+        userId,
+        kindId,
+        ...insertValues(values, allowed),
+        ...(await taxonomyValues(tx, userId, values, allowed)),
+      })
+      .returning({ id: writings.id });
+    return row.id;
+  });
 }
 
 export async function addWritingRows(userId: string, rows: Writing[]): Promise<void> {

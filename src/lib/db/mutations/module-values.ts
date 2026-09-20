@@ -1,4 +1,6 @@
+import { type Tx } from "@/lib/db/client";
 import { FieldValues, pick } from "./catalog";
+import { attributeIdFor, typeIdFor } from "./taxonomy";
 import { toDate, toFloat, toInt, toYear } from "./values";
 
 /**
@@ -67,5 +69,32 @@ export function updateValues(values: FieldValues, allowed: Set<string>): Record<
     if (has(key)) out[key] = convert(values[key] ?? "");
   }
   if (has("isPrivate")) out.isPrivate = values.isPrivate === "是";
+  return out;
+}
+
+/**
+ * 領域與屬性存的是別張表的編號，畫面上送來的是名字，所以要在交易裡換一次
+ * （沒有的順手建，跟這次寫入同生共死）。
+ *
+ * 跟其他欄位分開是因為它要 tx 與 userId——純轉換做不到。三個 group 共用同一份：
+ * 一則心得屬於哪個領域，跟一本書屬於哪個領域是同一個問題。
+ */
+export async function taxonomyValues(
+  tx: Tx,
+  userId: string,
+  values: FieldValues,
+  allowed: Set<string>,
+  /** 編輯時只動這次送來的；新增時一律寫，沒勾就是空 */
+  onlyProvided = false,
+): Promise<Record<string, unknown>> {
+  const wants = (key: string) => allowed.has(key) && (!onlyProvided || values[key] !== undefined);
+
+  const out: Record<string, unknown> = {};
+  if (wants("domain") || wants("subDomain")) {
+    out.topicId = await typeIdFor(tx, userId, values.domain ?? "", values.subDomain ?? "");
+  }
+  if (wants("attribute")) {
+    out.attributeId = await attributeIdFor(tx, userId, values.attribute ?? "");
+  }
   return out;
 }

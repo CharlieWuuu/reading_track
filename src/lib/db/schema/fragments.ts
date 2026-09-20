@@ -9,6 +9,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { kinds } from "./kinds";
+import { attributes, recordTopics } from "./taxonomy";
 import { users } from "./users";
 
 /**
@@ -62,5 +63,9 @@ export const fragments = pgTable("domain_fragments", {
   language: text("language").notNull().default(""),
   externalId: text("external_id").notNull().default(""),
   platform: text("platform").notNull().default(""),
+  // 領域與屬性指向各自帳號的分類樹（0020）。三個 group 都用得到——
+  // 一則心得屬於哪個領域，跟一本書屬於哪個領域是同一個問題
+  topicId: uuid("topic_id").references(() => recordTopics.id, { onDelete: "set null" }),
+  attributeId: uuid("attribute_id").references(() => attributes.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
