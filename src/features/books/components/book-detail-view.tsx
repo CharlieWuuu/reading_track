@@ -18,12 +18,15 @@ import { bookEditHref, quotesListHref, vocabularyListHref } from "@/config/route
 import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { VocabularyItem } from "@/features/notes/components/record-items";
 import { useBooks } from "@/hooks/use-books";
+import { useKinds } from "@/hooks/use-kinds";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { useWritings } from "@/hooks/use-writings";
+import { Kind } from "@/lib/db/queries/kinds";
 import { Book, formatCount, splitLines } from "@/types/book";
 import { QuoteRow, VocabularyRow } from "@/types/record";
 import { sameBook } from "@/utils/book-reads";
+import { detailFields } from "@/utils/detail-fields";
 import { notesByKind, notesForSource } from "@/utils/related-notes";
 
 /** 一次讀完就知道的四個數字：書裡留下了多少東西，緊接在量化資訊行下面 */
@@ -56,22 +59,25 @@ function CountStats({
   );
 }
 
-/** 右欄的固定資料卡：狀態、開始、讀完、語言、來源、私人 */
-function BookFacts({ book }: { book: Book }) {
+/**
+ * 右欄的資料卡。狀態與來源自己畫（一個是推論出來的徽章、一個要開新分頁），
+ * 其餘照類型勾的模組列——本來六格全寫死，設定頁改了這裡不會變。
+ */
+function BookFacts({ book, kind }: { book: Book; kind?: Kind }) {
+  const { shorts } = kind
+    ? detailFields(kind, bookValues(book), SKIP_IN_FACTS)
+    : { shorts: [] as ReturnType<typeof detailFields>["shorts"] };
+
   return (
     <>
       <DetailField label="狀態" align="right">
         <StatusBadge status={book.status} />
       </DetailField>
-      <DetailField label="開始" align="right">
-        {book.startDate}
-      </DetailField>
-      <DetailField label="讀完" align="right">
-        {book.endDate}
-      </DetailField>
-      <DetailField label="語言" align="right">
-        {book.language}
-      </DetailField>
+      {shorts.map((field) => (
+        <DetailField key={field.key} label={field.label} align="right">
+          {field.value}
+        </DetailField>
+      ))}
       <DetailField label="來源" align="right">
         {book.sourceUrl && (
           <a
@@ -86,11 +92,41 @@ function BookFacts({ book }: { book: Book }) {
           </a>
         )}
       </DetailField>
-      <DetailField label="私人" align="right">
-        {book.private === PRIVATE_MARK ? "是" : "否"}
-      </DetailField>
     </>
   );
+}
+
+/** 標題那一區與量化資訊行已經講過的，右欄不重複列 */
+const SKIP_IN_FACTS = new Set([
+  "title",
+  "creator",
+  "coverUrl",
+  "body",
+  "domain",
+  "subDomain",
+  "amount",
+  "platform",
+  "externalUrl",
+]);
+
+/** Book 的舊形狀攤成模組那層的欄位名，才接得上照模組畫的那套 */
+function bookValues(book: Book): Record<string, string> {
+  return {
+    title: book.title,
+    creator: book.author,
+    coverUrl: book.coverUrl,
+    startDate: book.startDate ?? "",
+    endDate: book.endDate ?? "",
+    language: book.language,
+    platform: book.platform,
+    externalId: book.isbn,
+    amount: book.pageCount,
+    domain: book.domain,
+    subDomain: book.subDomain,
+    attribute: book.type,
+    body: book.note,
+    isPrivate: book.private === PRIVATE_MARK ? "是" : "否",
+  };
 }
 
 /** 右欄的佳句清單：只列前幾則，其餘去列表頁看 */
@@ -140,6 +176,8 @@ export function BookDetailView({ recordId }: { recordId: string }) {
   const { books, isLoading, error } = useBooks();
   const { quotes, vocabulary } = useRecords();
   const { writings } = useWritings();
+  const { kinds } = useKinds();
+  const bookKind = kinds.find((k) => k.slug === "books");
   // 從書單帶進來的檢視方式與頁碼，一路傳給編輯頁，存完才回得到同一個畫面
   const { searchParams } = useUrlParams();
   const back = searchParams.get("back");
@@ -200,7 +238,7 @@ export function BookDetailView({ recordId }: { recordId: string }) {
       <PageBody>
         <article className="flex w-full flex-col gap-8">
           {/* 書名頁：封面＋書名／作者／量化資訊／統計數字在左，固定資料卡在右 */}
-          <DetailHeader facts={<BookFacts book={book} />}>
+          <DetailHeader facts={<BookFacts book={book} kind={bookKind} />}>
             <BookCover
               url={book.coverUrl}
               title={book.title}

@@ -2,7 +2,7 @@
 
 import { DetailField, DetailFields } from "@/components/ui/detail";
 import { Kind } from "@/lib/db/queries/kinds";
-import { fieldsOf, FormModule, resolveFormModules } from "@/utils/record-form";
+import { detailFields } from "@/utils/detail-fields";
 
 /**
  * 照類型勾的模組畫出來的詳情頁。ModuleForm 的唯讀版。
@@ -22,28 +22,8 @@ const styles = {
   fields: "pt-6",
 };
 
-/** 長文自己一段，不擠進兩欄的資訊表——一段文章塞進半個欄寬讀不下去 */
-const LONG_KEYS = new Set(["body"]);
-
-/** 這幾欄在標題那一區已經講過了，資訊表不重複列 */
-const IN_HEAD = new Set(["title", "endDate"]);
-
 export function ModuleDetail({ kind, values }: { kind: Kind; values: Record<string, string> }) {
-  const modules = resolveFormModules(kind.modules);
-  const labelOf = (form: FormModule, index: number, fallback: string) =>
-    index === 0 ? form.label : fallback;
-
-  const longs: { key: string; label: string; value: string }[] = [];
-  const shorts: { key: string; label: string; value: string }[] = [];
-
-  for (const form of modules) {
-    fieldsOf([form]).forEach((field, index) => {
-      const value = values[field.key] ?? "";
-      if (!value || IN_HEAD.has(field.key)) return;
-      const entry = { key: field.key, label: labelOf(form, index, field.defaultLabel), value };
-      (LONG_KEYS.has(field.key) ? longs : shorts).push(entry);
-    });
-  }
+  const { longs, shorts } = detailFields(kind, values);
 
   const tag = [kind.name, values.endDate].filter(Boolean).join(" · ");
 
