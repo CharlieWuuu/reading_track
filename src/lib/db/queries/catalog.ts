@@ -1,5 +1,6 @@
 import { and, asc, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
+import { PRIVATE_MARK } from "@/config/privacy";
 import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
 import { fragments } from "@/lib/db/schema/fragments";
@@ -515,6 +516,8 @@ export async function getWritingValues(
     .where(and(eq(writings.userId, userId), eq(writings.id, id)));
   if (!row) return null;
 
+  const topic = await topicNamesOf(userId, row.topicId);
+
   return {
     kindId: row.kindId,
     // 片段與書寫沒有作品層，關聯就掛自己身上
@@ -523,6 +526,28 @@ export async function getWritingValues(
       title: row.title,
       body: row.body,
       endDate: row.endDate ?? "",
+      // 0019／0020 之後三個 group 同一組欄位，這裡要全部帶回去——
+      // 漏一欄的症狀是「設定頁勾了、表單畫得出來、但打開永遠是空的」
+      locator: row.locator,
+      translation: row.translation,
+      example: row.example,
+      exampleTranslation: row.exampleTranslation,
+      tags: row.tags,
+      creator: row.creator,
+      coverUrl: row.coverUrl,
+      language: row.language,
+      platform: row.platform,
+      externalId: row.externalId,
+      startDate: row.startDate ?? "",
+      isPrivate: row.isPrivate ? PRIVATE_MARK : "",
+      amount: row.amount?.toString() ?? "",
+      startYear: row.startYear?.toString() ?? "",
+      endYear: row.endYear?.toString() ?? "",
+      latitude: row.latitude?.toString() ?? "",
+      longitude: row.longitude?.toString() ?? "",
+      domain: topic.domain,
+      subDomain: topic.subDomain,
+      attribute: await attributeNameOf(userId, row.attributeId),
     },
   };
 }
@@ -537,6 +562,8 @@ export async function getFragmentValues(
     .where(and(eq(fragments.userId, userId), eq(fragments.id, id)));
   if (!row) return null;
 
+  const topic = await topicNamesOf(userId, row.topicId);
+
   return {
     kindId: row.kindId,
     // 片段與書寫沒有作品層，關聯就掛自己身上
@@ -549,11 +576,23 @@ export async function getFragmentValues(
       example: row.example,
       exampleTranslation: row.exampleTranslation,
       tags: row.tags,
+      creator: row.creator,
+      coverUrl: row.coverUrl,
+      language: row.language,
+      platform: row.platform,
+      externalId: row.externalId,
+      startDate: row.startDate ?? "",
+      endDate: row.endDate ?? "",
+      isPrivate: row.isPrivate ? PRIVATE_MARK : "",
       // 數字欄回字串：表單的 input 一律吃字串，null 就是空的那一格
+      amount: row.amount?.toString() ?? "",
       startYear: row.startYear?.toString() ?? "",
       endYear: row.endYear?.toString() ?? "",
       latitude: row.latitude?.toString() ?? "",
       longitude: row.longitude?.toString() ?? "",
+      domain: topic.domain,
+      subDomain: topic.subDomain,
+      attribute: await attributeNameOf(userId, row.attributeId),
       externalUrl: await sourceUrlOfFragment(userId, id),
     },
   };
