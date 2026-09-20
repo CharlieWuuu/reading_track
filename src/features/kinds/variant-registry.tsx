@@ -1,8 +1,6 @@
 import { ComponentType } from "react";
 import { ArticleDetailView } from "@/features/articles/components/article-detail-view";
 import { BookDetailView } from "@/features/books/components/book-detail-view";
-import { KeywordDetailView } from "@/features/keywords/components/keyword-detail-view";
-import { KeywordEditView } from "@/features/keywords/components/keyword-edit-view";
 import { WritingDetailView } from "@/features/writing/components/writing-detail-view";
 import { Kind } from "@/lib/db/queries/kinds";
 
@@ -12,12 +10,12 @@ import { Kind } from "@/lib/db/queries/kinds";
  * 沒有列在這裡的（含所有自訂類型）用通用表單——勾了哪些模組就畫哪幾格，
  * 設定頁說了算。
  *
- * 佳句與單字本來在這裡，那幾支是手寫的 JSX：七格寫死的輸入框，
+ * 佳句、單字、關鍵字本來在這裡，那幾支是手寫的 JSX：七格寫死的輸入框，
  * 完全不讀 setting_map_kind_field。使用者在設定頁改模組，那三頁一格都不會變，
  * 「內部連結」「私人」這種每個類型都有的也畫不出來。拆掉了。
  *
- * 當初的理由是「單字的 recordId 是詞不是編號」，但資料早就一列一筆、
- * 各有自己的 id，同一個詞也沒有重複列——那個理由已經不成立。
+ * 當初的理由是「recordId 是詞不是編號，通用頁查不到」。現在通用頁兩種都接得住
+ * （見 useRecordId）：是編號就直接用，是名字就去那個類型裡找同名的第一筆。
  */
 export type KindVariant = {
   /** 詳情只收網址上那一段：專屬元件自己撈資料，書寫那條路根本沒有對應的 kind */
@@ -31,9 +29,6 @@ const REGISTRY: Record<string, KindVariant> = {
   books: { detail: BookDetailView },
   articles: { detail: ArticleDetailView },
   writing: { detail: WritingDetailView },
-  // 關鍵字還沒拆：它的主檔（KeywordInfo）以名字當身分，沒有 id，網址也用詞。
-  // 要通用化得先讓那條資料路帶出 id，跟單字不是同一個規模
-  keywords: { detail: KeywordDetailView, edit: KeywordEditView },
 };
 
 export const variantFor = (slug: string): KindVariant => REGISTRY[slug] ?? {};

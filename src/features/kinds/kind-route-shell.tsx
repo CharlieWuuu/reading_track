@@ -30,6 +30,7 @@ import { useBookView } from "@/hooks/use-book-view";
 import { useCatalogRecord } from "@/hooks/use-catalog-record";
 import { useKindRecords } from "@/hooks/use-kind-records";
 import { useKinds } from "@/hooks/use-kinds";
+import { useRecordId } from "@/hooks/use-record-id";
 import { Kind } from "@/lib/db/queries/kinds";
 import { fragmentCard, fragmentHref, fragmentItem, recordItem } from "@/utils/overview-items";
 
@@ -220,8 +221,10 @@ function GenericRecordPage({
   kindLoading,
   groupLabel,
 }: GenericPageProps) {
-  const { record, isLoading: recordLoading, error } = useCatalogRecord(recordId);
-  const isLoading = kindLoading || recordLoading;
+  // 網址那一段可能是編號，也可能是名字（關鍵字的連結一直用詞）——都接得住
+  const { id, isLoading: idLoading } = useRecordId(kind?.id ?? "", recordId);
+  const { record, isLoading: recordLoading, error } = useCatalogRecord(id);
+  const isLoading = kindLoading || idLoading || recordLoading;
 
   return (
     <>
@@ -239,7 +242,9 @@ function GenericRecordPage({
         backHref={kindHref(group, slug)}
         action={
           kind && (
-            <ActionButton href={`${kindHref(group, slug)}/${recordId}/edit`}>編輯</ActionButton>
+            <ActionButton href={`${kindHref(group, slug)}/${id || recordId}/edit`}>
+              編輯
+            </ActionButton>
           )
         }
       />
@@ -272,9 +277,11 @@ export function KindEditPage({ group, slug, recordId }: RecordRouteProps) {
 /** 沒有專屬編輯頁的類型：照模組畫，頁首與外框由這裡給 */
 function GenericEditPage({ group, slug, recordId }: RecordRouteProps) {
   const { kind, isLoading: kindLoading } = useKindBySlug(group, slug);
-  const { record, isLoading: recordLoading, error } = useCatalogRecord(recordId);
+  // 跟詳情頁同一套：網址那一段可能是編號也可能是名字
+  const { id, isLoading: idLoading } = useRecordId(kind?.id ?? "", recordId);
+  const { record, isLoading: recordLoading, error } = useCatalogRecord(id);
   const Form = kind ? variantFor(kind.slug).form : undefined;
-  const isLoading = kindLoading || recordLoading;
+  const isLoading = kindLoading || idLoading || recordLoading;
   const groupLabel = NAV_GROUPS.find((g) => g.kindGroup === group)?.label;
   const back = `${kindHref(group, slug)}/${recordId}`;
 
@@ -298,14 +305,9 @@ function GenericEditPage({ group, slug, recordId }: RecordRouteProps) {
         ) : isLoading || !kind || !record ? (
           <PageLoading />
         ) : Form ? (
-          <Form kind={kind} recordId={recordId} initial={record.values} />
+          <Form kind={kind} recordId={id} initial={record.values} />
         ) : (
-          <ModuleForm
-            kind={kind}
-            recordId={recordId}
-            linkId={record.linkId}
-            initial={record.values}
-          />
+          <ModuleForm kind={kind} recordId={id} linkId={record.linkId} initial={record.values} />
         )}
       </PageBody>
     </>
