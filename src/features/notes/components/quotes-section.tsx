@@ -10,6 +10,7 @@ import { Quote } from "@/components/ui/quote";
 import { RecordCard } from "@/components/ui/record-card/record-card";
 import { quoteHref } from "@/config/routes";
 import { useQuotesOverview } from "@/hooks/use-fragments-overview";
+import { useKinds } from "@/hooks/use-kinds";
 import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
 import { Book } from "@/types/book";
@@ -46,6 +47,9 @@ function QuotesGrid({
   isLoadingMore?: boolean;
 }) {
   const router = useRouter();
+  const { kinds } = useKinds();
+  // 出處的書封要不要沿用由類型自己說（0016 就是為了拿掉寫死的 slug 判斷）
+  const inheritsCover = kinds.find((kind) => kind.slug === "quotes")?.inheritsCover ?? false;
   const items = records.map(toItem);
   const headline = pickHeadline(items);
 
@@ -65,7 +69,9 @@ function QuotesGrid({
           <RecordCard
             title={record.bookTitle}
             showTitle={false}
-            coverUrl={record.bookCover}
+            // 出處的書封要不要沿用由類型自己說，不在畫面層寫死——
+            // 佳句預設是 true，但那是設定不是定律，關掉了就不該還出現
+            coverUrl={inheritsCover ? record.bookCover : ""}
             onClick={() => router.push(quoteHref(record.id))}
           >
             <Quote text={record.text} source={record.chapter} note={record.note} />
