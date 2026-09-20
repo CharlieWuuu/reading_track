@@ -13,9 +13,20 @@ async function fetcher(url: string): Promise<{ fragments: FragmentRow[] }> {
   return data;
 }
 
+/**
+ * 這個 group 底下的片段。
+ *
+ * 紀錄那個 group 不查：它的資料在 domain_works/records，那支 API 只服務
+ * fragments 與 writings，帶 records 進去一律回 400「沒有這個 group」。
+ * 概覽頁三個 group 共用同一支元件，所以這裡要自己擋——每次進紀錄頁
+ * 都發一個注定失敗的請求，console 一直紅，真的壞掉時反而看不出來。
+ */
 export function useGroupFragments(group: KindGroup) {
   const unlock = usePrivacyStore((s) => s.token);
-  const key = `/api/groups/${group}/fragments${unlock ? `?unlock=${unlock}` : ""}`;
+  const key =
+    group === "records"
+      ? null
+      : `/api/groups/${group}/fragments${unlock ? `?unlock=${unlock}` : ""}`;
   const { data, error, isLoading, mutate } = useSWR(key, fetcher);
 
   return {
