@@ -8,3 +8,8 @@ npm run check:fast
 # db:check:prod 自己讀 .env.prod，不用先 source——要擋的是「正式機會不會壞」
 # 檔案不在就跳過，別人 clone 下來不該因為沒有正式庫憑證而推不了
 npm run db:check:prod
+
+# schema 改了卻沒有對應的 migration，推上去資料庫就跟程式碼對不上。
+# db:generate 是唯一還要人記得的一步（CI 產不出來、也沒地方 commit），
+# 所以這裡提醒——「人要記得」就是這些事故的共同根因
+npm run db:drift

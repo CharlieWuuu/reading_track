@@ -16,6 +16,7 @@
     "db:check": "node scripts/db.mjs check test",
     "db:check:prod": "node scripts/db.mjs check prod",
     "db:migrate:ci": "node scripts/db-ci.mjs",
+    "db:drift": "node scripts/db-drift.mjs",
     "format:check": "prettier --check .",
     "check:types": "tsc --noEmit",
     "check:all": "npm run lint && npm run format:check && npm run check:types && npm run test",
