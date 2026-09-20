@@ -197,10 +197,17 @@ export function TypeBuilder({
       className={styles.frame}
     >
       <div className={`${styles.main} max-w-2xl`}>
-        <Section step="01" label="叫什麼">
-          <div className="flex flex-col gap-3 sm:max-w-sm">
-            <Field label="名稱" value={name} onChange={setName} />
-            <Field label="網址" value={slug} onChange={setSlug} />
+        <Section step="01" label="名稱">
+          {/* 名稱與網址是同一件事的兩種寫法，並排看得到彼此。
+              欄名收進 placeholder：Field 預設標籤與輸入框橫排，兩格並排就變四欄，
+              每格只剩三十幾 px，「關鍵字」三個字都放不下 */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+            <div className="min-w-0 flex-1">
+              <Field label="名稱" hideLabel value={name} onChange={setName} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <Field label="網址" hideLabel value={slug} onChange={setSlug} />
+            </div>
           </div>
         </Section>
 
@@ -251,7 +258,7 @@ export function TypeBuilder({
 
         <Section
           step={editing ? "02" : "03"}
-          label="要哪些模組"
+          label="欄位"
           hint={
             <span className={styles.count}>
               勾了 {picked.length} 個，共 {PICKABLE.length} 個
