@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev -p 4173",
     "dev:all": "concurrently -n next,sb -c cyan,magenta \"npm:dev\" \"npm:storybook\"",
-    "build": "next build",
+    "build": "node scripts/db-ci.mjs && next build",
     "start": "next start",
     "lint": "eslint --cache --cache-location node_modules/.cache/eslint",
     "format": "prettier --write .",
@@ -15,6 +15,7 @@
     "db:migrate:prod": "node scripts/db.mjs migrate prod",
     "db:check": "node scripts/db.mjs check test",
     "db:check:prod": "node scripts/db.mjs check prod",
+    "db:migrate:ci": "node scripts/db-ci.mjs",
     "format:check": "prettier --check .",
     "check:types": "tsc --noEmit",
     "check:all": "npm run lint && npm run format:check && npm run check:types && npm run test",
