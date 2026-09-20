@@ -90,7 +90,7 @@ export const MODULES = [
   },
   {
     key: "amount",
-    label: "量＋單位",
+    label: "量",
     fields: ["amount"],
     stat: ["sum"],
   },

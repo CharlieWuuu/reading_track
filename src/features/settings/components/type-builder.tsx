@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
 import { CoverCard } from "@/components/ui/cover-card/cover-card";
+import { FIELD_INPUT_CLASS } from "@/components/ui/field-label/field-label";
 import { Field } from "@/components/ui/field/field";
 import { FormActions } from "@/components/ui/form-actions";
 import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
@@ -38,6 +39,8 @@ const styles = {
   moduleGrid: "flex flex-wrap gap-x-6",
   moduleCell: "min-w-40 flex-1",
   moduleLabel: "font-serif text-item-sm font-semibold",
+  // 單位只填一兩個字（頁、分鐘），跟模組名字並排，不要撐滿整列
+  unitInput: "w-20 text-sm",
   count: "text-meta text-ink-faint tabular-nums ml-auto",
   // 範本一行一列，跟側欄同一種長相：整行可點，不畫框不上底色，
   // 選中的那一列靠字本身放大變粗表示——一排 chip 每顆只有幾個字寬，不好點
@@ -65,7 +68,7 @@ function TypePreview({
   if (group === "records") {
     const caption = has("longText")
       ? "這裡是長文內容……"
-      : [has("creator") && "作者／來源人", has("amount") && "量＋單位"].filter(Boolean).join("・");
+      : [has("creator") && "作者／來源人", has("amount") && "量"].filter(Boolean).join("・");
     return (
       <div className="max-w-56">
         <CoverCard
@@ -198,7 +201,6 @@ export function TypeBuilder({
           <div className="flex flex-col gap-3 sm:max-w-sm">
             <Field label="名稱" value={name} onChange={setName} />
             <Field label="網址" value={slug} onChange={setSlug} />
-            <Field label="量的單位" value={unit} onChange={setUnit} />
           </div>
         </Section>
 
@@ -268,6 +270,20 @@ export function TypeBuilder({
                   />
                   <span className={styles.moduleLabel}>{module.label}</span>
                 </label>
+                {/* 單位是「量」的一部分，不是另一個模組：沒勾量就沒有單位可填。
+                    本來擺在最上面跟名稱、網址並列，但那三格只有它是條件性的 */}
+                {module.key === "amount" && picked.includes("amount") && (
+                  <label className={`${styles.row} ${styles.moduleCell}`}>
+                    <span className={styles.moduleLabel}>單位</span>
+                    <input
+                      value={unit}
+                      onChange={(e) => setUnit(e.target.value)}
+                      placeholder="頁"
+                      aria-label="單位"
+                      className={`${FIELD_INPUT_CLASS} ${styles.unitInput}`}
+                    />
+                  </label>
+                )}
                 {/* 不是封面圖的子選項，是它的替代：自己放圖的類型不繼承，繼承的不自己放圖。
                     排在它後面只是因為兩個都在講圖，所以不縮排 */}
                 {module.key === "cover" && (

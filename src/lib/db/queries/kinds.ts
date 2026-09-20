@@ -46,6 +46,10 @@ const groupBy = <T extends { kindId: string }>(rows: T[]): Map<string, T[]> =>
  * 書籍／文章這類要數 records（透過 join 換算回 kindId），不能直接數 works——
  * 一個作品可以有作品列卻沒有對應的閱讀紀錄（缺資料、匯入中斷……），
  * 這樣側欄跟列表頁（永遠是從 records 撈的）數字才會一致。
+ *
+ * 三張表各自只數屬於自己 group 的類型。少了這一道，錯位的資料（該進 writings
+ * 卻留在 fragments 的那種）會被算進側欄，而列表頁只讀該 group 那一張，
+ * 兩邊數字就對不上——側欄說 25、清單只有 23，多的兩筆還點不到。
  */
 async function countsByKind(userId: string): Promise<Map<string, number>> {
   const [workRows, fragmentRows, writingRows] = await Promise.all([
@@ -58,18 +62,22 @@ async function countsByKind(userId: string): Promise<Map<string, number>> {
     db
       .select({ kindId: fragments.kindId, n: count() })
       .from(fragments)
-      .where(eq(fragments.userId, userId))
+      .innerJoin(kindsTable, eq(kindsTable.id, fragments.kindId))
+      .where(and(eq(fragments.userId, userId), eq(kindsTable.groupKey, "fragments")))
       .groupBy(fragments.kindId),
     db
       .select({ kindId: writings.kindId, n: count() })
       .from(writings)
-      .where(eq(writings.userId, userId))
+      .innerJoin(kindsTable, eq(kindsTable.id, writings.kindId))
+      .where(and(eq(writings.userId, userId), eq(kindsTable.groupKey, "writings")))
       .groupBy(writings.kindId),
   ]);
 
+  // 一個類型只屬於一個 group，筆數也就只來自那一張表——上面三支查詢已經各自
+  // 濾掉不屬於自己 group 的，所以這裡的 key 不會重複
   const map = new Map<string, number>();
   for (const row of [...workRows, ...fragmentRows, ...writingRows]) {
-    map.set(row.kindId, (map.get(row.kindId) ?? 0) + row.n);
+    map.set(row.kindId, row.n);
   }
   return map;
 }
