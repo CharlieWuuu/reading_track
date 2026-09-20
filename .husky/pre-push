@@ -2,14 +2,11 @@
 # 三分鐘的 pre-push 會讓人養成 --no-verify 的習慣，那比沒有 hook 更糟
 npm run check:fast
 
-# schema 沒跟上就別推。0016 推上去之後全站 502（查詢讀一個不存在的欄位），
-# 0017 推上去之後新增整個失效——兩次都是使用者先撞到才發現。
-#
-# db:check:prod 自己讀 .env.prod，不用先 source——要擋的是「正式機會不會壞」
-# 檔案不在就跳過，別人 clone 下來不該因為沒有正式庫憑證而推不了
-npm run db:check:prod
-
 # schema 改了卻沒有對應的 migration，推上去資料庫就跟程式碼對不上。
 # db:generate 是唯一還要人記得的一步（CI 產不出來、也沒地方 commit），
-# 所以這裡提醒——「人要記得」就是這些事故的共同根因
+# 所以這裡提醒——「人要記得」就是 0016、0017 兩次事故的共同根因
+#
+# 不檢查「正式庫跑到哪」：migration 現在由部署前的 db-ci 跑（見 package.json
+# 的 build），所以推之前本來就會落後一支。那個檢查會擋住每一次帶 migration
+# 的推送，逼人手動先跑一遍——等於把剛自動化掉的步驟又還給人
 npm run db:drift
