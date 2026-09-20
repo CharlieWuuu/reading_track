@@ -1,4 +1,4 @@
-import { and, eq, isNull, or } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { seedKinds } from "@/lib/db/mutations/kinds";
 import { fragments } from "@/lib/db/schema/fragments";
@@ -193,13 +193,12 @@ export async function seedDemo(email: string): Promise<string> {
   }
   await seedKinds(userId); // 類型是資料，demo 帳號也要有
 
-  // 內建類型的 user_id 是 null（全站共用），自訂的才掛在帳號底下——兩種都要認，
-  // 只看 userId 會在只有內建類型的資料庫上找不到，然後炸在 [0].id
+  // 類型定義一人一份，demo 帳號也是自己那幾列
   const kindId = async (name: string) => {
     const rows = await db
       .select({ id: kinds.id })
       .from(kinds)
-      .where(and(or(eq(kinds.userId, userId), isNull(kinds.userId)), eq(kinds.name, name)));
+      .where(and(eq(kinds.userId, userId), eq(kinds.name, name)));
     if (!rows.length) throw new Error(`找不到類型「${name}」，seedKinds 沒建起來`);
     return rows[0].id;
   };
