@@ -242,7 +242,12 @@ export async function listVocabularyRows(userId: string): Promise<VocabularyRow[
   });
 }
 
-/** 關鍵字的舊形狀以名字當身分，新表有自己的編號，出去之前還原成名字 */
+/**
+ * 關鍵字主檔。編號一起帶出去——名字使用者改得掉，也可能重複。
+ *
+ * 舊形狀以名字當身分，所以這裡本來把 id 丟掉。結果是關鍵字的網址、詳情頁、
+ * 編輯全都認名字，通用頁拿名字去查 catalog 查不到，只能自己寫一套專屬頁。
+ */
 export async function listKeywords(userId: string): Promise<KeywordInfo[]> {
   const rows = await rowsOfKind(userId, "關鍵字");
   const wikiUrls = await sourceUrlOfFragments(
@@ -252,6 +257,7 @@ export async function listKeywords(userId: string): Promise<KeywordInfo[]> {
 
   return rows
     .map(({ fragment }) => ({
+      id: fragment.id,
       name: fragment.title,
       tags: fragment.tags,
       latitude: fragment.latitude,

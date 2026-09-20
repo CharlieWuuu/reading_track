@@ -25,7 +25,12 @@ function KeywordEdit({ recordId }: { recordId: string }) {
   const from = useSearchParams().get("from") || keywordHref(keyword);
   const { byName, save, remove, isLoading, error } = useKeywordInfos();
 
-  const info = byName.get(keyword) ?? { name: keyword, createdAt: "", ...EMPTY_KEYWORD_INFO };
+  const info = byName.get(keyword) ?? {
+    id: "",
+    name: keyword,
+    createdAt: "",
+    ...EMPTY_KEYWORD_INFO,
+  };
 
   return (
     <>

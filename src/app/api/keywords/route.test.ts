@@ -27,7 +27,12 @@ vi.mock("@/lib/db/mutations/fragments", () => ({
  */
 const url = () => "http://localhost/api/keywords";
 
-const infoOf = (name: string): KeywordInfo => ({ name, createdAt: "", ...EMPTY_KEYWORD_INFO });
+const infoOf = (name: string): KeywordInfo => ({
+  id: name,
+  name,
+  createdAt: "",
+  ...EMPTY_KEYWORD_INFO,
+});
 
 const put = (body: unknown) =>
   keywords.PUT(new NextRequest(url(), { method: "PUT", body: JSON.stringify(body) }));

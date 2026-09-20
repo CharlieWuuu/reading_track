@@ -1,5 +1,7 @@
 /** 關鍵字主檔的一列。年份與座標存數字，其餘存純文字 */
 export interface KeywordInfo {
+  /** 這一列自己的編號。網址、詳情頁、編輯都認它——名字使用者改得掉，也可能重複 */
+  id: string;
   name: string;
   /** 自己貼的標籤，多個以頓號相接；跟維基查詢無關，見 lookup 裡的說明 */
   tags: string;
@@ -15,7 +17,7 @@ export interface KeywordInfo {
   createdAt: string;
 }
 
-export const EMPTY_KEYWORD_INFO: Omit<KeywordInfo, "name" | "createdAt"> = {
+export const EMPTY_KEYWORD_INFO: Omit<KeywordInfo, "id" | "name" | "createdAt"> = {
   tags: "",
   latitude: null,
   longitude: null,
