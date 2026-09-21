@@ -3,7 +3,6 @@
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
-import { GroupTable } from "@/components/ui/group-table/group-table";
 import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headline";
 import { KindGroup } from "@/config/record-kinds";
 import {
@@ -12,7 +11,6 @@ import {
   WritingThreadRow,
 } from "@/features/writing/components/writing-thread-row";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
-import { useGroupRecords } from "@/hooks/use-group-records";
 import { useGroupRecordsOverview } from "@/hooks/use-group-records-overview";
 import { useMounted } from "@/hooks/use-mounted";
 import { FragmentRow } from "@/lib/db/queries/catalog";
@@ -42,17 +40,15 @@ const styles = {
 
 type GroupOverviewPageProps = {
   group: KindGroup;
-  view?: "overview" | "table";
 };
 
 /**
- * 三個 group 的概覽。紀錄讀 records 那兩支 hook，片段與書寫讀 fragments 那支。
+ * 三個 group 的概覽。紀錄讀 records 那支 hook，片段與書寫讀 fragments 那支。
  *
- * hook 一律無條件呼叫，只是畫面依 group／view 決定用哪一份——不能因為分支才決定要不要呼叫。
+ * hook 一律無條件呼叫，只是畫面依 group 決定用哪一份——不能因為分支才決定要不要呼叫。
  */
-export function GroupOverviewPage({ group, view = "overview" }: GroupOverviewPageProps) {
+export function GroupOverviewPage({ group }: GroupOverviewPageProps) {
   const isRecords = group === "records";
-  const table = useGroupRecords("records");
   const recordsOverview = useGroupRecordsOverview("records");
   const fragmentsData = useGroupFragments(group);
   const mounted = useMounted();
@@ -60,11 +56,8 @@ export function GroupOverviewPage({ group, view = "overview" }: GroupOverviewPag
   if (!mounted) return null; // 靜態那份 HTML 一定是空的，先判斷資料狀態會閃一下「空的」
 
   if (isRecords) {
-    const blocked = gate(view === "table" ? table : recordsOverview);
+    const blocked = gate(recordsOverview);
     if (blocked) return blocked;
-
-    if (view === "table")
-      return <GroupTable items={table.records.map(recordItem)} onSaved={table.mutate} />;
 
     return (
       <GroupOverview
@@ -81,10 +74,9 @@ export function GroupOverviewPage({ group, view = "overview" }: GroupOverviewPag
     );
   }
 
-  const { fragments, mutate } = fragmentsData;
+  const { fragments } = fragmentsData;
   const blocked = gate(fragmentsData);
   if (blocked) return blocked;
-  if (view === "table") return <GroupTable items={fragments.map(fragmentItem)} onSaved={mutate} />;
   if (fragments.length === 0) return <div className={styles.empty}>還沒有任何紀錄</div>;
 
   // 書寫照月份排，跟底下的書寫子頁一致；沒有進行中，全部當成完成的排
