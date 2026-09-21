@@ -9,12 +9,7 @@ import { VocabularySection } from "@/features/notes/components/vocabulary-sectio
 import { ReadingHeader } from "@/features/reading/components/reading-header";
 import { useBookView } from "@/hooks/use-book-view";
 
-/**
- * 單字的概覽／表格／統計。
- *
- * 原本用 GroupViewMenu（概覽／表格）——那顆是 group 概覽在用的，
- * 一整個 group 沒有「哪一種的統計」可言。單字是一個類型，跟其他類型頁同一顆選單。
- */
+/** 單字的概覽／表格／統計。單字是一個類型，跟其他類型頁同一顆選單 */
 export default function VocabularyPage() {
   const view = useBookView();
 
