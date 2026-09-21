@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  FIELD_CONTROL_CLASS,
-  FIELD_INPUT_CLASS,
-  FIELD_ROW_CLASS,
-  FieldLabel,
-} from "@/components/ui/field-label";
+import { FIELD_CONTROL_CLASS, FIELD_ROW_CLASS, FieldLabel } from "@/components/ui/field-label";
 import { PRIVATE_MARK } from "@/config/privacy";
 
 /**
@@ -27,9 +22,8 @@ export function PrivateToggle({
   return (
     <div className={FIELD_ROW_CLASS}>
       <FieldLabel label={label} />
-      <label
-        className={`${FIELD_CONTROL_CLASS} ${FIELD_INPUT_CLASS} flex items-center gap-2 text-sm`}
-      >
+      {/* 不套 FIELD_INPUT_CLASS：底線標的是「這裡可以寫字」，勾選框寫不了 */}
+      <label className={`${FIELD_CONTROL_CLASS} flex items-center py-1.5`}>
         <input
           type="checkbox"
           aria-label={label}
@@ -37,7 +31,6 @@ export function PrivateToggle({
           onChange={(e) => onChange(e.target.checked ? PRIVATE_MARK : "")}
           className="accent-accent size-4"
         />
-        <span className="text-meta text-ink-faint">沒解鎖就不顯示</span>
       </label>
     </div>
   );

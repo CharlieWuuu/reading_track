@@ -398,12 +398,9 @@ export function ModuleForm({
         />
       </div>
 
-      <FormActions
-        saving={saving}
-        onCancel={() => router.back()}
-        onDelete={recordId ? remove : undefined}
-        error={error}
-      />
+      {/* 不畫取消：離開就自動存檔（useAutoSave），按了它也一樣會存，
+          叫「取消」只會讓人以為改的東西不算數 */}
+      <FormActions saving={saving} onDelete={recordId ? remove : undefined} error={error} />
     </form>
   );
 }

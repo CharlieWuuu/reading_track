@@ -19,12 +19,12 @@ const styles = {
   input: `${FIELD_INPUT_CLASS} box-border block w-full max-w-full text-sm`,
   list: "flex flex-wrap gap-1.5 md:pl-[4.5rem]",
   chip: "rounded-control flex items-center gap-1 border-rule border bg-gray-50 px-2 py-0.5 text-xs",
-  chipKind: "text-ink-faint",
+  chipKind: "text-ink-faint shrink-0 whitespace-nowrap", // 類型是兩三個字的標記，斷行會變成直的一條
   remove: "rounded-control p-0.5 text-gray-400 hover:bg-gray-100 hover:text-red-600",
   panel:
     "absolute z-50 mt-1 max-h-56 w-full overflow-y-auto rounded-surface border bg-white py-1 shadow-lg",
   panelItem: "flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-gray-50",
-  panelKind: "text-ink-faint text-xs",
+  panelKind: "text-ink-faint shrink-0 text-xs whitespace-nowrap",
   empty: "px-3 py-2 text-xs text-gray-400",
 };
 

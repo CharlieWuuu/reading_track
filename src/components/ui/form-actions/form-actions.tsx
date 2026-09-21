@@ -5,17 +5,19 @@ import { useState } from "react";
 const styles = {
   wrap: "flex shrink-0 flex-col gap-2",
   error: "text-meta text-danger",
-  row: "flex flex-wrap items-center gap-2",
+  row: "flex flex-wrap items-center justify-end gap-2",
   save: "rounded-control bg-control-bg text-control-ink px-4 py-2 text-sm font-medium hover:bg-control-bg-hover disabled:opacity-50",
   cancel:
     "rounded-control border border-control-border px-4 py-2 text-sm font-medium text-control-ink-secondary hover:bg-control-ghost-hover",
   // 刪除一律靠最右邊，跟儲存隔開，不會順手按到
-  danger: "ml-auto flex items-center gap-2 text-xs",
-  remove: "text-danger hover:underline disabled:opacity-50",
+  // 刪除排在最左，跟靠右的儲存隔開，不會順手按到
+  danger: "mr-auto flex items-center gap-2",
+  remove: "text-danger text-xs hover:underline disabled:opacity-50",
+  // 問句寫在按鈕上，尺寸跟儲存那顆一致——同一列的按鈕不該一大一小
   confirm:
-    "rounded-control bg-danger px-3 py-1.5 font-medium text-white hover:opacity-90 disabled:opacity-50",
+    "rounded-control bg-danger px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50",
   confirmCancel:
-    "rounded-control border border-control-border px-3 py-1.5 text-control-ink-secondary hover:bg-control-ghost-hover",
+    "rounded-control border border-control-border px-4 py-2 text-sm font-medium text-control-ink-secondary hover:bg-control-ghost-hover",
 };
 
 type FormActionsProps = {
@@ -28,6 +30,7 @@ type FormActionsProps = {
   /** 給了才畫刪除；一律先問一次再刪 */
   onDelete?: () => void;
   deleteLabel?: string;
+  /** 按下刪除後那顆按鈕上的字——問句寫在按鈕上，旁邊不另外放一行提示 */
   confirmLabel?: string;
   /** 這張表單特有的按鈕，例如「查維基」，排在取消後面 */
   extra?: React.ReactNode;
@@ -48,7 +51,7 @@ export function FormActions({
   onCancel,
   onDelete,
   deleteLabel = "刪除",
-  confirmLabel = "確定刪除？",
+  confirmLabel = "確定刪除",
   extra,
   error,
 }: FormActionsProps) {
@@ -59,29 +62,12 @@ export function FormActions({
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.row}>
-        <button
-          type={onSave ? "button" : "submit"}
-          onClick={onSave}
-          disabled={saving}
-          className={styles.save}
-        >
-          {saving ? "儲存中…" : saveLabel}
-        </button>
-
-        {onCancel && (
-          <button type="button" onClick={onCancel} className={styles.cancel}>
-            取消
-          </button>
-        )}
-
-        {extra}
-
+        {/* 刪除排最左、儲存排最右：兩顆隔著整列的寬度，不會順手按到 */}
         {onDelete &&
           (confirming ? (
             <div className={styles.danger}>
-              <span className="text-ink-muted">{confirmLabel}</span>
               <button type="button" onClick={onDelete} disabled={saving} className={styles.confirm}>
-                刪除
+                {confirmLabel}
               </button>
               <button
                 type="button"
@@ -103,6 +89,23 @@ export function FormActions({
               </button>
             </div>
           ))}
+
+        {extra}
+
+        {onCancel && (
+          <button type="button" onClick={onCancel} className={styles.cancel}>
+            取消
+          </button>
+        )}
+
+        <button
+          type={onSave ? "button" : "submit"}
+          onClick={onSave}
+          disabled={saving}
+          className={styles.save}
+        >
+          {saving ? "儲存中…" : saveLabel}
+        </button>
       </div>
     </div>
   );
