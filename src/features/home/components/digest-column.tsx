@@ -24,7 +24,7 @@ const styles = {
   cover: "rounded-surface h-14 w-10 shrink-0 object-cover",
   rowBody: "min-w-0 flex-1",
   rowHead: "flex items-baseline gap-2",
-  kind: "text-label text-accent tracking-label font-medium",
+  kind: "text-label text-accent font-medium",
   rowTitle: "font-serif text-item-sm mt-1 leading-snug font-semibold",
   more: "text-meta text-ink-faint hover:text-ink mt-2 inline-block",
 };

@@ -10,7 +10,7 @@ import { imageSrc } from "@/utils/image-key";
 
 const styles = {
   head: "border-rule-strong flex items-baseline justify-between border-b pb-2",
-  label: "text-label text-ink tracking-label",
+  label: "text-label text-ink",
   meta: "text-meta text-ink-faint tabular-nums",
   item: "border-rule flex items-start gap-2.5 border-b py-[7px]",
   cover: "rounded-surface h-11 w-8 shrink-0 object-cover",

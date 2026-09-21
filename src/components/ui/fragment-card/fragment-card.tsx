@@ -35,9 +35,9 @@ const styles = {
   cover: "block h-24 w-full rounded-surface object-contain md:h-40", // 手機一頁放得下更多則
   head: "flex min-w-0 flex-wrap items-end justify-between gap-x-2",
   nameGroup: "flex min-w-0 flex-col",
-  name: "min-w-0 font-serif text-item leading-snug font-semibold tracking-tight",
+  name: "min-w-0 font-serif text-item leading-snug font-semibold",
   labelWrap: "flex min-w-0 flex-wrap items-center justify-end gap-1.5",
-  label: "text-label text-accent tracking-label min-w-0 font-medium [overflow-wrap:anywhere]",
+  label: "text-label text-accent min-w-0 font-medium [overflow-wrap:anywhere]",
   detail: "text-[11px] text-gray-400 tabular-nums",
   // 內文可能整段是網址：沒有空白就沒有斷點，break-words 斷不開，要 anywhere
   body: "text-xs leading-relaxed [overflow-wrap:anywhere] text-gray-600 line-clamp-3",

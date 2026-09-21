@@ -15,8 +15,8 @@ import { detailFields } from "@/utils/detail-fields";
 const styles = {
   frame: "flex max-w-2xl flex-col",
   head: "border-rule-strong border-b pb-4",
-  tag: "text-label text-accent tracking-label font-medium",
-  title: "font-serif text-lede mt-2 leading-tight font-semibold tracking-tight",
+  tag: "text-label text-accent font-medium",
+  title: "font-serif text-lede mt-2 leading-tight font-semibold",
   meta: "text-meta text-ink-faint mt-2",
   body: "font-serif text-[15px] leading-[2.1] whitespace-pre-wrap text-gray-800 pt-5",
   fields: "pt-6",

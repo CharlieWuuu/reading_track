@@ -11,9 +11,9 @@ const styles = {
   frame:
     "border-rule shrink-0 border-t pt-4 md:w-[250px] md:border-t-0 md:border-l md:pt-0 md:pl-6",
   head: "border-rule-strong flex items-baseline justify-between border-b pb-1.5",
-  label: "text-label tracking-label font-medium",
+  label: "text-label font-medium",
   meta: "text-meta text-ink-faint tabular-nums",
-  number: "font-serif text-lede tracking-tight leading-none font-semibold",
+  number: "font-serif text-lede leading-none font-semibold",
 };
 
 export type DayCount = { label: string; unit: string; value: number };

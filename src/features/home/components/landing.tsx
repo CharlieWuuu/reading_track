@@ -8,13 +8,13 @@ import { LANDING_HERO, LANDING_SECTIONS, LandingSection } from "../landing-conte
 
 const styles = {
   hero: "border-rule-strong border-b-2 pt-8 pb-6",
-  headline: "font-serif text-lede tracking-tight leading-tight font-semibold",
+  headline: "font-serif text-lede leading-tight font-semibold",
   lede: "font-serif text-note text-ink mt-3.5 max-w-[40em] leading-loose",
   columns: "grid gap-6 pt-6 md:grid-cols-3 md:gap-0",
   column: "border-rule md:border-r md:pr-6 md:last:border-r-0 md:not-first:pl-6",
   columnHead: "border-rule-strong flex items-baseline gap-2.5 border-b pb-2",
   columnTitle: "font-serif text-item font-semibold",
-  tag: "text-label text-ink-faint tracking-label font-medium",
+  tag: "text-label text-ink-faint font-medium",
   body: "font-serif text-ink pt-3 text-[14.5px] leading-loose",
   sample: "border-rule-soft mt-4 border-t pt-4",
   sampleTitle: "font-serif text-item-sm mt-1.5 leading-snug font-semibold",

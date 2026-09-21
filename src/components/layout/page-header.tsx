@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MastheadMark } from "@/components/ui/masthead-mark";
+import { CRUMB_MAX, truncateChars } from "@/utils/truncate";
 import { BackLink } from "./back-link";
 
 const styles = {
@@ -14,7 +15,7 @@ const styles = {
   homeLink: "flex items-center self-center opacity-70 hover:opacity-100", // 報頭那個記號，跟分頁圖示同一張
   parentLink: "text-meta text-ink-muted truncate hover:text-ink hover:underline",
   divider: "text-ink-faint",
-  title: "font-serif truncate font-semibold tracking-tight",
+  title: "font-serif truncate font-semibold",
   page: "text-page",
   compact: "text-item",
   // 標題跟這行數字不算同一組資訊，間距要比麵包屑／標題那組鬆。
@@ -73,16 +74,19 @@ export function PageHeader({
           {parent &&
             (Array.isArray(parent) ? parent : [parent]).map((segment, i) => {
               const crumb: Crumb = typeof segment === "string" ? { label: segment } : segment;
+              const label = truncateChars(crumb.label, CRUMB_MAX); // 一段太長會把標題擠出這一行
               return (
                 // 手機只留 logo 與頁名：中間那幾層佔掉整行，而返回箭頭跟底部導覽
                 // 已經說了「上一層是誰、我在哪個 group」
                 <span key={i} className="hidden min-w-0 shrink items-baseline gap-2 md:flex">
                   {crumb.href ? (
-                    <Link href={crumb.href} className={styles.parentLink}>
-                      {crumb.label}
+                    <Link href={crumb.href} title={crumb.label} className={styles.parentLink}>
+                      {label}
                     </Link>
                   ) : (
-                    <span className={styles.parent}>{crumb.label}</span>
+                    <span title={crumb.label} className={styles.parent}>
+                      {label}
+                    </span>
                   )}
                   <span className={styles.divider}>/</span>
                 </span>

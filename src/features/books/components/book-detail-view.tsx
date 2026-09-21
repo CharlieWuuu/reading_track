@@ -52,7 +52,7 @@ function CountStats({
       {items.map((item) => (
         <div key={item.label}>
           <div className="font-serif text-2xl font-semibold text-gray-900">{item.value}</div>
-          <span className="text-label text-ink-faint tracking-label uppercase">{item.label}</span>
+          <span className="text-label text-ink-faint uppercase">{item.label}</span>
         </div>
       ))}
     </div>
@@ -278,7 +278,7 @@ export function BookDetailView({ recordId }: { recordId: string }) {
 
               {keywords.length > 0 && (
                 <div className="flex flex-col gap-2 pt-2">
-                  <span className="text-label text-ink-faint tracking-label uppercase">關鍵字</span>
+                  <span className="text-label text-ink-faint uppercase">關鍵字</span>
                   <div className="flex flex-wrap items-center gap-1.5">
                     {keywords.map((keyword) => (
                       <KeywordTag

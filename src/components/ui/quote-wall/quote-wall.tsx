@@ -30,15 +30,11 @@ export function QuoteWall({
     <div className={styles.wall}>
       {rows.map((row) => (
         <Link key={row.id} href={hrefOf(row)} className={styles.row}>
-          <BookCover url={row.coverUrl} title={row.workTitle} size="lg" />
+          <BookCover url={row.coverUrl} title={row.workTitle} size="md" />
           <div className={styles.body}>
             {/* 句子本身在 title，body 是補充（翻譯、心得）——反過來的話
                 日文佳句會秀成中文翻譯，原句反而不見 */}
-            <Quote
-              text={row.title || row.body}
-              source={source(row)}
-              note={row.title ? row.body : ""}
-            />
+            <Quote text={row.title || row.body} source={source(row)} />
           </div>
         </Link>
       ))}

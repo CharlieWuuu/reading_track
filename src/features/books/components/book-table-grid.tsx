@@ -188,7 +188,7 @@ export function BookTableGrid({
       {error && <p className="px-3 py-2 text-xs text-red-600">{error}</p>}
       <table className="w-full min-w-[1100px] table-fixed">
         <thead className="border-rule-strong bg-background sticky top-0 z-10 border-b text-center">
-          <tr className="text-label text-ink-faint tracking-label [&_th]:font-normal">
+          <tr className="text-label text-ink-faint [&_th]:font-normal">
             <th className="w-16 px-3 py-2 whitespace-nowrap">封面</th>
             <th className="w-56 px-3 py-2 whitespace-nowrap">書名</th>
             <th className="w-32 px-3 py-2 whitespace-nowrap">作者</th>
@@ -254,7 +254,7 @@ export function BookTableGrid({
                           #{numbers.get(b.id)}
                         </span>
                       )}
-                      <span className="text-item-sm overflow-hidden font-serif font-semibold tracking-tight text-ellipsis whitespace-nowrap">
+                      <span className="text-item-sm overflow-hidden font-serif font-semibold text-ellipsis whitespace-nowrap">
                         {b.title}
                       </span>
                     </div>

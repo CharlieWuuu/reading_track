@@ -28,7 +28,7 @@ import { OverviewItem } from "@/utils/overview";
 const styles = {
   wrap: "flex flex-col gap-3",
   table: "hidden md:table w-full border-collapse text-left",
-  th: "text-label text-ink-faint tracking-label border-rule-strong border-b-2 pb-2 font-medium",
+  th: "text-label text-ink-faint border-rule-strong border-b-2 pb-2 font-medium",
   td: "border-rule border-b py-2.5 align-top",
   title: "font-serif text-item-sm font-semibold",
   byline: "text-byline text-ink-muted",

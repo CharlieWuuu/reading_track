@@ -7,8 +7,8 @@ export const COVER_CARD_GRID = "grid grid-cols-2 gap-x-5 md:gap-x-8 xl:grid-cols
 const styles = {
   item: "block py-3",
   meta: "text-meta text-ink-faint tabular-nums",
-  label: "text-label text-accent tracking-label font-medium",
-  itemTitle: "font-serif text-item leading-snug font-semibold tracking-tight",
+  label: "text-label text-accent font-medium",
+  itemTitle: "font-serif text-item leading-snug font-semibold",
   byline: "text-byline text-ink-muted",
 };
 

@@ -17,7 +17,7 @@ import { notesForSource } from "@/utils/related-notes";
 
 const styles = {
   railHead: "border-rule-strong flex items-baseline justify-between border-b pb-2",
-  labelInk: "text-label text-ink tracking-label",
+  labelInk: "text-label text-ink",
   meta: "text-meta text-ink-faint tabular-nums",
   railItem: "border-rule border-b py-[7px]",
   railTitle: "font-serif text-item-sm leading-snug font-semibold",

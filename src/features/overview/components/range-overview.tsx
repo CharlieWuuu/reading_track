@@ -25,7 +25,7 @@ import { fragmentHref, fragmentMeta, fragmentTitle, recordItem } from "@/utils/o
 const styles = {
   // 節與節的間距由外層 gap 給，這裡只管標題與線；線與底下格線的空隙也走 gap
   section: "border-rule-strong border-b pb-1.5",
-  sectionLabel: "font-serif text-item-sm font-semibold tracking-wide",
+  sectionLabel: "font-serif text-item-sm font-semibold",
   meta: "text-meta text-ink-faint tabular-nums",
   empty: "text-meta text-ink-faint py-8 text-center",
 };
