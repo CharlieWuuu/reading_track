@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { templateByKey } from "@/config/kind-templates";
 import { moduleDef } from "@/config/modules";
-import { fieldsOf, resolveFormModules } from "./record-form";
+import {
+  autoEndDate,
+  fieldsOf,
+  formModules,
+  hasAutoEndDate,
+  resolveFormModules,
+} from "./record-form";
 
 const asOverrides = (key: string) => {
   const template = templateByKey(key)!;
@@ -82,5 +88,44 @@ describe("fieldsOf", () => {
       ]),
     ).map((f) => f.key);
     expect(keys.filter((k) => k === "platform")).toHaveLength(1);
+  });
+});
+
+describe("自動帶完成日期", () => {
+  const single = [
+    { key: "title", label: "標題" },
+    { key: "endDate", label: "完成日期" },
+  ];
+  const ranged = [...single, { key: "startDate", label: "開始日期" }];
+
+  it("只有完成日期的類型算自動帶", () => {
+    expect(hasAutoEndDate(resolveFormModules(single))).toBe(true);
+  });
+
+  it("有開始日期就不自動帶——那是一段期間", () => {
+    expect(hasAutoEndDate(resolveFormModules(ranged))).toBe(false);
+  });
+
+  it("沒有日期的類型也不自動帶", () => {
+    expect(hasAutoEndDate(resolveFormModules([{ key: "title", label: "標題" }]))).toBe(false);
+  });
+
+  it("自動帶的類型表單不畫那一格", () => {
+    expect(formModules(single).map((m) => m.key)).not.toContain("endDate");
+  });
+
+  it("要自己填的類型照樣畫得出來", () => {
+    expect(formModules(ranged).map((m) => m.key)).toContain("endDate");
+  });
+
+  it("欄位照樣要存：不畫欄位不等於不存日期", () => {
+    expect(fieldsOf(resolveFormModules(single)).map((f) => f.key)).toContain("endDate");
+  });
+
+  it("autoEndDate 給今天，不自動帶的回 null", () => {
+    expect(autoEndDate(resolveFormModules(single), "2026-09-21")).toEqual({
+      endDate: "2026-09-21",
+    });
+    expect(autoEndDate(resolveFormModules(ranged), "2026-09-21")).toBeNull();
   });
 });

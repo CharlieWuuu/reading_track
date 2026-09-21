@@ -19,7 +19,13 @@ import type { RecordRow } from "@/lib/db/queries/catalog";
 import { Kind } from "@/lib/db/queries/kinds";
 import { scrapeUrl } from "@/lib/scrape-url";
 import type { Linkable } from "@/types/record";
-import { fieldsOf, FormModule, resolveFormModules } from "@/utils/record-form";
+import {
+  autoEndDate,
+  fieldsOf,
+  FormModule,
+  formModules,
+  resolveFormModules,
+} from "@/utils/record-form";
 import { fillFromBook, pickFilled } from "@/utils/scraped-values";
 
 /**
@@ -146,18 +152,13 @@ export function ModuleForm({
 }) {
   const router = useRouter();
   /**
-   * 新增時日期預設今天：記一筆的當下就是那一天，要改再改。
-   *
-   * 只補新增（沒有 recordId）那條，編輯既有的不動——那一筆的日期是它自己的事。
+   * 單一日期的類型不開欄位，日期就是記下來的當下（見 hasAutoEndDate）。
+   * 有開始日期的不補——那是一段期間，補完成日等於還沒讀完就標成讀完了。
    */
   const [values, setValues] = useState<Record<string, string>>(() => {
-    if (initial) return initial;
+    if (initial) return initial; // 既有那筆的日期是它自己的事，不蓋掉
     const today = new Date().toISOString().slice(0, 10);
-    const keys = new Set(resolveFormModules(kind.modules).map((module) => module.key));
-    // 只補「單一日期」的類型：有開始日期就是一段期間，補完成日等於還沒讀完就標成讀完了。
-    // 思緒、札記這種只有一格日期的，記下來的當下就是那一天，要改再改
-    const single = keys.has("endDate") && !keys.has("startDate");
-    return single ? { endDate: today } : {};
+    return autoEndDate(resolveFormModules(kind.modules), today) ?? {};
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
@@ -166,8 +167,8 @@ export function ModuleForm({
   const [savedId, setSavedId] = useState("");
   const [fetchNote, setFetchNote] = useState("");
 
-  const modules = resolveFormModules(kind.modules);
-  const fields = fieldsOf(modules);
+  const modules = formModules(kind.modules); // 畫出來的那幾格
+  const fields = fieldsOf(resolveFormModules(kind.modules)); // 存的欄位照樣含自動帶的完成日期
   const set = (key: string, value: string) => setValues((v) => ({ ...v, [key]: value }));
 
   /**

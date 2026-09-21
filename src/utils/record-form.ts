@@ -41,6 +41,30 @@ export function resolveFormModules(overrides: readonly ModuleOverride[]): FormMo
   return [...picked, ...always];
 }
 
+/**
+ * 只有完成日期、沒有開始日期的類型，那一格就是「記下來的當下」——
+ * 思緒、札記這種發佈即完成，日期沒有第二個答案，所以表單不開欄位，由 autoEndDate 補。
+ */
+export function hasAutoEndDate(modules: readonly FormModule[]): boolean {
+  const keys = new Set(modules.map((module) => module.key));
+  return keys.has("endDate") && !keys.has("startDate");
+}
+
+/** 表單真的要畫的模組：自動帶日期的類型不畫完成日期那一格 */
+export function formModules(overrides: readonly ModuleOverride[]): FormModule[] {
+  const modules = resolveFormModules(overrides);
+  if (!hasAutoEndDate(modules)) return modules;
+  return modules.filter((module) => module.key !== "endDate");
+}
+
+/** 自動帶的完成日期；不是自動帶的類型回 null，呼叫端就不要動那一欄 */
+export function autoEndDate(
+  modules: readonly FormModule[],
+  today: string,
+): { endDate: string } | null {
+  return hasAutoEndDate(modules) ? { endDate: today } : null;
+}
+
 /** 這些模組實際要存哪幾欄。同一欄被兩個模組指到只留一次 */
 export function fieldsOf(modules: readonly FormModule[]): FieldDef[] {
   const keys = [...new Set(modules.flatMap((module) => module.fields))];
