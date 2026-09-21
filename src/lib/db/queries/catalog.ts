@@ -226,6 +226,8 @@ export type FragmentRow = {
   note: string;
   /** 例句。單字的卡片要秀這個——「這個字長什麼樣」比字義本身好記 */
   example: string;
+  /** 字義。單字卡標題右邊那行綠字 */
+  translation: string;
   /** 讀音。單字卡標題上方那行小字 */
   pronunciation: string;
   /** 自己貼的標籤，多個以頓號相接。關鍵字的統計看這一欄 */
@@ -279,6 +281,7 @@ function toFragmentRow(
     locator: fragment.locator,
     note: fragment.body,
     example: fragment.example,
+    translation: fragment.translation,
     pronunciation: fragment.pronunciation,
     tags: fragment.tags,
     date: fragment.createdAt.toISOString().slice(0, 10),
@@ -381,6 +384,7 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       locator: "",
       note: writing.note,
       example: "", // 書寫沒有例句這回事
+      translation: "",
       pronunciation: "",
       tags: "", // 書寫用關鍵字關聯，不貼標籤
       date: writing.endDate,

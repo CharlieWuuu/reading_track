@@ -52,6 +52,21 @@ export function getVocabularyEntries(rows: VocabularyRow[], books: Book[]): Voca
 }
 
 /** 目前真的有單字在用的語言。選項只列有東西的，選了才不會篩出一片空白 */
+/**
+ * 一個詞的字義。同一個詞在不同書可能各記了翻譯，重複的只留一個。
+ *
+ * 跟 fragmentLabel 同一個規則：有字義就秀字義，沒有就空白，不退回類型名。
+ * 單字頁與片段概覽的綠字靠這兩支對齊。
+ */
+export function entryTranslation(entry: VocabularyEntry): string {
+  return [...new Set(entry.encounters.map((e) => e.wordTranslation).filter(Boolean))].join("、");
+}
+
+/** 讀音在各本書應該一樣，取第一個有填的就好 */
+export function entryPronunciation(entry: VocabularyEntry): string {
+  return entry.encounters.find((e) => e.pronunciation)?.pronunciation ?? "";
+}
+
 export function vocabularyLanguages(entries: VocabularyEntry[]): string[] {
   return [
     ...new Set(entries.flatMap((entry) => entry.encounters.map((e) => e.language).filter(Boolean))),

@@ -12,6 +12,8 @@ import { useUrlParams } from "@/hooks/use-url-param";
 import { Book } from "@/types/book";
 import { OverviewItem, pickHeadline } from "@/utils/overview";
 import {
+  entryPronunciation,
+  entryTranslation,
   filterVocabularyByLanguage,
   getVocabularyEntries,
   VocabularyEntry,
@@ -80,19 +82,13 @@ export function VocabularySection({
       renderItem={(item) => {
         const entry = entries.find((e) => e.word === item.id)!;
         const latest = latestOf(entry);
-        // 同一個詞在不同書可能各記了翻譯，重複的只留一個
-        const translation = [
-          ...new Set(entry.encounters.map((e) => e.wordTranslation).filter(Boolean)),
-        ].join("、");
-        // 讀音在各本書應該一樣，取第一個有填的就好
-        const pronunciation = entry.encounters.find((e) => e.pronunciation)?.pronunciation ?? "";
 
         return (
           <FragmentCard
             href={hrefOf(entry)}
             title={entry.word}
-            label={translation}
-            detail={pronunciation}
+            label={entryTranslation(entry)}
+            detail={entryPronunciation(entry)}
             body={latest.example}
             meta={
               inheritsCover ? [latest.bookTitle, latest.chapter].filter(Boolean).join("・") : ""
