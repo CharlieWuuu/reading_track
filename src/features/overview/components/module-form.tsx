@@ -29,7 +29,6 @@ import {
   splitByTab,
 } from "@/utils/record-form";
 import { fillFromBook, pickFilled } from "@/utils/scraped-values";
-import { FormTabSwitch } from "./form-tab-switch";
 
 /**
  * 照類型勾的模組畫出來的表單。
@@ -376,42 +375,35 @@ export function ModuleForm({
         e.preventDefault();
         void save();
       }}
-      className="flex gap-8"
+      className="flex max-w-2xl flex-col gap-4"
     >
-      <div className="flex max-w-2xl min-w-0 flex-1 flex-col gap-4">
-        {/* 沒選到的那一頁用 hidden 藏起來，不是不畫——拆掉再裝回來，
-            打到一半的字與游標位置都會沒了 */}
-        <div className={`flex flex-col gap-4 ${tab === "content" ? "" : "hidden"}`}>
-          {pane(tabs.content)}
-          {fetching && <p className="text-xs text-gray-500">抓取中…</p>}
-          {!fetching && fetchNote && <p className="text-xs text-gray-500">{fetchNote}</p>}
-        </div>
+      {/* 沒選到的那一頁用 hidden 藏起來，不是不畫——拆掉再裝回來，
+          打到一半的字與游標位置都會沒了 */}
+      <div className={`flex flex-col gap-4 ${tab === "content" ? "" : "hidden"}`}>
+        {pane(tabs.content)}
+        {fetching && <p className="text-xs text-gray-500">抓取中…</p>}
+        {!fetching && fetchNote && <p className="text-xs text-gray-500">{fetchNote}</p>}
+      </div>
 
-        <div className={`flex flex-col gap-4 ${tab === "attributes" ? "" : "hidden"}`}>
-          {pane(tabs.attributes)}
-          {/* 關聯不佔資料表的欄位，所以 ModuleFields 畫不出來，由這裡補。
-              新增時還沒有編號，選的先收在 pending，存檔後補上 */}
-          <ContentLinkInput
-            label={modules.find((module) => module.key === "links")?.label ?? "內部連結"}
-            excludeId={linkId || undefined}
-            linked={linked}
-            onLink={link}
-            onUnlink={unlink}
-          />
-        </div>
-
-        <FormActions
-          saving={saving}
-          onCancel={() => router.back()}
-          onDelete={recordId ? remove : undefined}
-          error={error}
+      <div className={`flex flex-col gap-4 ${tab === "attributes" ? "" : "hidden"}`}>
+        {pane(tabs.attributes)}
+        {/* 關聯不佔資料表的欄位，所以 ModuleFields 畫不出來，由這裡補。
+            新增時還沒有編號，選的先收在 pending，存檔後補上 */}
+        <ContentLinkInput
+          label={modules.find((module) => module.key === "links")?.label ?? "內部連結"}
+          excludeId={linkId || undefined}
+          linked={linked}
+          onLink={link}
+          onUnlink={unlink}
         />
       </div>
 
-      {/* 桌機的分頁在右欄，字寫得出來。跟第一格欄位切齊，不要浮在半空中 */}
-      <aside className="hidden shrink-0 md:block">
-        <FormTabSwitch value={tab} onChange={setTab} />
-      </aside>
+      <FormActions
+        saving={saving}
+        onCancel={() => router.back()}
+        onDelete={recordId ? remove : undefined}
+        error={error}
+      />
     </form>
   );
 }

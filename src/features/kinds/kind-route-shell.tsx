@@ -18,7 +18,7 @@ import { KindCalendar } from "@/features/calendar/components/kind-calendar";
 import { KindTimeline } from "@/features/calendar/components/kind-timeline";
 import { KindViewMenu } from "@/features/kinds/kind-view-menu";
 import { variantFor } from "@/features/kinds/variant-registry";
-import { FormTabHeaderSwitch } from "@/features/overview/components/form-tab-switch";
+import { FormTabSwitch } from "@/features/overview/components/form-tab-switch";
 import { ModuleDetail } from "@/features/overview/components/module-detail";
 import { ModuleForm } from "@/features/overview/components/module-form";
 import { KindStats } from "@/features/stats/components/kind-stats";
@@ -176,7 +176,7 @@ export function KindNewPage({ group, slug }: KindRouteProps) {
         }
         backHref={kindHref(group, slug)}
         // 專用表單沒有分內容／屬性，那顆不畫
-        action={kind && !Form ? <FormTabHeaderSwitch /> : undefined}
+        action={kind && !Form ? <FormTabSwitch /> : undefined}
       />
       <PageBody>
         {isLoading || !kind ? (
@@ -301,7 +301,7 @@ function GenericEditPage({ group, slug, recordId }: RecordRouteProps) {
           ]
         }
         backHref={back}
-        action={kind && !Form ? <FormTabHeaderSwitch /> : undefined}
+        action={kind && !Form ? <FormTabSwitch /> : undefined}
       />
       <PageBody>
         {error ? (

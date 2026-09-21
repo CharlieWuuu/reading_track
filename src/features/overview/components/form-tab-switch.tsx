@@ -1,35 +1,35 @@
 "use client";
 
-import { FileText, Tags } from "lucide-react";
-import { SegmentedControl } from "@/components/ui/controls";
+import { styles } from "@/components/ui/controls/styles";
 import { useFormTabStore } from "@/stores/use-form-tab-store";
 import { FormTab } from "@/utils/record-form";
 
-const ITEMS = [
-  { key: "content" as const, label: "內容", Icon: () => <FileText size={16} strokeWidth={1.5} /> },
-  { key: "attributes" as const, label: "屬性", Icon: () => <Tags size={16} strokeWidth={1.5} /> },
+const ITEMS: { key: FormTab; label: string }[] = [
+  { key: "content", label: "內容" },
+  { key: "attributes", label: "屬性" },
 ];
 
-/** 內容／屬性的切換。桌機在右欄寫出字，手機在頁首只留圖示——那一列擠不下四個字 */
-export function FormTabSwitch({
-  value,
-  onChange,
-  iconOnly = false,
-}: {
-  value: FormTab;
-  onChange: (next: FormTab) => void;
-  iconOnly?: boolean;
-}) {
-  const items = iconOnly ? ITEMS : ITEMS.map(({ key, label }) => ({ key, label }));
-  return <SegmentedControl items={items} value={value} onChange={onChange} size="sm" />;
-}
-
-/** 頁首那顆，手機才畫——桌機的切換在表單右欄 */
-export function FormTabHeaderSwitch() {
+/**
+ * 表單頁首的內容／屬性切換。純文字，跟頁首「概覽／表格」同一套長相。
+ *
+ * 狀態放 store：這顆在 PageHeader，跟 ModuleForm 是兄弟，拿不到對方的 state。
+ */
+export function FormTabSwitch() {
   const { tab, setTab } = useFormTabStore();
+
   return (
-    <div className="md:hidden">
-      <FormTabSwitch value={tab} onChange={setTab} iconOnly />
+    <div className="flex items-center gap-3">
+      {ITEMS.map((item) => (
+        <button
+          key={item.key}
+          type="button"
+          onClick={() => setTab(item.key)}
+          aria-pressed={item.key === tab}
+          className={`${styles.link} ${item.key === tab ? styles.linkActive : styles.linkIdle}`}
+        >
+          {item.label}
+        </button>
+      ))}
     </div>
   );
 }
