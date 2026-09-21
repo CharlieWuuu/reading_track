@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CategorySelect } from "@/components/ui/category-select";
 import { ContentLinkInput } from "@/components/ui/content-link-input";
 import { Field } from "@/components/ui/field";
@@ -18,6 +18,7 @@ import { useKindRecords } from "@/hooks/use-kind-records";
 import type { RecordRow } from "@/lib/db/queries/catalog";
 import { Kind } from "@/lib/db/queries/kinds";
 import { scrapeUrl } from "@/lib/scrape-url";
+import { useFormTabStore } from "@/stores/use-form-tab-store";
 import type { Linkable } from "@/types/record";
 import {
   autoEndDate,
@@ -25,8 +26,10 @@ import {
   FormModule,
   formModules,
   resolveFormModules,
+  splitByTab,
 } from "@/utils/record-form";
 import { fillFromBook, pickFilled } from "@/utils/scraped-values";
+import { FormTabSwitch } from "./form-tab-switch";
 
 /**
  * 照類型勾的模組畫出來的表單。
@@ -160,6 +163,10 @@ export function ModuleForm({
     const today = new Date().toISOString().slice(0, 10);
     return autoEndDate(resolveFormModules(kind.modules), today) ?? {};
   });
+  // 分頁不進網址：切一下就 replace 一次只是歷史雜訊，而且未存的編輯要留著
+  const { tab, setTab } = useFormTabStore();
+  // store 活得比這張表單久：換一筆進來要從內容開始，不要接著上一筆停在屬性
+  useEffect(() => setTab("content"), [recordId, kind.id, setTab]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
   const [fetching, setFetching] = useState(false);
@@ -168,6 +175,7 @@ export function ModuleForm({
   const [fetchNote, setFetchNote] = useState("");
 
   const modules = formModules(kind.modules); // 畫出來的那幾格
+  const tabs = splitByTab(modules);
   const fields = fieldsOf(resolveFormModules(kind.modules)); // 存的欄位照樣含自動帶的完成日期
   const set = (key: string, value: string) => setValues((v) => ({ ...v, [key]: value }));
 
@@ -342,51 +350,68 @@ export function ModuleForm({
     });
   }
 
+  const pane = (list: FormModule[]) =>
+    list.map((module) => (
+      <ModuleFields
+        key={module.key}
+        module={module}
+        values={values}
+        onChange={set}
+        onUrlPaste={canScrape ? handleUrlPaste : undefined}
+        titleSlot={
+          recordId ? undefined : (
+            <RepeatSuggestions
+              rows={sameKind}
+              query={values.title ?? ""}
+              onPick={(row) => void pickRepeat(row)}
+            />
+          )
+        }
+      />
+    ));
+
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
         void save();
       }}
-      className="flex max-w-2xl flex-col gap-4"
+      className="flex gap-8"
     >
-      {modules.map((module) => (
-        <ModuleFields
-          key={module.key}
-          module={module}
-          values={values}
-          onChange={set}
-          onUrlPaste={canScrape ? handleUrlPaste : undefined}
-          titleSlot={
-            recordId ? undefined : (
-              <RepeatSuggestions
-                rows={sameKind}
-                query={values.title ?? ""}
-                onPick={(row) => void pickRepeat(row)}
-              />
-            )
-          }
+      <div className="flex max-w-2xl min-w-0 flex-1 flex-col gap-4">
+        {/* 沒選到的那一頁用 hidden 藏起來，不是不畫——拆掉再裝回來，
+            打到一半的字與游標位置都會沒了 */}
+        <div className={`flex flex-col gap-4 ${tab === "content" ? "" : "hidden"}`}>
+          {pane(tabs.content)}
+          {fetching && <p className="text-xs text-gray-500">抓取中…</p>}
+          {!fetching && fetchNote && <p className="text-xs text-gray-500">{fetchNote}</p>}
+        </div>
+
+        <div className={`flex flex-col gap-4 ${tab === "attributes" ? "" : "hidden"}`}>
+          {pane(tabs.attributes)}
+          {/* 關聯不佔資料表的欄位，所以 ModuleFields 畫不出來，由這裡補。
+              新增時還沒有編號，選的先收在 pending，存檔後補上 */}
+          <ContentLinkInput
+            label={modules.find((module) => module.key === "links")?.label ?? "內部連結"}
+            excludeId={linkId || undefined}
+            linked={linked}
+            onLink={link}
+            onUnlink={unlink}
+          />
+        </div>
+
+        <FormActions
+          saving={saving}
+          onCancel={() => router.back()}
+          onDelete={recordId ? remove : undefined}
+          error={error}
         />
-      ))}
-      {fetching && <p className="text-xs text-gray-500">抓取中…</p>}
-      {!fetching && fetchNote && <p className="text-xs text-gray-500">{fetchNote}</p>}
+      </div>
 
-      {/* 關聯不佔資料表的欄位，所以 ModuleFields 畫不出來，由這裡補。
-          新增時還沒有編號，選的先收在 pending，存檔後補上 */}
-      <ContentLinkInput
-        label={modules.find((module) => module.key === "links")?.label ?? "內部連結"}
-        excludeId={linkId || undefined}
-        linked={linked}
-        onLink={link}
-        onUnlink={unlink}
-      />
-
-      <FormActions
-        saving={saving}
-        onCancel={() => router.back()}
-        onDelete={recordId ? remove : undefined}
-        error={error}
-      />
+      {/* 桌機的分頁在右欄，字寫得出來。跟第一格欄位切齊，不要浮在半空中 */}
+      <aside className="hidden shrink-0 md:block">
+        <FormTabSwitch value={tab} onChange={setTab} />
+      </aside>
     </form>
   );
 }

@@ -65,6 +65,16 @@ export function autoEndDate(
   return hasAutoEndDate(modules) ? { endDate: today } : null;
 }
 
+export type FormTab = "content" | "attributes";
+
+/** 表單分頁：模組自己說歸哪一頁（見模組庫的 tab），沒說就是內容 */
+export function splitByTab(modules: readonly FormModule[]): Record<FormTab, FormModule[]> {
+  return {
+    content: modules.filter((module) => module.tab !== "attributes"),
+    attributes: modules.filter((module) => module.tab === "attributes"),
+  };
+}
+
 /** 這些模組實際要存哪幾欄。同一欄被兩個模組指到只留一次 */
 export function fieldsOf(modules: readonly FormModule[]): FieldDef[] {
   const keys = [...new Set(modules.flatMap((module) => module.fields))];
