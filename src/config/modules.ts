@@ -32,6 +32,13 @@ export type ModuleDef = {
    * 但畫出來是同一張樹狀圖，照欄位跑會變成兩張。
    */
   stat?: readonly StatKind[];
+  /**
+   * 表單分成「內容」與「屬性」兩頁，這個模組歸哪一頁。沒寫就是內容。
+   *
+   * 屬性收的是這一筆的後設定——怎麼分類、給誰看、連到誰，不是這一筆寫了什麼。
+   * 寫在模組庫不寫在表單裡：新模組接上來時該去哪一頁是模組自己的事。
+   */
+  tab?: "attributes";
 };
 
 /**
@@ -56,7 +63,7 @@ export type StatKind =
 export const MODULES = [
   // 紀錄存在 works.title，片段存在 fragments.name——同一個模組，兩張表的欄名不同
   // 關聯不佔自己的欄位：一律落在 links_internal，連到什麼由 chip 上的種類說
-  { key: "links", label: "內部連結", fields: [], always: true },
+  { key: "links", label: "內部連結", fields: [], always: true, tab: "attributes" },
   { key: "title", label: "標題", fields: ["title"] },
   {
     key: "creator",
@@ -99,6 +106,7 @@ export const MODULES = [
     label: "私人",
     fields: ["isPrivate"],
     always: true,
+    tab: "attributes",
   },
   { key: "pronunciation", label: "發音", fields: ["pronunciation"] },
   { key: "example", label: "例句", fields: ["example"] },
@@ -107,7 +115,7 @@ export const MODULES = [
     label: "例句翻譯",
     fields: ["exampleTranslation"],
   },
-  { key: "tags", label: "標籤", fields: ["tags"], stat: ["ranking"] },
+  { key: "tags", label: "標籤", fields: ["tags"], stat: ["ranking"], tab: "attributes" },
   // 兩格各存一個數字：一欄塞 "1818－1883" 得靠剖析拆，破折號、西元前的負號都是坑
   {
     key: "years",
@@ -142,12 +150,14 @@ export const MODULES = [
     label: "領域",
     fields: ["domain", "subDomain"],
     stat: ["tree"],
+    tab: "attributes",
   },
   {
     key: "attribute",
     label: "屬性",
     fields: ["attribute"],
     stat: ["distribution"],
+    tab: "attributes",
   },
 ] as const satisfies readonly ModuleDef[];
 

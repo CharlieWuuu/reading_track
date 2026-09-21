@@ -7,6 +7,7 @@ import {
   formModules,
   hasAutoEndDate,
   resolveFormModules,
+  splitByTab,
 } from "./record-form";
 
 const asOverrides = (key: string) => {
@@ -127,5 +128,27 @@ describe("自動帶完成日期", () => {
       endDate: "2026-09-21",
     });
     expect(autoEndDate(resolveFormModules(ranged), "2026-09-21")).toBeNull();
+  });
+});
+
+describe("splitByTab", () => {
+  const modules = resolveFormModules([
+    { key: "title", label: "標題" },
+    { key: "topic", label: "領域" },
+    { key: "tags", label: "標籤" },
+  ]);
+  const { content, attributes } = splitByTab(modules);
+
+  it("分類與關聯歸屬性頁", () => {
+    const keys = attributes.map((m) => m.key);
+    expect(keys).toEqual(expect.arrayContaining(["topic", "tags", "private", "links"]));
+  });
+
+  it("寫了什麼歸內容頁", () => {
+    expect(content.map((m) => m.key)).toContain("title");
+  });
+
+  it("兩頁加起來就是全部，不重不漏", () => {
+    expect(content.length + attributes.length).toBe(modules.length);
   });
 });
