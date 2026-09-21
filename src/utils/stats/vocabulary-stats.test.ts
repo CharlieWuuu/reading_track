@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { makeBook, makeQuote, makeVocabulary, resetIds } from "@/testing/factories";
 import {
+  entryPronunciation,
+  entryTranslation,
   filterQuotesByLanguage,
   filterVocabularyByLanguage,
   getNoteRecords,
@@ -169,5 +171,44 @@ describe("語言篩選", () => {
     const entries = getVocabularyEntries(rows, books);
     expect(filterVocabularyByLanguage(entries, "")).toHaveLength(2);
     expect(filterVocabularyByLanguage(entries, "日文").map((e) => e.word)).toEqual(["刹那"]);
+  });
+});
+
+describe("entryTranslation", () => {
+  it("同一個詞在不同書各記了翻譯，重複的只留一個", () => {
+    const entries = getVocabularyEntries(
+      [
+        makeVocabulary({ word: "serendipity", wordTranslation: "機緣" }),
+        makeVocabulary({ word: "serendipity", wordTranslation: "機緣" }),
+        makeVocabulary({ word: "serendipity", wordTranslation: "意外的收穫" }),
+      ],
+      [],
+    );
+
+    expect(entryTranslation(entries[0])).toBe("機緣、意外的收穫");
+  });
+
+  it("沒有字義就空白，不退回類型名", () => {
+    const entries = getVocabularyEntries([makeVocabulary({ word: "x", wordTranslation: "" })], []);
+    expect(entryTranslation(entries[0])).toBe("");
+  });
+});
+
+describe("entryPronunciation", () => {
+  it("取第一個有填的", () => {
+    const entries = getVocabularyEntries(
+      [
+        makeVocabulary({ word: "w", pronunciation: "" }),
+        makeVocabulary({ word: "w", pronunciation: "ˈsɛr" }),
+      ],
+      [],
+    );
+
+    expect(entryPronunciation(entries[0])).toBe("ˈsɛr");
+  });
+
+  it("都沒填就空白", () => {
+    const entries = getVocabularyEntries([makeVocabulary({ word: "w", pronunciation: "" })], []);
+    expect(entryPronunciation(entries[0])).toBe("");
   });
 });

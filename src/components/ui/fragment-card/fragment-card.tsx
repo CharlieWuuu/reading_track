@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { ReactNode } from "react";
 import { imageSrc } from "@/utils/image-key";
 
 export type FragmentCardProps = {
@@ -11,10 +10,8 @@ export type FragmentCardProps = {
   onClick?: () => void;
   /** 有名字就用名字，沒有就用內文開頭——呼叫端決定，這裡不重複那套規則 */
   title: string;
-  /** 標題右邊的短標籤：類型（佳句、單字、書寫）或字義，呼叫端決定放哪一種 */
+  /** 標題右邊的短標籤：單字的字義。沒有就那一格空著 */
   label?: string;
-  /** 標題右邊，label 之外的額外內容：標籤 chips、本數統計 */
-  labelExtra?: ReactNode;
   /** 內文本體。跟 title 相同時（標題就是內文開頭）不重複畫 */
   body?: string;
   /** 標題正上方的一行小字：關鍵字的生卒／起訖、單字的發音用這裡 */
@@ -36,7 +33,6 @@ const styles = {
   head: "flex min-w-0 flex-wrap items-end justify-between gap-x-2",
   nameGroup: "flex min-w-0 flex-col",
   name: "min-w-0 font-serif text-item leading-snug font-semibold",
-  labelWrap: "flex min-w-0 flex-wrap items-center justify-end gap-1.5",
   label: "text-label text-accent min-w-0 font-medium [overflow-wrap:anywhere]",
   detail: "text-[11px] text-gray-400 tabular-nums",
   // 內文可能整段是網址：沒有空白就沒有斷點，break-words 斷不開，要 anywhere
@@ -56,7 +52,6 @@ export function FragmentCard({
   onClick,
   title,
   label,
-  labelExtra,
   body,
   detail,
   meta,
@@ -75,12 +70,7 @@ export function FragmentCard({
           {detail && <span className={styles.detail}>{detail}</span>}
           <span className={styles.name}>{title}</span>
         </span>
-        {(label || labelExtra) && (
-          <span className={styles.labelWrap}>
-            {labelExtra}
-            {label && <span className={styles.label}>{label}</span>}
-          </span>
-        )}
+        {label && <span className={styles.label}>{label}</span>}
       </div>
       {showBody && <p className={styles.body}>{body}</p>}
       {meta && <span className={styles.meta}>{meta}</span>}

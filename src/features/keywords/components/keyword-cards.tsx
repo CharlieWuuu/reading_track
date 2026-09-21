@@ -11,7 +11,6 @@ import { OverviewItem, pickHeadline } from "@/utils/overview";
 
 const styles = {
   empty: "py-6 text-center text-xs text-gray-400",
-  count: "shrink-0 text-xs text-gray-400 tabular-nums",
 };
 
 /**
@@ -60,16 +59,7 @@ export function KeywordCards({ books }: { books: Book[] }) {
         const info = byName.get(entry.name);
 
         return (
-          <FragmentCard
-            title={entry.name}
-            href={keywordHref(entry.name)}
-            labelExtra={
-              entry.books.length > 1 ? (
-                <span className={styles.count}>{entry.books.length} 本</span>
-              ) : undefined
-            }
-            body={info?.summary}
-          />
+          <FragmentCard title={entry.name} href={keywordHref(entry.name)} body={info?.summary} />
         );
       }}
     />

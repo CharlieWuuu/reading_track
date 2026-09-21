@@ -106,6 +106,14 @@ export const fragmentMeta = (row: FragmentRow): string => {
 };
 
 /**
+ * 卡片標題右邊那行綠字：有字義就秀字義，沒有就空白。
+ *
+ * 不退回類型名——在單字頁那一整面都是單字，寫「單字」等於沒說；
+ * 在片段概覽每張卡上面本來就有分區標題，也已經說了這一區是哪一種。
+ */
+export const fragmentLabel = (row: FragmentRow): string => row.translation;
+
+/**
  * 片段的一筆攤成卡片要的 props。
  *
  * 通用清單、片段概覽的分區、單字專屬頁本來各自組一份，欄位給得不一樣——
@@ -114,7 +122,7 @@ export const fragmentMeta = (row: FragmentRow): string => {
 export const fragmentCard = (row: FragmentRow) => ({
   href: fragmentHref(row),
   title: fragmentTitle(row),
-  label: row.kindName,
+  label: fragmentLabel(row),
   body: fragmentBody(row),
   detail: row.pronunciation || undefined,
   meta: fragmentMeta(row),
