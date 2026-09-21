@@ -12,7 +12,7 @@
 export function DetailHeading({ title, count }: { title: string; count?: string | number }) {
   return (
     <div className="border-rule-strong flex items-baseline justify-between border-b pb-1.5">
-      <h3 className="text-label text-ink tracking-label font-semibold uppercase">{title}</h3>
+      <h3 className="text-label text-ink font-semibold uppercase">{title}</h3>
       {count !== undefined && (
         <span className="text-meta text-ink-faint tabular-nums">{count}</span>
       )}

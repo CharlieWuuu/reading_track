@@ -129,9 +129,7 @@ export function BookTable() {
         {byYear(books).map((group) => (
           <div key={group.label} className="flex flex-col gap-2">
             <div className="border-rule-strong flex items-baseline justify-between border-b pb-1.5">
-              <span className="text-item-sm font-serif font-semibold tracking-wide">
-                {group.label}
-              </span>
+              <span className="text-item-sm font-serif font-semibold">{group.label}</span>
               <span className="text-meta text-ink-faint tabular-nums">{group.books.length} 本</span>
             </div>
             <ul className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] md:grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))]">
@@ -149,7 +147,7 @@ export function BookTable() {
                       />
                       <StatusDot status={b.status} />
                     </div>
-                    <p className="text-item-sm truncate font-serif leading-snug font-semibold tracking-tight">
+                    <p className="text-item-sm truncate font-serif leading-snug font-semibold">
                       {b.title}
                     </p>
                     <p className="text-meta text-ink-faint truncate tabular-nums">
@@ -189,7 +187,7 @@ export function BookTable() {
                     #{numbers.get(b.id)}
                   </span>
                 )}
-                <span className="text-item-sm min-w-0 flex-1 truncate font-serif font-semibold tracking-tight">
+                <span className="text-item-sm min-w-0 flex-1 truncate font-serif font-semibold">
                   {b.title}
                 </span>
                 <StatusBadge status={b.status} />

@@ -51,7 +51,7 @@ export function KeywordCards({ books }: { books: Book[] }) {
   return (
     <OverviewLayout
       headline={headline}
-      headlineLabel="最近記的"
+      headlineLabel="最新一筆"
       done={items}
       rail={<OverviewTotalStats count={entries.length} unit="個" />}
       gridClassName={FRAGMENT_CARD_GRID}

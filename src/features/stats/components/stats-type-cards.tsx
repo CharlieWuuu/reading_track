@@ -38,7 +38,7 @@ export function StatsTypeCards() {
         <section key={section.label} className="flex flex-col gap-3">
           {/* 字與線的顏色跟側欄的 group 小標同一套，線細一格——這一頁的卡片本身也有框，
               兩道粗線疊在一起太重 */}
-          <h2 className="border-rule-strong text-ui tracking-section border-b pb-1.5 font-serif font-semibold">
+          <h2 className="border-rule-strong text-ui border-b pb-1.5 font-serif font-semibold">
             {section.label}
           </h2>
           {/* 手機兩欄。桌機有側欄佔掉 180px，三欄等到 md 才放得下 */}

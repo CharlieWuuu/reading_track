@@ -28,7 +28,7 @@ const styles = {
   meta: "text-meta text-ink-faint tabular-nums",
   monthList: "flex flex-col gap-5",
   month: "border-rule-strong border-b pb-1.5",
-  monthLabel: "font-serif text-item-sm font-semibold tracking-wide",
+  monthLabel: "font-serif text-item-sm font-semibold",
   sentinel: "h-px",
   loadingMore: "text-meta text-ink-faint py-4 text-center",
 };

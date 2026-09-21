@@ -27,11 +27,11 @@ const styles = {
   frame: "flex min-h-0 min-w-0 flex-1 gap-10",
   main: "flex min-w-0 flex-1 flex-col overflow-y-auto",
   rail: "border-rule-strong hidden w-72 shrink-0 flex-col gap-4 overflow-y-auto border-l pl-6 lg:flex",
-  railLabel: "text-label text-accent tracking-label font-medium",
+  railLabel: "text-label text-accent font-medium",
   section: "flex flex-col gap-3 pt-6 first:pt-0",
   sectionHead: "border-rule-strong flex items-baseline gap-3 border-b-2 pb-1.5",
   step: "text-meta text-ink-faint tabular-nums",
-  sectionLabel: "font-serif text-item-sm font-semibold tracking-wide",
+  sectionLabel: "font-serif text-item-sm font-semibold",
   hint: "text-meta text-ink-faint",
   row: "border-rule flex items-start gap-3 border-b py-2.5",
   // 模組名字都很短，一欄一列把整頁拉得很長。不寫死兩欄：放得下就併排，

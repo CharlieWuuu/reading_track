@@ -98,9 +98,6 @@
   --text-byline: 12px; /** 作者行 */
   --text-meta: 11px; /** 日期、計數 */
   --text-label: 10.5px; /** 全大寫小標籤 */
-  --tracking-label: 0.16em; /** 全大寫小標籤 */
-  --tracking-section: 0.12em; /** 側欄分類標題 */
-  --tracking-tight: -0.02em; /** 站名與頭條 */
   --stroke-hairline: 1px; /** 細線分隔 */
   --stroke-solid: 1.4px; /** 小標籤下面那條實線、報頭第二條 */
   --stroke-masthead: 3px; /** 報頭第一條 */

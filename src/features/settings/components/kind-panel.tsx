@@ -24,7 +24,7 @@ const styles = {
   frame: "mx-auto flex w-full max-w-xl flex-col gap-6",
   group: "flex flex-col",
   groupHead: "border-rule-strong flex items-baseline justify-between border-b-2 pb-1.5",
-  groupLabel: "font-serif text-ui tracking-section font-semibold",
+  groupLabel: "font-serif text-ui font-semibold",
   addLink: "text-meta text-ink-faint hover:text-ink",
   row: "border-rule-soft flex items-baseline border-b py-[7px] pl-3",
   name: "text-ui text-ink-muted hover:text-ink flex-1 truncate text-left",

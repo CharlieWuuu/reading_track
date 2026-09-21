@@ -15,7 +15,7 @@ const styles = {
   list: "border-rule-strong shrink-0 border-t",
   row: "border-rule flex items-center gap-3 border-b py-3",
   body: "flex min-w-0 flex-1 flex-col gap-1",
-  title: "font-serif text-item-sm truncate font-semibold tracking-tight",
+  title: "font-serif text-item-sm truncate font-semibold",
   // 日期、站台與標籤同一列；手機寬度不夠時標籤會換到下一行
   meta: "flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1",
   text: "text-meta text-ink-faint shrink-0 truncate",
@@ -67,7 +67,7 @@ function ArticleCards({ articles }: { articles: Article[] }) {
                 fallback={a.platform || a.title}
                 className="mt-0.5 size-5"
               />
-              <p className="text-item-sm line-clamp-2 min-w-0 flex-1 font-serif leading-snug font-semibold tracking-tight">
+              <p className="text-item-sm line-clamp-2 min-w-0 flex-1 font-serif leading-snug font-semibold">
                 {a.title}
               </p>
             </div>
@@ -93,7 +93,7 @@ function ArticleTable({ articles }: { articles: Article[] }) {
     <div className="hidden min-h-0 w-full flex-1 overflow-y-auto md:block">
       <table className="w-full table-fixed">
         <thead className="border-rule-strong bg-background sticky top-0 z-10 border-b text-left">
-          <tr className="text-label text-ink-faint tracking-label [&_th]:font-normal">
+          <tr className="text-label text-ink-faint [&_th]:font-normal">
             <th className="w-[4%] px-3 py-2 whitespace-nowrap">站台</th>
             <th className="w-[30%] px-3 py-2 whitespace-nowrap">標題</th>
             <th className="w-[14%] px-3 py-2 whitespace-nowrap">作者</th>
@@ -115,7 +115,7 @@ function ArticleTable({ articles }: { articles: Article[] }) {
                 <Favicon url={a.sourceUrl} fallback={a.platform || a.title} className="size-5" />
               </td>
               <td className="max-w-0 overflow-hidden px-3 py-2">
-                <span className="text-item-sm block overflow-hidden font-serif font-semibold tracking-tight text-ellipsis whitespace-nowrap">
+                <span className="text-item-sm block overflow-hidden font-serif font-semibold text-ellipsis whitespace-nowrap">
                   {a.title}
                 </span>
               </td>

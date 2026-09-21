@@ -24,7 +24,7 @@ const styles = {
   nav: "flex h-full w-[180px] shrink-0 flex-col overflow-y-auto gap-6",
   rule: "bg-shell-rule w-px shrink-0",
   group: "border-rule-strong flex items-baseline justify-between border-b-2 pb-1.5",
-  groupLabel: "block w-full font-serif text-ui font-semibold tracking-section",
+  groupLabel: "block w-full font-serif text-ui font-semibold",
   row: "border-rule-soft flex items-baseline border-b py-[7px] pl-3",
   count: "text-meta text-ink-faint ml-auto pl-2 tabular-nums",
   label: "text-ui truncate",

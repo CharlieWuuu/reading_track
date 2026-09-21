@@ -1069,27 +1069,6 @@ export const TOKEN_MANIFEST: TokenEntry[] = [
     "description": "全大寫小標籤"
   },
   {
-    "name": "tracking-label",
-    "layer": "semantic",
-    "value": "0.16em",
-    "alias": null,
-    "description": "全大寫小標籤"
-  },
-  {
-    "name": "tracking-section",
-    "layer": "semantic",
-    "value": "0.12em",
-    "alias": null,
-    "description": "側欄分類標題"
-  },
-  {
-    "name": "tracking-tight",
-    "layer": "semantic",
-    "value": "-0.02em",
-    "alias": null,
-    "description": "站名與頭條"
-  },
-  {
     "name": "stroke-hairline",
     "layer": "semantic",
     "value": "1px",

@@ -21,7 +21,7 @@ import { TodayPanel } from "./today-panel";
 
 const styles = {
   head: "flex items-baseline justify-between gap-3.5 pb-2.5",
-  title: "font-serif text-page tracking-tight font-semibold",
+  title: "font-serif text-page font-semibold",
   meta: "text-meta text-ink-faint tabular-nums",
   // 沒有頭條可畫時的替身，線與間距跟 OverviewHeadline 對齊
   emptyBand: "border-rule-strong flex flex-col gap-5 border-b pb-5 md:flex-row md:gap-8",

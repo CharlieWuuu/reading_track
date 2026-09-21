@@ -15,10 +15,9 @@ const styles = {
   markEnd:
     "relative top-[0.15em] ml-0.5 inline-block h-[1em] font-serif text-2xl leading-none text-gray-300 select-none",
   source: "text-meta text-ink-faint truncate pl-4 text-right",
-  note: "text-meta text-ink-faint leading-relaxed whitespace-pre-wrap",
 };
 
-export function Quote({ text, source, note }: { text: string; source?: string; note?: string }) {
+export function Quote({ text, source }: { text: string; source?: string }) {
   return (
     <div className={styles.wrap}>
       <blockquote className={styles.text}>
@@ -32,7 +31,6 @@ export function Quote({ text, source, note }: { text: string; source?: string; n
         </span>
       </blockquote>
       {source && <p className={styles.source}>—— {source}</p>}
-      {note && <p className={styles.note}>{note}</p>}
     </div>
   );
 }

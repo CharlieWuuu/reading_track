@@ -264,23 +264,6 @@
       "$description": "全大寫小標籤"
     }
   },
-  "tracking": {
-    "label": {
-      "$value": "0.16em",
-      "$type": "dimension",
-      "$description": "全大寫小標籤"
-    },
-    "section": {
-      "$value": "0.12em",
-      "$type": "dimension",
-      "$description": "側欄分類標題"
-    },
-    "tight": {
-      "$value": "-0.02em",
-      "$type": "dimension",
-      "$description": "站名與頭條"
-    }
-  },
   "stroke": {
     "hairline": {
       "$value": "1px",

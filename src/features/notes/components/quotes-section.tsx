@@ -74,7 +74,7 @@ function QuotesGrid({
             coverUrl={inheritsCover ? record.bookCover : ""}
             onClick={() => router.push(quoteHref(record.id))}
           >
-            <Quote text={record.text} source={record.chapter} note={record.note} />
+            <Quote text={record.text} source={record.chapter} />
           </RecordCard>
         );
       }}

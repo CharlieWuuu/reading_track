@@ -1,11 +1,11 @@
 const styles = {
   statBlock: "border-rule border-b py-3 first:pt-0 last:border-b-0",
-  labelInk: "text-label text-ink tracking-label",
+  labelInk: "text-label text-ink",
   statValue: "font-serif text-item leading-tight font-semibold tabular-nums",
   statCaption: "text-meta text-ink-faint",
   listBlock: "border-rule border-b py-3 first:pt-0 last:border-b-0",
   listHead: "flex items-baseline justify-between pb-2",
-  listLabel: "text-label text-ink tracking-label",
+  listLabel: "text-label text-ink",
   listCount: "text-meta text-ink-faint tabular-nums",
   listRow: "border-rule-soft border-b py-1.5 last:border-b-0",
   listRowTitle: "font-serif text-item-sm leading-snug font-semibold",
