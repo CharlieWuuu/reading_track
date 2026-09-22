@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { styles as controlStyles } from "@/components/ui/controls/styles";
 import { AccountPanel } from "@/features/settings/components/account-panel";
 import { CategoryManager } from "@/features/settings/components/category-manager";
+import { GraphPanel } from "@/features/settings/components/graph-panel";
 import { KindPanel } from "@/features/settings/components/kind-panel";
 import { StatsTypeCards } from "@/features/stats/components/stats-type-cards";
 import { useUrlParams } from "@/hooks/use-url-param";
@@ -16,6 +17,7 @@ const TABS = [
   { key: "categories", label: "分類選項" },
   { key: "kinds", label: "類型" },
   { key: "stats", label: "統計" },
+  { key: "graph", label: "關係圖" },
   { key: "account", label: "帳號" },
 ] as const;
 
@@ -81,10 +83,18 @@ function Settings() {
         }
       />
       <PageBody>
-        <div className="shrink-0 md:min-h-0 md:flex-1 md:overflow-y-auto">
+        {/* 類型是兩欄版面，捲動歸它自己的中間欄——父層一起捲的話右邊的預覽會被捲走 */}
+        <div
+          className={
+            tab === "kinds"
+              ? "flex min-h-0 flex-1 flex-col"
+              : "shrink-0 md:min-h-0 md:flex-1 md:overflow-y-auto"
+          }
+        >
           {tab === "categories" && <CategoryManager />}
           {tab === "kinds" && <KindPanel />}
           {tab === "stats" && <StatsTypeCards />}
+          {tab === "graph" && <GraphPanel />}
           {tab === "account" && <AccountPanel />}
         </div>
       </PageBody>

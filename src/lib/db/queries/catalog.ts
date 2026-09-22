@@ -1,5 +1,6 @@
 import { and, asc, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
+import { CardStyle, toCardStyle } from "@/config/card-styles";
 import { PRIVATE_MARK } from "@/config/privacy";
 import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
@@ -216,6 +217,8 @@ export type FragmentRow = {
   kindCountUnit: string;
   kindGroup: KindGroup;
   kindSlug: string;
+  /** 清單上一筆的畫法，由類型決定 */
+  kindCardStyle: CardStyle;
   /** 這一種要不要跟著出處走（封面、書名）。單字與關鍵字不屬於任何一本書 */
   inheritsCover: boolean;
   workId: string | null;
@@ -273,6 +276,7 @@ function toFragmentRow(
     kindCountUnit: kind.countUnit,
     kindGroup: kind.groupKey as KindGroup,
     kindSlug: kind.slug,
+    kindCardStyle: toCardStyle(kind.cardStyle, kind.groupKey as KindGroup),
     inheritsCover: kind.inheritsCover,
     workId: work?.id ?? null,
     workTitle: work?.title ?? "",
@@ -377,6 +381,7 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       kindCountUnit: writing.kindCountUnit,
       kindGroup: "writings" as const,
       kindSlug: writing.kindSlug,
+      kindCardStyle: toCardStyle(writing.kindCardStyle, "writings"),
       workId: writing.sourceId || null,
       workTitle: writing.sourceTitle,
       title: writing.title,

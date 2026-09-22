@@ -23,6 +23,13 @@ export const kinds = pgTable(
     slug: text("slug").notNull(),
     /** 屬於側欄哪個 group：records／fragments／writings。三個 group 共用同一套類型機制 */
     groupKey: text("group_key").notNull(),
+    /**
+     * 清單上一筆長什麼樣：封面卡、片段卡、佳句、單行。合法值由 config/card-styles 管。
+     *
+     * 本來寫死判斷 slug === "quotes" 才排成佳句，自訂類型就沒有佳句那種排版可用。
+     * 挑畫法是類型的屬性，跟勾哪些欄位同一件事，所以存在這裡由使用者自己選。
+     */
+    cardStyle: text("card_style").notNull().default("fragment"),
     /** 量的單位：頁、分鐘、字。統計讀「量＋單位」自己長句子，加類型不用改統計 */
     amountUnit: text("amount_unit").notNull().default(""),
     /** 個數的單位：則、篇、部。跟 amount_unit 不同——那個是份量，這個是「幾件」。沒填就是「筆」 */

@@ -35,6 +35,8 @@ export interface Writing {
   kindName: string;
   /** 個數單位，空的就退回「筆」 */
   kindCountUnit: string;
+  /** 清單上一筆的畫法，由類型決定 */
+  kindCardStyle: string;
   kindSlug: string;
   /** 同一件事給程式看的那一份；空白代表不是從系統裡的紀錄延伸來的 */
   sourceId: string;

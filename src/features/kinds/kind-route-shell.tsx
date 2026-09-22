@@ -6,11 +6,9 @@ import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
-import { CardGrid } from "@/components/ui/card-grid";
 import { ActionButton } from "@/components/ui/controls/action-button";
-import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
-import { QuoteWall } from "@/components/ui/quote-wall";
+import { KindCards } from "@/components/ui/kind-cards/kind-cards";
 import { groupBasePath, kindHref } from "@/config/kind-routes";
 import { NAV_GROUPS, unitOfKind } from "@/config/nav";
 import { KindGroup } from "@/config/record-kinds";
@@ -33,7 +31,7 @@ import { useKindRecords } from "@/hooks/use-kind-records";
 import { useKinds } from "@/hooks/use-kinds";
 import { useRecordId } from "@/hooks/use-record-id";
 import { Kind } from "@/lib/db/queries/kinds";
-import { fragmentCard, fragmentHref, fragmentItem, recordItem } from "@/utils/overview-items";
+import { fragmentItem, recordItem } from "@/utils/overview-items";
 
 /**
  * 三個 group 共用的通用頁骨架。找到 kind 之後照 slug 決定要不要換皮，
@@ -94,16 +92,8 @@ function GenericKindList({ kind }: { kind: Kind }) {
     );
   }
 
-  // 佳句是句子不是卡片：切成兩欄會把長句擠成一行三四個字
-  if (kind.slug === "quotes") return <QuoteWall rows={fragments} hrefOf={fragmentHref} />;
-
-  return (
-    <CardGrid>
-      {fragments.map((row) => (
-        <FragmentCard key={row.id} {...fragmentCard(row)} />
-      ))}
-    </CardGrid>
-  );
+  // 畫法由類型自己帶：佳句是句子不是卡片，切成兩欄會把長句擠成一行三四個字
+  return <KindCards style={kind.cardStyle} rows={fragments} />;
 }
 
 type KindRouteProps = {

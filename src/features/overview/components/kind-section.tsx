@@ -1,17 +1,14 @@
 import Link from "next/link";
-import { CardGrid } from "@/components/ui/card-grid";
-import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
-import { QuoteWall } from "@/components/ui/quote-wall";
+import { KindCards } from "@/components/ui/kind-cards/kind-cards";
 import { kindHref } from "@/config/kind-routes";
 import { unitOfKind } from "@/config/nav";
 import { KindGroup } from "@/config/record-kinds";
-import { fragmentCard, fragmentHref } from "@/utils/overview-items";
 import { KindSection } from "@/utils/overview-sections";
 
 /**
  * 概覽頁裡的一個類型：標題、總數、幾筆、更多。
  *
- * 每個類型保留自己的畫法——佳句是句子不是卡片（QuoteWall），其餘走卡片牆。
+ * 每個類型保留自己的畫法，畫法由類型自己帶（kinds.card_style）交給 KindCards——
  * 統一成同一種列表會把佳句擠回「一行三四個字」那個問題。
  *
  * 露幾筆由呼叫端決定；這裡只管畫，不管取。
@@ -26,7 +23,6 @@ const styles = {
 
 export function KindSectionBlock({ group, section }: { group: KindGroup; section: KindSection }) {
   const href = kindHref(group, section.slug);
-  const isQuotes = section.slug === "quotes";
 
   return (
     <section className="min-w-0">
@@ -37,15 +33,7 @@ export function KindSectionBlock({ group, section }: { group: KindGroup; section
         </span>
       </div>
 
-      {isQuotes ? (
-        <QuoteWall rows={section.rows} hrefOf={fragmentHref} />
-      ) : (
-        <CardGrid>
-          {section.rows.map((row) => (
-            <FragmentCard key={row.id} {...fragmentCard(row)} />
-          ))}
-        </CardGrid>
-      )}
+      <KindCards style={section.cardStyle} rows={section.rows} />
 
       {/* 露出來的比總數少才有「更多」可看 */}
       {section.total > section.rows.length && (

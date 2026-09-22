@@ -1,9 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { NAV_GROUPS } from "@/config/nav";
 import { KindGroup } from "@/config/record-kinds";
 import { TypeBuilder } from "@/features/settings/components/type-builder";
+import {
+  CardStylePicker,
+  TypeDraft,
+  TypePreview,
+} from "@/features/settings/components/type-preview";
 import { useKinds } from "@/hooks/use-kinds";
 
 /**
@@ -21,7 +26,13 @@ import { useKinds } from "@/hooks/use-kinds";
  */
 
 const styles = {
-  frame: "mx-auto flex w-full max-w-xl flex-col gap-6",
+  // 版型層級的兩欄：左邊類型清單，右邊常駐窄欄。分隔線是獨立元素，跟側欄同一種寫法——
+  // 畫成右欄自己的 border-l 的話，線左邊靠 gap、右邊靠 padding，兩側各寫一處就對不齊
+  frame: "flex min-h-0 min-w-0 flex-1 items-stretch gap-6",
+  rule: "bg-rule-strong hidden w-px shrink-0 lg:block", // 右欄收起來時線也跟著收
+  list: "flex w-full min-w-0 flex-1 flex-col gap-6 overflow-y-auto",
+  railLabel: "text-label text-accent font-medium",
+  rail: "hidden w-58 shrink-0 flex-col gap-8 self-stretch overflow-y-auto lg:flex",
   group: "flex flex-col",
   groupHead: "border-rule-strong flex items-baseline justify-between border-b-2 pb-1.5",
   groupLabel: "font-serif text-ui font-semibold",
@@ -43,7 +54,12 @@ export function KindPanel() {
   const [editing, setEditing] = useState<string | null>(null);
   const [removing, setRemoving] = useState<string | null>(null);
   const [error, setError] = useState<string>();
+  /** 正在編輯的那一個類型的當下設定，右欄照它畫；沒在編輯就是 null */
+  const [draft, setDraft] = useState<TypeDraft | null>(null);
   const { kinds, removeKind } = useKinds();
+
+  // 身分固定所以不會每次 render 換一個，TypeBuilder 的 effect 才不會反覆觸發
+  const onDraftChange = useCallback((next: TypeDraft) => setDraft(next), []);
 
   async function remove(kindId: string) {
     setRemoving(kindId);
@@ -59,82 +75,107 @@ export function KindPanel() {
 
   return (
     <div className={styles.frame}>
-      {NAV_GROUPS.filter((nav) => nav.kindGroup).map((nav) => {
-        const group = nav.kindGroup!;
-        const rows = kinds.filter((kind) => kind.group === group);
+      <div className={styles.list}>
+        {NAV_GROUPS.filter((nav) => nav.kindGroup).map((nav) => {
+          const group = nav.kindGroup!;
+          const rows = kinds.filter((kind) => kind.group === group);
 
-        return (
-          <div key={nav.key} className={styles.group}>
-            <div className={styles.groupHead}>
-              <span className={styles.groupLabel}>{nav.label}</span>
-              {/* 新增的入口放在各分類自己的標題列上：按哪一顆就知道要加去哪裡 */}
-              <button
-                type="button"
-                onClick={() => {
-                  setAdding(adding === group ? null : group);
-                  setEditing(null);
-                }}
-                className={styles.addLink}
-              >
-                {adding === group ? "取消" : "新增"}
-              </button>
-            </div>
+          return (
+            <div key={nav.key} className={styles.group}>
+              <div className={styles.groupHead}>
+                <span className={styles.groupLabel}>{nav.label}</span>
+                {/* 新增的入口放在各分類自己的標題列上：按哪一顆就知道要加去哪裡 */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAdding(adding === group ? null : group);
+                    setEditing(null);
+                  }}
+                  className={styles.addLink}
+                >
+                  {adding === group ? "取消" : "新增"}
+                </button>
+              </div>
 
-            {rows.length === 0 && adding !== group && (
-              <span className={styles.empty}>還沒有任何類型</span>
-            )}
+              {rows.length === 0 && adding !== group && (
+                <span className={styles.empty}>還沒有任何類型</span>
+              )}
 
-            {rows.map((kind) => (
-              <div key={kind.id}>
-                <div className={styles.row}>
-                  {/* 名字點下去就是改它：改名、改網址、改勾了哪些模組 */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditing(editing === kind.id ? null : kind.id);
-                      setAdding(null);
-                    }}
-                    className={styles.name}
-                  >
-                    {kind.name}
-                  </button>
-                  <span className={styles.count}>
-                    {kind.count.toLocaleString()} {nav.unit}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => remove(kind.id)}
-                    disabled={kind.count > 0 || removing === kind.id}
-                    // 有資料就不給移除：手動記的東西沒有還原路徑，先清空那一步本身就是確認
-                    title={kind.count > 0 ? "還有資料，要先清空才能移除" : undefined}
-                    className={styles.remove}
-                  >
-                    移除
-                  </button>
-                </div>
-                {editing === kind.id && (
-                  <div className={styles.builder}>
-                    <TypeBuilder
-                      key={kind.id}
-                      group={group}
-                      editing={kind}
-                      onDone={() => setEditing(null)}
-                    />
+              {rows.map((kind) => (
+                <div key={kind.id}>
+                  <div className={styles.row}>
+                    {/* 名字點下去就是改它：改名、改網址、改勾了哪些模組 */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditing(editing === kind.id ? null : kind.id);
+                        setAdding(null);
+                      }}
+                      className={styles.name}
+                    >
+                      {kind.name}
+                    </button>
+                    <span className={styles.count}>
+                      {kind.count.toLocaleString()} {nav.unit}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => remove(kind.id)}
+                      disabled={kind.count > 0 || removing === kind.id}
+                      // 有資料就不給移除：手動記的東西沒有還原路徑，先清空那一步本身就是確認
+                      title={kind.count > 0 ? "還有資料，要先清空才能移除" : undefined}
+                      className={styles.remove}
+                    >
+                      移除
+                    </button>
                   </div>
-                )}
-              </div>
-            ))}
+                  {editing === kind.id && (
+                    <div className={styles.builder}>
+                      <TypeBuilder
+                        key={kind.id}
+                        group={group}
+                        editing={kind}
+                        onDone={() => {
+                          setEditing(null);
+                          setDraft(null);
+                        }}
+                        onDraftChange={onDraftChange}
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
 
-            {adding === group && (
-              <div className={styles.builder}>
-                <TypeBuilder key={group} group={group} onDone={() => setAdding(null)} />
-              </div>
-            )}
+              {adding === group && (
+                <div className={styles.builder}>
+                  <TypeBuilder
+                    key={group}
+                    group={group}
+                    onDone={() => {
+                      setAdding(null);
+                      setDraft(null);
+                    }}
+                    onDraftChange={onDraftChange}
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {error && <span className={styles.error}>{error}</span>}
+      </div>
+
+      <div className={styles.rule} />
+      <div className={styles.rail}>
+        {draft && (
+          <div className="flex flex-col gap-4">
+            <span className={styles.railLabel}>預覽</span>
+            <CardStylePicker cardStyle={draft.cardStyle} onChange={draft.onCardStyleChange} />
+            <TypePreview {...draft} />
           </div>
-        );
-      })}
-
-      {error && <span className={styles.error}>{error}</span>}
+        )}
+      </div>
     </div>
   );
 }

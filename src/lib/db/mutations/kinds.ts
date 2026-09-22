@@ -1,4 +1,5 @@
 import { and, desc, eq } from "drizzle-orm";
+import { CardStyle, defaultCardStyle } from "@/config/card-styles";
 import { KIND_TEMPLATES, KindTemplate, STARTER_KEYS } from "@/config/kind-templates";
 import { moduleDef } from "@/config/modules";
 import { KindGroup } from "@/config/record-kinds";
@@ -25,6 +26,8 @@ export type NewKind = {
   amountUnit: string;
   /** 自己沒封面時要不要用連到的作品的封面 */
   inheritsCover: boolean;
+  /** 清單上一筆長什麼樣 */
+  cardStyle: CardStyle;
   /** 模組在這個類型叫什麼 */
   labels?: Record<string, string>;
 };
@@ -60,6 +63,7 @@ async function insertKind(
       slug: kind.slug,
       amountUnit: kind.amountUnit,
       inheritsCover: kind.inheritsCover,
+      cardStyle: kind.cardStyle,
       sortOrder,
     })
     .returning({ id: kinds.id });
@@ -96,6 +100,7 @@ const fromTemplate = (template: KindTemplate): NewKind => ({
   modules: [...template.modules],
   amountUnit: template.amountUnit,
   inheritsCover: template.inheritsCover ?? false,
+  cardStyle: template.cardStyle ?? defaultCardStyle(template.group),
   labels: template.labels,
 });
 
@@ -195,6 +200,7 @@ export async function updateKind(userId: string, kindId: string, patch: NewKind)
         slug: patch.slug,
         amountUnit: patch.amountUnit,
         inheritsCover: patch.inheritsCover,
+        cardStyle: patch.cardStyle,
       })
       .where(and(eq(kinds.id, kindId), eq(kinds.userId, userId)));
 

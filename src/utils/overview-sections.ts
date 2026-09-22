@@ -1,3 +1,4 @@
+import { CardStyle } from "@/config/card-styles";
 import { FragmentRow } from "@/lib/db/queries/catalog";
 import { fragmentDate, recentBy } from "./home-digest";
 
@@ -16,6 +17,8 @@ export type KindSection = {
   total: number;
   /** 這個類型的個數單位，空的就退回「筆」 */
   countUnit: string;
+  /** 一筆的畫法，由類型決定 */
+  cardStyle: CardStyle;
   rows: FragmentRow[];
 };
 
@@ -35,6 +38,7 @@ export function sectionsByKind(
       slug: row.kindSlug,
       name: row.kindName,
       countUnit: row.kindCountUnit,
+      cardStyle: row.kindCardStyle,
       total: 0,
       rows: [] as FragmentRow[],
     };
