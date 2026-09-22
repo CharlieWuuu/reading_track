@@ -293,10 +293,14 @@ export function BookDetailView({ recordId }: { recordId: string }) {
             </div>
 
             {(bookQuotes.length > 0 || bookVocabulary.length > 0) && (
-              <div className="flex w-full flex-col gap-8 md:w-80 md:shrink-0 md:border-l md:pl-7">
-                {bookQuotes.length > 0 && <QuotePreview quotes={bookQuotes} />}
-                {bookVocabulary.length > 0 && <VocabularyPreview vocabulary={bookVocabulary} />}
-              </div>
+              <>
+                {/* 分隔線是獨立元素，兩側都靠父層的 gap */}
+                <div className="bg-rule hidden w-px shrink-0 md:block" />
+                <div className="flex w-full flex-col gap-8 md:w-73 md:shrink-0">
+                  {bookQuotes.length > 0 && <QuotePreview quotes={bookQuotes} />}
+                  {bookVocabulary.length > 0 && <VocabularyPreview vocabulary={bookVocabulary} />}
+                </div>
+              </>
             )}
           </div>
         </article>

@@ -58,22 +58,26 @@ export function Dashboard() {
 
   const headline = pickHeadline(records.records);
   const todayPanel = (
-    <TodayPanel
-      date={today.slice(5)}
-      counts={[
-        { label: "紀錄", unit: "筆", value: countOnDate(records.records.map(recordDate), today) },
-        {
-          label: "片段",
-          unit: "則",
-          value: countOnDate(fragments.fragments.map(fragmentDate), today),
-        },
-        {
-          label: "書寫",
-          unit: "篇",
-          value: countOnDate(writings.fragments.map(fragmentDate), today),
-        },
-      ]}
-    />
+    <>
+      {/* 窄螢幕橫著分隔，寬螢幕變成直線 */}
+      <div className="bg-rule h-px w-full shrink-0 md:h-auto md:w-px" />
+      <TodayPanel
+        date={today.slice(5)}
+        counts={[
+          { label: "紀錄", unit: "筆", value: countOnDate(records.records.map(recordDate), today) },
+          {
+            label: "片段",
+            unit: "則",
+            value: countOnDate(fragments.fragments.map(fragmentDate), today),
+          },
+          {
+            label: "書寫",
+            unit: "篇",
+            value: countOnDate(writings.fragments.map(fragmentDate), today),
+          },
+        ]}
+      />
+    </>
   );
 
   return (
