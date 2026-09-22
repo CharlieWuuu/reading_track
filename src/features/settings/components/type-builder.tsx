@@ -1,15 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Fragment, useState } from "react";
-import { CoverCard } from "@/components/ui/cover-card/cover-card";
+import { Fragment, useEffect, useState } from "react";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-label/field-label";
 import { Field } from "@/components/ui/field/field";
 import { FormActions } from "@/components/ui/form-actions";
-import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
+import { CardStyle, defaultCardStyle } from "@/config/card-styles";
 import { KindTemplate, templatesOf } from "@/config/kind-templates";
 import { MODULES } from "@/config/modules";
 import { KindGroup } from "@/config/record-kinds";
+import type { TypeDraft } from "@/features/settings/components/type-preview";
 import { useKinds } from "@/hooks/use-kinds";
 import { Kind } from "@/lib/db/queries/kinds";
 
@@ -24,16 +24,14 @@ const PICKABLE = MODULES.filter((module) => !("always" in module));
  */
 
 const styles = {
-  frame: "flex min-h-0 min-w-0 flex-1 gap-10",
-  main: "flex min-w-0 flex-1 flex-col overflow-y-auto",
-  rail: "border-rule-strong hidden w-72 shrink-0 flex-col gap-4 overflow-y-auto border-l pl-6 lg:flex",
-  railLabel: "text-label text-accent font-medium",
+  frame: "flex min-w-0 flex-col",
   section: "flex flex-col gap-3 pt-6 first:pt-0",
   sectionHead: "border-rule-strong flex items-baseline gap-3 border-b-2 pb-1.5",
   step: "text-meta text-ink-faint tabular-nums",
   sectionLabel: "font-serif text-item-sm font-semibold",
   hint: "text-meta text-ink-faint",
-  row: "border-rule flex items-start gap-3 border-b py-2.5",
+  // 勾選框本身已經把一列一列分開了，再畫線只是多一層格線
+  row: "flex items-start gap-3 py-2.5",
   // 模組名字都很短，一欄一列把整頁拉得很長。不寫死兩欄：放得下就併排，
   // 放不下自己換行——最長的是「沿用出處的封面」，窄螢幕硬擠兩欄會斷字
   moduleGrid: "flex flex-wrap gap-x-6",
@@ -50,50 +48,6 @@ const styles = {
   pickIdle: "text-ink-muted",
   pickHint: "text-meta text-ink-faint ml-auto pl-2",
 };
-
-/** 依勾選的模組組出示意內容：紀錄用 CoverCard，片段／書寫用 FragmentCard——跟畫面上真正的畫法一致 */
-function TypePreview({
-  group,
-  name,
-  picked,
-}: {
-  group: KindGroup;
-  name: string;
-  picked: string[];
-}) {
-  const has = (key: string) => picked.includes(key);
-  const title = name.trim() || "（類型名稱）";
-  const body = has("longText") ? "這裡是長文內容，支援分欄……" : undefined;
-
-  if (group === "records") {
-    const caption = has("longText")
-      ? "這裡是長文內容……"
-      : [has("creator") && "作者／來源人", has("amount") && "量"].filter(Boolean).join("・");
-    return (
-      <div className="max-w-56">
-        <CoverCard
-          id="preview"
-          title={title}
-          caption={caption || undefined}
-          meta={has("startDate") || has("endDate") ? "2026-01-01" : undefined}
-          coverUrl={has("cover") ? "" : undefined}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-72">
-      <FragmentCard
-        title={title}
-        label={has("gloss") ? "解釋" : undefined}
-        body={body}
-        meta={has("locator") ? "出處・位置" : undefined}
-        coverUrl={has("cover") ? "" : undefined}
-      />
-    </div>
-  );
-}
 
 function Section({
   step,
@@ -128,10 +82,13 @@ export function TypeBuilder({
   group,
   editing,
   onDone,
+  onDraftChange,
 }: {
   group: KindGroup;
   editing?: Kind;
   onDone?: () => void;
+  /** 每次改動把草稿往上報，右欄的預覽照它畫 */
+  onDraftChange?: (draft: TypeDraft) => void;
 }) {
   const router = useRouter();
   const done = onDone ?? (() => router.back());
@@ -140,6 +97,9 @@ export function TypeBuilder({
   const [slug, setSlug] = useState(editing?.slug ?? "");
   const [unit, setUnit] = useState(editing?.amountUnit ?? "");
   const [inheritsCover, setInheritsCover] = useState(editing?.inheritsCover ?? false);
+  const [cardStyle, setCardStyle] = useState<CardStyle>(
+    editing?.cardStyle ?? defaultCardStyle(group),
+  );
   const [picked, setPicked] = useState<string[]>(
     editing ? editing.modules.map((m) => m.key) : ["title"],
   );
@@ -148,6 +108,10 @@ export function TypeBuilder({
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
+
+  useEffect(() => {
+    onDraftChange?.({ group, name, picked, cardStyle, onCardStyleChange: setCardStyle });
+  }, [onDraftChange, group, name, picked, cardStyle]);
 
   const toggle = (key: string) =>
     setPicked((keys) => (keys.includes(key) ? keys.filter((k) => k !== key) : [...keys, key]));
@@ -162,6 +126,7 @@ export function TypeBuilder({
     setSlug(template.key);
     setUnit(template.amountUnit);
     setInheritsCover(template.inheritsCover ?? false);
+    setCardStyle(template.cardStyle ?? defaultCardStyle(group));
     setPicked([...template.modules]);
     setLabels({ ...template.labels });
   }
@@ -175,6 +140,7 @@ export function TypeBuilder({
       modules: picked,
       amountUnit: unit.trim(),
       inheritsCover,
+      cardStyle,
       labels,
     };
 
@@ -196,7 +162,7 @@ export function TypeBuilder({
       }}
       className={styles.frame}
     >
-      <div className={`${styles.main} max-w-2xl`}>
+      <div className="flex min-w-0 flex-col">
         <Section step="01" label="名稱">
           {/* 名稱與網址是同一件事的兩種寫法，並排看得到彼此。
               欄名收進 placeholder：Field 預設標籤與輸入框橫排，兩格並排就變四欄，
@@ -317,11 +283,6 @@ export function TypeBuilder({
             error={error}
           />
         </div>
-      </div>
-
-      <div className={styles.rail}>
-        <span className={styles.railLabel}>長出來會是這樣</span>
-        <TypePreview group={group} name={name} picked={picked} />
       </div>
     </form>
   );

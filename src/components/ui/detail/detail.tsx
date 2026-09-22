@@ -99,10 +99,14 @@ export function DetailHeader({
     <header className="border-rule-strong flex flex-col gap-6 border-b pb-6 md:flex-row">
       <div className="flex gap-4 sm:flex-1 md:gap-10">{children}</div>
       {facts && (
-        <div className="w-full shrink-0 md:w-52 md:border-l md:pl-6">
-          <DetailHeading title="基本資料" />
-          {facts}
-        </div>
+        <>
+          {/* 分隔線是獨立元素，兩側都靠父層的 gap——畫成 border-l 的話一邊 gap 一邊 padding */}
+          <div className="bg-rule hidden w-px shrink-0 md:block" />
+          <div className="w-full shrink-0 md:w-46">
+            <DetailHeading title="基本資料" />
+            {facts}
+          </div>
+        </>
       )}
     </header>
   );

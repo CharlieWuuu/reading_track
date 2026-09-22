@@ -50,7 +50,7 @@ function RecordSection({
       </div>
       <div className={COVER_CARD_GRID}>
         {items.map((item) => (
-          <OverviewCoverCard key={item.id} item={item} tintSeed={(row) => row.kindLabel} />
+          <OverviewCoverCard key={item.id} item={item} tintSeed={(row) => row.topicLabel} />
         ))}
       </div>
     </div>

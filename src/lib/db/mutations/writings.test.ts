@@ -31,6 +31,7 @@ function makeWriting(patch: Partial<Writing> = {}): Writing {
     kindId: "",
     kindName: "心得",
     kindCountUnit: "",
+    kindCardStyle: "fragment",
     kindSlug: "reflection",
     sourceId: "",
     private: "",

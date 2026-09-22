@@ -55,7 +55,7 @@ export function GroupOverview({
       headlineLabel={headlineLabel}
       done={done}
       unit={unit}
-      tintSeed={(item) => item.kindLabel}
+      tintSeed={(item) => item.topicLabel}
       onLoadMore={onLoadMore}
       hasMore={hasMore}
       isLoadingMore={isLoadingMore}

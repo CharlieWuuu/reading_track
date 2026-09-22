@@ -18,11 +18,13 @@ import { byMonth, OverviewItem } from "@/utils/overview";
  */
 
 const styles = {
-  frame: "flex min-h-0 min-w-0 flex-1 items-stretch gap-8",
+  frame: "flex min-h-0 min-w-0 flex-1 items-stretch gap-6",
+  // 分隔線是獨立元素，跟側欄同一種寫法：兩側都靠 frame 的 gap，不必一邊 gap 一邊 padding
+  rule: "bg-rule-strong hidden w-px shrink-0 lg:block",
   // 自己的捲動條：中間月份格線很長，右邊窄欄通常很短，兩邊各捲各的，
   // 不要因為其中一邊比較長就把另一邊也拖走
   main: "flex min-w-0 flex-1 flex-col gap-5 overflow-y-auto",
-  rail: "border-rule-strong hidden w-64 shrink-0 flex-col gap-8 self-stretch overflow-y-auto border-l pl-6 lg:flex",
+  rail: "hidden w-58 shrink-0 flex-col gap-8 self-stretch overflow-y-auto lg:flex",
   // 窄螢幕沒有右欄，同一份內容改插在頭條下面——「現在在讀什麼」比「上個月讀完什麼」先看到
   railInline: "flex flex-col gap-5 lg:hidden",
   meta: "text-meta text-ink-faint tabular-nums",
@@ -51,7 +53,7 @@ export function OverviewCoverCard({
       title={item.title}
       coverUrl={item.coverUrl}
       meta={item.endDate}
-      label={item.kindLabel}
+      label={item.topicLabel}
       caption={item.byline}
       tintSeed={tintSeed?.(item)}
     />
@@ -176,7 +178,12 @@ export function OverviewLayout({
         {isLoadingMore && <div className={styles.loadingMore}>載入中…</div>}
       </div>
 
-      {rail && <div className={styles.rail}>{rail}</div>}
+      {rail && (
+        <>
+          <div className={styles.rule} />
+          <div className={styles.rail}>{rail}</div>
+        </>
+      )}
     </div>
   );
 }

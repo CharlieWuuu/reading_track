@@ -1,4 +1,5 @@
 import { and, asc, count, eq, isNull, or } from "drizzle-orm";
+import { CardStyle, toCardStyle } from "@/config/card-styles";
 import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
 import { fields as fieldsTable } from "@/lib/db/schema/fields";
@@ -28,6 +29,8 @@ export type Kind = {
   countUnit: string;
   /** 自己沒封面時要不要用連到的作品的封面 */
   inheritsCover: boolean;
+  /** 清單上一筆長什麼樣 */
+  cardStyle: CardStyle;
   /** 底下有幾筆。側欄用它決定要不要列 */
   count: number;
   /** 勾了哪些模組，以及它們在這個類型叫什麼。交給 resolveFormModules */
@@ -117,6 +120,7 @@ export async function listKinds(userId: string): Promise<Kind[]> {
     amountUnit: kind.amountUnit,
     countUnit: kind.countUnit,
     inheritsCover: kind.inheritsCover,
+    cardStyle: toCardStyle(kind.cardStyle, kind.groupKey as KindGroup),
     count: counts.get(kind.id) ?? 0,
     sortOrder,
     modules: (fieldsByKind.get(kind.id) ?? [])

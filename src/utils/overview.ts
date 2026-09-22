@@ -18,7 +18,7 @@ export type OverviewItem = {
   startDate?: string | null;
   endDate?: string | null;
   /** 混排時用來說明這是哪一種東西——同一頁裡書籍與電影要分得出來 */
-  kindLabel?: string;
+  topicLabel?: string;
 };
 
 export type MonthGroup = {

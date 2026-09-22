@@ -1,3 +1,4 @@
+import { CardStyle } from "./card-styles";
 import { ModuleKey } from "./modules";
 import { KindGroup } from "./record-kinds";
 
@@ -19,6 +20,8 @@ export type KindTemplate = {
   modules: ModuleKey[];
   /** 自己沒封面時用出處的封面。佳句與書寫是從某本書長出來的，單字關鍵字不是 */
   inheritsCover?: boolean;
+  /** 清單上一筆的畫法。沒寫就用該 group 的預設 */
+  cardStyle?: CardStyle;
   /** 模組在這個類型叫什麼。沒寫就用模組庫的預設名 */
   labels?: Partial<Record<ModuleKey, string>>;
 };
@@ -95,6 +98,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
   {
     key: "quotes",
     inheritsCover: true,
+    cardStyle: "quote", // 一句話排成引文，不切成方格
     group: "fragments",
     name: "佳句",
     amountUnit: "",
