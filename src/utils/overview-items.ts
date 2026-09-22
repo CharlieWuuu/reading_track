@@ -23,7 +23,7 @@ export const bookItem = (book: Book): OverviewItem => ({
   coverUrl: book.coverUrl,
   startDate: book.startDate,
   endDate: book.endDate,
-  kindLabel: "書籍",
+  topicLabel: "書籍",
 });
 
 export const articleItem = (article: Article): OverviewItem => ({
@@ -34,7 +34,7 @@ export const articleItem = (article: Article): OverviewItem => ({
   // 沒有封面欄位就整個不畫，不要留一塊空的佔位
   startDate: null,
   endDate: article.endDate,
-  kindLabel: "文章",
+  topicLabel: "文章",
 });
 
 export const writingItem = (writing: Writing): OverviewItem => ({
@@ -45,7 +45,7 @@ export const writingItem = (writing: Writing): OverviewItem => ({
   coverUrl: writing.coverUrl,
   startDate: writing.endDate,
   endDate: writing.endDate && `${writing.endDate}`,
-  kindLabel: writing.topic,
+  topicLabel: writing.topic,
 });
 
 /**
@@ -63,7 +63,7 @@ export const recordItem = (row: RecordRow): OverviewItem => ({
   coverUrl: row.coverUrl || undefined,
   startDate: row.startDate,
   endDate: row.endDate,
-  kindLabel: row.kindName,
+  topicLabel: row.domain, // 卡片右上那行綠字是主題，書籍概覽頁從以前就是這樣
 });
 
 /**
@@ -141,7 +141,7 @@ export const fragmentItem = (row: FragmentRow): OverviewItem => {
     href: fragmentHref(row),
     startDate: day,
     endDate: day,
-    kindLabel: row.kindName,
+    topicLabel: row.domain,
     coverUrl: row.coverUrl,
   };
 };

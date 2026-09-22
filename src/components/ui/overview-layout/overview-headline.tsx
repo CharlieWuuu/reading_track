@@ -46,7 +46,7 @@ export function OverviewHeadline({
           <Link href={item.href} className={`${styles.title} truncate`}>
             {item.title}
           </Link>
-          <span className={styles.byline}>{joinMeta([item.byline, item.kindLabel])}</span>
+          <span className={styles.byline}>{joinMeta([item.byline, item.topicLabel])}</span>
           {summary && <p className={`${styles.summary} line-clamp-2`}>{summary}</p>}
           {item.startDate && (
             <span className={styles.meta}>

@@ -98,7 +98,7 @@ export function GroupTable({
                   )}
                 </td>
                 <td className={styles.td}>
-                  <TagList values={[item.kindLabel]} tone="article" size="sm" wrap={false} />
+                  <TagList values={[item.topicLabel]} tone="article" size="sm" wrap={false} />
                 </td>
                 <td className={styles.td}>
                   {editing && form ? (
@@ -177,7 +177,7 @@ export function GroupTable({
             )}
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline gap-2">
-                <TagList values={[item.kindLabel]} tone="article" size="sm" wrap={false} />
+                <TagList values={[item.topicLabel]} tone="article" size="sm" wrap={false} />
                 <span className={styles.meta}>{item.endDate ?? item.startDate ?? ""}</span>
               </div>
               <p className={`${styles.title} truncate`}>{item.title}</p>

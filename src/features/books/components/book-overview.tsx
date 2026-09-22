@@ -34,7 +34,7 @@ const toItem = (book: Book): OverviewItem => ({
   coverUrl: book.coverUrl,
   startDate: book.startDate,
   endDate: book.endDate,
-  kindLabel: book.domain,
+  topicLabel: book.domain,
 });
 
 /** 總共：小標籤、大數字、一行說明——跟「最厚的」那幾格同一套版型 */
@@ -155,7 +155,7 @@ export function BookOverview({
       headlineLabel="在讀 · 最近開始的一本"
       headlineSummary={headlineNotes[0]?.note}
       done={doneItems}
-      tintSeed={(item) => item.kindLabel}
+      tintSeed={(item) => item.topicLabel}
       rail={
         <>
           <TotalStats stats={totalStats} />
