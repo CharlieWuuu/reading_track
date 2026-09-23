@@ -1,5 +1,6 @@
 import { and, asc, count, eq, isNull, or } from "drizzle-orm";
 import { CardStyle, toCardStyle } from "@/config/card-styles";
+import { toKindViews } from "@/config/kind-views";
 import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
 import { fields as fieldsTable } from "@/lib/db/schema/fields";
@@ -7,6 +8,7 @@ import { fragments } from "@/lib/db/schema/fragments";
 import { kinds as kindsTable, mapKindField, userKinds } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
+import { BookViewMode } from "@/stores/use-book-view-store";
 import { ModuleOverride } from "@/utils/record-form";
 
 /**
@@ -31,6 +33,8 @@ export type Kind = {
   inheritsCover: boolean;
   /** 清單上一筆長什麼樣 */
   cardStyle: CardStyle;
+  /** 這個類型有哪幾種看法 */
+  views: BookViewMode[];
   /** 底下有幾筆。側欄用它決定要不要列 */
   count: number;
   /** 勾了哪些模組，以及它們在這個類型叫什麼。交給 resolveFormModules */
@@ -121,6 +125,7 @@ export async function listKinds(userId: string): Promise<Kind[]> {
     countUnit: kind.countUnit,
     inheritsCover: kind.inheritsCover,
     cardStyle: toCardStyle(kind.cardStyle, kind.groupKey as KindGroup),
+    views: toKindViews(kind.views),
     count: counts.get(kind.id) ?? 0,
     sortOrder,
     modules: (fieldsByKind.get(kind.id) ?? [])

@@ -8,16 +8,16 @@ import { KindViewMenu } from "@/features/kinds/kind-view-menu";
 import { VocabularySection } from "@/features/notes/components/vocabulary-section";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
 import { useBookView } from "@/hooks/use-book-view";
+import { useKindViews } from "@/hooks/use-kind-views";
 
 /** 單字的概覽／表格／統計。單字是一個類型，跟其他類型頁同一顆選單 */
 export default function VocabularyPage() {
   const view = useBookView();
+  const views = useKindViews("fragments", "vocabulary");
 
   return (
     <Suspense fallback={null}>
-      <ReadingHeader
-        views={<KindViewMenu modes={["overview", "table", "stats"]} overviewLabel="概覽" />}
-      />
+      <ReadingHeader views={<KindViewMenu modes={views} />} />
       <PageBody>
         {view === "stats" ? (
           <KindStatsBySlug slug="vocabulary" />

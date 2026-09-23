@@ -1,3 +1,4 @@
+import type { BookViewMode } from "@/stores/use-book-view-store";
 import { CardStyle } from "./card-styles";
 import { ModuleKey } from "./modules";
 import { KindGroup } from "./record-kinds";
@@ -22,6 +23,8 @@ export type KindTemplate = {
   inheritsCover?: boolean;
   /** 清單上一筆的畫法。沒寫就用該 group 的預設 */
   cardStyle?: CardStyle;
+  /** 有哪幾種看法。沒寫就用 DEFAULT_VIEWS */
+  views?: readonly BookViewMode[];
   /** 模組在這個類型叫什麼。沒寫就用模組庫的預設名 */
   labels?: Partial<Record<ModuleKey, string>>;
 };

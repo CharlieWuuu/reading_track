@@ -7,11 +7,13 @@ import { Field } from "@/components/ui/field/field";
 import { FormActions } from "@/components/ui/form-actions";
 import { CardStyle, defaultCardStyle } from "@/config/card-styles";
 import { KindTemplate, templatesOf } from "@/config/kind-templates";
+import { DEFAULT_VIEWS } from "@/config/kind-views";
 import { MODULES } from "@/config/modules";
 import { KindGroup } from "@/config/record-kinds";
 import type { TypeDraft } from "@/features/settings/components/type-preview";
 import { useKinds } from "@/hooks/use-kinds";
 import { Kind } from "@/lib/db/queries/kinds";
+import { BookViewMode } from "@/stores/use-book-view-store";
 
 /** 每個類型都有的那幾個不列出來——列了也不能取消勾，只會讓人以為關得掉 */
 const PICKABLE = MODULES.filter((module) => !("always" in module));
@@ -100,6 +102,7 @@ export function TypeBuilder({
   const [cardStyle, setCardStyle] = useState<CardStyle>(
     editing?.cardStyle ?? defaultCardStyle(group),
   );
+  const [views, setViews] = useState<BookViewMode[]>(editing?.views ?? DEFAULT_VIEWS);
   const [picked, setPicked] = useState<string[]>(
     editing ? editing.modules.map((m) => m.key) : ["title"],
   );
@@ -110,8 +113,16 @@ export function TypeBuilder({
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    onDraftChange?.({ group, name, picked, cardStyle, onCardStyleChange: setCardStyle });
-  }, [onDraftChange, group, name, picked, cardStyle]);
+    onDraftChange?.({
+      group,
+      name,
+      picked,
+      cardStyle,
+      onCardStyleChange: setCardStyle,
+      views,
+      onViewsChange: setViews,
+    });
+  }, [onDraftChange, group, name, picked, cardStyle, views]);
 
   const toggle = (key: string) =>
     setPicked((keys) => (keys.includes(key) ? keys.filter((k) => k !== key) : [...keys, key]));
@@ -127,6 +138,7 @@ export function TypeBuilder({
     setUnit(template.amountUnit);
     setInheritsCover(template.inheritsCover ?? false);
     setCardStyle(template.cardStyle ?? defaultCardStyle(group));
+    setViews([...(template.views ?? DEFAULT_VIEWS)]);
     setPicked([...template.modules]);
     setLabels({ ...template.labels });
   }
@@ -141,6 +153,7 @@ export function TypeBuilder({
       amountUnit: unit.trim(),
       inheritsCover,
       cardStyle,
+      views,
       labels,
     };
 

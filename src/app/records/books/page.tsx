@@ -4,10 +4,11 @@ import { Suspense } from "react";
 import { PageBody } from "@/components/layout/page-body";
 import { BookTable } from "@/features/books/components/book-table";
 import { KindStatsBySlug } from "@/features/kinds/kind-stats-by-slug";
-import { BookViewMenu } from "@/features/reading/components/book-view-menu";
+import { KindViewMenu } from "@/features/kinds/kind-view-menu";
 import { ReadingHeader } from "@/features/reading/components/reading-header";
 import { useBookView } from "@/hooks/use-book-view";
 import { useFilteredBooks } from "@/hooks/use-filtered-books";
+import { useKindViews } from "@/hooks/use-kind-views";
 import { useMounted } from "@/hooks/use-mounted";
 import { Book } from "@/types/book";
 import { rootId } from "@/utils/book-reads";
@@ -40,11 +41,12 @@ function BooksPageBody() {
 /** 讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */
 export default function BooksPage() {
   const { books } = useFilteredBooks();
+  const views = useKindViews("records", "books"); // 有哪幾種看法由類型自己說，不寫在這一頁
 
   return (
     <Suspense fallback={null}>
       <ReadingHeader
-        views={<BookViewMenu />}
+        views={<KindViewMenu modes={views} cardLabel="書封" />}
         meta={books.length > 0 ? bookMeta(books) : undefined}
       />
       <BooksPageBody />

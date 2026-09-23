@@ -30,6 +30,13 @@ export const kinds = pgTable(
      * 挑畫法是類型的屬性，跟勾哪些欄位同一件事，所以存在這裡由使用者自己選。
      */
     cardStyle: text("card_style").notNull().default("fragment"),
+    /**
+     * 這個類型有哪幾種看法：概覽、表格、卡片、統計，逗號相接。
+     *
+     * 本來寫死在 records/books 與 records/articles 兩支頁面檔裡，所以只有那兩種
+     * 有檢視切換，自訂類型點進去就一種看法。勾了幾種就長出幾個選項，一種就不顯示選單。
+     */
+    views: text("views").notNull().default("overview"),
     /** 量的單位：頁、分鐘、字。統計讀「量＋單位」自己長句子，加類型不用改統計 */
     amountUnit: text("amount_unit").notNull().default(""),
     /** 個數的單位：則、篇、部。跟 amount_unit 不同——那個是份量，這個是「幾件」。沒填就是「筆」 */
