@@ -9,6 +9,7 @@ import {
   unauthorized,
 } from "@/app/api/_lib/respond";
 import { toCardStyle } from "@/config/card-styles";
+import { toKindViews } from "@/config/kind-views";
 import { moduleDef } from "@/config/modules";
 import { hideKind, mergeKinds, updateKind } from "@/lib/db/mutations/kinds";
 import { listKinds } from "@/lib/db/queries/kinds";
@@ -37,6 +38,7 @@ export const PATCH = guarded(
       amountUnit?: unknown;
       inheritsCover?: unknown;
       cardStyle?: unknown;
+      views?: unknown;
       labels?: unknown;
     }>(req, "kind PATCH");
     if (!body) return badRequest("看不懂的內容");
@@ -59,6 +61,10 @@ export const PATCH = guarded(
     const amountUnit = typeof body.amountUnit === "string" ? body.amountUnit.trim() : "";
     const inheritsCover = body.inheritsCover === true;
     // 認不得的畫法落回該 group 的預設，不讓客戶端往資料庫塞任意字串
+    // 認不得的看法丟掉，一種都不剩就退回概覽
+    const views = toKindViews(
+      Array.isArray(body.views) ? body.views.filter((v) => typeof v === "string").join(",") : "",
+    );
     const cardStyle = toCardStyle(
       typeof body.cardStyle === "string" ? body.cardStyle : "",
       current.group,
@@ -108,6 +114,7 @@ export const PATCH = guarded(
         amountUnit,
         inheritsCover,
         cardStyle,
+        views,
         labels,
       });
       return NextResponse.json({ id: newId });

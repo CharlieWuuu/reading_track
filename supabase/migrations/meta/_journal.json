@@ -162,6 +162,13 @@
       "when": 1789925244511,
       "tag": "0022_card_style",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1789925244512,
+      "tag": "0023_kind_views",
+      "breakpoints": true
     }
   ]
 }

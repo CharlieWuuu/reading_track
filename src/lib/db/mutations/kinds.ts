@@ -1,6 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 import { CardStyle, defaultCardStyle } from "@/config/card-styles";
 import { KIND_TEMPLATES, KindTemplate, STARTER_KEYS } from "@/config/kind-templates";
+import { DEFAULT_VIEWS, fromKindViews } from "@/config/kind-views";
 import { moduleDef } from "@/config/modules";
 import { KindGroup } from "@/config/record-kinds";
 import { db, type Tx } from "@/lib/db/client";
@@ -9,6 +10,7 @@ import { fragments } from "@/lib/db/schema/fragments";
 import { kinds, mapKindField, userKinds } from "@/lib/db/schema/kinds";
 import { works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
+import { BookViewMode } from "@/stores/use-book-view-store";
 
 /**
  * 類型的寫入。
@@ -28,6 +30,8 @@ export type NewKind = {
   inheritsCover: boolean;
   /** 清單上一筆長什麼樣 */
   cardStyle: CardStyle;
+  /** 有哪幾種看法 */
+  views: BookViewMode[];
   /** 模組在這個類型叫什麼 */
   labels?: Record<string, string>;
 };
@@ -64,6 +68,7 @@ async function insertKind(
       amountUnit: kind.amountUnit,
       inheritsCover: kind.inheritsCover,
       cardStyle: kind.cardStyle,
+      views: fromKindViews(kind.views),
       sortOrder,
     })
     .returning({ id: kinds.id });
@@ -101,6 +106,7 @@ const fromTemplate = (template: KindTemplate): NewKind => ({
   amountUnit: template.amountUnit,
   inheritsCover: template.inheritsCover ?? false,
   cardStyle: template.cardStyle ?? defaultCardStyle(template.group),
+  views: [...(template.views ?? DEFAULT_VIEWS)],
   labels: template.labels,
 });
 
@@ -201,6 +207,7 @@ export async function updateKind(userId: string, kindId: string, patch: NewKind)
         amountUnit: patch.amountUnit,
         inheritsCover: patch.inheritsCover,
         cardStyle: patch.cardStyle,
+        views: fromKindViews(patch.views),
       })
       .where(and(eq(kinds.id, kindId), eq(kinds.userId, userId)));
 

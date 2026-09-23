@@ -115,9 +115,8 @@ export function KindListPage({ group, slug }: KindRouteProps) {
         action={
           kind && (
             <div className="flex min-w-0 items-center gap-2">
-              {/* 自訂類型也要有統計：清單與統計是同一批資料的兩種看法。
-                  概覽與表格是紀錄那一套的排法，通用清單還沒有，所以只給這兩項 */}
-              <KindViewMenu />
+              {/* 有哪幾種看法由類型自己勾，不再寫死——本來只有書籍與文章有切換鈕 */}
+              <KindViewMenu modes={kind.views} />
               <ActionButton href={`${kindHref(kind.group, kind.slug)}/new`} text="新增">
                 <Plus size={16} strokeWidth={2} aria-hidden />
               </ActionButton>

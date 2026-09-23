@@ -6,6 +6,7 @@ import { KindGroup } from "@/config/record-kinds";
 import { TypeBuilder } from "@/features/settings/components/type-builder";
 import {
   CardStylePicker,
+  KindViewsPicker,
   TypeDraft,
   TypePreview,
 } from "@/features/settings/components/type-preview";
@@ -170,6 +171,8 @@ export function KindPanel() {
       <div className={styles.rail}>
         {draft && (
           <div className="flex flex-col gap-4">
+            <span className={styles.railLabel}>看法</span>
+            <KindViewsPicker views={draft.views} onChange={draft.onViewsChange} />
             <span className={styles.railLabel}>預覽</span>
             <CardStylePicker cardStyle={draft.cardStyle} onChange={draft.onCardStyleChange} />
             <TypePreview {...draft} />
