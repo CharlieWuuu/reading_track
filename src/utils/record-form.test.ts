@@ -14,7 +14,7 @@ const asOverrides = (key: string) => {
   const template = templateByKey(key)!;
   return template.modules.map((module) => ({
     key: module,
-    label: template.labels?.[module] || moduleDef(module)!.label,
+    label: moduleDef(module)!.label,
   }));
 };
 
@@ -25,11 +25,9 @@ describe("resolveFormModules", () => {
     expect(keys).not.toContain("gloss");
   });
 
-  it("類型只改名字，模組還是同一批", () => {
-    const book = resolveFormModules(asOverrides("books"));
-    const movie = resolveFormModules(asOverrides("movie"));
-    expect(book.find((m) => m.key === "creator")?.label).toBe("作者");
-    expect(movie.find((m) => m.key === "creator")?.label).toBe("導演");
+  it("使用者改的名字照用", () => {
+    const modules = resolveFormModules([{ key: "creator", label: "導演" }]);
+    expect(modules.find((m) => m.key === "creator")?.label).toBe("導演");
   });
 
   it("認不得的 key 忽略掉", () => {

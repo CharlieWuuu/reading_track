@@ -9,6 +9,8 @@ import { KindGroup } from "./record-kinds";
  * 使用者要「書籍」就套一份，欄位我們已經想好了，他不用自己想要有哪些。
  * 他把書籍刪掉，是他那份資料沒了——範本還在，隨時能再套一次。
  *
+ * 模組名稱不在範本裡改：同一個模組到哪一種都叫同一個名字。
+ *
  * 套完就是他的了：改名字、加減模組、改單位都行，改動不會回頭影響範本。
  */
 
@@ -25,8 +27,6 @@ export type KindTemplate = {
   cardStyle?: CardStyle;
   /** 有哪幾種看法。沒寫就用 DEFAULT_VIEWS */
   views?: readonly BookViewMode[];
-  /** 模組在這個類型叫什麼。沒寫就用模組庫的預設名 */
-  labels?: Partial<Record<ModuleKey, string>>;
 };
 
 const RECORD_BASE: ModuleKey[] = ["title", "creator", "externalUrl", "startDate", "endDate"];
@@ -48,7 +48,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
       "topic",
       "attribute",
     ],
-    labels: { creator: "作者", amount: "頁數", externalId: "ISBN", longText: "摘要" },
   },
   {
     key: "articles",
@@ -56,7 +55,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     name: "文章",
     amountUnit: "字",
     modules: [...RECORD_BASE, "longText", "amount", "platform", "language", "topic", "attribute"],
-    labels: { creator: "作者", amount: "字數", platform: "媒體", longText: "摘要" },
   },
   {
     key: "movie",
@@ -64,7 +62,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     name: "電影",
     amountUnit: "分鐘",
     modules: [...RECORD_BASE, "cover", "amount"],
-    labels: { creator: "導演", amount: "片長" },
   },
   {
     key: "podcast",
@@ -72,7 +69,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     name: "Podcast",
     amountUnit: "分鐘",
     modules: [...RECORD_BASE, "amount"],
-    labels: { creator: "主持人", amount: "時長" },
   },
   {
     key: "youtube",
@@ -80,7 +76,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     name: "YouTube",
     amountUnit: "分鐘",
     modules: [...RECORD_BASE, "cover", "amount"],
-    labels: { creator: "頻道", amount: "片長" },
   },
   {
     key: "exhibition",
@@ -88,7 +83,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     name: "展覽",
     amountUnit: "小時",
     modules: [...RECORD_BASE, "cover"],
-    labels: { creator: "策展人", externalUrl: "官網" },
   },
   {
     key: "course",
@@ -96,7 +90,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     name: "線上課程",
     amountUnit: "小時",
     modules: [...RECORD_BASE, "amount"],
-    labels: { creator: "講師", amount: "時數" },
   },
   {
     key: "quotes",
@@ -106,7 +99,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     name: "佳句",
     amountUnit: "",
     modules: ["title", "locator", "endDate"],
-    labels: { title: "原文" },
   },
   {
     key: "vocabulary",
@@ -122,7 +114,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
       "locator",
       "endDate",
     ],
-    labels: { title: "單字", translation: "字義" },
   },
   {
     key: "keywords",
@@ -130,12 +121,6 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     name: "關鍵字",
     amountUnit: "",
     modules: ["title", "longText", "tags", "years", "coordinates", "externalUrl"],
-    labels: {
-      title: "詞條",
-      longText: "維基摘要",
-      tags: "學科",
-      externalUrl: "維基連結",
-    },
   },
   {
     key: "reflection",

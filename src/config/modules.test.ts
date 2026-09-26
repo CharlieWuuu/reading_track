@@ -25,15 +25,6 @@ describe("模組庫", () => {
     expect(missing).toEqual([]);
   });
 
-  it("範本改名字的對象也要是它自己勾了的模組", () => {
-    const stray = KIND_TEMPLATES.flatMap((template) =>
-      Object.keys(template.labels ?? {})
-        .filter((key) => !template.modules.includes(key as never))
-        .map((key) => `${template.key}: ${key}`),
-    );
-    expect(stray).toEqual([]);
-  });
-
   it("展開成欄位時同一欄只留一次", () => {
     const keys = fieldsOfModules(["topic", "topic", "creator"]);
     expect(keys).toEqual([...new Set(keys)]);
