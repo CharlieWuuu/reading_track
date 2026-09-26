@@ -67,11 +67,11 @@ export const MODULES = [
   { key: "title", label: "標題", fields: ["title"] },
   {
     key: "creator",
-    label: "作者／來源人",
+    label: "作者",
     fields: ["creator"],
     stat: ["ranking"],
   },
-  { key: "longText", label: "長文", fields: ["body"] },
+  { key: "longText", label: "內文", fields: ["body"] },
   { key: "translation", label: "解釋", fields: ["translation"] },
   { key: "locator", label: "位置", fields: ["locator"] },
   { key: "cover", label: "封面圖", fields: ["coverUrl"] },
@@ -97,7 +97,7 @@ export const MODULES = [
   },
   {
     key: "amount",
-    label: "量",
+    label: "數量",
     fields: ["amount"],
     stat: ["sum"],
   },

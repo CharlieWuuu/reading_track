@@ -169,6 +169,13 @@
       "when": 1789925244512,
       "tag": "0023_kind_views",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1789925244513,
+      "tag": "0024_uniform_labels",
+      "breakpoints": true
     }
   ]
 }

@@ -79,7 +79,7 @@ export function TypePreview({
 }: Pick<TypeDraft, "name" | "picked" | "cardStyle">) {
   const has = (key: string) => picked.includes(key);
   const title = name.trim() || "（類型名稱）";
-  const body = has("longText") ? "這裡是長文內容，支援分欄……" : undefined;
+  const body = has("longText") ? "這裡是內文，支援分欄……" : undefined;
 
   if (cardStyle === "quote") {
     return <Quote text={title} source={has("locator") ? "出處・位置" : undefined} />;
@@ -91,8 +91,8 @@ export function TypePreview({
 
   if (cardStyle === "cover") {
     const caption = has("longText")
-      ? "這裡是長文內容……"
-      : [has("creator") && "作者／來源人", has("amount") && "量"].filter(Boolean).join("・");
+      ? "這裡是內文……"
+      : [has("creator") && "作者", has("amount") && "數量"].filter(Boolean).join("・");
     return (
       <CoverCard
         id="preview"

@@ -140,7 +140,7 @@ export function TypeBuilder({
     setCardStyle(template.cardStyle ?? defaultCardStyle(group));
     setViews([...(template.views ?? DEFAULT_VIEWS)]);
     setPicked([...template.modules]);
-    setLabels({ ...template.labels });
+    setLabels({});
   }
 
   async function save() {

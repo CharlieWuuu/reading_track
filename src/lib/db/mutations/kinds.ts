@@ -107,7 +107,6 @@ const fromTemplate = (template: KindTemplate): NewKind => ({
   inheritsCover: template.inheritsCover ?? false,
   cardStyle: template.cardStyle ?? defaultCardStyle(template.group),
   views: [...(template.views ?? DEFAULT_VIEWS)],
-  labels: template.labels,
 });
 
 /** 排在同一個 group 的最後面。順序是各人的事，只看自己在用的那幾種 */
