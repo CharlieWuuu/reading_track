@@ -82,7 +82,7 @@ async function seedKindsInto(db: typeof Db, userId: string): Promise<void> {
 
     const fieldRows = await Promise.all(
       template.modules.map(async (key, index) => {
-        const label = template.labels?.[key] || moduleDef(key)!.label;
+        const label = moduleDef(key)!.label;
         const [existingField] = await db
           .select({ id: fields.id })
           .from(fields)
