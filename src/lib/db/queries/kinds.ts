@@ -1,6 +1,6 @@
 import { and, asc, count, eq, isNull, or } from "drizzle-orm";
 import { CardStyle, toCardStyle } from "@/config/card-styles";
-import { KindDisplay, toCardGroupBy } from "@/config/kind-display";
+import { KindDisplay } from "@/config/kind-display";
 import { KindGroup } from "@/config/kind-groups";
 import { toKindViews } from "@/config/kind-views";
 import { db } from "@/lib/db/client";
@@ -127,7 +127,6 @@ export async function listKinds(userId: string): Promise<Kind[]> {
     inheritsCover: kind.inheritsCover,
     cardStyle: toCardStyle(kind.cardStyle, kind.groupKey as KindGroup),
     views: toKindViews(kind.views),
-    cardGroupBy: toCardGroupBy(kind.cardGroupBy),
     countRereads: kind.countRereads,
     numberDone: kind.numberDone,
     count: counts.get(kind.id) ?? 0,

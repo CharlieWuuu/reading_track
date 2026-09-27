@@ -37,8 +37,6 @@ export const kinds = pgTable(
      * 有檢視切換，自訂類型點進去就一種顯示方式。勾幾個就長出幾個選項。
      */
     views: text("views").notNull().default("overview"),
-    /** 卡片牆照月或照年分段。合法值由 config/kind-display 管 */
-    cardGroupBy: text("card_group_by").notNull().default("month"),
     /** 頁首寫「133 次・128 本」：同一個作品讀兩次算兩次 */
     countRereads: boolean("count_rereads").notNull().default(false),
     /** 讀完的依序編號 #128 */
