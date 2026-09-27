@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { KindGroup } from "@/config/record-kinds";
+import { KindGroup } from "@/config/kind-groups";
 import { db } from "@/lib/db/client";
 import { kinds } from "@/lib/db/schema/kinds";
 

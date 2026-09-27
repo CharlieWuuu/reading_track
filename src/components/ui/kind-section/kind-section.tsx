@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { KindCards } from "@/components/ui/kind-cards/kind-cards";
+import { KindGroup } from "@/config/kind-groups";
 import { kindHref } from "@/config/kind-routes";
 import { unitOfKind } from "@/config/nav";
-import { KindGroup } from "@/config/record-kinds";
 import { fragmentCardData } from "@/utils/card-data";
 import { KindSection } from "@/utils/overview-sections";
 

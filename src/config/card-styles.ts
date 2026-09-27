@@ -1,4 +1,4 @@
-import { KindGroup } from "@/config/record-kinds";
+import { KindGroup } from "@/config/kind-groups";
 
 /**
  * 版面底下一筆長什麼樣。概覽與卡片牆都讀它——同一種卡片可以排成概覽，

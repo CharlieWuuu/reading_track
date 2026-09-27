@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from "react";
 import useSWR from "swr";
 import useSWRInfinite from "swr/infinite";
-import { KindGroup } from "@/config/record-kinds";
+import { KindGroup } from "@/config/kind-groups";
 import { PagedRecordRows, RecordRow } from "@/lib/db/queries/catalog";
 import { usePrivacyStore } from "@/stores/use-privacy-store";
 

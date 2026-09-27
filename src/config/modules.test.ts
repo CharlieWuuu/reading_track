@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { FIELDS } from "./fields";
 import { KIND_TEMPLATES } from "./kind-templates";
 import { fieldsOfModules, moduleDef, MODULES } from "./modules";
-import { RECORD_FIELDS } from "./record-fields";
 
 /**
  * 模組庫跟它指到的東西對不對得上。
@@ -13,7 +13,7 @@ import { RECORD_FIELDS } from "./record-fields";
 
 describe("模組庫", () => {
   it("每個模組指到的欄位都存在", () => {
-    const known = new Set(RECORD_FIELDS.map((field) => field.key));
+    const known = new Set(FIELDS.map((field) => field.key));
     const missing = MODULES.flatMap((m) => m.fields.filter((key) => !known.has(key))).map(String);
     expect(missing).toEqual([]);
   });

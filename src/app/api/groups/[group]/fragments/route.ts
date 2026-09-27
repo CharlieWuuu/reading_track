@@ -6,7 +6,7 @@ import {
   requireSession,
   unauthorized,
 } from "@/app/api/_lib/respond";
-import { KindGroup } from "@/config/record-kinds";
+import { KindGroup } from "@/config/kind-groups";
 import { listFragmentsByGroup } from "@/lib/db/queries/catalog";
 
 /** 片段與書寫共用：兩者同一張表，靠類型屬於哪個 group 分 */

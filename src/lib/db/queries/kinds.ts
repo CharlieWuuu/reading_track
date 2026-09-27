@@ -1,8 +1,8 @@
 import { and, asc, count, eq, isNull, or } from "drizzle-orm";
 import { CardStyle, toCardStyle } from "@/config/card-styles";
 import { KindDisplay, toCardGroupBy } from "@/config/kind-display";
+import { KindGroup } from "@/config/kind-groups";
 import { toKindViews } from "@/config/kind-views";
-import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
 import { fields as fieldsTable } from "@/lib/db/schema/fields";
 import { fragments } from "@/lib/db/schema/fragments";
@@ -10,7 +10,7 @@ import { kinds as kindsTable, mapKindField, userKinds } from "@/lib/db/schema/ki
 import { records, works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
 import { BookViewMode } from "@/stores/use-book-view-store";
-import { ModuleOverride } from "@/utils/record-form";
+import { ModuleOverride } from "@/utils/module-form";
 
 /**
  * 類型連同它的欄位別名。

@@ -2,9 +2,9 @@
 
 import { useCallback, useState } from "react";
 import { CardStyle, defaultCardStyle } from "@/config/card-styles";
+import { KindGroup } from "@/config/kind-groups";
 import { DEFAULT_VIEWS } from "@/config/kind-views";
 import { NAV_GROUPS } from "@/config/nav";
-import { KindGroup } from "@/config/record-kinds";
 import { TypeBuilder } from "@/features/settings/components/type-builder";
 import {
   CardStylePicker,

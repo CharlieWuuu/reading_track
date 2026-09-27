@@ -1,4 +1,4 @@
-import { KindGroup } from "./record-kinds";
+import { KindGroup } from "./kind-groups";
 
 /**
  * 導覽的四個分類。分類是「這是哪一種東西」，不是功能選單：

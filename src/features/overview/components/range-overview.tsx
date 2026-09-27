@@ -9,6 +9,7 @@ import { useGroupRecords } from "@/hooks/use-group-records";
 import { FragmentRow, RecordRow } from "@/lib/db/queries/catalog";
 import { StyledCard, styledFragment, styledRecord } from "@/utils/card-data";
 import { DateRange, itemsInRange } from "@/utils/date-range";
+import { fragmentsNewestFirst, recordsNewestFirst } from "@/utils/kind-list";
 
 /**
  * 年報、週報、日報共用的骨架：三個 group 各自一節。每一筆照它類型的卡片樣式畫，
@@ -69,9 +70,16 @@ export function RangeOverview({
   if (error) return <PageMessage tone="error">{error}</PageMessage>;
   if (isLoading) return <PageLoading />;
 
-  const recordCards = itemsInRange<RecordRow>(records.records, range).map(styledRecord);
-  const fragmentCards = itemsInRange<FragmentRow>(fragments.fragments, range).map(styledFragment);
-  const writingCards = itemsInRange<FragmentRow>(writings.fragments, range).map(styledFragment);
+  // 從最新往下：資料庫照建立時間由舊到新給
+  const recordCards = recordsNewestFirst(itemsInRange<RecordRow>(records.records, range)).map(
+    styledRecord,
+  );
+  const fragmentCards = fragmentsNewestFirst(
+    itemsInRange<FragmentRow>(fragments.fragments, range),
+  ).map(styledFragment);
+  const writingCards = fragmentsNewestFirst(
+    itemsInRange<FragmentRow>(writings.fragments, range),
+  ).map(styledFragment);
 
   const total = recordCards.length + fragmentCards.length + writingCards.length;
   if (total === 0) return <div className={styles.empty}>{emptyLabel}</div>;

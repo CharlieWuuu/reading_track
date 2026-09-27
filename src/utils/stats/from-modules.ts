@@ -1,5 +1,5 @@
+import type { FieldKey } from "@/config/fields";
 import { moduleDef, type StatKind } from "@/config/modules";
-import type { FieldKey } from "@/config/record-fields";
 
 /**
  * 一個類型勾了哪些模組，就該有哪幾張統計圖。

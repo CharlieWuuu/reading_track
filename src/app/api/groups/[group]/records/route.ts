@@ -6,7 +6,7 @@ import {
   requireSession,
   unauthorized,
 } from "@/app/api/_lib/respond";
-import { KindGroup } from "@/config/record-kinds";
+import { KindGroup } from "@/config/kind-groups";
 import {
   listActiveRecordsByGroup,
   listDoneRecordsByGroup,

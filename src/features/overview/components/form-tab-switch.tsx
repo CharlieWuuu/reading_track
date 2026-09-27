@@ -1,9 +1,9 @@
 "use client";
 
 import { styles } from "@/components/ui/controls/styles";
-import { KindGroup } from "@/config/record-kinds";
+import { KindGroup } from "@/config/kind-groups";
 import { useFormTabStore } from "@/stores/use-form-tab-store";
-import { FORM_TAB_LABELS, formTabsOf } from "@/utils/record-form";
+import { FORM_TAB_LABELS, formTabsOf } from "@/utils/module-form";
 
 /**
  * 表單頁首的分頁切換：紀錄是作品／內容／屬性，片段與書寫是內容／屬性。

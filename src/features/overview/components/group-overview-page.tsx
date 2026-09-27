@@ -6,7 +6,7 @@ import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { styledGrid } from "@/components/ui/kind-cards/kind-cards";
 import { KindSectionBlock } from "@/components/ui/kind-section/kind-section";
 import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headline";
-import { KindGroup } from "@/config/record-kinds";
+import { KindGroup } from "@/config/kind-groups";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { useGroupRecordsOverview } from "@/hooks/use-group-records-overview";
 import { useMounted } from "@/hooks/use-mounted";

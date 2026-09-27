@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { fieldDef } from "@/config/fields";
 import { templateByKey } from "@/config/kind-templates";
 import { moduleDef } from "@/config/modules";
-import { fieldDef } from "@/config/record-fields";
 import {
   autoEndDate,
   cellsOf,
@@ -14,7 +14,7 @@ import {
   pairRows,
   resolveFormModules,
   splitByTab,
-} from "./record-form";
+} from "./module-form";
 
 const asOverrides = (key: string) => {
   const template = templateByKey(key)!;
