@@ -14,11 +14,12 @@ const styles = {
 // 登入後的首頁：預設這個月
 export function Dashboard() {
   const today = new Date().toISOString().slice(0, 10);
+  const month = Number(today.slice(5, 7));
 
   return (
     <div className={styles.frame}>
       <div className={styles.head}>
-        <h1 className={styles.title}>本月</h1>
+        <h1 className={styles.title}>{month}月</h1>
         <IssueDate className={styles.meta} />
       </div>
       <RangeOverview range={monthRange(today)} emptyLabel="這個月還沒有新紀錄" />
