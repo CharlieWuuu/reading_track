@@ -1,3 +1,4 @@
+import { RecordStatus } from "@/types/book";
 import { byDateThenNewest } from "./record-order";
 
 /**
@@ -104,3 +105,14 @@ export const recordsNewestFirst = <T extends Dates>(rows: readonly T[]): T[] =>
 export const fragmentsNewestFirst = <T extends { date: string | null; createdAt?: string }>(
   rows: readonly T[],
 ): T[] => [...rows].sort(byDateThenNewest((row) => row.date));
+
+/** 狀態對到畫面上的字與點的顏色（STATUS_DOTS 用這組字當 key） */
+export const STATUS_LABEL: Record<Status, RecordStatus> = {
+  reading: "進行",
+  want: "想要",
+  done: "完成",
+};
+
+/** 書封格底下那行：完成的寫完成日，沒完成的寫狀態 */
+export const tileMeta = (endDate: string | null | undefined, status: Status): string =>
+  endDate && status === "done" ? `${endDate} 完成` : STATUS_LABEL[status];

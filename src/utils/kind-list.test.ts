@@ -8,6 +8,7 @@ import {
   recordsNewestFirst,
   splitByStatus,
   statusOf,
+  tileMeta,
 } from "./kind-list";
 
 describe("byYear", () => {
@@ -130,5 +131,13 @@ describe("fragmentsNewestFirst", () => {
       { id: "recent", date: "2026-09-10", createdAt: "2026-09-10" },
     ]);
     expect(rows.map((r) => r.id)).toEqual(["recent", "late-entry"]);
+  });
+});
+
+describe("tileMeta", () => {
+  it("完成的寫日期，沒完成的寫狀態", () => {
+    expect(tileMeta("2026-09-02", "done")).toBe("2026-09-02 完成");
+    expect(tileMeta(null, "reading")).toBe("進行");
+    expect(tileMeta(null, "want")).toBe("想要");
   });
 });
