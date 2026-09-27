@@ -4,11 +4,14 @@ import { moduleDef } from "@/config/modules";
 import { fieldDef } from "@/config/record-fields";
 import {
   autoEndDate,
+  cellsOf,
   fieldsOf,
   formModules,
   formTabsOf,
   hasAutoEndDate,
+  isFillField,
   isWideField,
+  pairRows,
   resolveFormModules,
   splitByTab,
 } from "./record-form";
@@ -204,5 +207,35 @@ describe("isWideField", () => {
       isWideField(fieldDef(key)!),
     );
     expect(wide).toEqual(["body", "example", "coverUrl"]);
+  });
+});
+
+describe("pairRows", () => {
+  const rows = (keys: string[]) =>
+    pairRows(cellsOf(resolveFormModules(keys.map((key) => ({ key, label: key }))))).map((row) =>
+      row.map((cell) => cell.field.key),
+    );
+
+  it("兩兩一排，寬的自己一列，不跳著補位", () => {
+    expect(rows(["title", "creator", "longText", "amount", "cover", "platform"])).toEqual([
+      ["title", "creator"],
+      ["body"],
+      ["amount"],
+      ["coverUrl"],
+      ["platform", "isPrivate"], // 私人是每個類型都有的，排在最後；內部連結不佔欄位
+    ]);
+  });
+
+  it("多欄的模組拆開，每欄用自己的名字", () => {
+    const cells = cellsOf(resolveFormModules([{ key: "years", label: "起訖年" }]));
+    expect(cells.map((cell) => cell.label).slice(0, 2)).toEqual(["起", "訖"]);
+  });
+});
+
+describe("isFillField", () => {
+  it("只有長文撐滿", () => {
+    expect(["body", "title", "coverUrl"].filter((key) => isFillField(fieldDef(key)!))).toEqual([
+      "body",
+    ]);
   });
 });

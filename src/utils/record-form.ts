@@ -113,3 +113,37 @@ export function fieldsOf(modules: readonly FormModule[]): FieldDef[] {
 const WIDE_TYPES = new Set<FieldDef["type"]>(["longText", "image"]);
 
 export const isWideField = (field: FieldDef): boolean => WIDE_TYPES.has(field.type);
+
+/** 長文撐滿頁面剩下的高度：寫心得、摘要時框越大越好寫，四行一下就滿了 */
+export const isFillField = (field: FieldDef): boolean => field.type === "longText";
+
+/** 表單上的一格：哪個模組的哪一欄，叫什麼名字 */
+export type FormCell = { module: FormModule; field: FieldDef; label: string };
+
+/**
+ * 模組展開成一格一格。只有一欄的模組用模組名（使用者在設定頁改的就是那個名字）；
+ * 多欄的每一欄用自己的預設名——「狀態」展開成開始與結束，第一格叫「狀態」會讓人以為要填狀態。
+ */
+export const cellsOf = (modules: readonly FormModule[]): FormCell[] =>
+  modules.flatMap((module) => {
+    const fields = fieldsOf([module]);
+    return fields.map((field) => ({
+      module,
+      field,
+      label: fields.length === 1 ? module.label : field.defaultLabel,
+    }));
+  });
+
+/**
+ * 照順序兩兩一排，寬的（isWideField）自己一列。
+ *
+ * 排成列而不是一整片格線：有長文的那一列要撐滿剩下的高度，得知道長文在哪一列。
+ * 不跳著補位——畫面順序要跟 Tab 鍵移動的順序一樣。
+ */
+export function pairRows(cells: readonly FormCell[]): FormCell[][] {
+  return cells.reduce<FormCell[][]>((rows, cell) => {
+    const last = rows.at(-1);
+    const joinable = last?.length === 1 && !isWideField(last[0].field) && !isWideField(cell.field);
+    return joinable ? [...rows.slice(0, -1), [last[0], cell]] : [...rows, [cell]];
+  }, []);
+}
