@@ -12,7 +12,7 @@ const RowMap = dynamic(() => import("@/features/stats/components/row-map").then(
   ssr: false,
   loading: () => (
     <div className="flex h-full items-center justify-center">
-      <Spinner size={20} className="text-gray-400" />
+      <Spinner size={20} className="text-ink-faint" />
     </div>
   ),
 });

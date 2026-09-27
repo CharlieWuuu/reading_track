@@ -58,7 +58,7 @@ export function CumulativeChart({
 
   if (rows.length === 0) {
     return (
-      <div className="flex h-64 items-center justify-center text-sm text-gray-400">
+      <div className="text-ink-faint flex h-64 items-center justify-center text-sm">
         尚無完成日期資料
       </div>
     );
