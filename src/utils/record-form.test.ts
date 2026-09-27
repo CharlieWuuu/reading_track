@@ -5,6 +5,7 @@ import {
   autoEndDate,
   fieldsOf,
   formModules,
+  formTabsOf,
   hasAutoEndDate,
   resolveFormModules,
   splitByTab,
@@ -135,7 +136,7 @@ describe("splitByTab", () => {
     { key: "topic", label: "領域" },
     { key: "tags", label: "標籤" },
   ]);
-  const { content, attributes } = splitByTab(modules);
+  const { content, attributes } = splitByTab(modules, "fragments");
 
   it("分類與關聯歸屬性頁", () => {
     const keys = attributes.map((m) => m.key);
@@ -148,5 +149,49 @@ describe("splitByTab", () => {
 
   it("兩頁加起來就是全部，不重不漏", () => {
     expect(content.length + attributes.length).toBe(modules.length);
+  });
+
+  it("片段沒有作品頁", () => {
+    expect(splitByTab(modules, "fragments").work).toEqual([]);
+  });
+});
+
+describe("splitByTab 紀錄", () => {
+  const modules = resolveFormModules(
+    [
+      "title",
+      "creator",
+      "longText",
+      "cover",
+      "amount",
+      "startDate",
+      "endDate",
+      "externalUrl",
+      "topic",
+    ].map((key) => ({ key, label: key })),
+  );
+  const { work, content, attributes } = splitByTab(modules, "records");
+
+  it("存在作品表的歸作品頁，摘要也是", () => {
+    expect(work.map((m) => m.key)).toEqual(["title", "creator", "longText", "cover", "amount"]);
+  });
+
+  it("這一次的日期與連結歸內容頁", () => {
+    expect(content.map((m) => m.key)).toEqual(["startDate", "endDate", "externalUrl"]);
+  });
+
+  it("分類照模組自己說的留在屬性頁", () => {
+    expect(attributes.map((m) => m.key)).toContain("topic");
+  });
+
+  it("三頁加起來就是全部", () => {
+    expect(work.length + content.length + attributes.length).toBe(modules.length);
+  });
+});
+
+describe("formTabsOf", () => {
+  it("紀錄多一頁作品，排第一", () => {
+    expect(formTabsOf("records")).toEqual(["work", "content", "attributes"]);
+    expect(formTabsOf("writings")).toEqual(["content", "attributes"]);
   });
 });
