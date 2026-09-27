@@ -24,7 +24,7 @@ const styles = {
   title: "font-serif text-page font-semibold",
   meta: "text-meta text-ink-faint tabular-nums",
   // 沒有頭條可畫時的替身，線與間距跟 OverviewHeadline 對齊
-  emptyBand: "border-rule-strong flex flex-col gap-5 border-b pb-5 md:flex-row md:gap-8",
+  emptyBand: "border-rule-strong flex flex-col gap-5 border-b pb-5 @2xl:flex-row @2xl:gap-8",
 };
 
 const recordItem = (row: RecordRow): DigestItem => ({
@@ -59,8 +59,8 @@ export function Dashboard() {
   const headline = pickHeadline(records.records);
   const todayPanel = (
     <>
-      {/* 窄螢幕橫著分隔，寬螢幕變成直線 */}
-      <div className="bg-rule h-px w-full shrink-0 md:h-auto md:w-px" />
+      {/* 內容欄窄時橫著分隔，寬時變成直線 */}
+      <div className="bg-rule h-px w-full shrink-0 @2xl:h-auto @2xl:w-px" />
       <TodayPanel
         date={today.slice(5)}
         counts={[
@@ -102,7 +102,7 @@ export function Dashboard() {
         </div>
       )}
 
-      <div className="flex flex-col gap-6 pt-5 md:flex-row md:gap-7">
+      <div className="flex flex-col gap-6 pt-5 @2xl:flex-row @2xl:gap-7">
         <DigestColumn
           title="最近的紀錄"
           total={records.records.length}

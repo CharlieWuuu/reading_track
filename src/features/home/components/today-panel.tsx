@@ -9,7 +9,7 @@
 
 const styles = {
   // 分隔線不在這裡：它是獨立元素，由擺這塊面板的人畫，間距一律靠父層的 gap
-  frame: "shrink-0 md:w-[226px]",
+  frame: "shrink-0 @2xl:w-[226px]",
   head: "border-rule-strong flex items-baseline justify-between border-b pb-1.5",
   label: "text-label font-medium",
   meta: "text-meta text-ink-faint tabular-nums",
