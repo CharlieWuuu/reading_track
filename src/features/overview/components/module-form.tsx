@@ -26,10 +26,14 @@ import {
   FormModule,
   formModules,
   formTabsOf,
+  isWideField,
   resolveFormModules,
   splitByTab,
 } from "@/utils/record-form";
 import { fillFromBook, pickFilled } from "@/utils/scraped-values";
+
+/** 每一頁的欄位：內容欄夠寬就兩兩一排，窄了一格一列（看內容欄不看視窗：側欄會吃掉寬度） */
+const PANE = "grid gap-4 @2xl:grid-cols-2 @2xl:gap-x-8";
 
 /**
  * 照類型勾的模組畫出來的表單。
@@ -85,54 +89,59 @@ function ModuleFields({
 
   return (
     <>
-      {fields.map((field) =>
-        // 開關不是輸入框：flag 走勾選，畫成 input 會叫人自己打「是」
-        field.type === "flag" ? (
-          <PrivateToggle
-            key={field.key}
-            label={labelOf(field)}
-            value={values[field.key] ?? ""}
-            onChange={(value) => onChange(field.key, value)}
-          />
-        ) : field.type === "image" ? (
-          // 封面存的是圖片 key，畫成文字框只會看到一串亂碼
-          <ImageField
-            key={field.key}
-            label={labelOf(field)}
-            value={values[field.key] ?? ""}
-            onChange={(value) => onChange(field.key, value)}
-          />
-        ) : CATEGORY_KEY[field.type] ? (
-          <CategorySelect
-            key={field.key}
-            label={labelOf(field)}
-            categoryKey={CATEGORY_KEY[field.type]!}
-            value={values[field.key] ?? ""}
-            onChange={(value) => onChange(field.key, value)}
-            // 次領域只列選到的那個領域底下的；領域還沒選就列全部
-            parentValue={field.type === "topicChild" ? values.domain : undefined}
-          />
-        ) : field.key === "title" && titleSlot ? (
-          <div key={field.key} className="relative">
-            <Field
-              label={labelOf(field)}
-              type={INPUT_TYPE[field.type] ?? "text"}
-              value={values[field.key] ?? ""}
-              onChange={(value) => onChange(field.key, value)}
-            />
-            {titleSlot}
-          </div>
-        ) : (
-          <Field
-            key={field.key}
-            label={labelOf(field)}
-            type={INPUT_TYPE[field.type] ?? "text"}
-            value={values[field.key] ?? ""}
-            onChange={(value) => onChange(field.key, value)}
-            onPaste={field.key === "externalUrl" ? onUrlPaste : undefined}
-          />
-        ),
-      )}
+      {fields.map((field) => (
+        // 兩兩一排；長文與圖片自己佔一整列（見 isWideField）
+        <div key={field.key} className={isWideField(field) ? "@2xl:col-span-2" : "min-w-0"}>
+          {
+            // 開關不是輸入框：flag 走勾選，畫成 input 會叫人自己打「是」
+            field.type === "flag" ? (
+              <PrivateToggle
+                key={field.key}
+                label={labelOf(field)}
+                value={values[field.key] ?? ""}
+                onChange={(value) => onChange(field.key, value)}
+              />
+            ) : field.type === "image" ? (
+              // 封面存的是圖片 key，畫成文字框只會看到一串亂碼
+              <ImageField
+                key={field.key}
+                label={labelOf(field)}
+                value={values[field.key] ?? ""}
+                onChange={(value) => onChange(field.key, value)}
+              />
+            ) : CATEGORY_KEY[field.type] ? (
+              <CategorySelect
+                key={field.key}
+                label={labelOf(field)}
+                categoryKey={CATEGORY_KEY[field.type]!}
+                value={values[field.key] ?? ""}
+                onChange={(value) => onChange(field.key, value)}
+                // 次領域只列選到的那個領域底下的；領域還沒選就列全部
+                parentValue={field.type === "topicChild" ? values.domain : undefined}
+              />
+            ) : field.key === "title" && titleSlot ? (
+              <div key={field.key} className="relative">
+                <Field
+                  label={labelOf(field)}
+                  type={INPUT_TYPE[field.type] ?? "text"}
+                  value={values[field.key] ?? ""}
+                  onChange={(value) => onChange(field.key, value)}
+                />
+                {titleSlot}
+              </div>
+            ) : (
+              <Field
+                key={field.key}
+                label={labelOf(field)}
+                type={INPUT_TYPE[field.type] ?? "text"}
+                value={values[field.key] ?? ""}
+                onChange={(value) => onChange(field.key, value)}
+                onPaste={field.key === "externalUrl" ? onUrlPaste : undefined}
+              />
+            )
+          }
+        </div>
+      ))}
     </>
   );
 }
@@ -376,31 +385,33 @@ export function ModuleForm({
         e.preventDefault();
         void save();
       }}
-      className="flex max-w-2xl flex-col gap-4 pb-10"
+      className="flex max-w-4xl flex-col gap-4 pb-10"
     >
       {/* 沒選到的那一頁用 hidden 藏起來，不是不畫——拆掉再裝回來，
           打到一半的字與游標位置都會沒了 */}
-      <div className={`flex flex-col gap-4 ${tab === "work" ? "" : "hidden"}`}>
-        {pane(tabs.work)}
-      </div>
+      <div className={`${PANE} ${tab === "work" ? "" : "hidden"}`}>{pane(tabs.work)}</div>
 
-      <div className={`flex flex-col gap-4 ${tab === "content" ? "" : "hidden"}`}>
+      <div className={`${PANE} ${tab === "content" ? "" : "hidden"}`}>
         {pane(tabs.content)}
-        {fetching && <p className="text-xs text-gray-500">抓取中…</p>}
-        {!fetching && fetchNote && <p className="text-xs text-gray-500">{fetchNote}</p>}
+        {fetching && <p className="text-xs text-gray-500 @2xl:col-span-2">抓取中…</p>}
+        {!fetching && fetchNote && (
+          <p className="text-xs text-gray-500 @2xl:col-span-2">{fetchNote}</p>
+        )}
       </div>
 
-      <div className={`flex flex-col gap-4 ${tab === "attributes" ? "" : "hidden"}`}>
+      <div className={`${PANE} ${tab === "attributes" ? "" : "hidden"}`}>
         {pane(tabs.attributes)}
         {/* 關聯不佔資料表的欄位，所以 ModuleFields 畫不出來，由這裡補。
             新增時還沒有編號，選的先收在 pending，存檔後補上 */}
-        <ContentLinkInput
-          label={modules.find((module) => module.key === "links")?.label ?? "內部連結"}
-          excludeId={linkId || undefined}
-          linked={linked}
-          onLink={link}
-          onUnlink={unlink}
-        />
+        <div className="@2xl:col-span-2">
+          <ContentLinkInput
+            label={modules.find((module) => module.key === "links")?.label ?? "內部連結"}
+            excludeId={linkId || undefined}
+            linked={linked}
+            onLink={link}
+            onUnlink={unlink}
+          />
+        </div>
       </div>
 
       {/* 不畫取消：離開就自動存檔（useAutoSave），按了它也一樣會存，
