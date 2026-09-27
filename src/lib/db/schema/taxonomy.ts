@@ -40,6 +40,19 @@ export const attributes = pgTable(
   (t) => [unique().on(t.userId, t.name)],
 );
 
+/** 實體書、Kobo、HyRead。在哪讀的，掛在每一次紀錄上 */
+export const platforms = pgTable(
+  "domain_platform",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+  },
+  (t) => [unique().on(t.userId, t.name)],
+);
+
 /**
  * app 層的小設定。目前只有私人項目的密碼雜湊。
  *

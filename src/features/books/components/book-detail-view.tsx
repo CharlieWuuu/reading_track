@@ -100,6 +100,7 @@ function bookValues(book: Book): Record<string, string> {
     endDate: book.endDate ?? "",
     language: book.language,
     platform: book.platform,
+    publisher: book.publisher,
     externalId: book.isbn,
     amount: book.pageCount,
     domain: book.domain,

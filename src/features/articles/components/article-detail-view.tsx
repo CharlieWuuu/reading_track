@@ -38,10 +38,10 @@ function ArticleFacts({ article, kind }: { article: Article; kind?: Kind }) {
   return (
     <>
       <DetailField label="站台" align="right">
-        {article.platform && (
+        {article.publisher && (
           <span className="inline-flex items-center gap-1.5">
-            <Favicon url={article.sourceUrl} fallback={article.platform} className="size-4" />
-            {article.platform}
+            <Favicon url={article.sourceUrl} fallback={article.publisher} className="size-4" />
+            {article.publisher}
           </span>
         )}
       </DetailField>
@@ -75,7 +75,7 @@ const SKIP_IN_FACTS = new Set([
   "body",
   "domain",
   "subDomain",
-  "platform",
+  "publisher",
   "externalUrl",
 ]);
 
@@ -85,6 +85,7 @@ function articleValues(article: Article): Record<string, string> {
     title: article.title,
     creator: article.author,
     platform: article.platform,
+    publisher: article.publisher,
     endDate: article.endDate ?? "",
     language: article.language,
     domain: article.domain,

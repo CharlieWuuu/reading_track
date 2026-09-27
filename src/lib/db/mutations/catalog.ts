@@ -5,7 +5,7 @@ import { mapKindField } from "@/lib/db/schema/kinds";
 import { records, works } from "@/lib/db/schema/works";
 import { assertKindGroup } from "./assert-group";
 import { setRecordSourceUrl } from "./external-links";
-import { attributeIdFor, typeIdFor } from "./taxonomy";
+import { attributeIdFor, platformIdFor, typeIdFor } from "./taxonomy";
 import { toDate, toInt } from "./values";
 
 /**
@@ -56,7 +56,7 @@ export async function addRecord(
         body: pick(values, allowed, "body"),
         creator: pick(values, allowed, "creator"),
         language: pick(values, allowed, "language"),
-        platform: pick(values, allowed, "platform"),
+        publisher: pick(values, allowed, "publisher"),
         externalId: pick(values, allowed, "externalId"),
         coverUrl: pick(values, allowed, "coverUrl"),
         amount: toInt(pick(values, allowed, "amount")),
@@ -78,6 +78,7 @@ export async function addRecord(
         workId: work.id,
         startDate: toDate(pick(values, allowed, "startDate")),
         endDate: toDate(pick(values, allowed, "endDate")),
+        platformId: await platformIdFor(tx, userId, pick(values, allowed, "platform")),
         isPrivate: pick(values, allowed, "isPrivate") === "是",
       })
       .returning({ id: records.id });
@@ -105,7 +106,7 @@ export async function updateRecord(userId: string, id: string, values: FieldValu
   if (has("body")) workPatch.body = values.body;
   if (has("creator")) workPatch.creator = values.creator;
   if (has("language")) workPatch.language = values.language;
-  if (has("platform")) workPatch.platform = values.platform;
+  if (has("publisher")) workPatch.publisher = values.publisher;
   if (has("externalId")) workPatch.externalId = values.externalId;
   if (has("coverUrl")) workPatch.coverUrl = values.coverUrl;
   if (has("amount")) workPatch.amount = toInt(values.amount);
@@ -121,6 +122,7 @@ export async function updateRecord(userId: string, id: string, values: FieldValu
       workPatch.topicId = await typeIdFor(tx, userId, values.domain ?? "", values.subDomain ?? "");
     if (has("attribute"))
       workPatch.attributeId = await attributeIdFor(tx, userId, values.attribute);
+    if (has("platform")) recordPatch.platformId = await platformIdFor(tx, userId, values.platform);
 
     if (Object.keys(workPatch).length)
       await tx.update(works).set(workPatch).where(eq(works.id, target.workId));

@@ -7,7 +7,7 @@ import { setRecordSourceUrl } from "./external-links";
 import { setKeywordLinks } from "./fragments";
 import { unlinkAll } from "./internal-links";
 import { kindIdBySlug } from "./kind-lookup";
-import { attributeIdFor, typeIdFor } from "./taxonomy";
+import { attributeIdFor, platformIdFor, typeIdFor } from "./taxonomy";
 import { toDate, toInt } from "./values";
 
 /**
@@ -16,7 +16,7 @@ import { toDate, toInt } from "./values";
  * 一筆 Book 等於「一次閱讀」：書名作者進 works，日期進 records。
  * originId 有值代表這是同一本書的另一次讀，掛到它指的那個作品底下，不另開一本。
  *
- * 出版社與平台是各自獨立的欄位（source／platform）；字數沒有對應欄位——
+ * 出版社在作品上、平台在每一次紀錄上；字數沒有對應欄位——
  * 舊形狀那欄留著只為了型別相容，寫入時丟掉。
  */
 
@@ -55,7 +55,7 @@ export async function addBookRow(userId: string, book: Book): Promise<void> {
             title: book.title,
             creator: book.author,
             language: book.language,
-            platform: book.platform,
+            publisher: book.publisher,
             externalId: book.isbn,
             coverUrl: book.coverUrl,
             amount: toInt(book.pageCount),
@@ -67,7 +67,13 @@ export async function addBookRow(userId: string, book: Book): Promise<void> {
 
     const [record] = await tx
       .insert(records)
-      .values({ id: book.id, userId, workId, ...recordValues(book) })
+      .values({
+        id: book.id,
+        userId,
+        workId,
+        ...recordValues(book),
+        platformId: await platformIdFor(tx, userId, book.platform),
+      })
       .returning({ id: records.id });
     await setRecordSourceUrl(tx, userId, record.id, book.sourceUrl);
     await setKeywordLinks(tx, userId, workId, names);
@@ -96,7 +102,7 @@ export async function updateBookRow(
   if (patch.isbn !== undefined) workPatch.externalId = patch.isbn;
   if (patch.coverUrl !== undefined) workPatch.coverUrl = patch.coverUrl;
   if (patch.pageCount !== undefined) workPatch.amount = toInt(patch.pageCount);
-  if (patch.platform !== undefined) workPatch.platform = patch.platform;
+  if (patch.publisher !== undefined) workPatch.publisher = patch.publisher;
 
   const recordPatch: Record<string, unknown> = {};
   if (patch.startDate !== undefined) recordPatch.startDate = toDate(patch.startDate);
@@ -110,6 +116,8 @@ export async function updateBookRow(
     }
     if (patch.type !== undefined)
       workPatch.attributeId = await attributeIdFor(tx, userId, patch.type);
+    if (patch.platform !== undefined)
+      recordPatch.platformId = await platformIdFor(tx, userId, patch.platform);
 
     if (Object.keys(workPatch).length)
       await tx.update(works).set(workPatch).where(eq(works.id, target.workId));

@@ -1,6 +1,6 @@
 import { type Tx } from "@/lib/db/client";
 import { FieldValues, pick } from "./catalog";
-import { attributeIdFor, typeIdFor } from "./taxonomy";
+import { attributeIdFor, platformIdFor, typeIdFor } from "./taxonomy";
 import { toDate, toFloat, toInt, toYear } from "./values";
 
 /**
@@ -26,7 +26,7 @@ const TEXT_FIELDS = [
   "exampleTranslation",
   "tags",
   "language",
-  "platform",
+  "publisher",
   "externalId",
   "coverUrl",
 ] as const;
@@ -73,7 +73,7 @@ export function updateValues(values: FieldValues, allowed: Set<string>): Record<
 }
 
 /**
- * 領域與屬性存的是別張表的編號，畫面上送來的是名字，所以要在交易裡換一次
+ * 領域、屬性、平台存的是別張表的編號，畫面上送來的是名字，所以要在交易裡換一次
  * （沒有的順手建，跟這次寫入同生共死）。
  *
  * 跟其他欄位分開是因為它要 tx 與 userId——純轉換做不到。三個 group 共用同一份：
@@ -95,6 +95,9 @@ export async function taxonomyValues(
   }
   if (wants("attribute")) {
     out.attributeId = await attributeIdFor(tx, userId, values.attribute ?? "");
+  }
+  if (wants("platform")) {
+    out.platformId = await platformIdFor(tx, userId, values.platform ?? "");
   }
   return out;
 }

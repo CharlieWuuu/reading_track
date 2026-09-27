@@ -8,7 +8,7 @@ import { setRecordSourceUrl } from "./external-links";
 import { setKeywordLinks } from "./fragments";
 import { unlinkAll } from "./internal-links";
 import { kindIdBySlug } from "./kind-lookup";
-import { attributeIdFor, typeIdFor } from "./taxonomy";
+import { attributeIdFor, platformIdFor, typeIdFor } from "./taxonomy";
 import { toDate } from "./values";
 
 /**
@@ -33,7 +33,7 @@ export async function addArticleRow(userId: string, article: Article): Promise<v
       title: article.title,
       creator: article.author,
       language: article.language,
-      platform: article.platform,
+      publisher: article.publisher,
       topicId: await typeIdFor(tx, userId, article.domain, article.subDomain),
       attributeId: await attributeIdFor(tx, userId, article.type),
     });
@@ -42,6 +42,7 @@ export async function addArticleRow(userId: string, article: Article): Promise<v
       userId,
       workId: article.id,
       endDate: toDate(article.endDate),
+      platformId: await platformIdFor(tx, userId, article.platform),
       isPrivate: article.private === PRIVATE_MARK,
     });
     await setRecordSourceUrl(tx, userId, article.id, article.sourceUrl);
@@ -58,7 +59,7 @@ export async function updateArticleRow(
   if (patch.title !== undefined) workPatch.title = patch.title;
   if (patch.author !== undefined) workPatch.creator = patch.author;
   if (patch.language !== undefined) workPatch.language = patch.language;
-  if (patch.platform !== undefined) workPatch.platform = patch.platform;
+  if (patch.publisher !== undefined) workPatch.publisher = patch.publisher;
 
   const recordPatch: Record<string, unknown> = {};
   if (patch.endDate !== undefined) recordPatch.endDate = toDate(patch.endDate);
@@ -71,6 +72,8 @@ export async function updateArticleRow(
     }
     if (patch.type !== undefined)
       workPatch.attributeId = await attributeIdFor(tx, userId, patch.type);
+    if (patch.platform !== undefined)
+      recordPatch.platformId = await platformIdFor(tx, userId, patch.platform);
 
     if (Object.keys(workPatch).length)
       await tx

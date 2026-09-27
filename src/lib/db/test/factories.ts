@@ -20,6 +20,7 @@ export function makeBook(patch: Partial<Book> = {}): Book {
     subDomain: "歷史",
     type: "散文",
     platform: "",
+    publisher: "",
     isbn: "",
     sourceUrl: "",
     coverUrl: "",

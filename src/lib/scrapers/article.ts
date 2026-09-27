@@ -9,7 +9,7 @@ import { Article } from "@/types/article";
  * 或 JSON-LD，那是標準化的 meta 標籤，一支通用解析器就吃得下大部分站台，
  * 也不必替每個站台各寫一份、跟著它們改版壞掉。
  */
-export type ScrapedArticle = Partial<Pick<Article, "title" | "author" | "platform">>;
+export type ScrapedArticle = Partial<Pick<Article, "title" | "author" | "publisher">>;
 
 function meta($: CheerioAPI, names: string[]): string {
   for (const name of names) {
@@ -102,12 +102,11 @@ export async function scrapeArticleUrl(url: string): Promise<ScrapedArticle> {
   const authorMeta = meta($, ["article:author", "author", "byl"]);
   const author = isName(authorMeta) ? authorMeta : nameOf(pick("author"));
 
-  const publisher = nameOf(pick("publisher"));
-  const platform = meta($, ["og:site_name"]) || publisher || hostname(url);
+  const publisher = meta($, ["og:site_name"]) || nameOf(pick("publisher")) || hostname(url); // 站台名就是文章的出處
 
   return {
-    title: stripSiteSuffix(title, platform),
+    title: stripSiteSuffix(title, publisher),
     author: isName(author) ? author : "",
-    platform,
+    publisher,
   };
 }

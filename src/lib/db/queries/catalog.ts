@@ -6,7 +6,7 @@ import { PRIVATE_MARK } from "@/config/privacy";
 import { db } from "@/lib/db/client";
 import { fragments } from "@/lib/db/schema/fragments";
 import { kinds } from "@/lib/db/schema/kinds";
-import { attributes, recordTopics } from "@/lib/db/schema/taxonomy";
+import { attributes, platforms, recordTopics } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
 import { inferStatusKey } from "@/types/book";
@@ -44,8 +44,8 @@ export type RecordRow = {
   createdAt: string;
   amount: number | null;
   amountUnit: string;
-  /** 在哪讀的、在哪看的。本來叫 source，跟資料表對齊之後改叫 platform */
-  platform: string;
+  platform: string; // 這一次在哪讀的，掛在紀錄上
+  publisher: string;
   /** 統計要的那幾欄：領域是父節點、次領域是子節點，沒填就是空字串 */
   domain: string;
   subDomain: string;
@@ -62,6 +62,7 @@ const toRecordRow = ({
   topic,
   parentTopic,
   attribute,
+  platform,
 }: {
   record: typeof records.$inferSelect;
   work: typeof works.$inferSelect;
@@ -69,6 +70,7 @@ const toRecordRow = ({
   topic?: { name: string; parentId: string | null } | null;
   parentTopic?: { name: string } | null;
   attribute?: { name: string } | null;
+  platform?: { name: string } | null;
 }): RecordRow => ({
   id: record.id,
   workId: work.id,
@@ -87,7 +89,8 @@ const toRecordRow = ({
   createdAt: record.createdAt.toISOString(),
   amount: work.amount,
   amountUnit: kind.amountUnit,
-  platform: work.platform,
+  platform: platform?.name ?? "",
+  publisher: work.publisher,
   // topic_id 指到的可能是父也可能是子：有父就是「領域／次領域」兩層，沒有就只有領域
   domain: parentTopic?.name ?? topic?.name ?? "",
   subDomain: parentTopic ? (topic?.name ?? "") : "",
@@ -114,13 +117,15 @@ const recordSelect = () =>
       topic: { name: recordTopics.name, parentId: recordTopics.parentId },
       parentTopic: { name: parentTopics.name },
       attribute: { name: attributes.name },
+      platform: { name: platforms.name },
     })
     .from(records)
     .innerJoin(works, eq(works.id, records.workId))
     .innerJoin(kinds, eq(kinds.id, works.kindId))
     .leftJoin(recordTopics, eq(recordTopics.id, works.topicId))
     .leftJoin(parentTopics, eq(parentTopics.id, recordTopics.parentId))
-    .leftJoin(attributes, eq(attributes.id, works.attributeId));
+    .leftJoin(attributes, eq(attributes.id, works.attributeId))
+    .leftJoin(platforms, eq(platforms.id, records.platformId));
 
 /** kindId 不給就是整個 group 都要——概覽頁要把書籍與文章混在一起排 */
 export async function listRecordsByKind(userId: string, kindId?: string): Promise<RecordRow[]> {
@@ -446,9 +451,10 @@ export async function getRecordValues(
   if (!row) return null;
 
   const { record, work } = row;
-  const [topic, attribute] = await Promise.all([
+  const [topic, attribute, platform] = await Promise.all([
     topicNamesOf(userId, work.topicId),
     attributeNameOf(userId, work.attributeId),
+    platformNameOf(userId, record.platformId),
   ]);
 
   return {
@@ -464,7 +470,8 @@ export async function getRecordValues(
       startDate: record.startDate ?? "",
       endDate: record.endDate ?? "",
       amount: work.amount?.toString() ?? "",
-      platform: work.platform,
+      platform,
+      publisher: work.publisher,
       externalId: work.externalId,
       externalUrl: await sourceUrlOfRecord(userId, id),
       coverUrl: work.coverUrl,
@@ -512,6 +519,15 @@ async function attributeNameOf(userId: string, attributeId: string | null): Prom
   return row?.name ?? "";
 }
 
+async function platformNameOf(userId: string, platformId: string | null): Promise<string> {
+  if (!platformId) return "";
+  const [row] = await db
+    .select({ name: platforms.name })
+    .from(platforms)
+    .where(and(eq(platforms.userId, userId), eq(platforms.id, platformId)));
+  return row?.name ?? "";
+}
+
 /** 片段與書寫的單筆。欄位名跟紀錄那邊不一樣，攤平時一起對回模組認得的鍵 */
 /**
  * 單筆書寫攤成表單的形狀。
@@ -551,7 +567,8 @@ export async function getWritingValues(
       creator: row.creator,
       coverUrl: row.coverUrl,
       language: row.language,
-      platform: row.platform,
+      platform: await platformNameOf(userId, row.platformId),
+      publisher: row.publisher,
       externalId: row.externalId,
       startDate: row.startDate ?? "",
       isPrivate: row.isPrivate ? PRIVATE_MARK : "",
@@ -594,7 +611,8 @@ export async function getFragmentValues(
       creator: row.creator,
       coverUrl: row.coverUrl,
       language: row.language,
-      platform: row.platform,
+      platform: await platformNameOf(userId, row.platformId),
+      publisher: row.publisher,
       externalId: row.externalId,
       startDate: row.startDate ?? "",
       endDate: row.endDate ?? "",

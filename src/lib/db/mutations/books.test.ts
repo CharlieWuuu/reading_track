@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { describe, expect, it, vi } from "vitest";
-import { recordTopics } from "@/lib/db/schema/taxonomy";
+import { platforms, recordTopics } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { makeBook, seedUser } from "@/lib/db/test/factories";
 import { kindIdBySlug } from "./kind-lookup";
@@ -55,6 +55,22 @@ describe("addBookRow", () => {
     const [child] = await db.select().from(recordTopics).where(eq(recordTopics.name, "日本文學"));
     expect(parent.parentId).toBeNull();
     expect(child.parentId).toBe(parent.id);
+  });
+
+  it("平台掛在這一次閱讀、出版社掛在書上", async () => {
+    const first = makeBook({ title: "兩次讀", platform: "實體書", publisher: "麥田" });
+    await addBookRow(userId, first);
+    const second = makeBook({ title: "兩次讀", platform: "Kobo", originId: first.id });
+    await addBookRow(userId, second);
+
+    const rows = await db
+      .select({ id: records.id, platform: platforms.name, publisher: works.publisher })
+      .from(records)
+      .innerJoin(works, eq(works.id, records.workId))
+      .leftJoin(platforms, eq(platforms.id, records.platformId));
+    const byId = new Map(rows.map((row) => [row.id, row]));
+    expect(byId.get(first.id)).toMatchObject({ platform: "實體書", publisher: "麥田" });
+    expect(byId.get(second.id)).toMatchObject({ platform: "Kobo", publisher: "麥田" });
   });
 
   it("originId 指到既有的那次閱讀，就掛在同一個作品底下", async () => {
