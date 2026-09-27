@@ -11,18 +11,18 @@ import {
   useBookViewStore,
 } from "@/stores/use-book-view-store";
 
-const ALL_ITEMS = {
+const ALL_ITEMS: Record<BookViewMode, { label: string; Icon: () => React.ReactElement }> = {
   overview: { label: "概覽", Icon: () => <Newspaper size={16} strokeWidth={1.5} /> },
   table: { label: "表格", Icon: () => <Rows3 size={16} strokeWidth={1.5} /> },
   card: { label: "卡片", Icon: () => <LayoutGrid size={16} strokeWidth={1.5} /> },
   stats: { label: "統計", Icon: () => <ChartPie size={16} strokeWidth={1.5} /> },
-} as const;
+};
 
 /**
- * 這一頁有幾種看法的切換選單。書籍、文章、片段與所有自訂類型共用一支。
+ * 這一頁的顯示方式切換選單。書籍、文章、片段與所有自訂類型共用一支。
  *
  * modes 從類型來（kinds.views），不寫在頁面檔裡——本來書籍與文章各寫一份清單，
- * 所以只有那兩種有切換鈕，自訂類型點進去永遠只有一種看法。
+ * 所以只有那兩種有切換鈕，自訂類型點進去永遠只有一種顯示方式。
  *
  * cardLabel：書籍那邊卡片就是書封牆，叫「書封」比較準；其餘一律「卡片」。
  *

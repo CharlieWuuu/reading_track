@@ -1,6 +1,5 @@
 "use client";
 
-import { SegmentedControl } from "@/components/ui/controls/segmented-control";
 import { CoverCard } from "@/components/ui/cover-card/cover-card";
 import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { Quote } from "@/components/ui/quote";
@@ -14,18 +13,19 @@ export type TypeDraft = {
   group: KindGroup;
   name: string;
   picked: string[];
-  cardStyle: CardStyle;
-  /** 切換畫法。鈕在右欄，選了就在底下看到結果 */
-  onCardStyleChange: (style: CardStyle) => void;
-  /** 這個類型有哪幾種看法 */
-  views: BookViewMode[];
-  onViewsChange: (views: BookViewMode[]) => void;
+};
+
+const styles = {
+  row: "flex items-center gap-2 py-1.5",
+  label: "text-ui text-ink-muted",
+  always: "text-ui text-ink-faint", // 概覽沒得取消，褪一階表示不能動
 };
 
 /**
- * 有哪幾種看法。多選，勾了幾種那個類型頁就有幾個選項，一種就不顯示選單。
+ * 有哪幾種檢視。多選，勾了幾種那個類型頁就有幾個選項可切。
  *
- * 跟畫法是兩層：這裡切的是整頁的版面，畫法決定一筆長什麼樣。
+ * 概覽列出來但不給取消：那是這個類型的門面，一定有。
+ * 統計不在這裡——畫得出圖才有它，由勾了哪些模組決定。
  */
 export function KindViewsPicker({
   views,
@@ -39,21 +39,25 @@ export function KindViewsPicker({
 
   return (
     <div className="flex flex-col">
+      <label className={styles.row}>
+        <input type="checkbox" checked disabled />
+        <span className={styles.always}>概覽</span>
+      </label>
       {KIND_VIEWS.map((view) => (
-        <label key={view.key} className="flex items-center gap-2 py-1.5">
+        <label key={view.key} className={styles.row}>
           <input
             type="checkbox"
             checked={views.includes(view.key)}
             onChange={() => toggle(view.key)}
           />
-          <span className="text-ui text-ink-muted">{view.label}</span>
+          <span className={styles.label}>{view.label}</span>
         </label>
       ))}
     </div>
   );
 }
 
-/** 畫法的切換鈕。跟預覽擺在一起——選哪一種，底下立刻就是那一種 */
+/** 一筆長什麼樣。單選——概覽與卡片牆都讀它，一個類型一種卡片 */
 export function CardStylePicker({
   cardStyle,
   onChange,
@@ -62,21 +66,28 @@ export function CardStylePicker({
   onChange: (style: CardStyle) => void;
 }) {
   return (
-    <SegmentedControl
-      size="sm"
-      items={CARD_STYLES.map((style) => ({ key: style.key, label: style.label }))}
-      value={cardStyle}
-      onChange={onChange}
-    />
+    <div className="flex flex-col">
+      {CARD_STYLES.map((style) => (
+        <label key={style.key} className={styles.row}>
+          <input
+            type="radio"
+            name="card-style"
+            checked={cardStyle === style.key}
+            onChange={() => onChange(style.key)}
+          />
+          <span className={styles.label}>{style.label}</span>
+        </label>
+      ))}
+    </div>
   );
 }
 
-/** 依勾選的模組組出示意內容。畫法由類型自己選，跟清單頁真正的畫法是同一套 */
+/** 依勾選的模組組出示意內容，照類型選的卡片樣式畫——跟清單頁是同一套 */
 export function TypePreview({
   name,
   picked,
   cardStyle,
-}: Pick<TypeDraft, "name" | "picked" | "cardStyle">) {
+}: Pick<TypeDraft, "name" | "picked"> & { cardStyle: CardStyle }) {
   const has = (key: string) => picked.includes(key);
   const title = name.trim() || "（類型名稱）";
   const body = has("longText") ? "這裡是內文，支援分欄……" : undefined;

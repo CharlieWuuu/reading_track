@@ -7,7 +7,6 @@ import { Field } from "@/components/ui/field/field";
 import { FormActions } from "@/components/ui/form-actions";
 import { CardStyle, defaultCardStyle } from "@/config/card-styles";
 import { KindTemplate, templatesOf } from "@/config/kind-templates";
-import { DEFAULT_VIEWS } from "@/config/kind-views";
 import { MODULES } from "@/config/modules";
 import { KindGroup } from "@/config/record-kinds";
 import type { TypeDraft } from "@/features/settings/components/type-preview";
@@ -85,12 +84,25 @@ export function TypeBuilder({
   editing,
   onDone,
   onDraftChange,
+  views,
+  onViewsChange,
+  cardStyle,
+  onCardStyleChange,
 }: {
   group: KindGroup;
   editing?: Kind;
   onDone?: () => void;
   /** 每次改動把草稿往上報，右欄的預覽照它畫 */
   onDraftChange?: (draft: TypeDraft) => void;
+  /**
+   * 用哪幾種元件顯示。state 在 KindPanel 不在這裡——勾選框畫在右欄，
+   * 值存在這支的話右欄每次都要等它回報，點一下就被重建的畫面吃掉。
+   */
+  views: BookViewMode[];
+  onViewsChange: (views: BookViewMode[]) => void;
+  /** 一筆長什麼樣。跟 views 同理，state 在 KindPanel */
+  cardStyle: CardStyle;
+  onCardStyleChange: (style: CardStyle) => void;
 }) {
   const router = useRouter();
   const done = onDone ?? (() => router.back());
@@ -99,10 +111,6 @@ export function TypeBuilder({
   const [slug, setSlug] = useState(editing?.slug ?? "");
   const [unit, setUnit] = useState(editing?.amountUnit ?? "");
   const [inheritsCover, setInheritsCover] = useState(editing?.inheritsCover ?? false);
-  const [cardStyle, setCardStyle] = useState<CardStyle>(
-    editing?.cardStyle ?? defaultCardStyle(group),
-  );
-  const [views, setViews] = useState<BookViewMode[]>(editing?.views ?? DEFAULT_VIEWS);
   const [picked, setPicked] = useState<string[]>(
     editing ? editing.modules.map((m) => m.key) : ["title"],
   );
@@ -113,16 +121,8 @@ export function TypeBuilder({
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    onDraftChange?.({
-      group,
-      name,
-      picked,
-      cardStyle,
-      onCardStyleChange: setCardStyle,
-      views,
-      onViewsChange: setViews,
-    });
-  }, [onDraftChange, group, name, picked, cardStyle, views]);
+    onDraftChange?.({ group, name, picked });
+  }, [onDraftChange, group, name, picked]);
 
   const toggle = (key: string) =>
     setPicked((keys) => (keys.includes(key) ? keys.filter((k) => k !== key) : [...keys, key]));
@@ -137,8 +137,8 @@ export function TypeBuilder({
     setSlug(template.key);
     setUnit(template.amountUnit);
     setInheritsCover(template.inheritsCover ?? false);
-    setCardStyle(template.cardStyle ?? defaultCardStyle(group));
-    setViews([...(template.views ?? DEFAULT_VIEWS)]);
+    onViewsChange([...(template.views ?? views)]);
+    onCardStyleChange(template.cardStyle ?? defaultCardStyle(group));
     setPicked([...template.modules]);
     setLabels({});
   }
@@ -152,8 +152,8 @@ export function TypeBuilder({
       modules: picked,
       amountUnit: unit.trim(),
       inheritsCover,
-      cardStyle,
       views,
+      cardStyle,
       labels,
     };
 

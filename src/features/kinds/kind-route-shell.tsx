@@ -10,6 +10,7 @@ import { ActionButton } from "@/components/ui/controls/action-button";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { KindCards } from "@/components/ui/kind-cards/kind-cards";
 import { groupBasePath, kindHref } from "@/config/kind-routes";
+import { viewsOfKind } from "@/config/kind-views";
 import { NAV_GROUPS, unitOfKind } from "@/config/nav";
 import { KindGroup } from "@/config/record-kinds";
 import { KindCalendar } from "@/features/calendar/components/kind-calendar";
@@ -92,7 +93,7 @@ function GenericKindList({ kind }: { kind: Kind }) {
     );
   }
 
-  // 畫法由類型自己帶：佳句是句子不是卡片，切成兩欄會把長句擠成一行三四個字
+  // 一筆怎麼畫由類型的卡片樣式決定：佳句是句子不是卡片，切成兩欄會把長句擠成一行三四個字
   return <KindCards style={kind.cardStyle} rows={fragments} />;
 }
 
@@ -115,8 +116,13 @@ export function KindListPage({ group, slug }: KindRouteProps) {
         action={
           kind && (
             <div className="flex min-w-0 items-center gap-2">
-              {/* 有哪幾種看法由類型自己勾，不再寫死——本來只有書籍與文章有切換鈕 */}
-              <KindViewMenu modes={kind.views} />
+              {/* 用哪幾種元件顯示由類型自己勾，不再寫死——本來只有書籍與文章有切換鈕 */}
+              <KindViewMenu
+                modes={viewsOfKind(
+                  kind.views,
+                  kind.modules.map((module) => module.key),
+                )}
+              />
               <ActionButton href={`${kindHref(kind.group, kind.slug)}/new`} text="新增">
                 <Plus size={16} strokeWidth={2} aria-hidden />
               </ActionButton>
