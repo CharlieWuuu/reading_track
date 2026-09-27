@@ -85,9 +85,10 @@ function Settings() {
       <PageBody>
         {tab === "kinds" ? (
           <KindPanel /> // 自己給中間與右欄
+        ) : tab === "categories" ? (
+          <CategoryManager /> // 同上：分組分頁在右欄
         ) : (
           <PageMain>
-            {tab === "categories" && <CategoryManager />}
             {tab === "stats" && <StatsTypeCards />}
             {tab === "graph" && <GraphPanel />}
             {tab === "account" && <AccountPanel />}

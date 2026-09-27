@@ -2,13 +2,17 @@
 
 import { useState } from "react";
 import { Lock, LockOpen } from "lucide-react";
+import { PageAside, PageMain } from "@/components/layout/page-body";
 import { usePrivacyFlags } from "@/features/settings/api";
 import { useCategories } from "@/hooks/use-categories";
 import type { PrivacyFlagNode } from "@/lib/db/queries/taxonomy";
 import { BookCategories, CATEGORY_FIELDS, CategorySource } from "@/types/book";
 
+type FlatKey = Exclude<keyof BookCategories, "domain" | "subDomain">;
+type SectionKey = "domain" | FlatKey;
+
 /** 領域／次領域併進同一棵樹畫，其餘欄位還是純展示的扁平清單 */
-const FLAT_LABELS: Record<Exclude<keyof BookCategories, "domain" | "subDomain">, string> = {
+const FLAT_LABELS: Record<FlatKey, string> = {
   platform: "平台",
   type: "屬性",
   language: "語言",
@@ -49,6 +53,13 @@ const styles = {
   chip: "rounded-control flex items-center gap-1 border px-2 py-1 text-xs whitespace-nowrap disabled:opacity-40",
   chipOn: "border-accent text-accent",
   chipOff: "border-rule text-ink-muted",
+  // 右欄分頁：跟類型分頁那張清單同一種列
+  nav: "flex flex-col",
+  navItem:
+    "border-rule-soft text-ui flex items-baseline justify-between border-b py-[7px] pl-3 text-left",
+  navOn: "text-ink font-semibold",
+  navOff: "text-ink-muted hover:text-ink",
+  mobileTabs: "lg:hidden", // 窄螢幕沒有右欄，分頁放上面
 };
 
 /** 領域樹的一個節點：名字、用了幾次、鎖定開關 */
@@ -97,6 +108,7 @@ export function CategoryManager() {
   const { flags, isLoading, error, toggle } = usePrivacyFlags();
   const [busyId, setBusyId] = useState("");
   const [failed, setFailed] = useState("");
+  const [section, setSection] = useState<SectionKey>("domain"); // 右欄點到哪一組
 
   const flip = async (node: PrivacyFlagNode) => {
     setBusyId(node.id);
@@ -110,65 +122,92 @@ export function CategoryManager() {
     }
   };
 
-  return (
-    <div className={styles.wrap}>
-      <div className={styles.group}>
-        <h4 className={styles.title}>
-          {sectionTitle(CATEGORY_FIELDS.domain.sources, "領域", hasRecords)}
-        </h4>
-        {failed && <p className={styles.error}>{failed}</p>}
-        {isLoading ? (
-          <p className={styles.empty}>載入中…</p>
-        ) : error ? (
-          <p className={styles.error}>{error}</p>
-        ) : flags.types.length === 0 ? (
-          <p className={styles.empty}>還沒有用過任何值</p>
-        ) : (
-          flags.types.map((node) => (
-            <div key={node.id} className={styles.domainRow}>
-              <div className={styles.domainName}>
-                <DomainChip
-                  node={node}
-                  count={counts.domain.get(node.name) ?? 0}
-                  busy={busyId === node.id}
-                  onFlip={flip}
-                />
-              </div>
-              {node.children.length > 0 && (
-                <div className={styles.children}>
-                  {node.children.map((child) => (
-                    <DomainChip
-                      key={child.id}
-                      node={child}
-                      count={counts.subDomain.get(child.name) ?? 0}
-                      busy={busyId === child.id}
-                      onFlip={flip}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          ))
+  // 領域一定在；其餘有用過值的才列，照 FLAT_LABELS 的順序
+  const sections: { key: SectionKey; label: string; count: number }[] = [
+    { key: "domain", label: "領域", count: flags.types.length },
+    ...(Object.keys(FLAT_LABELS) as FlatKey[])
+      .filter((key) => categories[key].length > 0)
+      .map((key) => ({ key, label: FLAT_LABELS[key], count: categories[key].length })),
+  ];
+  const current = sections.find((item) => item.key === section) ?? sections[0];
+
+  const tabs = (
+    <nav className={styles.nav}>
+      {sections.map((item) => (
+        <button
+          key={item.key}
+          type="button"
+          onClick={() => setSection(item.key)}
+          aria-pressed={item.key === current.key}
+          className={`${styles.navItem} ${item.key === current.key ? styles.navOn : styles.navOff}`}
+        >
+          {item.label}
+          <span className={styles.count}>{item.count}</span>
+        </button>
+      ))}
+    </nav>
+  );
+
+  const domainBody = isLoading ? (
+    <p className={styles.empty}>載入中…</p>
+  ) : error ? (
+    <p className={styles.error}>{error}</p>
+  ) : flags.types.length === 0 ? (
+    <p className={styles.empty}>還沒有用過任何值</p>
+  ) : (
+    flags.types.map((node) => (
+      <div key={node.id} className={styles.domainRow}>
+        <div className={styles.domainName}>
+          <DomainChip
+            node={node}
+            count={counts.domain.get(node.name) ?? 0}
+            busy={busyId === node.id}
+            onFlip={flip}
+          />
+        </div>
+        {node.children.length > 0 && (
+          <div className={styles.children}>
+            {node.children.map((child) => (
+              <DomainChip
+                key={child.id}
+                node={child}
+                count={counts.subDomain.get(child.name) ?? 0}
+                busy={busyId === child.id}
+                onFlip={flip}
+              />
+            ))}
+          </div>
         )}
       </div>
+    ))
+  );
 
-      {(Object.keys(FLAT_LABELS) as (keyof typeof FLAT_LABELS)[])
-        .filter((key) => categories[key].length > 0)
-        .map((key) => (
-          <div key={key} className={styles.group}>
-            <h4 className={styles.title}>
-              {sectionTitle(CATEGORY_FIELDS[key].sources, FLAT_LABELS[key], hasRecords)}
-            </h4>
-            <div className={styles.list}>
-              {categories[key].map((option) => (
-                <span key={option} className={styles.item}>
-                  {option}
-                  <span className={styles.count}>{counts[key].get(option) ?? 0}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
+  const flatBody = (key: FlatKey) => (
+    <div className={styles.list}>
+      {categories[key].map((option) => (
+        <span key={option} className={styles.item}>
+          {option}
+          <span className={styles.count}>{counts[key].get(option) ?? 0}</span>
+        </span>
+      ))}
     </div>
+  );
+
+  return (
+    <>
+      <PageMain>
+        <div className={styles.wrap}>
+          <div className={styles.mobileTabs}>{tabs}</div>
+          <div className={styles.group}>
+            <h4 className={styles.title}>
+              {sectionTitle(CATEGORY_FIELDS[current.key].sources, current.label, hasRecords)}
+            </h4>
+            {current.key === "domain" && failed && <p className={styles.error}>{failed}</p>}
+            {current.key === "domain" ? domainBody : flatBody(current.key)}
+          </div>
+        </div>
+      </PageMain>
+      <PageAside>{tabs}</PageAside>
+    </>
   );
 }
