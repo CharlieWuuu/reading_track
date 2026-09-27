@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useArticles } from "@/hooks/use-articles";
 import { useBooks } from "@/hooks/use-books";
+import { useTopicTree } from "@/hooks/use-topic-tree";
 import { useWritings } from "@/hooks/use-writings";
 import {
   BookCategories,
@@ -12,7 +13,7 @@ import {
   splitTags,
   type CategorySource,
 } from "@/types/book";
-import { childrenByDomain } from "@/utils/type-tree";
+import { childrenByDomain, childrenOfTree, mergeChildren } from "@/utils/type-tree";
 
 /**
  * 分類選項一律從資料 group 出來，不再另外維護一張「選項」表。
@@ -62,7 +63,12 @@ export function useCategories() {
   }, [counts]);
 
   /** 次領域的選單靠這個縮到「選中的領域底下」，見 CategorySelect */
-  const children = useMemo(() => childrenByDomain([...books, ...articles]), [books, articles]);
+  // 領域樹涵蓋每個類型；紀錄推出來的那份補樹裡看不到的（例如解鎖後的私人領域）
+  const tree = useTopicTree();
+  const children = useMemo(
+    () => mergeChildren(childrenOfTree(tree), childrenByDomain([...books, ...articles])),
+    [tree, books, articles],
+  );
 
   /** 標題只掛有紀錄的來源，見 category-manager 的 sectionTitle */
   const hasRecords: Record<CategorySource, boolean> = {

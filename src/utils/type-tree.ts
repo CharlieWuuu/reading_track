@@ -33,20 +33,42 @@ export function childrenByDomain(rows: TypePathRow[]): Map<string, string[]> {
   );
 }
 
+type TopicNode = { name: string; isPrivate: boolean; children: readonly TopicNode[] };
+
+/** 領域樹（每個類型共用那張）攤成「領域 → 次領域」。標私人的不列：選單是打開就看得到的 */
+export const childrenOfTree = (nodes: readonly TopicNode[]): Map<string, string[]> =>
+  new Map(
+    nodes
+      .filter((node) => !node.isPrivate)
+      .map((node) => [
+        node.name,
+        node.children.filter((child) => !child.isPrivate).map((child) => child.name),
+      ]),
+  );
+
+/** 兩份對照併成一份，同一個領域的次領域取聯集 */
+export const mergeChildren = (
+  ...maps: ReadonlyMap<string, readonly string[]>[]
+): Map<string, string[]> =>
+  maps.reduce<Map<string, string[]>>((merged, map) => {
+    for (const [domain, children] of map) {
+      merged.set(domain, [...new Set([...(merged.get(domain) ?? []), ...children])]);
+    }
+    return merged;
+  }, new Map<string, string[]>());
+
 /**
- * 選單要列的次領域。父領域沒選就列全部；選了就只列它底下的。
+ * 選單要列的次領域：只列選到的領域底下用過的。那個領域還沒有子項就是空的，要新的直接打字。
  *
  * 目前已選的值一律留著——舊資料裡有跨領域的組合，過濾掉會讓它在選單上消失，
- * 看起來像被清空了。
+ * 看起來像被清空了。領域沒選時呼叫端不會叫這支，直接列全部。
  */
 export function scopedOptions(
   options: string[],
   children: string[] | undefined,
   current: string,
 ): string[] {
-  if (!children?.length) return options;
-
-  const kept = new Set(children);
+  const kept = new Set(children ?? []);
   if (current.trim()) kept.add(current.trim());
   return options.filter((option) => kept.has(option));
 }
