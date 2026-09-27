@@ -1,5 +1,6 @@
 "use client";
 
+import { COVER_TILE_GRID, CoverTile } from "@/components/ui/cover-tile/cover-tile";
 import { CardStyle } from "@/config/card-styles";
 import { viewStates } from "@/config/kind-views";
 import { moduleDef } from "@/config/modules";
@@ -37,6 +38,32 @@ function NameList({ names }: { names: string[] }) {
         </span>
       ))}
     </div>
+  );
+}
+
+/**
+ * 卡片檢視的預覽：跟類型頁同一個書封格。完成的一本寫日期；
+ * 有勾開始日期的話多一本進行中的，看得到左上角那顆狀態點。
+ */
+function CoverTilePreview({ draft }: { draft: TypeDraft }) {
+  const title = draft.name.trim() || "（類型名稱）";
+  const has = (key: string) => draft.picked.includes(key);
+  return (
+    <ul className={COVER_TILE_GRID}>
+      <li>
+        <CoverTile
+          title={title}
+          coverUrl=""
+          status="完成"
+          meta={has("endDate") ? "2026-01-01 完成" : "完成"}
+        />
+      </li>
+      {has("startDate") && (
+        <li>
+          <CoverTile title={title} coverUrl="" status="進行" meta="進行" />
+        </li>
+      )}
+    </ul>
   );
 }
 
@@ -95,7 +122,7 @@ export function KindViewRail({
         </>
       )}
       {tab === "table" && <NameList names={tableColumns(modules).map((c) => c.label)} />}
-      {tab === "card" && <TypePreview {...draft} cardStyle="cover" />}
+      {tab === "card" && <CoverTilePreview draft={draft} />}
       {tab === "stats" && (
         <NameList names={statsOfModules(draft.picked).map((spec) => spec.label)} />
       )}
