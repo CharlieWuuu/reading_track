@@ -29,7 +29,7 @@ export const bookItem = (book: Book): OverviewItem => ({
 export const articleItem = (article: Article): OverviewItem => ({
   id: article.id,
   title: article.title,
-  byline: joinByline([article.author, article.platform, article.domain]),
+  byline: joinByline([article.author, article.publisher, article.domain]),
   href: `${kindHref("records", "articles")}/${article.id}`,
   // 沒有封面欄位就整個不畫，不要留一塊空的佔位
   startDate: null,

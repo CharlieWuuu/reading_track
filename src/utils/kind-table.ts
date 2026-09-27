@@ -15,6 +15,7 @@ type Row = {
   example?: string;
   locator?: string;
   platform?: string;
+  publisher?: string;
   language?: string;
   domain?: string;
   subDomain?: string;
@@ -39,6 +40,7 @@ const CELLS: Record<string, (row: Row) => string> = {
   example: (row) => text(row.example),
   locator: (row) => text(row.locator),
   platform: (row) => text(row.platform),
+  publisher: (row) => text(row.publisher),
   language: (row) => text(row.language),
   topic: (row) => [row.domain, row.subDomain].filter(Boolean).join(" / "),
   attribute: (row) => text(row.attribute),
