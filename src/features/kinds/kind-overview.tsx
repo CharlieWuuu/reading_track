@@ -6,7 +6,7 @@ import { unitOfKind } from "@/config/nav";
 import { FragmentRow, RecordRow } from "@/lib/db/queries/catalog";
 import { Kind } from "@/lib/db/queries/kinds";
 import { styledFragment, styledRecord } from "@/utils/card-data";
-import { moduleKeysByKind, splitByStatus } from "@/utils/kind-list";
+import { countTotal, moduleKeysByKind, splitByStatus } from "@/utils/kind-list";
 import { pickHeadline } from "@/utils/overview";
 import { fragmentItem, recordItem } from "@/utils/overview-items";
 
@@ -38,6 +38,7 @@ export function KindOverview({
         headlineLabel={`進行中 · 最近開始的一${unit}`}
         doneHeadlineLabel={`最近完成的一${unit}`} // 沒有進行中（或沒勾開始日期）時
         unit={unit}
+        total={countTotal(records, kind.countRereads)}
         {...styledGrid(records.map(styledRecord))} // 右欄的進行、想要也照樣式畫
       />
     );

@@ -10,7 +10,7 @@ import { ActionButton } from "@/components/ui/controls/action-button";
 import { KindGroup } from "@/config/kind-groups";
 import { kindHref } from "@/config/kind-routes";
 import { viewsOfKind } from "@/config/kind-views";
-import { NAV_GROUPS, unitOfKind } from "@/config/nav";
+import { NAV_GROUPS } from "@/config/nav";
 import { KindCalendar } from "@/features/calendar/components/kind-calendar";
 import { KindTimeline } from "@/features/calendar/components/kind-timeline";
 import { KindCardWall } from "@/features/kinds/kind-card-wall";
@@ -22,7 +22,7 @@ import { useBookView } from "@/hooks/use-book-view";
 import { useKindRecords } from "@/hooks/use-kind-records";
 import { useKinds } from "@/hooks/use-kinds";
 import { Kind } from "@/lib/db/queries/kinds";
-import { countMeta, fragmentsNewestFirst, recordsNewestFirst } from "@/utils/kind-list";
+import { fragmentsNewestFirst, recordsNewestFirst } from "@/utils/kind-list";
 
 /**
  * 一個類型的清單頁。內建與自訂同一支——書籍、佳句也走這裡，沒有專屬頁。
@@ -99,18 +99,9 @@ function KindBody({ kind }: { kind: Kind }) {
   return <KindOverview {...props} />; // 自己給中間與右欄
 }
 
-/** 頁首那行小字。紀錄可以設成連重讀一起算：「133 次・128 本」 */
-function useCountMeta(kind?: Kind): string | undefined {
-  const { records, fragments, isLoading } = useKindRecords(kind?.id ?? "");
-  if (!kind || isLoading) return undefined;
-  const rows = kind.group === "records" ? records : fragments;
-  return countMeta(rows, unitOfKind(kind), kind.group === "records" && kind.countRereads);
-}
-
 export function KindListPage({ group, slug }: { group: KindGroup; slug: string }) {
   const { kinds, isLoading } = useKinds();
   const kind = kinds.find((k) => k.group === group && k.slug === slug);
-  const meta = useCountMeta(kind);
   // 麵包屑指回這個 group 的概覽，字跟側欄同一份設定
   const parent = NAV_GROUPS.find((nav) => nav.kindGroup === group);
 
@@ -119,7 +110,6 @@ export function KindListPage({ group, slug }: { group: KindGroup; slug: string }
       <PageHeader
         title={kind?.name ?? ""}
         parent={parent ? [{ label: parent.label, href: parent.href }] : undefined}
-        meta={meta}
         action={
           kind && (
             <div className="flex min-w-0 items-center gap-2">

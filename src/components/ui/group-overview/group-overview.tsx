@@ -20,6 +20,7 @@ type GroupOverviewProps = {
   doneHeadlineLabel?: string; // 沒有進行中、頭條改放最近完成的那一筆時的小字
   unit: string; // 接在大數字後面：筆、篇、則
   doneTotal?: number; // 分頁時 done 只是已載入的，統計數字用這個
+  total?: { count: number; caption?: string }; // 「總共」那格另外算的（例：算重讀的類型寫作品數）
   onLoadMore?: () => void; // 捲到底時呼叫，不給就是整包展示
   hasMore?: boolean;
   isLoadingMore?: boolean;
@@ -43,6 +44,7 @@ export function GroupOverview({
   doneHeadlineLabel = "最近完成",
   unit,
   doneTotal,
+  total,
   onLoadMore,
   hasMore,
   isLoadingMore,
@@ -76,7 +78,8 @@ export function GroupOverview({
       rail={
         <>
           <OverviewTotalStats
-            count={active.length + pending.length + (doneTotal ?? done.length)}
+            count={total?.count ?? active.length + pending.length + (doneTotal ?? done.length)}
+            caption={total?.caption}
             unit={unit}
           />
           {/* 頭條那本也留在清單裡：這份是「現在在讀什麼」，少一本就不是全部了 */}

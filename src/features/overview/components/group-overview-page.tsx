@@ -1,13 +1,15 @@
 "use client";
 
-import { PageMain } from "@/components/layout/page-body";
+import { PageAside, PageMain } from "@/components/layout/page-body";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { styledGrid } from "@/components/ui/kind-cards/kind-cards";
 import { KindSectionBlock } from "@/components/ui/kind-section/kind-section";
 import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headline";
+import { OverviewTotalStats } from "@/components/ui/overview-layout/overview-rail-stats";
 import { KindGroup } from "@/config/kind-groups";
+import { unitOfGroup } from "@/config/nav";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { useGroupRecordsOverview } from "@/hooks/use-group-records-overview";
 import { useKinds } from "@/hooks/use-kinds";
@@ -114,17 +116,22 @@ export function GroupOverviewPage({ group }: GroupOverviewPageProps) {
   const [headline] = fragments;
 
   return (
-    <PageMain>
-      <div className={styles.sections}>
-        <OverviewHeadline
-          item={fragmentItem(headline)}
-          label="最新一則"
-          summary={headline.body || undefined}
-        />
-        {sectionsByKind(fragments).map((section) => (
-          <KindSectionBlock key={section.slug} group={group} section={section} />
-        ))}
-      </div>
-    </PageMain>
+    <>
+      <PageMain>
+        <div className={styles.sections}>
+          <OverviewHeadline
+            item={fragmentItem(headline)}
+            label="最新一則"
+            summary={headline.body || undefined}
+          />
+          {sectionsByKind(fragments).map((section) => (
+            <KindSectionBlock key={section.slug} group={group} section={section} />
+          ))}
+        </div>
+      </PageMain>
+      <PageAside>
+        <OverviewTotalStats count={fragments.length} unit={unitOfGroup(group)} />
+      </PageAside>
+    </>
   );
 }

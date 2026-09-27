@@ -6,7 +6,7 @@
  */
 
 export type KindDisplay = {
-  countRereads: boolean; // 頁首寫「133 次・128 本」
+  countRereads: boolean; // 概覽「總共」寫作品數，底下補「讀了幾次」
   numberDone: boolean; // 讀完的依序編號 #128
 };
 
