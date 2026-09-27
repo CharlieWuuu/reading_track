@@ -41,7 +41,7 @@ function BooksPageBody() {
 /** 讀網址參數的元件要有 Suspense 邊界，靜態預先產生才不會失敗 */
 export default function BooksPage() {
   const { books } = useFilteredBooks();
-  const views = useKindViews("records", "books"); // 有哪幾種看法由類型自己說，不寫在這一頁
+  const views = useKindViews("records", "books"); // 用哪幾種元件顯示由類型自己說，不寫在這一頁
 
   return (
     <Suspense fallback={null}>

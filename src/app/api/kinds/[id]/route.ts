@@ -37,8 +37,8 @@ export const PATCH = guarded(
       modules?: unknown;
       amountUnit?: unknown;
       inheritsCover?: unknown;
-      cardStyle?: unknown;
       views?: unknown;
+      cardStyle?: unknown;
       labels?: unknown;
     }>(req, "kind PATCH");
     if (!body) return badRequest("看不懂的內容");
@@ -61,13 +61,14 @@ export const PATCH = guarded(
     const amountUnit = typeof body.amountUnit === "string" ? body.amountUnit.trim() : "";
     const inheritsCover = body.inheritsCover === true;
     // 認不得的畫法落回該 group 的預設，不讓客戶端往資料庫塞任意字串
-    // 認不得的看法丟掉，一種都不剩就退回概覽
-    const views = toKindViews(
-      Array.isArray(body.views) ? body.views.filter((v) => typeof v === "string").join(",") : "",
-    );
+    // 認不得的元件丟掉
+    // 認不得的樣式落回該 group 的預設，不讓客戶端往資料庫塞任意字串
     const cardStyle = toCardStyle(
       typeof body.cardStyle === "string" ? body.cardStyle : "",
       current.group,
+    );
+    const views = toKindViews(
+      Array.isArray(body.views) ? body.views.filter((v) => typeof v === "string").join(",") : "",
     );
     const labels =
       body.labels && typeof body.labels === "object"
