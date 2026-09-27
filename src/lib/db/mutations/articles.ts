@@ -8,7 +8,7 @@ import { setRecordSourceUrl } from "./external-links";
 import { setKeywordLinks } from "./fragments";
 import { unlinkAll } from "./internal-links";
 import { kindIdBySlug } from "./kind-lookup";
-import { attributeIdFor, platformIdFor, typeIdFor } from "./taxonomy";
+import { attributeIdFor, typeIdFor } from "./taxonomy";
 import { toDate } from "./values";
 
 /**
@@ -42,7 +42,6 @@ export async function addArticleRow(userId: string, article: Article): Promise<v
       userId,
       workId: article.id,
       endDate: toDate(article.endDate),
-      platformId: await platformIdFor(tx, userId, article.platform),
       isPrivate: article.private === PRIVATE_MARK,
     });
     await setRecordSourceUrl(tx, userId, article.id, article.sourceUrl);
@@ -72,8 +71,6 @@ export async function updateArticleRow(
     }
     if (patch.type !== undefined)
       workPatch.attributeId = await attributeIdFor(tx, userId, patch.type);
-    if (patch.platform !== undefined)
-      recordPatch.platformId = await platformIdFor(tx, userId, patch.platform);
 
     if (Object.keys(workPatch).length)
       await tx

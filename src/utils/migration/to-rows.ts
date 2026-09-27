@@ -128,7 +128,7 @@ export function toArticle(row: Article) {
   return {
     title: row.title.trim(),
     author: row.author.trim(),
-    platform: row.platform.trim(),
+    publisher: row.publisher.trim(),
     sourceUrl: row.sourceUrl.trim(),
     date: toDate(row.endDate),
     language: row.language.trim(),

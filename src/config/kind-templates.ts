@@ -63,8 +63,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
       ...RECORD_BASE,
       "longText",
       "amount",
-      "platform",
-      "publisher",
+      "publisher", // 在哪個網站讀的；平台是閱讀媒介，文章沒有
       "language",
       "topic",
       "attribute",
