@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { KindCard } from "@/components/ui/kind-cards/kind-cards";
+import { KindCard, STACKED } from "@/components/ui/kind-cards/kind-cards";
 import { StyledCard } from "@/utils/card-data";
 
 /**
@@ -13,7 +13,6 @@ const styles = {
   head: "border-rule-strong flex items-baseline justify-between border-b pb-1.5",
   title: "font-serif text-item font-semibold",
   meta: "text-meta text-ink-faint tabular-nums",
-  list: "flex flex-col gap-4 pt-3",
   more: "text-meta text-ink-faint hover:text-ink mt-2 inline-block",
 };
 
@@ -40,7 +39,7 @@ export function DigestColumn({
         </span>
       </div>
 
-      <div className={styles.list}>
+      <div className={`${STACKED} pt-3`}>
         {cards.map((card) => (
           <KindCard key={card.data.id} {...card} />
         ))}

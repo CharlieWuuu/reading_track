@@ -9,46 +9,28 @@ import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
 import { DetailField, DetailHeader, DetailHeading, DetailTitle } from "@/components/ui/detail";
 import { KeywordTag } from "@/components/ui/keyword-tag";
+import { KindSectionBlock } from "@/components/ui/kind-section/kind-section";
 import { NoteBlock } from "@/components/ui/note-block";
-import { Quote } from "@/components/ui/quote";
-import { RelatedNotes } from "@/components/ui/related-notes";
 import { StatusBadge } from "@/components/ui/tag-badge";
 import { kindHref } from "@/config/kind-routes";
 import { PRIVATE_MARK } from "@/config/privacy";
-import { bookEditHref, quotesListHref, vocabularyListHref } from "@/config/routes";
-import { VocabularyItem } from "@/features/notes/components/record-items";
+import { bookEditHref } from "@/config/routes";
 import { useBooks } from "@/hooks/use-books";
+import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { useKinds } from "@/hooks/use-kinds";
-import { useRecords } from "@/hooks/use-records";
 import { useUrlParams } from "@/hooks/use-url-param";
-import { useWritings } from "@/hooks/use-writings";
 import { Kind } from "@/lib/db/queries/kinds";
 import { Book, formatCount, splitLines } from "@/types/book";
-import { QuoteRow, VocabularyRow } from "@/types/record";
 import { sameBook } from "@/utils/book-reads";
 import { detailFields } from "@/utils/detail-fields";
-import { notesByKind, notesForSource } from "@/utils/related-notes";
+import { KindSection, linkedTo, sectionsByKind } from "@/utils/overview-sections";
 
 /** 一次讀完就知道的四個數字：書裡留下了多少東西，緊接在量化資訊行下面 */
-function CountStats({
-  quotes,
-  vocabulary,
-  notes,
-  keywords,
-}: {
-  quotes: number;
-  vocabulary: number;
-  notes: number;
-  keywords: number;
-}) {
-  const items = [
-    { label: "佳句", value: quotes },
-    { label: "單字", value: vocabulary },
-    { label: "紀事", value: notes },
-    { label: "關鍵字", value: keywords },
-  ];
+/** 書名頁底下那排數字：這本書長出了幾則什麼，一種類型一格，不寫死佳句單字 */
+function CountStats({ items }: { items: { label: string; value: number }[] }) {
+  if (items.length === 0) return null;
   return (
-    <div className="border-rule-soft mt-1.5 flex gap-8 border-t pt-3">
+    <div className="border-rule-soft mt-1.5 flex flex-wrap gap-8 border-t pt-3">
       {items.map((item) => (
         <div key={item.label}>
           <div className="font-serif text-2xl font-semibold text-gray-900">{item.value}</div>
@@ -58,7 +40,6 @@ function CountStats({
     </div>
   );
 }
-
 /**
  * 右欄的資料卡。狀態與來源自己畫（一個是推論出來的徽章、一個要開新分頁），
  * 其餘照類型勾的模組列——本來六格全寫死，設定頁改了這裡不會變。
@@ -129,53 +110,14 @@ function bookValues(book: Book): Record<string, string> {
   };
 }
 
-/** 右欄的佳句清單：只列前幾則，其餘去列表頁看 */
-function QuotePreview({ quotes }: { quotes: QuoteRow[] }) {
-  const preview = quotes.slice(0, 3);
-  return (
-    <div className="flex min-w-0 flex-col gap-3">
-      <DetailHeading title="佳句" count={`${quotes.length} 則`} />
-      <ul className="divide-rule flex flex-col divide-y">
-        {preview.map((row) => (
-          <li key={row.id} className="py-3 first:pt-0">
-            <Quote text={row.text} source={row.chapter} />
-          </li>
-        ))}
-      </ul>
-      {quotes.length > preview.length && (
-        <a href={quotesListHref} className="text-meta text-ink-faint hover:text-ink">
-          看全部 {quotes.length} 則 →
-        </a>
-      )}
-    </div>
-  );
-}
-
-/** 右欄的單字清單：只列前幾個，其餘去列表頁看 */
-function VocabularyPreview({ vocabulary }: { vocabulary: VocabularyRow[] }) {
-  const preview = vocabulary.slice(0, 4);
-  return (
-    <div className="flex min-w-0 flex-col gap-3">
-      <DetailHeading title="單字" count={`${vocabulary.length} 個`} />
-      <ul className="divide-rule flex flex-col divide-y">
-        {preview.map((row) => (
-          <VocabularyItem key={row.id} row={row} />
-        ))}
-      </ul>
-      {vocabulary.length > preview.length && (
-        <a href={vocabularyListHref} className="text-meta text-ink-faint hover:text-ink">
-          看全部 {vocabulary.length} 個 →
-        </a>
-      )}
-    </div>
-  );
-}
+/** 片段只露幾則，其餘去那個類型頁看 */
+const FRAGMENT_PREVIEW = 3;
 
 export function BookDetailView({ recordId }: { recordId: string }) {
   const id = recordId;
   const { books, isLoading, error } = useBooks();
-  const { quotes, vocabulary } = useRecords();
-  const { writings } = useWritings();
+  const fragments = useGroupFragments("fragments");
+  const writings = useGroupFragments("writings");
   const { kinds } = useKinds();
   const bookKind = kinds.find((k) => k.slug === "books");
   // 從書單帶進來的檢視方式與頁碼，一路傳給編輯頁，存完才回得到同一個畫面
@@ -206,12 +148,17 @@ export function BookDetailView({ recordId }: { recordId: string }) {
   const keywords = splitLines(book.keywords);
   // 佳句與單字綁的是「某一次讀」那一列，所以重讀的那幾列要一起算進來
   const reads = sameBook(books, book);
-  const readIds = new Set(reads.map((b) => b.id));
-  const bookQuotes = quotes.filter((row) => readIds.has(row.bookId));
-  const bookVocabulary = vocabulary.filter((row) => readIds.has(row.bookId));
-  const notes = notesForSource(writings, readIds);
+  // 片段掛在作品上，書寫掛在某一次讀那一列上——兩種編號都收
+  const ids = new Set([book.workId, ...reads.map((b) => b.id)]);
+  const fragmentSections = sectionsByKind(linkedTo(fragments.fragments, ids), {
+    take: FRAGMENT_PREVIEW,
+  });
+  // 書寫是主內容，整則都列，不截
+  const writingSections = sectionsByKind(linkedTo(writings.fragments, ids), { take: Infinity });
   const note = book.note.trim();
-  const noteCount = (note ? 1 : 0) + notes.length;
+  const counts = [...writingSections, ...fragmentSections]
+    .map((section: KindSection) => ({ label: section.name, value: section.total }))
+    .concat(keywords.length > 0 ? [{ label: "關鍵字", value: keywords.length }] : []);
 
   // 量化資訊行：領域、子領域、頁數、平台，缺的項目自動不留空隙
   const quantLine = [
@@ -248,16 +195,11 @@ export function BookDetailView({ recordId }: { recordId: string }) {
             <div className="flex min-w-0 flex-1 flex-col gap-2.5">
               <DetailTitle title={book.title} subtitle={book.author} />
               {quantLine && <p className="text-meta text-ink-faint">{quantLine}</p>}
-              <CountStats
-                quotes={bookQuotes.length}
-                vocabulary={bookVocabulary.length}
-                notes={noteCount}
-                keywords={keywords.length}
-              />
+              <CountStats items={counts} />
             </div>
           </DetailHeader>
 
-          {/* 主內容雙欄：左邊書寫（含關鍵字），右邊佳句／單字清單 */}
+          {/* 主內容雙欄：左邊書寫（含關鍵字），右邊片段，都照類型分區 */}
           <div className="flex flex-col gap-8 md:flex-row">
             <div className="flex min-w-0 flex-1 flex-col gap-3">
               {/* 這本書自己那欄心得，跟連過來的書寫是兩回事，各自一區 */}
@@ -268,12 +210,9 @@ export function BookDetailView({ recordId }: { recordId: string }) {
                 </>
               )}
 
-              {/* 一種類型一區：思緒掛在寫著「心得」的標題底下對不起來 */}
-              {notesByKind(notes).map((group) => (
-                <div key={group.kindName} className="flex flex-col gap-3">
-                  <DetailHeading title={group.kindName} count={`${group.notes.length} 則`} />
-                  <RelatedNotes notes={group.notes} />
-                </div>
+              {/* 一種類型一區，照各自的卡片樣式：思緒掛在寫著「心得」的標題底下對不起來 */}
+              {writingSections.map((section) => (
+                <KindSectionBlock key={section.slug} group="writings" section={section} />
               ))}
 
               {keywords.length > 0 && (
@@ -292,13 +231,19 @@ export function BookDetailView({ recordId }: { recordId: string }) {
               )}
             </div>
 
-            {(bookQuotes.length > 0 || bookVocabulary.length > 0) && (
+            {fragmentSections.length > 0 && (
               <>
                 {/* 分隔線是獨立元素，兩側都靠父層的 gap */}
                 <div className="bg-rule hidden w-px shrink-0 md:block" />
                 <div className="flex w-full flex-col gap-8 md:w-73 md:shrink-0">
-                  {bookQuotes.length > 0 && <QuotePreview quotes={bookQuotes} />}
-                  {bookVocabulary.length > 0 && <VocabularyPreview vocabulary={bookVocabulary} />}
+                  {fragmentSections.map((section) => (
+                    <KindSectionBlock
+                      key={section.slug}
+                      group="fragments"
+                      section={section}
+                      stacked
+                    />
+                  ))}
                 </div>
               </>
             )}

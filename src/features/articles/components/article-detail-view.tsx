@@ -8,20 +8,20 @@ import { ActionButton } from "@/components/ui/controls";
 import { DetailField, DetailHeader, DetailSection, DetailTitle } from "@/components/ui/detail";
 import { Favicon } from "@/components/ui/favicon";
 import { KeywordTag } from "@/components/ui/keyword-tag";
+import { KindSectionBlock } from "@/components/ui/kind-section/kind-section";
 import { NoteBlock } from "@/components/ui/note-block";
-import { RelatedNotes } from "@/components/ui/related-notes";
 import { TagList } from "@/components/ui/tag-badge";
 import { kindHref } from "@/config/kind-routes";
 import { PRIVATE_MARK } from "@/config/privacy";
 import { articleEditHref } from "@/config/routes";
 import { useArticles } from "@/hooks/use-articles";
+import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { useKinds } from "@/hooks/use-kinds";
-import { useWritings } from "@/hooks/use-writings";
 import { Kind } from "@/lib/db/queries/kinds";
 import { Article } from "@/types/article";
 import { splitLines } from "@/types/book";
 import { detailFields } from "@/utils/detail-fields";
-import { notesByKind, notesForSource } from "@/utils/related-notes";
+import { linkedTo, sectionsByKind } from "@/utils/overview-sections";
 
 const KEYWORD_TAG =
   "rounded-control bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200";
@@ -99,11 +99,14 @@ function articleValues(article: Article): Record<string, string> {
 export function ArticleDetailView({ recordId }: { recordId: string }) {
   const id = recordId;
   const { articles, isLoading, error } = useArticles();
-  const { writings } = useWritings();
+  const writings = useGroupFragments("writings");
   const { kinds } = useKinds();
   const articleKind = kinds.find((k) => k.slug === "articles");
   const article = articles.find((a) => a.id === id);
-  const notes = notesForSource(writings, article ? [article.id] : []);
+  // 書寫掛在這一篇那一列上，一種類型一區，照各自的卡片樣式
+  const writingSections = article
+    ? sectionsByKind(linkedTo(writings.fragments, new Set([article.id])), { take: Infinity })
+    : [];
   const keywords = splitLines(article?.keywords);
 
   return (
@@ -148,14 +151,8 @@ export function ArticleDetailView({ recordId }: { recordId: string }) {
                 </DetailSection>
               )}
 
-              {notesByKind(notes).map((group) => (
-                <DetailSection
-                  key={group.kindName}
-                  title={group.kindName}
-                  count={`${group.notes.length} 項`}
-                >
-                  <RelatedNotes notes={group.notes} />
-                </DetailSection>
+              {writingSections.map((section) => (
+                <KindSectionBlock key={section.slug} group="writings" section={section} />
               ))}
             </div>
           )}
