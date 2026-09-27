@@ -17,6 +17,7 @@ type GroupOverviewProps = {
   pending: readonly OverviewItem[]; // 只進窄欄
   done: readonly OverviewItem[]; // 照月份排成多欄
   headlineLabel: string; // 頭條上方那行小字
+  doneHeadlineLabel?: string; // 沒有進行中、頭條改放最近完成的那一筆時的小字
   unit: string; // 接在大數字後面：筆、篇、則
   doneTotal?: number; // 分頁時 done 只是已載入的，統計數字用這個
   onLoadMore?: () => void; // 捲到底時呼叫，不給就是整包展示
@@ -30,11 +31,16 @@ type GroupOverviewProps = {
   railItemClassName?: (item: OverviewItem) => string; // 右欄那份：桌機一律佔滿
 };
 
+/** 完成日最新的那一筆 */
+const latestDone = (done: readonly OverviewItem[]): OverviewItem | undefined =>
+  [...done].sort((a, b) => (b.endDate ?? "").localeCompare(a.endDate ?? ""))[0];
+
 export function GroupOverview({
   active,
   pending,
   done,
   headlineLabel,
+  doneHeadlineLabel = "最近完成",
   unit,
   doneTotal,
   onLoadMore,
@@ -51,12 +57,13 @@ export function GroupOverview({
   // 進行中這個狀態，仍想秀「最新一則」），頭條改從 done 挑最新一筆；
   // 文章沒有中間狀態也沒有頭條，headlineLabel 傳空字串代表故意不要
   const fallbackToDone = active.length === 0 && headlineLabel !== "";
-  const headline = fallbackToDone ? pickHeadline(done) : pickHeadline(active);
+  // 退回完成的那批時挑最近完成的，標籤也跟著換——不然已經讀完的書會掛著「進行中」
+  const headline = fallbackToDone ? latestDone(done) : pickHeadline(active);
 
   return (
     <OverviewLayout
       headline={headline}
-      headlineLabel={headlineLabel}
+      headlineLabel={fallbackToDone ? doneHeadlineLabel : headlineLabel}
       done={done}
       unit={unit}
       onLoadMore={onLoadMore}
