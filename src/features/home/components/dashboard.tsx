@@ -7,8 +7,10 @@ import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headl
 import { unitOfGroup } from "@/config/nav";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { useGroupRecords } from "@/hooks/use-group-records";
+import { useKinds } from "@/hooks/use-kinds";
 import { styledFragment, styledRecord } from "@/utils/card-data";
 import { countOnDate, fragmentDate, pickHeadline, recentBy, recordDate } from "@/utils/home-digest";
+import { moduleKeysByKind, statusOf } from "@/utils/kind-list";
 import { recordItem as recordOverviewItem } from "@/utils/overview-items";
 import { DigestColumn } from "./digest-column";
 import { TodayPanel } from "./today-panel";
@@ -31,6 +33,7 @@ export function Dashboard() {
   const records = useGroupRecords("records");
   const fragments = useGroupFragments("fragments");
   const writings = useGroupFragments("writings");
+  const { kinds } = useKinds();
 
   const error = records.error ?? fragments.error ?? writings.error;
   if (error) return <PageMessage tone="error">{error}</PageMessage>;
@@ -38,7 +41,8 @@ export function Dashboard() {
 
   const today = new Date().toISOString().slice(0, 10);
 
-  const headline = pickHeadline(records.records);
+  const keysByKind = moduleKeysByKind(kinds);
+  const headline = pickHeadline(records.records, keysByKind);
   const todayPanel = (
     <>
       {/* 內容欄窄時橫著分隔，寬時變成直線 */}
@@ -73,7 +77,9 @@ export function Dashboard() {
       {headline ? (
         <OverviewHeadline
           item={recordOverviewItem(headline)}
-          label={headline.statusKey === "reading" ? "在讀" : "最近讀完"}
+          label={
+            statusOf(headline, keysByKind.get(headline.kindId)) === "reading" ? "在讀" : "最近讀完"
+          }
           aside={todayPanel}
         />
       ) : (

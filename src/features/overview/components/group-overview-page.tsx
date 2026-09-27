@@ -9,8 +9,10 @@ import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headl
 import { KindGroup } from "@/config/kind-groups";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { useGroupRecordsOverview } from "@/hooks/use-group-records-overview";
+import { useKinds } from "@/hooks/use-kinds";
 import { useMounted } from "@/hooks/use-mounted";
 import { styledFragment, styledRecord } from "@/utils/card-data";
+import { moduleKeysByKind, splitByStatus } from "@/utils/kind-list";
 import { fragmentItem, recordItem } from "@/utils/overview-items";
 import { sectionsByKind } from "@/utils/overview-sections";
 
@@ -40,6 +42,7 @@ export function GroupOverviewPage({ group }: GroupOverviewPageProps) {
   const recordsOverview = useGroupRecordsOverview("records");
   const fragmentsData = useGroupFragments(group);
   const mounted = useMounted();
+  const { kinds } = useKinds();
 
   if (!mounted) return null; // 靜態那份 HTML 一定是空的，先判斷資料狀態會閃一下「空的」
 
@@ -47,11 +50,17 @@ export function GroupOverviewPage({ group }: GroupOverviewPageProps) {
     const blocked = gate(recordsOverview);
     if (blocked) return blocked;
 
+    // 沒完成的那批照各自類型勾的日期再分：沒勾開始日期的不算在讀，兩個日期都沒勾的算完成
+    const { active, pending, done } = splitByStatus(
+      recordsOverview.active,
+      moduleKeysByKind(kinds),
+    );
+
     return (
       <GroupOverview
-        active={recordsOverview.active.filter((r) => r.statusKey === "reading").map(recordItem)}
-        pending={recordsOverview.active.filter((r) => r.statusKey === "want").map(recordItem)}
-        done={recordsOverview.done.map(recordItem)}
+        active={active.map(recordItem)}
+        pending={pending.map(recordItem)}
+        done={[...done, ...recordsOverview.done].map(recordItem)}
         doneTotal={recordsOverview.doneTotal}
         headlineLabel="在讀 · 最近開始的一本"
         unit="筆"
