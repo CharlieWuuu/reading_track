@@ -105,6 +105,8 @@ export function TypePreview({
           tag: "主題",
           body: has("longText") ? "這裡是內文，支援分欄……" : "",
           detail: has("pronunciation") ? "發音" : "",
+          creator: has("creator") ? "作者" : "",
+          platform: has("platform") ? "平台" : "",
           meta: has("locator")
             ? "出處・位置"
             : [has("creator") && "作者", has("amount") && "數量"].filter(Boolean).join("・"),
