@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactNode, useEffect, useRef } from "react";
-import { COVER_CARD_GRID, CoverCard } from "@/components/ui/cover-card/cover-card";
 import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headline";
 import { byMonth, OverviewItem } from "@/utils/overview";
 
@@ -35,31 +34,6 @@ const styles = {
   loadingMore: "text-meta text-ink-faint py-4 text-center",
 };
 
-/**
- * 一筆 OverviewItem 畫成封面卡。月份格線與範圍報告共用——本來各寫一次，
- * 範圍報告少給 tintSeed，同一本書在兩頁的色帶就不同色。
- */
-export function OverviewCoverCard({
-  item,
-  tintSeed,
-}: {
-  item: OverviewItem;
-  tintSeed?: (item: OverviewItem) => string | undefined;
-}) {
-  return (
-    <CoverCard
-      id={item.id}
-      href={item.href}
-      title={item.title}
-      coverUrl={item.coverUrl}
-      meta={item.endDate}
-      label={item.topicLabel}
-      caption={item.byline}
-      tintSeed={tintSeed?.(item)}
-    />
-  );
-}
-
 export type OverviewLayoutProps = {
   /** 頭條要顯示的那一件，通常是 pickHeadline 挑出來的結果 */
   headline?: OverviewItem;
@@ -71,8 +45,6 @@ export type OverviewLayoutProps = {
   done: readonly OverviewItem[];
   /** 數量的單位：一「筆」紀錄、一「則」片段。月份標題右邊那個數字要接它 */
   unit?: string;
-  /** 每格底色依這個字串決定色相；不給就用 item.id（每筆不同色） */
-  tintSeed?: (item: OverviewItem) => string | undefined;
   /**
    * 右側窄欄——各頁自己的統計、Rail 清單都放這裡；沒有就不留這塊區域。
    *
@@ -83,13 +55,11 @@ export type OverviewLayoutProps = {
   /** 窄螢幕不把 rail 插進內容裡。書寫那頁的統計在手機上只是把內容往下推 */
   railDesktopOnly?: boolean;
   /**
-   * 月份格線裡一格怎麼畫。預設用 CoverCard（書籍、紀錄那種有封面的清單）；
-   * 片段、書寫這種一則一張卡的頁面換成 FragmentCard，骨架（頭條、月份分段、
-   * 右側統計欄）不變，只換中間這一格的畫法。
+   * 月份格線裡一格怎麼畫、整片怎麼排。一律由呼叫端給（styledGrid）：
+   * 長相跟著那一筆的類型設定走，骨架不替誰決定——本來預設畫封面卡，紀錄就永遠是封面卡。
    */
-  renderItem?: (item: OverviewItem) => ReactNode;
-  /** 月份格線的欄數斷點。不給就用 COVER_CARD_GRID——換了 renderItem 的頁面，卡片寬度需求不同時覆寫 */
-  gridClassName?: string;
+  renderItem: (item: OverviewItem) => ReactNode;
+  gridClassName: string;
   /** 捲到底時呼叫。不給就是原本的整包展示，不會建立任何觀察者 */
   onLoadMore?: () => void;
   /** 還有沒有下一批——false 時不再觀察 sentinel，避免最後一頁還一直觸發 */
@@ -104,11 +74,10 @@ export function OverviewLayout({
   headlineSummary,
   done,
   unit = "筆",
-  tintSeed,
   rail,
   railDesktopOnly,
   renderItem,
-  gridClassName = COVER_CARD_GRID,
+  gridClassName,
   onLoadMore,
   hasMore,
   isLoadingMore,
@@ -162,13 +131,9 @@ export function OverviewLayout({
                 </span>
               </div>
               <div className={gridClassName}>
-                {group.items.map((item) =>
-                  renderItem ? (
-                    <div key={item.id}>{renderItem(item)}</div>
-                  ) : (
-                    <OverviewCoverCard key={item.id} item={item} tintSeed={tintSeed} />
-                  ),
-                )}
+                {group.items.map((item) => (
+                  <div key={item.id}>{renderItem(item)}</div>
+                ))}
               </div>
             </div>
           ))}

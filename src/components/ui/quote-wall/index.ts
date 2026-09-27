@@ -1,1 +1,1 @@
-export { QuoteWall } from "./quote-wall";
+export { QuoteRow } from "./quote-wall";
