@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   byYear,
-  countMeta,
+  countTotal,
   doneNumbers,
   fragmentsNewestFirst,
   moduleKeysByKind,
@@ -30,19 +30,19 @@ describe("byYear", () => {
   });
 });
 
-describe("countMeta", () => {
+describe("countTotal", () => {
   const rows = [{ workId: "w1" }, { workId: "w1" }, { workId: "w2" }];
 
   it("不算重讀就是筆數", () => {
-    expect(countMeta(rows, "本", false)).toBe("3 本");
+    expect(countTotal(rows, false)).toEqual({ count: 3 });
   });
 
-  it("算重讀而且真的有重讀", () => {
-    expect(countMeta(rows, "本", true)).toBe("3 次・2 本");
+  it("算重讀而且真的有重讀：作品數，底下補次數", () => {
+    expect(countTotal(rows, true)).toEqual({ count: 2, caption: "讀了 3 次" });
   });
 
-  it("算重讀但沒有重讀，只寫一個數字", () => {
-    expect(countMeta(rows.slice(1), "本", true)).toBe("2 本");
+  it("算重讀但沒有重讀，只有一個數字", () => {
+    expect(countTotal(rows.slice(1), true)).toEqual({ count: 2 });
   });
 });
 

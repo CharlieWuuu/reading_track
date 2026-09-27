@@ -31,15 +31,16 @@ export function byYear<T extends Dated>(
   return undated.length > 0 ? [...groups, { label: undatedLabel, items: undated }] : groups;
 }
 
-/** 頁首那行小字：「128 本」，算重讀又真的有重讀時寫「133 次・128 本」 */
-export function countMeta(
+// 右欄「總共」那格。算重讀的類型寫作品數，真的有重讀才在底下補「幾次」
+export function countTotal(
   rows: readonly { workId?: string | null }[],
-  unit: string,
   countRereads: boolean,
-): string {
-  if (!countRereads) return `${rows.length} ${unit}`;
+): { count: number; caption?: string } {
+  if (!countRereads) return { count: rows.length };
   const works = new Set(rows.map((row) => row.workId)).size;
-  return rows.length === works ? `${works} ${unit}` : `${rows.length} 次・${works} ${unit}`;
+  return rows.length === works
+    ? { count: works }
+    : { count: works, caption: `讀了 ${rows.length} 次` };
 }
 
 /** 完成的依序編號：最早完成的是 1，最新的最大。沒完成的沒有號碼——還沒排得進順序 */
