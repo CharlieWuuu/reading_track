@@ -28,15 +28,15 @@ export function KindOverview({
   const unit = unitOfKind(kind); // amountUnit 是份量（頁、分鐘），這裡要的是個數
 
   if (kind.group === "records") {
-    // 狀態照這個類型勾的日期判斷：沒勾開始日期就沒有進行中，頭條改成最新完成的一筆
+    // 狀態照這個類型勾的日期判斷：沒勾開始日期就沒有進行中
     const { active, pending, done } = splitByStatus(records, moduleKeysByKind([kind]));
-    const hasStart = kind.modules.some((module) => module.key === "startDate");
     return (
       <GroupOverview
         active={active.map(recordItem)}
         pending={pending.map(recordItem)}
         done={done.map(recordItem)}
-        headlineLabel={hasStart ? `進行中 · 最近開始的一${unit}` : `最新的一${unit}`}
+        headlineLabel={`進行中 · 最近開始的一${unit}`}
+        doneHeadlineLabel={`最近完成的一${unit}`} // 沒有進行中（或沒勾開始日期）時
         unit={unit}
         {...styledGrid(records.map(styledRecord))} // 右欄的進行、想要也照樣式畫
       />

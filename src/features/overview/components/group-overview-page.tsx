@@ -63,6 +63,7 @@ export function GroupOverviewPage({ group }: GroupOverviewPageProps) {
         done={[...done, ...recordsOverview.done].map(recordItem)}
         doneTotal={recordsOverview.doneTotal}
         headlineLabel="在讀 · 最近開始的一本"
+        doneHeadlineLabel="最近完成的一筆"
         unit="筆"
         // 右欄的進行、想要也照樣式畫，所以 active 也要進去
         {...styledGrid([...recordsOverview.active, ...recordsOverview.done].map(styledRecord))}
