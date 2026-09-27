@@ -5,7 +5,8 @@ import { OverviewItem } from "@/utils/overview";
 /**
  * 最上面那一則。一頁只有一個主角——最近開始的那一本、最新的那一則。
  *
- * 三個概覽頁共用這一份，長相就是同一個。
+ * 首頁與三個概覽頁共用這一份，長相就是同一個。首頁右邊多一塊「這個月」，
+ * 那是另一件事，用 aside 插進來，不再為它另寫一支頭條。
  */
 
 const styles = {
@@ -23,13 +24,17 @@ export function OverviewHeadline({
   item,
   label,
   summary,
+  aside,
 }: {
   item: OverviewItem;
   label: string;
   summary?: string;
+  /** 右邊那格：首頁的「這個月」。沒給就只有頭條本身 */
+  aside?: React.ReactNode;
 }) {
   return (
     <div className={styles.band}>
+      {/* 窄的時候封面與文字並排成一組，aside 整塊落到底下 */}
       <div className="flex min-w-0 flex-1 gap-4 @2xl:contents">
         {item.coverUrl && (
           <div className="w-21.5 shrink-0 @2xl:w-28.75">
@@ -51,6 +56,7 @@ export function OverviewHeadline({
           )}
         </div>
       </div>
+      {aside}
     </div>
   );
 }
