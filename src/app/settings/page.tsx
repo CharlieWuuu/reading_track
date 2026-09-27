@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { PageBody } from "@/components/layout/page-body";
+import { PageBody, PageMain } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { styles as controlStyles } from "@/components/ui/controls/styles";
 import { AccountPanel } from "@/features/settings/components/account-panel";
@@ -83,20 +83,16 @@ function Settings() {
         }
       />
       <PageBody>
-        {/* 類型是兩欄版面，捲動歸它自己的中間欄——父層一起捲的話右邊的預覽會被捲走 */}
-        <div
-          className={
-            tab === "kinds"
-              ? "flex min-h-0 flex-1 flex-col"
-              : "min-h-0 flex-1 overflow-y-auto pb-10"
-          }
-        >
-          {tab === "categories" && <CategoryManager />}
-          {tab === "kinds" && <KindPanel />}
-          {tab === "stats" && <StatsTypeCards />}
-          {tab === "graph" && <GraphPanel />}
-          {tab === "account" && <AccountPanel />}
-        </div>
+        {tab === "kinds" ? (
+          <KindPanel /> // 自己給中間與右欄
+        ) : (
+          <PageMain>
+            {tab === "categories" && <CategoryManager />}
+            {tab === "stats" && <StatsTypeCards />}
+            {tab === "graph" && <GraphPanel />}
+            {tab === "account" && <AccountPanel />}
+          </PageMain>
+        )}
       </PageBody>
     </>
   );

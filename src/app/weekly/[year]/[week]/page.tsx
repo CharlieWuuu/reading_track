@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { PageBody } from "@/components/layout/page-body";
+import { PageBody, PageMain } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RangeOverview } from "@/features/overview/components/range-overview";
 import { WeekNav } from "@/features/weekly/components/week-nav";
@@ -19,7 +19,9 @@ export default function WeeklyPage({
     <>
       <PageHeader title="每週重點" action={<WeekNav week={isoWeek} />} />
       <PageBody>
-        <RangeOverview range={isoWeekRange(isoWeek)} emptyLabel="這週還沒有新紀錄" />
+        <PageMain>
+          <RangeOverview range={isoWeekRange(isoWeek)} emptyLabel="這週還沒有新紀錄" />
+        </PageMain>
       </PageBody>
     </>
   );
