@@ -24,7 +24,7 @@ export const kinds = pgTable(
     /** 屬於側欄哪個 group：records／fragments／writings。三個 group 共用同一套類型機制 */
     groupKey: text("group_key").notNull(),
     /**
-     * 版面底下一筆長什麼樣：封面卡、片段卡、佳句、單行。合法值由 config/card-styles 管。
+     * 版面底下一筆長什麼樣：封面卡、片段卡、佳句、標題、整則、清單。合法值由 config/card-styles 管。
      *
      * 概覽與卡片牆都讀它。本來寫死判斷 slug === "quotes" 才排成引文，
      * 自訂類型就沒有佳句那種排版可用。
