@@ -52,7 +52,6 @@ export const POST = guarded("kinds POST", async (req: NextRequest) => {
     views?: unknown;
     cardStyle?: unknown;
     labels?: unknown;
-    cardGroupBy?: unknown;
     countRereads?: unknown;
     numberDone?: unknown;
   }>(req, "kinds POST");
