@@ -24,11 +24,13 @@ export function OverviewRail<T extends RailItem>({
   total,
   renderItem,
   gridClassName,
+  itemClassName,
 }: {
   label: string;
   items: readonly T[];
   renderItem: (item: T) => React.ReactNode;
   gridClassName: string; // 窄螢幕插在主欄時的排法，跟月份格線同一個
+  itemClassName?: (item: T) => string; // 一筆佔多寬，混排時用得到
   unit: string;
   limit?: number;
   total?: number;
@@ -48,7 +50,9 @@ export function OverviewRail<T extends RailItem>({
       </div>
       <div className={`${gridClassName} pt-3 lg:flex lg:flex-col lg:gap-4`}>
         {shown.map((item) => (
-          <div key={item.id}>{renderItem(item)}</div>
+          <div key={item.id} className={itemClassName?.(item)}>
+            {renderItem(item)}
+          </div>
         ))}
       </div>
       {hidden > 0 && (

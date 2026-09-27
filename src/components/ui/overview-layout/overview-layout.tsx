@@ -60,6 +60,8 @@ export type OverviewLayoutProps = {
    */
   renderItem: (item: OverviewItem) => ReactNode;
   gridClassName: string;
+  /** 一筆佔多寬。混了幾種樣式時用得到（見 styledGrid），沒給就交給格線 */
+  itemClassName?: (item: OverviewItem) => string;
   /** 捲到底時呼叫。不給就是原本的整包展示，不會建立任何觀察者 */
   onLoadMore?: () => void;
   /** 還有沒有下一批——false 時不再觀察 sentinel，避免最後一頁還一直觸發 */
@@ -78,6 +80,7 @@ export function OverviewLayout({
   railDesktopOnly,
   renderItem,
   gridClassName,
+  itemClassName,
   onLoadMore,
   hasMore,
   isLoadingMore,
@@ -132,7 +135,9 @@ export function OverviewLayout({
               </div>
               <div className={gridClassName}>
                 {group.items.map((item) => (
-                  <div key={item.id}>{renderItem(item)}</div>
+                  <div key={item.id} className={itemClassName?.(item)}>
+                    {renderItem(item)}
+                  </div>
                 ))}
               </div>
             </div>

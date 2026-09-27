@@ -29,11 +29,37 @@ const GRIDS: Record<CardStyle, string> = {
   row: "flex flex-col",
 };
 
-/** 同一格裡混了幾種樣式（紀錄概覽裡書籍與電影各選各的）就一列一筆，誰都擠不壞 */
-export const gridOf = (cardStyles: readonly CardStyle[]): string => {
-  const unique = [...new Set(cardStyles)];
-  return unique.length === 1 ? GRIDS[unique[0]] : styles.lines;
+/**
+ * 同一格裡混了幾種樣式（紀錄概覽裡書籍是封面卡、文章是清單）：可換行的 flex，
+ * 每一筆照自己的樣式佔多寬。一列一筆的佔滿，封面卡跟自己的格線一樣兩兩一排。
+ */
+const MIXED = "flex flex-wrap gap-x-5 md:gap-x-8";
+const HALF = "w-[calc((100%-1.25rem)/2)] md:w-[calc((100%-2rem)/2)]";
+
+const MIXED_WIDTH: Record<CardStyle, string> = {
+  cover: `${HALF} xl:w-[calc((100%-4rem)/3)] 2xl:w-[calc((100%-6rem)/4)]`, // 跟 COVER_CARD_GRID 同樣的欄數
+  fragment: `${HALF} pb-3`,
+  quote: "w-full",
+  line: "w-full",
+  row: "w-full",
+  thread: "w-full py-3",
 };
+
+/** 右欄：手機插進主欄時照樣式分寬，桌機是窄欄，一律佔滿 */
+const RAIL_WIDTH: Record<CardStyle, string> = {
+  ...MIXED_WIDTH,
+  cover: `${HALF} lg:w-full`,
+  fragment: `${HALF} pb-3 lg:w-full`,
+};
+
+const isMixed = (cardStyles: readonly CardStyle[]) => new Set(cardStyles).size > 1;
+
+export const gridOf = (cardStyles: readonly CardStyle[]): string =>
+  isMixed(cardStyles) ? MIXED : GRIDS[cardStyles[0] ?? "fragment"];
+
+/** 混排時這一筆佔多寬；只有一種樣式時交給格線，不另外給 */
+export const itemClassOf = (cardStyles: readonly CardStyle[], style: CardStyle): string =>
+  isMixed(cardStyles) ? MIXED_WIDTH[style] : "";
 
 export function KindCard({ style, data }: { style: CardStyle; data: CardData }) {
   if (style === "quote") return <QuoteRow data={data} />;
@@ -101,8 +127,15 @@ export function KindCards({
  */
 export function styledGrid(cards: readonly StyledCard[]) {
   const byId = new Map(cards.map((card) => [card.data.id, card]));
+  const cardStyles = cards.map((card) => card.style);
+  const widthOf = (widths: Record<CardStyle, string>) => (item: { id: string }) => {
+    const card = byId.get(item.id);
+    return card && isMixed(cardStyles) ? widths[card.style] : "";
+  };
   return {
-    gridClassName: gridOf(cards.map((card) => card.style)),
+    gridClassName: gridOf(cardStyles),
+    itemClassName: widthOf(MIXED_WIDTH),
+    railItemClassName: widthOf(RAIL_WIDTH),
     renderItem: (item: { id: string }) => {
       const card = byId.get(item.id);
       return card ? <KindCard {...card} /> : null;

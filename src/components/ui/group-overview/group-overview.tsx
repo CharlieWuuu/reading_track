@@ -26,6 +26,8 @@ type GroupOverviewProps = {
   railDesktopOnly?: boolean; // 窄螢幕不插進內容裡
   renderItem: (item: OverviewItem) => React.ReactNode; // 一筆怎麼畫，照類型的卡片樣式；格線與右欄共用，所以要認得 active／pending／done 全部
   gridClassName: string; // 月份格線的欄數斷點
+  itemClassName?: (item: OverviewItem) => string; // 一筆佔多寬，混排時用得到
+  railItemClassName?: (item: OverviewItem) => string; // 右欄那份：桌機一律佔滿
 };
 
 export function GroupOverview({
@@ -42,6 +44,8 @@ export function GroupOverview({
   railDesktopOnly,
   renderItem,
   gridClassName,
+  itemClassName,
+  railItemClassName,
 }: GroupOverviewProps) {
   // active 沒東西、但呼叫端有給頭條標籤時（例如書寫，記下就算完成，沒有
   // 進行中這個狀態，仍想秀「最新一則」），頭條改從 done 挑最新一筆；
@@ -61,6 +65,7 @@ export function GroupOverview({
       railDesktopOnly={railDesktopOnly}
       renderItem={renderItem}
       gridClassName={gridClassName}
+      itemClassName={itemClassName}
       rail={
         <>
           <OverviewTotalStats
@@ -75,6 +80,7 @@ export function GroupOverview({
             limit={5}
             renderItem={renderItem}
             gridClassName={gridClassName}
+            itemClassName={railItemClassName}
           />
           <OverviewRail
             label="想要"
@@ -83,6 +89,7 @@ export function GroupOverview({
             limit={5}
             renderItem={renderItem}
             gridClassName={gridClassName}
+            itemClassName={railItemClassName}
           />
           {extraRail}
         </>
