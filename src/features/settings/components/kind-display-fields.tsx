@@ -1,4 +1,4 @@
-import { CARD_GROUPINGS, KindDisplay } from "@/config/kind-display";
+import { KindDisplay } from "@/config/kind-display";
 import { KindGroup } from "@/config/kind-groups";
 
 const styles = {
@@ -8,7 +8,7 @@ const styles = {
 };
 
 /**
- * 類型的顯示設定：卡片牆分段、重讀計次、讀完編號。
+ * 類型的顯示設定：重讀計次、讀完編號。
  *
  * 重讀只有紀錄有——作品與紀錄分兩層，同一本書讀兩次才是兩筆；片段與書寫一筆就是一件。
  * 讀完編號要有完成日期才排得出順序，沒勾那個模組就不列。
@@ -28,18 +28,6 @@ export function KindDisplayFields({
 
   return (
     <div className={styles.grid}>
-      {CARD_GROUPINGS.map((grouping) => (
-        <label key={grouping.key} className={styles.cell}>
-          <input
-            type="radio"
-            name="card-group-by"
-            checked={value.cardGroupBy === grouping.key}
-            onChange={() => set({ cardGroupBy: grouping.key })}
-            className="mt-1"
-          />
-          <span className={styles.label}>卡片{grouping.label}分段</span>
-        </label>
-      ))}
       {group === "records" && (
         <label className={styles.cell}>
           <input

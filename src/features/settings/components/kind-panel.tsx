@@ -5,13 +5,9 @@ import { CardStyle, defaultCardStyle } from "@/config/card-styles";
 import { KindGroup } from "@/config/kind-groups";
 import { DEFAULT_VIEWS } from "@/config/kind-views";
 import { NAV_GROUPS } from "@/config/nav";
+import { KindViewRail } from "@/features/settings/components/kind-view-rail";
 import { TypeBuilder } from "@/features/settings/components/type-builder";
-import {
-  CardStylePicker,
-  KindViewsPicker,
-  TypeDraft,
-  TypePreview,
-} from "@/features/settings/components/type-preview";
+import { TypeDraft } from "@/features/settings/components/type-preview";
 import { useKinds } from "@/hooks/use-kinds";
 import { BookViewMode } from "@/stores/use-book-view-store";
 
@@ -35,10 +31,7 @@ const styles = {
   frame: "flex min-h-0 min-w-0 flex-1 items-stretch gap-6",
   rule: "bg-rule-strong hidden w-px shrink-0 lg:block", // 右欄收起來時線也跟著收
   list: "overflow-y-auto pb-10 flex w-full min-w-0 flex-1 flex-col gap-6",
-  railLabel: "text-label text-accent font-medium",
   // 分頁切換跟頁首那排純文字連結同一套：無框無底色，選中的變粗
-  railTabActive: "text-label text-accent font-medium",
-  railTabIdle: "text-label text-ink-faint hover:text-ink",
   rail: "overflow-y-auto pb-10 hidden w-58 shrink-0 flex-col gap-8 self-stretch lg:flex",
   group: "flex flex-col",
   groupHead: "border-rule-strong flex items-baseline justify-between border-b-2 pb-1.5",
@@ -54,12 +47,6 @@ const styles = {
   builder: "pl-3",
 };
 
-/** 右欄的兩個分頁。檢視是這一頁有幾種看法，樣式是一筆長什麼樣 */
-const TABS = [
-  { key: "views" as const, label: "檢視" },
-  { key: "card" as const, label: "樣式" },
-];
-
 export function KindPanel() {
   /** 展開中的新增表單屬於哪一個分類，null 就是沒展開 */
   const [adding, setAdding] = useState<KindGroup | null>(null);
@@ -73,8 +60,8 @@ export function KindPanel() {
   // 右欄要等它回報，每次回報都換一個新物件，點一下就被重建的畫面吃掉
   const [views, setViews] = useState<BookViewMode[]>(DEFAULT_VIEWS);
   const [cardStyle, setCardStyle] = useState<CardStyle>("fragment");
-  /** 右欄兩個分頁：版面是整頁怎麼排，卡片是一筆長什麼樣 */
-  const [tab, setTab] = useState<"views" | "card">("views");
+  /** 右欄點到哪一種檢視 */
+  const [tab, setTab] = useState<BookViewMode>("overview");
   const { kinds, removeKind } = useKinds();
 
   // 身分固定所以不會每次 render 換一個，TypeBuilder 的 effect 才不會反覆觸發
@@ -202,30 +189,15 @@ export function KindPanel() {
       <div className={styles.rule} />
       <div className={styles.rail}>
         {draft && (
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-4">
-              {TABS.map((item) => (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => setTab(item.key)}
-                  aria-pressed={item.key === tab}
-                  className={item.key === tab ? styles.railTabActive : styles.railTabIdle}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-
-            {tab === "views" ? (
-              <KindViewsPicker views={views} onChange={setViews} />
-            ) : (
-              <>
-                <CardStylePicker cardStyle={cardStyle} onChange={setCardStyle} />
-                <TypePreview {...draft} cardStyle={cardStyle} />
-              </>
-            )}
-          </div>
+          <KindViewRail
+            draft={draft}
+            views={views}
+            onViewsChange={setViews}
+            cardStyle={cardStyle}
+            onCardStyleChange={setCardStyle}
+            tab={tab}
+            onTabChange={setTab}
+          />
         )}
       </div>
     </div>

@@ -1,4 +1,3 @@
-import { CardGroupBy } from "@/config/kind-display";
 import { byDateThenNewest } from "./record-order";
 
 /**
@@ -12,23 +11,21 @@ export type PeriodGroup<T> = { label: string; items: T[] };
 
 type Dated = { endDate?: string | null };
 
-const periodOf = (date: string, by: CardGroupBy): string =>
-  by === "year" ? date.slice(0, 4) : `${date.slice(0, 4)} · ${date.slice(5, 7)}`;
+const yearOf = (date: string): string => date.slice(0, 4);
 
-/** 照完成日分段，新的在前。沒完成日的另成一段放最後——還沒完成，沒有時間可排 */
-export function byPeriod<T extends Dated>(
+/** 照完成年分段，新的在前。沒完成日的另成一段放最後——還沒完成，沒有時間可排 */
+export function byYear<T extends Dated>(
   items: readonly T[],
-  by: CardGroupBy,
   undatedLabel: string,
 ): PeriodGroup<T>[] {
   const dated = items.filter((item) => item.endDate);
   const undated = items.filter((item) => !item.endDate);
-  const labels = [...new Set(dated.map((item) => periodOf(item.endDate!, by)))].sort((a, b) =>
+  const labels = [...new Set(dated.map((item) => yearOf(item.endDate!)))].sort((a, b) =>
     b.localeCompare(a),
   );
   const groups = labels.map((label) => ({
     label,
-    items: dated.filter((item) => periodOf(item.endDate!, by) === label),
+    items: dated.filter((item) => yearOf(item.endDate!) === label),
   }));
   return undated.length > 0 ? [...groups, { label: undatedLabel, items: undated }] : groups;
 }

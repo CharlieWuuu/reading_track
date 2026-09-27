@@ -70,7 +70,6 @@ async function insertKind(
       inheritsCover: kind.inheritsCover,
       cardStyle: kind.cardStyle,
       views: fromKindViews(kind.views),
-      cardGroupBy: kind.cardGroupBy,
       countRereads: kind.countRereads,
       numberDone: kind.numberDone,
       sortOrder,
@@ -213,7 +212,6 @@ export async function updateKind(userId: string, kindId: string, patch: NewKind)
         inheritsCover: patch.inheritsCover,
         cardStyle: patch.cardStyle,
         views: fromKindViews(patch.views),
-        cardGroupBy: patch.cardGroupBy,
         countRereads: patch.countRereads,
         numberDone: patch.numberDone,
       })

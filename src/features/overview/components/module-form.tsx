@@ -22,6 +22,7 @@ import { useFormTabStore } from "@/stores/use-form-tab-store";
 import type { Linkable } from "@/types/record";
 import {
   autoEndDate,
+  categoryOf,
   cellsOf,
   fieldsOf,
   FormCell,
@@ -61,18 +62,6 @@ const INPUT_TYPE: Partial<Record<FieldDef["type"], string>> = {
   longText: "textarea", // 內文、例句這種，畫成單行根本寫不完
 };
 
-/**
- * 選單型欄位對到 useCategories 的哪一組選項。
- *
- * 選項不是另外維護的清單，是從既有資料 group 出來的，所以值存名字不是編號——
- * 換成 topic_id／attribute_id 是寫入那一層的事（見 mutations/taxonomy）。
- */
-const CATEGORY_KEY: Partial<Record<FieldDef["type"], "domain" | "subDomain" | "type">> = {
-  topic: "domain",
-  topicChild: "subDomain",
-  attribute: "type",
-};
-
 /** 表單上的一格。畫成什麼照欄位型別，叫什麼照 cellsOf 算好的名字 */
 function FieldCell({
   cell: { field, label },
@@ -96,11 +85,12 @@ function FieldCell({
   if (field.type === "flag") return <PrivateToggle label={label} value={value} onChange={change} />;
   // 封面存的是圖片 key，畫成文字框只會看到一串亂碼
   if (field.type === "image") return <ImageField label={label} value={value} onChange={change} />;
-  if (CATEGORY_KEY[field.type]) {
+  const category = categoryOf(field);
+  if (category) {
     return (
       <CategorySelect
         label={label}
-        categoryKey={CATEGORY_KEY[field.type]!}
+        categoryKey={category}
         value={value}
         onChange={change}
         // 次領域只列選到的那個領域底下的；領域還沒選就列全部

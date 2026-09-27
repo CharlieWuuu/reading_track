@@ -3,8 +3,6 @@
 import { KindCard } from "@/components/ui/kind-cards/kind-cards";
 import { CARD_STYLES, CardStyle } from "@/config/card-styles";
 import { KindGroup } from "@/config/kind-groups";
-import { KIND_VIEWS } from "@/config/kind-views";
-import { BookViewMode } from "@/stores/use-book-view-store";
 
 /** 編輯中的類型：右欄預覽照這組設定畫 */
 export type TypeDraft = {
@@ -16,46 +14,9 @@ export type TypeDraft = {
 const styles = {
   row: "flex items-center gap-2 py-1.5",
   label: "text-ui text-ink-muted",
-  always: "text-ui text-ink-faint", // 概覽沒得取消，褪一階表示不能動
 };
 
-/**
- * 有哪幾種檢視。多選，勾了幾種那個類型頁就有幾個選項可切。
- *
- * 概覽列出來但不給取消：那是這個類型的門面，一定有。
- * 統計不在這裡——畫得出圖才有它，由勾了哪些模組決定。
- */
-export function KindViewsPicker({
-  views,
-  onChange,
-}: {
-  views: BookViewMode[];
-  onChange: (views: BookViewMode[]) => void;
-}) {
-  const toggle = (key: BookViewMode) =>
-    onChange(views.includes(key) ? views.filter((v) => v !== key) : [...views, key]);
-
-  return (
-    <div className="flex flex-col">
-      <label className={styles.row}>
-        <input type="checkbox" checked disabled />
-        <span className={styles.always}>概覽</span>
-      </label>
-      {KIND_VIEWS.map((view) => (
-        <label key={view.key} className={styles.row}>
-          <input
-            type="checkbox"
-            checked={views.includes(view.key)}
-            onChange={() => toggle(view.key)}
-          />
-          <span className={styles.label}>{view.label}</span>
-        </label>
-      ))}
-    </div>
-  );
-}
-
-/** 一筆長什麼樣。單選——概覽與卡片牆都讀它，一個類型一種卡片 */
+/** 一筆長什麼樣。單選——概覽、首頁、日報都照它畫，一個類型一種 */
 export function CardStylePicker({
   cardStyle,
   onChange,

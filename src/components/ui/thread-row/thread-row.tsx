@@ -17,7 +17,6 @@ const styles = {
   body: "flex min-w-0 flex-1 flex-col gap-1",
   head: "flex w-full min-w-0 items-baseline gap-2",
   title: "min-w-0 truncate text-sm font-medium",
-  topic: "shrink-0 rounded-control px-1 py-px text-[10px]",
   time: "ml-auto shrink-0 text-[11px] text-gray-400 tabular-nums",
   // 整塊是連結，但不做 hover：一路往下讀的時候，滑鼠掃過一列就亮一列很吵
   noteLink: "flex w-full min-w-0 flex-col gap-1",
@@ -57,10 +56,8 @@ export function ThreadRow({ data }: { data: CardData }) {
         {/* 標題連同內文整塊是連結：點哪裡都是進詳情頁 */}
         <Link href={href} className={styles.noteLink}>
           <span className={styles.head}>
+            {/* 不再掛類型標籤：一頁同一種時每則都寫一樣的字；混排時看頭像 */}
             <span className={styles.title}>{title || note}</span>
-            {topic && (
-              <span className={`${styles.topic} ${tagColorClass(topic, [])}`}>{topic}</span>
-            )}
             {date && <span className={styles.time}>{whenLabel(date)}</span>}
           </span>
           {note.trim() && <span className={styles.note}>{note}</span>}

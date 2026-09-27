@@ -4,6 +4,7 @@ import { templateByKey } from "@/config/kind-templates";
 import { moduleDef } from "@/config/modules";
 import {
   autoEndDate,
+  categoryOf,
   cellsOf,
   fieldsOf,
   formModules,
@@ -236,6 +237,21 @@ describe("isFillField", () => {
   it("只有長文撐滿", () => {
     expect(["body", "title", "coverUrl"].filter((key) => isFillField(fieldDef(key)!))).toEqual([
       "body",
+    ]);
+  });
+});
+
+describe("categoryOf", () => {
+  it("分類型別與標了 choices 的欄位畫成選單，其餘是輸入框", () => {
+    const picked = ["domain", "subDomain", "attribute", "platform", "language", "title", "creator"];
+    expect(picked.map((key) => categoryOf(fieldDef(key)!) ?? null)).toEqual([
+      "domain",
+      "subDomain",
+      "type",
+      "platform",
+      "language",
+      null,
+      null,
     ]);
   });
 });

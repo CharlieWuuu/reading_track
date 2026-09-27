@@ -31,6 +31,8 @@ export type FieldDef = {
   defaultLabel: string;
   /** 畫成幾行的文字框。沒寫就是單行；長文另有預設 */
   rows?: number;
+  /** 值從既有資料的哪一組選項挑（見 useCategories）。有寫就畫成選單，一樣可以打字新增 */
+  choices?: "platform" | "language";
 };
 
 /** 順序就是表單上的預設順序，改名不會插隊 */
@@ -42,11 +44,11 @@ export const FIELDS = [
   { key: "domain", layer: "work", type: "topic", defaultLabel: "領域" },
   { key: "subDomain", layer: "work", type: "topicChild", defaultLabel: "次領域" },
   { key: "attribute", layer: "work", type: "attribute", defaultLabel: "屬性" },
-  { key: "language", layer: "work", type: "text", defaultLabel: "語言" },
+  { key: "language", layer: "work", type: "text", defaultLabel: "語言", choices: "language" },
   { key: "startDate", layer: "record", type: "date", defaultLabel: "開始" },
   { key: "endDate", layer: "record", type: "date", defaultLabel: "結束" },
   { key: "amount", layer: "work", type: "number", defaultLabel: "份量" }, // 頁數、片長是作品的，存在 works
-  { key: "platform", layer: "work", type: "text", defaultLabel: "平台" },
+  { key: "platform", layer: "work", type: "text", defaultLabel: "平台", choices: "platform" },
   { key: "externalUrl", layer: "externalLink", type: "url", defaultLabel: "外部連結" },
   { key: "externalId", layer: "work", type: "text", defaultLabel: "外部編號" },
   // 存的是圖片 key 不是網址（舊資料可能還是外部網址），畫成上傳格不是文字框
