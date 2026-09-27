@@ -225,6 +225,13 @@
       "when": 1789925244520,
       "tag": "0031_platform_publisher",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1789925244521,
+      "tag": "0032_articles_no_platform",
+      "breakpoints": true
     }
   ]
 }
