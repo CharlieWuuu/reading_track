@@ -1,6 +1,7 @@
 import { fieldDef, FieldDef, isWorkField } from "@/config/fields";
 import { KindGroup } from "@/config/kind-groups";
 import { moduleDef, ModuleDef, MODULES } from "@/config/modules";
+import { BookCategories } from "@/types/book";
 
 /**
  * 把「這個類型勾了哪些模組」解析成表單要畫的清單。
@@ -147,3 +148,20 @@ export function pairRows(cells: readonly FormCell[]): FormCell[][] {
     return joinable ? [...rows.slice(0, -1), [last[0], cell]] : [...rows, [cell]];
   }, []);
 }
+
+/** 分類型別對到哪一組選項：主題樹兩層與屬性 */
+const CATEGORY_BY_TYPE: Partial<Record<FieldDef["type"], keyof BookCategories>> = {
+  topic: "domain",
+  topicChild: "subDomain",
+  attribute: "type",
+};
+
+/**
+ * 這一欄要畫成選單的話，選項從哪一組來；不是選單回 undefined。
+ *
+ * 選項不是另外維護的清單，是從既有資料 group 出來的，所以值存名字不是編號——
+ * 換成 topic_id／attribute_id 是寫入那一層的事（見 mutations/taxonomy）。
+ * 平台、語言是一般文字欄，靠欄位庫的 choices 標記接上選項。
+ */
+export const categoryOf = (field: FieldDef): keyof BookCategories | undefined =>
+  CATEGORY_BY_TYPE[field.type] ?? field.choices;
