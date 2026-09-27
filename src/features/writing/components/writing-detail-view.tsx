@@ -1,25 +1,40 @@
 "use client";
 
-import { ExternalLink } from "lucide-react";
 import { PageBody, PageMain } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
 import { ActionButton } from "@/components/ui/controls";
-import { DetailField, DetailHeader, DetailSection, DetailTitle } from "@/components/ui/detail";
+import {
+  DetailField,
+  DetailHeader,
+  DetailSection,
+  DetailTitle,
+  KindFacts,
+} from "@/components/ui/detail";
 import { NoteBlock } from "@/components/ui/note-block";
 import { RelatedLinks } from "@/components/ui/related-links";
 import { writingEditHref } from "@/config/routes";
+import { useCatalogRecord } from "@/hooks/use-catalog-record";
+import { useKinds } from "@/hooks/use-kinds";
 import { useWritings } from "@/hooks/use-writings";
-import { isUrl } from "@/utils/reflections";
+import { factFields } from "@/utils/detail-fields";
 import { tagColorClass } from "@/utils/tag-colors";
 
 const KIND_TAG = "rounded-control px-1.5 py-0.5 text-xs font-medium";
+
+// 標題那一區畫過的（有值才算）不重複列；內文在底下自己一段
+const SHOWN_IN_HEADER = new Set(["domain"]);
 
 /** 一則紀事的詳細頁。內文是主體，其餘欄位都是為了讓它好找 */
 export function WritingDetailView({ recordId }: { recordId: string }) {
   const id = recordId;
   const { writings, isLoading, error } = useWritings();
   const writing = writings.find((w) => w.id === id);
+  // 欄位照類型勾的列，值讀通用的那一份
+  const { kinds } = useKinds();
+  const { record } = useCatalogRecord(id);
+  const kind = kinds.find((k) => k.id === record?.kindId);
+  const values = record?.values ?? {};
 
   return (
     <>
@@ -38,29 +53,15 @@ export function WritingDetailView({ recordId }: { recordId: string }) {
                 <DetailHeader
                   facts={
                     <>
-                      <DetailField label="日期" align="right">
-                        {writing.endDate}
-                      </DetailField>
                       <DetailField label="類型" align="right">
                         {writing.kindName}
                       </DetailField>
-                      <DetailField label="放在哪" align="right">
-                        {writing.link &&
-                          (isUrl(writing.link) ? (
-                            <a
-                              href={writing.link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              title={writing.link}
-                              className="inline-flex items-center gap-1 text-blue-700 underline underline-offset-2 hover:text-blue-900"
-                            >
-                              打開
-                              <ExternalLink size={12} strokeWidth={1.5} aria-hidden />
-                            </a>
-                          ) : (
-                            writing.link
-                          ))}
-                      </DetailField>
+                      {kind && (
+                        <KindFacts
+                          entries={factFields(kind, values, SHOWN_IN_HEADER)}
+                          sourceUrl={values.externalUrl}
+                        />
+                      )}
                     </>
                   }
                 >

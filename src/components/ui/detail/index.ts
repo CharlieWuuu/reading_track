@@ -6,3 +6,4 @@ export {
   DetailSection,
   DetailTitle,
 } from "./detail";
+export { KindFacts } from "./kind-facts";

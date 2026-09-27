@@ -1,42 +1,60 @@
+import { PRIVATE_MARK } from "@/config/privacy";
 import { Kind } from "@/lib/db/queries/kinds";
-import { fieldsOf, FormModule, resolveFormModules } from "@/utils/module-form";
+import { fieldsOf, resolveFormModules } from "@/utils/module-form";
 
 /**
  * 一筆資料照類型勾的模組，攤成詳情頁要畫的欄位。
  *
  * 純函式，不碰畫面——「有哪幾格、各叫什麼」跟「畫成兩欄還是右欄」是兩件事。
- *
- * 書籍的詳情頁本來自己手寫六格（狀態、開始、讀完、語言、來源、私人），
- * 跟這裡算出來的是同一件事，只是寫死的那份不會跟著設定頁改。
+ * 勾了的欄位一律列出來，空的也列：看得出哪裡還沒填。
  */
 
 export type DetailEntry = { key: string; label: string; value: string };
 
-/** 長文自己一段，不擠進兩欄的資訊表——一段文章塞進半個欄寬讀不下去 */
-const LONG_KEYS = new Set(["body"]);
+const LONG_KEYS = new Set(["body"]); // 長文自己一段，不擠進資訊表
 const IMAGE_KEYS = new Set(["coverUrl"]); // 存的是圖片 key，畫成圖不列成字
 
-export function detailFields(
+/** 勾了的每一欄，照設定頁的順序與名字；只有一欄的模組用模組名，多欄的用各欄預設名 */
+function entriesOf(
   kind: Kind,
   values: Record<string, string>,
-  /** 標題那一區已經講過的欄位，資訊表不重複列 */
-  skip: ReadonlySet<string> = new Set(["title", "endDate"]),
-): { longs: DetailEntry[]; shorts: DetailEntry[] } {
-  const modules = resolveFormModules(kind.modules);
-  const labelOf = (form: FormModule, index: number, fallback: string) =>
-    index === 0 ? form.label : fallback;
-
-  const longs: DetailEntry[] = [];
-  const shorts: DetailEntry[] = [];
-
-  for (const form of modules) {
-    fieldsOf([form]).forEach((field, index) => {
-      const value = values[field.key] ?? "";
-      if (!value || skip.has(field.key) || IMAGE_KEYS.has(field.key)) return;
-      const entry = { key: field.key, label: labelOf(form, index, field.defaultLabel), value };
-      (LONG_KEYS.has(field.key) ? longs : shorts).push(entry);
-    });
-  }
-
-  return { longs, shorts };
+): (DetailEntry & { flag: boolean })[] {
+  return resolveFormModules(kind.modules).flatMap((form) => {
+    const fields = fieldsOf([form]);
+    return fields.map((field) => ({
+      key: field.key,
+      label: fields.length === 1 ? form.label : field.defaultLabel,
+      value: values[field.key] ?? "",
+      flag: field.type === "flag",
+    }));
+  });
 }
+
+const filled = (value: string): boolean => Boolean(value.trim());
+
+/** 有內容的長文，各自一段 */
+export const longFields = (kind: Kind, values: Record<string, string>): DetailEntry[] =>
+  entriesOf(kind, values)
+    .filter((entry) => LONG_KEYS.has(entry.key) && filled(entry.value))
+    .map(({ key, label, value }) => ({ key, label, value }));
+
+/**
+ * 資訊表那幾列。標題不列；有內容的長文、圖片，以及頁面別處已經畫出來的（shown）不重複列。
+ * 空的照樣列，value 是空字串，畫面自己決定怎麼表示。旗標一律寫成是／否。
+ */
+export const factFields = (
+  kind: Kind,
+  values: Record<string, string>,
+  shown: ReadonlySet<string> = new Set(),
+): DetailEntry[] =>
+  entriesOf(kind, values)
+    .filter(({ key, value }) => {
+      if (key === "title") return false;
+      const elsewhere = shown.has(key) || LONG_KEYS.has(key) || IMAGE_KEYS.has(key);
+      return !(elsewhere && filled(value));
+    })
+    .map(({ key, label, value, flag }) => ({
+      key,
+      label,
+      value: flag ? (value === PRIVATE_MARK ? "是" : "否") : value,
+    }));
