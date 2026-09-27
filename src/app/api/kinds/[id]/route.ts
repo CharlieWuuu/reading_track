@@ -9,6 +9,7 @@ import {
   unauthorized,
 } from "@/app/api/_lib/respond";
 import { toCardStyle } from "@/config/card-styles";
+import { toKindDisplay } from "@/config/kind-display";
 import { toKindViews } from "@/config/kind-views";
 import { moduleDef } from "@/config/modules";
 import { hideKind, mergeKinds, updateKind } from "@/lib/db/mutations/kinds";
@@ -117,6 +118,7 @@ export const PATCH = guarded(
         cardStyle,
         views,
         labels,
+        ...toKindDisplay(body),
       });
       return NextResponse.json({ id: newId });
     } catch (err) {

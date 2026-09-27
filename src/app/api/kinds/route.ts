@@ -10,6 +10,7 @@ import {
   unauthorized,
 } from "@/app/api/_lib/respond";
 import { toCardStyle } from "@/config/card-styles";
+import { toKindDisplay } from "@/config/kind-display";
 import { toKindViews } from "@/config/kind-views";
 import { moduleDef } from "@/config/modules";
 import { KindGroup } from "@/config/record-kinds";
@@ -51,6 +52,9 @@ export const POST = guarded("kinds POST", async (req: NextRequest) => {
     views?: unknown;
     cardStyle?: unknown;
     labels?: unknown;
+    cardGroupBy?: unknown;
+    countRereads?: unknown;
+    numberDone?: unknown;
   }>(req, "kinds POST");
   if (!body) return badRequest("看不懂的內容");
   if (!isGroup(body.group)) return badRequest("不知道要加在哪個 group");
@@ -103,6 +107,7 @@ export const POST = guarded("kinds POST", async (req: NextRequest) => {
       cardStyle,
       views,
       labels,
+      ...toKindDisplay(body),
     });
     return NextResponse.json({ id });
   } catch (err) {
