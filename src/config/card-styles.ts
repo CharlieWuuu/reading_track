@@ -13,15 +13,21 @@ export const CARD_STYLES = [
   { key: "fragment", label: "片段卡" },
   { key: "quote", label: "佳句" },
   { key: "line", label: "單行" },
+  { key: "thread", label: "整則" }, // 一路往下讀：頭像、標題、整段內文不截斷
 ] as const satisfies readonly { key: string; label: string }[];
 
 export type CardStyle = (typeof CARD_STYLES)[number]["key"];
 
 const KEYS = new Set<string>(CARD_STYLES.map((style) => style.key));
 
-/** 紀錄預設有封面，其餘是一則一張卡 */
-export const defaultCardStyle = (group: KindGroup): CardStyle =>
-  group === "records" ? "cover" : "fragment";
+/** 紀錄預設有封面，書寫整則往下讀，片段一則一張卡 */
+const DEFAULTS: Record<KindGroup, CardStyle> = {
+  records: "cover",
+  writings: "thread",
+  fragments: "fragment",
+};
+
+export const defaultCardStyle = (group: KindGroup): CardStyle => DEFAULTS[group];
 
 /** 資料庫的字串收斂成合法值。認不得的落回該 group 的預設 */
 export const toCardStyle = (value: string, group: KindGroup): CardStyle =>
