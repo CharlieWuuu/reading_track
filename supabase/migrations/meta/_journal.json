@@ -246,6 +246,13 @@
       "when": 1789925244523,
       "tag": "0034_example_into_body",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1789925244524,
+      "tag": "0035_topic_required",
+      "breakpoints": true
     }
   ]
 }

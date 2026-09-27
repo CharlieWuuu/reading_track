@@ -9,7 +9,7 @@ import { CardStyle, defaultCardStyle } from "@/config/card-styles";
 import { DEFAULT_DISPLAY, KindDisplay } from "@/config/kind-display";
 import { KindGroup } from "@/config/kind-groups";
 import { KindTemplate, templatesOf } from "@/config/kind-templates";
-import { MODULES } from "@/config/modules";
+import { MODULES, REQUIRED_KEYS, withRequired } from "@/config/modules";
 import { KindDisplayFields } from "@/features/settings/components/kind-display-fields";
 import type { TypeDraft } from "@/features/settings/components/type-preview";
 import { useKinds } from "@/hooks/use-kinds";
@@ -114,7 +114,7 @@ export function TypeBuilder({
   const [unit, setUnit] = useState(editing?.amountUnit ?? "");
   const [inheritsCover, setInheritsCover] = useState(editing?.inheritsCover ?? false);
   const [picked, setPicked] = useState<string[]>(
-    editing ? editing.modules.map((m) => m.key) : ["title"],
+    withRequired(editing ? editing.modules.map((m) => m.key) : ["title"]),
   );
   const [labels, setLabels] = useState<Record<string, string>>(
     editing ? Object.fromEntries(editing.modules.map((m) => [m.key, m.label])) : {},
@@ -135,7 +135,13 @@ export function TypeBuilder({
   }, [onDraftChange, group, name, picked]);
 
   const toggle = (key: string) =>
-    setPicked((keys) => (keys.includes(key) ? keys.filter((k) => k !== key) : [...keys, key]));
+    setPicked((keys) =>
+      REQUIRED_KEYS.includes(key)
+        ? keys
+        : keys.includes(key)
+          ? keys.filter((k) => k !== key)
+          : [...keys, key],
+    );
 
   const siblings = kinds.filter((kind) => kind.group === group && kind.id !== editing?.id);
   const taken = new Set(siblings.map((kind) => kind.name));
@@ -149,7 +155,7 @@ export function TypeBuilder({
     setInheritsCover(template.inheritsCover ?? false);
     onViewsChange([...(template.views ?? views)]);
     onCardStyleChange(template.cardStyle ?? defaultCardStyle(group));
-    setPicked([...template.modules]);
+    setPicked(withRequired(template.modules));
     setLabels({});
     setDisplay({ ...DEFAULT_DISPLAY, ...template.display });
   }
@@ -231,7 +237,7 @@ export function TypeBuilder({
                   setName("");
                   setSlug("");
                   setUnit("");
-                  setPicked([]);
+                  setPicked(withRequired([]));
                   setLabels({});
                 }}
                 aria-pressed={!name}
@@ -262,7 +268,8 @@ export function TypeBuilder({
                 <label className={`${styles.row} ${styles.moduleCell}`}>
                   <input
                     type="checkbox"
-                    checked={picked.includes(module.key)}
+                    checked={"required" in module || picked.includes(module.key)}
+                    disabled={"required" in module} // 必勾的取消不了
                     onChange={() => toggle(module.key)}
                     className="mt-1"
                   />
