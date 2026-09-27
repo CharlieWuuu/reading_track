@@ -24,17 +24,17 @@ export const kinds = pgTable(
     /** 屬於側欄哪個 group：records／fragments／writings。三個 group 共用同一套類型機制 */
     groupKey: text("group_key").notNull(),
     /**
-     * 清單上一筆長什麼樣：封面卡、片段卡、佳句、單行。合法值由 config/card-styles 管。
+     * 版面底下一筆長什麼樣：封面卡、片段卡、佳句、單行。合法值由 config/card-styles 管。
      *
-     * 本來寫死判斷 slug === "quotes" 才排成佳句，自訂類型就沒有佳句那種排版可用。
-     * 挑畫法是類型的屬性，跟勾哪些欄位同一件事，所以存在這裡由使用者自己選。
+     * 概覽與卡片牆都讀它。本來寫死判斷 slug === "quotes" 才排成引文，
+     * 自訂類型就沒有佳句那種排版可用。
      */
     cardStyle: text("card_style").notNull().default("fragment"),
     /**
-     * 這個類型有哪幾種看法：概覽、表格、卡片、統計，逗號相接。
+     * 這個類型有哪幾種版面：概覽、表格、封面卡、片段卡、佳句、單行、統計，逗號相接。
      *
      * 本來寫死在 records/books 與 records/articles 兩支頁面檔裡，所以只有那兩種
-     * 有檢視切換，自訂類型點進去就一種看法。勾了幾種就長出幾個選項，一種就不顯示選單。
+     * 有檢視切換，自訂類型點進去就一種顯示方式。勾幾個就長出幾個選項。
      */
     views: text("views").notNull().default("overview"),
     /** 量的單位：頁、分鐘、字。統計讀「量＋單位」自己長句子，加類型不用改統計 */

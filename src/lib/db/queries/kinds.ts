@@ -31,9 +31,9 @@ export type Kind = {
   countUnit: string;
   /** 自己沒封面時要不要用連到的作品的封面 */
   inheritsCover: boolean;
-  /** 清單上一筆長什麼樣 */
+  /** 版面底下一筆長什麼樣 */
   cardStyle: CardStyle;
-  /** 這個類型有哪幾種看法 */
+  /** 這個類型用哪幾種元件顯示 */
   views: BookViewMode[];
   /** 底下有幾筆。側欄用它決定要不要列 */
   count: number;
