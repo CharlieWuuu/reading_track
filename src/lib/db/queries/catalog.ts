@@ -28,6 +28,8 @@ export type RecordRow = {
   workId: string;
   title: string;
   creator: string;
+  /** 作品的摘要（works.body）。清單列的樣式節錄它 */
+  body: string;
   statusKey: string;
   kindId: string;
   kindName: string;
@@ -72,6 +74,7 @@ const toRecordRow = ({
   workId: work.id,
   title: work.title,
   creator: work.creator,
+  body: work.body,
   statusKey: inferStatusKey(record.startDate, record.endDate),
   kindId: kind.id,
   kindName: kind.name,
