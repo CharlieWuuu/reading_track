@@ -38,7 +38,7 @@ const HALF = "w-[calc((100%-1.25rem)/2)] md:w-[calc((100%-2rem)/2)]";
 
 const MIXED_WIDTH: Record<CardStyle, string> = {
   cover: `${HALF} xl:w-[calc((100%-4rem)/3)] 2xl:w-[calc((100%-6rem)/4)]`, // 跟 COVER_CARD_GRID 同樣的欄數
-  fragment: `${HALF} pb-3`,
+  fragment: `${HALF} @2xl:w-[calc((100%-4rem)/3)] pb-3`, // 跟 FRAGMENT_CARD_GRID 同樣的欄數
   quote: "w-full",
   line: "w-full",
   row: "w-full",
@@ -49,7 +49,7 @@ const MIXED_WIDTH: Record<CardStyle, string> = {
 const RAIL_WIDTH: Record<CardStyle, string> = {
   ...MIXED_WIDTH,
   cover: `${HALF} lg:w-full`,
-  fragment: `${HALF} pb-3 lg:w-full`,
+  fragment: `${HALF} pb-3 lg:w-full`, // 右欄窄，不跟著三欄
 };
 
 const isMixed = (cardStyles: readonly CardStyle[]) => new Set(cardStyles).size > 1;

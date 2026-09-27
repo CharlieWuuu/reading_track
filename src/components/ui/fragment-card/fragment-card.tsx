@@ -23,13 +23,13 @@ export type FragmentCardProps = {
 };
 
 /** OverviewLayout 骨架配 FragmentCard 用的共用格線：佳句、單字、關鍵字都吃這個 */
-export const FRAGMENT_CARD_GRID = "grid grid-cols-2 gap-3 2xl:grid-cols-3";
+export const FRAGMENT_CARD_GRID = "grid grid-cols-2 gap-3 @2xl:grid-cols-3"; // 看內容欄寬：右欄常駐後視窗寬不代表內容寬
 
 const styles = {
   // 外框用 rule 不用 rule-strong：rule-strong 是區段實線與報頭那條，壓在卡片四周太重
   card: "flex h-full min-w-0 cursor-pointer flex-col gap-2 rounded-surface border border-rule bg-white p-3 hover:bg-gray-50",
   // 高度固定讓同列等高，object-contain 不裁切——使用者自己挑的圖，切掉一半就不是他挑的那張了
-  cover: "block h-24 w-full rounded-surface object-contain md:h-40", // 手機一頁放得下更多則
+  cover: "block h-20 w-full rounded-surface object-contain md:h-28", // 示意圖，不搶標題
   head: "flex min-w-0 flex-wrap items-end justify-between gap-x-2",
   nameGroup: "flex min-w-0 flex-col",
   name: "min-w-0 font-serif text-item leading-snug font-semibold",
