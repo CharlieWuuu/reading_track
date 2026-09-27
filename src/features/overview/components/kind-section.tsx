@@ -3,6 +3,7 @@ import { KindCards } from "@/components/ui/kind-cards/kind-cards";
 import { kindHref } from "@/config/kind-routes";
 import { unitOfKind } from "@/config/nav";
 import { KindGroup } from "@/config/record-kinds";
+import { fragmentCardData } from "@/utils/card-data";
 import { KindSection } from "@/utils/overview-sections";
 
 /**
@@ -33,7 +34,7 @@ export function KindSectionBlock({ group, section }: { group: KindGroup; section
         </span>
       </div>
 
-      <KindCards style={section.cardStyle} rows={section.rows} />
+      <KindCards style={section.cardStyle} items={section.rows.map(fragmentCardData)} />
 
       {/* 露出來的比總數少才有「更多」可看 */}
       {section.total > section.rows.length && (

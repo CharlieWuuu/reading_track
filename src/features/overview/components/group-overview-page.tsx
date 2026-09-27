@@ -3,18 +3,13 @@
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
+import { styledGrid } from "@/components/ui/kind-cards/kind-cards";
 import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headline";
 import { KindGroup } from "@/config/record-kinds";
-import {
-  fragmentThreadRow,
-  WRITING_THREAD_GRID,
-  WritingThreadRow,
-} from "@/features/writing/components/writing-thread-row";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { useGroupRecordsOverview } from "@/hooks/use-group-records-overview";
 import { useMounted } from "@/hooks/use-mounted";
-import { FragmentRow } from "@/lib/db/queries/catalog";
-import { OverviewItem } from "@/utils/overview";
+import { styledFragment, styledRecord } from "@/utils/card-data";
 import { fragmentItem, recordItem } from "@/utils/overview-items";
 import { sectionsByKind } from "@/utils/overview-sections";
 import { KindSectionBlock } from "./kind-section";
@@ -24,13 +19,6 @@ function gate({ error, isLoading }: { error?: string; isLoading: boolean }) {
   if (error) return <PageMessage tone="error">{error}</PageMessage>;
   if (isLoading) return <PageLoading />;
   return null;
-}
-
-/** 書寫一律走 threads 那種一路往下讀的流，不是卡片牆 */
-function threadRow(byId: Map<string, FragmentRow>, item: OverviewItem) {
-  const row = byId.get(item.id);
-  if (!row) return null;
-  return <WritingThreadRow {...fragmentThreadRow(row)} />;
 }
 
 const styles = {
@@ -67,6 +55,7 @@ export function GroupOverviewPage({ group }: GroupOverviewPageProps) {
         doneTotal={recordsOverview.doneTotal}
         headlineLabel="在讀 · 最近開始的一本"
         unit="筆"
+        {...styledGrid(recordsOverview.done.map(styledRecord))}
         onLoadMore={recordsOverview.loadMore}
         hasMore={recordsOverview.hasMore}
         isLoadingMore={recordsOverview.isLoadingMore}
@@ -79,9 +68,8 @@ export function GroupOverviewPage({ group }: GroupOverviewPageProps) {
   if (blocked) return blocked;
   if (fragments.length === 0) return <div className={styles.empty}>還沒有任何紀錄</div>;
 
-  // 書寫照月份排，跟底下的書寫子頁一致；沒有進行中，全部當成完成的排
+  // 書寫照月份排，跟底下的書寫子頁一致；沒有進行中，全部當成完成的排。一格照各自類型的樣式
   if (group === "writings") {
-    const byId = new Map(fragments.map((row) => [row.id, row]));
     return (
       <GroupOverview
         active={[]}
@@ -89,8 +77,7 @@ export function GroupOverviewPage({ group }: GroupOverviewPageProps) {
         done={fragments.map(fragmentItem)}
         headlineLabel="" // 不要頭條：一路往下讀的流，頭條會把最新那則講兩次
         unit="則"
-        renderItem={(item) => threadRow(byId, item)}
-        gridClassName={WRITING_THREAD_GRID}
+        {...styledGrid(fragments.map(styledFragment))}
         railDesktopOnly
       />
     );

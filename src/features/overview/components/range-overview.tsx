@@ -2,22 +2,17 @@
 
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
-import { CardGrid } from "@/components/ui/card-grid";
-import { COVER_CARD_GRID } from "@/components/ui/cover-card/cover-card";
-import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
-import { OverviewCoverCard } from "@/components/ui/overview-layout/overview-layout";
+import { gridOf, KindCard } from "@/components/ui/kind-cards/kind-cards";
 import { unitOfGroup } from "@/config/nav";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { useGroupRecords } from "@/hooks/use-group-records";
 import { FragmentRow, RecordRow } from "@/lib/db/queries/catalog";
+import { StyledCard, styledFragment, styledRecord } from "@/utils/card-data";
 import { DateRange, itemsInRange } from "@/utils/date-range";
-import { OverviewItem } from "@/utils/overview";
-import { fragmentHref, fragmentMeta, fragmentTitle, recordItem } from "@/utils/overview-items";
 
 /**
- * 年報、週報、日報共用的骨架：三個 group 各自按類型分節。紀錄跟紀錄概覽同一套
- * CoverCard 月份格線；片段、書寫跟片段概覽同一套 FragmentCard 卡片牆——
- * 同一種東西全站只有一種畫法，差在哪一種而已，範圍報告不另外發明版面。
+ * 年報、週報、日報共用的骨架：三個 group 各自一節。每一筆照它類型的卡片樣式畫，
+ * 跟概覽、卡片牆同一支——同一種東西全站只有一種畫法，範圍報告不另外發明版面。
  *
  * 三種報告差的只是算出來的 DateRange 長度，篩選、排版邏輯完全共用。
  */
@@ -30,64 +25,29 @@ const styles = {
   empty: "text-meta text-ink-faint py-8 text-center",
 };
 
-function RecordSection({
+function Section({
   label,
-  items,
+  cards,
   unit,
 }: {
   label: string;
-  items: readonly OverviewItem[];
+  cards: readonly StyledCard[];
   unit: string;
 }) {
-  if (items.length === 0) return null;
+  if (cards.length === 0) return null;
   return (
     <div className="flex flex-col gap-3">
       <div className={`${styles.section} flex items-baseline justify-between`}>
         <span className={styles.sectionLabel}>{label}</span>
         <span className={styles.meta}>
-          {items.length} {unit}
+          {cards.length} {unit}
         </span>
       </div>
-      <div className={COVER_CARD_GRID}>
-        {items.map((item) => (
-          <OverviewCoverCard key={item.id} item={item} tintSeed={(row) => row.topicLabel} />
+      <div className={gridOf(cards.map((card) => card.style))}>
+        {cards.map((card) => (
+          <KindCard key={card.data.id} {...card} />
         ))}
       </div>
-    </div>
-  );
-}
-
-function FragmentSection({
-  label,
-  rows,
-  unit,
-}: {
-  label: string;
-  rows: readonly FragmentRow[];
-  unit: string;
-}) {
-  if (rows.length === 0) return null;
-  return (
-    <div className="flex flex-col gap-3">
-      <div className={`${styles.section} flex items-baseline justify-between`}>
-        <span className={styles.sectionLabel}>{label}</span>
-        <span className={styles.meta}>
-          {rows.length} {unit}
-        </span>
-      </div>
-      <CardGrid>
-        {rows.map((row) => (
-          <FragmentCard
-            key={row.id}
-            href={fragmentHref(row)}
-            title={fragmentTitle(row)}
-            label={row.kindName}
-            body={row.body}
-            meta={fragmentMeta(row)}
-            coverUrl={row.coverUrl}
-          />
-        ))}
-      </CardGrid>
     </div>
   );
 }
@@ -109,18 +69,18 @@ export function RangeOverview({
   if (error) return <PageMessage tone="error">{error}</PageMessage>;
   if (isLoading) return <PageLoading />;
 
-  const recordItems = itemsInRange<RecordRow>(records.records, range).map(recordItem);
-  const fragmentRows = itemsInRange<FragmentRow>(fragments.fragments, range);
-  const writingRows = itemsInRange<FragmentRow>(writings.fragments, range);
+  const recordCards = itemsInRange<RecordRow>(records.records, range).map(styledRecord);
+  const fragmentCards = itemsInRange<FragmentRow>(fragments.fragments, range).map(styledFragment);
+  const writingCards = itemsInRange<FragmentRow>(writings.fragments, range).map(styledFragment);
 
-  const total = recordItems.length + fragmentRows.length + writingRows.length;
+  const total = recordCards.length + fragmentCards.length + writingCards.length;
   if (total === 0) return <div className={styles.empty}>{emptyLabel}</div>;
 
   return (
     <div className="flex flex-col gap-6 pb-10">
-      <RecordSection label="紀錄" items={recordItems} unit={unitOfGroup("records")} />
-      <FragmentSection label="片段" rows={fragmentRows} unit={unitOfGroup("fragments")} />
-      <FragmentSection label="書寫" rows={writingRows} unit={unitOfGroup("writings")} />
+      <Section label="紀錄" cards={recordCards} unit={unitOfGroup("records")} />
+      <Section label="片段" cards={fragmentCards} unit={unitOfGroup("fragments")} />
+      <Section label="書寫" cards={writingCards} unit={unitOfGroup("writings")} />
     </div>
   );
 }
