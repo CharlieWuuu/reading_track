@@ -238,8 +238,6 @@ export type FragmentRow = {
   body: string;
   locator: string;
   note: string;
-  /** 例句。單字的卡片要秀這個——「這個字長什麼樣」比字義本身好記 */
-  example: string;
   /** 字義。單字卡標題右邊那行綠字 */
   translation: string;
   /** 讀音。單字卡標題上方那行小字 */
@@ -295,7 +293,6 @@ function toFragmentRow(
     body: fragment.body,
     locator: fragment.locator,
     note: fragment.body,
-    example: fragment.example,
     translation: fragment.translation,
     pronunciation: fragment.pronunciation,
     tags: fragment.tags,
@@ -399,7 +396,6 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       body: writing.note,
       locator: "",
       note: writing.note,
-      example: "", // 書寫沒有例句這回事
       translation: "",
       pronunciation: "",
       tags: "", // 書寫用關鍵字關聯，不貼標籤
@@ -561,8 +557,6 @@ export async function getWritingValues(
       // 漏一欄的症狀是「設定頁勾了、表單畫得出來、但打開永遠是空的」
       locator: row.locator,
       translation: row.translation,
-      example: row.example,
-      exampleTranslation: row.exampleTranslation,
       tags: row.tags,
       creator: row.creator,
       coverUrl: row.coverUrl,
@@ -605,8 +599,6 @@ export async function getFragmentValues(
       body: row.body,
       locator: row.locator,
       translation: row.translation,
-      example: row.example,
-      exampleTranslation: row.exampleTranslation,
       tags: row.tags,
       creator: row.creator,
       coverUrl: row.coverUrl,

@@ -8,6 +8,7 @@ import { attributes, recordTopics } from "@/lib/db/schema/taxonomy";
 import { users } from "@/lib/db/schema/users";
 import { records, works } from "@/lib/db/schema/works";
 import { writings } from "@/lib/db/schema/writings";
+import { joinParagraphs } from "@/utils/paragraphs";
 
 /**
  * demo 帳號的假資料。書名作者是真的，日期、心得、關鍵字都是編的。
@@ -352,8 +353,7 @@ export async function seedDemo(email: string): Promise<string> {
         title: word,
         pronunciation,
         translation: wordTranslation,
-        example: example,
-        exampleTranslation: exampleTranslation,
+        body: joinParagraphs([example, exampleTranslation]),
       },
       workId: bookIds[bookIndex],
     }),
