@@ -55,3 +55,10 @@ export function sectionsByKind(
 }
 
 const latest = (section: KindSection): string => fragmentDate(section.rows[0]) ?? "";
+
+/**
+ * 連到某個作品的片段或書寫。片段掛在作品上、書寫掛在某一次讀那一列上，
+ * 呼叫端把兩種編號都放進 ids。詳情頁的「這本書長出了什麼」用它。
+ */
+export const linkedTo = (rows: FragmentRow[], ids: ReadonlySet<string>): FragmentRow[] =>
+  rows.filter((row) => row.workId && ids.has(row.workId));
