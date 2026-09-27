@@ -43,8 +43,7 @@ export function DetailSection({
  * 資訊表的一列：欄位名稱在左，值在右，中間靠固定欄寬對齊成一直排。
  * 欄名最長三個字，欄寬照三個字給，剩下的寬度留給值。
  *
- * 沒有值就整列不畫——一排「—」只是在告訴人「這裡什麼都沒有」，佔的卻是
- * 跟有內容的欄位一樣的高度。
+ * 沒有 children 就整列不畫；要列出空欄位的（KindFacts）自己傳「—」進來。
  */
 export function DetailField({
   label,
