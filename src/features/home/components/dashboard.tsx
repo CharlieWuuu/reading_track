@@ -7,10 +7,10 @@ import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headl
 import { unitOfGroup } from "@/config/nav";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { useGroupRecords } from "@/hooks/use-group-records";
-import { FragmentRow, RecordRow } from "@/lib/db/queries/catalog";
+import { styledFragment, styledRecord } from "@/utils/card-data";
 import { countOnDate, fragmentDate, pickHeadline, recentBy, recordDate } from "@/utils/home-digest";
 import { recordItem as recordOverviewItem } from "@/utils/overview-items";
-import { DigestColumn, DigestItem } from "./digest-column";
+import { DigestColumn } from "./digest-column";
 import { TodayPanel } from "./today-panel";
 
 /**
@@ -26,24 +26,6 @@ const styles = {
   // 沒有頭條可畫時的替身，線與間距跟 OverviewHeadline 對齊
   emptyBand: "border-rule-strong flex flex-col gap-5 border-b pb-5 @2xl:flex-row @2xl:gap-8",
 };
-
-const recordItem = (row: RecordRow): DigestItem => ({
-  id: row.id,
-  kind: row.kindName,
-  date: (recordDate(row) ?? "").slice(5),
-  title: row.title,
-  meta: [row.creator, row.amount && `${row.amount} ${row.amountUnit}`].filter(Boolean).join("・"),
-  coverUrl: row.coverUrl,
-});
-
-const fragmentItem = (row: FragmentRow): DigestItem => ({
-  id: row.id,
-  kind: row.kindName,
-  date: (fragmentDate(row) ?? "").slice(5),
-  title: row.title || row.body,
-  meta: [row.workTitle, row.locator].filter(Boolean).join("・"),
-  coverUrl: row.coverUrl,
-});
 
 export function Dashboard() {
   const records = useGroupRecords("records");
@@ -106,21 +88,21 @@ export function Dashboard() {
         <DigestColumn
           title="最近的紀錄"
           total={records.records.length}
-          items={recentBy(records.records, recordDate, 3).map(recordItem)}
+          cards={recentBy(records.records, recordDate, 3).map(styledRecord)}
           unit={unitOfGroup("records")}
           href="/records"
         />
         <DigestColumn
           title="最近的片段"
           total={fragments.fragments.length}
-          items={recentBy(fragments.fragments, fragmentDate, 3).map(fragmentItem)}
+          cards={recentBy(fragments.fragments, fragmentDate, 3).map(styledFragment)}
           unit={unitOfGroup("fragments")}
           href="/fragments"
         />
         <DigestColumn
           title="最近的書寫"
           total={writings.fragments.length}
-          items={recentBy(writings.fragments, fragmentDate, 3).map(fragmentItem)}
+          cards={recentBy(writings.fragments, fragmentDate, 3).map(styledFragment)}
           unit={unitOfGroup("writings")}
           href="/writings"
         />
