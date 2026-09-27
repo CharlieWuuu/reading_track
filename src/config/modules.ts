@@ -102,12 +102,6 @@ export const MODULES = [
     always: true,
   },
   { key: "pronunciation", label: "發音", fields: ["pronunciation"] },
-  { key: "example", label: "例句", fields: ["example"] },
-  {
-    key: "exampleTranslation",
-    label: "例句翻譯",
-    fields: ["exampleTranslation"],
-  },
   { key: "tags", label: "標籤", fields: ["tags"], stat: ["ranking"] },
   // 兩格各存一個數字：一欄塞 "1818－1883" 得靠剖析拆，破折號、西元前的負號都是坑
   {
