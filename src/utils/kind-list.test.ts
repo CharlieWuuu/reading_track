@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  byPeriod,
+  byYear,
   countMeta,
   doneNumbers,
   fragmentsNewestFirst,
@@ -10,7 +10,7 @@ import {
   statusOf,
 } from "./kind-list";
 
-describe("byPeriod", () => {
+describe("byYear", () => {
   const items = [
     { id: "a", endDate: "2026-09-02" },
     { id: "b", endDate: "2025-01-10" },
@@ -19,25 +19,13 @@ describe("byPeriod", () => {
   ];
 
   it("照年分段，新的在前，沒日期的排最後", () => {
-    const groups = byPeriod(items, "year", "未完成");
+    const groups = byYear(items, "未完成");
     expect(groups.map((g) => g.label)).toEqual(["2026", "2025", "未完成"]);
     expect(groups[0].items.map((i) => i.id)).toEqual(["a", "d"]);
   });
 
-  it("照月分段", () => {
-    expect(byPeriod(items, "month", "未完成").map((g) => g.label)).toEqual([
-      "2026 · 09",
-      "2026 · 08",
-      "2025 · 01",
-      "未完成",
-    ]);
-  });
-
   it("全部都有日期就沒有未完成那段", () => {
-    expect(byPeriod(items.slice(0, 2), "year", "未完成").map((g) => g.label)).toEqual([
-      "2026",
-      "2025",
-    ]);
+    expect(byYear(items.slice(0, 2), "未完成").map((g) => g.label)).toEqual(["2026", "2025"]);
   });
 });
 
