@@ -3,11 +3,11 @@ import { unitOfKind } from "@/config/nav";
 import { FragmentRow, RecordRow } from "@/lib/db/queries/catalog";
 import { Kind } from "@/lib/db/queries/kinds";
 import { fragmentCardData, recordCardData } from "@/utils/card-data";
-import { byPeriod } from "@/utils/kind-list";
+import { byYear } from "@/utils/kind-list";
 
 /**
- * 卡片牆：一次看很多筆。照完成日分段，粒度照類型設定（card_group_by），
- * 一張長什麼樣照 card_style。
+ * 卡片牆：封面牆，一次看很多本。勾了封面圖的類型才有這個檢視（見 kind-views），
+ * 所以一律畫封面卡，不照 card_style——那是概覽用的。照完成年分段，跟書籍原本的書封牆一樣。
  */
 
 const styles = {
@@ -36,7 +36,7 @@ export function KindCardWall({
 
   return (
     <div className={styles.wall}>
-      {byPeriod(cards, kind.cardGroupBy, "未完成").map((group) => (
+      {byYear(cards, "未完成").map((group) => (
         <section key={group.label} className={styles.section}>
           <div className={styles.head}>
             <span className={styles.label}>{group.label}</span>
@@ -44,7 +44,7 @@ export function KindCardWall({
               {group.items.length} {unit}
             </span>
           </div>
-          <KindCards style={kind.cardStyle} items={group.items} />
+          <KindCards style="cover" items={group.items} />
         </section>
       ))}
     </div>

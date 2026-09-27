@@ -122,7 +122,6 @@ export function TypeBuilder({
   const [display, setDisplay] = useState<KindDisplay>(
     editing
       ? {
-          cardGroupBy: editing.cardGroupBy,
           countRereads: editing.countRereads,
           numberDone: editing.numberDone,
         }
