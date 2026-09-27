@@ -37,6 +37,7 @@ export function KindStats({
             creator: row.creator,
             amount: row.amount?.toString() ?? "",
             platform: row.platform,
+            publisher: row.publisher,
             language: row.language,
             domain: row.domain,
             subDomain: row.subDomain,
