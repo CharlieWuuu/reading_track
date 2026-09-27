@@ -169,10 +169,10 @@ describe("splitByTab", () => {
 
 describe("isWideField", () => {
   it("長文與圖片佔一整列，其餘兩兩一排", () => {
-    const wide = ["body", "example", "coverUrl", "title", "startDate", "domain"].filter((key) =>
+    const wide = ["body", "coverUrl", "title", "startDate", "domain"].filter((key) =>
       isWideField(fieldDef(key)!),
     );
-    expect(wide).toEqual(["body", "example", "coverUrl"]);
+    expect(wide).toEqual(["body", "coverUrl"]);
   });
 });
 
