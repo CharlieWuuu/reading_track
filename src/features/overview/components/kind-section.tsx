@@ -8,7 +8,7 @@ import { KindSection } from "@/utils/overview-sections";
 /**
  * 概覽頁裡的一個類型：標題、總數、幾筆、更多。
  *
- * 每個類型保留自己的畫法，畫法由類型自己帶（kinds.card_style）交給 KindCards——
+ * 每個類型保留自己的畫法，卡片樣式由類型自己帶（kinds.card_style）交給 KindCards——
  * 統一成同一種列表會把佳句擠回「一行三四個字」那個問題。
  *
  * 露幾筆由呼叫端決定；這裡只管畫，不管取。

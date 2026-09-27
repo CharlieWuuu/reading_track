@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { CardStyle, defaultCardStyle } from "@/config/card-styles";
+import { DEFAULT_VIEWS } from "@/config/kind-views";
 import { NAV_GROUPS } from "@/config/nav";
 import { KindGroup } from "@/config/record-kinds";
 import { TypeBuilder } from "@/features/settings/components/type-builder";
@@ -11,6 +13,7 @@ import {
   TypePreview,
 } from "@/features/settings/components/type-preview";
 import { useKinds } from "@/hooks/use-kinds";
+import { BookViewMode } from "@/stores/use-book-view-store";
 
 /**
  * 類型的增減。原本掛在三個概覽頁的頁首上（/records/new-kind 那三條），
@@ -33,6 +36,9 @@ const styles = {
   rule: "bg-rule-strong hidden w-px shrink-0 lg:block", // 右欄收起來時線也跟著收
   list: "flex w-full min-w-0 flex-1 flex-col gap-6 overflow-y-auto",
   railLabel: "text-label text-accent font-medium",
+  // 分頁切換跟頁首那排純文字連結同一套：無框無底色，選中的變粗
+  railTabActive: "text-label text-accent font-medium",
+  railTabIdle: "text-label text-ink-faint hover:text-ink",
   rail: "hidden w-58 shrink-0 flex-col gap-8 self-stretch overflow-y-auto lg:flex",
   group: "flex flex-col",
   groupHead: "border-rule-strong flex items-baseline justify-between border-b-2 pb-1.5",
@@ -48,6 +54,12 @@ const styles = {
   builder: "pl-3",
 };
 
+/** 右欄的兩個分頁。檢視是這一頁有幾種看法，樣式是一筆長什麼樣 */
+const TABS = [
+  { key: "views" as const, label: "檢視" },
+  { key: "card" as const, label: "樣式" },
+];
+
 export function KindPanel() {
   /** 展開中的新增表單屬於哪一個分類，null 就是沒展開 */
   const [adding, setAdding] = useState<KindGroup | null>(null);
@@ -57,6 +69,12 @@ export function KindPanel() {
   const [error, setError] = useState<string>();
   /** 正在編輯的那一個類型的當下設定，右欄照它畫；沒在編輯就是 null */
   const [draft, setDraft] = useState<TypeDraft | null>(null);
+  // 版面與卡片樣式。控制項畫在右欄，state 就放這裡——放在表單裡的話
+  // 右欄要等它回報，每次回報都換一個新物件，點一下就被重建的畫面吃掉
+  const [views, setViews] = useState<BookViewMode[]>(DEFAULT_VIEWS);
+  const [cardStyle, setCardStyle] = useState<CardStyle>("fragment");
+  /** 右欄兩個分頁：版面是整頁怎麼排，卡片是一筆長什麼樣 */
+  const [tab, setTab] = useState<"views" | "card">("views");
   const { kinds, removeKind } = useKinds();
 
   // 身分固定所以不會每次 render 換一個，TypeBuilder 的 effect 才不會反覆觸發
@@ -91,6 +109,9 @@ export function KindPanel() {
                   onClick={() => {
                     setAdding(adding === group ? null : group);
                     setEditing(null);
+                    // 新增是從預設開始
+                    setViews(DEFAULT_VIEWS);
+                    setCardStyle(defaultCardStyle(group));
                   }}
                   className={styles.addLink}
                 >
@@ -111,6 +132,9 @@ export function KindPanel() {
                       onClick={() => {
                         setEditing(editing === kind.id ? null : kind.id);
                         setAdding(null);
+                        // 帶入這個類型現在的設定
+                        setViews(kind.views);
+                        setCardStyle(kind.cardStyle);
                       }}
                       className={styles.name}
                     >
@@ -141,6 +165,10 @@ export function KindPanel() {
                           setDraft(null);
                         }}
                         onDraftChange={onDraftChange}
+                        views={views}
+                        onViewsChange={setViews}
+                        cardStyle={cardStyle}
+                        onCardStyleChange={setCardStyle}
                       />
                     </div>
                   )}
@@ -157,6 +185,10 @@ export function KindPanel() {
                       setDraft(null);
                     }}
                     onDraftChange={onDraftChange}
+                    views={views}
+                    onViewsChange={setViews}
+                    cardStyle={cardStyle}
+                    onCardStyleChange={setCardStyle}
                   />
                 </div>
               )}
@@ -171,11 +203,28 @@ export function KindPanel() {
       <div className={styles.rail}>
         {draft && (
           <div className="flex flex-col gap-4">
-            <span className={styles.railLabel}>看法</span>
-            <KindViewsPicker views={draft.views} onChange={draft.onViewsChange} />
-            <span className={styles.railLabel}>預覽</span>
-            <CardStylePicker cardStyle={draft.cardStyle} onChange={draft.onCardStyleChange} />
-            <TypePreview {...draft} />
+            <div className="flex items-center gap-4">
+              {TABS.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => setTab(item.key)}
+                  aria-pressed={item.key === tab}
+                  className={item.key === tab ? styles.railTabActive : styles.railTabIdle}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            {tab === "views" ? (
+              <KindViewsPicker views={views} onChange={setViews} />
+            ) : (
+              <>
+                <CardStylePicker cardStyle={cardStyle} onChange={setCardStyle} />
+                <TypePreview {...draft} cardStyle={cardStyle} />
+              </>
+            )}
           </div>
         )}
       </div>

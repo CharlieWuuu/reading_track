@@ -217,7 +217,7 @@ export type FragmentRow = {
   kindCountUnit: string;
   kindGroup: KindGroup;
   kindSlug: string;
-  /** 清單上一筆的畫法，由類型決定 */
+  /** 一筆長什麼樣，由類型決定 */
   kindCardStyle: CardStyle;
   /** 這一種要不要跟著出處走（封面、書名）。單字與關鍵字不屬於任何一本書 */
   inheritsCover: boolean;

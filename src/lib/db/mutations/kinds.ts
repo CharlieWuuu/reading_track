@@ -28,9 +28,9 @@ export type NewKind = {
   amountUnit: string;
   /** 自己沒封面時要不要用連到的作品的封面 */
   inheritsCover: boolean;
-  /** 清單上一筆長什麼樣 */
+  /** 一筆長什麼樣 */
   cardStyle: CardStyle;
-  /** 有哪幾種看法 */
+  /** 用哪幾種元件顯示 */
   views: BookViewMode[];
   /** 模組在這個類型叫什麼 */
   labels?: Record<string, string>;
