@@ -60,7 +60,6 @@ export function makeArticle(overrides: Partial<Article> = {}): Article {
     createdAt: "2026-01-01T00:00:00.000Z",
     title: "測試文章",
     author: "",
-    platform: "",
     publisher: "報導者",
     sourceUrl: "https://example.com/a",
     endDate: "2026-08-10",
