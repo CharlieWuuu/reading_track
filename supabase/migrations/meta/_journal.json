@@ -197,6 +197,13 @@
       "when": 1789925244516,
       "tag": "0027_kind_display",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1789925244517,
+      "tag": "0028_thread_card_style",
+      "breakpoints": true
     }
   ]
 }
