@@ -22,7 +22,7 @@ import { useBookView } from "@/hooks/use-book-view";
 import { useKindRecords } from "@/hooks/use-kind-records";
 import { useKinds } from "@/hooks/use-kinds";
 import { Kind } from "@/lib/db/queries/kinds";
-import { countMeta } from "@/utils/kind-list";
+import { countMeta, fragmentsNewestFirst, recordsNewestFirst } from "@/utils/kind-list";
 
 /**
  * 一個類型的清單頁。內建與自訂同一支——書籍、佳句也走這裡，沒有專屬頁。
@@ -64,7 +64,12 @@ function KindBody({ kind }: { kind: Kind }) {
     );
   }
 
-  const props = { kind, records: data.records, fragments: data.fragments };
+  // 三種檢視都從最新往下，排序在這裡做一次
+  const props = {
+    kind,
+    records: recordsNewestFirst(data.records),
+    fragments: fragmentsNewestFirst(data.fragments),
+  };
   if (view === "card") return <KindCardWall {...props} />;
   if (view === "table") return <KindTable {...props} />;
   return <KindOverview {...props} />;
