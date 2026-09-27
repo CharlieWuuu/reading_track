@@ -34,12 +34,12 @@ const styles = {
   // 畫成右欄自己的 border-l 的話，線左邊靠 gap、右邊靠 padding，兩側各寫一處就對不齊
   frame: "flex min-h-0 min-w-0 flex-1 items-stretch gap-6",
   rule: "bg-rule-strong hidden w-px shrink-0 lg:block", // 右欄收起來時線也跟著收
-  list: "flex w-full min-w-0 flex-1 flex-col gap-6 overflow-y-auto",
+  list: "overflow-y-auto pb-10 flex w-full min-w-0 flex-1 flex-col gap-6",
   railLabel: "text-label text-accent font-medium",
   // 分頁切換跟頁首那排純文字連結同一套：無框無底色，選中的變粗
   railTabActive: "text-label text-accent font-medium",
   railTabIdle: "text-label text-ink-faint hover:text-ink",
-  rail: "hidden w-58 shrink-0 flex-col gap-8 self-stretch overflow-y-auto lg:flex",
+  rail: "overflow-y-auto pb-10 hidden w-58 shrink-0 flex-col gap-8 self-stretch lg:flex",
   group: "flex flex-col",
   groupHead: "border-rule-strong flex items-baseline justify-between border-b-2 pb-1.5",
   groupLabel: "font-serif text-ui font-semibold",

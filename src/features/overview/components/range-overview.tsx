@@ -117,7 +117,7 @@ export function RangeOverview({
   if (total === 0) return <div className={styles.empty}>{emptyLabel}</div>;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 pb-10">
       <RecordSection label="紀錄" items={recordItems} unit={unitOfGroup("records")} />
       <FragmentSection label="片段" rows={fragmentRows} unit={unitOfGroup("fragments")} />
       <FragmentSection label="書寫" rows={writingRows} unit={unitOfGroup("writings")} />

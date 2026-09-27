@@ -375,7 +375,7 @@ export function ModuleForm({
         e.preventDefault();
         void save();
       }}
-      className="flex max-w-2xl flex-col gap-4"
+      className="flex max-w-2xl flex-col gap-4 pb-10"
     >
       {/* 沒選到的那一頁用 hidden 藏起來，不是不畫——拆掉再裝回來，
           打到一半的字與游標位置都會沒了 */}

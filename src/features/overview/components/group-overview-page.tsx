@@ -35,7 +35,7 @@ function threadRow(byId: Map<string, FragmentRow>, item: OverviewItem) {
 
 const styles = {
   empty: "text-meta text-ink-faint py-8 text-center",
-  sections: "flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto", // PageBody 是 scroll={false}，捲動歸這裡
+  sections: "overflow-y-auto pb-10 flex min-h-0 flex-1 flex-col gap-6", // 捲動歸這裡
 };
 
 type GroupOverviewPageProps = {

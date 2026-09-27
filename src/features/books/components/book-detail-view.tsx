@@ -236,7 +236,7 @@ export function BookDetailView({ recordId }: { recordId: string }) {
       />
 
       <PageBody>
-        <article className="flex w-full flex-col gap-8">
+        <article className="flex w-full flex-col gap-8 pb-10">
           {/* 書名頁：封面＋書名／作者／量化資訊／統計數字在左，固定資料卡在右 */}
           <DetailHeader facts={<BookFacts book={book} kind={bookKind} />}>
             <BookCover

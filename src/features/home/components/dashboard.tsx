@@ -81,7 +81,7 @@ export function Dashboard() {
   );
 
   return (
-    <div className="flex min-h-full flex-1 flex-col">
+    <div className="flex min-h-full flex-1 flex-col overflow-y-auto pb-10">
       <div className={styles.head}>
         <h1 className={styles.title}>今天</h1>
         {/* 手機沒有報頭，這行是唯一進得去回顧頁的入口——桌機的報頭也是同一份 */}

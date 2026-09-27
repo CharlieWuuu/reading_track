@@ -6,9 +6,11 @@ import { FIELD_INPUT_CLASS } from "@/components/ui/field-label/field-label";
 import { Field } from "@/components/ui/field/field";
 import { FormActions } from "@/components/ui/form-actions";
 import { CardStyle, defaultCardStyle } from "@/config/card-styles";
+import { DEFAULT_DISPLAY, KindDisplay } from "@/config/kind-display";
 import { KindTemplate, templatesOf } from "@/config/kind-templates";
 import { MODULES } from "@/config/modules";
 import { KindGroup } from "@/config/record-kinds";
+import { KindDisplayFields } from "@/features/settings/components/kind-display-fields";
 import type { TypeDraft } from "@/features/settings/components/type-preview";
 import { useKinds } from "@/hooks/use-kinds";
 import { Kind } from "@/lib/db/queries/kinds";
@@ -117,6 +119,15 @@ export function TypeBuilder({
   const [labels, setLabels] = useState<Record<string, string>>(
     editing ? Object.fromEntries(editing.modules.map((m) => [m.key, m.label])) : {},
   );
+  const [display, setDisplay] = useState<KindDisplay>(
+    editing
+      ? {
+          cardGroupBy: editing.cardGroupBy,
+          countRereads: editing.countRereads,
+          numberDone: editing.numberDone,
+        }
+      : DEFAULT_DISPLAY,
+  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
 
@@ -141,6 +152,7 @@ export function TypeBuilder({
     onCardStyleChange(template.cardStyle ?? defaultCardStyle(group));
     setPicked([...template.modules]);
     setLabels({});
+    setDisplay({ ...DEFAULT_DISPLAY, ...template.display });
   }
 
   async function save() {
@@ -155,6 +167,7 @@ export function TypeBuilder({
       views,
       cardStyle,
       labels,
+      ...display,
     };
 
     try {
@@ -286,6 +299,10 @@ export function TypeBuilder({
               </Fragment>
             ))}
           </div>
+        </Section>
+
+        <Section step={editing ? "03" : "04"} label="顯示">
+          <KindDisplayFields group={group} picked={picked} value={display} onChange={setDisplay} />
         </Section>
 
         <div className="pt-6">
