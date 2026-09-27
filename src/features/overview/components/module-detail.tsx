@@ -1,6 +1,7 @@
 "use client";
 
-import { DetailFields, KindFacts } from "@/components/ui/detail";
+import { PageAside, PageMain } from "@/components/layout/page-body";
+import { DetailFactsCard, DetailFields, KindFacts } from "@/components/ui/detail";
 import { Kind } from "@/lib/db/queries/kinds";
 import { factFields, longFields } from "@/utils/detail-fields";
 import { imageSrc } from "@/utils/image-key";
@@ -20,7 +21,7 @@ const styles = {
   title: "font-serif text-lede mt-2 leading-tight font-semibold",
   meta: "text-meta text-ink-faint mt-2",
   body: "font-serif text-[15px] leading-[2.1] whitespace-pre-wrap text-gray-800 pt-5",
-  fields: "pt-6",
+  fields: "pt-6 lg:hidden", // 寬螢幕資料卡在右欄
   cover: "rounded-surface mt-5 block max-h-60 w-auto object-contain", // 使用者自己挑的示意圖，不裁切
 };
 
@@ -32,30 +33,39 @@ export function ModuleDetail({ kind, values }: { kind: Kind; values: Record<stri
   const cover = kind.modules.some((module) => module.key === "cover") && values.coverUrl; // 沒勾封面就不畫
 
   return (
-    <div className={styles.frame}>
-      <div className={styles.head}>
-        {tag && <span className={styles.tag}>{tag}</span>}
-        {values.title && <h1 className={styles.title}>{values.title}</h1>}
-      </div>
+    <>
+      <PageMain>
+        <div className={styles.frame}>
+          <div className={styles.head}>
+            {tag && <span className={styles.tag}>{tag}</span>}
+            {values.title && <h1 className={styles.title}>{values.title}</h1>}
+          </div>
 
-      {cover && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={imageSrc(cover)} alt="" className={styles.cover} />
-      )}
+          {cover && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={imageSrc(cover)} alt="" className={styles.cover} />
+          )}
 
-      {longs.map((field) => (
-        <p key={field.key} className={styles.body}>
-          {field.value}
-        </p>
-      ))}
+          {longs.map((field) => (
+            <p key={field.key} className={styles.body}>
+              {field.value}
+            </p>
+          ))}
 
-      {facts.length > 0 && (
-        <div className={styles.fields}>
-          <DetailFields>
-            <KindFacts entries={facts} sourceUrl={values.externalUrl} align="left" />
-          </DetailFields>
+          {facts.length > 0 && (
+            <div className={styles.fields}>
+              <DetailFields>
+                <KindFacts entries={facts} sourceUrl={values.externalUrl} align="left" />
+              </DetailFields>
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </PageMain>
+      <PageAside>
+        <DetailFactsCard>
+          <KindFacts entries={facts} sourceUrl={values.externalUrl} />
+        </DetailFactsCard>
+      </PageAside>
+    </>
   );
 }
