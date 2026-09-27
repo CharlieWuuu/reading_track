@@ -95,7 +95,7 @@ export function DetailHeader({
   facts?: React.ReactNode;
 }) {
   return (
-    <header className="border-rule-strong flex flex-col gap-6 border-b pb-6 md:flex-row">
+    <header className="flex flex-col gap-6 md:flex-row">
       <div className="flex gap-4 sm:flex-1 md:gap-10">{children}</div>
       {facts && (
         <>
