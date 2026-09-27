@@ -65,8 +65,8 @@ export interface Book {
   coverUrl: string;
   /** 版本的號碼不是書的身分：紙本與電子書各有一組。認「同一本書」請用 originId */
   isbn: string;
-  /** 平台是可自訂的選項，不再限定在 BOOK_PLATFORMS 裡 */
-  platform: string;
+  platform: string; // 這一次在哪讀的：實體書、Kobo
+  publisher: string;
   sourceUrl: string;
   status: RecordStatus;
   startDate: string | null;

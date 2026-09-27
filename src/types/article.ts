@@ -9,8 +9,8 @@ export interface Article {
   title: string;
   /** 文章常常抓不到作者，允許空白 */
   author: string;
-  /** 來源站台，例如「報導者」；論文就填期刊名 */
-  platform: string;
+  platform: string; // 在哪讀的：vocus、Medium
+  publisher: string; // 來源站台或期刊名，例如「報導者」
   sourceUrl: string;
   /**
    * 只有完成日期，沒有開始日期——文章多半一次讀完，
