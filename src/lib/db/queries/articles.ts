@@ -2,7 +2,7 @@ import { and, asc, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { PRIVATE_MARK } from "@/config/privacy";
 import { db } from "@/lib/db/client";
 import { kinds } from "@/lib/db/schema/kinds";
-import { attributes, platforms } from "@/lib/db/schema/taxonomy";
+import { attributes } from "@/lib/db/schema/taxonomy";
 import { records, works } from "@/lib/db/schema/works";
 import { Article } from "@/types/article";
 import { decodeCursor, encodeCursor } from "@/utils/pagination";
@@ -17,7 +17,6 @@ type ArticleJoinRow = {
   record: typeof records.$inferSelect;
   work: typeof works.$inferSelect;
   attribute: string | null;
-  platform: string | null;
 };
 
 /** 撈出來的原始列轉成 Article——關鍵字、出處連結這些批次查詢一起做，跟分不分頁無關 */
@@ -34,14 +33,13 @@ async function toArticles(userId: string, rows: ArticleJoinRow[]): Promise<Artic
     ),
   ]);
 
-  return rows.map(({ record, work, attribute, platform }) => {
+  return rows.map(({ record, work, attribute }) => {
     const type = work.topicId ? types.get(work.topicId) : undefined;
     return {
       id: record.id,
       createdAt: record.createdAt.toISOString(),
       title: work.title,
       author: work.creator,
-      platform: platform ?? "",
       publisher: work.publisher,
       sourceUrl: sourceUrls.get(record.id) ?? "",
       endDate: record.endDate,
@@ -58,12 +56,11 @@ async function toArticles(userId: string, rows: ArticleJoinRow[]): Promise<Artic
 
 export async function listArticles(userId: string): Promise<Article[]> {
   const rows = await db
-    .select({ record: records, work: works, attribute: attributes.name, platform: platforms.name })
+    .select({ record: records, work: works, attribute: attributes.name })
     .from(records)
     .innerJoin(works, eq(works.id, records.workId))
     .innerJoin(kinds, eq(kinds.id, works.kindId))
     .leftJoin(attributes, eq(attributes.id, works.attributeId))
-    .leftJoin(platforms, eq(platforms.id, records.platformId))
     .where(and(eq(records.userId, userId), eq(kinds.name, ARTICLE_KIND)))
     .orderBy(asc(records.createdAt));
 
@@ -73,12 +70,11 @@ export async function listArticles(userId: string): Promise<Article[]> {
 /** 待讀（沒有 endDate）——這批小，整批抓不分頁，理由同書籍/紀錄的 active */
 export async function listPendingArticles(userId: string): Promise<Article[]> {
   const rows = await db
-    .select({ record: records, work: works, attribute: attributes.name, platform: platforms.name })
+    .select({ record: records, work: works, attribute: attributes.name })
     .from(records)
     .innerJoin(works, eq(works.id, records.workId))
     .innerJoin(kinds, eq(kinds.id, works.kindId))
     .leftJoin(attributes, eq(attributes.id, works.attributeId))
-    .leftJoin(platforms, eq(platforms.id, records.platformId))
     .where(and(eq(records.userId, userId), eq(kinds.name, ARTICLE_KIND), isNull(records.endDate)))
     .orderBy(asc(records.createdAt));
 
@@ -107,13 +103,11 @@ export async function listDoneArticles(
         record: records,
         work: works,
         attribute: attributes.name,
-        platform: platforms.name,
       })
       .from(records)
       .innerJoin(works, eq(works.id, records.workId))
       .innerJoin(kinds, eq(kinds.id, works.kindId))
       .leftJoin(attributes, eq(attributes.id, works.attributeId))
-      .leftJoin(platforms, eq(platforms.id, records.platformId))
       .where(
         and(
           eq(records.userId, userId),
