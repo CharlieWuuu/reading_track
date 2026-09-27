@@ -170,42 +170,39 @@ export function BookDetailView({ recordId }: { recordId: string }) {
               </div>
             </DetailHeader>
 
-            {/* 主內容一欄往下：摘要、書寫、片段、關鍵字，都照類型分區 */}
-            <div className="flex flex-col gap-8">
-              <div className="flex min-w-0 flex-col gap-3">
-                {/* 這本書自己的長文（摘要），跟連過來的書寫是兩回事，各自一區 */}
-                {longs.map((field) => (
-                  <div key={field.key} className="flex flex-col gap-3">
-                    <DetailHeading title={field.label} />
-                    <NoteBlock note={field.value} />
-                  </div>
-                ))}
-
-                {/* 一種類型一區，照各自的卡片樣式：思緒掛在寫著「心得」的標題底下對不起來 */}
-                {writingSections.map((section) => (
-                  <KindSectionBlock key={section.slug} group="writings" section={section} />
-                ))}
-
-                {keywords.length > 0 && (
-                  <div className="flex flex-col gap-2 pt-2">
-                    <span className="text-label text-ink-faint uppercase">關鍵字</span>
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      {keywords.map((keyword) => (
-                        <KeywordTag
-                          key={keyword}
-                          name={keyword}
-                          className="rounded-control bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200"
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
+            {/* 主內容一欄往下：摘要、書寫、關鍵字、片段，都照類型分區。
+                直接當 article 的子元素：沒資料的區塊不留一格空的間距 */}
+            {/* 這本書自己的長文（摘要），跟連過來的書寫是兩回事，各自一區 */}
+            {longs.map((field) => (
+              <div key={field.key} className="flex flex-col gap-3">
+                <DetailHeading title={field.label} />
+                <NoteBlock note={field.value} />
               </div>
+            ))}
 
-              {fragmentSections.map((section) => (
-                <KindSectionBlock key={section.slug} group="fragments" section={section} />
-              ))}
-            </div>
+            {/* 一種類型一區，照各自的卡片樣式：思緒掛在寫著「心得」的標題底下對不起來 */}
+            {writingSections.map((section) => (
+              <KindSectionBlock key={section.slug} group="writings" section={section} />
+            ))}
+
+            {keywords.length > 0 && (
+              <div className="flex flex-col gap-2 pt-2">
+                <span className="text-label text-ink-faint uppercase">關鍵字</span>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {keywords.map((keyword) => (
+                    <KeywordTag
+                      key={keyword}
+                      name={keyword}
+                      className="rounded-control bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {fragmentSections.map((section) => (
+              <KindSectionBlock key={section.slug} group="fragments" section={section} />
+            ))}
           </article>
         </PageMain>
         <PageAside>
