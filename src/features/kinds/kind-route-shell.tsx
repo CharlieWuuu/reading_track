@@ -49,7 +49,7 @@ export function KindNewPage({ group, slug }: KindRouteProps) {
         }
         backHref={kindHref(group, slug)}
         // 專用表單沒有分內容／屬性，那顆不畫
-        action={kind && !Form ? <FormTabSwitch /> : undefined}
+        action={kind && !Form ? <FormTabSwitch group={group} /> : undefined}
       />
       <PageBody>
         {isLoading || !kind ? (
@@ -174,7 +174,7 @@ function GenericEditPage({ group, slug, recordId }: RecordRouteProps) {
           ]
         }
         backHref={back}
-        action={kind && !Form ? <FormTabSwitch /> : undefined}
+        action={kind && !Form ? <FormTabSwitch group={group} /> : undefined}
       />
       <PageBody>
         {error ? (

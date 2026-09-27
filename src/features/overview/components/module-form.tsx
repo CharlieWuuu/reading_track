@@ -25,6 +25,7 @@ import {
   fieldsOf,
   FormModule,
   formModules,
+  formTabsOf,
   resolveFormModules,
   splitByTab,
 } from "@/utils/record-form";
@@ -164,8 +165,8 @@ export function ModuleForm({
   });
   // 分頁不進網址：切一下就 replace 一次只是歷史雜訊，而且未存的編輯要留著
   const { tab, setTab } = useFormTabStore();
-  // store 活得比這張表單久：換一筆進來要從內容開始，不要接著上一筆停在屬性
-  useEffect(() => setTab("content"), [recordId, kind.id, setTab]);
+  // store 活得比這張表單久：換一筆進來要從第一頁開始，不要接著上一筆停在屬性
+  useEffect(() => setTab(formTabsOf(kind.group)[0]), [recordId, kind.id, kind.group, setTab]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
   const [fetching, setFetching] = useState(false);
@@ -174,7 +175,7 @@ export function ModuleForm({
   const [fetchNote, setFetchNote] = useState("");
 
   const modules = formModules(kind.modules); // 畫出來的那幾格
-  const tabs = splitByTab(modules);
+  const tabs = splitByTab(modules, kind.group);
   const fields = fieldsOf(resolveFormModules(kind.modules)); // 存的欄位照樣含自動帶的完成日期
   const set = (key: string, value: string) => setValues((v) => ({ ...v, [key]: value }));
 
@@ -379,6 +380,10 @@ export function ModuleForm({
     >
       {/* 沒選到的那一頁用 hidden 藏起來，不是不畫——拆掉再裝回來，
           打到一半的字與游標位置都會沒了 */}
+      <div className={`flex flex-col gap-4 ${tab === "work" ? "" : "hidden"}`}>
+        {pane(tabs.work)}
+      </div>
+
       <div className={`flex flex-col gap-4 ${tab === "content" ? "" : "hidden"}`}>
         {pane(tabs.content)}
         {fetching && <p className="text-xs text-gray-500">抓取中…</p>}
