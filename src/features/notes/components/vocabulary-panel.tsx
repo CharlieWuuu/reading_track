@@ -14,10 +14,8 @@ const styles = {
   count: "shrink-0 text-xs text-gray-400 tabular-nums",
   list: "flex flex-col gap-2",
   writings: "flex flex-col gap-0.5",
-  // 例句是原文，翻譯是輔助，兩者深淺分開才不會讀成同一段
-  // 例句可能整段是網址：沒有空白就沒有斷點，break-words 斷不開，要 anywhere
-  example: "text-xs leading-relaxed [overflow-wrap:anywhere] text-gray-700",
-  exampleTranslation: "text-xs leading-relaxed [overflow-wrap:anywhere] text-gray-400",
+  // 內文可能整段是網址：沒有空白就沒有斷點，break-words 斷不開，要 anywhere；段落間的空行照留
+  body: "text-xs leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere] text-gray-700",
   // 封面靠右下角，淡淡一排就好：它是註腳，不是這張卡的主角。
   // 不能 shrink-0：手機一欄只有一半螢幕寬，五張封面加次數會把卡片撐出去，
   // 外層 PageMain 的 overflow-y-auto 讓另一軸變成 auto，就長出橫向捲軸
@@ -77,10 +75,7 @@ export function VocabularyPanel({ writings, onEdit }: VocabularyPanelProps) {
             <div className={styles.list}>
               {writings.encounters.map((encounter, i) => (
                 <div key={i} className={styles.writings}>
-                  {encounter.example && <p className={styles.example}>{encounter.example}</p>}
-                  {encounter.exampleTranslation && (
-                    <p className={styles.exampleTranslation}>{encounter.exampleTranslation}</p>
-                  )}
+                  {encounter.body && <p className={styles.body}>{encounter.body}</p>}
                 </div>
               ))}
             </div>
