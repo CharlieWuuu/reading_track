@@ -88,7 +88,7 @@ function Settings() {
           className={
             tab === "kinds"
               ? "flex min-h-0 flex-1 flex-col"
-              : "shrink-0 md:min-h-0 md:flex-1 md:overflow-y-auto"
+              : "min-h-0 flex-1 overflow-y-auto pb-10"
           }
         >
           {tab === "categories" && <CategoryManager />}

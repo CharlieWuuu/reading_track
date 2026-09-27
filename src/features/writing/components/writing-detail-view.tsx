@@ -33,7 +33,7 @@ export function WritingDetailView({ recordId }: { recordId: string }) {
       <PageBody>
         <RecordGate loading={isLoading} error={error} missing={!writing && "找不到這則紀事"}>
           {writing && (
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-8 pb-10">
               <DetailHeader
                 facts={
                   <>

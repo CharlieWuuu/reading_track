@@ -190,6 +190,13 @@
       "when": 1789925244515,
       "tag": "0026_views_and_card",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1789925244516,
+      "tag": "0027_kind_display",
+      "breakpoints": true
     }
   ]
 }

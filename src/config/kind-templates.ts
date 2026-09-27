@@ -1,5 +1,6 @@
 import type { BookViewMode } from "@/stores/use-book-view-store";
 import { CardStyle } from "./card-styles";
+import { KindDisplay } from "./kind-display";
 import { ModuleKey } from "./modules";
 import { KindGroup } from "./record-kinds";
 
@@ -27,6 +28,8 @@ export type KindTemplate = {
   cardStyle?: CardStyle;
   /** 有哪幾種版面。沒寫就用 DEFAULT_VIEWS */
   views?: readonly BookViewMode[];
+  /** 卡片牆分段、重讀計次、讀完編號。沒寫就用 DEFAULT_DISPLAY */
+  display?: Partial<KindDisplay>;
 };
 
 const RECORD_BASE: ModuleKey[] = ["title", "creator", "externalUrl", "startDate", "endDate"];
@@ -37,6 +40,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "records",
     name: "書籍",
     amountUnit: "頁",
+    display: { cardGroupBy: "year", countRereads: true, numberDone: true },
     modules: [
       ...RECORD_BASE,
       "longText",

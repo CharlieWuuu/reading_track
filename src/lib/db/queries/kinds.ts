@@ -1,5 +1,6 @@
 import { and, asc, count, eq, isNull, or } from "drizzle-orm";
 import { CardStyle, toCardStyle } from "@/config/card-styles";
+import { KindDisplay, toCardGroupBy } from "@/config/kind-display";
 import { toKindViews } from "@/config/kind-views";
 import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
@@ -18,7 +19,7 @@ import { ModuleOverride } from "@/utils/record-form";
  * 但表單每開一次就要全部，N+1 沒有意義。
  */
 
-export type Kind = {
+export type Kind = KindDisplay & {
   id: string;
   name: string;
   /** 網址上的那一段 */
@@ -126,6 +127,9 @@ export async function listKinds(userId: string): Promise<Kind[]> {
     inheritsCover: kind.inheritsCover,
     cardStyle: toCardStyle(kind.cardStyle, kind.groupKey as KindGroup),
     views: toKindViews(kind.views),
+    cardGroupBy: toCardGroupBy(kind.cardGroupBy),
+    countRereads: kind.countRereads,
+    numberDone: kind.numberDone,
     count: counts.get(kind.id) ?? 0,
     sortOrder,
     modules: (fieldsByKind.get(kind.id) ?? [])

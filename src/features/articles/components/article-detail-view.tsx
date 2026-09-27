@@ -121,7 +121,7 @@ export function ArticleDetailView({ recordId }: { recordId: string }) {
       <PageBody>
         <RecordGate loading={isLoading} error={error} missing={!article && "找不到這篇文章"}>
           {article && (
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-8 pb-10">
               <DetailHeader facts={<ArticleFacts article={article} kind={articleKind} />}>
                 <div className="flex min-w-0 flex-1 flex-col gap-2.5">
                   <DetailTitle title={article.title} subtitle={article.author} />

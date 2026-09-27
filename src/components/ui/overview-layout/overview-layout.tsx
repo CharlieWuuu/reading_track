@@ -23,8 +23,8 @@ const styles = {
   rule: "bg-rule-strong hidden w-px shrink-0 lg:block",
   // 自己的捲動條：中間月份格線很長，右邊窄欄通常很短，兩邊各捲各的，
   // 不要因為其中一邊比較長就把另一邊也拖走
-  main: "flex min-w-0 flex-1 flex-col gap-5 overflow-y-auto",
-  rail: "hidden w-58 shrink-0 flex-col gap-8 self-stretch overflow-y-auto lg:flex",
+  main: "overflow-y-auto pb-10 flex min-w-0 flex-1 flex-col gap-5",
+  rail: "overflow-y-auto pb-10 hidden w-58 shrink-0 flex-col gap-8 self-stretch lg:flex",
   // 窄螢幕沒有右欄，同一份內容改插在頭條下面——「現在在讀什麼」比「上個月讀完什麼」先看到
   railInline: "flex flex-col gap-5 lg:hidden",
   meta: "text-meta text-ink-faint tabular-nums",

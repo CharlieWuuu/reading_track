@@ -13,7 +13,7 @@ import { detailFields } from "@/utils/detail-fields";
  */
 
 const styles = {
-  frame: "flex max-w-2xl flex-col",
+  frame: "flex max-w-2xl flex-col pb-10",
   head: "border-rule-strong border-b pb-4",
   tag: "text-label text-accent font-medium",
   title: "font-serif text-lede mt-2 leading-tight font-semibold",

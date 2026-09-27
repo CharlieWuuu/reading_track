@@ -1,38 +1,21 @@
 "use client";
 
-import Link from "next/link";
-import { Plus } from "lucide-react";
 import { PageBody } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { ActionButton } from "@/components/ui/controls/action-button";
-import { GroupOverview } from "@/components/ui/group-overview/group-overview";
-import { KindCards } from "@/components/ui/kind-cards/kind-cards";
 import { groupBasePath, kindHref } from "@/config/kind-routes";
-import { viewsOfKind } from "@/config/kind-views";
-import { NAV_GROUPS, unitOfKind } from "@/config/nav";
+import { NAV_GROUPS } from "@/config/nav";
 import { KindGroup } from "@/config/record-kinds";
-import { KindCalendar } from "@/features/calendar/components/kind-calendar";
-import { KindTimeline } from "@/features/calendar/components/kind-timeline";
-import { KindViewMenu } from "@/features/kinds/kind-view-menu";
 import { variantFor } from "@/features/kinds/variant-registry";
 import { FormTabSwitch } from "@/features/overview/components/form-tab-switch";
 import { ModuleDetail } from "@/features/overview/components/module-detail";
 import { ModuleForm } from "@/features/overview/components/module-form";
-import { KindStats } from "@/features/stats/components/kind-stats";
-import {
-  fragmentThreadRow,
-  WRITING_THREAD_GRID,
-  WritingThreadRow,
-} from "@/features/writing/components/writing-thread-row";
-import { useBookView } from "@/hooks/use-book-view";
 import { useCatalogRecord } from "@/hooks/use-catalog-record";
-import { useKindRecords } from "@/hooks/use-kind-records";
 import { useKinds } from "@/hooks/use-kinds";
 import { useRecordId } from "@/hooks/use-record-id";
 import { Kind } from "@/lib/db/queries/kinds";
-import { fragmentItem, recordItem } from "@/utils/overview-items";
 
 /**
  * 三個 group 共用的通用頁骨架。找到 kind 之後照 slug 決定要不要換皮，
@@ -43,115 +26,10 @@ function useKindBySlug(group: KindGroup, slug: string): { kind?: Kind; isLoading
   return { kind: kinds.find((k) => k.group === group && k.slug === slug), isLoading };
 }
 
-/**
- * 沒有 variant 的類型就用這個畫清單——絕大多數自訂類型走這條。
- *
- * 紀錄那個 group 照月份排成封面格線，跟內建類型同一套；片段與書寫一則一張卡。
- * 空的時候要說話：側欄把 0 筆的類型也列出來，點進來一片空白等於沒有下一步。
- */
-function GenericKindList({ kind }: { kind: Kind }) {
-  const { records, fragments, isLoading, error } = useKindRecords(kind.id);
-
-  if (error) return <PageMessage tone="error">{error}</PageMessage>;
-  if (isLoading) return <PageLoading />;
-
-  const isRecords = kind.group === "records";
-  const empty = isRecords ? records.length === 0 : fragments.length === 0;
-  if (empty) {
-    return (
-      <PageMessage fill>
-        還沒有任何{kind.name}。
-        <Link href={`${kindHref(kind.group, kind.slug)}/new`} className="underline">
-          記下第一筆
-        </Link>
-      </PageMessage>
-    );
-  }
-
-  // 書寫跟紀錄一樣照月份排：一篇心得是一件完成的事，有日期、值得回頭找
-  if (isRecords || kind.group === "writings") {
-    const byId = new Map(fragments.map((row) => [row.id, row]));
-    return (
-      <GroupOverview
-        active={[]}
-        pending={[]}
-        done={isRecords ? records.map(recordItem) : fragments.map(fragmentItem)}
-        headlineLabel="" // 書寫不要頭條；紀錄本來就沒有
-        unit={unitOfKind(kind)} // amountUnit 是份量（頁、分鐘），這裡要的是個數
-        // 書寫一路往下讀，不是卡片牆；紀錄仍然是封面格線
-        renderItem={
-          isRecords
-            ? undefined
-            : (item) => {
-                const row = byId.get(item.id);
-                return row ? <WritingThreadRow {...fragmentThreadRow(row)} /> : null;
-              }
-        }
-        gridClassName={isRecords ? undefined : WRITING_THREAD_GRID}
-        railDesktopOnly={!isRecords} // 書寫的統計手機版不顯示；紀錄照舊
-      />
-    );
-  }
-
-  // 一筆怎麼畫由類型的卡片樣式決定：佳句是句子不是卡片，切成兩欄會把長句擠成一行三四個字
-  return <KindCards style={kind.cardStyle} rows={fragments} />;
-}
-
 type KindRouteProps = {
   group: KindGroup;
   slug: string;
 };
-
-export function KindListPage({ group, slug }: KindRouteProps) {
-  const { kind, isLoading } = useKindBySlug(group, slug);
-  // 麵包屑指回這個 group 的概覽，字跟側欄同一份設定
-  const parent = NAV_GROUPS.find((nav) => nav.kindGroup === group);
-  const view = useBookView();
-
-  return (
-    <>
-      <PageHeader
-        title={kind?.name ?? ""}
-        parent={parent ? [{ label: parent.label, href: parent.href }] : undefined}
-        action={
-          kind && (
-            <div className="flex min-w-0 items-center gap-2">
-              {/* 用哪幾種元件顯示由類型自己勾，不再寫死——本來只有書籍與文章有切換鈕 */}
-              <KindViewMenu
-                modes={viewsOfKind(
-                  kind.views,
-                  kind.modules.map((module) => module.key),
-                )}
-              />
-              <ActionButton href={`${kindHref(kind.group, kind.slug)}/new`} text="新增">
-                <Plus size={16} strokeWidth={2} aria-hidden />
-              </ActionButton>
-            </div>
-          )
-        }
-      />
-      <PageBody>
-        {isLoading ? (
-          <PageLoading />
-        ) : !kind ? (
-          <PageMessage>找不到這個類型</PageMessage>
-        ) : view === "stats" ? (
-          <KindStats
-            kind={kind}
-            // 月曆與數線住在 features/calendar，統計那邊 import 不到；
-            // kinds 不在 eslint 的 feature 區裡，兩邊的交會點就落在這裡
-            wide={{
-              calendar: <KindCalendar kind={kind} />,
-              timeline: <KindTimeline kind={kind} />,
-            }}
-          />
-        ) : (
-          <GenericKindList kind={kind} />
-        )}
-      </PageBody>
-    </>
-  );
-}
 
 export function KindNewPage({ group, slug }: KindRouteProps) {
   const { kind, isLoading } = useKindBySlug(group, slug);

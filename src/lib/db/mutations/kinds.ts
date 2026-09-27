@@ -1,5 +1,6 @@
 import { and, desc, eq } from "drizzle-orm";
 import { CardStyle, defaultCardStyle } from "@/config/card-styles";
+import { DEFAULT_DISPLAY, KindDisplay } from "@/config/kind-display";
 import { KIND_TEMPLATES, KindTemplate, STARTER_KEYS } from "@/config/kind-templates";
 import { DEFAULT_VIEWS, fromKindViews } from "@/config/kind-views";
 import { moduleDef } from "@/config/modules";
@@ -19,7 +20,7 @@ import { BookViewMode } from "@/stores/use-book-view-store";
  * 隨時能再套一次。所以這裡不做「補回缺少的預設類型」那種事——刪掉就是刪掉。
  */
 
-export type NewKind = {
+export type NewKind = KindDisplay & {
   name: string;
   /** 網址上的那一段，人工填、英文小寫連字號 */
   slug: string;
@@ -69,6 +70,9 @@ async function insertKind(
       inheritsCover: kind.inheritsCover,
       cardStyle: kind.cardStyle,
       views: fromKindViews(kind.views),
+      cardGroupBy: kind.cardGroupBy,
+      countRereads: kind.countRereads,
+      numberDone: kind.numberDone,
       sortOrder,
     })
     .returning({ id: kinds.id });
@@ -107,6 +111,8 @@ const fromTemplate = (template: KindTemplate): NewKind => ({
   inheritsCover: template.inheritsCover ?? false,
   cardStyle: template.cardStyle ?? defaultCardStyle(template.group),
   views: [...(template.views ?? DEFAULT_VIEWS)],
+  ...DEFAULT_DISPLAY,
+  ...template.display,
 });
 
 /** 排在同一個 group 的最後面。順序是各人的事，只看自己在用的那幾種 */
@@ -207,6 +213,9 @@ export async function updateKind(userId: string, kindId: string, patch: NewKind)
         inheritsCover: patch.inheritsCover,
         cardStyle: patch.cardStyle,
         views: fromKindViews(patch.views),
+        cardGroupBy: patch.cardGroupBy,
+        countRereads: patch.countRereads,
+        numberDone: patch.numberDone,
       })
       .where(and(eq(kinds.id, kindId), eq(kinds.userId, userId)));
 

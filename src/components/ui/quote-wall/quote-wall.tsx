@@ -19,6 +19,20 @@ const styles = {
 
 const source = (row: FragmentRow) => [row.workTitle, row.locator].filter(Boolean).join("・");
 
+/** 一句。概覽照月份一格一格排時用得到，牆只是把它們疊起來 */
+export function QuoteRow({ row, href }: { row: FragmentRow; href: string }) {
+  return (
+    <Link href={href} className={styles.row}>
+      <BookCover url={row.coverUrl} title={row.workTitle} size="md" />
+      <div className={styles.body}>
+        {/* 句子本身在 title，body 是補充（翻譯、心得）——反過來的話
+            日文佳句會秀成中文翻譯，原句反而不見 */}
+        <Quote text={row.title || row.body} source={source(row)} />
+      </div>
+    </Link>
+  );
+}
+
 export function QuoteWall({
   rows,
   hrefOf,
@@ -29,14 +43,7 @@ export function QuoteWall({
   return (
     <div className={styles.wall}>
       {rows.map((row) => (
-        <Link key={row.id} href={hrefOf(row)} className={styles.row}>
-          <BookCover url={row.coverUrl} title={row.workTitle} size="md" />
-          <div className={styles.body}>
-            {/* 句子本身在 title，body 是補充（翻譯、心得）——反過來的話
-                日文佳句會秀成中文翻譯，原句反而不見 */}
-            <Quote text={row.title || row.body} source={source(row)} />
-          </div>
-        </Link>
+        <QuoteRow key={row.id} row={row} href={hrefOf(row)} />
       ))}
     </div>
   );

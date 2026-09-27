@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 const styles = {
-  page: "mx-auto max-w-2xl space-y-6 py-8 text-sm leading-relaxed text-gray-700",
+  page: "mx-auto max-w-2xl space-y-6 pt-8 pb-10 text-sm leading-relaxed text-gray-700",
   h2: "font-medium text-gray-900",
   section: "space-y-2",
 };
