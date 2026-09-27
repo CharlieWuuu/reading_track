@@ -13,8 +13,7 @@ export interface VocabularyRow {
   /** 怎麼唸：拼音、假名、KK 音標都可以，這一格不規定寫法 */
   pronunciation: string;
   wordTranslation: string;
-  example: string;
-  exampleTranslation: string;
+  body: string; // 內文：例句與翻譯都寫在這
   chapter: string;
   /** 空字串代表跟著書的語言走 */
   language: string;
@@ -43,8 +42,7 @@ export const EMPTY_VOCABULARY: Omit<VocabularyRow, "id" | "bookId" | "bookTitle"
   word: "",
   pronunciation: "",
   wordTranslation: "",
-  example: "",
-  exampleTranslation: "",
+  body: "",
   chapter: "",
   language: "",
   createdAt: "",
