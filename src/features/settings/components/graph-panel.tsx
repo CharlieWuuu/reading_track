@@ -64,8 +64,8 @@ function useTightLayout(graph: GraphData) {
   useEffect(() => {
     const link = ref.current?.d3Force("link") as { distance?: (d: number) => void } | undefined;
     const charge = ref.current?.d3Force("charge") as { strength?: (s: number) => void } | undefined;
-    link?.distance?.(7);
-    charge?.strength?.(-6);
+    link?.distance?.(14); // 相連的維持原本距離
+    charge?.strength?.(-6); // 斥力減半：沒連結的點靠近些
   }, [graph]); // 換了資料 force 會重建，要再設一次
   return ref;
 }
