@@ -4,7 +4,7 @@ import { DEFAULT_DISPLAY, KindDisplay } from "@/config/kind-display";
 import { KindGroup } from "@/config/kind-groups";
 import { KIND_TEMPLATES, KindTemplate, STARTER_KEYS } from "@/config/kind-templates";
 import { DEFAULT_VIEWS, fromKindViews } from "@/config/kind-views";
-import { moduleDef } from "@/config/modules";
+import { moduleDef, withRequired } from "@/config/modules";
 import { db, type Tx } from "@/lib/db/client";
 import { fields } from "@/lib/db/schema/fields";
 import { fragments } from "@/lib/db/schema/fragments";
@@ -86,7 +86,7 @@ async function insertKind(
 
 /** 認不得的模組丟掉：客戶端不能往資料庫塞任意字串 */
 async function insertFields(tx: Tx, userId: string, kindId: string, kind: NewKind): Promise<void> {
-  const modules = kind.modules.filter((key) => moduleDef(key));
+  const modules = withRequired(kind.modules).filter((key) => moduleDef(key)); // 必勾的客戶端沒送也補上
   if (modules.length === 0) return;
 
   const rows = await Promise.all(
