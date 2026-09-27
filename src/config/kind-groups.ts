@@ -1,4 +1,4 @@
-import { FieldKey, FieldLayer } from "./record-fields";
+import { FieldKey, FieldLayer } from "./fields";
 
 /**
  * 預設的類型。這些不是寫死的分類，是新使用者開帳號時灌進 kinds 的種子——

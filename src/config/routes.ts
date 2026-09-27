@@ -8,8 +8,8 @@
  * 拿其中一邊去猜另一邊正是原本的錯。
  */
 
+import type { KindGroup } from "@/config/kind-groups";
 import { kindHref } from "@/config/kind-routes";
-import type { KindGroup } from "@/config/record-kinds";
 
 /** 存完要回到原本的畫面，所以把當時的 query 一路帶著走 */
 const withBack = (href: string, back?: string | null): string => {

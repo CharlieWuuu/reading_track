@@ -1,4 +1,4 @@
-import { FieldKey } from "./record-fields";
+import { FieldKey } from "./fields";
 
 /**
  * 模組庫。使用者看到的是這一層，不是資料表的欄位——「進度與狀態」一個模組
@@ -8,7 +8,7 @@ import { FieldKey } from "./record-fields";
  * 蓋不住的那幾欄就只能另外寫一支專用表單，同一個類型的新增與編輯也就長不一樣。
  *
  * 新模組的門檻本來寫「至少三個類型會用到」。那條擋的是憑空發明新欄位，
- * 不是禁止把 record-fields 已經有的欄位接上來——那些欄位資料表裡本來就在。
+ * 不是禁止把 config/fields 已經有的欄位接上來——那些欄位資料表裡本來就在。
  */
 
 export type ModuleDef = {

@@ -34,7 +34,7 @@ export type FieldDef = {
 };
 
 /** 順序就是表單上的預設順序，改名不會插隊 */
-export const RECORD_FIELDS = [
+export const FIELDS = [
   { key: "title", layer: "work", type: "text", defaultLabel: "標題", rows: 2 }, // 書名常常一行放不下
   { key: "creator", layer: "work", type: "text", defaultLabel: "創作者" },
   // 主題樹在表單上是兩格：領域挑父節點、次領域挑它底下的子節點。
@@ -66,9 +66,9 @@ export const RECORD_FIELDS = [
   { key: "longitude", layer: "fragment", type: "number", defaultLabel: "經度" },
 ] as const satisfies readonly FieldDef[];
 
-export type FieldKey = (typeof RECORD_FIELDS)[number]["key"];
+export type FieldKey = (typeof FIELDS)[number]["key"];
 
-const BY_KEY = new Map<string, FieldDef>(RECORD_FIELDS.map((f) => [f.key, f]));
+const BY_KEY = new Map<string, FieldDef>(FIELDS.map((f) => [f.key, f]));
 
 export const fieldDef = (key: string): FieldDef | undefined => BY_KEY.get(key);
 

@@ -1,8 +1,8 @@
 import type { BookViewMode } from "@/stores/use-book-view-store";
 import { CardStyle } from "./card-styles";
 import { KindDisplay } from "./kind-display";
+import { KindGroup } from "./kind-groups";
 import { ModuleKey } from "./modules";
-import { KindGroup } from "./record-kinds";
 
 /**
  * 類型範本。**常駐**，不是一次性的初始資料。

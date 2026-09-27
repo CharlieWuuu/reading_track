@@ -1,4 +1,4 @@
-import { KindGroup } from "./record-kinds";
+import { KindGroup } from "./kind-groups";
 
 /**
  * 資料庫裡的類型走哪一條路由。

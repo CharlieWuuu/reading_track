@@ -1,5 +1,5 @@
+import { KindGroup } from "@/config/kind-groups";
 import { kindHref } from "@/config/kind-routes";
-import { KindGroup } from "@/config/record-kinds";
 
 /**
  * 分頁的 key 是資料庫裡對應類型的 slug，網址跟著 kindHref 走。
