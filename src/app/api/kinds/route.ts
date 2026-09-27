@@ -11,9 +11,9 @@ import {
 } from "@/app/api/_lib/respond";
 import { toCardStyle } from "@/config/card-styles";
 import { toKindDisplay } from "@/config/kind-display";
+import { KindGroup } from "@/config/kind-groups";
 import { toKindViews } from "@/config/kind-views";
 import { moduleDef } from "@/config/modules";
-import { KindGroup } from "@/config/record-kinds";
 import { addKind, reuseKind } from "@/lib/db/mutations/kinds";
 import { listKinds, slugTaken } from "@/lib/db/queries/kinds";
 

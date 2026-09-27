@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { FormTab } from "@/utils/record-form";
+import { FormTab } from "@/utils/module-form";
 
 /**
  * 編輯表單看哪一頁：作品、內容或屬性。

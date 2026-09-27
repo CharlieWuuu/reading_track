@@ -8,8 +8,8 @@ import { Field } from "@/components/ui/field";
 import { FormActions } from "@/components/ui/form-actions";
 import { ImageField } from "@/components/ui/image-field";
 import { PrivateToggle } from "@/components/ui/private-toggle/private-toggle";
+import { FieldDef } from "@/config/fields";
 import { kindHref } from "@/config/kind-routes";
-import { FieldDef } from "@/config/record-fields";
 import { scrapeBook } from "@/features/books/api/lookup-book";
 import { RepeatSuggestions } from "@/features/overview/components/repeat-suggestions";
 import { useAutoSave } from "@/hooks/use-auto-save";
@@ -34,7 +34,7 @@ import {
   pairRows,
   resolveFormModules,
   splitByTab,
-} from "@/utils/record-form";
+} from "@/utils/module-form";
 import { fillFromBook, pickFilled } from "@/utils/scraped-values";
 
 /** 一頁：一列一列往下，撐滿表單剩下的高度，長文那一列才有空間可以長 */

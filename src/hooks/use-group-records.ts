@@ -1,7 +1,7 @@
 "use client";
 
 import useSWR from "swr";
-import { KindGroup } from "@/config/record-kinds";
+import { KindGroup } from "@/config/kind-groups";
 import { RecordRow } from "@/lib/db/queries/catalog";
 import { usePrivacyStore } from "@/stores/use-privacy-store";
 

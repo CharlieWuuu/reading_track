@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { isKindGroup, KindGroup } from "@/config/record-kinds";
+import { isKindGroup, KindGroup } from "@/config/kind-groups";
 
 /**
  * 網址第二段那個 group。認不出來就 404——四支頁面都要這一段，各寫一次會漏。

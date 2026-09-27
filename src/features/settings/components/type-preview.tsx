@@ -2,8 +2,8 @@
 
 import { KindCard } from "@/components/ui/kind-cards/kind-cards";
 import { CARD_STYLES, CardStyle } from "@/config/card-styles";
+import { KindGroup } from "@/config/kind-groups";
 import { KIND_VIEWS } from "@/config/kind-views";
-import { KindGroup } from "@/config/record-kinds";
 import { BookViewMode } from "@/stores/use-book-view-store";
 
 /** 編輯中的類型：右欄預覽照這組設定畫 */

@@ -1,10 +1,10 @@
 import { and, desc, eq } from "drizzle-orm";
 import { CardStyle, defaultCardStyle } from "@/config/card-styles";
 import { DEFAULT_DISPLAY, KindDisplay } from "@/config/kind-display";
+import { KindGroup } from "@/config/kind-groups";
 import { KIND_TEMPLATES, KindTemplate, STARTER_KEYS } from "@/config/kind-templates";
 import { DEFAULT_VIEWS, fromKindViews } from "@/config/kind-views";
 import { moduleDef } from "@/config/modules";
-import { KindGroup } from "@/config/record-kinds";
 import { db, type Tx } from "@/lib/db/client";
 import { fields } from "@/lib/db/schema/fields";
 import { fragments } from "@/lib/db/schema/fragments";

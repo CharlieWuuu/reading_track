@@ -2,7 +2,7 @@
 
 import useSWR from "swr";
 import { KindDisplay } from "@/config/kind-display";
-import { KindGroup } from "@/config/record-kinds";
+import { KindGroup } from "@/config/kind-groups";
 import { Kind } from "@/lib/db/queries/kinds";
 
 export type NewKindInput = Partial<KindDisplay> & {

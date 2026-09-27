@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { KindGroup } from "@/config/kind-groups";
 import { groupBasePath, kindGroupSlugFromPath, kindHref } from "@/config/kind-routes";
-import { KindGroup } from "@/config/record-kinds";
 import { useKinds } from "@/hooks/use-kinds";
 
 /**

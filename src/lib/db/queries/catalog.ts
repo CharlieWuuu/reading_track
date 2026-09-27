@@ -1,8 +1,8 @@
 import { and, asc, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { CardStyle, toCardStyle } from "@/config/card-styles";
+import { KindGroup } from "@/config/kind-groups";
 import { PRIVATE_MARK } from "@/config/privacy";
-import { KindGroup } from "@/config/record-kinds";
 import { db } from "@/lib/db/client";
 import { fragments } from "@/lib/db/schema/fragments";
 import { kinds } from "@/lib/db/schema/kinds";

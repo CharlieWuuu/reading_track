@@ -1,5 +1,5 @@
 import { CARD_GROUPINGS, KindDisplay } from "@/config/kind-display";
-import { KindGroup } from "@/config/record-kinds";
+import { KindGroup } from "@/config/kind-groups";
 
 const styles = {
   grid: "flex flex-wrap gap-x-6",
