@@ -14,6 +14,7 @@ export type DetailEntry = { key: string; label: string; value: string };
 
 /** 長文自己一段，不擠進兩欄的資訊表——一段文章塞進半個欄寬讀不下去 */
 const LONG_KEYS = new Set(["body"]);
+const IMAGE_KEYS = new Set(["coverUrl"]); // 存的是圖片 key，畫成圖不列成字
 
 export function detailFields(
   kind: Kind,
@@ -31,7 +32,7 @@ export function detailFields(
   for (const form of modules) {
     fieldsOf([form]).forEach((field, index) => {
       const value = values[field.key] ?? "";
-      if (!value || skip.has(field.key)) return;
+      if (!value || skip.has(field.key) || IMAGE_KEYS.has(field.key)) return;
       const entry = { key: field.key, label: labelOf(form, index, field.defaultLabel), value };
       (LONG_KEYS.has(field.key) ? longs : shorts).push(entry);
     });
