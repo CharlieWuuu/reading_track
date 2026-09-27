@@ -27,7 +27,7 @@ const KEYWORD_TAG =
   "rounded-control bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200";
 
 /**
- * 右欄的資料卡。站台與來源自己畫（一個要配 favicon、一個要開新分頁），
+ * 右欄的資料卡。出版社與來源自己畫（一個要配 favicon、一個要開新分頁），
  * 其餘照類型勾的模組列——本來四格全寫死，設定頁改了這裡不會變。
  */
 function ArticleFacts({ article, kind }: { article: Article; kind?: Kind }) {
@@ -37,7 +37,7 @@ function ArticleFacts({ article, kind }: { article: Article; kind?: Kind }) {
 
   return (
     <>
-      <DetailField label="站台" align="right">
+      <DetailField label="出版社" align="right">
         {article.publisher && (
           <span className="inline-flex items-center gap-1.5">
             <Favicon url={article.sourceUrl} fallback={article.publisher} className="size-4" />
@@ -84,7 +84,6 @@ function articleValues(article: Article): Record<string, string> {
   return {
     title: article.title,
     creator: article.author,
-    platform: article.platform,
     publisher: article.publisher,
     endDate: article.endDate ?? "",
     language: article.language,
