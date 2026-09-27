@@ -1,10 +1,11 @@
 "use client";
 
-import { PageBody, PageMain } from "@/components/layout/page-body";
+import { PageAside, PageBody, PageMain } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
 import { ActionButton } from "@/components/ui/controls";
 import {
+  DetailFactsCard,
   DetailField,
   DetailHeader,
   DetailSection,
@@ -35,6 +36,19 @@ export function WritingDetailView({ recordId }: { recordId: string }) {
   const { record } = useCatalogRecord(id);
   const kind = kinds.find((k) => k.id === record?.kindId);
   const values = record?.values ?? {};
+  const facts = (
+    <>
+      <DetailField label="類型" align="right">
+        {writing?.kindName}
+      </DetailField>
+      {kind && (
+        <KindFacts
+          entries={factFields(kind, values, SHOWN_IN_HEADER)}
+          sourceUrl={values.externalUrl}
+        />
+      )}
+    </>
+  );
 
   return (
     <>
@@ -50,21 +64,7 @@ export function WritingDetailView({ recordId }: { recordId: string }) {
           <RecordGate loading={isLoading} error={error} missing={!writing && "找不到這則紀事"}>
             {writing && (
               <div className="flex flex-col gap-8">
-                <DetailHeader
-                  facts={
-                    <>
-                      <DetailField label="類型" align="right">
-                        {writing.kindName}
-                      </DetailField>
-                      {kind && (
-                        <KindFacts
-                          entries={factFields(kind, values, SHOWN_IN_HEADER)}
-                          sourceUrl={values.externalUrl}
-                        />
-                      )}
-                    </>
-                  }
-                >
+                <DetailHeader facts={facts}>
                   <div className="flex min-w-0 flex-1 flex-col gap-2.5">
                     <DetailTitle title={writing.title} />
                     {writing.topic && (
@@ -89,6 +89,9 @@ export function WritingDetailView({ recordId }: { recordId: string }) {
             )}
           </RecordGate>
         </PageMain>
+        <PageAside>
+          {record && <DetailFactsCard>{facts}</DetailFactsCard>} {/* 資料到了才畫，不留一張空卡 */}
+        </PageAside>
       </PageBody>
     </>
   );

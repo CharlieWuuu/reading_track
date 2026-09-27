@@ -127,15 +127,17 @@ function GenericRecordPage({
         }
       />
       <PageBody>
-        <PageMain>
-          {error ? (
+        {error ? (
+          <PageMain>
             <PageMessage tone="error">{error}</PageMessage>
-          ) : isLoading || !kind || !record ? (
+          </PageMain>
+        ) : isLoading || !kind || !record ? (
+          <PageMain>
             <PageLoading />
-          ) : (
-            <ModuleDetail kind={kind} values={record.values} />
-          )}
-        </PageMain>
+          </PageMain>
+        ) : (
+          <ModuleDetail kind={kind} values={record.values} /> // 自己給中間與右欄
+        )}
       </PageBody>
     </>
   );

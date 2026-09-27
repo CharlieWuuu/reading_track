@@ -1,10 +1,16 @@
 "use client";
 
-import { PageBody, PageMain } from "@/components/layout/page-body";
+import { PageAside, PageBody, PageMain } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
 import { ActionButton } from "@/components/ui/controls";
-import { DetailHeader, DetailSection, DetailTitle, KindFacts } from "@/components/ui/detail";
+import {
+  DetailFactsCard,
+  DetailHeader,
+  DetailSection,
+  DetailTitle,
+  KindFacts,
+} from "@/components/ui/detail";
 import { KeywordTag } from "@/components/ui/keyword-tag";
 import { KindSectionBlock } from "@/components/ui/kind-section/kind-section";
 import { NoteBlock } from "@/components/ui/note-block";
@@ -36,6 +42,9 @@ export function ArticleDetailView({ recordId }: { recordId: string }) {
   const { record } = useCatalogRecord(id);
   const kind = kinds.find((k) => k.id === record?.kindId);
   const values = record?.values ?? {};
+  const facts = kind && (
+    <KindFacts entries={factFields(kind, values, SHOWN_IN_HEADER)} sourceUrl={values.externalUrl} />
+  );
   // 書寫掛在這一篇那一列上，一種類型一區，照各自的卡片樣式
   const writingSections = article
     ? sectionsByKind(linkedTo(writings.fragments, new Set([article.id])), { take: Infinity })
@@ -59,16 +68,7 @@ export function ArticleDetailView({ recordId }: { recordId: string }) {
           <RecordGate loading={isLoading} error={error} missing={!article && "找不到這篇文章"}>
             {article && (
               <div className="flex flex-col gap-8">
-                <DetailHeader
-                  facts={
-                    kind && (
-                      <KindFacts
-                        entries={factFields(kind, values, SHOWN_IN_HEADER)}
-                        sourceUrl={values.externalUrl}
-                      />
-                    )
-                  }
-                >
+                <DetailHeader facts={facts}>
                   <div className="flex min-w-0 flex-1 flex-col gap-2.5">
                     <DetailTitle title={article.title} subtitle={article.author} />
                     <div className="flex flex-wrap items-center gap-1.5">
@@ -102,6 +102,9 @@ export function ArticleDetailView({ recordId }: { recordId: string }) {
             )}
           </RecordGate>
         </PageMain>
+        <PageAside>
+          {record && <DetailFactsCard>{facts}</DetailFactsCard>} {/* 資料到了才畫，不留一張空卡 */}
+        </PageAside>
       </PageBody>
     </>
   );

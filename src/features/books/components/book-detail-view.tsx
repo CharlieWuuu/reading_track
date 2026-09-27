@@ -1,12 +1,13 @@
 "use client";
 
-import { PageBody, PageMain } from "@/components/layout/page-body";
+import { PageAside, PageBody, PageMain } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { BookCover } from "@/components/ui/book-cover";
 import { ActionButton } from "@/components/ui/controls";
 import {
+  DetailFactsCard,
   DetailField,
   DetailHeader,
   DetailHeading,
@@ -124,6 +125,7 @@ export function BookDetailView({ recordId }: { recordId: string }) {
   // 書寫是主內容，整則都列，不截
   const writingSections = sectionsByKind(linkedTo(writings.fragments, ids), { take: Infinity });
   const longs = kind ? longFields(kind, values) : [];
+  const facts = <BookFacts book={book} kind={kind} values={values} />;
   const counts = [...writingSections, ...fragmentSections]
     .map((section: KindSection) => ({ label: section.name, value: section.total }))
     .concat(keywords.length > 0 ? [{ label: "關鍵字", value: keywords.length }] : []);
@@ -153,8 +155,8 @@ export function BookDetailView({ recordId }: { recordId: string }) {
       <PageBody>
         <PageMain>
           <article className="flex w-full flex-col gap-8">
-            {/* 書名頁：封面＋書名／作者／量化資訊／統計數字在左，固定資料卡在右 */}
-            <DetailHeader facts={<BookFacts book={book} kind={kind} values={values} />}>
+            {/* 書名頁：封面＋書名／作者／量化資訊／統計數字；資料卡在頁面右欄 */}
+            <DetailHeader facts={facts}>
               <BookCover
                 url={book.coverUrl}
                 title={book.title}
@@ -168,9 +170,9 @@ export function BookDetailView({ recordId }: { recordId: string }) {
               </div>
             </DetailHeader>
 
-            {/* 主內容雙欄：左邊書寫（含關鍵字），右邊片段，都照類型分區 */}
-            <div className="flex flex-col gap-8 md:flex-row">
-              <div className="flex min-w-0 flex-1 flex-col gap-3">
+            {/* 主內容一欄往下：摘要、書寫、片段、關鍵字，都照類型分區 */}
+            <div className="flex flex-col gap-8">
+              <div className="flex min-w-0 flex-col gap-3">
                 {/* 這本書自己的長文（摘要），跟連過來的書寫是兩回事，各自一區 */}
                 {longs.map((field) => (
                   <div key={field.key} className="flex flex-col gap-3">
@@ -200,25 +202,15 @@ export function BookDetailView({ recordId }: { recordId: string }) {
                 )}
               </div>
 
-              {fragmentSections.length > 0 && (
-                <>
-                  {/* 分隔線是獨立元素，兩側都靠父層的 gap */}
-                  <div className="bg-rule hidden w-px shrink-0 md:block" />
-                  <div className="flex w-full flex-col gap-8 md:w-73 md:shrink-0">
-                    {fragmentSections.map((section) => (
-                      <KindSectionBlock
-                        key={section.slug}
-                        group="fragments"
-                        section={section}
-                        stacked
-                      />
-                    ))}
-                  </div>
-                </>
-              )}
+              {fragmentSections.map((section) => (
+                <KindSectionBlock key={section.slug} group="fragments" section={section} />
+              ))}
             </div>
           </article>
         </PageMain>
+        <PageAside>
+          {record && <DetailFactsCard>{facts}</DetailFactsCard>} {/* 資料到了才畫，不留一張空卡 */}
+        </PageAside>
       </PageBody>
     </>
   );

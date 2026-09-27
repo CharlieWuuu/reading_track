@@ -83,8 +83,8 @@ export function DetailFields({ children }: { children: React.ReactNode }) {
 /**
  * 詳情頁的頭：左邊主角（封面、標題、副標、統計），右邊一張固定資料卡。
  *
- * 書籍那一頁先長出來的版式，其餘詳情頁共用——每一頁的欄位不同，但「主角在左、
- * 屬性靠右」是同一件事。facts 沒給就不畫右欄，整條線也跟著收掉。
+ * 書籍那一頁先長出來的版式，其餘詳情頁共用。資料卡寬螢幕放頁面右欄（DetailFactsCard 包進 PageAside），
+ * 右欄收起來的窄螢幕才畫在這裡。facts 沒給就不畫，整條線也跟著收掉。
  */
 export function DetailHeader({
   children,
@@ -100,14 +100,23 @@ export function DetailHeader({
       {facts && (
         <>
           {/* 分隔線是獨立元素，兩側都靠父層的 gap——畫成 border-l 的話一邊 gap 一邊 padding */}
-          <div className="bg-rule hidden w-px shrink-0 md:block" />
-          <div className="w-full shrink-0 md:w-46">
-            <DetailHeading title="基本資料" />
-            {facts}
+          <div className="bg-rule hidden w-px shrink-0 md:block lg:hidden" />
+          <div className="w-full shrink-0 md:w-46 lg:hidden">
+            <DetailFactsCard>{facts}</DetailFactsCard>
           </div>
         </>
       )}
     </header>
+  );
+}
+
+/** 「基本資料」那張卡：寬螢幕放進 PageAside，窄螢幕由 DetailHeader 畫在頭裡 */
+export function DetailFactsCard({ children }: { children: React.ReactNode }) {
+  return (
+    <div>
+      <DetailHeading title="基本資料" />
+      {children}
+    </div>
   );
 }
 

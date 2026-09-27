@@ -1,5 +1,6 @@
 export {
   DetailField,
+  DetailFactsCard,
   DetailFields,
   DetailHeader,
   DetailHeading,
