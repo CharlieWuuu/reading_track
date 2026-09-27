@@ -1,24 +1,23 @@
 import { TOKENS } from "@/styles/generated/tokens";
 
 /**
- * 圖表配色 —— 直接使用品牌色票。
+ * 圖表配色：綠 → 沙 → 天空（設計稿定的順序），前三個就是語意色票 series-1～3。
  *
- * 米白與深棕不進資料色（一個太淺、一個彩度太低會被讀成灰），改當介面色：
- * 米白是格線、深棕是文字。薄荷綠與金黃對白底的對比偏低（1.5–1.6:1），
- * 所以圖上一律保留直接標示的數值與名稱，不靠顏色本身讀資料。
+ * 之後同三色輪一次深的、再一次淺的——色相先分得開，深淺再來分。
+ * 沙與天空對白底對比不足，所以圖上一律保留直接標示的數值與名稱，不靠顏色本身讀資料。
  *
  * 順序固定，不可循環使用：第 9 個項目要合併成「其他」，用 SERIES_OVERFLOW，
  * 不是回頭拿第 1 個色。
  */
 export const CATEGORICAL = [
-  TOKENS["blue-600"], // 深藍
-  TOKENS["coral-500"], // 珊瑚橙
-  TOKENS["mint-500"], // 薄荷綠（加深）——深的排前面，淺的那階疊字會看不清楚
-  TOKENS["gold-500"], // 金黃
-  TOKENS["azure-500"], // 柔和藍
-  TOKENS["sand-800"], // 深棕
-  TOKENS["coral-600"], // 珊瑚橙（加深）
-  TOKENS["mint-350"], // 薄荷綠（原色，最淺，排最後）
+  TOKENS["series-1"], // 仙人掌綠
+  TOKENS["series-2"], // 沙丘
+  TOKENS["series-3"], // 天空
+  TOKENS["cactus-900"],
+  TOKENS["dune-700"],
+  TOKENS["sky-700"],
+  TOKENS["cactus-300"],
+  TOKENS["dune-300"],
 ];
 
 /**
