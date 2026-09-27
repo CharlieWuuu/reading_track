@@ -24,8 +24,8 @@ type GroupOverviewProps = {
   isLoadingMore?: boolean;
   extraRail?: React.ReactNode; // 右欄補的內容，書寫沒有進行／想要
   railDesktopOnly?: boolean; // 窄螢幕不插進內容裡
-  renderItem?: (item: OverviewItem) => React.ReactNode; // 中間那格怎麼畫，不給就是封面卡
-  gridClassName?: string; // 月份格線的欄數斷點
+  renderItem: (item: OverviewItem) => React.ReactNode; // 中間那格怎麼畫，照類型的卡片樣式
+  gridClassName: string; // 月份格線的欄數斷點
 };
 
 export function GroupOverview({
@@ -55,7 +55,6 @@ export function GroupOverview({
       headlineLabel={headlineLabel}
       done={done}
       unit={unit}
-      tintSeed={(item) => item.topicLabel}
       onLoadMore={onLoadMore}
       hasMore={hasMore}
       isLoadingMore={isLoadingMore}

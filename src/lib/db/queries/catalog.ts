@@ -35,6 +35,8 @@ export type RecordRow = {
   kindCountUnit: string;
   kindGroup: KindGroup;
   kindSlug: string;
+  /** 一筆長什麼樣，由類型決定。紀錄概覽裡書籍與電影可以各選各的 */
+  kindCardStyle: CardStyle;
   startDate: string | null;
   endDate: string | null;
   createdAt: string;
@@ -76,6 +78,7 @@ const toRecordRow = ({
   kindCountUnit: kind.countUnit,
   kindGroup: kind.groupKey as KindGroup,
   kindSlug: kind.slug,
+  kindCardStyle: toCardStyle(kind.cardStyle, kind.groupKey as KindGroup),
   startDate: record.startDate,
   endDate: record.endDate,
   createdAt: record.createdAt.toISOString(),

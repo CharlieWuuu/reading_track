@@ -1,8 +1,6 @@
 "use client";
 
-import { CoverCard } from "@/components/ui/cover-card/cover-card";
-import { FragmentCard } from "@/components/ui/fragment-card/fragment-card";
-import { Quote } from "@/components/ui/quote";
+import { KindCard } from "@/components/ui/kind-cards/kind-cards";
 import { CARD_STYLES, CardStyle } from "@/config/card-styles";
 import { KIND_VIEWS } from "@/config/kind-views";
 import { KindGroup } from "@/config/record-kinds";
@@ -82,7 +80,10 @@ export function CardStylePicker({
   );
 }
 
-/** 依勾選的模組組出示意內容，照類型選的卡片樣式畫——跟清單頁是同一套 */
+/**
+ * 依勾選的模組組出示意內容，照類型選的卡片樣式畫——跟清單頁同一支 KindCard，
+ * 預覽長什麼樣，清單就長什麼樣。
+ */
 export function TypePreview({
   name,
   picked,
@@ -90,39 +91,30 @@ export function TypePreview({
 }: Pick<TypeDraft, "name" | "picked"> & { cardStyle: CardStyle }) {
   const has = (key: string) => picked.includes(key);
   const title = name.trim() || "（類型名稱）";
-  const body = has("longText") ? "這裡是內文，支援分欄……" : undefined;
-
-  if (cardStyle === "quote") {
-    return <Quote text={title} source={has("locator") ? "出處・位置" : undefined} />;
-  }
-
-  if (cardStyle === "line") {
-    return <div className="text-ui text-ink-muted truncate py-[7px]">{title}</div>;
-  }
-
-  if (cardStyle === "cover") {
-    const caption = has("longText")
-      ? "這裡是內文……"
-      : [has("creator") && "作者", has("amount") && "數量"].filter(Boolean).join("・");
-    return (
-      <CoverCard
-        id="preview"
-        title={title}
-        label="主題" // 綠字放的是主題
-        caption={caption || undefined}
-        meta={has("startDate") || has("endDate") ? "2026-01-01" : undefined}
-        coverUrl={has("cover") ? "" : undefined}
-      />
-    );
-  }
 
   return (
-    <FragmentCard
-      title={title}
-      label={has("gloss") ? "解釋" : undefined}
-      body={body}
-      meta={has("locator") ? "出處・位置" : undefined}
-      coverUrl={has("cover") ? "" : undefined}
-    />
+    // 示意用，不給點
+    <div className="pointer-events-none">
+      <KindCard
+        style={cardStyle}
+        data={{
+          id: "preview",
+          href: "",
+          title,
+          label: has("translation") ? "解釋" : "",
+          tag: "主題",
+          body: has("longText") ? "這裡是內文，支援分欄……" : "",
+          detail: has("pronunciation") ? "發音" : "",
+          meta: has("locator")
+            ? "出處・位置"
+            : [has("creator") && "作者", has("amount") && "數量"].filter(Boolean).join("・"),
+          date: has("startDate") || has("endDate") ? "2026-01-01" : "",
+          topic: title,
+          keywords: has("tags") ? ["標籤"] : [],
+          coverUrl: "",
+          coverTitle: title,
+        }}
+      />
+    </div>
   );
 }

@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Check, Pencil, X } from "lucide-react";
+import { KeywordTag } from "@/components/ui/keyword-tag";
 import { writingHref } from "@/config/routes";
-import { KeywordTag } from "@/features/keywords/components/keyword-tag";
 import { useInlineEdit } from "@/hooks/use-inline-edit";
 import { splitLines } from "@/types/book";
 import { Writing } from "@/types/writing";
