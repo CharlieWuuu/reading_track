@@ -44,11 +44,16 @@ describe("sectionsByKind", () => {
 describe("linkedTo", () => {
   it("作品或讀的那一列對得上就算，沒掛的不算", () => {
     const rows = [
-      { id: "a", workId: "work-1" },
-      { id: "b", workId: "read-2" },
-      { id: "c", workId: null },
-      { id: "d", workId: "other" },
+      { id: "a", linkedIds: ["work-1"] },
+      { id: "b", linkedIds: ["read-2"] },
+      { id: "c", linkedIds: [] },
+      { id: "d", linkedIds: ["other"] },
     ] as unknown as FragmentRow[];
     expect(linkedTo(rows, new Set(["work-1", "read-2"])).map((r) => r.id)).toEqual(["a", "b"]);
+  });
+
+  it("同一個詞連到好幾本書，每一本都算，不只第一本", () => {
+    const rows = [{ id: "coriander", linkedIds: ["book-a", "book-b"] }] as unknown as FragmentRow[];
+    expect(linkedTo(rows, new Set(["book-b"])).map((r) => r.id)).toEqual(["coriander"]);
   });
 });

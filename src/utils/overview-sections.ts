@@ -61,4 +61,4 @@ const latest = (section: KindSection): string => fragmentDate(section.rows[0]) ?
  * 呼叫端把兩種編號都放進 ids。詳情頁的「這本書長出了什麼」用它。
  */
 export const linkedTo = (rows: FragmentRow[], ids: ReadonlySet<string>): FragmentRow[] =>
-  rows.filter((row) => row.workId && ids.has(row.workId));
+  rows.filter((row) => row.linkedIds.some((id) => ids.has(id))); // 連到好幾個的，每一個那邊都要看得到
