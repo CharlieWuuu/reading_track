@@ -27,24 +27,27 @@ const KEYWORD_TAG =
   "rounded-control bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200";
 
 /**
- * 右欄的資料卡。出版社與來源自己畫（一個要配 favicon、一個要開新分頁），
+ * 右欄的資料卡。發行與來源自己畫（一個要配 favicon、一個要開新分頁），
  * 其餘照類型勾的模組列——本來四格全寫死，設定頁改了這裡不會變。
  */
 function ArticleFacts({ article, kind }: { article: Article; kind?: Kind }) {
   const { shorts } = kind
     ? detailFields(kind, articleValues(article), SKIP_IN_FACTS)
     : { shorts: [] as ReturnType<typeof detailFields>["shorts"] };
+  const publisher = kind?.modules.find((module) => module.key === "publisher"); // 名字跟著類型設定走，沒勾就不畫
 
   return (
     <>
-      <DetailField label="出版社" align="right">
-        {article.publisher && (
-          <span className="inline-flex items-center gap-1.5">
-            <Favicon url={article.sourceUrl} fallback={article.publisher} className="size-4" />
-            {article.publisher}
-          </span>
-        )}
-      </DetailField>
+      {publisher && (
+        <DetailField label={publisher.label} align="right">
+          {article.publisher && (
+            <span className="inline-flex items-center gap-1.5">
+              <Favicon url={article.sourceUrl} fallback={article.publisher} className="size-4" />
+              {article.publisher}
+            </span>
+          )}
+        </DetailField>
+      )}
       {shorts.map((field) => (
         <DetailField key={field.key} label={field.label} align="right">
           {field.value}
