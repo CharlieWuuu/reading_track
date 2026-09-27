@@ -23,9 +23,11 @@ export type CardData = {
   title: string;
   label: string; // 標題右邊的綠字：單字的字義
   tag: string; // 主題，封面卡右上那行綠字
-  body: string; // 內文；紀錄沒有
+  body: string; // 內文；紀錄是作品的摘要
   detail: string; // 標題上方的小字：發音
   meta: string; // 出處或作者・份量
+  creator: string; // 作者；片段與書寫沒有
+  platform: string; // 在哪讀的；片段與書寫沒有
   date: string; // 完成日；片段沒填就用記下的時間
   topic: string; // 整則的頭像與色塊
   keywords: string[];
@@ -42,8 +44,10 @@ export const recordCardData = (row: RecordRow): CardData => ({
   title: row.title,
   label: "",
   tag: row.domain,
-  body: "",
+  body: row.body,
   detail: "",
+  creator: row.creator,
+  platform: row.platform,
   meta: joinByline([row.creator, row.platform, row.amount && `${row.amount} ${row.amountUnit}`]),
   date: row.endDate ?? row.startDate ?? "",
   topic: row.kindName,
@@ -60,6 +64,8 @@ export const fragmentCardData = (row: FragmentRow): CardData => ({
   tag: row.domain,
   body: fragmentBody(row) || row.note,
   detail: row.pronunciation,
+  creator: "",
+  platform: "",
   meta: fragmentMeta(row),
   date: row.date ?? row.createdAt,
   topic: row.kindName,
@@ -77,6 +83,8 @@ export const writingCardData = (w: Writing): CardData => ({
   tag: w.topic,
   body: w.note,
   detail: "",
+  creator: "",
+  platform: "",
   meta: "",
   date: w.endDate || w.createdAt,
   topic: w.topic || w.kindName,
