@@ -10,7 +10,7 @@ import { CardData } from "@/utils/card-data";
  */
 
 const styles = {
-  row: "border-rule grid gap-x-4 gap-y-1 border-b py-3 @2xl:grid-cols-[minmax(0,2fr)_6rem_8rem_minmax(0,3fr)_6rem] @2xl:items-baseline",
+  row: "border-rule grid gap-x-4 gap-y-1 border-b py-3 @2xl:grid-cols-[minmax(0,3fr)_6rem_8rem_minmax(0,2fr)_6rem] @2xl:items-baseline",
   title: "font-serif text-item-sm leading-snug font-semibold line-clamp-2 hover:underline",
   cell: "text-meta text-ink-muted hidden truncate @2xl:block",
   byline: "text-meta text-ink-muted truncate @2xl:hidden", // 窄的時候平台・作者一行
