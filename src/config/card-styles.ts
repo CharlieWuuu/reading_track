@@ -14,7 +14,7 @@ export const CARD_STYLES = [
   { key: "quote", label: "佳句" },
   { key: "line", label: "標題" }, // 只有標題一行
   { key: "thread", label: "整則" }, // 一路往下讀：頭像、標題、整段內文不截斷
-  { key: "row", label: "清單" }, // 像表格的一列：標題、平台、作者、摘要節錄、日期
+  { key: "row", label: "清單" }, // 兩行：標題・平台・作者・日期，底下摘要節錄
 ] as const satisfies readonly { key: string; label: string }[];
 
 export type CardStyle = (typeof CARD_STYLES)[number]["key"];
