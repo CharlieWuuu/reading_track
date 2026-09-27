@@ -22,8 +22,6 @@ const TEXT_FIELDS = [
   "translation",
   "locator",
   "pronunciation",
-  "example",
-  "exampleTranslation",
   "tags",
   "language",
   "publisher",

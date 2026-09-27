@@ -109,8 +109,7 @@ export async function replaceBookVocabulary(
         title: item.word,
         pronunciation: item.pronunciation,
         translation: item.wordTranslation,
-        example: item.example,
-        exampleTranslation: item.exampleTranslation,
+        body: item.body,
         locator: item.chapter,
       })),
   );
@@ -177,8 +176,7 @@ export async function addVocabulary(
       title: item.word,
       pronunciation: item.pronunciation,
       translation: item.wordTranslation,
-      example: item.example,
-      exampleTranslation: item.exampleTranslation,
+      body: item.body,
       locator: item.chapter,
     });
     if (workId) await link(tx, userId, id, workId);

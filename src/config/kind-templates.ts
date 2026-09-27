@@ -122,8 +122,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
       "title",
       "pronunciation",
       "translation",
-      "example",
-      "exampleTranslation",
+      "longText", // 例句與翻譯寫在內文
       "locator",
       "endDate",
     ],

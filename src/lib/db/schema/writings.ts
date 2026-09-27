@@ -42,8 +42,6 @@ export const writings = pgTable("domain_writings", {
   amount: integer("amount"),
   isPrivate: boolean("is_private").notNull().default(false),
   pronunciation: text("pronunciation").notNull().default(""),
-  example: text("example").notNull().default(""),
-  exampleTranslation: text("example_translation").notNull().default(""),
   tags: text("tags").notNull().default(""),
   startYear: integer("start_year"),
   endYear: integer("end_year"),

@@ -63,8 +63,6 @@ export const works = pgTable("domain_works", {
   translation: text("translation").notNull().default(""),
   locator: text("locator").notNull().default(""),
   pronunciation: text("pronunciation").notNull().default(""),
-  example: text("example").notNull().default(""),
-  exampleTranslation: text("example_translation").notNull().default(""),
   tags: text("tags").notNull().default(""),
   startYear: integer("start_year"),
   endYear: integer("end_year"),

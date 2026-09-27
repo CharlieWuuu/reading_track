@@ -154,8 +154,7 @@ export function toVocabulary(row: VocabularyRow) {
     word: row.word.trim(),
     pronunciation: row.pronunciation.trim(),
     wordTranslation: row.wordTranslation.trim(),
-    example: row.example,
-    exampleTranslation: row.exampleTranslation,
+    body: row.body,
     chapter: row.chapter.trim(),
     language: row.language.trim(),
   };
