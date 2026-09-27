@@ -68,13 +68,21 @@ export function GroupOverview({
             unit={unit}
           />
           {/* 頭條那本也留在清單裡：這份是「現在在讀什麼」，少一本就不是全部了 */}
-          <OverviewRail label="進行" items={active} unit={unit} limit={5} renderItem={renderItem} />
+          <OverviewRail
+            label="進行"
+            items={active}
+            unit={unit}
+            limit={5}
+            renderItem={renderItem}
+            gridClassName={gridClassName}
+          />
           <OverviewRail
             label="想要"
             items={pending}
             unit={unit}
             limit={5}
             renderItem={renderItem}
+            gridClassName={gridClassName}
           />
           {extraRail}
         </>

@@ -43,7 +43,7 @@ export const RECORD_FIELDS = [
   { key: "language", layer: "work", type: "text", defaultLabel: "語言" },
   { key: "startDate", layer: "record", type: "date", defaultLabel: "開始" },
   { key: "endDate", layer: "record", type: "date", defaultLabel: "結束" },
-  { key: "amount", layer: "record", type: "number", defaultLabel: "份量" },
+  { key: "amount", layer: "work", type: "number", defaultLabel: "份量" }, // 頁數、片長是作品的，存在 works
   { key: "platform", layer: "work", type: "text", defaultLabel: "平台" },
   { key: "externalUrl", layer: "externalLink", type: "url", defaultLabel: "外部連結" },
   { key: "externalId", layer: "work", type: "text", defaultLabel: "外部編號" },
@@ -71,3 +71,12 @@ const BY_KEY = new Map<string, FieldDef>(RECORD_FIELDS.map((f) => [f.key, f]));
 export const fieldDef = (key: string): FieldDef | undefined => BY_KEY.get(key);
 
 export const isFieldKey = (key: string): key is FieldKey => BY_KEY.has(key);
+
+/**
+ * 紀錄類存在作品表（works）的欄位：讀兩次同一本書，這些只有一份。
+ *
+ * body 在片段類存 fragments.body，在紀錄類存 works.body（摘要），所以欄位庫標片段層、
+ * 這裡另外算進來——寫入那一層（mutations/catalog 的 workPatch）也是這樣分。
+ */
+export const isWorkField = (key: string): boolean =>
+  key === "body" || BY_KEY.get(key)?.layer === "work";

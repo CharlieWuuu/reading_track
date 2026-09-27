@@ -1,5 +1,6 @@
 import { moduleDef, ModuleDef, MODULES } from "@/config/modules";
-import { fieldDef, FieldDef } from "@/config/record-fields";
+import { fieldDef, FieldDef, isWorkField } from "@/config/record-fields";
+import { KindGroup } from "@/config/record-kinds";
 
 /**
  * 把「這個類型勾了哪些模組」解析成表單要畫的清單。
@@ -65,13 +66,37 @@ export function autoEndDate(
   return hasAutoEndDate(modules) ? { endDate: today } : null;
 }
 
-export type FormTab = "content" | "attributes";
+export type FormTab = "work" | "content" | "attributes";
 
-/** 表單分頁：模組自己說歸哪一頁（見模組庫的 tab），沒說就是內容 */
-export function splitByTab(modules: readonly FormModule[]): Record<FormTab, FormModule[]> {
+export const FORM_TAB_LABELS: Record<FormTab, string> = {
+  work: "作品",
+  content: "內容",
+  attributes: "屬性",
+};
+
+/** 這個 group 的表單有哪幾頁。只有紀錄分作品與紀錄兩層，作品排第一：標題在那裡 */
+export const formTabsOf = (group: KindGroup): FormTab[] =>
+  group === "records" ? ["work", "content", "attributes"] : ["content", "attributes"];
+
+/** 模組的欄位全部存在作品表，就歸作品頁。空的（內部連結這種不佔欄位的）不算 */
+const isWorkModule = (module: FormModule): boolean =>
+  module.fields.length > 0 && module.fields.every(isWorkField);
+
+/**
+ * 表單分頁：模組自己說歸屬性頁的照說（見模組庫的 tab）；紀錄類其餘照欄位存在哪一層，
+ * 作品表的歸作品頁、這一次的（日期、連結）歸內容頁。片段與書寫沒有作品頁。
+ */
+export function splitByTab(
+  modules: readonly FormModule[],
+  group: KindGroup,
+): Record<FormTab, FormModule[]> {
+  const attributes = modules.filter((module) => module.tab === "attributes");
+  const rest = modules.filter((module) => module.tab !== "attributes");
+  const work = group === "records" ? rest.filter(isWorkModule) : [];
   return {
-    content: modules.filter((module) => module.tab !== "attributes"),
-    attributes: modules.filter((module) => module.tab === "attributes"),
+    work,
+    content: rest.filter((module) => !work.includes(module)),
+    attributes,
   };
 }
 
@@ -80,3 +105,11 @@ export function fieldsOf(modules: readonly FormModule[]): FieldDef[] {
   const keys = [...new Set(modules.flatMap((module) => module.fields))];
   return keys.map(fieldDef).filter((def): def is FieldDef => def !== undefined);
 }
+
+/**
+ * 表單兩兩一排時，哪些要自己佔一整列。照欄位型別判斷，不看是哪個欄位——
+ * 自訂類型勾了什麼都適用。長文寫不下半寬，圖片要看得到預覽。
+ */
+const WIDE_TYPES = new Set<FieldDef["type"]>(["longText", "image"]);
+
+export const isWideField = (field: FieldDef): boolean => WIDE_TYPES.has(field.type);
