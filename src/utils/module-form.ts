@@ -1,5 +1,4 @@
-import { fieldDef, FieldDef, isWorkField } from "@/config/fields";
-import { KindGroup } from "@/config/kind-groups";
+import { fieldDef, FieldDef } from "@/config/fields";
 import { moduleDef, ModuleDef, MODULES } from "@/config/modules";
 import { BookCategories } from "@/types/book";
 
@@ -67,37 +66,20 @@ export function autoEndDate(
   return hasAutoEndDate(modules) ? { endDate: today } : null;
 }
 
-export type FormTab = "work" | "content" | "attributes";
+export type FormTab = "content" | "attributes";
+
+export const FORM_TABS: readonly FormTab[] = ["content", "attributes"];
 
 export const FORM_TAB_LABELS: Record<FormTab, string> = {
-  work: "作品",
   content: "內容",
   attributes: "屬性",
 };
 
-/** 這個 group 的表單有哪幾頁。只有紀錄分作品與紀錄兩層，作品排第一：標題在那裡 */
-export const formTabsOf = (group: KindGroup): FormTab[] =>
-  group === "records" ? ["work", "content", "attributes"] : ["content", "attributes"];
-
-/** 模組的欄位全部存在作品表，就歸作品頁。空的（內部連結這種不佔欄位的）不算 */
-const isWorkModule = (module: FormModule): boolean =>
-  module.fields.length > 0 && module.fields.every(isWorkField);
-
-/**
- * 表單分頁：模組自己說歸屬性頁的照說（見模組庫的 tab）；紀錄類其餘照欄位存在哪一層，
- * 作品表的歸作品頁、這一次的（日期、連結）歸內容頁。片段與書寫沒有作品頁。
- */
-export function splitByTab(
-  modules: readonly FormModule[],
-  group: KindGroup,
-): Record<FormTab, FormModule[]> {
-  const attributes = modules.filter((module) => module.tab === "attributes");
-  const rest = modules.filter((module) => module.tab !== "attributes");
-  const work = group === "records" ? rest.filter(isWorkModule) : [];
+// 內容頁只放模組自己說歸內容的（標題、內文），其餘都在屬性頁
+export function splitByTab(modules: readonly FormModule[]): Record<FormTab, FormModule[]> {
   return {
-    work,
-    content: rest.filter((module) => !work.includes(module)),
-    attributes,
+    content: modules.filter((module) => module.tab === "content"),
+    attributes: modules.filter((module) => module.tab !== "content"),
   };
 }
 

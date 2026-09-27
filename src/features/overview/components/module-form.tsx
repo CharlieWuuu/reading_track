@@ -29,7 +29,6 @@ import {
   FormModule,
   formModules,
   FormTab,
-  formTabsOf,
   isFillField,
   isWideField,
   pairRows,
@@ -153,7 +152,7 @@ export function ModuleForm({
   // 分頁不進網址：切一下就 replace 一次只是歷史雜訊，而且未存的編輯要留著
   const { tab, setTab } = useFormTabStore();
   // store 活得比這張表單久：換一筆進來要從第一頁開始，不要接著上一筆停在屬性
-  useEffect(() => setTab(formTabsOf(kind.group)[0]), [recordId, kind.id, kind.group, setTab]);
+  useEffect(() => setTab("content"), [recordId, kind.id, setTab]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
   const [fetching, setFetching] = useState(false);
@@ -162,7 +161,7 @@ export function ModuleForm({
   const [fetchNote, setFetchNote] = useState("");
 
   const modules = formModules(kind.modules); // 畫出來的那幾格
-  const tabs = splitByTab(modules, kind.group);
+  const tabs = splitByTab(modules);
   const fields = fieldsOf(resolveFormModules(kind.modules)); // 存的欄位照樣含自動帶的完成日期
   const set = (key: string, value: string) => setValues((v) => ({ ...v, [key]: value }));
 
@@ -345,9 +344,9 @@ export function ModuleForm({
     />
   );
 
-  // 一列一列畫：有長文的那一列撐滿剩下的高度
-  const pane = (list: FormModule[]) =>
-    pairRows(cellsOf(list)).map((row) => {
+  // 一列一列畫：有長文的那一列撐滿剩下的高度；full 就一格一列、全寬
+  const pane = (list: FormModule[], full = false) =>
+    (full ? cellsOf(list).map((cell) => [cell]) : pairRows(cellsOf(list))).map((row) => {
       const fill = row.some((cell) => isFillField(cell.field));
       return (
         <div
@@ -357,7 +356,7 @@ export function ModuleForm({
           {row.map((cell) => (
             <div
               key={cell.field.key}
-              className={`min-w-0 ${isWideField(cell.field) ? "@2xl:col-span-2" : ""} ${
+              className={`min-w-0 ${full || isWideField(cell.field) ? "@2xl:col-span-2" : ""} ${
                 fill ? "flex flex-col" : ""
               }`}
             >
@@ -386,10 +385,8 @@ export function ModuleForm({
     >
       {/* 沒選到的那一頁用 hidden 藏起來，不是不畫——拆掉再裝回來，
           打到一半的字與游標位置都會沒了 */}
-      <div className={paneClass("work")}>{pane(tabs.work)}</div>
-
       <div className={paneClass("content")}>
-        {pane(tabs.content)}
+        {pane(tabs.content, true)}
         {fetching && <p className="text-xs text-gray-500">抓取中…</p>}
         {!fetching && fetchNote && <p className="text-xs text-gray-500">{fetchNote}</p>}
       </div>
