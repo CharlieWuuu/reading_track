@@ -12,7 +12,7 @@ import { writings } from "@/lib/db/schema/writings";
 import { inferStatusKey } from "@/types/book";
 import { decodeCursor, encodeCursor } from "@/utils/pagination";
 import { byDateThenNewest } from "@/utils/record-order";
-import { sourceUrlOfFragment, sourceUrlOfRecord } from "./external-links";
+import { sourceUrlOfFragment, sourceUrlOfRecord, sourceUrlOfWriting } from "./external-links";
 import { worksOfFragments } from "./fragments";
 import { listWritings } from "./writings";
 
@@ -564,6 +564,7 @@ export async function getWritingValues(
       platform: await platformNameOf(userId, row.platformId),
       publisher: row.publisher,
       externalId: row.externalId,
+      externalUrl: await sourceUrlOfWriting(userId, id),
       startDate: row.startDate ?? "",
       isPrivate: row.isPrivate ? PRIVATE_MARK : "",
       amount: row.amount?.toString() ?? "",
