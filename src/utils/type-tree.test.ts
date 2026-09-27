@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { childrenByDomain, scopedOptions } from "./type-tree";
+import { childrenByDomain, childrenOfTree, mergeChildren, scopedOptions } from "./type-tree";
 
 describe("childrenByDomain", () => {
   it("把紀錄配對成領域與它底下的次領域", () => {
@@ -43,12 +43,35 @@ describe("scopedOptions", () => {
     expect(scopedOptions(options, ["政治", "歷史"], "")).toEqual(["歷史", "政治"]);
   });
 
-  it("父領域沒選或沒有子項就列全部", () => {
-    expect(scopedOptions(options, undefined, "")).toEqual(options);
-    expect(scopedOptions(options, [], "")).toEqual(options);
+  it("選了領域但它還沒有子項，就是空的，不退回列全部", () => {
+    expect(scopedOptions(options, undefined, "")).toEqual([]);
+    expect(scopedOptions(options, [], "")).toEqual([]);
   });
 
   it("目前已選的值就算不屬於這個領域也留著", () => {
     expect(scopedOptions(options, ["歷史"], "理財")).toEqual(["歷史", "理財"]);
+  });
+});
+
+describe("childrenOfTree", () => {
+  const leaf = (name: string, isPrivate = false) => ({ name, isPrivate, children: [] });
+
+  it("領域樹攤成對照，私人的不列", () => {
+    const map = childrenOfTree([
+      { name: "語言學習", isPrivate: false, children: [leaf("英文"), leaf("日記", true)] },
+      { name: "政治", isPrivate: true, children: [leaf("選舉")] },
+    ]);
+    expect(map.get("語言學習")).toEqual(["英文"]);
+    expect(map.has("政治")).toBe(false);
+  });
+});
+
+describe("mergeChildren", () => {
+  it("同一個領域取聯集", () => {
+    const merged = mergeChildren(
+      new Map([["文學", ["小說"]]]),
+      new Map([["文學", ["小說", "詩"]]]),
+    );
+    expect(merged.get("文學")).toEqual(["小說", "詩"]);
   });
 });
