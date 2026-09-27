@@ -1,8 +1,8 @@
 "use client";
 
-import { DetailField, DetailFields } from "@/components/ui/detail";
+import { DetailFields, KindFacts } from "@/components/ui/detail";
 import { Kind } from "@/lib/db/queries/kinds";
-import { detailFields } from "@/utils/detail-fields";
+import { factFields, longFields } from "@/utils/detail-fields";
 import { imageSrc } from "@/utils/image-key";
 
 /**
@@ -25,7 +25,8 @@ const styles = {
 };
 
 export function ModuleDetail({ kind, values }: { kind: Kind; values: Record<string, string> }) {
-  const { longs, shorts } = detailFields(kind, values);
+  const longs = longFields(kind, values);
+  const facts = factFields(kind, values, new Set(["endDate"])); // 完成日寫在頂上那行小字
 
   const tag = [kind.name, values.endDate].filter(Boolean).join(" · ");
   const cover = kind.modules.some((module) => module.key === "cover") && values.coverUrl; // 沒勾封面就不畫
@@ -48,14 +49,10 @@ export function ModuleDetail({ kind, values }: { kind: Kind; values: Record<stri
         </p>
       ))}
 
-      {shorts.length > 0 && (
+      {facts.length > 0 && (
         <div className={styles.fields}>
           <DetailFields>
-            {shorts.map((field) => (
-              <DetailField key={field.key} label={field.label}>
-                {field.value}
-              </DetailField>
-            ))}
+            <KindFacts entries={facts} sourceUrl={values.externalUrl} align="left" />
           </DetailFields>
         </div>
       )}
