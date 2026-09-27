@@ -1,6 +1,6 @@
 import { and, eq, isNull } from "drizzle-orm";
 import { db, type Tx } from "@/lib/db/client";
-import { attributes, recordTopics } from "@/lib/db/schema/taxonomy";
+import { attributes, platforms, recordTopics } from "@/lib/db/schema/taxonomy";
 import { splitLines } from "@/types/book";
 
 /**
@@ -64,6 +64,19 @@ export async function attributeIdFor(
     .values({ userId, name })
     .onConflictDoUpdate({ target: [attributes.userId, attributes.name], set: { name } })
     .returning({ id: attributes.id });
+  return row.id;
+}
+
+/** 平台：名字換編號，沒有的順手建 */
+export async function platformIdFor(tx: Tx, userId: string, value: string): Promise<string | null> {
+  const name = value.trim();
+  if (!name) return null;
+
+  const [row] = await tx
+    .insert(platforms)
+    .values({ userId, name })
+    .onConflictDoUpdate({ target: [platforms.userId, platforms.name], set: { name } })
+    .returning({ id: platforms.id });
   return row.id;
 }
 

@@ -257,7 +257,7 @@ export async function seedDemo(email: string): Promise<string> {
         title,
         creator: author,
         language: "中文",
-        platform: publisher,
+        publisher,
         topicId: typeId.get(subDomain ? `${domain}/${subDomain}` : domain) ?? null,
         attributeId: attributeId.get(attribute) ?? null,
         amount: 200 + ((i * 37) % 300),

@@ -9,7 +9,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { kinds } from "./kinds";
-import { attributes, recordTopics } from "./taxonomy";
+import { attributes, platforms, recordTopics } from "./taxonomy";
 import { users } from "./users";
 
 /**
@@ -54,7 +54,7 @@ export const works = pgTable("domain_works", {
   topicId: uuid("topic_id").references(() => recordTopics.id, { onDelete: "set null" }),
   attributeId: uuid("attribute_id").references(() => attributes.id, { onDelete: "set null" }),
   language: text("language").notNull().default(""),
-  platform: text("platform").notNull().default(""), // 實體書／Kobo／HyRead／Medium……在哪看的
+  publisher: text("publisher").notNull().default(""), // 麥田、大塊文化；平台在紀錄上
   externalId: text("external_id").notNull().default(""),
   coverUrl: text("cover_url").notNull().default(""),
   amount: integer("amount"), // 頁數／分鐘／集數，單位跟著類型查
@@ -93,6 +93,7 @@ export const records = pgTable("domain_records", {
     .references(() => works.id, { onDelete: "cascade" }),
   startDate: date("start_date"),
   endDate: date("end_date"),
+  platformId: uuid("platform_id").references(() => platforms.id, { onDelete: "set null" }), // 同一本書兩次可在不同地方讀
   isPrivate: boolean("is_private").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
