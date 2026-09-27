@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PanelLeft } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useSidebarStore } from "@/stores/use-sidebar-store";
-import { IssueLinks } from "./issue-links";
+import { IssueDate } from "./issue-date";
 
 /**
  * 全寬報頭。報紙的識別就是報頭本身：3px 與 1.4px 兩條線夾著襯線站名，
@@ -41,7 +41,7 @@ export function Masthead({ authSlot }: { authSlot: React.ReactNode }) {
             </button>
           )}
           {/* 只有桌機放：手機報頭只在首頁出現，而那一頁的「今天」旁邊已經有同一份 */}
-          <IssueLinks className="hidden md:flex" />
+          <IssueDate className="hidden md:flex" />
         </div>
         <div className="min-w-0 flex-1 basis-0 text-center whitespace-nowrap">
           <Link href="/" className={styles.title}>

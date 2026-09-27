@@ -12,10 +12,8 @@ import { DateRange, itemsInRange } from "@/utils/date-range";
 import { fragmentsNewestFirst, recordsNewestFirst } from "@/utils/kind-list";
 
 /**
- * 年報、週報、日報共用的骨架：三個 group 各自一節。每一筆照它類型的卡片樣式畫，
- * 跟概覽、卡片牆同一支——同一種東西全站只有一種畫法，範圍報告不另外發明版面。
- *
- * 三種報告差的只是算出來的 DateRange 長度，篩選、排版邏輯完全共用。
+ * 一段期間內的三個 group，各自一節。每一筆照它類型的卡片樣式畫，
+ * 跟概覽、卡片牆同一支——同一種東西全站只有一種畫法。
  */
 
 const styles = {
