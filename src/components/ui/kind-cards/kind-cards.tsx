@@ -70,10 +70,21 @@ export function KindCard({ style, data }: { style: CardStyle; data: CardData }) 
   );
 }
 
+/** 窄欄裡不管哪種樣式都一列一筆：兩欄的片段卡擠在兩百多 px 裡一行只剩幾個字 */
+export const STACKED = "flex flex-col gap-4";
+
 /** 一疊同一種樣式的卡片 */
-export function KindCards({ style, items }: { style: CardStyle; items: readonly CardData[] }) {
+export function KindCards({
+  style,
+  items,
+  stacked,
+}: {
+  style: CardStyle;
+  items: readonly CardData[];
+  stacked?: boolean;
+}) {
   return (
-    <div className={GRIDS[style]}>
+    <div className={stacked ? STACKED : GRIDS[style]}>
       {items.map((data) => (
         <KindCard key={data.id} style={style} data={data} />
       ))}
