@@ -23,6 +23,7 @@ export type ModuleDef = {
    * 也都可能不想被同事瞄到。其餘一律讓使用者自己決定，不要替他預設。
    */
   always?: true;
+  required?: true; // 每個類型一定勾著、取消不了；跟 always 不同，照樣存進類型設定，能改名、統計與表格讀得到
   /**
    * 這個模組在統計頁出哪幾張圖。沒寫就不出——標題、內文那些沒有統計的意義。
    *
@@ -138,6 +139,7 @@ export const MODULES = [
     label: "領域",
     fields: ["domain", "subDomain"],
     stat: ["tree"],
+    required: true, // 所有資料都分得到領域
   },
   {
     key: "attribute",
@@ -150,6 +152,16 @@ export const MODULES = [
 export type ModuleKey = (typeof MODULES)[number]["key"];
 
 const BY_KEY = new Map<string, ModuleDef>(MODULES.map((m) => [m.key, m]));
+
+export const REQUIRED_KEYS: readonly string[] = MODULES.filter((m) => "required" in m).map(
+  (m) => m.key,
+);
+
+/** 勾選清單補上必勾的，排在最後；已經勾了的不動位置 */
+export const withRequired = (keys: readonly string[]): string[] => [
+  ...keys,
+  ...REQUIRED_KEYS.filter((key) => !keys.includes(key)),
+];
 
 export const moduleDef = (key: string): ModuleDef | undefined => BY_KEY.get(key);
 
