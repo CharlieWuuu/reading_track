@@ -176,6 +176,20 @@
       "when": 1789925244513,
       "tag": "0024_uniform_labels",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1789925244514,
+      "tag": "0025_views_flat",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1789925244515,
+      "tag": "0026_views_and_card",
+      "breakpoints": true
     }
   ]
 }
