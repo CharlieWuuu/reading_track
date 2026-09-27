@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FragmentRow } from "@/lib/db/queries/catalog";
-import { sectionsByKind } from "./overview-sections";
+import { linkedTo, sectionsByKind } from "./overview-sections";
 
 const row = (over: Partial<FragmentRow>): FragmentRow =>
   ({ id: "1", kindSlug: "quotes", kindName: "佳句", date: "2026-01-01", ...over }) as FragmentRow;
@@ -38,5 +38,17 @@ describe("sectionsByKind", () => {
     ]);
 
     expect(sections[0].rows.map((r) => r.id)).toEqual(["b", "a"]);
+  });
+});
+
+describe("linkedTo", () => {
+  it("作品或讀的那一列對得上就算，沒掛的不算", () => {
+    const rows = [
+      { id: "a", workId: "work-1" },
+      { id: "b", workId: "read-2" },
+      { id: "c", workId: null },
+      { id: "d", workId: "other" },
+    ] as unknown as FragmentRow[];
+    expect(linkedTo(rows, new Set(["work-1", "read-2"])).map((r) => r.id)).toEqual(["a", "b"]);
   });
 });

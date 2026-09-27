@@ -36,7 +36,7 @@ export function KindOverview({
         done={done.map(recordItem)}
         headlineLabel={`進行中 · 最近開始的一${unit}`}
         unit={unit}
-        {...styledGrid(done.map(styledRecord))}
+        {...styledGrid(records.map(styledRecord))} // 右欄的進行、想要也照樣式畫
       />
     );
   }

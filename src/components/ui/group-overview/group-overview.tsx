@@ -24,7 +24,7 @@ type GroupOverviewProps = {
   isLoadingMore?: boolean;
   extraRail?: React.ReactNode; // 右欄補的內容，書寫沒有進行／想要
   railDesktopOnly?: boolean; // 窄螢幕不插進內容裡
-  renderItem: (item: OverviewItem) => React.ReactNode; // 中間那格怎麼畫，照類型的卡片樣式
+  renderItem: (item: OverviewItem) => React.ReactNode; // 一筆怎麼畫，照類型的卡片樣式；格線與右欄共用，所以要認得 active／pending／done 全部
   gridClassName: string; // 月份格線的欄數斷點
 };
 
@@ -68,8 +68,14 @@ export function GroupOverview({
             unit={unit}
           />
           {/* 頭條那本也留在清單裡：這份是「現在在讀什麼」，少一本就不是全部了 */}
-          <OverviewRail label="進行" items={active} unit={unit} limit={5} />
-          <OverviewRail label="想要" items={pending} unit={unit} limit={5} />
+          <OverviewRail label="進行" items={active} unit={unit} limit={5} renderItem={renderItem} />
+          <OverviewRail
+            label="想要"
+            items={pending}
+            unit={unit}
+            limit={5}
+            renderItem={renderItem}
+          />
           {extraRail}
         </>
       }

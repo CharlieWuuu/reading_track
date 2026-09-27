@@ -4,6 +4,7 @@ import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { styledGrid } from "@/components/ui/kind-cards/kind-cards";
+import { KindSectionBlock } from "@/components/ui/kind-section/kind-section";
 import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headline";
 import { KindGroup } from "@/config/record-kinds";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
@@ -12,7 +13,6 @@ import { useMounted } from "@/hooks/use-mounted";
 import { styledFragment, styledRecord } from "@/utils/card-data";
 import { fragmentItem, recordItem } from "@/utils/overview-items";
 import { sectionsByKind } from "@/utils/overview-sections";
-import { KindSectionBlock } from "./kind-section";
 
 /** 錯誤與載入中先擋下來，兩個 group 同一套；擋掉就回那一塊畫面，沒事回 null */
 function gate({ error, isLoading }: { error?: string; isLoading: boolean }) {
@@ -55,7 +55,8 @@ export function GroupOverviewPage({ group }: GroupOverviewPageProps) {
         doneTotal={recordsOverview.doneTotal}
         headlineLabel="在讀 · 最近開始的一本"
         unit="筆"
-        {...styledGrid(recordsOverview.done.map(styledRecord))}
+        // 右欄的進行、想要也照樣式畫，所以 active 也要進去
+        {...styledGrid([...recordsOverview.active, ...recordsOverview.done].map(styledRecord))}
         onLoadMore={recordsOverview.loadMore}
         hasMore={recordsOverview.hasMore}
         isLoadingMore={recordsOverview.isLoadingMore}
