@@ -19,6 +19,7 @@ export function Field({
   type = "text",
   hideLabel = false,
   rows = 4,
+  fill = false,
 }: {
   label: string;
   value: string;
@@ -33,6 +34,8 @@ export function Field({
   hideLabel?: boolean;
   /** 多行時的高度，預設 4 行 */
   rows?: number;
+  /** 多行時撐滿外層給的高度，rows 只當最小值。外層要是有高度的 flex 欄 */
+  fill?: boolean;
 }) {
   const shared = `${FIELD_CONTROL_CLASS} box-border block w-full max-w-full text-sm`;
   // 說明一律走 placeholder：掛在標籤旁邊會變成一行講解，欄位一多整頁都是字
@@ -40,7 +43,9 @@ export function Field({
 
   if (type === "textarea") {
     return (
-      <div className={`${FIELD_ROW_CLASS} md:items-start`}>
+      <div
+        className={`${FIELD_ROW_CLASS} md:items-start ${fill ? "flex flex-1 flex-col md:flex-row" : ""}`}
+      >
         {!hideLabel && <FieldLabel label={label} />}
         <textarea
           aria-label={label}
@@ -49,7 +54,7 @@ export function Field({
           onChange={(e) => onChange(e.target.value)}
           onPaste={onPaste && ((e) => onPaste(e.clipboardData.getData("text")))}
           rows={rows}
-          className={`${shared} ${FIELD_TEXTAREA_CLASS} resize-y`}
+          className={`${shared} ${FIELD_TEXTAREA_CLASS} resize-y ${fill ? "flex-1 self-stretch" : ""}`}
         />
       </div>
     );
