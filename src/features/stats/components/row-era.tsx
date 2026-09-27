@@ -15,7 +15,7 @@ const styles = {
   wrap: "flex h-full min-h-0 flex-col gap-2",
   scroller: "min-h-0 flex-1 overflow-auto",
   ticks: "sticky top-0 z-10 flex border-b bg-white",
-  tick: "shrink-0 border-l px-1 py-1 text-xs text-gray-400 tabular-nums first:border-l-0",
+  tick: "shrink-0 border-l px-1 py-1 text-xs text-ink-faint tabular-nums first:border-l-0",
   lanes: "flex flex-col gap-0.5 px-0.5 py-1",
   lane: "relative h-4 shrink-0",
   bar: "absolute flex h-4 flex-col justify-end text-left",
@@ -26,7 +26,7 @@ const styles = {
   // 圓點的圓心要正好落在那一年上，不然短的線看起來會整條偏掉
   dotStart: "left-0 -translate-x-1/2",
   dotEnd: "right-0 translate-x-1/2",
-  empty: "flex h-full items-center justify-center text-xs text-gray-400",
+  empty: "flex h-full items-center justify-center text-xs text-ink-faint",
 };
 
 /**

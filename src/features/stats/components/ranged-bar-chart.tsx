@@ -60,7 +60,9 @@ export function RangedBarChart({
 
   if (data.length === 0) {
     return (
-      <div className="flex h-64 items-center justify-center text-sm text-gray-400">{emptyText}</div>
+      <div className="text-ink-faint flex h-64 items-center justify-center text-sm">
+        {emptyText}
+      </div>
     );
   }
 
@@ -139,7 +141,7 @@ export function RangedBarChart({
               width={28}
             />
             <Tooltip
-              cursor={{ fill: "rgba(11,11,11,0.04)" }}
+              cursor={{ fill: "var(--color-series-track)" }}
               contentStyle={{
                 background: "var(--color-surface-viz)",
                 border: "1px solid var(--color-grid)",

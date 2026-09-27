@@ -27,10 +27,10 @@ export function KpiCards({
           key={item.label}
           className="rounded-surface flex flex-col gap-0.5 border bg-white px-3 py-2.5"
         >
-          <p className="text-xs text-gray-500">{item.label}</p>
+          <p className="text-ink-muted text-xs">{item.label}</p>
           <p className="text-xl font-semibold tabular-nums">
             {item.value}
-            <span className="ml-1 text-sm font-normal text-gray-500">{item.unit}</span>
+            <span className="text-ink-muted ml-1 text-sm font-normal">{item.unit}</span>
           </p>
         </div>
       ))}

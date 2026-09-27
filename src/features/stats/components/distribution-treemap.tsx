@@ -7,7 +7,7 @@ import { DistributionGroup, DistributionSlice } from "@/utils/stats/types";
 const styles = {
   root: "viz-root flex h-full min-h-0 flex-col gap-3.5",
   chart: "min-h-0 flex-1",
-  empty: "flex h-full items-center justify-center text-xs text-gray-400",
+  empty: "flex h-full items-center justify-center text-xs text-ink-faint",
   tooltip: "rounded-control border bg-white px-2 py-1 text-xs shadow",
   legend: "flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1.5",
   legendItem: "flex items-center gap-1.5 text-xs",
@@ -144,7 +144,15 @@ function Cell({
   // 兩層的時候，上層那格只畫外框；底下的子格子自己會畫，蓋上去會擋住它們
   if (depth === 1 && !value) {
     return (
-      <rect x={x} y={y} width={width} height={height} fill="none" stroke="#fff" strokeWidth={4} />
+      <rect
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        fill="none"
+        stroke="var(--color-surface-viz)"
+        strokeWidth={4}
+      />
     );
   }
 
@@ -159,11 +167,11 @@ function Cell({
         height={height}
         fill={color}
         fillOpacity={opacity}
-        stroke="#fff"
+        stroke="var(--color-surface-viz)"
         strokeWidth={2}
       />
       {showLabel && (
-        <text x={x + 6} y={y + 16} fill="#fff" fontSize={11}>
+        <text x={x + 6} y={y + 16} fill="var(--color-white)" fontSize={11}>
           {name}
           <tspan fillOpacity={0.75}> {value}</tspan>
         </text>

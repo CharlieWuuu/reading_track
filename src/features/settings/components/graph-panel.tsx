@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ForceGraphMethods } from "react-force-graph-2d";
 import { Spinner } from "@/components/ui/spinner";
 import { useGraph } from "@/hooks/use-graph";
+import { TOKENS } from "@/styles/generated/tokens";
 import type { GraphData, GraphNode } from "@/types/graph";
 
 /** force graph 直接碰 window 與 canvas，不能在伺服器端預先產生 */
@@ -92,9 +93,9 @@ export function GraphPanel() {
           graphData={graph}
           nodeId="id"
           nodeLabel={(n) => `${(n as GraphNode).label}（${(n as GraphNode).kindName}）`}
-          nodeColor={(n) => colors[(n as GraphNode).groupKey] ?? "#999"}
+          nodeColor={(n) => colors[(n as GraphNode).groupKey] ?? TOKENS["series-overflow"]}
           nodeRelSize={4}
-          linkColor={() => "rgba(0,0,0,0.15)"}
+          linkColor={() => TOKENS["neutral-300"]} // canvas 要字面色，從色票拿
           cooldownTicks={100}
           ref={forceRef}
         />

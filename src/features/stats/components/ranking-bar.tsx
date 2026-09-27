@@ -29,7 +29,7 @@ export function RankingBar({
     <div className="flex min-h-0 flex-1 flex-col gap-3.5">
       {data.length === 0 ? (
         // 每個都只出現一次時榜單會是空的，說清楚原因比留一張空圖好
-        <div className="py-6 text-center text-xs text-gray-400">
+        <div className="text-ink-faint py-6 text-center text-xs">
           {emptyHint ?? `還沒有累積 2 ${unit}以上的項目`}
         </div>
       ) : (
@@ -43,12 +43,12 @@ export function RankingBar({
 
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="min-w-0 truncate text-xs text-gray-700">{item.name}</span>
-                  <span className="shrink-0 text-xs text-gray-400 tabular-nums">
+                  <span className="text-ink-viz min-w-0 truncate text-xs">{item.name}</span>
+                  <span className="text-ink-viz-faint shrink-0 text-xs tabular-nums">
                     {item.value} {unit}
                   </span>
                 </div>
-                <div className="mt-1 flex h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                <div className="bg-series-track mt-1 flex h-1.5 w-full overflow-hidden rounded-full">
                   <div
                     className="h-full"
                     style={{

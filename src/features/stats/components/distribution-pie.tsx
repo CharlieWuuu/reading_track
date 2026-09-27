@@ -92,7 +92,7 @@ export function DistributionPie({
 
   if (slots.length === 0) {
     return (
-      <div className="flex h-64 flex-col items-center justify-center text-sm text-gray-400">
+      <div className="text-ink-faint flex h-64 flex-col items-center justify-center text-sm">
         尚無資料
       </div>
     );
