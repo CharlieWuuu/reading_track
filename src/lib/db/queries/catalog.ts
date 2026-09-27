@@ -14,6 +14,7 @@ import { decodeCursor, encodeCursor } from "@/utils/pagination";
 import { byDateThenNewest } from "@/utils/record-order";
 import { sourceUrlOfFragment, sourceUrlOfRecord, sourceUrlOfWriting } from "./external-links";
 import { worksOfFragments } from "./fragments";
+import { linkedIdsOfMany } from "./internal-links";
 import { listWritings } from "./writings";
 
 /**
@@ -233,6 +234,7 @@ export type FragmentRow = {
   /** 這一種要不要跟著出處走（封面、書名）。單字與關鍵字不屬於任何一本書 */
   inheritsCover: boolean;
   workId: string | null;
+  linkedIds: string[]; // 連到的全部編號：一個詞可以出現在好幾本書，workId 只是第一本
   workTitle: string;
   title: string;
   body: string;
@@ -277,6 +279,7 @@ type WorkOfFragment = { id: string; title: string; coverUrl: string } | undefine
 function toFragmentRow(
   { fragment, kind, topicName, topicParentId, parentName, attributeName }: FragmentJoin,
   work: WorkOfFragment,
+  linkedIds: string[],
 ): FragmentRow {
   return {
     id: fragment.id,
@@ -288,6 +291,7 @@ function toFragmentRow(
     kindCardStyle: toCardStyle(kind.cardStyle, kind.groupKey as KindGroup),
     inheritsCover: kind.inheritsCover,
     workId: work?.id ?? null,
+    linkedIds,
     workTitle: work?.title ?? "",
     title: fragment.title,
     body: fragment.body,
@@ -334,12 +338,15 @@ async function listFragmentsOnly(userId: string, group: KindGroup): Promise<Frag
     .where(and(eq(fragments.userId, userId), eq(kinds.groupKey, group)))
     .orderBy(desc(fragments.createdAt));
 
-  const worksByFragment = await worksOfFragments(
-    userId,
-    rows.map(({ fragment }) => fragment.id),
-  );
+  const ids = rows.map(({ fragment }) => fragment.id);
+  const [worksByFragment, linked] = await Promise.all([
+    worksOfFragments(userId, ids),
+    linkedIdsOfMany(userId, ids),
+  ]);
 
-  return rows.map((row) => toFragmentRow(row, worksByFragment.get(row.fragment.id)));
+  return rows.map((row) =>
+    toFragmentRow(row, worksByFragment.get(row.fragment.id), linked.get(row.fragment.id) ?? []),
+  );
 }
 
 /** 某一種片段類型底下的全部。自訂類型的清單頁走這條——紀錄那個 group 走 listRecordsByKind */
@@ -361,12 +368,15 @@ export async function listFragmentsByKind(userId: string, kindId: string): Promi
     .where(and(eq(fragments.userId, userId), eq(fragments.kindId, kindId)))
     .orderBy(desc(fragments.createdAt));
 
-  const worksByFragment = await worksOfFragments(
-    userId,
-    rows.map(({ fragment }) => fragment.id),
-  );
+  const ids = rows.map(({ fragment }) => fragment.id);
+  const [worksByFragment, linked] = await Promise.all([
+    worksOfFragments(userId, ids),
+    linkedIdsOfMany(userId, ids),
+  ]);
 
-  return rows.map((row) => toFragmentRow(row, worksByFragment.get(row.fragment.id)));
+  return rows.map((row) =>
+    toFragmentRow(row, worksByFragment.get(row.fragment.id), linked.get(row.fragment.id) ?? []),
+  );
 }
 
 /**
@@ -380,6 +390,10 @@ export async function listFragmentsByKind(userId: string, kindId: string): Promi
  */
 async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
   const rows = await listWritings(userId);
+  const linked = await linkedIdsOfMany(
+    userId,
+    rows.map((writing) => writing.id),
+  );
   return rows
     .map((writing) => ({
       id: writing.id,
@@ -391,6 +405,7 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       kindSlug: writing.kindSlug,
       kindCardStyle: toCardStyle(writing.kindCardStyle, "writings"),
       workId: writing.sourceId || null,
+      linkedIds: linked.get(writing.id) ?? [],
       workTitle: writing.sourceTitle,
       title: writing.title,
       body: writing.note,
