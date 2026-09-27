@@ -1,6 +1,6 @@
+import { fieldDef, FieldDef, isWorkField } from "@/config/fields";
+import { KindGroup } from "@/config/kind-groups";
 import { moduleDef, ModuleDef, MODULES } from "@/config/modules";
-import { fieldDef, FieldDef, isWorkField } from "@/config/record-fields";
-import { KindGroup } from "@/config/record-kinds";
 
 /**
  * 把「這個類型勾了哪些模組」解析成表單要畫的清單。

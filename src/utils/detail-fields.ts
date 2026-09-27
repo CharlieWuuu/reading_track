@@ -1,5 +1,5 @@
 import { Kind } from "@/lib/db/queries/kinds";
-import { fieldsOf, FormModule, resolveFormModules } from "@/utils/record-form";
+import { fieldsOf, FormModule, resolveFormModules } from "@/utils/module-form";
 
 /**
  * 一筆資料照類型勾的模組，攤成詳情頁要畫的欄位。
