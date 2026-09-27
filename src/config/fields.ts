@@ -48,7 +48,8 @@ export const FIELDS = [
   { key: "startDate", layer: "record", type: "date", defaultLabel: "開始" },
   { key: "endDate", layer: "record", type: "date", defaultLabel: "結束" },
   { key: "amount", layer: "work", type: "number", defaultLabel: "份量" }, // 頁數、片長是作品的，存在 works
-  { key: "platform", layer: "work", type: "text", defaultLabel: "平台", choices: "platform" },
+  { key: "platform", layer: "record", type: "text", defaultLabel: "平台", choices: "platform" }, // 存選項表編號，掛在紀錄上
+  { key: "publisher", layer: "work", type: "text", defaultLabel: "出版社" },
   { key: "externalUrl", layer: "externalLink", type: "url", defaultLabel: "外部連結" },
   { key: "externalId", layer: "work", type: "text", defaultLabel: "外部編號" },
   // 存的是圖片 key 不是網址（舊資料可能還是外部網址），畫成上傳格不是文字框
