@@ -2,6 +2,7 @@ import Link from "next/link";
 import { COVER_CARD_GRID, CoverCard } from "@/components/ui/cover-card/cover-card";
 import { FRAGMENT_CARD_GRID, FragmentCard } from "@/components/ui/fragment-card/fragment-card";
 import { QuoteRow } from "@/components/ui/quote-wall/quote-wall";
+import { RowCard } from "@/components/ui/row-card/row-card";
 import { THREAD_GRID, ThreadRow } from "@/components/ui/thread-row/thread-row";
 import { CardStyle } from "@/config/card-styles";
 import { CardData, StyledCard } from "@/utils/card-data";
@@ -18,13 +19,14 @@ const styles = {
   line: "border-rule-soft text-ui text-ink-muted hover:text-ink truncate border-b py-[7px] pl-3 last:border-b-0",
 };
 
-/** 一種樣式怎麼排。佳句、單行、整則一列一筆，切成多欄會把長句擠成一行三四個字 */
+/** 一種樣式怎麼排。佳句、單行、整則、列一列一筆，切成多欄會把長句擠成一行三四個字 */
 const GRIDS: Record<CardStyle, string> = {
   cover: COVER_CARD_GRID,
   fragment: FRAGMENT_CARD_GRID,
   quote: styles.lines,
   line: styles.lines,
   thread: THREAD_GRID,
+  row: "flex flex-col",
 };
 
 /** 同一格裡混了幾種樣式（紀錄概覽裡書籍與電影各選各的）就一列一筆，誰都擠不壞 */
@@ -36,6 +38,7 @@ export const gridOf = (cardStyles: readonly CardStyle[]): string => {
 export function KindCard({ style, data }: { style: CardStyle; data: CardData }) {
   if (style === "quote") return <QuoteRow data={data} />;
   if (style === "thread") return <ThreadRow data={data} />;
+  if (style === "row") return <RowCard data={data} />;
   if (style === "line") {
     return (
       <Link href={data.href} className={styles.line}>
