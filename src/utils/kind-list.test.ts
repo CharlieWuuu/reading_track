@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { byPeriod, countMeta, doneNumbers, splitByStatus } from "./kind-list";
+import {
+  byPeriod,
+  countMeta,
+  doneNumbers,
+  fragmentsNewestFirst,
+  recordsNewestFirst,
+  splitByStatus,
+} from "./kind-list";
 
 describe("byPeriod", () => {
   const items = [
@@ -73,5 +80,35 @@ describe("splitByStatus", () => {
       ["2"],
       ["3"],
     ]);
+  });
+});
+
+describe("recordsNewestFirst", () => {
+  it("完成看完成日、進行看開始日，沒日期的排最後", () => {
+    const rows = recordsNewestFirst([
+      { id: "old", startDate: "2024-01-01", endDate: "2024-02-01", createdAt: "2026-09-01" },
+      { id: "none", startDate: null, endDate: null, createdAt: "2026-09-27" },
+      { id: "reading", startDate: "2026-09-10", endDate: null, createdAt: "2026-09-10" },
+      { id: "done", startDate: "2026-08-01", endDate: "2026-09-02", createdAt: "2026-08-01" },
+    ]);
+    expect(rows.map((r) => r.id)).toEqual(["reading", "done", "old", "none"]);
+  });
+
+  it("同一天看誰後記", () => {
+    const rows = recordsNewestFirst([
+      { id: "a", endDate: "2026-09-02", createdAt: "2026-09-02T08:00" },
+      { id: "b", endDate: "2026-09-02", createdAt: "2026-09-02T09:00" },
+    ]);
+    expect(rows.map((r) => r.id)).toEqual(["b", "a"]);
+  });
+});
+
+describe("fragmentsNewestFirst", () => {
+  it("照自己的日期，不照建立時間", () => {
+    const rows = fragmentsNewestFirst([
+      { id: "late-entry", date: "2025-01-01", createdAt: "2026-09-27" },
+      { id: "recent", date: "2026-09-10", createdAt: "2026-09-10" },
+    ]);
+    expect(rows.map((r) => r.id)).toEqual(["recent", "late-entry"]);
   });
 });

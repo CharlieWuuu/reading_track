@@ -1,4 +1,5 @@
 import { CardGroupBy } from "@/config/kind-display";
+import { byDateThenNewest } from "./record-order";
 
 /**
  * 類型頁清單的整形：分段、狀態、頁首數字、完成編號。純函式，不查資料。
@@ -61,3 +62,17 @@ export function splitByStatus<T extends WithStatus>(rows: readonly T[]) {
     done: rows.filter((row) => row.statusKey === "done"),
   };
 }
+
+type Dates = { startDate?: string | null; endDate?: string | null; createdAt?: string };
+
+/**
+ * 紀錄從新到舊：完成的看完成日、還在進行的看開始日，同一天再看誰先記。
+ * 資料庫照建立時間由舊到新給，那是寫入的順序，不是讀者要的順序。
+ */
+export const recordsNewestFirst = <T extends Dates>(rows: readonly T[]): T[] =>
+  [...rows].sort(byDateThenNewest((row) => row.endDate ?? row.startDate ?? null));
+
+/** 片段從新到舊：看它自己填的日期，不是建立時間——補記一則舊的該落在它自己的日期上 */
+export const fragmentsNewestFirst = <T extends { date: string | null; createdAt?: string }>(
+  rows: readonly T[],
+): T[] => [...rows].sort(byDateThenNewest((row) => row.date));
