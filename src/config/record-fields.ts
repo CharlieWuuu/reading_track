@@ -29,11 +29,13 @@ export type FieldDef = {
   type: FieldType;
   /** 沒被類型改名時用這個 */
   defaultLabel: string;
+  /** 畫成幾行的文字框。沒寫就是單行；長文另有預設 */
+  rows?: number;
 };
 
 /** 順序就是表單上的預設順序，改名不會插隊 */
 export const RECORD_FIELDS = [
-  { key: "title", layer: "work", type: "text", defaultLabel: "標題" },
+  { key: "title", layer: "work", type: "text", defaultLabel: "標題", rows: 2 }, // 書名常常一行放不下
   { key: "creator", layer: "work", type: "text", defaultLabel: "創作者" },
   // 主題樹在表單上是兩格：領域挑父節點、次領域挑它底下的子節點。
   // 存的時候兩個一起換成 topic_id 那一個編號（見 mutations/taxonomy 的 typeIdFor）
