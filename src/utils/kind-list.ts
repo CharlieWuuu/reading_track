@@ -52,14 +52,45 @@ export function doneNumbers(rows: readonly ({ id: string } & Dated)[]): Map<stri
   return new Map(done.map((row, index) => [row.id, index + 1]));
 }
 
-type WithStatus = { statusKey: string };
+export type Status = "reading" | "want" | "done";
+
+type StatusDates = { startDate?: string | null; endDate?: string | null };
+
+/** 沒查到類型時當作兩個日期都有勾：跟原本只看日期的判斷一樣 */
+const BOTH_DATES: ReadonlySet<string> = new Set(["startDate", "endDate"]);
+
+/**
+ * 一筆紀錄的狀態，照類型勾了哪些日期判斷，不只看資料庫裡有沒有值。
+ *
+ * 類型沒勾開始日期，就沒有「進行中」：舊資料留著的開始日期不算數，
+ * 不然文章拿掉開始日期之後，概覽還是冒出一排「進行中」。
+ * 兩個日期都沒勾的類型沒有時間可判斷，記下就算完成。
+ */
+export function statusOf(row: StatusDates, moduleKeys: ReadonlySet<string> = BOTH_DATES): Status {
+  const hasStart = moduleKeys.has("startDate");
+  const hasEnd = moduleKeys.has("endDate");
+  if (!hasStart && !hasEnd) return "done";
+  if (hasEnd && row.endDate) return "done";
+  if (hasStart && row.startDate) return "reading";
+  return "want";
+}
+
+/** 每個類型勾了哪些模組，照 kindId 查。混排多種類型的頁面用它判斷每一筆的狀態 */
+export const moduleKeysByKind = (
+  kinds: readonly { id: string; modules: readonly { key: string }[] }[],
+): Map<string, ReadonlySet<string>> =>
+  new Map(kinds.map((kind) => [kind.id, new Set(kind.modules.map((module) => module.key))]));
 
 /** 紀錄照狀態拆三份：進行中進頭條與右欄、想要只進右欄、完成照時間排 */
-export function splitByStatus<T extends WithStatus>(rows: readonly T[]) {
+export function splitByStatus<T extends StatusDates & { kindId: string }>(
+  rows: readonly T[],
+  keysByKind: ReadonlyMap<string, ReadonlySet<string>>,
+) {
+  const status = (row: T) => statusOf(row, keysByKind.get(row.kindId));
   return {
-    active: rows.filter((row) => row.statusKey === "reading"),
-    pending: rows.filter((row) => row.statusKey === "want"),
-    done: rows.filter((row) => row.statusKey === "done"),
+    active: rows.filter((row) => status(row) === "reading"),
+    pending: rows.filter((row) => status(row) === "want"),
+    done: rows.filter((row) => status(row) === "done"),
   };
 }
 

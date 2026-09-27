@@ -4,8 +4,10 @@ import {
   countMeta,
   doneNumbers,
   fragmentsNewestFirst,
+  moduleKeysByKind,
   recordsNewestFirst,
   splitByStatus,
+  statusOf,
 } from "./kind-list";
 
 describe("byPeriod", () => {
@@ -68,17 +70,47 @@ describe("doneNumbers", () => {
   });
 });
 
+describe("statusOf", () => {
+  const keys = (...list: string[]) => new Set(list);
+
+  it("兩個日期都勾：照日期推", () => {
+    const both = keys("startDate", "endDate");
+    expect(statusOf({ startDate: "2026-09-01", endDate: "2026-09-02" }, both)).toBe("done");
+    expect(statusOf({ startDate: "2026-09-01", endDate: null }, both)).toBe("reading");
+    expect(statusOf({ startDate: null, endDate: null }, both)).toBe("want");
+  });
+
+  it("沒勾開始日期：舊資料留著的開始日期不算，沒有進行中", () => {
+    expect(statusOf({ startDate: "2026-09-01", endDate: null }, keys("endDate"))).toBe("want");
+  });
+
+  it("兩個日期都沒勾：記下就算完成", () => {
+    expect(statusOf({ startDate: "2026-09-01", endDate: null }, keys("title"))).toBe("done");
+  });
+
+  it("查不到類型時照日期推", () => {
+    expect(statusOf({ startDate: "2026-09-01", endDate: null })).toBe("reading");
+  });
+});
+
 describe("splitByStatus", () => {
-  it("拆成進行、想要、完成", () => {
-    const { active, pending, done } = splitByStatus([
-      { id: "1", statusKey: "reading" },
-      { id: "2", statusKey: "want" },
-      { id: "3", statusKey: "done" },
+  it("每一筆照自己類型勾的日期拆", () => {
+    const byKind = moduleKeysByKind([
+      { id: "book", modules: [{ key: "startDate" }, { key: "endDate" }] },
+      { id: "article", modules: [{ key: "endDate" }] },
     ]);
+    const { active, pending, done } = splitByStatus(
+      [
+        { id: "reading-book", kindId: "book", startDate: "2026-09-01", endDate: null },
+        { id: "old-article", kindId: "article", startDate: "2026-09-01", endDate: null },
+        { id: "read-article", kindId: "article", startDate: null, endDate: "2026-09-02" },
+      ],
+      byKind,
+    );
     expect([active, pending, done].map((list) => list.map((r) => r.id))).toEqual([
-      ["1"],
-      ["2"],
-      ["3"],
+      ["reading-book"],
+      ["old-article"],
+      ["read-article"],
     ]);
   });
 });
