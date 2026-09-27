@@ -7,10 +7,6 @@ function toUtcDate(date: string): Date {
   return new Date(Date.UTC(y, m - 1, d));
 }
 
-function fromUtcDate(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
-
 /** 週一開始的那個 UTC Date，時分秒歸零 */
 function mondayOf(date: Date): Date {
   const day = date.getUTCDay() || 7; // 週日 getUTCDay() 是 0，改當作 7
@@ -28,35 +24,4 @@ export function isoWeekOf(date: string): IsoWeek {
   const firstThursday = mondayOf(new Date(Date.UTC(year, 0, 4)));
   const week = Math.round((thursday.getTime() - firstThursday.getTime()) / (7 * 86400000)) + 1;
   return { year, week };
-}
-
-/** 該 ISO 週的週一到週日，含頭含尾 */
-export function isoWeekRange(isoWeek: IsoWeek): { start: string; end: string } {
-  const jan4 = new Date(Date.UTC(isoWeek.year, 0, 4));
-  const firstMonday = mondayOf(jan4);
-  const start = new Date(firstMonday);
-  start.setUTCDate(firstMonday.getUTCDate() + (isoWeek.week - 1) * 7);
-  const end = new Date(start);
-  end.setUTCDate(start.getUTCDate() + 6);
-  return { start: fromUtcDate(start), end: fromUtcDate(end) };
-}
-
-export function previousIsoWeek({ year, week }: IsoWeek): IsoWeek {
-  const { start } = isoWeekRange({ year, week });
-  const monday = toUtcDate(start);
-  monday.setUTCDate(monday.getUTCDate() - 7);
-  return isoWeekOf(fromUtcDate(monday));
-}
-
-export function nextIsoWeek({ year, week }: IsoWeek): IsoWeek {
-  const { start } = isoWeekRange({ year, week });
-  const monday = toUtcDate(start);
-  monday.setUTCDate(monday.getUTCDate() + 7);
-  return isoWeekOf(fromUtcDate(monday));
-}
-
-/** 篩選某週範圍內的日期字串（含頭含尾） */
-export function isInIsoWeek(date: string, isoWeek: IsoWeek): boolean {
-  const { start, end } = isoWeekRange(isoWeek);
-  return date >= start && date <= end;
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dayRange, itemsInRange, yearRange } from "@/utils/date-range";
+import { itemsInRange, monthRange } from "@/utils/date-range";
 
 describe("itemsInRange", () => {
   it("用 endDate 判斷", () => {
@@ -20,14 +20,16 @@ describe("itemsInRange", () => {
   });
 });
 
-describe("yearRange", () => {
-  it("涵蓋整年", () => {
-    expect(yearRange(2026)).toEqual({ start: "2026-01-01", end: "2026-12-31" });
+describe("monthRange", () => {
+  it("框住那一天所在的整個月", () => {
+    expect(monthRange("2026-02-14")).toEqual({ start: "2026-02-01", end: "2026-02-31" });
   });
-});
 
-describe("dayRange", () => {
-  it("頭尾是同一天", () => {
-    expect(dayRange("2026-09-10")).toEqual({ start: "2026-09-10", end: "2026-09-10" });
+  it("月底那天算進去，下個月一號不算", () => {
+    const rows = [
+      { endDate: "2026-02-28", createdAt: "2026-01-01T00:00:00Z" },
+      { endDate: "2026-03-01", createdAt: "2026-01-01T00:00:00Z" },
+    ];
+    expect(itemsInRange(rows, monthRange("2026-02-14"))).toEqual([rows[0]]);
   });
 });

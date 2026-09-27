@@ -12,7 +12,7 @@ function dateOf(row: {
  * 一筆紀錄算進哪個範圍，看「什麼時候發生」優先於「什麼時候建的」——
  * 完成日 > 開始日 > 建立時間，全都沒有才落到最後一層。
  *
- * 年報、週報、日報都是同一件事的不同粒度，差在算出來的 range 多長。
+ * 首頁的「這個月」就是一個 range。
  */
 export function itemsInRange<
   T extends { endDate?: string | null; startDate?: string | null; createdAt: string },
@@ -23,10 +23,7 @@ export function itemsInRange<
   });
 }
 
-export function yearRange(year: number): DateRange {
-  return { start: `${year}-01-01`, end: `${year}-12-31` };
-}
-
-export function dayRange(date: string): DateRange {
-  return { start: date, end: date };
+export function monthRange(date: string): DateRange {
+  const month = date.slice(0, 7);
+  return { start: `${month}-01`, end: `${month}-31` }; // 字串比大小，31 號不存在也框得住整個月
 }
