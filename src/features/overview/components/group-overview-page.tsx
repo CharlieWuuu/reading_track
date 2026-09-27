@@ -1,5 +1,6 @@
 "use client";
 
+import { PageMain } from "@/components/layout/page-body";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
@@ -18,14 +19,24 @@ import { sectionsByKind } from "@/utils/overview-sections";
 
 /** 錯誤與載入中先擋下來，兩個 group 同一套；擋掉就回那一塊畫面，沒事回 null */
 function gate({ error, isLoading }: { error?: string; isLoading: boolean }) {
-  if (error) return <PageMessage tone="error">{error}</PageMessage>;
-  if (isLoading) return <PageLoading />;
+  if (error)
+    return (
+      <PageMain>
+        <PageMessage tone="error">{error}</PageMessage>
+      </PageMain>
+    );
+  if (isLoading)
+    return (
+      <PageMain>
+        <PageLoading />
+      </PageMain>
+    );
   return null;
 }
 
 const styles = {
   empty: "text-meta text-ink-faint py-8 text-center",
-  sections: "overflow-y-auto pb-10 flex min-h-0 flex-1 flex-col gap-6", // 捲動歸這裡
+  sections: "flex flex-col gap-6",
 };
 
 type GroupOverviewPageProps = {
@@ -77,7 +88,12 @@ export function GroupOverviewPage({ group }: GroupOverviewPageProps) {
   const { fragments } = fragmentsData;
   const blocked = gate(fragmentsData);
   if (blocked) return blocked;
-  if (fragments.length === 0) return <div className={styles.empty}>還沒有任何紀錄</div>;
+  if (fragments.length === 0)
+    return (
+      <PageMain>
+        <div className={styles.empty}>還沒有任何紀錄</div>
+      </PageMain>
+    );
 
   // 書寫照月份排，跟底下的書寫子頁一致；沒有進行中，全部當成完成的排。一格照各自類型的樣式
   if (group === "writings") {
@@ -98,15 +114,17 @@ export function GroupOverviewPage({ group }: GroupOverviewPageProps) {
   const [headline] = fragments;
 
   return (
-    <div className={styles.sections}>
-      <OverviewHeadline
-        item={fragmentItem(headline)}
-        label="最新一則"
-        summary={headline.body || undefined}
-      />
-      {sectionsByKind(fragments).map((section) => (
-        <KindSectionBlock key={section.slug} group={group} section={section} />
-      ))}
-    </div>
+    <PageMain>
+      <div className={styles.sections}>
+        <OverviewHeadline
+          item={fragmentItem(headline)}
+          label="最新一則"
+          summary={headline.body || undefined}
+        />
+        {sectionsByKind(fragments).map((section) => (
+          <KindSectionBlock key={section.slug} group={group} section={section} />
+        ))}
+      </div>
+    </PageMain>
   );
 }

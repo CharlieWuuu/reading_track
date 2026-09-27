@@ -1,6 +1,6 @@
 "use client";
 
-import { PageBody } from "@/components/layout/page-body";
+import { PageBody, PageMain } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
@@ -52,13 +52,15 @@ export function KindNewPage({ group, slug }: KindRouteProps) {
         action={kind && !Form ? <FormTabSwitch group={group} /> : undefined}
       />
       <PageBody>
-        {isLoading || !kind ? (
-          <PageLoading />
-        ) : Form ? (
-          <Form kind={kind} />
-        ) : (
-          <ModuleForm kind={kind} />
-        )}
+        <PageMain>
+          {isLoading || !kind ? (
+            <PageLoading />
+          ) : Form ? (
+            <Form kind={kind} />
+          ) : (
+            <ModuleForm kind={kind} />
+          )}
+        </PageMain>
       </PageBody>
     </>
   );
@@ -125,13 +127,15 @@ function GenericRecordPage({
         }
       />
       <PageBody>
-        {error ? (
-          <PageMessage tone="error">{error}</PageMessage>
-        ) : isLoading || !kind || !record ? (
-          <PageLoading />
-        ) : (
-          <ModuleDetail kind={kind} values={record.values} />
-        )}
+        <PageMain>
+          {error ? (
+            <PageMessage tone="error">{error}</PageMessage>
+          ) : isLoading || !kind || !record ? (
+            <PageLoading />
+          ) : (
+            <ModuleDetail kind={kind} values={record.values} />
+          )}
+        </PageMain>
       </PageBody>
     </>
   );
@@ -177,15 +181,17 @@ function GenericEditPage({ group, slug, recordId }: RecordRouteProps) {
         action={kind && !Form ? <FormTabSwitch group={group} /> : undefined}
       />
       <PageBody>
-        {error ? (
-          <PageMessage tone="error">{error}</PageMessage>
-        ) : isLoading || !kind || !record ? (
-          <PageLoading />
-        ) : Form ? (
-          <Form kind={kind} recordId={id} initial={record.values} />
-        ) : (
-          <ModuleForm kind={kind} recordId={id} linkId={record.linkId} initial={record.values} />
-        )}
+        <PageMain>
+          {error ? (
+            <PageMessage tone="error">{error}</PageMessage>
+          ) : isLoading || !kind || !record ? (
+            <PageLoading />
+          ) : Form ? (
+            <Form kind={kind} recordId={id} initial={record.values} />
+          ) : (
+            <ModuleForm kind={kind} recordId={id} linkId={record.linkId} initial={record.values} />
+          )}
+        </PageMain>
       </PageBody>
     </>
   );

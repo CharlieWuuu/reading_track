@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PageBody } from "@/components/layout/page-body";
+import { PageBody, PageMain } from "@/components/layout/page-body";
 import { HomeView } from "@/features/home/components/home-view";
 
 export const metadata: Metadata = {
@@ -17,7 +17,9 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <PageBody>
-      <HomeView />
+      <PageMain>
+        <HomeView />
+      </PageMain>
     </PageBody>
   );
 }

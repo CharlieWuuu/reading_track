@@ -14,7 +14,7 @@ import { fragmentHref } from "@/utils/overview-items";
  */
 
 const styles = {
-  wall: "flex flex-col gap-6 pb-10", // PageBody 自己捲，底部留白在內容尾端
+  wall: "flex flex-col gap-6",
   section: "flex flex-col gap-2",
   head: "border-rule-strong flex items-baseline justify-between border-b pb-1.5",
   label: "text-item-sm font-serif font-semibold",

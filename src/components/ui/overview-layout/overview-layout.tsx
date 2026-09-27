@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode, useEffect, useRef } from "react";
+import { PageAside, PageMain } from "@/components/layout/page-body";
 import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headline";
 import { byMonth, OverviewItem } from "@/utils/overview";
 
@@ -17,13 +18,7 @@ import { byMonth, OverviewItem } from "@/utils/overview";
  */
 
 const styles = {
-  frame: "flex min-h-0 min-w-0 flex-1 items-stretch gap-6",
-  // 分隔線是獨立元素，跟側欄同一種寫法：兩側都靠 frame 的 gap，不必一邊 gap 一邊 padding
-  rule: "bg-rule-strong hidden w-px shrink-0 lg:block",
-  // 自己的捲動條：中間月份格線很長，右邊窄欄通常很短，兩邊各捲各的，
-  // 不要因為其中一邊比較長就把另一邊也拖走
-  main: "overflow-y-auto pb-10 flex min-w-0 flex-1 flex-col gap-5",
-  rail: "overflow-y-auto pb-10 hidden w-58 shrink-0 flex-col gap-8 self-stretch lg:flex",
+  main: "flex flex-col gap-5",
   // 窄螢幕沒有右欄，同一份內容改插在頭條下面——「現在在讀什麼」比「上個月讀完什麼」先看到
   railInline: "flex flex-col gap-5 lg:hidden",
   meta: "text-meta text-ink-faint tabular-nums",
@@ -103,7 +98,7 @@ export function OverviewLayout({
     const sentinel = sentinelRef.current;
     if (!root || !sentinel) return;
 
-    // root 指自己的捲動容器，不是 viewport——main 有獨立的 overflow-y-auto，
+    // root 指 PageMain 這個捲動容器，不是 viewport——
     // 用預設 viewport 觀察在這種內層捲動的版面裡根本不會觸發
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -116,44 +111,41 @@ export function OverviewLayout({
   }, [hasLoadMore, hasMore]);
 
   return (
-    <div className={styles.frame}>
-      <div className={styles.main} ref={mainRef}>
-        {headline && (
-          <OverviewHeadline item={headline} label={headlineLabel} summary={headlineSummary} />
-        )}
+    <>
+      <PageMain ref={mainRef}>
+        <div className={styles.main}>
+          {headline && (
+            <OverviewHeadline item={headline} label={headlineLabel} summary={headlineSummary} />
+          )}
 
-        {rail && !railDesktopOnly && <div className={styles.railInline}>{rail}</div>}
+          {rail && !railDesktopOnly && <div className={styles.railInline}>{rail}</div>}
 
-        <div className={styles.monthList}>
-          {byMonth(done).map((group) => (
-            <div key={group.label || "no-date"} className="flex flex-col gap-3">
-              <div className={`${styles.month} flex items-baseline justify-between`}>
-                {group.label && <span className={styles.monthLabel}>{group.label}</span>}
-                <span className={styles.meta}>
-                  {group.items.length} {unit}
-                </span>
+          <div className={styles.monthList}>
+            {byMonth(done).map((group) => (
+              <div key={group.label || "no-date"} className="flex flex-col gap-3">
+                <div className={`${styles.month} flex items-baseline justify-between`}>
+                  {group.label && <span className={styles.monthLabel}>{group.label}</span>}
+                  <span className={styles.meta}>
+                    {group.items.length} {unit}
+                  </span>
+                </div>
+                <div className={gridClassName}>
+                  {group.items.map((item) => (
+                    <div key={item.id} className={itemClassName?.(item)}>
+                      {renderItem(item)}
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className={gridClassName}>
-                {group.items.map((item) => (
-                  <div key={item.id} className={itemClassName?.(item)}>
-                    {renderItem(item)}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {onLoadMore && hasMore && <div ref={sentinelRef} className={styles.sentinel} />}
+          {isLoadingMore && <div className={styles.loadingMore}>載入中…</div>}
         </div>
+      </PageMain>
 
-        {onLoadMore && hasMore && <div ref={sentinelRef} className={styles.sentinel} />}
-        {isLoadingMore && <div className={styles.loadingMore}>載入中…</div>}
-      </div>
-
-      {rail && (
-        <>
-          <div className={styles.rule} />
-          <div className={styles.rail}>{rail}</div>
-        </>
-      )}
-    </div>
+      {rail && <PageAside>{rail}</PageAside>}
+    </>
   );
 }

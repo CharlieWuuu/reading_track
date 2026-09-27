@@ -1,7 +1,7 @@
 "use client";
 
 import { ExternalLink } from "lucide-react";
-import { PageBody } from "@/components/layout/page-body";
+import { PageBody, PageMain } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
 import { ActionButton } from "@/components/ui/controls";
@@ -31,61 +31,63 @@ export function WritingDetailView({ recordId }: { recordId: string }) {
         action={writing && <ActionButton href={writingEditHref(writing.id)}>編輯</ActionButton>}
       />
       <PageBody>
-        <RecordGate loading={isLoading} error={error} missing={!writing && "找不到這則紀事"}>
-          {writing && (
-            <div className="flex flex-col gap-8 pb-10">
-              <DetailHeader
-                facts={
-                  <>
-                    <DetailField label="日期" align="right">
-                      {writing.endDate}
-                    </DetailField>
-                    <DetailField label="類型" align="right">
-                      {writing.kindName}
-                    </DetailField>
-                    <DetailField label="放在哪" align="right">
-                      {writing.link &&
-                        (isUrl(writing.link) ? (
-                          <a
-                            href={writing.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            title={writing.link}
-                            className="inline-flex items-center gap-1 text-blue-700 underline underline-offset-2 hover:text-blue-900"
-                          >
-                            打開
-                            <ExternalLink size={12} strokeWidth={1.5} aria-hidden />
-                          </a>
-                        ) : (
-                          writing.link
-                        ))}
-                    </DetailField>
-                  </>
-                }
-              >
-                <div className="flex min-w-0 flex-1 flex-col gap-2.5">
-                  <DetailTitle title={writing.title} />
-                  {writing.topic && (
-                    <span className="flex">
-                      <span className={`${KIND_TAG} ${tagColorClass(writing.topic, [])}`}>
-                        {writing.topic}
+        <PageMain>
+          <RecordGate loading={isLoading} error={error} missing={!writing && "找不到這則紀事"}>
+            {writing && (
+              <div className="flex flex-col gap-8">
+                <DetailHeader
+                  facts={
+                    <>
+                      <DetailField label="日期" align="right">
+                        {writing.endDate}
+                      </DetailField>
+                      <DetailField label="類型" align="right">
+                        {writing.kindName}
+                      </DetailField>
+                      <DetailField label="放在哪" align="right">
+                        {writing.link &&
+                          (isUrl(writing.link) ? (
+                            <a
+                              href={writing.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title={writing.link}
+                              className="inline-flex items-center gap-1 text-blue-700 underline underline-offset-2 hover:text-blue-900"
+                            >
+                              打開
+                              <ExternalLink size={12} strokeWidth={1.5} aria-hidden />
+                            </a>
+                          ) : (
+                            writing.link
+                          ))}
+                      </DetailField>
+                    </>
+                  }
+                >
+                  <div className="flex min-w-0 flex-1 flex-col gap-2.5">
+                    <DetailTitle title={writing.title} />
+                    {writing.topic && (
+                      <span className="flex">
+                        <span className={`${KIND_TAG} ${tagColorClass(writing.topic, [])}`}>
+                          {writing.topic}
+                        </span>
                       </span>
-                    </span>
-                  )}
-                </div>
-              </DetailHeader>
+                    )}
+                  </div>
+                </DetailHeader>
 
-              {/* 跟哪些資料有關：一個類型一區，出處與關鍵字都在裡面，不另外分方向 */}
-              <RelatedLinks recordId={writing.id} />
+                {/* 跟哪些資料有關：一個類型一區，出處與關鍵字都在裡面，不另外分方向 */}
+                <RelatedLinks recordId={writing.id} />
 
-              {writing.note.trim() && (
-                <DetailSection title="內文">
-                  <NoteBlock note={writing.note} />
-                </DetailSection>
-              )}
-            </div>
-          )}
-        </RecordGate>
+                {writing.note.trim() && (
+                  <DetailSection title="內文">
+                    <NoteBlock note={writing.note} />
+                  </DetailSection>
+                )}
+              </div>
+            )}
+          </RecordGate>
+        </PageMain>
       </PageBody>
     </>
   );

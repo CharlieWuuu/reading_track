@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { PageAside, PageMain } from "@/components/layout/page-body";
 import { CardStyle, defaultCardStyle } from "@/config/card-styles";
 import { KindGroup } from "@/config/kind-groups";
 import { DEFAULT_VIEWS } from "@/config/kind-views";
@@ -26,13 +27,7 @@ import { BookViewMode } from "@/stores/use-book-view-store";
  */
 
 const styles = {
-  // 版型層級的兩欄：左邊類型清單，右邊常駐窄欄。分隔線是獨立元素，跟側欄同一種寫法——
-  // 畫成右欄自己的 border-l 的話，線左邊靠 gap、右邊靠 padding，兩側各寫一處就對不齊
-  frame: "flex min-h-0 min-w-0 flex-1 items-stretch gap-6",
-  rule: "bg-rule-strong hidden w-px shrink-0 lg:block", // 右欄收起來時線也跟著收
-  list: "overflow-y-auto pb-10 flex w-full min-w-0 flex-1 flex-col gap-6",
-  // 分頁切換跟頁首那排純文字連結同一套：無框無底色，選中的變粗
-  rail: "overflow-y-auto pb-10 hidden w-58 shrink-0 flex-col gap-8 self-stretch lg:flex",
+  list: "flex flex-col gap-6",
   group: "flex flex-col",
   groupHead: "border-rule-strong flex items-baseline justify-between border-b-2 pb-1.5",
   groupLabel: "font-serif text-ui font-semibold",
@@ -80,114 +75,115 @@ export function KindPanel() {
   }
 
   return (
-    <div className={styles.frame}>
-      <div className={styles.list}>
-        {NAV_GROUPS.filter((nav) => nav.kindGroup).map((nav) => {
-          const group = nav.kindGroup!;
-          const rows = kinds.filter((kind) => kind.group === group);
+    <>
+      <PageMain>
+        <div className={styles.list}>
+          {NAV_GROUPS.filter((nav) => nav.kindGroup).map((nav) => {
+            const group = nav.kindGroup!;
+            const rows = kinds.filter((kind) => kind.group === group);
 
-          return (
-            <div key={nav.key} className={styles.group}>
-              <div className={styles.groupHead}>
-                <span className={styles.groupLabel}>{nav.label}</span>
-                {/* 新增的入口放在各分類自己的標題列上：按哪一顆就知道要加去哪裡 */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAdding(adding === group ? null : group);
-                    setEditing(null);
-                    // 新增是從預設開始
-                    setViews(DEFAULT_VIEWS);
-                    setCardStyle(defaultCardStyle(group));
-                  }}
-                  className={styles.addLink}
-                >
-                  {adding === group ? "取消" : "新增"}
-                </button>
-              </div>
-
-              {rows.length === 0 && adding !== group && (
-                <span className={styles.empty}>還沒有任何類型</span>
-              )}
-
-              {rows.map((kind) => (
-                <div key={kind.id}>
-                  <div className={styles.row}>
-                    {/* 名字點下去就是改它：改名、改網址、改勾了哪些模組 */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditing(editing === kind.id ? null : kind.id);
-                        setAdding(null);
-                        // 帶入這個類型現在的設定
-                        setViews(kind.views);
-                        setCardStyle(kind.cardStyle);
-                      }}
-                      className={styles.name}
-                    >
-                      {kind.name}
-                    </button>
-                    <span className={styles.count}>
-                      {kind.count.toLocaleString()} {nav.unit}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => remove(kind.id)}
-                      disabled={kind.count > 0 || removing === kind.id}
-                      // 有資料就不給移除：手動記的東西沒有還原路徑，先清空那一步本身就是確認
-                      title={kind.count > 0 ? "還有資料，要先清空才能移除" : undefined}
-                      className={styles.remove}
-                    >
-                      移除
-                    </button>
-                  </div>
-                  {editing === kind.id && (
-                    <div className={styles.builder}>
-                      <TypeBuilder
-                        key={kind.id}
-                        group={group}
-                        editing={kind}
-                        onDone={() => {
-                          setEditing(null);
-                          setDraft(null);
-                        }}
-                        onDraftChange={onDraftChange}
-                        views={views}
-                        onViewsChange={setViews}
-                        cardStyle={cardStyle}
-                        onCardStyleChange={setCardStyle}
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {adding === group && (
-                <div className={styles.builder}>
-                  <TypeBuilder
-                    key={group}
-                    group={group}
-                    onDone={() => {
-                      setAdding(null);
-                      setDraft(null);
+            return (
+              <div key={nav.key} className={styles.group}>
+                <div className={styles.groupHead}>
+                  <span className={styles.groupLabel}>{nav.label}</span>
+                  {/* 新增的入口放在各分類自己的標題列上：按哪一顆就知道要加去哪裡 */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAdding(adding === group ? null : group);
+                      setEditing(null);
+                      // 新增是從預設開始
+                      setViews(DEFAULT_VIEWS);
+                      setCardStyle(defaultCardStyle(group));
                     }}
-                    onDraftChange={onDraftChange}
-                    views={views}
-                    onViewsChange={setViews}
-                    cardStyle={cardStyle}
-                    onCardStyleChange={setCardStyle}
-                  />
+                    className={styles.addLink}
+                  >
+                    {adding === group ? "取消" : "新增"}
+                  </button>
                 </div>
-              )}
-            </div>
-          );
-        })}
 
-        {error && <span className={styles.error}>{error}</span>}
-      </div>
+                {rows.length === 0 && adding !== group && (
+                  <span className={styles.empty}>還沒有任何類型</span>
+                )}
 
-      <div className={styles.rule} />
-      <div className={styles.rail}>
+                {rows.map((kind) => (
+                  <div key={kind.id}>
+                    <div className={styles.row}>
+                      {/* 名字點下去就是改它：改名、改網址、改勾了哪些模組 */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditing(editing === kind.id ? null : kind.id);
+                          setAdding(null);
+                          // 帶入這個類型現在的設定
+                          setViews(kind.views);
+                          setCardStyle(kind.cardStyle);
+                        }}
+                        className={styles.name}
+                      >
+                        {kind.name}
+                      </button>
+                      <span className={styles.count}>
+                        {kind.count.toLocaleString()} {nav.unit}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => remove(kind.id)}
+                        disabled={kind.count > 0 || removing === kind.id}
+                        // 有資料就不給移除：手動記的東西沒有還原路徑，先清空那一步本身就是確認
+                        title={kind.count > 0 ? "還有資料，要先清空才能移除" : undefined}
+                        className={styles.remove}
+                      >
+                        移除
+                      </button>
+                    </div>
+                    {editing === kind.id && (
+                      <div className={styles.builder}>
+                        <TypeBuilder
+                          key={kind.id}
+                          group={group}
+                          editing={kind}
+                          onDone={() => {
+                            setEditing(null);
+                            setDraft(null);
+                          }}
+                          onDraftChange={onDraftChange}
+                          views={views}
+                          onViewsChange={setViews}
+                          cardStyle={cardStyle}
+                          onCardStyleChange={setCardStyle}
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {adding === group && (
+                  <div className={styles.builder}>
+                    <TypeBuilder
+                      key={group}
+                      group={group}
+                      onDone={() => {
+                        setAdding(null);
+                        setDraft(null);
+                      }}
+                      onDraftChange={onDraftChange}
+                      views={views}
+                      onViewsChange={setViews}
+                      cardStyle={cardStyle}
+                      onCardStyleChange={setCardStyle}
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {error && <span className={styles.error}>{error}</span>}
+        </div>
+      </PageMain>
+
+      <PageAside>
         {draft && (
           <KindViewRail
             draft={draft}
@@ -199,7 +195,7 @@ export function KindPanel() {
             onTabChange={setTab}
           />
         )}
-      </div>
-    </div>
+      </PageAside>
+    </>
   );
 }

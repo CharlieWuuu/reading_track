@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { PageBody } from "@/components/layout/page-body";
+import { PageBody, PageMain } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RangeOverview } from "@/features/overview/components/range-overview";
 import { YearNav } from "@/features/overview/components/year-nav";
@@ -15,7 +15,9 @@ export default function YearPage({ params }: { params: Promise<{ year: string }>
     <>
       <PageHeader title="年度回顧" action={<YearNav year={yearNum} />} />
       <PageBody>
-        <RangeOverview range={yearRange(yearNum)} emptyLabel="這一年還沒有新紀錄" />
+        <PageMain>
+          <RangeOverview range={yearRange(yearNum)} emptyLabel="這一年還沒有新紀錄" />
+        </PageMain>
       </PageBody>
     </>
   );

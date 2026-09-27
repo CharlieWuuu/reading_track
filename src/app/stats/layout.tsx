@@ -1,4 +1,4 @@
-import { PageBody } from "@/components/layout/page-body";
+import { PageBody, PageMain } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 
 /**
@@ -11,7 +11,9 @@ export default function StatsLayout({ children }: { children: React.ReactNode })
   return (
     <>
       <PageHeader title="統計" />
-      <PageBody>{children}</PageBody>
+      <PageBody>
+        <PageMain>{children}</PageMain>
+      </PageBody>
     </>
   );
 }

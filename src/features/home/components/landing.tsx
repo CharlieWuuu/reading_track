@@ -41,7 +41,7 @@ function Column({ section }: { section: LandingSection }) {
 
 export function Landing() {
   return (
-    <div className="flex min-h-full flex-1 flex-col pb-10">
+    <div className="flex flex-1 flex-col">
       <div className={styles.hero}>
         <h1 className={styles.headline}>{LANDING_HERO.title}</h1>
         <p className={styles.lede}>{LANDING_HERO.lede}</p>
