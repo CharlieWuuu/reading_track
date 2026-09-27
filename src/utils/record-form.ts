@@ -105,3 +105,11 @@ export function fieldsOf(modules: readonly FormModule[]): FieldDef[] {
   const keys = [...new Set(modules.flatMap((module) => module.fields))];
   return keys.map(fieldDef).filter((def): def is FieldDef => def !== undefined);
 }
+
+/**
+ * 表單兩兩一排時，哪些要自己佔一整列。照欄位型別判斷，不看是哪個欄位——
+ * 自訂類型勾了什麼都適用。長文寫不下半寬，圖片要看得到預覽。
+ */
+const WIDE_TYPES = new Set<FieldDef["type"]>(["longText", "image"]);
+
+export const isWideField = (field: FieldDef): boolean => WIDE_TYPES.has(field.type);

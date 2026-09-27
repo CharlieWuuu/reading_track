@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { templateByKey } from "@/config/kind-templates";
 import { moduleDef } from "@/config/modules";
+import { fieldDef } from "@/config/record-fields";
 import {
   autoEndDate,
   fieldsOf,
   formModules,
   formTabsOf,
   hasAutoEndDate,
+  isWideField,
   resolveFormModules,
   splitByTab,
 } from "./record-form";
@@ -193,5 +195,14 @@ describe("formTabsOf", () => {
   it("紀錄多一頁作品，排第一", () => {
     expect(formTabsOf("records")).toEqual(["work", "content", "attributes"]);
     expect(formTabsOf("writings")).toEqual(["content", "attributes"]);
+  });
+});
+
+describe("isWideField", () => {
+  it("長文與圖片佔一整列，其餘兩兩一排", () => {
+    const wide = ["body", "example", "coverUrl", "title", "startDate", "domain"].filter((key) =>
+      isWideField(fieldDef(key)!),
+    );
+    expect(wide).toEqual(["body", "example", "coverUrl"]);
   });
 });
