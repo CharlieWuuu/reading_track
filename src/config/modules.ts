@@ -144,7 +144,7 @@ export const MODULES = [
     // 想知道的是「電子書佔多少」，不是「第幾名」
     stat: ["distribution"],
   },
-  { key: "publisher", label: "出版社", fields: ["publisher"], stat: ["ranking"] }, // 值很多，看排行
+  { key: "publisher", label: "發行", fields: ["publisher"], stat: ["ranking"] }, // 值很多，看排行
   // 一個模組兩格：主題樹有父子，領域選完次領域才知道要列哪幾個
   {
     key: "topic",
