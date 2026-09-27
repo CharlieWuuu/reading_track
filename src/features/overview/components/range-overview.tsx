@@ -2,7 +2,7 @@
 
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
-import { gridOf, KindCard } from "@/components/ui/kind-cards/kind-cards";
+import { gridOf, itemClassOf, KindCard } from "@/components/ui/kind-cards/kind-cards";
 import { unitOfGroup } from "@/config/nav";
 import { useGroupFragments } from "@/hooks/use-group-fragments";
 import { useGroupRecords } from "@/hooks/use-group-records";
@@ -36,6 +36,7 @@ function Section({
   unit: string;
 }) {
   if (cards.length === 0) return null;
+  const cardStyles = cards.map((card) => card.style);
   return (
     <div className="flex flex-col gap-3">
       <div className={`${styles.section} flex items-baseline justify-between`}>
@@ -44,9 +45,12 @@ function Section({
           {cards.length} {unit}
         </span>
       </div>
-      <div className={gridOf(cards.map((card) => card.style))}>
+      <div className={gridOf(cardStyles)}>
         {cards.map((card) => (
-          <KindCard key={card.data.id} {...card} />
+          // 混了幾種樣式時每一筆照自己的樣式佔多寬
+          <div key={card.data.id} className={itemClassOf(cardStyles, card.style)}>
+            <KindCard {...card} />
+          </div>
         ))}
       </div>
     </div>
