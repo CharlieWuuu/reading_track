@@ -1,6 +1,6 @@
 "use client";
 
-import { PageBody } from "@/components/layout/page-body";
+import { PageBody, PageMain } from "@/components/layout/page-body";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
@@ -19,6 +19,19 @@ import { tally } from "@/utils/overview";
 import { writingItem } from "@/utils/overview-items";
 
 const RAIL_LIST_SIZE = 5;
+
+// 載入中、錯誤、空的：擋下來回那一塊，沒事回 null
+function gate({ isLoading, error, empty }: { isLoading: boolean; error?: string; empty: boolean }) {
+  if (isLoading) return <PageLoading />;
+  if (error)
+    return (
+      <PageMessage tone="error" fill>
+        {error}
+      </PageMessage>
+    );
+  if (empty) return <PageMessage fill>符合條件的書寫是空的</PageMessage>;
+  return null;
+}
 
 /** 右欄補的排行：主題、關鍵字——書寫沒有進行中／想要可以列 */
 function WritingRail({ writings }: { writings: readonly Writing[] }) {
@@ -62,20 +75,16 @@ export function WritingList() {
 function WritingListFull({ view, topic }: { view: string; topic: string }) {
   const { writings: allWriting, isLoading, error, mutate } = useWritings();
   const writings = allWriting.filter((e) => !topic || e.topic === topic);
-
-  if (isLoading) return <PageLoading />;
-  if (error)
-    return (
-      <PageMessage tone="error" fill>
-        {error}
-      </PageMessage>
-    );
-  if (writings.length === 0) return <PageMessage fill>符合條件的書寫是空的</PageMessage>;
+  const blocked = gate({ isLoading, error, empty: writings.length === 0 });
 
   return (
     <PageBody>
-      {view === "table" ? (
-        <WritingTable writings={writings} onSaved={mutate} />
+      {blocked ? (
+        <PageMain>{blocked}</PageMain>
+      ) : view === "table" ? (
+        <PageMain>
+          <WritingTable writings={writings} onSaved={mutate} />
+        </PageMain>
       ) : (
         <GroupOverview
           active={[]}
@@ -94,32 +103,28 @@ function WritingListFull({ view, topic }: { view: string; topic: string }) {
 
 function WritingListPaged() {
   const overview = useWritingsOverview();
-
-  if (overview.isLoading) return <PageLoading />;
-  if (overview.error)
-    return (
-      <PageMessage tone="error" fill>
-        {overview.error}
-      </PageMessage>
-    );
-  if (overview.writings.length === 0) return <PageMessage fill>符合條件的書寫是空的</PageMessage>;
+  const blocked = gate({ ...overview, empty: overview.writings.length === 0 });
 
   return (
     <PageBody>
-      <GroupOverview
-        active={[]}
-        pending={[]}
-        done={overview.writings.map(writingItem)}
-        doneTotal={overview.total}
-        headlineLabel=""
-        unit="則"
-        onLoadMore={overview.loadMore}
-        hasMore={overview.hasMore}
-        isLoadingMore={overview.isLoadingMore}
-        {...styledGrid(overview.writings.map(styledWriting))}
-        extraRail={<WritingRail writings={overview.writings} />}
-        railDesktopOnly
-      />
+      {blocked ? (
+        <PageMain>{blocked}</PageMain>
+      ) : (
+        <GroupOverview
+          active={[]}
+          pending={[]}
+          done={overview.writings.map(writingItem)}
+          doneTotal={overview.total}
+          headlineLabel=""
+          unit="則"
+          onLoadMore={overview.loadMore}
+          hasMore={overview.hasMore}
+          isLoadingMore={overview.isLoadingMore}
+          {...styledGrid(overview.writings.map(styledWriting))}
+          extraRail={<WritingRail writings={overview.writings} />}
+          railDesktopOnly
+        />
+      )}
     </PageBody>
   );
 }

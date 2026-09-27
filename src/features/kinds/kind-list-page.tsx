@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { PageBody } from "@/components/layout/page-body";
+import { PageBody, PageMain } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
@@ -36,31 +36,45 @@ function KindBody({ kind }: { kind: Kind }) {
 
   if (view === "stats") {
     return (
-      <KindStats
-        kind={kind}
-        // 月曆與數線住在 features/calendar，統計那邊 import 不到；
-        // kinds 不在 eslint 的 feature 區裡，兩邊的交會點就落在這裡
-        wide={{
-          calendar: <KindCalendar kind={kind} />,
-          timeline: <KindTimeline kind={kind} />,
-        }}
-      />
+      <PageMain>
+        <KindStats
+          kind={kind}
+          // 月曆與數線住在 features/calendar，統計那邊 import 不到；
+          // kinds 不在 eslint 的 feature 區裡，兩邊的交會點就落在這裡
+          wide={{
+            calendar: <KindCalendar kind={kind} />,
+            timeline: <KindTimeline kind={kind} />,
+          }}
+        />
+      </PageMain>
     );
   }
 
-  if (data.error) return <PageMessage tone="error">{data.error}</PageMessage>;
-  if (data.isLoading) return <PageLoading />;
+  if (data.error)
+    return (
+      <PageMain>
+        <PageMessage tone="error">{data.error}</PageMessage>
+      </PageMain>
+    );
+  if (data.isLoading)
+    return (
+      <PageMain>
+        <PageLoading />
+      </PageMain>
+    );
 
   const empty = kind.group === "records" ? data.records.length === 0 : data.fragments.length === 0;
   // 側欄把 0 筆的類型也列出來，點進來一片空白等於沒有下一步
   if (empty) {
     return (
-      <PageMessage fill>
-        還沒有任何{kind.name}。
-        <Link href={`${kindHref(kind.group, kind.slug)}/new`} className="underline">
-          記下第一筆
-        </Link>
-      </PageMessage>
+      <PageMain>
+        <PageMessage fill>
+          還沒有任何{kind.name}。
+          <Link href={`${kindHref(kind.group, kind.slug)}/new`} className="underline">
+            記下第一筆
+          </Link>
+        </PageMessage>
+      </PageMain>
     );
   }
 
@@ -70,9 +84,19 @@ function KindBody({ kind }: { kind: Kind }) {
     records: recordsNewestFirst(data.records),
     fragments: fragmentsNewestFirst(data.fragments),
   };
-  if (view === "card") return <KindCardWall {...props} />;
-  if (view === "table") return <KindTable {...props} />;
-  return <KindOverview {...props} />;
+  if (view === "card")
+    return (
+      <PageMain>
+        <KindCardWall {...props} />
+      </PageMain>
+    );
+  if (view === "table")
+    return (
+      <PageMain>
+        <KindTable {...props} />
+      </PageMain>
+    );
+  return <KindOverview {...props} />; // 自己給中間與右欄
 }
 
 /** 頁首那行小字。紀錄可以設成連重讀一起算：「133 次・128 本」 */
@@ -114,9 +138,13 @@ export function KindListPage({ group, slug }: { group: KindGroup; slug: string }
       />
       <PageBody>
         {isLoading ? (
-          <PageLoading />
+          <PageMain>
+            <PageLoading />
+          </PageMain>
         ) : !kind ? (
-          <PageMessage>找不到這個類型</PageMessage>
+          <PageMain>
+            <PageMessage>找不到這個類型</PageMessage>
+          </PageMain>
         ) : (
           <KindBody kind={kind} />
         )}

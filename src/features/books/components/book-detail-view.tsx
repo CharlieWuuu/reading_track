@@ -1,7 +1,7 @@
 "use client";
 
 import { ExternalLink } from "lucide-react";
-import { PageBody } from "@/components/layout/page-body";
+import { PageBody, PageMain } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
@@ -133,13 +133,15 @@ export function BookDetailView({ recordId }: { recordId: string }) {
         <PageHeader title="書籍資訊" size="compact" backHref={backHref} />
         {/* 訊息也走 PageBody：不然它只是頁首下面一個小方塊，跟載入中的位置對不齊 */}
         <PageBody>
-          {isLoading ? (
-            <PageLoading />
-          ) : (
-            <PageMessage tone={error ? "error" : "muted"} fill>
-              {error || "找不到這本書"}
-            </PageMessage>
-          )}
+          <PageMain>
+            {isLoading ? (
+              <PageLoading />
+            ) : (
+              <PageMessage tone={error ? "error" : "muted"} fill>
+                {error || "找不到這本書"}
+              </PageMessage>
+            )}
+          </PageMain>
         </PageBody>
       </>
     );
@@ -183,72 +185,74 @@ export function BookDetailView({ recordId }: { recordId: string }) {
       />
 
       <PageBody>
-        <article className="flex w-full flex-col gap-8 pb-10">
-          {/* 書名頁：封面＋書名／作者／量化資訊／統計數字在左，固定資料卡在右 */}
-          <DetailHeader facts={<BookFacts book={book} kind={bookKind} />}>
-            <BookCover
-              url={book.coverUrl}
-              title={book.title}
-              size="detail"
-              className="shrink-0 self-start"
-            />
-            <div className="flex min-w-0 flex-1 flex-col gap-2.5">
-              <DetailTitle title={book.title} subtitle={book.author} />
-              {quantLine && <p className="text-meta text-ink-faint">{quantLine}</p>}
-              <CountStats items={counts} />
-            </div>
-          </DetailHeader>
+        <PageMain>
+          <article className="flex w-full flex-col gap-8">
+            {/* 書名頁：封面＋書名／作者／量化資訊／統計數字在左，固定資料卡在右 */}
+            <DetailHeader facts={<BookFacts book={book} kind={bookKind} />}>
+              <BookCover
+                url={book.coverUrl}
+                title={book.title}
+                size="detail"
+                className="shrink-0 self-start"
+              />
+              <div className="flex min-w-0 flex-1 flex-col gap-2.5">
+                <DetailTitle title={book.title} subtitle={book.author} />
+                {quantLine && <p className="text-meta text-ink-faint">{quantLine}</p>}
+                <CountStats items={counts} />
+              </div>
+            </DetailHeader>
 
-          {/* 主內容雙欄：左邊書寫（含關鍵字），右邊片段，都照類型分區 */}
-          <div className="flex flex-col gap-8 md:flex-row">
-            <div className="flex min-w-0 flex-1 flex-col gap-3">
-              {/* 這本書自己那欄心得，跟連過來的書寫是兩回事，各自一區 */}
-              {note && (
+            {/* 主內容雙欄：左邊書寫（含關鍵字），右邊片段，都照類型分區 */}
+            <div className="flex flex-col gap-8 md:flex-row">
+              <div className="flex min-w-0 flex-1 flex-col gap-3">
+                {/* 這本書自己那欄心得，跟連過來的書寫是兩回事，各自一區 */}
+                {note && (
+                  <>
+                    <DetailHeading title="心得" count="1 則" />
+                    <NoteBlock note={note} />
+                  </>
+                )}
+
+                {/* 一種類型一區，照各自的卡片樣式：思緒掛在寫著「心得」的標題底下對不起來 */}
+                {writingSections.map((section) => (
+                  <KindSectionBlock key={section.slug} group="writings" section={section} />
+                ))}
+
+                {keywords.length > 0 && (
+                  <div className="flex flex-col gap-2 pt-2">
+                    <span className="text-label text-ink-faint uppercase">關鍵字</span>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {keywords.map((keyword) => (
+                        <KeywordTag
+                          key={keyword}
+                          name={keyword}
+                          className="rounded-control bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {fragmentSections.length > 0 && (
                 <>
-                  <DetailHeading title="心得" count="1 則" />
-                  <NoteBlock note={note} />
-                </>
-              )}
-
-              {/* 一種類型一區，照各自的卡片樣式：思緒掛在寫著「心得」的標題底下對不起來 */}
-              {writingSections.map((section) => (
-                <KindSectionBlock key={section.slug} group="writings" section={section} />
-              ))}
-
-              {keywords.length > 0 && (
-                <div className="flex flex-col gap-2 pt-2">
-                  <span className="text-label text-ink-faint uppercase">關鍵字</span>
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    {keywords.map((keyword) => (
-                      <KeywordTag
-                        key={keyword}
-                        name={keyword}
-                        className="rounded-control bg-gray-100 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-200"
+                  {/* 分隔線是獨立元素，兩側都靠父層的 gap */}
+                  <div className="bg-rule hidden w-px shrink-0 md:block" />
+                  <div className="flex w-full flex-col gap-8 md:w-73 md:shrink-0">
+                    {fragmentSections.map((section) => (
+                      <KindSectionBlock
+                        key={section.slug}
+                        group="fragments"
+                        section={section}
+                        stacked
                       />
                     ))}
                   </div>
-                </div>
+                </>
               )}
             </div>
-
-            {fragmentSections.length > 0 && (
-              <>
-                {/* 分隔線是獨立元素，兩側都靠父層的 gap */}
-                <div className="bg-rule hidden w-px shrink-0 md:block" />
-                <div className="flex w-full flex-col gap-8 md:w-73 md:shrink-0">
-                  {fragmentSections.map((section) => (
-                    <KindSectionBlock
-                      key={section.slug}
-                      group="fragments"
-                      section={section}
-                      stacked
-                    />
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-        </article>
+          </article>
+        </PageMain>
       </PageBody>
     </>
   );

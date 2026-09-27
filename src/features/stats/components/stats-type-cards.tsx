@@ -33,7 +33,7 @@ export function StatsTypeCards() {
   })).filter((section) => section.kinds.length > 0);
 
   return (
-    <div className="flex flex-col gap-6 p-4 pb-10 md:p-6 md:pb-10">
+    <div className="flex flex-col gap-6 p-4 md:p-6">
       {sections.map((section) => (
         <section key={section.label} className="flex flex-col gap-3">
           {/* 字與線的顏色跟側欄的 group 小標同一套，線細一格——這一頁的卡片本身也有框，

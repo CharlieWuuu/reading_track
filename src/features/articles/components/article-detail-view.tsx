@@ -1,7 +1,7 @@
 "use client";
 
 import { ExternalLink } from "lucide-react";
-import { PageBody } from "@/components/layout/page-body";
+import { PageBody, PageMain } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordGate } from "@/components/layout/record-gate";
 import { ActionButton } from "@/components/ui/controls";
@@ -122,41 +122,43 @@ export function ArticleDetailView({ recordId }: { recordId: string }) {
         action={article && <ActionButton href={articleEditHref(article.id)}>編輯</ActionButton>}
       />
       <PageBody>
-        <RecordGate loading={isLoading} error={error} missing={!article && "找不到這篇文章"}>
-          {article && (
-            <div className="flex flex-col gap-8 pb-10">
-              <DetailHeader facts={<ArticleFacts article={article} kind={articleKind} />}>
-                <div className="flex min-w-0 flex-1 flex-col gap-2.5">
-                  <DetailTitle title={article.title} subtitle={article.author} />
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <TagList values={[article.domain]} tone="domain" />
-                    <TagList values={[article.subDomain]} tone="subDomain" />
+        <PageMain>
+          <RecordGate loading={isLoading} error={error} missing={!article && "找不到這篇文章"}>
+            {article && (
+              <div className="flex flex-col gap-8">
+                <DetailHeader facts={<ArticleFacts article={article} kind={articleKind} />}>
+                  <div className="flex min-w-0 flex-1 flex-col gap-2.5">
+                    <DetailTitle title={article.title} subtitle={article.author} />
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <TagList values={[article.domain]} tone="domain" />
+                      <TagList values={[article.subDomain]} tone="subDomain" />
+                    </div>
                   </div>
-                </div>
-              </DetailHeader>
+                </DetailHeader>
 
-              {keywords.length > 0 && (
-                <DetailSection title="關鍵字" count={`${keywords.length} 項`}>
-                  <div className="flex flex-wrap gap-1.5">
-                    {keywords.map((name) => (
-                      <KeywordTag key={name} name={name} className={KEYWORD_TAG} />
-                    ))}
-                  </div>
-                </DetailSection>
-              )}
+                {keywords.length > 0 && (
+                  <DetailSection title="關鍵字" count={`${keywords.length} 項`}>
+                    <div className="flex flex-wrap gap-1.5">
+                      {keywords.map((name) => (
+                        <KeywordTag key={name} name={name} className={KEYWORD_TAG} />
+                      ))}
+                    </div>
+                  </DetailSection>
+                )}
 
-              {article.note.trim() && (
-                <DetailSection title="心得">
-                  <NoteBlock note={article.note} />
-                </DetailSection>
-              )}
+                {article.note.trim() && (
+                  <DetailSection title="心得">
+                    <NoteBlock note={article.note} />
+                  </DetailSection>
+                )}
 
-              {writingSections.map((section) => (
-                <KindSectionBlock key={section.slug} group="writings" section={section} />
-              ))}
-            </div>
-          )}
-        </RecordGate>
+                {writingSections.map((section) => (
+                  <KindSectionBlock key={section.slug} group="writings" section={section} />
+                ))}
+              </div>
+            )}
+          </RecordGate>
+        </PageMain>
       </PageBody>
     </>
   );

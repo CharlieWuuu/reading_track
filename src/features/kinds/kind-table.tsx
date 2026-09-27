@@ -14,7 +14,7 @@ import { fragmentHref } from "@/utils/overview-items";
  */
 
 const styles = {
-  wrap: "overflow-x-auto pb-10", // 欄位多時橫向捲；PageBody 自己捲，底部留白在內容尾端
+  wrap: "overflow-x-auto", // 欄位多時橫向捲
   table: "w-full border-collapse text-left",
   th: "text-label text-ink-faint border-rule-strong border-b-2 px-2 pb-2 font-medium whitespace-nowrap",
   td: "border-rule text-ui text-ink-muted border-b px-2 py-2.5 align-top",

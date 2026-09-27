@@ -20,7 +20,7 @@ const styles = {
   exampleTranslation: "text-xs leading-relaxed [overflow-wrap:anywhere] text-gray-400",
   // 封面靠右下角，淡淡一排就好：它是註腳，不是這張卡的主角。
   // 不能 shrink-0：手機一欄只有一半螢幕寬，五張封面加次數會把卡片撐出去，
-  // 外層 PageBody 的 overflow-y-auto 讓另一軸變成 auto，就長出橫向捲軸
+  // 外層 PageMain 的 overflow-y-auto 讓另一軸變成 auto，就長出橫向捲軸
   covers: "flex min-w-0 items-center gap-1 overflow-hidden opacity-60",
   empty: "py-6 text-center text-xs text-gray-400",
 };
