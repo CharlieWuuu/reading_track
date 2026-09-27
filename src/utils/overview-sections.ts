@@ -17,7 +17,7 @@ export type KindSection = {
   total: number;
   /** 這個類型的個數單位，空的就退回「筆」 */
   countUnit: string;
-  /** 一筆的畫法，由類型決定 */
+  /** 一筆長什麼樣，由類型決定 */
   cardStyle: CardStyle;
   rows: FragmentRow[];
 };

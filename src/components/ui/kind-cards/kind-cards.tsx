@@ -8,9 +8,9 @@ import { FragmentRow } from "@/lib/db/queries/catalog";
 import { fragmentCard, fragmentHref, fragmentTitle } from "@/utils/overview-items";
 
 /**
- * 一落片段照類型選的畫法排出來。
+ * 一落片段照類型選的卡片樣式排出來。
  *
- * 畫法從 kinds.card_style 來，不從 slug 猜——概覽頁、類型頁、設定頁的預覽
+ * 樣式從 kinds.card_style 來，不從 slug 猜——概覽、卡片牆、設定頁的預覽
  * 全部走這一支，同一種類型在三個地方才長得一樣。
  */
 
