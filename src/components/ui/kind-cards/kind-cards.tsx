@@ -19,7 +19,7 @@ const styles = {
   line: "border-rule-soft text-ui text-ink-muted hover:text-ink truncate border-b py-[7px] pl-3 last:border-b-0",
 };
 
-/** 一種樣式怎麼排。佳句、單行、整則、列一列一筆，切成多欄會把長句擠成一行三四個字 */
+/** 一種樣式怎麼排。佳句、標題、整則、清單一列一筆，切成多欄會把長句擠成一行三四個字 */
 const GRIDS: Record<CardStyle, string> = {
   cover: COVER_CARD_GRID,
   fragment: FRAGMENT_CARD_GRID,

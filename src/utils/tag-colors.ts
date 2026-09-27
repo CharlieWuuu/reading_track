@@ -75,6 +75,7 @@ export const TAG_TONES = {
   type: "text-tag-type-ink ring-1 ring-inset ring-tag-type-ring",
   language: "bg-tag-language-bg text-tag-language-ink",
   article: "bg-tag-article-bg text-tag-article-ink",
+  creator: "text-ink-muted ring-1 ring-inset ring-rule", // 人名不是分類，不上底色
 } as const;
 
 export type TagTone = keyof typeof TAG_TONES;

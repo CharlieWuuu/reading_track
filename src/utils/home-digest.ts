@@ -1,4 +1,5 @@
 import { FragmentRow, RecordRow } from "@/lib/db/queries/catalog";
+import { statusOf } from "./kind-list";
 
 /**
  * 登入後首頁的算式。全是純函式，畫面只負責排版。
@@ -31,9 +32,13 @@ export function countOnDate(dates: (string | null)[], date: string): number {
  * 頭條：正在讀的那一筆，最近開始的優先。
  * 一筆都沒有時退回最近讀完的——空著比放錯東西更難看。
  */
-export function pickHeadline(records: RecordRow[]): RecordRow | undefined {
+export function pickHeadline(
+  records: RecordRow[],
+  keysByKind: ReadonlyMap<string, ReadonlySet<string>> = new Map(),
+): RecordRow | undefined {
+  // 進行中照類型勾的日期判斷：沒勾開始日期的類型沒有「在讀」
   const reading = recentBy(
-    records.filter((row) => row.statusKey === "reading"),
+    records.filter((row) => statusOf(row, keysByKind.get(row.kindId)) === "reading"),
     (row) => row.startDate,
     1,
   );
