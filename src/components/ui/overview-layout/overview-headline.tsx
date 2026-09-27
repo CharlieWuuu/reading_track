@@ -10,7 +10,7 @@ import { OverviewItem } from "@/utils/overview";
  */
 
 const styles = {
-  band: "border-rule-strong flex flex-col gap-5 border-b pb-5 md:flex-row md:gap-8",
+  band: "border-rule-strong flex flex-col gap-5 border-b pb-5 @2xl:flex-row @2xl:gap-8", // 看內容欄寬不看視窗：側欄開著時視窗寬、內容欄窄
   label: "text-label text-accent font-medium",
   title: "font-serif text-lede leading-snug font-semibold",
   byline: "text-byline text-ink-muted",
@@ -34,10 +34,10 @@ export function OverviewHeadline({
 }) {
   return (
     <div className={styles.band}>
-      {/* 手機封面與文字並排成一組，aside 整塊落到底下 */}
-      <div className="flex min-w-0 flex-1 gap-4 md:contents">
+      {/* 窄的時候封面與文字並排成一組，aside 整塊落到底下 */}
+      <div className="flex min-w-0 flex-1 gap-4 @2xl:contents">
         {item.coverUrl && (
-          <div className="w-21.5 shrink-0 md:w-28.75">
+          <div className="w-21.5 shrink-0 @2xl:w-28.75">
             <BookCover url={item.coverUrl} title={item.title} size="full" />
           </div>
         )}
