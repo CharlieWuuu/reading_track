@@ -37,6 +37,12 @@ export const kinds = pgTable(
      * 有檢視切換，自訂類型點進去就一種顯示方式。勾幾個就長出幾個選項。
      */
     views: text("views").notNull().default("overview"),
+    /** 卡片牆照月或照年分段。合法值由 config/kind-display 管 */
+    cardGroupBy: text("card_group_by").notNull().default("month"),
+    /** 頁首寫「133 次・128 本」：同一個作品讀兩次算兩次 */
+    countRereads: boolean("count_rereads").notNull().default(false),
+    /** 讀完的依序編號 #128 */
+    numberDone: boolean("number_done").notNull().default(false),
     /** 量的單位：頁、分鐘、字。統計讀「量＋單位」自己長句子，加類型不用改統計 */
     amountUnit: text("amount_unit").notNull().default(""),
     /** 個數的單位：則、篇、部。跟 amount_unit 不同——那個是份量，這個是「幾件」。沒填就是「筆」 */
