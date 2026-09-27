@@ -3,6 +3,7 @@
 import { DetailField, DetailFields } from "@/components/ui/detail";
 import { Kind } from "@/lib/db/queries/kinds";
 import { detailFields } from "@/utils/detail-fields";
+import { imageSrc } from "@/utils/image-key";
 
 /**
  * 照類型勾的模組畫出來的詳情頁。ModuleForm 的唯讀版。
@@ -20,12 +21,14 @@ const styles = {
   meta: "text-meta text-ink-faint mt-2",
   body: "font-serif text-[15px] leading-[2.1] whitespace-pre-wrap text-gray-800 pt-5",
   fields: "pt-6",
+  cover: "rounded-surface mt-5 block max-h-60 w-auto object-contain", // 使用者自己挑的示意圖，不裁切
 };
 
 export function ModuleDetail({ kind, values }: { kind: Kind; values: Record<string, string> }) {
   const { longs, shorts } = detailFields(kind, values);
 
   const tag = [kind.name, values.endDate].filter(Boolean).join(" · ");
+  const cover = kind.modules.some((module) => module.key === "cover") && values.coverUrl; // 沒勾封面就不畫
 
   return (
     <div className={styles.frame}>
@@ -33,6 +36,11 @@ export function ModuleDetail({ kind, values }: { kind: Kind; values: Record<stri
         {tag && <span className={styles.tag}>{tag}</span>}
         {values.title && <h1 className={styles.title}>{values.title}</h1>}
       </div>
+
+      {cover && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={imageSrc(cover)} alt="" className={styles.cover} />
+      )}
 
       {longs.map((field) => (
         <p key={field.key} className={styles.body}>

@@ -301,8 +301,8 @@ function toFragmentRow(
     tags: fragment.tags,
     date: fragment.createdAt.toISOString().slice(0, 10),
     createdAt: fragment.createdAt.toISOString(),
-    // 繼承與否由類型自己說（setting_kinds.inherits_cover），不再寫死判斷 slug
-    coverUrl: kind.inheritsCover ? (work?.coverUrl ?? "") : "",
+    // 自己的封面優先；沒有才看類型要不要沿用出處的（setting_kinds.inherits_cover）
+    coverUrl: fragment.coverUrl || (kind.inheritsCover ? (work?.coverUrl ?? "") : ""),
     latitude: fragment.latitude,
     longitude: fragment.longitude,
     startYear: fragment.startYear,
