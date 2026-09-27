@@ -23,9 +23,9 @@ export type KindTemplate = {
   modules: ModuleKey[];
   /** 自己沒封面時用出處的封面。佳句與書寫是從某本書長出來的，單字關鍵字不是 */
   inheritsCover?: boolean;
-  /** 清單上一筆的畫法。沒寫就用該 group 的預設 */
+  /** 一筆長什麼樣。沒寫就用該 group 的預設 */
   cardStyle?: CardStyle;
-  /** 有哪幾種看法。沒寫就用 DEFAULT_VIEWS */
+  /** 有哪幾種版面。沒寫就用 DEFAULT_VIEWS */
   views?: readonly BookViewMode[];
 };
 

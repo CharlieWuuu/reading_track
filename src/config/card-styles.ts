@@ -1,11 +1,11 @@
 import { KindGroup } from "@/config/record-kinds";
 
 /**
- * 清單上一筆長什麼樣。類型自己選，不再由 slug 決定——
- * 寫死 slug === "quotes" 的話，使用者新增的「語錄」就排不成佳句。
+ * 版面底下一筆長什麼樣。概覽與卡片牆都讀它——同一種卡片可以排成概覽，
+ * 也可以排成卡片牆，兩件事正交。
  *
- * 選項是封閉的：畫法要有對應的元件，使用者挑得到的就是我們畫得出來的。
- * 但不按 group 發配——紀錄也可能想要單行，一年兩百本的封面牆反而找不到東西。
+ * 本來寫死判斷 slug === "quotes" 才排成引文，使用者新增的「語錄」就排不成佳句。
+ * 選項是封閉的：畫法要有對應的元件，挑得到的就是我們畫得出來的。
  */
 
 export const CARD_STYLES = [
@@ -23,6 +23,6 @@ const KEYS = new Set<string>(CARD_STYLES.map((style) => style.key));
 export const defaultCardStyle = (group: KindGroup): CardStyle =>
   group === "records" ? "cover" : "fragment";
 
-/** 資料庫的字串收斂成合法值。舊資料或手改過的值落回該 group 的預設 */
+/** 資料庫的字串收斂成合法值。認不得的落回該 group 的預設 */
 export const toCardStyle = (value: string, group: KindGroup): CardStyle =>
   KEYS.has(value) ? (value as CardStyle) : defaultCardStyle(group);
