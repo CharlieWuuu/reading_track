@@ -28,6 +28,8 @@ function makeWriting(patch: Partial<Writing> = {}): Writing {
     link: "",
     sourceTitle: "",
     sourceKind: "",
+    domain: "",
+    subDomain: "",
     kindId: "",
     kindName: "心得",
     kindCountUnit: "",

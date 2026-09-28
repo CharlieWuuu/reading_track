@@ -1,6 +1,8 @@
 import { and, asc, desc, eq, isNull, or, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/lib/db/client";
 import { kinds } from "@/lib/db/schema/kinds";
+import { recordTopics } from "@/lib/db/schema/taxonomy";
 import { writings } from "@/lib/db/schema/writings";
 import { Writing } from "@/types/writing";
 import { decodeCursor, encodeCursor } from "@/utils/pagination";
@@ -16,6 +18,9 @@ import { keywordNamesByOwner, sourceWorkOfWritings } from "./internal-links";
  * 同一份內容因為「有沒有連結出處」就顯示不同類型，沒辦法拿來做篩選或統計。
  */
 
+const writingTopic = alias(recordTopics, "writing_topic");
+const writingParentTopic = alias(recordTopics, "writing_parent_topic");
+
 const baseSelect = () =>
   db
     .select({
@@ -24,9 +29,13 @@ const baseSelect = () =>
       kindCountUnit: kinds.countUnit,
       kindCardStyle: kinds.cardStyle,
       kindSlug: kinds.slug,
+      topicName: writingTopic.name,
+      parentName: writingParentTopic.name,
     })
     .from(writings)
-    .innerJoin(kinds, eq(kinds.id, writings.kindId));
+    .innerJoin(kinds, eq(kinds.id, writings.kindId))
+    .leftJoin(writingTopic, eq(writingTopic.id, writings.topicId))
+    .leftJoin(writingParentTopic, eq(writingParentTopic.id, writingTopic.parentId));
 
 type WritingJoinRow = {
   writing: typeof writings.$inferSelect;
@@ -34,6 +43,8 @@ type WritingJoinRow = {
   kindCountUnit: string;
   kindCardStyle: string;
   kindSlug: string;
+  topicName: string | null;
+  parentName: string | null; // 有值代表 topicName 是次領域
 };
 
 /** 撈出來的原始列轉成 Writing——出處連結、關鍵字這些批次查詢一起做，跟分不分頁無關 */
@@ -46,31 +57,35 @@ async function toWritings(userId: string, rows: WritingJoinRow[]): Promise<Writi
     sourceWorkOfWritings(userId, ids),
   ]);
 
-  return rows.map(({ writing, kindName, kindCountUnit, kindCardStyle, kindSlug }) => {
-    const work = sourceWork.get(writing.id);
-    // 畫面上的書籍編號是「某一次讀」，所以指回第一次讀的那個
-    const sourceId = work ? (firstReading.get(work.id) ?? work.id) : "";
-    return {
-      id: writing.id,
-      createdAt: writing.createdAt.toISOString(),
-      endDate: writing.endDate,
-      title: writing.title,
-      topic: kindName, // 分類已經是 kind，topic 欄留著給篩選與統計沿用同一個名字
-      keywords: keywords.get(writing.id) ?? "",
-      note: writing.body,
-      link: links.get(writing.id) ?? "",
-      sourceTitle: work?.title ?? "",
-      sourceKind: work?.kindName ?? "",
-      kindId: writing.kindId,
-      kindName,
-      kindCountUnit,
-      kindCardStyle,
-      kindSlug,
-      sourceId,
-      private: "", // 書寫不帶私人旗標，藏東西一律從主題與類型下手
-      coverUrl: work?.coverUrl ?? "", // 封面跟著出處那本書走，書寫自己不存
-    };
-  });
+  return rows.map(
+    ({ writing, kindName, kindCountUnit, kindCardStyle, kindSlug, topicName, parentName }) => {
+      const work = sourceWork.get(writing.id);
+      // 畫面上的書籍編號是「某一次讀」，所以指回第一次讀的那個
+      const sourceId = work ? (firstReading.get(work.id) ?? work.id) : "";
+      return {
+        id: writing.id,
+        createdAt: writing.createdAt.toISOString(),
+        endDate: writing.endDate,
+        title: writing.title,
+        topic: kindName, // 分類已經是 kind，topic 欄留著給篩選與統計沿用同一個名字
+        keywords: keywords.get(writing.id) ?? "",
+        note: writing.body,
+        link: links.get(writing.id) ?? "",
+        sourceTitle: work?.title ?? "",
+        sourceKind: work?.kindName ?? "",
+        kindId: writing.kindId,
+        kindName,
+        kindCountUnit,
+        kindCardStyle,
+        kindSlug,
+        sourceId,
+        private: "", // 書寫不帶私人旗標，藏東西一律從主題與類型下手
+        coverUrl: work?.coverUrl ?? "", // 封面跟著出處那本書走，書寫自己不存
+        domain: parentName ?? topicName ?? "",
+        subDomain: parentName ? (topicName ?? "") : "",
+      };
+    },
+  );
 }
 
 export async function listWritings(userId: string): Promise<Writing[]> {
