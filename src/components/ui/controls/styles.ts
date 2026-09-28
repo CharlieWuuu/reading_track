@@ -7,7 +7,7 @@
  * 顏色全走 control-* 這組 component token，色票本身在 src/styles/tokens/。
  * 高度留在這裡：它是 md 斷點的兩個值，token 表達不了。
  */
-export const CONTROL_HEIGHT = "h-8 md:h-9";
+export const CONTROL_HEIGHT = "h-7 md:h-8";
 const HEIGHT = CONTROL_HEIGHT;
 const TEXT = "text-xs font-medium md:text-sm";
 
