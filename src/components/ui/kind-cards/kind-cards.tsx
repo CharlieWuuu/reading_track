@@ -45,13 +45,6 @@ const MIXED_WIDTH: Record<CardStyle, string> = {
   thread: "w-full py-3",
 };
 
-/** 右欄：手機插進主欄時照樣式分寬，桌機是窄欄，一律佔滿 */
-const RAIL_WIDTH: Record<CardStyle, string> = {
-  ...MIXED_WIDTH,
-  cover: `${HALF} lg:w-full`,
-  fragment: `${HALF} pb-3 lg:w-full`, // 右欄窄，不跟著三欄
-};
-
 const isMixed = (cardStyles: readonly CardStyle[]) => new Set(cardStyles).size > 1;
 
 export const gridOf = (cardStyles: readonly CardStyle[]): string =>
@@ -135,7 +128,6 @@ export function styledGrid(cards: readonly StyledCard[]) {
   return {
     gridClassName: gridOf(cardStyles),
     itemClassName: widthOf(MIXED_WIDTH),
-    railItemClassName: widthOf(RAIL_WIDTH),
     renderItem: (item: { id: string }) => {
       const card = byId.get(item.id);
       return card ? <KindCard {...card} /> : null;

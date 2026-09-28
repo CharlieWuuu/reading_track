@@ -10,6 +10,7 @@ import { KindGroup } from "@/config/kind-groups";
 import {
   listActiveRecordsByGroup,
   listDoneRecordsByGroup,
+  listRecordDomainsByGroup,
   listRecordsByGroup,
 } from "@/lib/db/queries/catalog";
 import { requestPrivacy } from "@/utils/privacy";
@@ -41,13 +42,20 @@ export const GET = guarded(
       if (scope === "done") {
         const cursor = req.nextUrl.searchParams.get("cursor");
         const limit = Number(req.nextUrl.searchParams.get("limit")) || DEFAULT_LIMIT;
-        const page = await listDoneRecordsByGroup(session.user.id, group as KindGroup, {
-          cursor,
-          limit,
-        });
+        const domain = req.nextUrl.searchParams.get("domain");
+        const [page, domains] = await Promise.all([
+          listDoneRecordsByGroup(session.user.id, group as KindGroup, { cursor, limit, domain }),
+          // 右欄篩選要全部的領域，只在第一頁帶
+          cursor
+            ? undefined
+            : listRecordDomainsByGroup(session.user.id, group as KindGroup, {
+                includePrivate: unlocked,
+              }),
+        ]);
         return NextResponse.json({
           ...page,
           rows: unlocked ? page.rows : hideSelfPrivate(page.rows),
+          domains,
         });
       }
 

@@ -109,6 +109,9 @@ const toRecordRow = ({
  */
 const parentTopics = alias(recordTopics, "parent_topic");
 
+/** 領域名：topic 指到子節點就取父節點的名字 */
+const domainName = sql<string>`coalesce(${parentTopics.name}, ${recordTopics.name})`;
+
 const recordSelect = () =>
   db
     .select({
@@ -178,21 +181,21 @@ export type PagedRecordRows = {
 export async function listDoneRecordsByGroup(
   userId: string,
   group: KindGroup,
-  { cursor, limit }: { cursor?: string | null; limit: number },
+  { cursor, limit, domain }: { cursor?: string | null; limit: number; domain?: string | null },
 ): Promise<PagedRecordRows> {
   const after = decodeCursor<DoneCursor>(cursor);
+  const done = and(
+    eq(records.userId, userId),
+    eq(kinds.groupKey, group),
+    isNotNull(records.endDate),
+    domain ? eq(domainName, domain) : undefined,
+  );
 
   const [rows, [{ count }]] = await Promise.all([
-    db
-      .select({ record: records, work: works, kind: kinds })
-      .from(records)
-      .innerJoin(works, eq(works.id, records.workId))
-      .innerJoin(kinds, eq(kinds.id, works.kindId))
+    recordSelect()
       .where(
         and(
-          eq(records.userId, userId),
-          eq(kinds.groupKey, group),
-          isNotNull(records.endDate),
+          done,
           after
             ? sql`(${records.endDate}, ${records.id}) < (${after.endDate}, ${after.id})`
             : undefined,
@@ -205,9 +208,9 @@ export async function listDoneRecordsByGroup(
       .from(records)
       .innerJoin(works, eq(works.id, records.workId))
       .innerJoin(kinds, eq(kinds.id, works.kindId))
-      .where(
-        and(eq(records.userId, userId), eq(kinds.groupKey, group), isNotNull(records.endDate)),
-      ),
+      .leftJoin(recordTopics, eq(recordTopics.id, works.topicId))
+      .leftJoin(parentTopics, eq(parentTopics.id, recordTopics.parentId))
+      .where(done),
   ]);
 
   const hasMore = rows.length > limit;
@@ -219,6 +222,29 @@ export async function listDoneRecordsByGroup(
       : null;
 
   return { rows: page.map(toRecordRow), nextCursor, hasMore, total: count };
+}
+
+/** 這個 group 的紀錄用到哪些領域。概覽右欄的篩選要列全部，不能只看已載入的那幾頁 */
+export async function listRecordDomainsByGroup(
+  userId: string,
+  group: KindGroup,
+  { includePrivate }: { includePrivate: boolean },
+): Promise<string[]> {
+  const rows = await db
+    .selectDistinct({ name: domainName })
+    .from(records)
+    .innerJoin(works, eq(works.id, records.workId))
+    .innerJoin(kinds, eq(kinds.id, works.kindId))
+    .innerJoin(recordTopics, eq(recordTopics.id, works.topicId))
+    .leftJoin(parentTopics, eq(parentTopics.id, recordTopics.parentId))
+    .where(
+      and(
+        eq(records.userId, userId),
+        eq(kinds.groupKey, group),
+        includePrivate ? undefined : eq(records.isPrivate, false), // 鎖著時私人那幾筆的領域也不列
+      ),
+    );
+  return rows.map((row) => row.name);
 }
 
 export type FragmentRow = {
@@ -422,9 +448,8 @@ async function listWritingsAsFragments(userId: string): Promise<FragmentRow[]> {
       longitude: null,
       startYear: null,
       endYear: null,
-      // 書寫走 listWritings 那條舊路，還沒帶出分類——欄位在（0020），讀還沒接上
-      domain: "",
-      subDomain: "",
+      domain: writing.domain,
+      subDomain: writing.subDomain,
       attribute: "",
     }))
     .sort(byDateThenNewest((row) => row.date));

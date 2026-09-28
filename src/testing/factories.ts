@@ -126,6 +126,8 @@ export function makeWriting(overrides: Partial<Writing> = {}): Writing {
     sourceId: "",
     private: "",
     coverUrl: "",
+    domain: "",
+    subDomain: "",
     ...overrides,
   };
 }

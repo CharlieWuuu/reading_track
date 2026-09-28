@@ -6,6 +6,9 @@ import useSWRInfinite from "swr/infinite";
 import { KindGroup } from "@/config/kind-groups";
 import { PagedRecordRows, RecordRow } from "@/lib/db/queries/catalog";
 import { usePrivacyStore } from "@/stores/use-privacy-store";
+import { sortDomains } from "@/utils/domain-filter";
+
+type DonePage = PagedRecordRows & { domains?: string[] }; // domains 只有第一頁帶
 
 /**
  * 紀錄概覽頁專用：進行中／想要整批抓，完成的分頁抓（滾到底載入下一批）。
@@ -23,7 +26,7 @@ async function fetcher<T>(url: string): Promise<T> {
 
 const DONE_PAGE_SIZE = 30;
 
-export function useGroupRecordsOverview(group: KindGroup) {
+export function useGroupRecordsOverview(group: KindGroup, domain: string | null) {
   const unlock = usePrivacyStore((s) => s.token);
   const unlockQuery = unlock ? `&unlock=${unlock}` : "";
 
@@ -34,11 +37,12 @@ export function useGroupRecordsOverview(group: KindGroup) {
     isLoading: activeLoading,
   } = useSWR<{ records: RecordRow[] }>(activeKey, fetcher);
 
-  const getDoneKey = (pageIndex: number, previousPage: PagedRecordRows | null) => {
+  const getDoneKey = (pageIndex: number, previousPage: DonePage | null) => {
     if (previousPage && !previousPage.hasMore) return null;
     const cursor = previousPage?.nextCursor;
     if (pageIndex > 0 && !cursor) return null;
-    return `/api/groups/${group}/records?scope=done&limit=${DONE_PAGE_SIZE}${unlockQuery}${
+    const domainQuery = domain ? `&domain=${encodeURIComponent(domain)}` : "";
+    return `/api/groups/${group}/records?scope=done&limit=${DONE_PAGE_SIZE}${unlockQuery}${domainQuery}${
       cursor ? `&cursor=${cursor}` : ""
     }`;
   };
@@ -50,7 +54,7 @@ export function useGroupRecordsOverview(group: KindGroup) {
     isValidating: doneValidating,
     size,
     setSize,
-  } = useSWRInfinite<PagedRecordRows>(getDoneKey, fetcher);
+  } = useSWRInfinite<DonePage>(getDoneKey, fetcher);
 
   const done = useMemo(() => (donePages ?? []).flatMap((page) => page.rows), [donePages]);
   const total = donePages?.[0]?.total ?? 0;
@@ -66,8 +70,11 @@ export function useGroupRecordsOverview(group: KindGroup) {
     setSize(size + 1);
   }, [isLoadingMore, setSize, size]);
 
+  const domains = useMemo(() => sortDomains(donePages?.[0]?.domains ?? []), [donePages]);
+
   return {
     active: activeData?.records ?? [],
+    domains,
     done,
     doneTotal: total,
     isLoading: activeLoading || (doneLoading && done.length === 0),

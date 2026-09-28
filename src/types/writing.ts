@@ -44,4 +44,6 @@ export interface Writing {
   private: string;
   /** 封面圖，選填——像部落格文章那種示意圖，不跟出處的書籍封面連動 */
   coverUrl: string;
+  domain: string; // 領域：父節點名，沒填是空字串
+  subDomain: string;
 }
