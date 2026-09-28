@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CONTROL_HEIGHT } from "@/components/ui/controls";
 import { MastheadMark } from "@/components/ui/masthead-mark";
 import { CRUMB_MAX, truncateChars } from "@/utils/truncate";
 import { BackLink } from "./back-link";
@@ -6,7 +7,7 @@ import { BackLink } from "./back-link";
 const styles = {
   // 頁首不捲動；跟設計稿一致，底下畫一條線把頁首跟內容列表分開
   bar: "border-ink flex shrink-0 flex-wrap items-baseline justify-between gap-2 border-b pb-1 md:gap-3",
-  heading: "flex min-w-0 flex-1 items-baseline gap-2",
+  heading: `flex ${CONTROL_HEIGHT} min-w-0 flex-1 items-baseline gap-2`, // 頁首一列寫死高度，按鈕不撐開
   back: "hover:text-ink -ml-1 flex size-7 shrink-0 items-center justify-center self-center",
   // 麵包屑跟頁名同字級、同字重，只靠顏色分：淡的是上層，墨色是現在這一頁
   parent: "font-serif font-semibold text-ink-faint truncate",
@@ -21,7 +22,7 @@ const styles = {
   // 標題跟這行數字不算同一組資訊，間距要比麵包屑／標題那組鬆。
   // 手機不畫：那行寬度先留給標題與類型切換，數字在清單裡自己看得到
   meta: "text-meta text-ink-faint ml-2 hidden truncate tabular-nums md:inline",
-  actions: "flex min-w-0 shrink-0 items-center justify-end *:min-w-0", // *:min-w-0 讓傳進來的內容縮得下去
+  actions: `flex ${CONTROL_HEIGHT} min-w-0 shrink-0 items-center justify-end *:min-w-0`, // *:min-w-0 讓傳進來的內容縮得下去
 };
 
 /** 麵包屑一段：純文字沒有 href 就不能點，有給就是連到那一層 */
