@@ -8,7 +8,7 @@ const styles = {
   bar: "border-ink flex shrink-0 flex-wrap items-baseline justify-between gap-2 border-b pb-1 md:gap-3",
   heading: "flex min-w-0 flex-1 items-baseline gap-2",
   back: "hover:text-ink -ml-1 flex size-7 shrink-0 items-center justify-center self-center",
-  // 麵包屑跟頁名同字級、同字重，只靠顏色分：淡的是上層，墨色是現在這一頁
+  // 麵包屑跟頁名同字重、小一階，顏色再分：淡的是上層，墨色是現在這一頁
   parent: "font-serif font-semibold text-ink-faint truncate",
   // 桌機的報頭已經有站名可以點，這顆只給手機
   home: "flex shrink-0 items-baseline md:hidden",
@@ -18,6 +18,7 @@ const styles = {
   title: "font-serif text-ink truncate font-semibold",
   page: "text-page",
   compact: "text-item",
+  crumb: { page: "text-item", compact: "text-item-sm" }, // 麵包屑比頁名小一階
   // 標題跟這行數字不算同一組資訊，間距要比麵包屑／標題那組鬆。
   // 手機不畫：那行寬度先留給標題與類型切換，數字在清單裡自己看得到
   meta: "text-meta text-ink-faint ml-2 hidden truncate tabular-nums md:inline",
@@ -80,7 +81,7 @@ export function PageHeader({
                 // 已經說了「上一層是誰、我在哪個 group」
                 <span
                   key={i}
-                  className={`hidden min-w-0 shrink items-baseline gap-2 md:flex ${styles[size]}`}
+                  className={`hidden min-w-0 shrink items-baseline gap-2 md:flex ${styles.crumb[size]}`}
                 >
                   {crumb.href ? (
                     <Link href={crumb.href} title={crumb.label} className={styles.parentLink}>
