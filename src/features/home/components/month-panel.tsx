@@ -3,9 +3,9 @@
 const styles = {
   // 分隔線不在這裡：它是獨立元素，由擺這塊面板的人畫，間距一律靠父層的 gap
   frame: "shrink-0 @2xl:w-[226px]",
-  head: "border-rule-strong flex items-baseline justify-between border-b pb-1.5",
+  head: "border-rule-strong border-b pb-1.5",
   label: "text-label font-medium",
-  meta: "text-meta text-ink-faint tabular-nums",
+  meta: "text-meta text-ink-faint",
   number: "font-serif text-lede leading-none font-semibold",
 };
 
@@ -23,12 +23,11 @@ function Count({ count }: { count: MonthCount }) {
   );
 }
 
-export function MonthPanel({ month, counts }: { month: string; counts: MonthCount[] }) {
+export function MonthPanel({ counts }: { counts: MonthCount[] }) {
   return (
     <div className={styles.frame}>
       <div className={styles.head}>
         <span className={styles.label}>這個月</span>
-        <span className={styles.meta}>{month}</span>
       </div>
       <div className="flex gap-5 pt-3">
         {counts.map((count) => (

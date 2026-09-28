@@ -5,6 +5,7 @@ import { Ref } from "react";
 const styles = {
   frame:
     "grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_1px_14.5rem]", // 右欄那格一律留，每頁中間一樣寬；窄螢幕只剩中間
+  frameFull: "grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)]", // 不要右欄的頁，例如首頁
   rule: "bg-rule-strong col-start-2 row-start-1 hidden lg:block", // 分隔線由外框畫，右欄空著也有
   main: "@container col-start-1 row-start-1 flex min-w-0 flex-col overflow-y-auto pb-10", // 裡面的 @ 斷點看這一欄的寬
   aside: "@container col-start-3 row-start-1 hidden flex-col gap-8 overflow-y-auto pb-10 lg:flex",
@@ -12,7 +13,8 @@ const styles = {
 
 type SlotProps = { children: React.ReactNode };
 
-export function PageBody({ children }: SlotProps) {
+export function PageBody({ children, aside = true }: SlotProps & { aside?: boolean }) {
+  if (!aside) return <div className={styles.frameFull}>{children}</div>;
   return (
     <div className={styles.frame}>
       {children}
