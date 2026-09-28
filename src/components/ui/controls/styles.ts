@@ -10,11 +10,13 @@
 export const CONTROL_HEIGHT = "h-7 md:h-8";
 const HEIGHT = CONTROL_HEIGHT;
 const TEXT = "text-xs font-medium md:text-sm";
+const PRIMARY_TEXT = `${TEXT} leading-none [&_svg]:size-[1em]`; // 行高 = 字級，圖示跟字一樣大
 
 export const styles = {
-  primary: `flex ${HEIGHT} shrink-0 items-center gap-1 rounded-control bg-control-bg px-3 ${TEXT} text-control-ink hover:bg-control-bg-hover md:px-4`,
-  // 只有一個圖示時左右不留文字的餘裕，寬度跟高度差不多才像一顆鍵
-  primaryIcon: `flex ${HEIGHT} aspect-square shrink-0 items-center justify-center rounded-control bg-control-bg ${TEXT} text-control-ink hover:bg-control-bg-hover`,
+  // 綠底按鈕不寫死高度：字級 + padding + 邊框撐出來，放進頁首固定高的那一列
+  primary: `flex shrink-0 items-center gap-1 rounded-control border border-transparent bg-control-bg px-3 py-1.5 ${PRIMARY_TEXT} text-control-ink hover:bg-control-bg-hover md:px-4`,
+  // 只有一個圖示：四邊同 padding 就是正方形
+  primaryIcon: `flex shrink-0 items-center justify-center rounded-control border border-transparent bg-control-bg p-1.5 ${PRIMARY_TEXT} text-control-ink hover:bg-control-bg-hover`,
   secondary: `flex ${HEIGHT} shrink-0 items-center gap-1 rounded-control border px-3 ${TEXT} text-control-ink-secondary hover:bg-control-ghost-hover`,
   // 沒有文字就不用留文字的左右餘裕；圖示旁邊還有一個 chevron，所以不做成正方形
   secondaryIcon: `flex ${HEIGHT} shrink-0 items-center gap-0.5 rounded-control border px-2 ${TEXT} text-control-ink-secondary hover:bg-control-ghost-hover`,
