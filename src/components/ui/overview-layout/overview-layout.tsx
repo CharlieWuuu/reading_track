@@ -19,7 +19,7 @@ import { byMonth, OverviewItem } from "@/utils/overview";
 
 const styles = {
   main: "flex flex-col gap-5",
-  // 窄螢幕沒有右欄，同一份內容改插在頭條下面——「現在在讀什麼」比「上個月讀完什麼」先看到
+  // 窄螢幕沒有右欄，同一份內容改插在月份上面
   railInline: "flex flex-col gap-5 lg:hidden",
   meta: "text-meta text-ink-faint tabular-nums",
   monthList: "flex flex-col gap-5",
@@ -41,12 +41,11 @@ export type OverviewLayoutProps = {
   /** 數量的單位：一「筆」紀錄、一「則」片段。月份標題右邊那個數字要接它 */
   unit?: string;
   /**
-   * 右側窄欄——各頁自己的統計、Rail 清單都放這裡；沒有就不留這塊區域。
-   *
-   * 窄螢幕收掉右欄，同一份內容改插在頭條與月份格線之間：手機看不到右欄，
-   * 「在讀」「想要」就等於消失了，但那正是最常想確認的一段。
+   * 右側窄欄——統計、篩選；沒有就不留這塊區域。
+   * 窄螢幕收掉右欄，同一份內容改插在月份格線上面。
    */
   rail?: ReactNode;
+  lead?: ReactNode; // 頭條底下、月份上面：進行、想要
   /** 窄螢幕不把 rail 插進內容裡。書寫那頁的統計在手機上只是把內容往下推 */
   railDesktopOnly?: boolean;
   /**
@@ -72,6 +71,7 @@ export function OverviewLayout({
   done,
   unit = "筆",
   rail,
+  lead,
   railDesktopOnly,
   renderItem,
   gridClassName,
@@ -117,6 +117,8 @@ export function OverviewLayout({
           {headline && (
             <OverviewHeadline item={headline} label={headlineLabel} summary={headlineSummary} />
           )}
+
+          {lead}
 
           {rail && !railDesktopOnly && <div className={styles.railInline}>{rail}</div>}
 

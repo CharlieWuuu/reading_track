@@ -1,10 +1,6 @@
 /**
- * 右側窄欄那種清單：小標題、數量、幾筆條目、看全部。
- *
- * 一筆怎麼畫由呼叫端給（renderItem），跟中間的格線同一支——照那一筆類型的卡片樣式。
- *
- * 同一份內容畫兩個地方：桌機在右側窄欄，一列一筆；窄螢幕沒有右欄，插進主欄頭條底下，
- * 那裡跟月份格線一樣寬，就照格線排（gridClassName），不然一筆佔滿整個寬度。
+ * 主欄頭條底下的一段清單（進行、想要）：小標題、數量、幾筆條目、看全部。
+ * 一筆怎麼畫、怎麼排都跟月份格線同一套，由呼叫端給。
  */
 
 const styles = {
@@ -29,7 +25,7 @@ export function OverviewRail<T extends RailItem>({
   label: string;
   items: readonly T[];
   renderItem: (item: T) => React.ReactNode;
-  gridClassName: string; // 窄螢幕插在主欄時的排法，跟月份格線同一個
+  gridClassName: string;
   itemClassName?: (item: T) => string; // 一筆佔多寬，混排時用得到
   unit: string;
   limit?: number;
@@ -48,7 +44,7 @@ export function OverviewRail<T extends RailItem>({
           {count} {unit}
         </span>
       </div>
-      <div className={`${gridClassName} pt-3 lg:flex lg:flex-col lg:gap-4`}>
+      <div className={`${gridClassName} pt-3`}>
         {shown.map((item) => (
           <div key={item.id} className={itemClassName?.(item)}>
             {renderItem(item)}

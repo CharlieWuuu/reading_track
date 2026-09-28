@@ -9,7 +9,7 @@ import { OverviewItem, pickHeadline } from "@/utils/overview";
  * 整個 group 的概覽：跟書籍概覽共用同一套骨架（OverviewLayout），
  * 差別只有右側窄欄——這裡收的是 OverviewItem 而不是 Book，紀錄那頁要把
  * 書籍、文章、電影混在同一份清單裡排，沒有共通的量化指標可以做統計區塊，
- * 右欄是統計／進行／想要，標籤全站固定，不開放呼叫端自訂。
+ * 進行／想要在主欄頭條底下，右欄是統計與篩選；標籤全站固定，不開放呼叫端自訂。
  */
 
 type GroupOverviewProps = {
@@ -24,12 +24,12 @@ type GroupOverviewProps = {
   onLoadMore?: () => void; // 捲到底時呼叫，不給就是整包展示
   hasMore?: boolean;
   isLoadingMore?: boolean;
+  filter?: React.ReactNode; // 右欄的篩選，只給桌機
   extraRail?: React.ReactNode; // 右欄補的內容，書寫沒有進行／想要
   railDesktopOnly?: boolean; // 窄螢幕不插進內容裡
   renderItem: (item: OverviewItem) => React.ReactNode; // 一筆怎麼畫，照類型的卡片樣式；格線與右欄共用，所以要認得 active／pending／done 全部
   gridClassName: string; // 月份格線的欄數斷點
   itemClassName?: (item: OverviewItem) => string; // 一筆佔多寬，混排時用得到
-  railItemClassName?: (item: OverviewItem) => string; // 右欄那份：桌機一律佔滿
 };
 
 /** 完成日最新的那一筆 */
@@ -48,12 +48,12 @@ export function GroupOverview({
   onLoadMore,
   hasMore,
   isLoadingMore,
+  filter,
   extraRail,
   railDesktopOnly,
   renderItem,
   gridClassName,
   itemClassName,
-  railItemClassName,
 }: GroupOverviewProps) {
   // active 沒東西、但呼叫端有給頭條標籤時（例如書寫，記下就算完成，沒有
   // 進行中這個狀態，仍想秀「最新一則」），頭條改從 done 挑最新一筆；
@@ -75,13 +75,8 @@ export function GroupOverview({
       renderItem={renderItem}
       gridClassName={gridClassName}
       itemClassName={itemClassName}
-      rail={
+      lead={
         <>
-          <OverviewTotalStats
-            count={total?.count ?? active.length + pending.length + (doneTotal ?? done.length)}
-            caption={total?.caption}
-            unit={unit}
-          />
           {/* 頭條那本也留在清單裡：這份是「現在在讀什麼」，少一本就不是全部了 */}
           <OverviewRail
             label="進行"
@@ -90,7 +85,7 @@ export function GroupOverview({
             limit={5}
             renderItem={renderItem}
             gridClassName={gridClassName}
-            itemClassName={railItemClassName}
+            itemClassName={itemClassName}
           />
           <OverviewRail
             label="想要"
@@ -99,8 +94,18 @@ export function GroupOverview({
             limit={5}
             renderItem={renderItem}
             gridClassName={gridClassName}
-            itemClassName={railItemClassName}
+            itemClassName={itemClassName}
           />
+        </>
+      }
+      rail={
+        <>
+          <OverviewTotalStats
+            count={total?.count ?? active.length + pending.length + (doneTotal ?? done.length)}
+            caption={total?.caption}
+            unit={unit}
+          />
+          {filter && <div className="hidden lg:block">{filter}</div>}
           {extraRail}
         </>
       }
