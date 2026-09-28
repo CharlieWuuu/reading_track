@@ -1,11 +1,14 @@
+import { DomainFilter } from "@/components/ui/domain-filter/domain-filter";
 import { GroupOverview } from "@/components/ui/group-overview/group-overview";
 import { styledGrid } from "@/components/ui/kind-cards/kind-cards";
 import { OverviewLayout } from "@/components/ui/overview-layout/overview-layout";
 import { OverviewTotalStats } from "@/components/ui/overview-layout/overview-rail-stats";
 import { unitOfKind } from "@/config/nav";
+import { useDomainParam } from "@/hooks/use-domain-param";
 import { FragmentRow, RecordRow } from "@/lib/db/queries/catalog";
 import { Kind } from "@/lib/db/queries/kinds";
 import { styledFragment, styledRecord } from "@/utils/card-data";
+import { domainsOf, inDomain } from "@/utils/domain-filter";
 import { countTotal, moduleKeysByKind, splitByStatus } from "@/utils/kind-list";
 import { pickHeadline } from "@/utils/overview";
 import { fragmentItem, recordItem } from "@/utils/overview-items";
@@ -18,14 +21,24 @@ import { fragmentItem, recordItem } from "@/utils/overview-items";
  */
 export function KindOverview({
   kind,
-  records,
-  fragments,
+  records: allRecords,
+  fragments: allFragments,
 }: {
   kind: Kind;
   records: RecordRow[];
   fragments: FragmentRow[];
 }) {
   const unit = unitOfKind(kind); // amountUnit 是份量（頁、分鐘），這裡要的是個數
+  const { domain, toggle } = useDomainParam();
+  const records = allRecords.filter(inDomain(domain));
+  const fragments = allFragments.filter(inDomain(domain));
+  const filter = (
+    <DomainFilter
+      domains={domainsOf([...allRecords, ...allFragments])}
+      value={domain}
+      onToggle={toggle}
+    />
+  );
 
   if (kind.group === "records") {
     // 狀態照這個類型勾的日期判斷：沒勾開始日期就沒有進行中
@@ -39,7 +52,8 @@ export function KindOverview({
         doneHeadlineLabel={`最近完成的一${unit}`} // 沒有進行中（或沒勾開始日期）時
         unit={unit}
         total={countTotal(records, kind.countRereads)}
-        {...styledGrid(records.map(styledRecord))} // 右欄的進行、想要也照樣式畫
+        {...styledGrid(records.map(styledRecord))} // 進行、想要也照樣式畫
+        filter={filter}
       />
     );
   }
@@ -56,6 +70,7 @@ export function KindOverview({
         headlineLabel="" // 一路往下讀的流，頭條會把最新那則講兩次
         unit={unit}
         railDesktopOnly // 統計在手機上只是把內容往下推
+        filter={filter}
         {...grid}
       />
     );
@@ -67,7 +82,12 @@ export function KindOverview({
       headlineLabel="最新一筆"
       done={items}
       unit={unit}
-      rail={<OverviewTotalStats count={items.length} unit={unit} />}
+      rail={
+        <>
+          <OverviewTotalStats count={items.length} unit={unit} />
+          <div className="hidden lg:block">{filter}</div>
+        </>
+      }
       {...grid}
     />
   );
