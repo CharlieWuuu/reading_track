@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { KindGroup } from "@/config/kind-groups";
-import { groupBasePath, kindGroupSlugFromPath, kindHref } from "@/config/kind-routes";
+import { kindGroupSlugFromPath, kindHref } from "@/config/kind-routes";
 import { useKinds } from "@/hooks/use-kinds";
 
 /**
@@ -25,7 +25,6 @@ const styles = {
   tab: "text-ui shrink-0 rounded-full px-3 py-1 whitespace-nowrap",
   on: "bg-accent/10 text-accent font-medium",
   off: "text-ink-faint",
-  count: "text-meta ml-1 tabular-nums opacity-60",
 };
 
 export function NavKindStrip() {
@@ -44,18 +43,8 @@ export function NavKindStrip() {
   const rows = kinds.filter((kind) => kind.group === group);
   if (rows.length === 0) return null;
 
-  const base = groupBasePath(group);
-
   return (
     <nav className={styles.strip} aria-label="類型">
-      <Link
-        href={base}
-        ref={here ? undefined : activeRef}
-        aria-current={here ? undefined : "page"}
-        className={`${styles.tab} ${here ? styles.off : styles.on}`}
-      >
-        全部
-      </Link>
       {rows.map((kind) => {
         const on = here?.slug === kind.slug;
         return (
@@ -67,7 +56,6 @@ export function NavKindStrip() {
             className={`${styles.tab} ${on ? styles.on : styles.off}`}
           >
             {kind.name}
-            <span className={styles.count}>{kind.count}</span>
           </Link>
         );
       })}
