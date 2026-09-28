@@ -2,7 +2,9 @@ import Link from "next/link";
 import { KindCard, STACKED } from "@/components/ui/kind-cards/kind-cards";
 import { StyledCard } from "@/utils/card-data";
 
-// 首頁一個 group 一欄：這個月的每一筆加「看全部」。卡片照類型樣式，欄窄一律一筆一列
+// 首頁一個 group 一欄：這個月最新幾筆加「看全部」。卡片照類型樣式，欄窄一律一筆一列
+
+const PREVIEW_SIZE = 6;
 
 const styles = {
   head: "border-rule-strong flex items-baseline justify-between border-b pb-1.5",
@@ -35,7 +37,7 @@ export function DigestColumn({
       </div>
 
       <div className={`${STACKED} pt-3`}>
-        {cards.map((card) => (
+        {cards.slice(0, PREVIEW_SIZE).map((card) => (
           <KindCard key={card.data.id} {...card} />
         ))}
       </div>

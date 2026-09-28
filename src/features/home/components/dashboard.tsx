@@ -1,6 +1,5 @@
 "use client";
 
-import { IssueDate } from "@/components/layout/issue-date";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
 import { OverviewHeadline } from "@/components/ui/overview-layout/overview-headline";
@@ -23,9 +22,8 @@ import { DigestColumn } from "./digest-column";
 import { MonthPanel } from "./month-panel";
 
 const styles = {
-  head: "flex items-baseline justify-between gap-3.5 pb-2.5",
+  head: "pb-2.5",
   title: "font-serif text-page font-semibold",
-  meta: "text-meta tabular-nums",
   // 沒有頭條可畫時的替身，線與間距跟 OverviewHeadline 對齊
   emptyBand: "border-rule-strong flex flex-col gap-5 border-b pb-5 @2xl:flex-row @2xl:gap-8",
 };
@@ -56,7 +54,6 @@ export function Dashboard() {
       {/* 內容欄窄時橫著分隔，寬時變成直線 */}
       <div className="bg-rule h-px w-full shrink-0 @2xl:h-auto @2xl:w-px" />
       <MonthPanel
-        month={today.slice(0, 7)}
         counts={[
           { label: "紀錄", unit: unitOfGroup("records"), value: monthRecords.length },
           { label: "片段", unit: unitOfGroup("fragments"), value: monthFragments.length },
@@ -70,7 +67,6 @@ export function Dashboard() {
     <div className="flex flex-1 flex-col">
       <div className={styles.head}>
         <h1 className={styles.title}>{Number(today.slice(5, 7))}月</h1>
-        <IssueDate className={styles.meta} />
       </div>
 
       {headline ? (
@@ -79,6 +75,7 @@ export function Dashboard() {
           label={
             statusOf(headline, keysByKind.get(headline.kindId)) === "reading" ? "在讀" : "最近讀完"
           }
+          summary={headline.body || undefined} // 兩行節錄，OverviewHeadline 負責截
           aside={monthPanel}
         />
       ) : (
