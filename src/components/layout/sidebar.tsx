@@ -32,27 +32,13 @@ const styles = {
   labelIdle: "text-ink-muted",
 };
 
-function NavRow({
-  type,
-  active,
-  count,
-  unit,
-}: {
-  type: NavType;
-  active: boolean;
-  count?: number;
-  unit: string;
-}) {
+function NavRow({ type, active, count }: { type: NavType; active: boolean; count?: number }) {
   return (
     <Link href={type.href} aria-current={active ? "page" : undefined} className={styles.row}>
       <span className={`${styles.label} ${active ? styles.labelActive : styles.labelIdle}`}>
         {type.label}
       </span>
-      {count !== undefined && (
-        <span className={styles.count}>
-          {count.toLocaleString()} {unit}
-        </span>
-      )}
+      {count !== undefined && <span className={styles.count}>{count.toLocaleString()}</span>}
     </Link>
   );
 }
@@ -107,7 +93,6 @@ export function Sidebar() {
                   type={type}
                   active={type.key === currentSlug}
                   count={type.count}
-                  unit={group.unit}
                 />
               ))}
             </div>
