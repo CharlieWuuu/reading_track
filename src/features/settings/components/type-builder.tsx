@@ -17,7 +17,7 @@ import { Kind } from "@/lib/db/queries/kinds";
 import { BookViewMode } from "@/stores/use-book-view-store";
 
 /** 每個類型都有的那幾個不列出來——列了也不能取消勾，只會讓人以為關得掉 */
-const PICKABLE = MODULES.filter((module) => !("always" in module));
+const PICKABLE = MODULES.filter((module) => !("always" in module) && !("required" in module));
 
 /**
  * 新增類型。類型是資料不是程式——勾完就有清單、詳情、表單三頁，不用寫 code。
@@ -135,13 +135,7 @@ export function TypeBuilder({
   }, [onDraftChange, group, name, picked]);
 
   const toggle = (key: string) =>
-    setPicked((keys) =>
-      REQUIRED_KEYS.includes(key)
-        ? keys
-        : keys.includes(key)
-          ? keys.filter((k) => k !== key)
-          : [...keys, key],
-    );
+    setPicked((keys) => (keys.includes(key) ? keys.filter((k) => k !== key) : [...keys, key]));
 
   const siblings = kinds.filter((kind) => kind.group === group && kind.id !== editing?.id);
   const taken = new Set(siblings.map((kind) => kind.name));
@@ -258,7 +252,8 @@ export function TypeBuilder({
           label="欄位"
           hint={
             <span className={styles.count}>
-              勾了 {picked.length} 個，共 {PICKABLE.length} 個
+              勾了 {picked.filter((key) => !REQUIRED_KEYS.includes(key)).length} 個，共{" "}
+              {PICKABLE.length} 個
             </span>
           }
         >
@@ -268,8 +263,7 @@ export function TypeBuilder({
                 <label className={`${styles.row} ${styles.moduleCell}`}>
                   <input
                     type="checkbox"
-                    checked={"required" in module || picked.includes(module.key)}
-                    disabled={"required" in module} // 必勾的取消不了
+                    checked={picked.includes(module.key)}
                     onChange={() => toggle(module.key)}
                     className="mt-1"
                   />
