@@ -14,7 +14,7 @@ const PRIMARY_TEXT = `${TEXT} leading-none [&_svg]:size-[1em]`; // 行高 = 字�
 
 export const styles = {
   // 綠底按鈕不寫死高度：字級 + padding + 邊框撐出來，放進頁首固定高的那一列
-  primary: `flex shrink-0 items-center gap-1 rounded-control border border-transparent bg-control-bg px-3 py-1.5 ${PRIMARY_TEXT} text-control-ink hover:bg-control-bg-hover md:px-4`,
+  primary: `flex shrink-0 items-center gap-1 rounded-control border border-transparent bg-control-bg p-1.5 ${PRIMARY_TEXT} text-control-ink hover:bg-control-bg-hover`, // 四邊同 padding
   // 只有一個圖示：四邊同 padding 就是正方形
   primaryIcon: `flex shrink-0 items-center justify-center rounded-control border border-transparent bg-control-bg p-1.5 ${PRIMARY_TEXT} text-control-ink hover:bg-control-bg-hover`,
   secondary: `flex ${HEIGHT} shrink-0 items-center gap-1 rounded-control border px-3 ${TEXT} text-control-ink-secondary hover:bg-control-ghost-hover`,
