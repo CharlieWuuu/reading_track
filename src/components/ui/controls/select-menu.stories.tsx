@@ -96,7 +96,7 @@ export const InPageHeader: Story = {
     return (
       <div className="flex w-80 items-center gap-2">
         <h2 className="shrink-0 text-base font-semibold">閱讀</h2>
-        <div className="rounded-control h-8 flex-1 border border-gray-300 md:h-9" />
+        <div className="rounded-control h-7 flex-1 border border-gray-300 md:h-8" />
         <SelectMenu
           label="類型"
           items={[
