@@ -1,6 +1,6 @@
 "use client";
 
-import { PageBody, PageMain } from "@/components/layout/page-body";
+import { PageAside, PageBody, PageMain } from "@/components/layout/page-body";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageLoading } from "@/components/layout/page-loading";
 import { PageMessage } from "@/components/layout/page-message";
@@ -9,7 +9,7 @@ import { KindGroup } from "@/config/kind-groups";
 import { groupBasePath, kindHref } from "@/config/kind-routes";
 import { NAV_GROUPS } from "@/config/nav";
 import { variantFor } from "@/features/kinds/variant-registry";
-import { FormTabSwitch } from "@/features/overview/components/form-tab-switch";
+import { FormTabNav, FormTabSwitch } from "@/features/overview/components/form-tab-switch";
 import { ModuleDetail } from "@/features/overview/components/module-detail";
 import { ModuleForm } from "@/features/overview/components/module-form";
 import { useCatalogRecord } from "@/hooks/use-catalog-record";
@@ -48,7 +48,7 @@ export function KindNewPage({ group, slug }: KindRouteProps) {
           ]
         }
         backHref={kindHref(group, slug)}
-        // 專用表單沒有分內容／屬性，那顆不畫
+        // 專用表單沒有分內容／屬性，那顆不畫；桌機在右欄
         action={kind && !Form ? <FormTabSwitch /> : undefined}
       />
       <PageBody>
@@ -61,6 +61,11 @@ export function KindNewPage({ group, slug }: KindRouteProps) {
             <ModuleForm kind={kind} />
           )}
         </PageMain>
+        {kind && !Form && (
+          <PageAside>
+            <FormTabNav />
+          </PageAside>
+        )}
       </PageBody>
     </>
   );
@@ -194,6 +199,11 @@ function GenericEditPage({ group, slug, recordId }: RecordRouteProps) {
             <ModuleForm kind={kind} recordId={id} linkId={record.linkId} initial={record.values} />
           )}
         </PageMain>
+        {kind && !Form && (
+          <PageAside>
+            <FormTabNav />
+          </PageAside>
+        )}
       </PageBody>
     </>
   );
