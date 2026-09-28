@@ -25,7 +25,6 @@ const styles = {
   tab: "text-ui shrink-0 rounded-full px-3 py-1 whitespace-nowrap",
   on: "bg-accent/10 text-accent font-medium",
   off: "text-ink-faint",
-  count: "text-meta ml-1 tabular-nums opacity-60",
 };
 
 export function NavKindStrip() {
@@ -67,7 +66,6 @@ export function NavKindStrip() {
             className={`${styles.tab} ${on ? styles.on : styles.off}`}
           >
             {kind.name}
-            <span className={styles.count}>{kind.count}</span>
           </Link>
         );
       })}
