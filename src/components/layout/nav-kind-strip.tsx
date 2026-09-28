@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { KindGroup } from "@/config/kind-groups";
-import { groupBasePath, kindGroupSlugFromPath, kindHref } from "@/config/kind-routes";
+import { kindGroupSlugFromPath, kindHref } from "@/config/kind-routes";
 import { useKinds } from "@/hooks/use-kinds";
 
 /**
@@ -43,18 +43,8 @@ export function NavKindStrip() {
   const rows = kinds.filter((kind) => kind.group === group);
   if (rows.length === 0) return null;
 
-  const base = groupBasePath(group);
-
   return (
     <nav className={styles.strip} aria-label="類型">
-      <Link
-        href={base}
-        ref={here ? undefined : activeRef}
-        aria-current={here ? undefined : "page"}
-        className={`${styles.tab} ${here ? styles.off : styles.on}`}
-      >
-        全部
-      </Link>
       {rows.map((kind) => {
         const on = here?.slug === kind.slug;
         return (
