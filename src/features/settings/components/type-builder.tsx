@@ -123,7 +123,6 @@ export function TypeBuilder({
     editing
       ? {
           countRereads: editing.countRereads,
-          numberDone: editing.numberDone,
         }
       : DEFAULT_DISPLAY,
   );
@@ -301,9 +300,12 @@ export function TypeBuilder({
           </div>
         </Section>
 
-        <Section step={editing ? "03" : "04"} label="顯示">
-          <KindDisplayFields group={group} picked={picked} value={display} onChange={setDisplay} />
-        </Section>
+        {/* 顯示設定只剩重讀計次，片段與書寫沒有 */}
+        {group === "records" && (
+          <Section step={editing ? "03" : "04"} label="顯示">
+            <KindDisplayFields value={display} onChange={setDisplay} />
+          </Section>
+        )}
 
         <div className="pt-6">
           <FormActions

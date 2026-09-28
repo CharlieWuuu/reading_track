@@ -128,7 +128,6 @@ export async function listKinds(userId: string): Promise<Kind[]> {
     cardStyle: toCardStyle(kind.cardStyle, kind.groupKey as KindGroup),
     views: toKindViews(kind.views),
     countRereads: kind.countRereads,
-    numberDone: kind.numberDone,
     count: counts.get(kind.id) ?? 0,
     sortOrder,
     modules: (fieldsByKind.get(kind.id) ?? [])
