@@ -50,14 +50,15 @@ export function KindTable({
 }) {
   const rows = rowsOf(kind, records, fragments);
   const columns = tableColumns(kind.modules);
-  const numbers = kind.numberDone ? doneNumbers(rows) : new Map<string, number>();
+  const numbered = kind.modules.some((module) => module.key === "endDate"); // 有完成日才排得出順序
+  const numbers = numbered ? doneNumbers(rows) : new Map<string, number>();
 
   return (
     <div className={styles.wrap}>
       <table className={styles.table}>
         <thead>
           <tr>
-            {kind.numberDone && <th className={styles.th}>#</th>}
+            {numbered && <th className={styles.th}>#</th>}
             {columns.map((column) => (
               <th key={column.key} className={styles.th}>
                 {column.label}
@@ -68,7 +69,7 @@ export function KindTable({
         <tbody>
           {rows.map((row) => (
             <tr key={row.id}>
-              {kind.numberDone && (
+              {numbered && (
                 <td className={`${styles.td} ${styles.number}`}>{numbers.get(row.id) ?? ""}</td>
               )}
               {columns.map((column) => (

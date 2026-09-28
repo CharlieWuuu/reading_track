@@ -53,7 +53,6 @@ export const POST = guarded("kinds POST", async (req: NextRequest) => {
     cardStyle?: unknown;
     labels?: unknown;
     countRereads?: unknown;
-    numberDone?: unknown;
   }>(req, "kinds POST");
   if (!body) return badRequest("看不懂的內容");
   if (!isGroup(body.group)) return badRequest("不知道要加在哪個 group");

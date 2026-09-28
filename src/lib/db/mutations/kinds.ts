@@ -71,7 +71,6 @@ async function insertKind(
       cardStyle: kind.cardStyle,
       views: fromKindViews(kind.views),
       countRereads: kind.countRereads,
-      numberDone: kind.numberDone,
       sortOrder,
     })
     .returning({ id: kinds.id });
@@ -213,7 +212,6 @@ export async function updateKind(userId: string, kindId: string, patch: NewKind)
         cardStyle: patch.cardStyle,
         views: fromKindViews(patch.views),
         countRereads: patch.countRereads,
-        numberDone: patch.numberDone,
       })
       .where(and(eq(kinds.id, kindId), eq(kinds.userId, userId)));
 
