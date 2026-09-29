@@ -53,6 +53,9 @@ export function KindStats({
             longitude: row.longitude?.toString() ?? "",
             startYear: row.startYear?.toString() ?? "",
             endYear: row.endYear?.toString() ?? "",
+            domain: row.domain,
+            subDomain: row.subDomain,
+            attribute: row.attribute,
           })),
     [isRecords, records, fragments],
   );
