@@ -1,9 +1,9 @@
 "use client";
 
 import { styles as controls } from "@/components/ui/controls/styles";
-import { KindGroup } from "@/config/kind-groups";
+import { Kind } from "@/lib/db/queries/kinds";
 import { useFormTabStore } from "@/stores/use-form-tab-store";
-import { FORM_TAB_LABELS, formTabsOf } from "@/utils/module-form";
+import { FORM_TAB_LABELS, formModules, visibleTabs } from "@/utils/module-form";
 
 /**
  * 表單的分頁切換：紀錄是作品／內容／屬性，片段與書寫是內容／屬性。桌機在右欄，手機沒有右欄就放頁首。
@@ -20,12 +20,14 @@ const styles = {
   navOff: "text-ink-muted hover:text-ink",
 };
 
+const tabsOf = (kind: Kind) => visibleTabs(formModules(kind.modules), kind.group);
+
 /** 頁首那排，只給手機 */
-export function FormTabSwitch({ group }: { group: KindGroup }) {
+export function FormTabSwitch({ kind }: { kind: Kind }) {
   const { tab, setTab } = useFormTabStore();
   return (
     <div className={styles.row}>
-      {formTabsOf(group).map((key) => (
+      {tabsOf(kind).map((key) => (
         <button
           key={key}
           type="button"
@@ -41,11 +43,11 @@ export function FormTabSwitch({ group }: { group: KindGroup }) {
 }
 
 /** 右欄那份，桌機用 */
-export function FormTabNav({ group }: { group: KindGroup }) {
+export function FormTabNav({ kind }: { kind: Kind }) {
   const { tab, setTab } = useFormTabStore();
   return (
     <nav className={styles.nav} aria-label="表單分頁">
-      {formTabsOf(group).map((key) => (
+      {tabsOf(kind).map((key) => (
         <button
           key={key}
           type="button"

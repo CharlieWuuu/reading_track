@@ -29,12 +29,12 @@ import {
   FormModule,
   formModules,
   FormTab,
-  formTabsOf,
   isFillField,
   isWideField,
   pairRows,
   resolveFormModules,
   splitByTab,
+  visibleTabs,
 } from "@/utils/module-form";
 import { fillFromBook, pickFilled } from "@/utils/scraped-values";
 
@@ -153,7 +153,8 @@ export function ModuleForm({
   // 分頁不進網址：切一下就 replace 一次只是歷史雜訊，而且未存的編輯要留著
   const { tab, setTab } = useFormTabStore();
   // store 活得比這張表單久：換一筆進來要從第一頁開始，不要接著上一筆停在屬性
-  useEffect(() => setTab(formTabsOf(kind.group)[0]), [recordId, kind.id, kind.group, setTab]);
+  const firstTab = visibleTabs(formModules(kind.modules), kind.group)[0];
+  useEffect(() => setTab(firstTab), [recordId, kind.id, firstTab, setTab]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
   const [fetching, setFetching] = useState(false);
