@@ -108,6 +108,12 @@ export function splitByTab(
   };
 }
 
+/** 實際要畫的分頁：沒有一格的那頁不畫（紀錄沒勾日期、平台、連結，內容頁就是空的） */
+export const visibleTabs = (modules: readonly FormModule[], group: KindGroup): FormTab[] => {
+  const tabs = splitByTab(modules, group);
+  return formTabsOf(group).filter((tab) => tabs[tab].length > 0);
+};
+
 /** 這些模組實際要存哪幾欄。同一欄被兩個模組指到只留一次 */
 export function fieldsOf(modules: readonly FormModule[]): FieldDef[] {
   const keys = [...new Set(modules.flatMap((module) => module.fields))];

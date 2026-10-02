@@ -15,6 +15,7 @@ import {
   pairRows,
   resolveFormModules,
   splitByTab,
+  visibleTabs,
 } from "./module-form";
 
 const asOverrides = (key: string) => {
@@ -268,5 +269,20 @@ describe("categoryOf", () => {
       null,
       null,
     ]);
+  });
+});
+
+describe("visibleTabs", () => {
+  it("紀錄沒勾日期、平台、連結就不畫內容頁", () => {
+    const modules = resolveFormModules([{ key: "title", label: "標題" }]);
+    expect(visibleTabs(modules, "records")).toEqual(["work", "attributes"]);
+  });
+
+  it("有一格就畫", () => {
+    const modules = resolveFormModules([
+      { key: "title", label: "標題" },
+      { key: "endDate", label: "完成日期" },
+    ]);
+    expect(visibleTabs(modules, "records")).toEqual(["work", "content", "attributes"]);
   });
 });
