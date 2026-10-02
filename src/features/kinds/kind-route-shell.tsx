@@ -49,7 +49,7 @@ export function KindNewPage({ group, slug }: KindRouteProps) {
         }
         backHref={kindHref(group, slug)}
         // 專用表單沒有分內容／屬性，那顆不畫；桌機在右欄
-        action={kind && !Form ? <FormTabSwitch /> : undefined}
+        action={kind && !Form ? <FormTabSwitch group={group} /> : undefined}
       />
       <PageBody>
         <PageMain>
@@ -63,7 +63,7 @@ export function KindNewPage({ group, slug }: KindRouteProps) {
         </PageMain>
         {kind && !Form && (
           <PageAside>
-            <FormTabNav />
+            <FormTabNav group={group} />
           </PageAside>
         )}
       </PageBody>
@@ -185,7 +185,7 @@ function GenericEditPage({ group, slug, recordId }: RecordRouteProps) {
           ]
         }
         backHref={back}
-        action={kind && !Form ? <FormTabSwitch /> : undefined}
+        action={kind && !Form ? <FormTabSwitch group={group} /> : undefined}
       />
       <PageBody>
         <PageMain>
@@ -201,7 +201,7 @@ function GenericEditPage({ group, slug, recordId }: RecordRouteProps) {
         </PageMain>
         {kind && !Form && (
           <PageAside>
-            <FormTabNav />
+            <FormTabNav group={group} />
           </PageAside>
         )}
       </PageBody>
