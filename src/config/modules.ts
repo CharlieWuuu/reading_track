@@ -33,7 +33,7 @@ export type ModuleDef = {
    * 但畫出來是同一張樹狀圖，照欄位跑會變成兩張。
    */
   stat?: readonly StatKind[];
-  tab?: "content"; // 表單分內容與屬性兩頁；內容只放這一筆寫了什麼（標題、內文），沒寫就歸屬性
+  tab?: "content" | "attributes"; // 表單分頁；片段、書寫沒寫就歸屬性，紀錄沒寫的照存哪一層分作品或內容（見 splitByTab）
 };
 
 /**
@@ -58,7 +58,7 @@ export type StatKind =
 export const MODULES = [
   // 紀錄存在 works.title，片段存在 fragments.name——同一個模組，兩張表的欄名不同
   // 關聯不佔自己的欄位：一律落在 links_internal，連到什麼由 chip 上的種類說
-  { key: "links", label: "內部連結", fields: [], always: true },
+  { key: "links", label: "內部連結", fields: [], always: true, tab: "attributes" },
   { key: "title", label: "標題", fields: ["title"], tab: "content" },
   {
     key: "creator",
@@ -101,9 +101,10 @@ export const MODULES = [
     label: "私人",
     fields: ["isPrivate"],
     always: true,
+    tab: "attributes",
   },
   { key: "pronunciation", label: "發音", fields: ["pronunciation"] },
-  { key: "tags", label: "標籤", fields: ["tags"], stat: ["ranking"] },
+  { key: "tags", label: "標籤", fields: ["tags"], stat: ["ranking"], tab: "attributes" },
   // 兩格各存一個數字：一欄塞 "1818－1883" 得靠剖析拆，破折號、西元前的負號都是坑
   {
     key: "years",
@@ -122,6 +123,7 @@ export const MODULES = [
     label: "語言",
     fields: ["language"],
     stat: ["distribution"],
+    tab: "attributes",
   },
   { key: "externalId", label: "外部編號", fields: ["externalId"] },
   {
@@ -140,12 +142,14 @@ export const MODULES = [
     fields: ["domain", "subDomain"],
     stat: ["tree"],
     required: true, // 所有資料都分得到領域
+    tab: "attributes",
   },
   {
     key: "attribute",
     label: "屬性",
     fields: ["attribute"],
     stat: ["distribution"],
+    tab: "attributes",
   },
 ] as const satisfies readonly ModuleDef[];
 

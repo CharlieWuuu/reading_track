@@ -8,12 +8,14 @@ import {
   cellsOf,
   fieldsOf,
   formModules,
+  formTabsOf,
   hasAutoEndDate,
   isFillField,
   isWideField,
   pairRows,
   resolveFormModules,
   splitByTab,
+  visibleTabs,
 } from "./module-form";
 
 const asOverrides = (key: string) => {
@@ -142,7 +144,7 @@ describe("splitByTab", () => {
       label: key,
     })),
   );
-  const { content, attributes } = splitByTab(modules);
+  const { work, content, attributes } = splitByTab(modules, "fragments");
 
   it("內容頁只有標題與內文", () => {
     expect(content.map((m) => m.key)).toEqual(["title", "longText"]);
@@ -164,6 +166,55 @@ describe("splitByTab", () => {
 
   it("兩頁加起來就是全部，不重不漏", () => {
     expect(content.length + attributes.length).toBe(modules.length);
+  });
+
+  it("片段沒有作品頁", () => {
+    expect(work).toEqual([]);
+  });
+});
+
+describe("splitByTab 紀錄", () => {
+  const modules = resolveFormModules(
+    [
+      "title",
+      "creator",
+      "longText",
+      "cover",
+      "amount",
+      "startDate",
+      "endDate",
+      "platform",
+      "externalUrl",
+      "topic",
+      "language",
+      "tags",
+    ].map((key) => ({ key, label: key })),
+  );
+  const { work, content, attributes } = splitByTab(modules, "records");
+
+  it("存在作品表的歸作品頁，摘要也是", () => {
+    expect(work.map((m) => m.key)).toEqual(["title", "creator", "longText", "cover", "amount"]);
+  });
+
+  it("這一次的日期、平台、連結歸內容頁", () => {
+    expect(content.map((m) => m.key)).toEqual(["startDate", "endDate", "platform", "externalUrl"]);
+  });
+
+  it("分類、標籤、私人、關聯歸屬性頁", () => {
+    expect(attributes.map((m) => m.key)).toEqual(
+      expect.arrayContaining(["topic", "language", "tags", "private", "links"]),
+    );
+  });
+
+  it("三頁加起來就是全部", () => {
+    expect(work.length + content.length + attributes.length).toBe(modules.length);
+  });
+});
+
+describe("formTabsOf", () => {
+  it("紀錄多一頁作品，排第一", () => {
+    expect(formTabsOf("records")).toEqual(["work", "content", "attributes"]);
+    expect(formTabsOf("writings")).toEqual(["content", "attributes"]);
   });
 });
 
@@ -218,5 +269,20 @@ describe("categoryOf", () => {
       null,
       null,
     ]);
+  });
+});
+
+describe("visibleTabs", () => {
+  it("紀錄沒勾日期、平台、連結就不畫內容頁", () => {
+    const modules = resolveFormModules([{ key: "title", label: "標題" }]);
+    expect(visibleTabs(modules, "records")).toEqual(["work", "attributes"]);
+  });
+
+  it("有一格就畫", () => {
+    const modules = resolveFormModules([
+      { key: "title", label: "標題" },
+      { key: "endDate", label: "完成日期" },
+    ]);
+    expect(visibleTabs(modules, "records")).toEqual(["work", "content", "attributes"]);
   });
 });
