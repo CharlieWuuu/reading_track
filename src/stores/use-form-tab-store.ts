@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { FormTab } from "@/utils/module-form";
 
 /**
- * 編輯表單看哪一頁：內容或屬性。
+ * 編輯表單看哪一頁：作品（只有紀錄）、內容或屬性。
  *
  * 放 store 不放表單自己：手機的切換鈕在 PageHeader，跟 ModuleForm 是兄弟，
  * 拿不到對方的 state。不 persist——這是「現在在看哪一頁」，下次進表單該從第一頁開始。
