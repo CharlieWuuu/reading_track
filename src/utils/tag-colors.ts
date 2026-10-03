@@ -109,32 +109,3 @@ export function tagColorClass(tag: string, order: string[], outline = false): st
   const index = order.indexOf(tag);
   return palette[(index >= 0 ? index : hash(tag)) % palette.length];
 }
-
-/**
- * 封面帶的底色，取自靜野封面配色（cactus／dune／sky／brick／plum／straw／ash）。
- * 漸層下深上淺，跟書背陰影同一個光源方向——同一階降低不透明度當淺的一端，
- * 而不是跳到淺一階的色階，差距才不會蓋過色相本身的辨識度。這裡沒有文字疊
- * 在底色上（無封面時的字用固定的 text-ink-faint），不用顧慮對比，所以
- * 每色系用 300／700 兩階代表不同類別，差異比 500／700 更大——七色系湊出
- * 十四種可辨識的類別色。
- */
-const COVER_TINTS = [
-  "bg-gradient-to-t from-cactus-300 to-cactus-300/60",
-  "bg-gradient-to-t from-cactus-700 to-cactus-700/60",
-  "bg-gradient-to-t from-dune-300 to-dune-300/60",
-  "bg-gradient-to-t from-dune-700 to-dune-700/60",
-  "bg-gradient-to-t from-sky-300 to-sky-300/60",
-  "bg-gradient-to-t from-sky-700 to-sky-700/60",
-  "bg-gradient-to-t from-brick-300 to-brick-300/60",
-  "bg-gradient-to-t from-brick-700 to-brick-700/60",
-  "bg-gradient-to-t from-plum-300 to-plum-300/60",
-  "bg-gradient-to-t from-plum-700 to-plum-700/60",
-  "bg-gradient-to-t from-straw-300 to-straw-300/60",
-  "bg-gradient-to-t from-straw-700 to-straw-700/60",
-  "bg-gradient-to-t from-ash-300 to-ash-300/60",
-  "bg-gradient-to-t from-ash-700 to-ash-700/60",
-];
-
-export function coverTintClass(seed: string): string {
-  return COVER_TINTS[hash(seed) % COVER_TINTS.length];
-}
