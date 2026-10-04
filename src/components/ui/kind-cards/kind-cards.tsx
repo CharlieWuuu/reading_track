@@ -37,7 +37,7 @@ const MIXED = "flex flex-wrap gap-x-5 md:gap-x-8";
 const HALF = "w-[calc((100%-1.25rem)/2)] md:w-[calc((100%-2rem)/2)]";
 
 const MIXED_WIDTH: Record<CardStyle, string> = {
-  cover: `${HALF} xl:w-[calc((100%-4rem)/3)] 2xl:w-[calc((100%-6rem)/4)]`, // 跟 COVER_CARD_GRID 同樣的欄數
+  cover: "w-full md:w-[calc((100%-2rem)/2)] xl:w-[calc((100%-4rem)/3)]", // 跟 COVER_CARD_GRID 同樣的欄數
   fragment: `${HALF} @2xl:w-[calc((100%-4rem)/3)] pb-3`, // 跟 FRAGMENT_CARD_GRID 同樣的欄數
   quote: "w-full",
   line: "w-full",
@@ -68,14 +68,13 @@ export function KindCard({ style, data }: { style: CardStyle; data: CardData }) 
   if (style === "cover") {
     return (
       <CoverCard
-        id={data.id}
         href={data.href}
         title={data.title}
         coverUrl={data.coverUrl}
         meta={data.date.slice(0, 10)}
         label={data.tag} // 綠字是主題
+        body={data.body}
         caption={data.meta}
-        tintSeed={data.tag || undefined} // 同主題同色
       />
     );
   }
