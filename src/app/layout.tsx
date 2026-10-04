@@ -3,6 +3,7 @@ import { Geist_Mono, Noto_Sans_TC, Noto_Serif_TC } from "next/font/google";
 import "./globals.css";
 import { COMMIT_HOOK_INSTALLER } from "react-component-overlay";
 import { AppShell } from "@/components/layout/app-shell";
+import { IosBlurFix } from "@/components/layout/ios-blur-fix";
 import { ServiceWorkerRegistrar } from "@/components/layout/service-worker-registrar";
 import { SWRProvider } from "@/components/layout/swr-provider";
 import { AuthButton } from "@/features/auth/components/auth-button";
@@ -78,6 +79,7 @@ export default function RootLayout({
               <AppShell authSlot={<AuthButton />}>{children}</AppShell>
             </DebugSetup>
             <ServiceWorkerRegistrar />
+            <IosBlurFix />
           </SWRProvider>
         </SessionProvider>
       </body>
