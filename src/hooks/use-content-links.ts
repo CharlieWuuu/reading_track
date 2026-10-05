@@ -9,10 +9,12 @@ async function fetcher(url: string): Promise<Linkable[]> {
   return data.items;
 }
 
+const NONE: Linkable[] = []; // 固定同一個空陣列：每次 render 給新的 []，輸入框的搜尋 effect 會一直重跑
+
 /** 某筆內容的站內關聯：讀取目前連了誰、整批換掉連結清單 */
 export function useContentLinks(id: string | null) {
   const { data, isLoading, mutate } = useSWR(id ? `/api/links/${id}` : null, fetcher);
-  const linked = data ?? [];
+  const linked = data ?? NONE;
 
   async function setAll(items: Linkable[]): Promise<void> {
     if (!id) return;
