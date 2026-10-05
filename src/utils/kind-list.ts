@@ -44,10 +44,13 @@ export function countTotal(
 }
 
 /** 完成的依序編號：最早完成的是 1，最新的最大。沒完成的沒有號碼——還沒排得進順序 */
-export function doneNumbers(rows: readonly ({ id: string } & Dated)[]): Map<string, number> {
+export function doneNumbers(
+  rows: readonly ({ id: string; createdAt?: string } & Dated)[],
+): Map<string, number> {
   const done = rows
     .filter((row) => row.endDate)
-    .sort((a, b) => a.endDate!.localeCompare(b.endDate!));
+    .sort(byDateThenNewest((row) => row.endDate ?? null)) // 跟清單同一個排法，同一天才不會倒過來
+    .reverse();
   return new Map(done.map((row, index) => [row.id, index + 1]));
 }
 

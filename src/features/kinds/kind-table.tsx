@@ -23,7 +23,13 @@ const styles = {
   col: "min-w-[calc(3em+1rem)]", // 至少三個字寬（加左右 px-2）；編號欄不套
 };
 
-type Row = { id: string; href: string; endDate?: string | null; source: RecordRow | FragmentRow };
+type Row = {
+  id: string;
+  href: string;
+  endDate?: string | null;
+  createdAt: string; // 同一天的編號靠它排
+  source: RecordRow | FragmentRow;
+};
 
 const rowsOf = (kind: Kind, records: RecordRow[], fragments: FragmentRow[]): Row[] =>
   kind.group === "records"
@@ -31,12 +37,14 @@ const rowsOf = (kind: Kind, records: RecordRow[], fragments: FragmentRow[]): Row
         id: row.id,
         href: `${kindHref(kind.group, kind.slug)}/${row.id}`,
         endDate: row.endDate,
+        createdAt: row.createdAt,
         source: row,
       }))
     : fragments.map((row) => ({
         id: row.id,
         href: fragmentHref(row),
         endDate: row.date,
+        createdAt: row.createdAt,
         source: row,
       }));
 
