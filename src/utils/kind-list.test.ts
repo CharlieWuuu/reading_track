@@ -57,6 +57,15 @@ describe("doneNumbers", () => {
     expect(numbers.get("new")).toBe(2);
     expect(numbers.has("open")).toBe(false);
   });
+
+  it("同一天：記得晚的號碼大，跟清單從上往下遞減一致", () => {
+    const numbers = doneNumbers([
+      { id: "early", endDate: "2026-09-27", createdAt: "2026-09-27T01:00:00Z" },
+      { id: "late", endDate: "2026-09-27", createdAt: "2026-09-27T09:00:00Z" },
+    ]);
+    expect(numbers.get("early")).toBe(1);
+    expect(numbers.get("late")).toBe(2);
+  });
 });
 
 describe("statusOf", () => {
