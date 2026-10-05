@@ -1,8 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { Panel } from "@/components/ui/panel/panel";
 import { Spinner } from "@/components/ui/spinner";
-import { Panel } from "@/features/stats/components/panel";
 import { RowEra } from "@/features/stats/components/row-era";
 import { Section } from "@/features/stats/components/section-list";
 import type { StatData, StatRow } from "@/utils/stats/generic-stats";

@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
+import { Panel } from "@/components/ui/panel/panel";
 import { CumulativeChart } from "@/features/stats/components/cumulative-chart";
 import { DistributionPie } from "@/features/stats/components/distribution-pie";
 import { DistributionTreemap } from "@/features/stats/components/distribution-treemap";
 import { MonthlyTrendChart } from "@/features/stats/components/monthly-trend-chart";
-import { Panel } from "@/features/stats/components/panel";
 import { RankingBar } from "@/features/stats/components/ranking-bar";
 import { Section } from "@/features/stats/components/section-list";
 import { wideSections, type WideSlots } from "@/features/stats/components/wide-stat-sections";
