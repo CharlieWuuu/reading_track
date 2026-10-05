@@ -20,6 +20,7 @@ const styles = {
   td: "border-rule text-ui text-ink-muted border-b px-2 py-2.5 align-top",
   title: "font-serif text-item-sm text-ink font-semibold hover:underline",
   number: "text-meta text-ink-faint tabular-nums",
+  col: "min-w-[calc(3em+1rem)]", // 至少三個字寬（加左右 px-2）；編號欄不套
 };
 
 type Row = { id: string; href: string; endDate?: string | null; source: RecordRow | FragmentRow };
@@ -73,7 +74,7 @@ export function KindTable({
                 <td className={`${styles.td} ${styles.number}`}>{numbers.get(row.id) ?? ""}</td>
               )}
               {columns.map((column) => (
-                <td key={column.key} className={styles.td}>
+                <td key={column.key} className={`${styles.td} ${styles.col}`}>
                   {column.key === "title" ? (
                     <Link href={row.href} className={styles.title}>
                       {cellOf(row.source, "title") || "（沒有標題）"}
