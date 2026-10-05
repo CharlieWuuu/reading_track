@@ -1,8 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { Panel } from "@/components/ui/panel/panel";
 import { Spinner } from "@/components/ui/spinner";
-import { Panel } from "@/features/stats/components/panel";
 import { RowEra } from "@/features/stats/components/row-era";
 import { Section } from "@/features/stats/components/section-list";
 import type { StatData, StatRow } from "@/utils/stats/generic-stats";
@@ -27,6 +27,7 @@ const RowMap = dynamic(() => import("@/features/stats/components/row-map").then(
  * 月曆與數線由呼叫端傳進來：那兩支住在 features/calendar，
  * eslint 擋 features/stats 反過來 import 它。與其加一條跨 feature 例外，
  * 不如讓兩邊的交會點留在 app 那一層（見 AGENTS.md：新增例外前先想能不能不加）。
+ * 這兩個 slot 自己帶外框（月曆的換月鈕在標題列），這裡不再包 Panel。
  */
 export type WideSlots = {
   calendar?: React.ReactNode;
@@ -65,12 +66,14 @@ export function wideSections({
     const node = label ? nodeOf(item.kind) : null;
     // 沒有對應元件的就不出現：月曆與數線在呼叫端沒給 slot 時（例如片段沒有期間）
     if (!label || !node) return [];
+    const framed = item.kind === "calendar" || item.kind === "timeline"; // slot 自己帶外框
     return [
       {
         key: `${item.spec.moduleKey}-${item.kind}`,
         label,
         fullWidth: true,
-        node: <Panel title={label}>{node}</Panel>,
+        autoHeightOnMobile: item.kind === "calendar",
+        node: framed ? node : <Panel title={label}>{node}</Panel>,
       },
     ];
   });

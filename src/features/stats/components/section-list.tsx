@@ -14,6 +14,7 @@ export type Section = {
   needsHeight?: boolean;
   /** 佔滿一整排而不是半排。概覽那排數字卡橫著擺，擠進半排會折成好幾列 */
   fullWidth?: boolean;
+  autoHeightOnMobile?: boolean; // 手機高度跟內容走：月曆格子固定高，塞進 26rem 會被切掉
 };
 
 /**
@@ -25,6 +26,11 @@ export function lonelySectionKey(sections: readonly Section[]): string | undefin
   const halves = sections.filter((section) => !section.fullWidth);
   return halves.length % 2 === 1 ? halves.at(-1)?.key : undefined;
 }
+
+const heightOf = (section: Section): string => {
+  if (section.needsHeight === false) return "";
+  return section.autoHeightOnMobile ? "sm:h-[30rem]" : "h-[26rem] sm:h-[30rem]";
+};
 
 /**
  * 統計頁的區塊，桌機兩欄、手機一欄。
@@ -46,7 +52,7 @@ export function SectionList({ sections }: { sections: Section[] }) {
           key={section.key}
           className={`flex min-w-0 flex-col ${
             section.fullWidth || section.key === lonelyKey ? "lg:col-span-2" : ""
-          } ${section.needsHeight === false ? "" : "h-[26rem] sm:h-[30rem]"}`}
+          } ${heightOf(section)}`}
         >
           {section.needsHeight === false ? (
             section.node
