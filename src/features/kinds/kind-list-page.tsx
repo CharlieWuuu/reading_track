@@ -104,6 +104,8 @@ export function KindListPage({ group, slug }: { group: KindGroup; slug: string }
   const kind = kinds.find((k) => k.group === group && k.slug === slug);
   // 麵包屑指回這個 group 的概覽，字跟側欄同一份設定
   const parent = NAV_GROUPS.find((nav) => nav.kindGroup === group);
+  const view = useBookView();
+  const wide = view === "table" || view === "card"; // 表格、卡片吃滿寬度，不留右欄
 
   return (
     <>
@@ -126,7 +128,7 @@ export function KindListPage({ group, slug }: { group: KindGroup; slug: string }
           )
         }
       />
-      <PageBody>
+      <PageBody aside={!wide}>
         {isLoading ? (
           <PageMain>
             <PageLoading />
