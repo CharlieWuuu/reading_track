@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { PagerButton } from "@/components/ui/pager-button";
 import {
   buildMonthGrid,
   CalendarDay,
@@ -80,12 +79,22 @@ function DayDetail({ day }: { day?: CalendarDay }) {
   );
 }
 
-export function MonthGrid({ entries = [] }: { entries?: readonly DatedEntry[] }) {
+/** 換月由外面管（見 useMonthNav）；換月時呼叫端用 key 重掛，選取日與彈窗跟著重來 */
+export function MonthGrid({
+  year,
+  month,
+  entries = [],
+}: {
+  year: number;
+  month: number; // 從 0 起
+  entries?: readonly DatedEntry[];
+}) {
   const today = new Date();
-  const [year, setYear] = useState(today.getFullYear());
-  const [month, setMonth] = useState(today.getMonth());
-  // 手機版點選的日期（存 timestamp 才好比對），明細列在格子下方
-  const [selectedTime, setSelectedTime] = useState(() => today.getTime());
+  const inThisMonth = today.getFullYear() === year && today.getMonth() === month;
+  // 手機版點選的日期（存 timestamp 才好比對），明細列在格子下方；別的月份從 1 號開始
+  const [selectedTime, setSelectedTime] = useState(() =>
+    inThisMonth ? today.getTime() : new Date(year, month, 1).getTime(),
+  );
   const selected = new Date(selectedTime);
   // 桌機版點格子開的彈窗，null 表示沒開；不佔月曆高度所以不會產生捲動
   const [popupTime, setPopupTime] = useState<number | null>(null);
@@ -107,37 +116,8 @@ export function MonthGrid({ entries = [] }: { entries?: readonly DatedEntry[] })
   const popupDay =
     popupDate && days.find((d) => d.date.toDateString() === popupDate.toDateString());
 
-  /** 換月時把選取日移到該月 1 號，手機版下方明細才不會停在別的月份 */
-  function goToMonth(nextYear: number, nextMonth: number) {
-    setYear(nextYear);
-    setMonth(nextMonth);
-    setSelectedTime(new Date(nextYear, nextMonth, 1).getTime());
-    setPopupTime(null);
-  }
-
-  function goPrev() {
-    goToMonth(month === 0 ? year - 1 : year, month === 0 ? 11 : month - 1);
-  }
-
-  /** 未來的月份沒有紀錄可看，翻過去只是一片空白 */
-  const atCurrentMonth = year === today.getFullYear() && month === today.getMonth();
-
-  function goNext() {
-    goToMonth(month === 11 ? year + 1 : year, month === 11 ? 0 : month + 1);
-  }
-
   return (
     <div className="rounded-surface flex min-h-0 flex-1 flex-col overflow-hidden border bg-white">
-      <div className="flex shrink-0 items-center justify-between gap-3 border-b px-3 py-2 sm:px-4 sm:py-3">
-        <div className="flex items-center gap-2">
-          <PagerButton direction="prev" onClick={goPrev} label="上個月" />
-          <span className="w-22 text-center text-sm font-medium whitespace-nowrap">
-            {year} 年 {month + 1} 月
-          </span>
-          <PagerButton direction="next" onClick={goNext} disabled={atCurrentMonth} label="下個月" />
-        </div>
-      </div>
-
       <div className="grid shrink-0 grid-cols-7 border-b text-center text-xs text-gray-500">
         {WEEKDAYS.map((w) => (
           <div key={w} className="py-2">
