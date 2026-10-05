@@ -52,11 +52,12 @@ export function ContentLinkInput({
   placeholder?: string;
 }) {
   const [text, setText] = useState("");
+  const [composing, setComposing] = useState(false); // 注音、拼音還在選字
   const [open, setOpen] = useState(false);
   const [matches, setMatches] = useState<Linkable[]>([]);
   const rootRef = useOutsideClick<HTMLDivElement>(open, () => setOpen(false));
 
-  const query = text.trim();
+  const query = composing ? "" : text.trim(); // 組字中不搜：ㄕ、ㄕㄨ 這種半成品查了只會閃「沒有符合的」
 
   useEffect(() => {
     if (!query) return;
@@ -82,6 +83,15 @@ export function ContentLinkInput({
           <input
             value={text}
             onChange={(e) => setText(e.target.value)}
+            onCompositionStart={() => setComposing(true)}
+            onCompositionEnd={(e) => {
+              setComposing(false);
+              setText(e.currentTarget.value); // 有些瀏覽器 compositionend 之後不再補一次 change
+            }}
+            // 在表單裡按 Enter 會送出整張表單；組字中的 Enter 是選字，更不能送
+            onKeyDown={(e) => {
+              if (e.key === "Enter") e.preventDefault();
+            }}
             onFocus={() => setOpen(true)}
             placeholder={placeholder}
             className={styles.input}
