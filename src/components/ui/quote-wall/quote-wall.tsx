@@ -19,7 +19,8 @@ const styles = {
 export function QuoteRow({ data }: { data: CardData }) {
   return (
     <Link href={data.href} className={styles.row}>
-      <BookCover url={data.coverUrl} title={data.coverTitle} size="md" />
+      {/* 沒封面不畫灰塊，句子靠左 */}
+      {data.coverUrl && <BookCover url={data.coverUrl} title={data.coverTitle} size="md" />}
       <div className={styles.body}>
         {/* 句子本身在 title，body 是補充（翻譯、心得）——反過來的話
             日文佳句會秀成中文翻譯，原句反而不見 */}
