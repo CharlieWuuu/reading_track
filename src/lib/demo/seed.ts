@@ -21,6 +21,9 @@ function daysAgo(n: number): string {
   return d.toISOString().slice(0, 10);
 }
 
+// 落在這個月內：月初天數不夠就貼到 1 號，不會跨到上個月
+const thisMonth = (n: number) => daysAgo(Math.min(n, new Date().getUTCDate() - 1));
+
 const lookup = (map: Map<string, string>, key: string, what: string) => {
   const id = map.get(key);
   if (!id) throw new Error(`demo 資料對不上：找不到${what}「${key}」`);
@@ -134,8 +137,9 @@ export async function seedDemo(email: string): Promise<string> {
   const readingRows = BOOKS.map((b, i) => ({
     userId,
     workId: bookIds[i],
-    startDate: b.status === "想要" ? null : daysAgo(b.status === "進行" ? 20 + i : 420 - i * 13),
-    endDate: b.status === "完成" ? daysAgo(400 - i * 13) : null,
+    startDate:
+      b.status === "想要" ? null : b.status === "進行" ? thisMonth(3 + i) : daysAgo(420 - i * 13),
+    endDate: b.status === "完成" ? (i < 2 ? thisMonth(2 + i * 3) : daysAgo(400 - i * 13)) : null,
   }));
   // 重讀：同一個作品底下再加一次紀錄
   const rereadRows = REREADS.map((i) => ({
@@ -169,7 +173,8 @@ export async function seedDemo(email: string): Promise<string> {
     title: w.title,
     body: w.body,
     topicId: topicId(w.topic),
-    endDate: daysAgo(300 - i * 25),
+    endDate:
+      i >= WRITINGS.length - 3 ? thisMonth((WRITINGS.length - i) * 2) : daysAgo(300 - i * 25),
   }));
   await db.insert(writings).values(writingRows);
 
