@@ -28,7 +28,7 @@ const styles = {
   emptyBand: "border-rule-strong flex flex-col gap-5 border-b pb-5 @2xl:flex-row @2xl:gap-8",
 };
 
-// 登入後的首頁：頭條、這個月的數字、三個 group 這個月的每一筆
+// 登入後的首頁：頭條、這個月的數字、三個 group 的最新幾筆（不限月份）
 export function Dashboard() {
   const records = useGroupRecords("records");
   const fragments = useGroupFragments("fragments");
@@ -46,6 +46,10 @@ export function Dashboard() {
     itemsInRange<FragmentRow>(fragments.fragments, range),
   );
   const monthWritings = fragmentsNewestFirst(itemsInRange<FragmentRow>(writings.fragments, range));
+
+  const allRecords = recordsNewestFirst(records.records);
+  const allFragments = fragmentsNewestFirst(fragments.fragments);
+  const allWritings = fragmentsNewestFirst(writings.fragments);
 
   const keysByKind = moduleKeysByKind(kinds);
   const headline = pickHeadline(records.records, keysByKind);
@@ -89,22 +93,22 @@ export function Dashboard() {
       <div className="flex flex-col gap-6 pt-5 @2xl:flex-row @2xl:gap-7">
         <DigestColumn
           title="紀錄"
-          total={monthRecords.length}
-          cards={monthRecords.map(styledRecord)}
+          total={allRecords.length}
+          cards={allRecords.map(styledRecord)}
           unit={unitOfGroup("records")}
           href="/records"
         />
         <DigestColumn
           title="片段"
-          total={monthFragments.length}
-          cards={monthFragments.map(styledFragment)}
+          total={allFragments.length}
+          cards={allFragments.map(styledFragment)}
           unit={unitOfGroup("fragments")}
           href="/fragments"
         />
         <DigestColumn
           title="書寫"
-          total={monthWritings.length}
-          cards={monthWritings.map(styledFragment)}
+          total={allWritings.length}
+          cards={allWritings.map(styledFragment)}
           unit={unitOfGroup("writings")}
           href="/writings"
         />
