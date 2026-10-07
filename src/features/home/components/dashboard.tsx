@@ -52,7 +52,7 @@ export function Dashboard() {
   const allWritings = fragmentsNewestFirst(writings.fragments);
 
   const keysByKind = moduleKeysByKind(kinds);
-  const headline = pickHeadline(records.records, keysByKind);
+  const headline = pickHeadline(records.records, today);
   const monthPanel = (
     <>
       {/* 內容欄窄時橫著分隔，寬時變成直線 */}
