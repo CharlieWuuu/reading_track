@@ -1,5 +1,4 @@
 import { FragmentRow, RecordRow } from "@/lib/db/queries/catalog";
-import { statusOf } from "./kind-list";
 
 /**
  * 登入後首頁的算式。全是純函式，畫面只負責排版。
@@ -23,20 +22,42 @@ export function recentBy<T>(rows: T[], getDate: (row: T) => string | null, take:
   return [...rows].sort(byDateDesc(getDate)).slice(0, take);
 }
 
-/**
- * 頭條：正在讀的那一筆，最近開始的優先。
- * 一筆都沒有時退回最近讀完的——空著比放錯東西更難看。
- */
-export function pickHeadline(
-  records: RecordRow[],
-  keysByKind: ReadonlyMap<string, ReadonlySet<string>> = new Map(),
-): RecordRow | undefined {
-  // 進行中照類型勾的日期判斷：沒勾開始日期的類型沒有「在讀」
-  const reading = recentBy(
-    records.filter((row) => statusOf(row, keysByKind.get(row.kindId)) === "reading"),
-    (row) => row.startDate,
-    1,
-  );
+const HEADLINE_DAYS = 183; // 近半年
 
-  return reading[0] ?? recentBy(records, recordDate, 1)[0];
+const daysBefore = (today: string, days: number): string =>
+  new Date(Date.parse(today) - days * 86400000).toISOString().slice(0, 10);
+
+/** 欄位填了幾格：頭條要挑資料最齊的 */
+export const completeness = (row: RecordRow): number =>
+  [
+    row.coverUrl,
+    row.body,
+    row.creator,
+    row.publisher,
+    row.amount,
+    row.domain,
+    row.subDomain,
+    row.attribute,
+    row.language,
+    row.platform,
+    row.startDate,
+    row.endDate,
+  ].filter(Boolean).length;
+
+const mostComplete = (rows: RecordRow[]): RecordRow | undefined =>
+  [...rows].sort(
+    (a, b) =>
+      completeness(b) - completeness(a) || (recordDate(b) ?? "").localeCompare(recordDate(a) ?? ""),
+  )[0];
+
+/**
+ * 頭條：近半年裡欄位最齊的一筆，同分取較近的；一定要有節錄（body）。
+ * 近半年沒有就放寬到全部；全部都沒有 body 才退回最近的一筆——空著比放錯東西更難看。
+ */
+export function pickHeadline(records: RecordRow[], today: string): RecordRow | undefined {
+  const since = daysBefore(today, HEADLINE_DAYS);
+  const withBody = records.filter((row) => row.body.trim() !== "");
+  const recent = withBody.filter((row) => (recordDate(row) ?? row.createdAt.slice(0, 10)) >= since);
+
+  return mostComplete(recent) ?? mostComplete(withBody) ?? recentBy(records, recordDate, 1)[0];
 }
