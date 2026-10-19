@@ -302,16 +302,14 @@ export function TypeBuilder({
                 )}
               </Fragment>
             ))}
+            {/* 頁首的補齊按鈕：不佔資料表的欄位，所以不在模組庫裡，跟「沿用出處的封面」同一種勾選 */}
+            <KindAutofillFields value={autofill} onChange={setAutofill} />
           </div>
-        </Section>
-
-        <Section step={editing ? "03" : "04"} label="自動補齊">
-          <KindAutofillFields value={autofill} onChange={setAutofill} />
         </Section>
 
         {/* 顯示設定只剩重讀計次，片段與書寫沒有 */}
         {group === "records" && (
-          <Section step={editing ? "04" : "05"} label="顯示">
+          <Section step={editing ? "03" : "04"} label="顯示">
             <KindDisplayFields value={display} onChange={setDisplay} />
           </Section>
         )}

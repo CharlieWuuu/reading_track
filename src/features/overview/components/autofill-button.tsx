@@ -14,7 +14,7 @@ export function AutofillButton({ kind }: { kind: Kind }) {
       type="button"
       disabled={!run || busy}
       onClick={() => void run?.()}
-      className={`${controls.link} ${controls.linkIdle} disabled:opacity-50`}
+      className={`${controls.primary} disabled:opacity-50`}
     >
       {busy ? "補齊中…" : "自動補齊"}
     </button>

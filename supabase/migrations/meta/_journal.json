@@ -267,6 +267,13 @@
       "when": 1789925244526,
       "tag": "0037_autofill_sources",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1789925244527,
+      "tag": "0038_autofill_sources_by_site",
+      "breakpoints": true
     }
   ]
 }
