@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import { AutofillSlug } from "@/config/autofill-sources";
 import { KindDisplay } from "@/config/kind-display";
 import { KindGroup } from "@/config/kind-groups";
 import { Kind } from "@/lib/db/queries/kinds";
@@ -10,6 +11,7 @@ export type NewKindInput = Partial<KindDisplay> & {
   slug: string;
   modules: string[];
   amountUnit: string;
+  autofill?: AutofillSlug[];
   labels?: Record<string, string>;
 };
 

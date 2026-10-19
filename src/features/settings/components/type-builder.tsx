@@ -5,11 +5,13 @@ import { Fragment, useEffect, useState } from "react";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-label/field-label";
 import { Field } from "@/components/ui/field/field";
 import { FormActions } from "@/components/ui/form-actions";
+import { AutofillSlug } from "@/config/autofill-sources";
 import { CardStyle, defaultCardStyle } from "@/config/card-styles";
 import { DEFAULT_DISPLAY, KindDisplay } from "@/config/kind-display";
 import { KindGroup } from "@/config/kind-groups";
 import { KindTemplate, templatesOf } from "@/config/kind-templates";
 import { MODULES, REQUIRED_KEYS, withRequired } from "@/config/modules";
+import { KindAutofillFields } from "@/features/settings/components/kind-autofill-fields";
 import { KindDisplayFields } from "@/features/settings/components/kind-display-fields";
 import type { TypeDraft } from "@/features/settings/components/type-preview";
 import { useKinds } from "@/hooks/use-kinds";
@@ -126,6 +128,7 @@ export function TypeBuilder({
         }
       : DEFAULT_DISPLAY,
   );
+  const [autofill, setAutofill] = useState<AutofillSlug[]>(editing?.autofill ?? []);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
 
@@ -151,6 +154,7 @@ export function TypeBuilder({
     setPicked(withRequired(template.modules));
     setLabels({});
     setDisplay({ ...DEFAULT_DISPLAY, ...template.display });
+    setAutofill([...(template.autofill ?? [])]);
   }
 
   async function save() {
@@ -164,6 +168,7 @@ export function TypeBuilder({
       inheritsCover,
       views,
       cardStyle,
+      autofill,
       labels,
       ...display,
     };
@@ -300,9 +305,13 @@ export function TypeBuilder({
           </div>
         </Section>
 
+        <Section step={editing ? "03" : "04"} label="自動補齊">
+          <KindAutofillFields value={autofill} onChange={setAutofill} />
+        </Section>
+
         {/* 顯示設定只剩重讀計次，片段與書寫沒有 */}
         {group === "records" && (
-          <Section step={editing ? "03" : "04"} label="顯示">
+          <Section step={editing ? "04" : "05"} label="顯示">
             <KindDisplayFields value={display} onChange={setDisplay} />
           </Section>
         )}

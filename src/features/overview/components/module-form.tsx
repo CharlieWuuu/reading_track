@@ -12,12 +12,14 @@ import { FieldDef } from "@/config/fields";
 import { kindHref } from "@/config/kind-routes";
 import { scrapeBook } from "@/features/books/api/lookup-book";
 import { RepeatSuggestions } from "@/features/overview/components/repeat-suggestions";
+import { useAutofill } from "@/features/overview/hooks/use-autofill";
 import { useAutoSave } from "@/hooks/use-auto-save";
 import { useContentLinks } from "@/hooks/use-content-links";
 import { useKindRecords } from "@/hooks/use-kind-records";
 import type { RecordRow } from "@/lib/db/queries/catalog";
 import { Kind } from "@/lib/db/queries/kinds";
 import { scrapeUrl } from "@/lib/scrape-url";
+import { useAutofillStore } from "@/stores/use-autofill-store";
 import { useFormTabStore } from "@/stores/use-form-tab-store";
 import type { Linkable } from "@/types/record";
 import {
@@ -178,6 +180,8 @@ export function ModuleForm({
   const canScrape = fieldKeys.has("externalUrl") && fieldKeys.has("title");
   // 有 ISBN 這一格的就是書：走各平台專用的書籍爬蟲，補得比通用剖析器完整
   const hasIsbn = fieldKeys.has("externalId");
+  useAutofill({ kind, values, setValues, fieldKeys, setNote: setFetchNote });
+  const autofilling = useAutofillStore((s) => s.busy);
 
   async function handleUrlPaste(url: string) {
     const trimmed = url.trim();
@@ -392,8 +396,10 @@ export function ModuleForm({
       {/* 片段、書寫的內容頁是標題與內文，一格一列；紀錄的是日期、連結，兩兩一排 */}
       <div className={paneClass("content")}>
         {pane(tabs.content, kind.group !== "records")}
-        {fetching && <p className="text-xs text-gray-500">抓取中…</p>}
-        {!fetching && fetchNote && <p className="text-xs text-gray-500">{fetchNote}</p>}
+        {(fetching || autofilling) && <p className="text-xs text-gray-500">抓取中…</p>}
+        {!fetching && !autofilling && fetchNote && (
+          <p className="text-xs text-gray-500">{fetchNote}</p>
+        )}
       </div>
 
       <div className={paneClass("attributes")}>

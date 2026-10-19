@@ -9,7 +9,8 @@ import { KindGroup } from "@/config/kind-groups";
 import { groupBasePath, kindHref } from "@/config/kind-routes";
 import { NAV_GROUPS } from "@/config/nav";
 import { variantFor } from "@/features/kinds/variant-registry";
-import { FormTabNav, FormTabSwitch } from "@/features/overview/components/form-tab-switch";
+import { FormHeaderActions } from "@/features/overview/components/form-header-actions";
+import { FormTabNav } from "@/features/overview/components/form-tab-switch";
 import { ModuleDetail } from "@/features/overview/components/module-detail";
 import { ModuleForm } from "@/features/overview/components/module-form";
 import { useCatalogRecord } from "@/hooks/use-catalog-record";
@@ -48,8 +49,8 @@ export function KindNewPage({ group, slug }: KindRouteProps) {
           ]
         }
         backHref={kindHref(group, slug)}
-        // 專用表單沒有分內容／屬性，那顆不畫；桌機在右欄
-        action={kind && !Form ? <FormTabSwitch kind={kind} /> : undefined}
+        // 專用表單沒有分內容／屬性與補齊，都不畫；分頁桌機在右欄
+        action={kind && !Form ? <FormHeaderActions kind={kind} /> : undefined}
       />
       <PageBody>
         <PageMain>
@@ -185,7 +186,7 @@ function GenericEditPage({ group, slug, recordId }: RecordRouteProps) {
           ]
         }
         backHref={back}
-        action={kind && !Form ? <FormTabSwitch kind={kind} /> : undefined}
+        action={kind && !Form ? <FormHeaderActions kind={kind} /> : undefined}
       />
       <PageBody>
         <PageMain>
