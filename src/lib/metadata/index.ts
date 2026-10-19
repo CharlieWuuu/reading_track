@@ -38,6 +38,16 @@ const PROVIDERS: MetadataProvider[] = [
   openLibraryProvider, // 頁數
 ];
 
+/** 補齊來源的 slug 對到哪一家。slug 的合法值由 config/autofill-sources 管 */
+export const PROVIDER_BY_SLUG = {
+  taaze: taazeProvider,
+  pubu: pubuProvider,
+  readmoo: readmooProvider,
+  ndl: ndlProvider,
+  "google-books": googleBooksProvider,
+  "open-library": openLibraryProvider,
+} as const satisfies Record<string, MetadataProvider>;
+
 /** 低於這個相似度就當作搜到別本書，寧可留白也不要寫錯資料 */
 const MIN_TITLE_SIMILARITY = 0.75;
 
@@ -90,6 +100,7 @@ export async function fetchBookMetadata(
   query: string,
   wanted: readonly EnrichableField[] = ENRICHABLE_FIELDS,
   hints?: LookupHints,
+  providers: readonly MetadataProvider[] = PROVIDERS, // 只問指定的幾家（補齊來源一次問一家）
 ): Promise<EnrichResult> {
   const merged: BookMetadata = {};
   const sources: string[] = [];
@@ -98,7 +109,7 @@ export async function fetchBookMetadata(
 
   const satisfied = (field: EnrichableField) => !isBlank(merged[field]);
 
-  for (const provider of PROVIDERS) {
+  for (const provider of providers) {
     if (wanted.every(satisfied)) break;
 
     let result: BookMetadata | null = null;

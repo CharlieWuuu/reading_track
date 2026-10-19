@@ -24,6 +24,7 @@ export function OptionSelect({
   value,
   onChange,
   multiple = false,
+  creatable = true,
   separator = "、",
   onEditOption,
   placeholder,
@@ -37,6 +38,8 @@ export function OptionSelect({
   value: string;
   onChange: (value: string) => void;
   multiple?: boolean;
+  /** 打字能不能新增清單外的值。選項是固定清單時關掉 */
+  creatable?: boolean;
   /** 多個值怎麼串在同一格裡：預設頓號，一行一筆的欄位傳 "\n" */
   separator?: string;
   /** 給了就在每個已選的值上多一顆筆，點了把那個值交出去（例如去編關鍵字主檔） */
@@ -57,7 +60,7 @@ export function OptionSelect({
   const filtered = keyword
     ? options.filter((o) => o.toLowerCase().includes(keyword.toLowerCase()))
     : options;
-  const canCreate = keyword.length > 0 && !options.includes(keyword);
+  const canCreate = creatable && keyword.length > 0 && !options.includes(keyword);
 
   // 換行的那些欄位也認兩個字的「\n」：舊資料裡有一批是那樣存下來的
   const pattern = separator === "\n" ? /\r?\n|\\n/ : separator;
@@ -153,7 +156,7 @@ export function OptionSelect({
                 if (e.key === "Enter") e.preventDefault();
                 if (e.key === "Escape") setOpen(false);
               }}
-              placeholder={`搜尋或新增${label}`}
+              placeholder={creatable ? `搜尋或新增${label}` : `搜尋${label}`}
               className="w-full border-b px-3 py-2 text-sm outline-none"
             />
 
@@ -210,7 +213,9 @@ export function OptionSelect({
               )}
 
               {filtered.length === 0 && !canCreate && (
-                <li className="px-3 py-2 text-xs text-gray-400">打字就可以新增</li>
+                <li className="px-3 py-2 text-xs text-gray-400">
+                  {creatable ? "打字就可以新增" : "沒有符合的"}
+                </li>
               )}
             </ul>
           </div>

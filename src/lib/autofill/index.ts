@@ -1,5 +1,5 @@
 import { AutofillSlug } from "@/config/autofill-sources";
-import { lookupBooks } from "./books";
+import { BookSlug, lookupBook } from "./books";
 import { lookupWikipedia } from "./wikipedia";
 
 export type AutofillQuery = { title: string; language?: string };
@@ -7,8 +7,18 @@ export type AutofillQuery = { title: string; language?: string };
 type Found = Record<string, string> | null;
 
 /** 少一個 slug 編譯就不過：config 加了來源，這裡一定要有實作 */
+const bookRunner =
+  (slug: BookSlug) =>
+  ({ title, language }: AutofillQuery) =>
+    lookupBook(slug, title, language);
+
 const RUNNERS: Record<AutofillSlug, (query: AutofillQuery) => Promise<Found>> = {
-  books: ({ title, language }) => lookupBooks(title, language),
+  taaze: bookRunner("taaze"),
+  pubu: bookRunner("pubu"),
+  readmoo: bookRunner("readmoo"),
+  ndl: bookRunner("ndl"),
+  "google-books": bookRunner("google-books"),
+  "open-library": bookRunner("open-library"),
   wikipedia: ({ title }) => lookupWikipedia(title),
 };
 
