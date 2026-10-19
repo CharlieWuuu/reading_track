@@ -1,4 +1,5 @@
 import type { BookViewMode } from "@/stores/use-book-view-store";
+import { AutofillSlug } from "./autofill-sources";
 import { CardStyle } from "./card-styles";
 import { KindDisplay } from "./kind-display";
 import { KindGroup } from "./kind-groups";
@@ -28,6 +29,8 @@ export type KindTemplate = {
   cardStyle?: CardStyle;
   /** 有哪幾種版面。沒寫就用 DEFAULT_VIEWS */
   views?: readonly BookViewMode[];
+  /** 表單「自動補齊」查哪些來源，依序問。沒寫就沒有按鈕 */
+  autofill?: readonly AutofillSlug[];
   /** 重讀計次。沒寫就用 DEFAULT_DISPLAY */
   display?: Partial<KindDisplay>;
 };
@@ -41,6 +44,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     name: "書籍",
     amountUnit: "頁",
     display: { countRereads: true },
+    autofill: ["books"],
     modules: [
       ...RECORD_BASE,
       "longText",
@@ -132,6 +136,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "fragments",
     name: "關鍵字",
     amountUnit: "",
+    autofill: ["wikipedia"],
     modules: ["title", "longText", "tags", "years", "coordinates", "externalUrl"],
   },
   {

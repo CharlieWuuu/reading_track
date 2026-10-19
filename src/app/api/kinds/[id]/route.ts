@@ -8,6 +8,7 @@ import {
   requireWriter,
   unauthorized,
 } from "@/app/api/_lib/respond";
+import { parseAutofill } from "@/config/autofill-sources";
 import { toCardStyle } from "@/config/card-styles";
 import { toKindDisplay } from "@/config/kind-display";
 import { toKindViews } from "@/config/kind-views";
@@ -39,6 +40,7 @@ export const PATCH = guarded(
       amountUnit?: unknown;
       inheritsCover?: unknown;
       views?: unknown;
+      autofill?: unknown;
       cardStyle?: unknown;
       labels?: unknown;
     }>(req, "kind PATCH");
@@ -117,6 +119,7 @@ export const PATCH = guarded(
         inheritsCover,
         cardStyle,
         views,
+        autofill: parseAutofill(body.autofill),
         labels,
         ...toKindDisplay(body),
       });

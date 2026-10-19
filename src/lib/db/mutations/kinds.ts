@@ -1,4 +1,5 @@
 import { and, desc, eq } from "drizzle-orm";
+import { AutofillSlug, fromAutofillSources } from "@/config/autofill-sources";
 import { CardStyle, defaultCardStyle } from "@/config/card-styles";
 import { DEFAULT_DISPLAY, KindDisplay } from "@/config/kind-display";
 import { KindGroup } from "@/config/kind-groups";
@@ -33,6 +34,8 @@ export type NewKind = KindDisplay & {
   cardStyle: CardStyle;
   /** 用哪幾種元件顯示 */
   views: BookViewMode[];
+  /** 自動補齊查哪些來源，依序問；空陣列就沒有按鈕 */
+  autofill: AutofillSlug[];
   /** 模組在這個類型叫什麼 */
   labels?: Record<string, string>;
 };
@@ -70,6 +73,7 @@ async function insertKind(
       inheritsCover: kind.inheritsCover,
       cardStyle: kind.cardStyle,
       views: fromKindViews(kind.views),
+      autofillSources: fromAutofillSources(kind.autofill),
       countRereads: kind.countRereads,
       sortOrder,
     })
@@ -109,6 +113,7 @@ const fromTemplate = (template: KindTemplate): NewKind => ({
   inheritsCover: template.inheritsCover ?? false,
   cardStyle: template.cardStyle ?? defaultCardStyle(template.group),
   views: [...(template.views ?? DEFAULT_VIEWS)],
+  autofill: [...(template.autofill ?? [])],
   ...DEFAULT_DISPLAY,
   ...template.display,
 });
@@ -211,6 +216,7 @@ export async function updateKind(userId: string, kindId: string, patch: NewKind)
         inheritsCover: patch.inheritsCover,
         cardStyle: patch.cardStyle,
         views: fromKindViews(patch.views),
+        autofillSources: fromAutofillSources(patch.autofill),
         countRereads: patch.countRereads,
       })
       .where(and(eq(kinds.id, kindId), eq(kinds.userId, userId)));

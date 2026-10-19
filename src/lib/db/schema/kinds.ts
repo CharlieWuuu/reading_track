@@ -37,6 +37,11 @@ export const kinds = pgTable(
      * 有檢視切換，自訂類型點進去就一種顯示方式。勾幾個就長出幾個選項。
      */
     views: text("views").notNull().default("overview"),
+    /**
+     * 表單上「自動補齊」按鈕查哪些來源，slug 逗號相接，依序問到第一個有結果。
+     * 空字串＝不出按鈕。合法值由 config/autofill-sources 管。
+     */
+    autofillSources: text("autofill_sources").notNull().default(""),
     /** 頁首寫「133 次・128 本」：同一個作品讀兩次算兩次 */
     countRereads: boolean("count_rereads").notNull().default(false),
     /** 量的單位：頁、分鐘、字。統計讀「量＋單位」自己長句子，加類型不用改統計 */

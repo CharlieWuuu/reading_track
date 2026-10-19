@@ -1,4 +1,5 @@
 import { and, asc, count, eq, isNull, or } from "drizzle-orm";
+import { AutofillSlug, toAutofillSources } from "@/config/autofill-sources";
 import { CardStyle, toCardStyle } from "@/config/card-styles";
 import { KindDisplay } from "@/config/kind-display";
 import { KindGroup } from "@/config/kind-groups";
@@ -36,6 +37,8 @@ export type Kind = KindDisplay & {
   cardStyle: CardStyle;
   /** 這個類型用哪幾種元件顯示 */
   views: BookViewMode[];
+  /** 表單「自動補齊」查哪些來源，依序問；空的就沒有按鈕 */
+  autofill: AutofillSlug[];
   /** 底下有幾筆。側欄用它決定要不要列 */
   count: number;
   /** 勾了哪些模組，以及它們在這個類型叫什麼。交給 resolveFormModules */
@@ -127,6 +130,7 @@ export async function listKinds(userId: string): Promise<Kind[]> {
     inheritsCover: kind.inheritsCover,
     cardStyle: toCardStyle(kind.cardStyle, kind.groupKey as KindGroup),
     views: toKindViews(kind.views),
+    autofill: toAutofillSources(kind.autofillSources),
     countRereads: kind.countRereads,
     count: counts.get(kind.id) ?? 0,
     sortOrder,

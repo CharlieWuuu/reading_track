@@ -9,6 +9,7 @@ import {
   requireWriter,
   unauthorized,
 } from "@/app/api/_lib/respond";
+import { parseAutofill } from "@/config/autofill-sources";
 import { toCardStyle } from "@/config/card-styles";
 import { toKindDisplay } from "@/config/kind-display";
 import { KindGroup } from "@/config/kind-groups";
@@ -50,6 +51,7 @@ export const POST = guarded("kinds POST", async (req: NextRequest) => {
     amountUnit?: unknown;
     inheritsCover?: unknown;
     views?: unknown;
+    autofill?: unknown;
     cardStyle?: unknown;
     labels?: unknown;
     countRereads?: unknown;
@@ -104,6 +106,7 @@ export const POST = guarded("kinds POST", async (req: NextRequest) => {
       inheritsCover,
       cardStyle,
       views,
+      autofill: parseAutofill(body.autofill),
       labels,
       ...toKindDisplay(body),
     });
