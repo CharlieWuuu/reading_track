@@ -3,16 +3,19 @@
  *
  * 順序就是查詢順序，第一個查到的為止：先問給得出頁數與字數的書店，
  * 英文書、字典與百科殿後。label 是使用者看到的名字，不放網址。
+ *
+ * input 是這個來源拿什麼去查：書名、單字用標題，網頁用「外部連結」欄的網址。
  */
 export const AUTOFILL_SOURCES = [
-  { slug: "taaze", label: "讀冊生活" },
-  { slug: "pubu", label: "Pubu 電子書城" },
-  { slug: "readmoo", label: "讀墨" },
-  { slug: "google-books", label: "Google 圖書" },
-  { slug: "open-library", label: "Open Library 開放圖書館" },
-  { slug: "moedict", label: "萌典" },
-  { slug: "wiktionary", label: "維基詞典" },
-  { slug: "wikipedia", label: "維基百科" },
+  { slug: "taaze", label: "讀冊生活", input: "title" },
+  { slug: "pubu", label: "Pubu 電子書城", input: "title" },
+  { slug: "readmoo", label: "讀墨", input: "title" },
+  { slug: "google-books", label: "Google 圖書", input: "title" },
+  { slug: "open-library", label: "Open Library 開放圖書館", input: "title" },
+  { slug: "moedict", label: "萌典", input: "title" },
+  { slug: "wiktionary", label: "維基詞典", input: "title" },
+  { slug: "wikipedia", label: "維基百科", input: "title" },
+  { slug: "web", label: "網頁", input: "url" },
 ] as const;
 
 export type AutofillSlug = (typeof AUTOFILL_SOURCES)[number]["slug"];
@@ -48,3 +51,8 @@ export const BOOK_AUTOFILL_SOURCES: AutofillSlug[] = [
   "open-library",
 ];
 export const DICTIONARY_AUTOFILL_SOURCES: AutofillSlug[] = ["moedict", "wiktionary"];
+
+export type AutofillInput = (typeof AUTOFILL_SOURCES)[number]["input"];
+
+export const inputOf = (slug: AutofillSlug): AutofillInput =>
+  AUTOFILL_SOURCES.find((s) => s.slug === slug)?.input ?? "title";

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fillFields } from "./autofill";
+import { fillFields, missingInput, usableSources } from "./autofill";
 
 const ALL = new Set(["title", "body", "externalUrl"]);
 
@@ -30,5 +30,31 @@ describe("fillFields", () => {
     const current = { title: "a" };
     fillFields(current, { body: "x" }, ALL);
     expect(current).toEqual({ title: "a" });
+  });
+});
+
+describe("usableSources", () => {
+  it("書名來源要標題，網頁來源要網址", () => {
+    expect(usableSources(["taaze", "web"], { title: "書" })).toEqual(["taaze"]);
+    expect(usableSources(["taaze", "web"], { url: "https://x" })).toEqual(["web"]);
+    expect(usableSources(["taaze", "web"], { title: "書", url: "https://x" })).toEqual([
+      "taaze",
+      "web",
+    ]);
+  });
+
+  it("空白不算有", () => {
+    expect(usableSources(["taaze"], { title: "  " })).toEqual([]);
+  });
+});
+
+describe("missingInput", () => {
+  it("有得查回 null", () => {
+    expect(missingInput(["taaze"], { title: "書" })).toBeNull();
+  });
+
+  it("有書名來源就提示標題，全是網頁來源才提示外部連結", () => {
+    expect(missingInput(["taaze", "web"], {})).toBe("標題");
+    expect(missingInput(["web"], { title: "書" })).toBe("外部連結");
   });
 });

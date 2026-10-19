@@ -3,7 +3,7 @@ import { AUTOFILL_SOURCES } from "@/config/autofill-sources";
 import { requestAutofill } from "@/features/overview/api/request-autofill";
 import { Kind } from "@/lib/db/queries/kinds";
 import { useAutofillStore } from "@/stores/use-autofill-store";
-import { fillFields } from "@/utils/autofill";
+import { fillFields, missingInput } from "@/utils/autofill";
 
 const labelOf = (slug: string) => AUTOFILL_SOURCES.find((s) => s.slug === slug)?.label ?? slug;
 
@@ -41,14 +41,19 @@ export function useAutofill({
 
     async function run() {
       const { values, fieldKeys, sources } = latest.current;
-      const title = values.title?.trim();
-      if (!title) return setNote("先填標題");
+      const query = {
+        title: values.title?.trim(),
+        url: values.externalUrl?.trim(),
+        language: values.language?.trim(),
+      };
+      const missing = missingInput(sources, query);
+      if (missing) return setNote(`先填${missing}`);
 
       setBusy(true);
       setNote("");
       try {
-        const found = await requestAutofill(sources, title, values.language?.trim());
-        if (!found) return setNote(`查不到「${title}」`);
+        const found = await requestAutofill(sources, query);
+        if (!found) return setNote(`查不到「${query.title || query.url}」`);
 
         const { filled } = fillFields(values, found.fields, fieldKeys);
         setValues((v) => fillFields(v, found.fields, fieldKeys).values);
