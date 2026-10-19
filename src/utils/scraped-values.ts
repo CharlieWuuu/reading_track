@@ -1,4 +1,5 @@
 import { Book } from "@/types/book";
+import { fillFields } from "./autofill";
 
 /**
  * 爬回來的書籍資料換成通用表單的欄位鍵。
@@ -18,30 +19,22 @@ const BOOK_TO_FIELD: Record<string, string> = {
   sourceUrl: "externalUrl",
 };
 
-/**
- * 只補空欄位，已經填了的不蓋——手動改過的內容比抓回來的可信。
- *
- * 回傳補完的整份值與補了幾格，畫面要那個數字說「補上 N 個欄位」。
- */
-export function fillFromBook(
+/** 書籍資料換成欄位鍵。補齊來源與貼連結抓取共用 */
+export function bookToFields(found: Partial<Book>): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(BOOK_TO_FIELD).flatMap(([bookKey, fieldKey]): [string, string][] => {
+      const value = found[bookKey as keyof Book];
+      return typeof value === "string" ? [[fieldKey, value]] : [];
+    }),
+  );
+}
+
+/** 只補空欄位，已經填了的不蓋——規則見 fillFields */
+export const fillFromBook = (
   current: Record<string, string>,
   found: Partial<Book>,
   allowed: ReadonlySet<string>,
-): { values: Record<string, string>; filled: number } {
-  const values = { ...current };
-  let filled = 0;
-
-  for (const [bookKey, fieldKey] of Object.entries(BOOK_TO_FIELD)) {
-    const value = found[bookKey as keyof Book];
-    if (typeof value !== "string" || !value.trim()) continue;
-    // 這個類型沒勾的欄位不補：表單上根本沒有那一格，補了也看不到
-    if (!allowed.has(fieldKey) || values[fieldKey]?.trim()) continue;
-    values[fieldKey] = value;
-    filled += 1;
-  }
-
-  return { values, filled };
-}
+) => fillFields(current, bookToFields(found), allowed);
 
 /** 只留有填東西的那幾格。帶入上一筆時拿它保住使用者已經打過的字 */
 export const pickFilled = (values: Record<string, string>): Record<string, string> =>
