@@ -2,15 +2,16 @@
  * 補齊來源。設定頁勾選、範本預設、表單按鈕都讀這一份；查詢實作在 lib/autofill。
  *
  * 順序就是查詢順序，第一個查到的為止：先問給得出頁數與字數的書店，
- * 英文書與百科殿後。label 是使用者看到的名字，不放網址。
+ * 英文書、字典與百科殿後。label 是使用者看到的名字，不放網址。
  */
 export const AUTOFILL_SOURCES = [
   { slug: "taaze", label: "讀冊生活" },
   { slug: "pubu", label: "Pubu 電子書城" },
   { slug: "readmoo", label: "讀墨" },
-  { slug: "ndl", label: "日本國會圖書館" },
   { slug: "google-books", label: "Google 圖書" },
   { slug: "open-library", label: "Open Library 開放圖書館" },
+  { slug: "moedict", label: "萌典" },
+  { slug: "wiktionary", label: "維基詞典" },
   { slug: "wikipedia", label: "維基百科" },
 ] as const;
 
@@ -38,7 +39,12 @@ export const fromAutofillSources = (slugs: readonly string[]): string =>
 
 export const ALL_AUTOFILL_SOURCES: AutofillSlug[] = AUTOFILL_SOURCES.map((s) => s.slug);
 
-/** 書籍用的那幾家：給範本當書籍預設 */
-export const BOOK_AUTOFILL_SOURCES: AutofillSlug[] = ALL_AUTOFILL_SOURCES.filter(
-  (slug) => slug !== "wikipedia",
-);
+/** 範本預設：書籍問書店與圖書館，單字問字典 */
+export const BOOK_AUTOFILL_SOURCES: AutofillSlug[] = [
+  "taaze",
+  "pubu",
+  "readmoo",
+  "google-books",
+  "open-library",
+];
+export const DICTIONARY_AUTOFILL_SOURCES: AutofillSlug[] = ["moedict", "wiktionary"];

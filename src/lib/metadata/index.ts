@@ -43,7 +43,6 @@ export const PROVIDER_BY_SLUG = {
   taaze: taazeProvider,
   pubu: pubuProvider,
   readmoo: readmooProvider,
-  ndl: ndlProvider,
   "google-books": googleBooksProvider,
   "open-library": openLibraryProvider,
 } as const satisfies Record<string, MetadataProvider>;

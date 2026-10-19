@@ -1,5 +1,6 @@
 import { AutofillSlug } from "@/config/autofill-sources";
 import { BookSlug, lookupBook } from "./books";
+import { lookupMoedict, lookupWiktionary } from "./dictionary";
 import { lookupWikipedia } from "./wikipedia";
 
 export type AutofillQuery = { title: string; language?: string };
@@ -16,7 +17,8 @@ const RUNNERS: Record<AutofillSlug, (query: AutofillQuery) => Promise<Found>> = 
   taaze: bookRunner("taaze"),
   pubu: bookRunner("pubu"),
   readmoo: bookRunner("readmoo"),
-  ndl: bookRunner("ndl"),
+  moedict: ({ title }) => lookupMoedict(title),
+  wiktionary: ({ title }) => lookupWiktionary(title),
   "google-books": bookRunner("google-books"),
   "open-library": bookRunner("open-library"),
   wikipedia: ({ title }) => lookupWikipedia(title),

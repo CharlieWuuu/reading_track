@@ -1,5 +1,9 @@
 import type { BookViewMode } from "@/stores/use-book-view-store";
-import { AutofillSlug, BOOK_AUTOFILL_SOURCES } from "./autofill-sources";
+import {
+  AutofillSlug,
+  BOOK_AUTOFILL_SOURCES,
+  DICTIONARY_AUTOFILL_SOURCES,
+} from "./autofill-sources";
 import { CardStyle } from "./card-styles";
 import { KindDisplay } from "./kind-display";
 import { KindGroup } from "./kind-groups";
@@ -122,6 +126,7 @@ export const KIND_TEMPLATES: KindTemplate[] = [
     group: "fragments",
     name: "單字",
     amountUnit: "",
+    autofill: DICTIONARY_AUTOFILL_SOURCES,
     modules: [
       "title",
       "pronunciation",
