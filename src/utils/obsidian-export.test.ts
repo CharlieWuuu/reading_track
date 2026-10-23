@@ -25,9 +25,18 @@ const entry = (over: Partial<ExportEntry>): ExportEntry => ({
 describe("assignNames", () => {
   it("非法字元換成空白、截長", () => {
     const names = assignNames([
-      entry({ id: "a", folder: "02 片段/佳句", title: "a/b:c?" + "長".repeat(50) }),
+      entry({ id: "a", folder: "02 片段/佳句", title: "a/b:c?" + "x".repeat(50) }),
     ]);
-    expect(names.get("a")).toBe("02 片段/佳句/a b c " + "長".repeat(34));
+    expect(names.get("a")).toBe("02 片段/佳句/a b c " + "x".repeat(34));
+  });
+
+  it("整條路徑不超過 Drive 屬性上限（含撞名後綴）", () => {
+    const title =
+      "口袋沒你想得那麼簡單：從功能配件到文化象徵，小小口袋如何裝進性別、權力與身體政治";
+    const names = assignNames([entry({ id: "p", folder: "03 書寫/札記", title })]);
+    const full = `path${names.get("p")} (xxxxxx).md`;
+    expect(new TextEncoder().encode(full).length).toBeLessThanOrEqual(124);
+    expect(title.startsWith(names.get("p")!.split("/").pop()!)).toBe(true);
   });
 
   it("同資料夾撞名補 id 前六碼，不同資料夾不算撞", () => {
