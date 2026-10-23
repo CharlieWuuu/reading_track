@@ -127,50 +127,6 @@ export function renderStats(entries: ExportEntry[], today: string): ExportFile {
   return { path: `${DIR}/閱讀統計.md`, content };
 }
 
-/** 書牆：Bases 卡片檢視，封面當圖 */
-export const shelfBase: ExportFile = {
-  path: `${DIR}/書牆.base`,
-  content: `filters:
-  and:
-    - archivum_kind == "書籍"
-views:
-  - type: cards
-    name: 書牆
-    image: note.cover
-    imageFit: contain
-    imageAspectRatio: 1.45
-    order:
-      - file.name
-      - creator
-      - last_read
-    sort:
-      - property: last_read
-        direction: DESC
-  - type: cards
-    name: 閱讀中
-    filters:
-      and:
-        - status == "閱讀中"
-    image: note.cover
-    imageFit: contain
-    imageAspectRatio: 1.45
-    order:
-      - file.name
-      - creator
-  - type: table
-    name: 表格
-    order:
-      - file.name
-      - creator
-      - topic
-      - last_read
-      - status
-    sort:
-      - property: last_read
-        direction: DESC
-`,
-};
-
 /** 閱讀紀錄：嵌入 Bases 表格，一本一列；每次閱讀的細節在書的檔案裡 */
 export function renderReadLog(): ExportFile {
   const content = [
@@ -200,7 +156,30 @@ const KIND_COLUMNS: Record<string, string[]> = {
   佳句: ["locator", "topic", "created"],
 };
 
-/** 每個類型資料夾一個 Base：卡片（有圖就用）、表格（附筆數）、依領域分組、地圖（有座標才加） */
+// 書籍的卡片要像書牆：封面直式、照最近讀過排序，另有閱讀中
+const BOOK_CARD = `    image: note.cover
+    imageFit: contain
+    imageAspectRatio: 1.45
+    sort:
+      - property: last_read
+        direction: DESC
+`;
+const readingView = (order: string) => `  - type: cards
+    name: 閱讀中
+    filters:
+      and:
+        - status == "閱讀中"
+    image: note.cover
+    imageFit: contain
+    imageAspectRatio: 1.45
+    order:
+${order}
+`;
+
+/**
+ * 每個類型一個 Base，放在層的資料夾（01 紀錄/書籍.base），頁面本身在下一層（01 紀錄/書籍/）。
+ * 第一個檢視是卡片（預設開啟），每個檢視都帶 summary；另有表格、依領域分組、地圖（有座標才加）
+ */
 export function kindBase(
   folder: string,
   { image: hasImage, map = false }: { image: boolean; map?: boolean },
@@ -209,7 +188,8 @@ export function kindBase(
   const kind = folder.split("/").pop()!;
   const columns = ["file.name", "summary", ...(KIND_COLUMNS[kind] ?? GROUP_COLUMNS[group] ?? [])];
   const order = columns.map((c) => `      - ${c}`).join("\n");
-  const image = hasImage ? "    image: note.cover\n    imageFit: cover\n" : "";
+  const isBook = kind === "書籍";
+  const image = isBook ? BOOK_CARD : hasImage ? "    image: note.cover\n    imageFit: cover\n" : "";
   const content = `filters:
   and:
     - file.inFolder("${folder}")
@@ -219,7 +199,7 @@ views:
     name: 卡片
 ${image}    order:
 ${order}
-  - type: table
+${isBook ? readingView(order) : ""}  - type: table
     name: 表格
     order:
 ${order}
@@ -228,12 +208,12 @@ ${order}
   - type: table
     name: 依領域
     groupBy:
-      property: topic
+      property: domain
       direction: ASC
     order:
 ${order}
 ${map ? MAP_VIEW : ""}`;
-  return { path: `${folder}/${kind}.base`, content };
+  return { path: `${group}/${kind}.base`, content };
 }
 
 // Maps 外掛（Obsidian 官方）的地圖檢視；座標欄位格式是 "緯度, 經度"

@@ -50,7 +50,7 @@ describe("renderStats", () => {
 describe("kindBase", () => {
   it("放在類型資料夾裡，有圖才加卡片圖", () => {
     const withImage = kindBase("02 片段/關鍵字", { image: true, map: true });
-    expect(withImage.path).toBe("02 片段/關鍵字/關鍵字.base");
+    expect(withImage.path).toBe("02 片段/關鍵字.base");
     expect(withImage.content).toContain('file.inFolder("02 片段/關鍵字")');
     expect(withImage.content).toContain("image: note.cover");
     expect(kindBase("02 片段/單字", { image: false }).content).not.toContain("image:");

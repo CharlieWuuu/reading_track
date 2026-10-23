@@ -15,7 +15,6 @@ import {
   renderGroupStats,
   renderReadLog,
   renderStats,
-  shelfBase,
 } from "../src/utils/obsidian-views";
 
 /**
@@ -216,6 +215,36 @@ for (const f of data.fragments) {
   const thumb = m ? await thumbOf(m[1], m[2]) : null; // 一筆一筆查，不對維基開大量併發
   if (thumb) wikiThumbs.set(f.id, thumb);
 }
+
+// 沒有維基條目圖的關鍵字：先找 Wikimedia Commons，再找 Openverse（都只收自由授權的圖）
+const searchCached = async (key: string, url: string, pick: (json: any) => string | undefined) => {
+  if (key in wikiCache) return wikiCache[key];
+  await sleep(300);
+  const res = await fetch(url, {
+    headers: { "User-Agent": "archivum-obsidian-export (personal use)" },
+  }).catch(() => null);
+  if (!res?.ok) return null; // 暫時失敗不進快取
+  wikiCache[key] = pick(await res.json()) ?? null;
+  return wikiCache[key];
+};
+const commonsOf = (q: string) =>
+  searchCached(
+    `commons:${q}`,
+    `https://commons.wikimedia.org/w/api.php?action=query&format=json&generator=search&gsrnamespace=6&gsrlimit=1&prop=imageinfo&iiprop=url&iiurlwidth=640&gsrsearch=${encodeURIComponent(`${q} filetype:bitmap`)}`,
+    (j) => (Object.values(j?.query?.pages ?? {})[0] as any)?.imageinfo?.[0]?.thumburl,
+  );
+const openverseOf = (q: string) =>
+  searchCached(
+    `openverse:${q}`,
+    `https://api.openverse.org/v1/images/?page_size=1&q=${encodeURIComponent(q)}`,
+    (j) => j?.results?.[0]?.thumbnail,
+  );
+for (const f of data.fragments) {
+  if (f.kind !== "關鍵字" || f.cover_url || wikiThumbs.has(f.id)) continue;
+  const q = f.title.split(/[：:（(]/)[0].trim(); // 「紐約：從荷蘭小鎮…」只拿「紐約」去查
+  const thumb = q ? ((await commonsOf(q)) ?? (await openverseOf(q))) : null;
+  if (thumb) wikiThumbs.set(f.id, thumb);
+}
 await mkdir(path.dirname(WIKI_CACHE), { recursive: true });
 await writeFile(WIKI_CACHE, JSON.stringify(wikiCache));
 
@@ -363,7 +392,6 @@ const files = buildFiles(entries, links, taken, [...mentions, ...companyMentions
 const generated = [
   renderStats(entries, new Date().toISOString().slice(0, 10)),
   renderReadLog(),
-  shelfBase,
   ...[...new Set(entries.map((e) => e.folder))].map((folder) =>
     kindBase(folder, {
       image: entries.some((e) => e.folder === folder && e.meta.cover),
