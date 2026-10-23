@@ -55,10 +55,11 @@ const data = await sql.begin("read only", async (t) => {
 
   const works = await t`
     select w.id, k.name kind, k.group_key grp, w.title, w.body, w.creator, w.publisher, w.language, w.amount,
-           w.translation, w.start_year, w.end_year, w.tags, w.cover_url, tp.name topic, a.name attribute
+           w.translation, w.start_year, w.end_year, w.tags, w.cover_url, tp.name topic, coalesce(tpp.name, tp.name) domain, a.name attribute
     from domain_works w
     join setting_kinds k on k.id = w.kind_id
     left join domain_record_topic tp on tp.id = w.topic_id
+    left join domain_record_topic tpp on tpp.id = tp.parent_id
     left join domain_attribute a on a.id = w.attribute_id
     where w.user_id = ${uid}`;
   const records = await t`
@@ -69,17 +70,19 @@ const data = await sql.begin("read only", async (t) => {
   const fragments = await t`
     select f.id, f.is_private, f.cover_url, k.name kind, k.group_key grp, f.title, f.body, f.locator, f.pronunciation, f.translation, f.creator,
            f.start_year, f.end_year, f.language, f.latitude, f.longitude, f.tags, f.created_at::date::text created,
-           tp.name topic
+           tp.name topic, coalesce(tpp.name, tp.name) domain
     from domain_fragments f
     join setting_kinds k on k.id = f.kind_id
     left join domain_record_topic tp on tp.id = f.topic_id
+    left join domain_record_topic tpp on tpp.id = tp.parent_id
     where f.user_id = ${uid}`;
   const writings = await t`
     select wr.id, wr.is_private, k.name kind, k.group_key grp, wr.title, wr.body, wr.end_date::text e, wr.locator, wr.tags,
-           wr.created_at::date::text created, tp.name topic
+           wr.created_at::date::text created, tp.name topic, coalesce(tpp.name, tp.name) domain
     from domain_writings wr
     join setting_kinds k on k.id = wr.kind_id
     left join domain_record_topic tp on tp.id = wr.topic_id
+    left join domain_record_topic tpp on tpp.id = tp.parent_id
     where wr.user_id = ${uid}`;
   const links = await t`select a_id, b_id from links_internal where user_id = ${uid}`;
   const urls = await t`
@@ -169,6 +172,7 @@ const works: ExportEntry[] = data.works.map((w) => ({
     start_year: w.start_year,
     end_year: w.end_year,
     topic: w.topic,
+    domain: w.domain,
     attribute: w.attribute,
     cover: coverRef(w.cover_url),
     last_read: lastRead(readsOf.get(w.id) ?? []),
@@ -235,6 +239,7 @@ const fragments: ExportEntry[] = data.fragments.map((f) => ({
     longitude: f.longitude,
     coordinates: f.latitude != null && f.longitude != null ? `${f.latitude}, ${f.longitude}` : null, // Maps 外掛讀這欄
     topic: f.topic,
+    domain: f.domain,
     created: f.created,
     private: f.is_private || null,
   },
@@ -252,6 +257,7 @@ const writings: ExportEntry[] = data.writings.map((w) => ({
     locator: w.locator,
     finished: w.e,
     topic: w.topic,
+    domain: w.domain,
     created: w.created,
     private: w.is_private || null,
   },
