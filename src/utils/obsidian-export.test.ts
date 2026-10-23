@@ -4,6 +4,7 @@ import {
   buildFiles,
   excerpt,
   hasOwnContent,
+  linkMentions,
   MARK_END,
   MARK_START,
   mergeManaged,
@@ -147,5 +148,24 @@ describe("excerpt", () => {
     expect(excerpt("# 標題\n\n**粗體**  文字")).toBe("標題 粗體 文字");
     expect(excerpt("字".repeat(70))).toBe("字".repeat(60) + "…");
     expect(excerpt("")).toBe("");
+  });
+});
+
+describe("linkMentions", () => {
+  const terms = [
+    { surface: "柏林", target: "柏林" },
+    { surface: "羅馬", target: "羅馬", notFollowedBy: "字|帝國" },
+    { surface: "Java", target: "Java" },
+    { surface: "JavaScript", target: "JavaScript" },
+  ];
+
+  it("只連第一次出現，長的先比對，英文要整個字", () => {
+    expect(linkMentions("柏林圍牆、柏林", terms)).toBe("[[柏林]]圍牆、柏林");
+    expect(linkMentions("學 JavaScript 不是 Java", terms)).toBe("學 [[JavaScript]] 不是 [[Java]]");
+  });
+
+  it("排除後綴、程式碼與既有連結", () => {
+    expect(linkMentions("台語羅馬字", terms)).toBe("台語羅馬字");
+    expect(linkMentions("`柏林` 與 [[柏林]]", terms)).toBe("`柏林` 與 [[柏林]]");
   });
 });

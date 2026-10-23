@@ -59,6 +59,38 @@ export const excerpt = (body: string, max = 60): string => {
   return flat.length > max ? `${[...flat].slice(0, max).join("")}…` : flat;
 };
 
+export type MentionTerm = {
+  surface: string; // 文中出現的寫法
+  target: string; // 連到哪個檔
+  notFollowedBy?: string; // 例：羅馬後面接「字」就不是那座城
+};
+
+const PROTECTED =
+  /```[\s\S]*?```|`[^`\n]*`|\[\[[\s\S]*?\]\]|\[[^\]]*\]\([^)]*\)|https?:\/\/\S+|^#[^\n]*/gm;
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** 每個詞只連第一次出現；程式碼、既有連結、網址、標題不動；長的詞先比對 */
+export function linkMentions(text: string, terms: MentionTerm[]): string {
+  const sorted = [...terms].sort((a, b) => b.surface.length - a.surface.length);
+  return sorted.reduce((body, t) => {
+    if (body.includes(`[[${t.target}]]`) || body.includes(`[[${t.target}|`)) return body;
+    const ascii = /^[\w .+#-]+$/.test(t.surface);
+    const re = new RegExp(
+      (ascii ? "(?<![A-Za-z0-9])" : "") +
+        escapeRe(t.surface) +
+        (ascii ? "(?![A-Za-z0-9])" : "") +
+        (t.notFollowedBy ? `(?!${t.notFollowedBy})` : ""),
+    );
+    const parts = body.split(PROTECTED);
+    const kept = body.match(PROTECTED) ?? [];
+    const i = parts.findIndex((p) => re.test(p));
+    if (i < 0) return body;
+    const link = t.surface === t.target ? `[[${t.target}]]` : `[[${t.target}|${t.surface}]]`;
+    parts[i] = parts[i].replace(re, link);
+    return parts.flatMap((p, j) => (j < kept.length ? [p, kept[j]] : [p])).join("");
+  }, text);
+}
+
 /** 站內連結不分方向，攤成 id → 相關 id 清單 */
 export function linkIndex(links: [string, string][]): Map<string, string[]> {
   return links.reduce((m, [a, b]) => {
@@ -97,6 +129,7 @@ export function renderEntry(
   names: Map<string, string>,
   related: ExportEntry[],
   taken: Set<string> = new Set(), // vault 裡使用者自己的檔名，同名時連結要帶路徑
+  mentions: MentionTerm[] = [],
 ): string {
   const basenames = [...names.values()].map((n) => n.split("/").pop()!);
   const wiki = (r: ExportEntry) => {
@@ -119,7 +152,15 @@ export function renderEntry(
     "",
     `# ${e.title || "未命名"}`,
     "",
-    ...(e.body.trim() ? [e.body.trim(), ""] : []),
+    ...(e.body.trim()
+      ? [
+          linkMentions(
+            e.body.trim(),
+            mentions.filter((m) => m.target !== names.get(e.id)!.split("/").pop()),
+          ),
+          "",
+        ]
+      : []),
     ...section("閱讀紀錄", e.reads.map(readLine)),
     ...[...byKind].flatMap(([kind, rs]) =>
       section(
@@ -140,6 +181,7 @@ export function buildFiles(
   entries: ExportEntry[],
   links: [string, string][],
   taken: Set<string> = new Set(),
+  mentions: MentionTerm[] = [],
 ): ExportFile[] {
   const names = assignNames(entries);
   const byId = new Map(entries.map((e) => [e.id, e]));
@@ -148,7 +190,10 @@ export function buildFiles(
     const related = [...new Set(index.get(e.id) ?? [])]
       .map((id) => byId.get(id))
       .filter((r): r is ExportEntry => r !== undefined); // 另一端是私密或已刪就略過
-    return { path: `${names.get(e.id)}.md`, content: renderEntry(e, names, related, taken) };
+    return {
+      path: `${names.get(e.id)}.md`,
+      content: renderEntry(e, names, related, taken, mentions),
+    };
   });
 }
 

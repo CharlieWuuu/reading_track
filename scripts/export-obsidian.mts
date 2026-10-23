@@ -309,7 +309,32 @@ const taken = new Set(
     .map((f) => path.basename(f.path, ".md")),
 );
 
-const files = buildFiles(entries, links, taken);
+// 內文提到關鍵字就連：archivum 的關鍵字＋使用者自己寫在關鍵字資料夾的
+const KEYWORD_DIR = "02 片段/關鍵字";
+const TOO_COMMON = new Set(["歷史"]);
+const surfacesOf = (title: string) => {
+  const bare = title.replace(/（.*?）/g, "").trim();
+  const bilingual = title.match(/^(.*[\u4e00-\u9fff].*?) ([A-Za-z].+)$/); // 中英雙名才拆
+  return [...new Set([title, bare, ...(bilingual ? [bilingual[1], bilingual[2]] : [])])].filter(
+    (f) => f.length >= 2 && !TOO_COMMON.has(f),
+  );
+};
+const keywordTargets = [
+  ...entries
+    .filter((e) => e.folder === KEYWORD_DIR && !/ \([0-9a-f]{6}\)$/.test(names.get(e.id)!))
+    .map((e) => names.get(e.id)!.split("/").pop()!),
+  ...vaultFiles
+    .filter((f) => !idOf(f.text) && path.dirname(path.relative(root, f.path)) === KEYWORD_DIR)
+    .map((f) => path.basename(f.path, ".md")),
+];
+const mentions = keywordTargets.flatMap((target) =>
+  surfacesOf(target).map((surface) => ({
+    surface,
+    target,
+    notFollowedBy: surface === "羅馬" ? "字|拼音|帝國|化" : undefined,
+  })),
+);
+const files = buildFiles(entries, links, taken, mentions);
 const generated = [
   renderStats(entries, new Date().toISOString().slice(0, 10)),
   renderReadLog(),
