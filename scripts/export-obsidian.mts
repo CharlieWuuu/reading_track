@@ -9,7 +9,13 @@ import {
   mergeManaged,
   type ExportEntry,
 } from "../src/utils/obsidian-export";
-import { renderReadLog, renderStats, shelfBase } from "../src/utils/obsidian-views";
+import {
+  kindBase,
+  renderGroupStats,
+  renderReadLog,
+  renderStats,
+  shelfBase,
+} from "../src/utils/obsidian-views";
 
 /**
  * 把一個帳號的作品、片段、書寫匯出進 Obsidian vault。單向：archivum 是正本。
@@ -61,7 +67,7 @@ const data = await sql.begin("read only", async (t) => {
     order by r.start_date nulls last`;
   const fragments = await t`
     select f.id, f.is_private, k.name kind, k.group_key grp, f.title, f.body, f.locator, f.pronunciation, f.translation, f.creator,
-           f.start_year, f.end_year, f.latitude, f.longitude, f.tags, f.created_at::date::text created,
+           f.start_year, f.end_year, f.language, f.latitude, f.longitude, f.tags, f.created_at::date::text created,
            tp.name topic
     from domain_fragments f
     join setting_kinds k on k.id = f.kind_id
@@ -164,6 +170,41 @@ const works: ExportEntry[] = data.works.map((w) => ({
   urls: urlsOf.get(w.id) ?? [],
   reads: readsOf.get(w.id) ?? [],
 }));
+// 關鍵字的圖：維基條目的代表圖，網址直接用（Wikimedia 的縮圖網址穩定），查過的記在快取
+const WIKI_CACHE = "node_modules/.cache/obsidian-wiki-thumbs.json";
+const wikiCache: Record<string, string | null> = await readFile(WIKI_CACHE, "utf8")
+  .then(JSON.parse)
+  .catch(() => ({}));
+const wikiUrlOf = (id: string) =>
+  (urlsOf.get(id) ?? [])
+    .map((u: string) => u.match(/https?:\/\/([a-z-]+)\.wikipedia\.org\/wiki\/([^)\s#?]+)/))
+    .find(Boolean);
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const thumbOf = async (lang: string, title: string, attempt = 0): Promise<string | null> => {
+  const key = `${lang}:${title}`;
+  if (key in wikiCache) return wikiCache[key];
+  await sleep(300); // 維基會限速，太快會回 429
+  const res = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${title}`, {
+    headers: { "User-Agent": "archivum-obsidian-export (personal use)" },
+  }).catch(() => null);
+  if (res?.status === 429 && attempt < 3) {
+    await sleep(5000 * (attempt + 1));
+    return thumbOf(lang, title, attempt + 1);
+  }
+  if (!res || (!res.ok && res.status !== 404)) return null; // 暫時失敗不進快取，下次再查
+  const json = res.ok ? await res.json() : null;
+  wikiCache[key] = json?.thumbnail?.source ?? null;
+  return wikiCache[key];
+};
+const wikiThumbs = new Map<string, string>();
+for (const f of data.fragments) {
+  const m = wikiUrlOf(f.id);
+  const thumb = m ? await thumbOf(m[1], m[2]) : null; // 一筆一筆查，不對維基開大量併發
+  if (thumb) wikiThumbs.set(f.id, thumb);
+}
+await mkdir(path.dirname(WIKI_CACHE), { recursive: true });
+await writeFile(WIKI_CACHE, JSON.stringify(wikiCache));
+
 const fragments: ExportEntry[] = data.fragments.map((f) => ({
   ...base,
   id: f.id,
@@ -172,6 +213,8 @@ const fragments: ExportEntry[] = data.fragments.map((f) => ({
   body: f.body,
   meta: {
     ...vaultMeta(f.kind),
+    cover: wikiThumbs.get(f.id) ?? null,
+    language: f.language,
     locator: f.locator,
     pronunciation: f.pronunciation,
     translation: f.translation,
@@ -254,6 +297,14 @@ const generated = [
   renderStats(entries, new Date().toISOString().slice(0, 10)),
   renderReadLog(),
   shelfBase,
+  ...[...new Set(entries.map((e) => e.folder))].map((folder) =>
+    kindBase(
+      folder,
+      entries.some((e) => e.folder === folder && e.meta.cover),
+    ),
+  ),
+  renderGroupStats(entries, "02 片段", new Date().toISOString().slice(0, 10)),
+  renderGroupStats(entries, "03 書寫", new Date().toISOString().slice(0, 10)),
 ];
 
 const textAt = new Map(vaultFiles.map((f) => [f.path, f.text]));

@@ -46,7 +46,7 @@ const countBy = <T>(items: T[], key: (t: T) => string | null) =>
 
 const quote = (s: string) => `"${s.replace(/"/g, "'")}"`;
 
-function barChart(title: string, counts: Map<string, number>): string[] {
+function barChart(title: string, counts: Map<string, number>, unit = "本"): string[] {
   if (!counts.size) return [];
   const keys = [...counts.keys()];
   return [
@@ -54,7 +54,7 @@ function barChart(title: string, counts: Map<string, number>): string[] {
     "xychart-beta",
     `  title ${quote(title)}`,
     `  x-axis [${keys.map(quote).join(", ")}]`,
-    `  y-axis "本"`,
+    `  y-axis "${unit}"`,
     `  bar [${keys.map((k) => counts.get(k)).join(", ")}]`,
     "```",
     "",
@@ -186,4 +186,93 @@ export function renderReadLog(): ExportFile {
     ...baseBlock(READ_LOG_VIEW),
   ].join("\n");
   return { path: `${DIR}/閱讀紀錄.md`, content };
+}
+
+const GROUP_COLUMNS: Record<string, string[]> = {
+  "01 紀錄": ["creator", "topic", "last_read", "status"],
+  "02 片段": ["translation", "pronunciation", "topic", "created"],
+  "03 書寫": ["finished", "topic", "created"],
+};
+
+/** 每個類型資料夾一個 Base：卡片（有圖就用）、表格（附筆數）、依領域分組 */
+export function kindBase(folder: string, hasImage: boolean): ExportFile {
+  const group = folder.split("/")[0];
+  const kind = folder.split("/").pop()!;
+  const columns = ["file.name", ...(GROUP_COLUMNS[group] ?? [])];
+  const order = columns.map((c) => `      - ${c}`).join("\n");
+  const image = hasImage ? "    image: note.cover\n    imageFit: cover\n" : "";
+  const content = `filters:
+  and:
+    - file.inFolder("${folder}")
+    - file.ext == "md"
+views:
+  - type: cards
+    name: 卡片
+${image}    order:
+${order}
+  - type: table
+    name: 表格
+    order:
+${order}
+    summaries:
+      file.name: Count
+  - type: table
+    name: 依領域
+    groupBy:
+      property: topic
+      direction: ASC
+    order:
+${order}
+`;
+  return { path: `${folder}/${kind}.base`, content };
+}
+
+const lastMonths = (today: string, n: number) =>
+  Array.from({ length: n }, (_, i) => {
+    const d = new Date(`${today.slice(0, 7)}-01T00:00:00Z`);
+    d.setUTCMonth(d.getUTCMonth() - (n - 1 - i));
+    return d.toISOString().slice(0, 7);
+  });
+
+/** 片段或書寫的統計頁：各類型筆數、近 12 個月新增、領域分布 */
+export function renderGroupStats(entries: ExportEntry[], group: string, today: string): ExportFile {
+  const items = entries.filter((e) => e.folder.startsWith(`${group}/`));
+  const label = group.split(" ").pop()!;
+  const months = lastMonths(today, 12);
+  const added = countBy(items, (e) => String(e.meta.created ?? "").slice(0, 7) || null);
+  const byMonth = new Map(months.map((m) => [`${Number(m.slice(5))}月`, added.get(m) ?? 0]));
+  const byKind = countBy(items, (e) => e.kind);
+  const content = [
+    "---",
+    "type: 統計",
+    "source: archivum",
+    "---",
+    "",
+    "> [!info] 自動產生，每次匯出 archivum 時更新；只算 archivum 的資料",
+    "",
+    `# ${label}統計`,
+    "",
+    ...[...byKind].map(([k, n]) => `- ${k} **${n}** 則`),
+    "",
+    "## 近 12 個月新增",
+    "",
+    ...barChart("每月新增", byMonth, "則"),
+    "## 類型",
+    "",
+    ...pieChart("類型", byKind),
+    "## 領域",
+    "",
+    ...pieChart(
+      "領域",
+      countBy(items, (e) => (e.meta.topic as string) || null),
+    ),
+    ...[...byKind.keys()].flatMap((k) => {
+      const langs = countBy(
+        items.filter((e) => e.kind === k),
+        (e) => (e.meta.language as string) || null,
+      );
+      return langs.size > 1 ? [`## ${k}的語言`, "", ...pieChart(`${k}的語言`, langs)] : [];
+    }),
+  ].join("\n");
+  return { path: `${group}/${label}統計.md`, content };
 }
