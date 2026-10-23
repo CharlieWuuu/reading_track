@@ -59,7 +59,7 @@ const data = await sql.begin("read only", async (t) => {
     left join domain_record_topic tp on tp.id = f.topic_id
     where f.user_id = ${uid}`;
   const writings = await t`
-    select wr.id, wr.is_private, k.name kind, wr.title, wr.body, wr.end_date::text e, wr.tags,
+    select wr.id, wr.is_private, k.name kind, wr.title, wr.body, wr.end_date::text e, wr.locator, wr.tags,
            wr.created_at::date::text created, tp.name topic
     from domain_writings wr
     join setting_kinds k on k.id = wr.kind_id
@@ -161,7 +161,13 @@ const writings: ExportEntry[] = data.writings.map((w) => ({
   kind: w.kind,
   title: w.title,
   body: w.body,
-  meta: { finished: w.e, topic: w.topic, created: w.created, private: w.is_private || null },
+  meta: {
+    locator: w.locator,
+    finished: w.e,
+    topic: w.topic,
+    created: w.created,
+    private: w.is_private || null,
+  },
   tags: splitTags(w.tags),
   urls: urlsOf.get(w.id) ?? [],
 }));

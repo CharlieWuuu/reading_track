@@ -97,7 +97,7 @@ export function renderEntry(
     ...[...byKind].flatMap(([kind, rs]) =>
       section(
         kind,
-        rs.map((r) => `- ${wiki(r)}`),
+        rs.map((r) => `- ${wiki(r)}${r.meta.locator ? `（${r.meta.locator}）` : ""}`), // 一本書多篇心得，靠段落分辨
       ),
     ),
     ...section(

@@ -56,6 +56,17 @@ describe("buildFiles", () => {
     expect(w).toContain("## 書籍\n\n- [[一九八四]]");
   });
 
+  it("相關清單附上段落", () => {
+    const note = entry({
+      id: "n",
+      kind: "札記",
+      title: "老大哥",
+      meta: { locator: "第一部 第1章" },
+    });
+    const [b] = buildFiles([book, note], [["book", "n"]]);
+    expect(b.content).toContain("- [[老大哥]]（第一部 第1章）");
+  });
+
   it("連到不在清單裡的 id（私密）就略過", () => {
     const [b] = buildFiles([book], [["book", "secret"]]);
     expect(b.content).not.toContain("[[");
