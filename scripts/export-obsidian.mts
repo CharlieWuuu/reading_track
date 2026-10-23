@@ -117,7 +117,6 @@ const placed = (row: postgres.Row) => ({
 });
 const vaultMeta = (kind: string) => ({ type: kind, source: "archivum" }); // 跟 vault 自己的筆記同一組欄位
 // 封面在私有 bucket，簽名網址會過期，所以下載進 vault；外部網址照用
-const COVER_DIR = "01 紀錄/封面";
 const coverFile = (key: string) => key.split("/").pop()!;
 // archivum 的代理網址（/api/cover?src=…）：原圖擋盜連（國會圖書館驗 Referer），下載進 vault
 const proxied = (key: string) => {
@@ -351,46 +350,61 @@ const kept = (
   )
 ).filter(Boolean);
 
-// 封面只補缺的，不在清除範圍內，下次匯出不用重抓
-const coverKeys = [...new Set(data.works.map((w) => w.cover_url as string))].filter(isStorageKey);
-await mkdir(path.join(root, COVER_DIR), { recursive: true });
-const have = new Set(await readdir(path.join(root, COVER_DIR)));
-const missing = coverKeys.filter((k) => !have.has(coverFile(k)));
+// 封面跟著作品放在同一個類型資料夾（archivum 也是跟資料存在一起）；只補缺的
+type Cover = { file: string; dir: string; fetch: () => Promise<Buffer | null> };
 const supabaseUrl = process.env.SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-if (missing.length && supabaseUrl && serviceKey) {
-  const bucket = createClient(supabaseUrl, serviceKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  }).storage.from("images");
-  const results = await Promise.all(
-    missing.map(async (k) => {
-      const { data: blob, error } = await bucket.download(k);
-      if (error || !blob) return k;
-      await writeFile(
-        path.join(root, COVER_DIR, coverFile(k)),
-        Buffer.from(await blob.arrayBuffer()),
-      );
-      return null;
-    }),
-  );
-  const failed = results.filter(Boolean);
-  console.log(`封面：新下載 ${missing.length - failed.length}，失敗 ${failed.length}`);
-}
-
-const proxiedCovers = [...new Set(data.works.map((w) => proxied(w.cover_url as string)))].filter(
-  (src): src is string => !!src && !have.has(proxyFile(src)),
-);
-for (const src of proxiedCovers) {
+const bucket =
+  supabaseUrl && serviceKey
+    ? createClient(supabaseUrl, serviceKey, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      }).storage.from("images")
+    : null;
+const fromStorage = (key: string) => async () => {
+  const { data: blob } = (await bucket?.download(key)) ?? {};
+  return blob ? Buffer.from(await blob.arrayBuffer()) : null;
+};
+const fromReferer = (src: string) => async () => {
   const res = await fetch(src, { headers: { Referer: `${new URL(src).origin}/` } }).catch(
     () => null,
   );
-  if (res?.ok)
-    await writeFile(
-      path.join(root, COVER_DIR, proxyFile(src)),
-      Buffer.from(await res.arrayBuffer()),
-    );
-  else console.log(`封面下載失敗：${src}`);
+  return res?.ok ? Buffer.from(await res.arrayBuffer()) : null;
+};
+const covers: Cover[] = data.works.flatMap((w) => {
+  const key = w.cover_url as string;
+  const dir = placed(w).folder;
+  const src = proxied(key);
+  if (src) return [{ file: proxyFile(src), dir, fetch: fromReferer(src) }];
+  return isStorageKey(key) ? [{ file: coverFile(key), dir, fetch: fromStorage(key) }] : [];
+});
+const LEGACY_COVER_DIR = path.join(root, "01 紀錄/封面"); // 舊版放這裡，搬過去就不用重抓
+const legacy = new Set(await readdir(LEGACY_COVER_DIR).catch(() => [] as string[]));
+const coverStats = { downloaded: 0, moved: 0, failed: 0 };
+for (const c of covers) {
+  const target = path.join(root, c.dir, c.file);
+  if (
+    await readFile(target).then(
+      () => true,
+      () => false,
+    )
+  )
+    continue;
+  if (legacy.has(c.file)) {
+    await rename(path.join(LEGACY_COVER_DIR, c.file), target);
+    coverStats.moved++;
+    continue;
+  }
+  const buf = await c.fetch();
+  if (buf) {
+    await writeFile(target, buf);
+    coverStats.downloaded++;
+  } else coverStats.failed++;
 }
+if ((await readdir(LEGACY_COVER_DIR).catch(() => ["x"])).length === 0)
+  await rm(LEGACY_COVER_DIR, { recursive: true });
+console.log(
+  `封面：搬移 ${coverStats.moved}、新下載 ${coverStats.downloaded}、失敗 ${coverStats.failed}`,
+);
 
 console.log(
   `新增 ${stats.created}、更新 ${stats.updated}、搬移 ${stats.moved}、併入既有筆記 ${stats.merged}、刪除 ${gone.length - kept.length}`,
