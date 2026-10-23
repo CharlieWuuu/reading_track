@@ -1,7 +1,9 @@
 import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { createClient } from "@supabase/supabase-js";
 import postgres from "postgres";
-import { buildFiles, type ExportEntry } from "../src/utils/obsidian-export";
+import { assignNames, buildFiles, type ExportEntry } from "../src/utils/obsidian-export";
+import { renderStats, shelfBase } from "../src/utils/obsidian-views";
 
 /**
  * 把一個帳號的作品、片段、書寫匯出成 Obsidian 筆記。單向：archivum 是正本，
@@ -37,7 +39,7 @@ const data = await sql.begin("read only", async (t) => {
 
   const works = await t`
     select w.id, k.name kind, w.title, w.body, w.creator, w.publisher, w.language, w.amount,
-           w.translation, w.start_year, w.end_year, w.tags, tp.name topic, a.name attribute
+           w.translation, w.start_year, w.end_year, w.tags, w.cover_url, tp.name topic, a.name attribute
     from domain_works w
     join setting_kinds k on k.id = w.kind_id
     left join domain_record_topic tp on tp.id = w.topic_id
@@ -89,6 +91,18 @@ const readsOf = data.records.reduce(
 const links = data.links.map((l) => [toOwner(l.a_id), toOwner(l.b_id)] as [string, string]);
 
 const base = { urls: [] as string[], reads: [] as ExportEntry["reads"] };
+// 封面在私有 bucket，簽名網址會過期，所以下載進 vault；外部網址照用
+const COVER_DIR = "封面";
+const coverFile = (key: string) => key.split("/").pop()!;
+const coverRef = (key: string) =>
+  !key ? null : /^https?:/.test(key) ? key : `[[${coverFile(key)}]]`;
+const lastRead = (reads: ExportEntry["reads"]) =>
+  reads
+    .map((r) => r.end ?? r.start ?? "")
+    .sort()
+    .at(-1) || null;
+const statusOf = (reads: ExportEntry["reads"]) =>
+  !reads.length ? null : reads.some((r) => r.start && !r.end) ? "閱讀中" : "讀完";
 const privateWorks = new Set(
   [...Map.groupBy(data.records, (r) => r.work_id as string)]
     .filter(([, rs]) => rs.every((r) => r.is_private)) // 每次紀錄都私密，作品才算私密
@@ -110,6 +124,9 @@ const works: ExportEntry[] = data.works.map((w) => ({
     end_year: w.end_year,
     topic: w.topic,
     attribute: w.attribute,
+    cover: coverRef(w.cover_url),
+    last_read: lastRead(readsOf.get(w.id) ?? []),
+    status: statusOf(readsOf.get(w.id) ?? []),
     private: privateWorks.has(w.id) || null,
   },
   tags: splitTags(w.tags),
@@ -167,12 +184,16 @@ const latestBooks = (n: number) => {
 };
 
 const entries = LIMIT_BOOKS ? latestBooks(LIMIT_BOOKS) : [...works, ...fragments, ...writings];
-const files = buildFiles(entries, links);
+const files = [
+  ...buildFiles(entries, links),
+  renderStats(entries, assignNames(entries), new Date().toISOString().slice(0, 10)),
+  shelfBase,
+];
 
 // 只清自己產生的子資料夾，匯出目錄裡別的東西不動
 const root = path.resolve(outDir);
 await mkdir(root, { recursive: true });
-const ours = new Set(files.map((f) => f.path.split("/")[0]));
+const ours = new Set(files.filter((f) => f.path.includes("/")).map((f) => f.path.split("/")[0])); // 根目錄的單檔直接覆寫
 const existing = await readdir(root, { withFileTypes: true });
 await Promise.all(
   existing
@@ -181,6 +202,34 @@ await Promise.all(
 );
 await Promise.all([...ours].map((d) => mkdir(path.join(root, d), { recursive: true })));
 await Promise.all(files.map((f) => writeFile(path.join(root, f.path), f.content + "\n")));
+
+// 封面只補缺的，不在清除範圍內，下次匯出不用重抓
+const coverKeys = [...new Set(data.works.map((w) => w.cover_url as string))].filter(
+  (k) => k && !/^https?:/.test(k),
+);
+await mkdir(path.join(root, COVER_DIR), { recursive: true });
+const have = new Set(await readdir(path.join(root, COVER_DIR)));
+const missing = coverKeys.filter((k) => !have.has(coverFile(k)));
+const supabaseUrl = process.env.SUPABASE_URL;
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+if (missing.length && supabaseUrl && serviceKey) {
+  const bucket = createClient(supabaseUrl, serviceKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  }).storage.from("images");
+  const results = await Promise.all(
+    missing.map(async (k) => {
+      const { data: blob, error } = await bucket.download(k);
+      if (error || !blob) return k;
+      await writeFile(
+        path.join(root, COVER_DIR, coverFile(k)),
+        Buffer.from(await blob.arrayBuffer()),
+      );
+      return null;
+    }),
+  );
+  const failed = results.filter(Boolean);
+  console.log(`封面：新下載 ${missing.length - failed.length}，失敗 ${failed.length}`);
+}
 
 const counts = files.reduce(
   (m, f) => m.set(f.path.split("/")[0], (m.get(f.path.split("/")[0]) ?? 0) + 1),
