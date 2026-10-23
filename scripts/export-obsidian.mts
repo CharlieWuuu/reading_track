@@ -120,6 +120,16 @@ const lastRead = (reads: ExportEntry["reads"]) =>
     .map((r) => r.end ?? r.start ?? "")
     .sort()
     .at(-1) || null;
+/** 最近一次閱讀攤成 frontmatter，閱讀紀錄的 Bases 表格才排得出來；每次的細節在內文 */
+const latestRead = (reads: ExportEntry["reads"]) => {
+  const last = reads.at(-1); // 已依開始日排序
+  return {
+    started: last?.start ?? null,
+    finished: last?.end ?? null,
+    platform: last?.platform ?? null,
+    reads: reads.length || null,
+  };
+};
 const statusOf = (reads: ExportEntry["reads"]) =>
   !reads.length ? null : reads.some((r) => r.start && !r.end) ? "閱讀中" : "讀完";
 const privateWorks = new Set(
@@ -146,6 +156,7 @@ const works: ExportEntry[] = data.works.map((w) => ({
     attribute: w.attribute,
     cover: coverRef(w.cover_url),
     last_read: lastRead(readsOf.get(w.id) ?? []),
+    ...latestRead(readsOf.get(w.id) ?? []),
     status: statusOf(readsOf.get(w.id) ?? []),
     private: privateWorks.has(w.id) || null,
   },
@@ -240,8 +251,8 @@ const taken = new Set(
 
 const files = buildFiles(entries, links, taken);
 const generated = [
-  renderStats(entries, names, new Date().toISOString().slice(0, 10)),
-  renderReadLog(entries, names),
+  renderStats(entries, new Date().toISOString().slice(0, 10)),
+  renderReadLog(),
   shelfBase,
 ];
 

@@ -20,13 +20,13 @@ describe("renderStats", () => {
     book("b", [{ start: "2026-03-01", end: "2026-03-20", platform: "Kobo" }]),
     book("c", [{ start: "2026-10-01", end: null, platform: "讀墨" }]),
   ];
-  const names = new Map(books.map((b) => [b.id, `01 紀錄/書籍/${b.id}`]));
-  const { content } = renderStats(books, names, "2026-10-23");
+  const { content } = renderStats(books, "2026-10-23");
 
   it("總數、今年、閱讀中", () => {
     expect(content).toContain("書籍 **3** 本，讀完 **2** 次");
     expect(content).toContain("2026 年讀完 **1** 本");
-    expect(content).toContain("## 閱讀中\n\n- [[01 紀錄/書籍/c|c]]");
+    expect(content).toContain("## 閱讀中\n\n```base");
+    expect(content).not.toContain("[[");
   });
 
   it("每年長條依年份排序，今年每月補零", () => {
@@ -39,11 +39,10 @@ describe("renderStats", () => {
     expect(content).toContain('"讀墨" : 1');
   });
 
-  it("閱讀紀錄一次一列，閱讀中排最上，天數含頭尾", () => {
-    const log = renderReadLog(books, names);
+  it("閱讀紀錄是嵌入查詢，不寫連結", () => {
+    const log = renderReadLog();
     expect(log.path).toBe("01 紀錄/閱讀紀錄.md");
-    const rows = log.content.split("\n").filter((l) => l.startsWith("| 20"));
-    expect(rows[0]).toContain("閱讀中");
-    expect(rows[1]).toBe("| 2026-03-01 | 2026-03-20 | [[01 紀錄/書籍/b\\|b]] | 書籍 | Kobo | 20 |");
+    expect(log.content).toContain("```base");
+    expect(log.content).not.toContain("[[");
   });
 });
