@@ -336,7 +336,12 @@ const mentions = keywordTargets.flatMap((target) =>
 );
 // 求職日記提到公司就連到找工作的筆記；內文寫《書名》就連到那本書
 const companyMentions = vaultFiles
-  .filter((f) => !idOf(f.text) && path.dirname(path.relative(root, f.path)) === "03 書寫/找工作")
+  .filter(
+    (f) =>
+      !idOf(f.text) &&
+      path.dirname(path.relative(root, f.path)) === "03 書寫/思緒" &&
+      /^tags:.*找工作/m.test(f.text),
+  )
   .map((f) => path.basename(f.path, ".md"))
   .flatMap((target) => {
     const core = target
