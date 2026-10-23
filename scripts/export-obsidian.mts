@@ -5,6 +5,7 @@ import postgres from "postgres";
 import {
   assignNames,
   buildFiles,
+  excerpt,
   hasOwnContent,
   mergeManaged,
   type ExportEntry,
@@ -275,7 +276,13 @@ const latestBooks = (n: number) => {
   );
 };
 
-const entries = LIMIT_BOOKS ? latestBooks(LIMIT_BOOKS) : [...works, ...fragments, ...writings];
+const withSummary = (e: ExportEntry): ExportEntry => ({
+  ...e,
+  meta: { ...e.meta, summary: excerpt(e.body) || null },
+});
+const entries = (
+  LIMIT_BOOKS ? latestBooks(LIMIT_BOOKS) : [...works, ...fragments, ...writings]
+).map(withSummary);
 const root = path.resolve(outDir);
 
 // 掃 vault：archivum_id → 現在的路徑；其他檔名留著判斷連結要不要帶路徑
@@ -308,10 +315,10 @@ const generated = [
   renderReadLog(),
   shelfBase,
   ...[...new Set(entries.map((e) => e.folder))].map((folder) =>
-    kindBase(
-      folder,
-      entries.some((e) => e.folder === folder && e.meta.cover),
-    ),
+    kindBase(folder, {
+      image: entries.some((e) => e.folder === folder && e.meta.cover),
+      map: entries.some((e) => e.folder === folder && e.meta.coordinates),
+    }),
   ),
   renderGroupStats(entries, "02 片段", new Date().toISOString().slice(0, 10)),
   renderGroupStats(entries, "03 書寫", new Date().toISOString().slice(0, 10)),

@@ -207,7 +207,7 @@ export function kindBase(
 ): ExportFile {
   const group = folder.split("/")[0];
   const kind = folder.split("/").pop()!;
-  const columns = ["file.name", ...(KIND_COLUMNS[kind] ?? GROUP_COLUMNS[group] ?? [])];
+  const columns = ["file.name", "summary", ...(KIND_COLUMNS[kind] ?? GROUP_COLUMNS[group] ?? [])];
   const order = columns.map((c) => `      - ${c}`).join("\n");
   const image = hasImage ? "    image: note.cover\n    imageFit: cover\n" : "";
   const content = `filters:
