@@ -119,8 +119,18 @@ const vaultMeta = (kind: string) => ({ type: kind, source: "archivum" }); // 跟
 // 封面在私有 bucket，簽名網址會過期，所以下載進 vault；外部網址照用
 const COVER_DIR = "01 紀錄/封面";
 const coverFile = (key: string) => key.split("/").pop()!;
-const coverRef = (key: string) =>
-  !key ? null : /^https?:/.test(key) ? key : `[[${coverFile(key)}]]`;
+// archivum 的代理網址（/api/cover?src=…）：原圖擋盜連（國會圖書館驗 Referer），下載進 vault
+const proxied = (key: string) => {
+  const src = key.match(/cover\?src=([^&]+)/)?.[1];
+  return src ? decodeURIComponent(src) : undefined;
+};
+const proxyFile = (src: string) => `proxy-${src.split("/").pop()}`;
+const isStorageKey = (key: string) => !!key && !/^https?:/.test(key) && !proxied(key);
+const coverRef = (key: string) => {
+  const src = proxied(key);
+  if (src) return `[[${proxyFile(src)}]]`;
+  return !key ? null : /^https?:/.test(key) ? key : `[[${coverFile(key)}]]`;
+};
 const lastRead = (reads: ExportEntry["reads"]) =>
   reads
     .map((r) => r.end ?? r.start ?? "")
@@ -342,9 +352,7 @@ const kept = (
 ).filter(Boolean);
 
 // 封面只補缺的，不在清除範圍內，下次匯出不用重抓
-const coverKeys = [...new Set(data.works.map((w) => w.cover_url as string))].filter(
-  (k) => k && !/^https?:/.test(k),
-);
+const coverKeys = [...new Set(data.works.map((w) => w.cover_url as string))].filter(isStorageKey);
 await mkdir(path.join(root, COVER_DIR), { recursive: true });
 const have = new Set(await readdir(path.join(root, COVER_DIR)));
 const missing = coverKeys.filter((k) => !have.has(coverFile(k)));
@@ -367,6 +375,21 @@ if (missing.length && supabaseUrl && serviceKey) {
   );
   const failed = results.filter(Boolean);
   console.log(`封面：新下載 ${missing.length - failed.length}，失敗 ${failed.length}`);
+}
+
+const proxiedCovers = [...new Set(data.works.map((w) => proxied(w.cover_url as string)))].filter(
+  (src): src is string => !!src && !have.has(proxyFile(src)),
+);
+for (const src of proxiedCovers) {
+  const res = await fetch(src, { headers: { Referer: `${new URL(src).origin}/` } }).catch(
+    () => null,
+  );
+  if (res?.ok)
+    await writeFile(
+      path.join(root, COVER_DIR, proxyFile(src)),
+      Buffer.from(await res.arrayBuffer()),
+    );
+  else console.log(`封面下載失敗：${src}`);
 }
 
 console.log(
