@@ -152,6 +152,7 @@ export function renderEntry(
     "",
     `# ${e.title || "未命名"}`,
     "",
+    ...(e.meta.creator ? [linkMentions(`作者：${e.meta.creator}`, mentions), ""] : []), // 作者是關鍵字就連過去
     ...(e.body.trim()
       ? [
           linkMentions(

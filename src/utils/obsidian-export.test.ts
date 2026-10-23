@@ -69,6 +69,7 @@ describe("buildFiles", () => {
     const [b, w] = files.map((f) => f.content);
     expect(files[0].path).toBe("01 紀錄/書籍/一九八四.md");
     expect(b).toContain('creator: "喬治・歐威爾"');
+    expect(b).toContain("作者：喬治・歐威爾");
     expect(b).not.toContain("publisher");
     expect(b).toContain("private: true");
     expect(b).toContain("- 2026-10-04 → 閱讀中（讀墨）");

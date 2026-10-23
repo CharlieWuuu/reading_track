@@ -334,7 +334,21 @@ const mentions = keywordTargets.flatMap((target) =>
     notFollowedBy: surface === "羅馬" ? "字|拼音|帝國|化" : undefined,
   })),
 );
-const files = buildFiles(entries, links, taken, mentions);
+// 求職日記提到公司就連到找工作的筆記；內文寫《書名》就連到那本書
+const companyMentions = vaultFiles
+  .filter((f) => !idOf(f.text) && path.dirname(path.relative(root, f.path)) === "03 書寫/找工作")
+  .map((f) => path.basename(f.path, ".md"))
+  .flatMap((target) => {
+    const core = target
+      .replace(/^\d+-/, "")
+      .replace(/（.*?）/g, "")
+      .trim();
+    return core.length >= 2 ? [{ surface: core, target }] : [];
+  });
+const bookMentions = entries
+  .filter((e) => e.kind === "書籍")
+  .map((e) => ({ surface: `《${e.title}》`, target: names.get(e.id)!.split("/").pop()! }));
+const files = buildFiles(entries, links, taken, [...mentions, ...companyMentions, ...bookMentions]);
 const generated = [
   renderStats(entries, new Date().toISOString().slice(0, 10)),
   renderReadLog(),
