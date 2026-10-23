@@ -7,7 +7,7 @@ export type ExportEntry = {
   kind: string; // 類型名稱，也是資料夾名
   title: string;
   body: string;
-  meta: Record<string, string | number | null>; // 空值不寫進 frontmatter
+  meta: Record<string, string | number | boolean | null>; // 空值不寫進 frontmatter
   tags: string[];
   urls: string[];
   reads: ExportRead[]; // 只有作品有
@@ -44,12 +44,13 @@ export function linkIndex(links: [string, string][]): Map<string, string[]> {
   }, new Map<string, string[]>());
 }
 
-const yamlValue = (v: string | number) => (typeof v === "number" ? String(v) : JSON.stringify(v)); // JSON 字串剛好是合法的 YAML
+const yamlValue = (v: string | number | boolean) =>
+  typeof v === "string" ? JSON.stringify(v) : String(v); // JSON 字串剛好是合法的 YAML
 
 function frontmatter(e: ExportEntry): string {
   const meta = Object.entries(e.meta).filter(([, v]) => v !== null && v !== "") as [
     string,
-    string | number,
+    string | number | boolean,
   ][];
   const lines = [
     `archivum_id: ${e.id}`,

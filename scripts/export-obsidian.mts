@@ -7,8 +7,8 @@ import { buildFiles, type ExportEntry } from "../src/utils/obsidian-export";
  * 把一個帳號的作品、片段、書寫匯出成 Obsidian 筆記。單向：archivum 是正本，
  * 匯出目錄每次整個重寫，在那邊改的會被蓋掉。
  *
- * 只讀不寫：整段包在 read only 交易裡。私密的紀錄、片段、書寫不匯出——
- * vault 會同步到 Google Drive 與 GitHub，私密密碼擋不到那裡。
+ * 只讀不寫：整段包在 read only 交易裡。私密的也匯出，frontmatter 標 private: true——
+ * vault 只有本人看得到，私密密碼是給 archivum 畫面用的。
  *
  * 用法：
  *   npx tsx --env-file=.env.prod scripts/export-obsidian.mts <email> <匯出目錄> [--limit-books=5]
@@ -40,29 +40,29 @@ const data = await sql.begin("read only", async (t) => {
            w.translation, w.start_year, w.end_year, w.tags, tp.name topic, a.name attribute
     from domain_works w
     join setting_kinds k on k.id = w.kind_id
-    left join domain_record_topic tp on tp.id = w.topic_id and not tp.is_private
+    left join domain_record_topic tp on tp.id = w.topic_id
     left join domain_attribute a on a.id = w.attribute_id
     where w.user_id = ${uid}`;
   const records = await t`
-    select r.id, r.work_id, r.start_date::text s, r.end_date::text e, p.name platform
+    select r.id, r.work_id, r.is_private, r.start_date::text s, r.end_date::text e, p.name platform
     from domain_records r left join domain_platform p on p.id = r.platform_id
-    where r.user_id = ${uid} and not r.is_private
+    where r.user_id = ${uid}
     order by r.start_date nulls last`;
   const fragments = await t`
-    select f.id, k.name kind, f.title, f.body, f.locator, f.pronunciation, f.translation, f.creator,
+    select f.id, f.is_private, k.name kind, f.title, f.body, f.locator, f.pronunciation, f.translation, f.creator,
            f.start_year, f.end_year, f.latitude, f.longitude, f.tags, f.created_at::date::text created,
            tp.name topic
     from domain_fragments f
     join setting_kinds k on k.id = f.kind_id
-    left join domain_record_topic tp on tp.id = f.topic_id and not tp.is_private
-    where f.user_id = ${uid} and not f.is_private`;
+    left join domain_record_topic tp on tp.id = f.topic_id
+    where f.user_id = ${uid}`;
   const writings = await t`
-    select wr.id, k.name kind, wr.title, wr.body, wr.end_date::text e, wr.tags,
+    select wr.id, wr.is_private, k.name kind, wr.title, wr.body, wr.end_date::text e, wr.tags,
            wr.created_at::date::text created, tp.name topic
     from domain_writings wr
     join setting_kinds k on k.id = wr.kind_id
-    left join domain_record_topic tp on tp.id = wr.topic_id and not tp.is_private
-    where wr.user_id = ${uid} and not wr.is_private`;
+    left join domain_record_topic tp on tp.id = wr.topic_id
+    where wr.user_id = ${uid}`;
   const links = await t`select a_id, b_id from links_internal where user_id = ${uid}`;
   const urls = await t`
     select coalesce(record_id, fragment_id, writing_id) owner, url, label
@@ -89,29 +89,33 @@ const readsOf = data.records.reduce(
 const links = data.links.map((l) => [toOwner(l.a_id), toOwner(l.b_id)] as [string, string]);
 
 const base = { urls: [] as string[], reads: [] as ExportEntry["reads"] };
-const works: ExportEntry[] = data.works
-  .filter((w) => readsOf.has(w.id)) // 紀錄全是私密的作品不匯
-  .map((w) => ({
-    ...base,
-    id: w.id,
-    kind: w.kind,
-    title: w.title,
-    body: w.body,
-    meta: {
-      creator: w.creator,
-      publisher: w.publisher,
-      language: w.language,
-      translation: w.translation,
-      amount: w.amount,
-      start_year: w.start_year,
-      end_year: w.end_year,
-      topic: w.topic,
-      attribute: w.attribute,
-    },
-    tags: splitTags(w.tags),
-    urls: urlsOf.get(w.id) ?? [],
-    reads: readsOf.get(w.id) ?? [],
-  }));
+const privateWorks = new Set(
+  [...Map.groupBy(data.records, (r) => r.work_id as string)]
+    .filter(([, rs]) => rs.every((r) => r.is_private)) // 每次紀錄都私密，作品才算私密
+    .map(([id]) => id),
+);
+const works: ExportEntry[] = data.works.map((w) => ({
+  ...base,
+  id: w.id,
+  kind: w.kind,
+  title: w.title,
+  body: w.body,
+  meta: {
+    creator: w.creator,
+    publisher: w.publisher,
+    language: w.language,
+    translation: w.translation,
+    amount: w.amount,
+    start_year: w.start_year,
+    end_year: w.end_year,
+    topic: w.topic,
+    attribute: w.attribute,
+    private: privateWorks.has(w.id) || null,
+  },
+  tags: splitTags(w.tags),
+  urls: urlsOf.get(w.id) ?? [],
+  reads: readsOf.get(w.id) ?? [],
+}));
 const fragments: ExportEntry[] = data.fragments.map((f) => ({
   ...base,
   id: f.id,
@@ -129,6 +133,7 @@ const fragments: ExportEntry[] = data.fragments.map((f) => ({
     longitude: f.longitude,
     topic: f.topic,
     created: f.created,
+    private: f.is_private || null,
   },
   tags: splitTags(f.tags),
   urls: urlsOf.get(f.id) ?? [],
@@ -139,7 +144,7 @@ const writings: ExportEntry[] = data.writings.map((w) => ({
   kind: w.kind,
   title: w.title,
   body: w.body,
-  meta: { finished: w.e, topic: w.topic, created: w.created },
+  meta: { finished: w.e, topic: w.topic, created: w.created, private: w.is_private || null },
   tags: splitTags(w.tags),
   urls: urlsOf.get(w.id) ?? [],
 }));

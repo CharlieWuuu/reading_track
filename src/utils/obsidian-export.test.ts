@@ -39,7 +39,7 @@ describe("buildFiles", () => {
   const book = entry({
     id: "book",
     title: "一九八四",
-    meta: { creator: "喬治・歐威爾", publisher: "" },
+    meta: { creator: "喬治・歐威爾", publisher: "", private: true },
     reads: [{ start: "2026-10-04", end: null, platform: "讀墨" }],
   });
   const word = entry({ id: "word", kind: "單字", title: "doublethink" });
@@ -50,6 +50,7 @@ describe("buildFiles", () => {
     expect(files[0].path).toBe("書籍/一九八四.md");
     expect(b).toContain('creator: "喬治・歐威爾"');
     expect(b).not.toContain("publisher");
+    expect(b).toContain("private: true");
     expect(b).toContain("- 2026-10-04 → 閱讀中（讀墨）");
     expect(b).toContain("## 單字\n\n- [[doublethink]]");
     expect(w).toContain("## 書籍\n\n- [[一九八四]]");
