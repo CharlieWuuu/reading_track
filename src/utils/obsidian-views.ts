@@ -194,11 +194,17 @@ const GROUP_COLUMNS: Record<string, string[]> = {
   "03 書寫": ["finished", "topic", "created"],
 };
 
+// 個別類型用不到群組預設的欄位：關鍵字是專有名詞，沒有翻譯與發音
+const KIND_COLUMNS: Record<string, string[]> = {
+  關鍵字: ["topic", "start_year", "end_year", "created"],
+  佳句: ["locator", "topic", "created"],
+};
+
 /** 每個類型資料夾一個 Base：卡片（有圖就用）、表格（附筆數）、依領域分組 */
 export function kindBase(folder: string, hasImage: boolean): ExportFile {
   const group = folder.split("/")[0];
   const kind = folder.split("/").pop()!;
-  const columns = ["file.name", ...(GROUP_COLUMNS[group] ?? [])];
+  const columns = ["file.name", ...(KIND_COLUMNS[kind] ?? GROUP_COLUMNS[group] ?? [])];
   const order = columns.map((c) => `      - ${c}`).join("\n");
   const image = hasImage ? "    image: note.cover\n    imageFit: cover\n" : "";
   const content = `filters:

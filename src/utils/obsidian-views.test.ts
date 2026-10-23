@@ -54,6 +54,8 @@ describe("kindBase", () => {
     expect(withImage.content).toContain('file.inFolder("02 片段/關鍵字")');
     expect(withImage.content).toContain("image: note.cover");
     expect(kindBase("02 片段/單字", false).content).not.toContain("image:");
+    expect(withImage.content).not.toContain("pronunciation");
+    expect(kindBase("02 片段/單字", false).content).toContain("pronunciation");
   });
 });
 

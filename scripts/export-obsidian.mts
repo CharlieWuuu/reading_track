@@ -66,7 +66,7 @@ const data = await sql.begin("read only", async (t) => {
     where r.user_id = ${uid}
     order by r.start_date nulls last`;
   const fragments = await t`
-    select f.id, f.is_private, k.name kind, k.group_key grp, f.title, f.body, f.locator, f.pronunciation, f.translation, f.creator,
+    select f.id, f.is_private, f.cover_url, k.name kind, k.group_key grp, f.title, f.body, f.locator, f.pronunciation, f.translation, f.creator,
            f.start_year, f.end_year, f.language, f.latitude, f.longitude, f.tags, f.created_at::date::text created,
            tp.name topic
     from domain_fragments f
@@ -222,7 +222,7 @@ const fragments: ExportEntry[] = data.fragments.map((f) => ({
   body: f.body,
   meta: {
     ...vaultMeta(f.kind),
-    cover: wikiThumbs.get(f.id) ?? null,
+    cover: coverRef(f.cover_url ?? "") ?? wikiThumbs.get(f.id) ?? null,
     language: f.language,
     locator: f.locator,
     pronunciation: f.pronunciation,
@@ -350,7 +350,8 @@ const kept = (
   )
 ).filter(Boolean);
 
-// 封面跟著作品放在同一個類型資料夾（archivum 也是跟資料存在一起）；只補缺的
+// 封面跟著資料放在類型資料夾底下的「封面」（archivum 也是跟資料存在一起）；只補缺的
+const COVER_SUBDIR = "封面";
 type Cover = { file: string; dir: string; fetch: () => Promise<Buffer | null> };
 const supabaseUrl = process.env.SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -370,15 +371,14 @@ const fromReferer = (src: string) => async () => {
   );
   return res?.ok ? Buffer.from(await res.arrayBuffer()) : null;
 };
-const covers: Cover[] = data.works.flatMap((w) => {
-  const key = w.cover_url as string;
-  const dir = placed(w).folder;
+const covers: Cover[] = [...data.works, ...data.fragments].flatMap((w) => {
+  const key = (w.cover_url as string) ?? "";
+  const dir = `${placed(w).folder}/${COVER_SUBDIR}`;
   const src = proxied(key);
   if (src) return [{ file: proxyFile(src), dir, fetch: fromReferer(src) }];
   return isStorageKey(key) ? [{ file: coverFile(key), dir, fetch: fromStorage(key) }] : [];
 });
-const LEGACY_COVER_DIR = path.join(root, "01 紀錄/封面"); // 舊版放這裡，搬過去就不用重抓
-const legacy = new Set(await readdir(LEGACY_COVER_DIR).catch(() => [] as string[]));
+const parentOf = (dir: string) => path.join(root, path.dirname(dir)); // 上一版直接放在類型資料夾
 const coverStats = { downloaded: 0, moved: 0, failed: 0 };
 for (const c of covers) {
   const target = path.join(root, c.dir, c.file);
@@ -389,8 +389,15 @@ for (const c of covers) {
     )
   )
     continue;
-  if (legacy.has(c.file)) {
-    await rename(path.join(LEGACY_COVER_DIR, c.file), target);
+  await mkdir(path.dirname(target), { recursive: true });
+  const old = path.join(parentOf(c.dir), c.file);
+  if (
+    await readFile(old).then(
+      () => true,
+      () => false,
+    )
+  ) {
+    await rename(old, target);
     coverStats.moved++;
     continue;
   }
@@ -400,8 +407,6 @@ for (const c of covers) {
     coverStats.downloaded++;
   } else coverStats.failed++;
 }
-if ((await readdir(LEGACY_COVER_DIR).catch(() => ["x"])).length === 0)
-  await rm(LEGACY_COVER_DIR, { recursive: true });
 console.log(
   `封面：搬移 ${coverStats.moved}、新下載 ${coverStats.downloaded}、失敗 ${coverStats.failed}`,
 );
