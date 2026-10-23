@@ -1,6 +1,15 @@
 // Obsidian 端的書牆與統計頁：書牆是 Bases 設定，統計是 Mermaid 圖，都不用外掛
 import type { ExportEntry, ExportFile } from "@/utils/obsidian-export";
 
+const DIR = "01 紀錄"; // 跟書籍同一層
+
+/** 產生的總表一律帶路徑連結，不怕跟使用者的檔案同名 */
+const fullLink = (e: ExportEntry, names: Map<string, string>) =>
+  `[[${names.get(e.id)}|${e.title.replace(/[|\]\n]/g, " ").trim()}]]`;
+
+const daysBetween = (a: string, b: string) =>
+  Math.round((Date.parse(b) - Date.parse(a)) / 86400000) + 1;
+
 const countBy = <T>(items: T[], key: (t: T) => string | null) =>
   items.reduce((m, t) => {
     const k = key(t);
@@ -56,7 +65,7 @@ export function renderStats(
     (r) => `${Number(r.end!.slice(5, 7))}月`,
   );
   const byMonth = new Map(months.map((m) => [m, thisYear.get(m) ?? 0]));
-  const link = (b: ExportEntry) => `[[${names.get(b.id)!.split("/").pop()}]]`;
+  const link = (b: ExportEntry) => fullLink(b, names);
 
   const content = [
     "---",
@@ -92,12 +101,12 @@ export function renderStats(
       countBy(books, (b) => (b.meta.topic as string) || null),
     ),
   ].join("\n");
-  return { path: "閱讀統計.md", content };
+  return { path: `${DIR}/閱讀統計.md`, content };
 }
 
 /** 書牆：Bases 卡片檢視，封面當圖 */
 export const shelfBase: ExportFile = {
-  path: "書牆.base",
+  path: `${DIR}/書牆.base`,
   content: `filters:
   and:
     - archivum_kind == "書籍"
@@ -138,3 +147,38 @@ views:
         direction: DESC
 `,
 };
+
+/** 閱讀紀錄總表：一次閱讀一列，新的在上 */
+export function renderReadLog(entries: ExportEntry[], names: Map<string, string>): ExportFile {
+  const rows = entries
+    .filter((e) => e.reads.length)
+    .flatMap((e) => e.reads.map((r) => ({ ...r, entry: e })))
+    .sort((a, b) => (b.end ?? b.start ?? "9999").localeCompare(a.end ?? a.start ?? "9999"));
+  const cell = (s: string) => s.replace(/\|/g, "\\|");
+  const content = [
+    "---",
+    "type: 統計",
+    "source: archivum",
+    "---",
+    "",
+    "> [!info] 自動產生，每次匯出 archivum 時更新；要記新的閱讀請到 archivum",
+    "",
+    "# 閱讀紀錄",
+    "",
+    "| 開始 | 讀完 | 作品 | 類型 | 平台 | 天數 |",
+    "|---|---|---|---|---|---|",
+    ...rows
+      .map((r) =>
+        [
+          r.start ?? "",
+          r.end ?? "閱讀中",
+          cell(fullLink(r.entry, names)), // 表格裡別名的 | 要跳脫
+          r.entry.kind,
+          r.platform,
+          r.start && r.end ? String(daysBetween(r.start, r.end)) : "",
+        ].join(" | "),
+      )
+      .map((l) => `| ${l} |`),
+  ].join("\n");
+  return { path: `${DIR}/閱讀紀錄.md`, content };
+}
