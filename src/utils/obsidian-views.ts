@@ -200,8 +200,11 @@ const KIND_COLUMNS: Record<string, string[]> = {
   佳句: ["locator", "topic", "created"],
 };
 
-/** 每個類型資料夾一個 Base：卡片（有圖就用）、表格（附筆數）、依領域分組 */
-export function kindBase(folder: string, hasImage: boolean): ExportFile {
+/** 每個類型資料夾一個 Base：卡片（有圖就用）、表格（附筆數）、依領域分組、地圖（有座標才加） */
+export function kindBase(
+  folder: string,
+  { image: hasImage, map = false }: { image: boolean; map?: boolean },
+): ExportFile {
   const group = folder.split("/")[0];
   const kind = folder.split("/").pop()!;
   const columns = ["file.name", ...(KIND_COLUMNS[kind] ?? GROUP_COLUMNS[group] ?? [])];
@@ -229,9 +232,21 @@ ${order}
       direction: ASC
     order:
 ${order}
-`;
+${map ? MAP_VIEW : ""}`;
   return { path: `${folder}/${kind}.base`, content };
 }
+
+// Maps 外掛（Obsidian 官方）的地圖檢視；座標欄位格式是 "緯度, 經度"
+const MAP_VIEW = `  - type: map
+    name: 地圖
+    filters:
+      and:
+        - coordinates != null
+    coordinates: note.coordinates
+    order:
+      - file.name
+      - topic
+`;
 
 const lastMonths = (today: string, n: number) =>
   Array.from({ length: n }, (_, i) => {

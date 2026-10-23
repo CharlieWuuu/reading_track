@@ -232,6 +232,7 @@ const fragments: ExportEntry[] = data.fragments.map((f) => ({
     end_year: f.end_year,
     latitude: f.latitude,
     longitude: f.longitude,
+    coordinates: f.latitude != null && f.longitude != null ? `${f.latitude}, ${f.longitude}` : null, // Maps 外掛讀這欄
     topic: f.topic,
     created: f.created,
     private: f.is_private || null,
