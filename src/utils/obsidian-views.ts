@@ -155,7 +155,7 @@ export function kindBase(
   const kind = folder.split("/").pop()!;
   const columns = ["file.name", "summary", ...(KIND_COLUMNS[kind] ?? GROUP_COLUMNS[group] ?? [])];
   const order = columns.map((c) => `      - ${c}`).join("\n");
-  const cardOrder = ["file.name", "summary", "formula.留白1", "formula.留白2", "formula.類別"].map((c) => `      - ${c}`).join("\n");
+  const cardOrder = ["file.name", "formula.類別", "summary", "formula.留白1", "formula.留白2"].map((c) => `      - ${c}`).join("\n");
   const isBook = kind === "書籍";
   const image = isBook ? BOOK_CARD : hasImage ? "    image: note.cover\n    imageFit: cover\n" : "";
   const content = `filters:
