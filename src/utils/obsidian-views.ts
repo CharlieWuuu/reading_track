@@ -66,20 +66,10 @@ const readingView = `  - type: cards
 `;
 
 // 卡片欄位：留白越多，摘要能顯示的行數越多（CSS 依留白數決定裁幾行）
-// 書籍左右排：封面在左、文字在右；留白撐到跟原本直式封面一樣高（寬 170 × 1.45 ≈ 246px）；關鍵字要一眼看到解釋，給四行
+// 書籍左右排：封面在左、文字在右；書籍沒有摘要，只放書名、作者、分類，兩格留白撐高度；關鍵字要一眼看到解釋，給四行
 const CARD_ORDER: Record<string, string[]> = {
   default: ["file.name", "summary", "formula.留白", "formula.類別"],
-  書籍: [
-    "file.name",
-    "creator",
-    "summary",
-    "formula.留白",
-    "formula.留白2",
-    "formula.留白3",
-    "formula.留白4",
-    "formula.類別",
-    "formula.封面",
-  ],
+  書籍: ["file.name", "creator", "formula.留白", "formula.留白2", "formula.類別", "formula.封面"],
   關鍵字: [
     "file.name",
     "summary",
