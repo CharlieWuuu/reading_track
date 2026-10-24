@@ -10,13 +10,7 @@ import {
   mergeManaged,
   type ExportEntry,
 } from "../src/utils/obsidian-export";
-import {
-  kindBase,
-  renderKindStats,
-  renderStats,
-  statFields,
-  type NoteStat,
-} from "../src/utils/obsidian-views";
+import { kindBase, renderKindStats, renderStats } from "../src/utils/obsidian-views";
 
 /**
  * 把一個帳號的作品、片段、書寫匯出進 Obsidian vault。單向：archivum 是正本。
@@ -400,21 +394,13 @@ const bookMentions = entries
 const files = buildFiles(entries, links, taken, [...mentions, ...companyMentions, ...bookMentions]);
 const today = new Date().toISOString().slice(0, 10);
 // 每個資料夾一頁統計：archivum 的類型加上使用者自己的（思緒、工作名詞、素材…）
-const dataFolders = new Map<string, NoteStat[]>();
-for (const f of vaultFiles) {
-  const rel = path.relative(root, f.path);
-  if (!rel.startsWith(`${DATA_DIR}/`) || rel.split("/").length !== 4) continue;
-  const folder = path.dirname(rel);
-  dataFolders.set(folder, [...(dataFolders.get(folder) ?? []), statFields(f.text)]);
-}
-// 這次匯出才新增的 archivum 資料，vault 掃描時還不存在，補進來
-for (const e of entries) {
-  if (!e.folder.startsWith(`${DATA_DIR}/`) || ownedPath.has(e.id)) continue;
-  const stat = Object.fromEntries(
-    Object.entries(e.meta).map(([k, v]) => [k, v == null ? undefined : String(v)]),
-  );
-  dataFolders.set(e.folder, [...(dataFolders.get(e.folder) ?? []), stat]);
-}
+const dataFolders = new Set([
+  ...vaultFiles
+    .map((f) => path.relative(root, f.path))
+    .filter((rel) => rel.startsWith(`${DATA_DIR}/`) && rel.split("/").length === 4)
+    .map((rel) => path.dirname(rel)),
+  ...entries.map((e) => e.folder).filter((f) => f.startsWith(`${DATA_DIR}/`)),
+]);
 const generated = [
   renderStats(entries, today),
   ...[...new Set(entries.map((e) => e.folder))].map((folder) =>
@@ -423,7 +409,7 @@ const generated = [
       map: entries.some((e) => e.folder === folder && e.meta.coordinates),
     }),
   ),
-  ...[...dataFolders].map(([folder, notes]) => renderKindStats(folder, notes, today)),
+  ...[...dataFolders].map((folder) => renderKindStats(folder)),
 ];
 
 const textAt = new Map(vaultFiles.map((f) => [f.path, f.text]));

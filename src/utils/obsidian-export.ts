@@ -20,6 +20,8 @@ export type ExportFile = { path: string; content: string };
 // archivum 那段從內文開頭到這個結束標記為止；不放開始標記，免得標題上面多一行
 // （Obsidian 的 %% 註解在游標所在那行會露出來，打開筆記時游標就在第一行）
 export const MARK_END = "%% archivum:end %%";
+// 作品頁把屬性排成資料欄；版面寫在 vault 的 09 設定/views/作品，這裡只放呼叫
+const WORK_VIEW = ["```dataviewjs", 'await dv.view("09 設定/views/作品")', "```"];
 /** 舊版有開始標記、也用過 HTML 註解，讀到就換成現在的寫法 */
 const normalizeMarks = (text: string) =>
   text
@@ -160,6 +162,7 @@ export function renderEntry(
     frontmatter(e, extra), // 屬性後面不留空行：編輯模式會變成標題上方一格空白
     `# ${e.title || "未命名"}`,
     "",
+    ...(e.folder.includes("01 紀錄/") ? [...WORK_VIEW, ""] : []),
     ...(e.body.trim()
       ? [
           linkMentions(

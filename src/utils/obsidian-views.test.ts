@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ExportEntry } from "@/utils/obsidian-export";
-import { kindBase, renderKindStats, renderStats, statFields } from "@/utils/obsidian-views";
+import { kindBase, renderKindStats, renderStats } from "@/utils/obsidian-views";
 
 const book = (id: string, reads: ExportEntry["reads"]): ExportEntry => ({
   id,
@@ -51,32 +51,17 @@ describe("kindBase", () => {
     expect(withImage.content).toContain("type: map");
     expect(withImage.content).toContain("displayName: 摘要");
     expect(kindBase("99 資料/02 片段/單字", { image: false }).content).not.toContain("type: map");
-    expect(kindBase("99 資料/02 片段/單字", { image: false }).content).toContain("      - pronunciation");
+    expect(kindBase("99 資料/02 片段/單字", { image: false }).content).toContain(
+      "      - pronunciation",
+    );
   });
 });
 
 describe("renderKindStats", () => {
-  it("frontmatter 去引號；作品用讀完日期、單值圓餅不畫", () => {
-    const notes = [
-      statFields('---\nfinished: "2026-10-01"\ndomain: "程式"\n---\n'),
-      statFields('---\nfinished: "2025-03-01"\ndomain: "文學"\n---\n'),
-    ];
-    const { path, content } = renderKindStats("99 資料/01 紀錄/書籍", notes, "2026-10-23");
+  it("統計頁跟 base 同一層，交給 Dataview 即時畫；作品用讀完日期", () => {
+    const { path, content } = renderKindStats("99 資料/01 紀錄/書籍");
     expect(path).toBe("01 紀錄/書籍統計.md");
-    expect(content).toContain("共 **2** 本");
-    expect(content).toContain("bar [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]");
-    expect(content).toContain('x-axis ["2025", "2026"]');
-    expect(content).toContain('"程式" : 1');
-    expect(content).not.toContain("## 狀態");
-  });
-
-  it("其他類型用建立日期", () => {
-    const { content } = renderKindStats(
-      "99 資料/03 書寫/思緒",
-      [statFields("---\ncreated: 2026-09-05\n---\n")],
-      "2026-10-23",
-    );
-    expect(content).toContain("共 **1** 則");
-    expect(content).toContain("bar [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]");
+    expect(content).toContain('"folder":"99 資料/01 紀錄/書籍","work":true');
+    expect(renderKindStats("99 資料/03 書寫/思緒").content).toContain('"work":false');
   });
 });

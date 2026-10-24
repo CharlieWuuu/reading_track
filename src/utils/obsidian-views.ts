@@ -279,70 +279,26 @@ const MAP_VIEW = `  - type: map
       - topic
 `;
 
-const lastMonths = (today: string, n: number) =>
-  Array.from({ length: n }, (_, i) => {
-    const d = new Date(`${today.slice(0, 7)}-01T00:00:00Z`);
-    d.setUTCMonth(d.getUTCMonth() - (n - 1 - i));
-    return d.toISOString().slice(0, 7);
-  });
-
-export type NoteStat = Record<string, string | undefined>;
-
-/** frontmatter 裡統計會用到的單值欄位；YAML 字串的引號拿掉 */
-export function statFields(text: string): NoteStat {
-  const fm = text.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
-  return Object.fromEntries(
-    [...fm.matchAll(/^([^\s:][^:]*):[ \t]*(.+)$/gm)].map(([, k, v]) => [
-      k.trim(),
-      v.trim().replace(/^"(.*)"$/, "$1"),
-    ]),
-  );
-}
-
 // 作品用「讀完」算時間，其他用建立日期
 const WORK_KINDS = new Set(["書籍", "影集", "影片", "文章"]);
 
 /**
  * 每個類型一頁統計，跟 base 放在同一層（01 紀錄/書籍統計.md）。
- * 吃的是 vault 裡的 frontmatter，所以使用者自己的筆記（思緒、工作名詞、素材）也算得到
+ * 圖由 vault 的 09 設定/views/統計 即時畫（Dataview），所以使用者自己的筆記也算得到、不用等匯出
  */
-export function renderKindStats(folder: string, notes: NoteStat[], today: string): ExportFile {
+export function renderKindStats(folder: string): ExportFile {
   const group = folder.split("/").at(-2)!;
   const kind = folder.split("/").pop()!;
-  const isWork = WORK_KINDS.has(kind) && group === "01 紀錄";
-  const unit = isWork ? "本" : "則";
-  const months = lastMonths(today, 12);
-  const dateOf = (n: NoteStat) => (isWork ? n.finished || n.last_read : n.created) ?? "";
-  const added = countBy(notes, (n) => dateOf(n).slice(0, 7) || null);
-  const byMonth = new Map(months.map((m) => [`${Number(m.slice(5))}月`, added.get(m) ?? 0]));
-  const byYear = new Map(
-    [...countBy(notes, (n) => dateOf(n).slice(0, 4) || null)].sort(([a], [b]) =>
-      a.localeCompare(b),
-    ),
-  );
-  const pieIf = (title: string, key: string) => {
-    const counts = countBy(notes, (n) => n[key] || null);
-    return counts.size > 1 ? [`## ${title}`, "", ...pieChart(title, counts)] : [];
-  };
+  const work = WORK_KINDS.has(kind) && group === "01 紀錄";
   const content = [
     "---",
     "type: 統計",
     "---",
-    "",
     `# ${kind}統計`,
     "",
-    `共 **${notes.length}** ${unit}`,
-    "",
-    `## 近 12 個月${isWork ? "讀完" : "新增"}`,
-    "",
-    ...barChart(isWork ? "每月讀完" : "每月新增", byMonth, unit),
-    ...(byYear.size > 1
-      ? [`## 每年${isWork ? "讀完" : "新增"}`, "", ...barChart("每年", byYear, unit)]
-      : []),
-    ...pieIf("領域", "domain"),
-    ...pieIf("狀態", "status"),
-    ...pieIf("語言", "language"),
-    ...pieIf("分類", "分類"),
+    "```dataviewjs",
+    `await dv.view("09 設定/views/統計", ${JSON.stringify({ folder, work })})`,
+    "```",
   ].join("\n");
   return { path: `${group}/${kind}統計.md`, content };
 }
