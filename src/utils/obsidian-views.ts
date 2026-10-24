@@ -52,11 +52,6 @@ const KIND_COLUMNS: Record<string, string[]> = {
   佳句: ["locator", "topic", "created"],
 };
 
-// 書籍的卡片要像書牆：封面直式、照最近讀過排序，另有閱讀中
-const BOOK_CARD = `    image: note.cover
-    imageFit: contain
-    imageAspectRatio: 1.45
-`;
 const readingView = `  - type: cards
     name: 閱讀中
     filters:
@@ -70,6 +65,14 @@ const readingView = `  - type: cards
       - file.name
 `;
 
+// 卡片欄位：留白越多，摘要能顯示的行數越多（CSS 依留白數決定裁幾行）
+// 書籍左右排：封面在左、文字在右，高度要夠放直式封面；關鍵字要一眼看到解釋，給四行
+const CARD_ORDER: Record<string, string[]> = {
+  default: ["file.name", "summary", "formula.留白", "formula.類別"],
+  書籍: ["file.name", "creator", "summary", "formula.留白", "formula.留白2", "formula.類別", "formula.封面"],
+  關鍵字: ["file.name", "summary", "formula.留白", "formula.留白2", "formula.留白3", "formula.類別"],
+};
+
 /**
  * 每個類型一個 Base，放在層的資料夾（01 紀錄/書籍.base），頁面本身在下一層（01 紀錄/書籍/）。
  * 第一個檢視是卡片（預設開啟），每個檢視都帶 summary；另有表格、依領域分組、地圖（有座標才加）
@@ -79,24 +82,27 @@ export function kindBase(folder: string, { image: hasImage }: { image: boolean }
   const kind = folder.split("/").pop()!;
   const columns = ["file.name", "summary", ...(KIND_COLUMNS[kind] ?? GROUP_COLUMNS[group] ?? [])];
   const order = columns.map((c) => `      - ${c}`).join("\n");
-  const cardOrder = ["file.name", "summary", "formula.留白", "formula.類別"]
-    .map((c) => `      - ${c}`)
-    .join("\n");
   const isBook = kind === "書籍";
-  const image = isBook ? BOOK_CARD : hasImage ? "    image: note.cover\n    imageFit: cover\n" : "";
+  const cardOrder = (CARD_ORDER[kind] ?? CARD_ORDER.default).map((c) => `      - ${c}`).join("\n");
+  // 書籍的封面不用 Bases 的 image（那只能放卡片上方），改成 formula.封面 欄位，CSS 把它移到左邊
+  const image = !isBook && hasImage ? "    image: note.cover\n    imageFit: cover\n" : "";
   const content = `filters:
   and:
     - file.inFolder("${folder}")
     - file.ext == "md"
 formulas:
-  # 卡片高度是 Obsidian 依欄位數算的；摘要下面多一個空欄位，讓摘要可以長到兩行（CSS 把它藏起來）
+  # 卡片高度是 Obsidian 依欄位數算的；摘要下面多放空欄位，摘要才長得到多行（CSS 把它們藏起來）
   留白: '""'
-  類別: 'if(topic && topic != domain, domain + " · " + topic, domain)'
+  留白2: '""'
+  留白3: '""'
+  封面: 'if(cover, image(cover), "")'
+  # 清單：卡片上每一項畫成一個 code 標籤（CSS）
+  類別: 'if(!domain, [], if(topic && topic != domain, [domain, topic], [domain]))'
 ${propertiesYaml()}
 views:
   - type: cards
     name: 卡片
-    cardSize: 170
+    cardSize: ${isBook ? 320 : 230}
 ${image}    order:
 ${cardOrder}
     sort:
