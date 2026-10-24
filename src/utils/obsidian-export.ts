@@ -136,8 +136,7 @@ export function renderEntry(
     new Map<string, ExportEntry[]>(),
   );
   return [
-    frontmatter(e),
-    "",
+    frontmatter(e), // 屬性後面不留空行：編輯模式會變成標題上方一格空白
     MARK_START, // 說明寫在 vault 的 README
     `# ${e.title || "未命名"}`,
     "",
@@ -220,7 +219,7 @@ export function mergeManaged(existing: string | null, generated: string): string
     start >= 0 && end > start
       ? oldBody.slice(0, start) + block + oldBody.slice(end + MARK_END.length)
       : `${block}\n\n${oldBody.trim()}\n`;
-  return `---\n${fm.join("\n")}\n---\n\n${body.trim()}\n`;
+  return `---\n${fm.join("\n")}\n---\n${body.trim()}\n`;
 }
 
 /** 標記以外有沒有使用者自己寫的東西；archivum 刪掉的資料只有沒補充時才刪檔 */
