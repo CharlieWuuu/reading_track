@@ -17,12 +17,14 @@ export type ExportEntry = {
 
 export type ExportFile = { path: string; content: string };
 
-// Obsidian 的註解語法：閱讀與編輯模式都看不到（HTML 註解在編輯模式會露出來）
-export const MARK_START = "%% archivum:start %%";
+// archivum 那段從內文開頭到這個結束標記為止；不放開始標記，免得標題上面多一行
+// （Obsidian 的 %% 註解在游標所在那行會露出來，打開筆記時游標就在第一行）
 export const MARK_END = "%% archivum:end %%";
-/** 舊版用 HTML 註解當標記，讀到就換成新的 */
+/** 舊版有開始標記、也用過 HTML 註解，讀到就換成現在的寫法 */
 const normalizeMarks = (text: string) =>
-  text.replace("<!-- archivum:start -->", MARK_START).replace("<!-- archivum:end -->", MARK_END);
+  text
+    .replace(/^(?:<!-- archivum:start -->|%% archivum:start %%)\n?/m, "")
+    .replace("<!-- archivum:end -->", MARK_END);
 const TITLE_MAX = 40; // 佳句的標題是整句話，檔名要截
 const sanitize = (title: string) =>
   title
@@ -137,7 +139,6 @@ export function renderEntry(
   );
   return [
     frontmatter(e), // 屬性後面不留空行：編輯模式會變成標題上方一格空白
-    MARK_START, // 說明寫在 vault 的 README
     `# ${e.title || "未命名"}`,
     "",
     ...(e.meta.creator ? [linkMentions(`作者：${e.meta.creator}`, mentions), ""] : []), // 作者是關鍵字就連過去
@@ -212,22 +213,17 @@ export function mergeManaged(existing: string | null, generated: string): string
     ...oldFm.filter((l) => !genKeys.has(keyOf(l)) && keyOf(l) !== "tags"),
     ...(tags.length ? [`tags: [${tags.map(yamlValue).join(", ")}]`] : []),
   ];
-  const start = oldBody.indexOf(MARK_START);
   const end = oldBody.indexOf(MARK_END);
   const block = genBody.trim();
   const body =
-    start >= 0 && end > start
-      ? oldBody.slice(0, start) + block + oldBody.slice(end + MARK_END.length)
-      : `${block}\n\n${oldBody.trim()}\n`;
+    end >= 0 ? block + oldBody.slice(end + MARK_END.length) : `${block}\n\n${oldBody.trim()}\n`;
   return `---\n${fm.join("\n")}\n---\n${body.trim()}\n`;
 }
 
 /** 標記以外有沒有使用者自己寫的東西；archivum 刪掉的資料只有沒補充時才刪檔 */
 export function hasOwnContent(text: string): boolean {
   const [, body] = splitFrontmatter(normalizeMarks(text));
-  const start = body.indexOf(MARK_START);
   const end = body.indexOf(MARK_END);
-  const outside =
-    start >= 0 && end > start ? body.slice(0, start) + body.slice(end + MARK_END.length) : body;
+  const outside = end >= 0 ? body.slice(end + MARK_END.length) : body;
   return outside.trim().length > 0;
 }

@@ -29,13 +29,53 @@ const countBy = <T>(items: T[], key: (t: T) => string | null) =>
 
 const quote = (s: string) => `"${s.replace(/"/g, "'")}"`;
 
-function barChart(title: string, counts: Map<string, number>, unit = "本"): string[] {
+// 圖表配色照 archivum 的 tokens：白底、墨色字、細格線；長條用主色仙人掌綠，圓餅用靜野色系
+const FONT = "'Noto Serif TC', 'Songti TC', serif";
+const PIE_COLORS = [
+  "#4f6b4a",
+  "#c08a4e",
+  "#5f7787",
+  "#764f61",
+  "#c7a94a",
+  "#3f7a67",
+  "#a13023",
+  "#6b6a64",
+];
+const initLine = (vars: Record<string, unknown>) =>
+  `%%{init: ${JSON.stringify({ theme: "base", themeVariables: { fontFamily: FONT, ...vars } })}}%%`;
+const BAR_INIT = initLine({
+  background: "#ffffff",
+  xyChart: {
+    backgroundColor: "#ffffff",
+    plotColorPalette: "#4f6b4a",
+    xAxisLabelColor: "#2e3033",
+    yAxisLabelColor: "#6a6c70",
+    xAxisLineColor: "#d4d5d8",
+    yAxisLineColor: "#d4d5d8",
+    xAxisTickColor: "#d4d5d8",
+    yAxisTickColor: "#d4d5d8",
+    yAxisTitleColor: "#6a6c70",
+  },
+});
+const PIE_INIT = initLine({
+  ...Object.fromEntries(PIE_COLORS.map((c, i) => [`pie${i + 1}`, c])),
+  pie9: "#d4d5d8", // 「其他」那塊用淡灰
+  pieStrokeColor: "#ffffff",
+  pieStrokeWidth: "2px",
+  pieOuterStrokeWidth: "0px",
+  pieSectionTextColor: "#ffffff",
+  pieLegendTextColor: "#2e3033",
+  pieSectionTextSize: "13px",
+  pieLegendTextSize: "13px",
+});
+
+function barChart(_title: string, counts: Map<string, number>, unit = "本"): string[] {
   if (!counts.size) return [];
   const keys = [...counts.keys()];
   return [
     "```mermaid",
-    "xychart-beta",
-    `  title ${quote(title)}`,
+    BAR_INIT,
+    "xychart-beta", // 圖名不畫，上面的小標題已經寫了
     `  x-axis [${keys.map(quote).join(", ")}]`,
     `  y-axis "${unit}"`,
     `  bar [${keys.map((k) => counts.get(k)).join(", ")}]`,
@@ -44,14 +84,15 @@ function barChart(title: string, counts: Map<string, number>, unit = "本"): str
   ];
 }
 
-function pieChart(title: string, counts: Map<string, number>, top = 8): string[] {
+function pieChart(_title: string, counts: Map<string, number>, top = 8): string[] {
   const sorted = [...counts].sort((a, b) => b[1] - a[1]);
   const rest = sorted.slice(top).reduce((n, [, c]) => n + c, 0);
   const slices = [...sorted.slice(0, top), ...(rest ? [["其他", rest] as [string, number]] : [])];
   if (!slices.length) return [];
   return [
     "```mermaid",
-    `pie title ${title}`,
+    PIE_INIT,
+    "pie",
     ...slices.map(([k, c]) => `  ${quote(k)} : ${c}`),
     "```",
     "",
@@ -153,7 +194,9 @@ export function kindBase(
   const kind = folder.split("/").pop()!;
   const columns = ["file.name", "summary", ...(KIND_COLUMNS[kind] ?? GROUP_COLUMNS[group] ?? [])];
   const order = columns.map((c) => `      - ${c}`).join("\n");
-  const cardOrder = ["file.name", "summary", "formula.留白", "formula.類別"].map((c) => `      - ${c}`).join("\n");
+  const cardOrder = ["file.name", "summary", "formula.留白", "formula.類別"]
+    .map((c) => `      - ${c}`)
+    .join("\n");
   const isBook = kind === "書籍";
   const image = isBook ? BOOK_CARD : hasImage ? "    image: note.cover\n    imageFit: cover\n" : "";
   const content = `filters:

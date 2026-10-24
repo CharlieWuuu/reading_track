@@ -6,7 +6,6 @@ import {
   hasOwnContent,
   linkMentions,
   MARK_END,
-  MARK_START,
   mergeManaged,
   type ExportEntry,
 } from "@/utils/obsidian-export";
@@ -66,7 +65,7 @@ describe("buildFiles", () => {
     expect(b).toContain("- 2026-10-04 → 閱讀中（讀墨）");
     expect(b).toContain("## 單字\n\n- [[doublethink]]");
     expect(w).toContain("## 書籍\n\n- [[一九八四]]");
-    expect(b.indexOf(MARK_START)).toBeLessThan(b.indexOf("# 一九八四"));
+    expect(b).not.toContain("archivum:start");
     expect(b.trimEnd().endsWith(MARK_END)).toBe(true);
   });
 
@@ -104,14 +103,14 @@ describe("buildFiles", () => {
 });
 
 describe("mergeManaged", () => {
-  const generated = `---\narchivum_id: 1\ntags: ["地理"]\n---\n\n${MARK_START}\n# 倫敦\n新的\n${MARK_END}`;
+  const generated = `---\narchivum_id: 1\ntags: ["地理"]\n---\n# 倫敦\n新的\n${MARK_END}`;
 
   it("沒有舊檔就是新內容", () => {
     expect(mergeManaged(null, generated)).toBe(generated);
   });
 
   it("替換標記之間，標記外與自訂 frontmatter 保留，tags 聯集", () => {
-    const old = `---\narchivum_id: 1\nstatus: 完成\ntags: ["我的"]\n---\n\n${MARK_START}\n# 倫敦\n舊的\n${MARK_END}\n\n## 我的補充\n霧都`;
+    const old = `---\narchivum_id: 1\nstatus: 完成\ntags: ["我的"]\n---\n%% archivum:start %%\n# 倫敦\n舊的\n${MARK_END}\n\n## 我的補充\n霧都`;
     const merged = mergeManaged(old, generated);
     expect(merged).toContain("新的");
     expect(merged).not.toContain("舊的");
@@ -123,15 +122,16 @@ describe("mergeManaged", () => {
   it("使用者原本的筆記沒有標記：archivum 那段放最上面，原文接在後面", () => {
     const old = `---\ntype: 名詞\n---\n\n我自己寫的解釋`;
     const merged = mergeManaged(old, generated);
-    expect(merged.indexOf(MARK_START)).toBeLessThan(merged.indexOf("我自己寫的解釋"));
+    expect(merged.indexOf(MARK_END)).toBeLessThan(merged.indexOf("我自己寫的解釋"));
+    expect(merged).not.toContain("archivum:start");
     expect(merged).toContain("type: 名詞");
   });
 });
 
 describe("hasOwnContent", () => {
   it("只有標記內的內容就算沒有", () => {
-    expect(hasOwnContent(`---\na: 1\n---\n\n${MARK_START}\nx\n${MARK_END}\n`)).toBe(false);
-    expect(hasOwnContent(`---\na: 1\n---\n\n${MARK_START}\nx\n${MARK_END}\n\n補充`)).toBe(true);
+    expect(hasOwnContent(`---\na: 1\n---\nx\n${MARK_END}\n`)).toBe(false);
+    expect(hasOwnContent(`---\na: 1\n---\nx\n${MARK_END}\n\n補充`)).toBe(true);
   });
 });
 
