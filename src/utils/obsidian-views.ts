@@ -96,9 +96,12 @@ export function kindBase(folder: string, { image: hasImage }: { image: boolean }
   const kind = folder.split("/").pop()!;
   const columns = ["file.name", "summary", ...(KIND_COLUMNS[kind] ?? GROUP_COLUMNS[group] ?? [])];
   const order = columns.map((c) => `      - ${c}`).join("\n");
-  const isBook = kind === "書籍";
+  // 作品（書籍、影集、影片）左右排：封面在左；文章多半沒封面，照一般卡片
+  const isBook = ["書籍", "影集", "影片"].includes(kind) && group === "01 紀錄";
   const isQuote = kind === "佳句";
-  const cardOrder = (CARD_ORDER[kind] ?? CARD_ORDER.default).map((c) => `      - ${c}`).join("\n");
+  const cardOrder = (CARD_ORDER[isBook ? "書籍" : kind] ?? CARD_ORDER.default)
+    .map((c) => `      - ${c}`)
+    .join("\n");
   // 書籍的封面不用 Bases 的 image（那只能放卡片上方），改成 formula.封面 欄位，CSS 把它移到左邊
   const image = !isBook && hasImage ? "    image: note.cover\n    imageFit: cover\n" : "";
   const content = `filters:
@@ -125,7 +128,7 @@ ${cardOrder}
         direction: DESC
       - property: created
         direction: DESC
-${isBook ? readingView : ""}  - type: table
+${kind === "書籍" ? readingView : ""}  - type: table
     name: 表格
     order:
 ${order}
