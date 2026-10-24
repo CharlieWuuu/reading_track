@@ -64,7 +64,7 @@ export function renderStats(): ExportFile {
     "## 進度",
     "",
     "```dataviewjs",
-    'await dv.view("09 設定/views/閱讀進度", {})',
+    'await dv.view("09 設定/views/進度", {})',
     "```",
     "",
     "```dataviewjs",
