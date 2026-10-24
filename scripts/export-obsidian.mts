@@ -451,7 +451,8 @@ for (const f of vaultFiles) {
     .replace(/```[\s\S]*?```|%%[\s\S]*?%%|!\[\[[^\]]*\]\]/g, "")
     .replace(/\[\[(?:[^|\]]*\|)?([^\]]*)\]\]/g, "$1")
     .replace(/^#+ .*$/gm, "");
-  const summary = excerpt(body);
+  // 只取第一段：第一段寫大意（例如工作名詞的定義），後面的情境、細節不上卡片
+  const summary = excerpt(body.trim().split(/\n\s*\n/)[0] ?? "");
   if (!summary) continue;
   const line = `summary: ${JSON.stringify(summary)}`;
   const fm = /^summary: .*$/m.test(m[1])
