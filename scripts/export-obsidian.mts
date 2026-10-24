@@ -10,7 +10,7 @@ import {
   mergeManaged,
   type ExportEntry,
 } from "../src/utils/obsidian-export";
-import { kindBase, renderKindStats, renderStats } from "../src/utils/obsidian-views";
+import { kindWall, renderKindStats, renderStats } from "../src/utils/obsidian-views";
 
 /**
  * 把一個帳號的作品、片段、書寫匯出進 Obsidian vault。單向：archivum 是正本。
@@ -402,7 +402,7 @@ const dataFolders = new Set([
 ]);
 const generated = [
   renderStats(),
-  ...[...new Set(entries.map((e) => e.folder))].map((folder) => kindBase(folder)),
+  ...[...new Set(entries.map((e) => e.folder))].map((folder) => kindWall(folder)),
   ...[...dataFolders].map((folder) => renderKindStats(folder)),
 ];
 

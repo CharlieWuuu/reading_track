@@ -1,27 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { kindBase, renderKindStats, renderStats } from "@/utils/obsidian-views";
+import { kindWall, renderKindStats, renderStats } from "@/utils/obsidian-views";
 
 describe("renderStats", () => {
   it("閱讀中用嵌入查詢、圖交給 Dataview，不寫連結", () => {
     const { path, content } = renderStats();
     expect(path).toBe("01 紀錄/閱讀統計.md");
-    expect(content).toContain("## 閱讀中\n\n```base");
+    expect(content).toContain("## 閱讀中\n\n```dataviewjs");
     expect(content).toContain('"folder":"99 資料/01 紀錄","work":true');
     expect(content).not.toContain("[[");
   });
 });
 
-describe("kindBase", () => {
-  it("base 放層資料夾、篩資料夾裡的頁面，封面是欄位不是卡片圖", () => {
-    const withImage = kindBase("99 資料/02 片段/關鍵字");
-    expect(withImage.path).toBe("02 片段/關鍵字.base");
-    expect(withImage.content).toContain('file.inFolder("99 資料/02 片段/關鍵字")');
-    expect(withImage.content).toContain("      - formula.封面");
-    expect(withImage.content).not.toContain("image: note.cover");
-    expect(withImage.content).not.toContain("      - pronunciation");
-    expect(withImage.content).not.toContain("type: map"); // 地圖改在統計頁
-    expect(withImage.content).toContain("displayName: 摘要");
-    expect(kindBase("99 資料/02 片段/單字").content).toContain("      - pronunciation");
+describe("kindWall", () => {
+  it("卡片牆放層資料夾、叫卡片牆檢視，不寫連結", () => {
+    const { path, content } = kindWall("99 資料/02 片段/關鍵字");
+    expect(path).toBe("02 片段/關鍵字.md");
+    expect(content).toContain(
+      'dv.view("09 設定/views/卡片牆", {"folder":"99 資料/02 片段/關鍵字"})',
+    );
+    expect(content).not.toContain("[[");
   });
 });
 
