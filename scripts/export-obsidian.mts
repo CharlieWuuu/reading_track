@@ -109,6 +109,8 @@ const readsOf = data.records.reduce(
 const links = data.links.map((l) => [toOwner(l.a_id), toOwner(l.b_id)] as [string, string]);
 
 const base = { urls: [] as string[], reads: [] as ExportEntry["reads"] };
+// 頁面本身放在 99 資料；層資料夾（01 紀錄…）只放 base 與統計頁，給人瀏覽
+const DATA_DIR = "99 資料";
 const GROUP_DIR: Record<string, string> = {
   records: "01 紀錄",
   fragments: "02 片段",
@@ -116,7 +118,7 @@ const GROUP_DIR: Record<string, string> = {
 };
 const placed = (row: postgres.Row) => ({
   kind: row.kind,
-  folder: `${GROUP_DIR[row.grp] ?? "00 收件匣"}/${row.kind}`,
+  folder: GROUP_DIR[row.grp] ? `${DATA_DIR}/${GROUP_DIR[row.grp]}/${row.kind}` : `00 收件匣/${row.kind}`,
 });
 const vaultMeta = (kind: string) => ({ type: kind, source: "archivum" }); // 跟 vault 自己的筆記同一組欄位
 // 封面在私有 bucket，簽名網址會過期，所以下載進 vault；外部網址照用
@@ -345,7 +347,7 @@ const taken = new Set(
 );
 
 // 內文提到關鍵字就連：archivum 的關鍵字＋使用者自己寫在關鍵字資料夾的
-const KEYWORD_DIR = "02 片段/關鍵字";
+const KEYWORD_DIR = `${DATA_DIR}/02 片段/關鍵字`;
 const TOO_COMMON = new Set(["歷史"]);
 const surfacesOf = (title: string) => {
   const bare = title.replace(/（.*?）/g, "").trim();
@@ -374,7 +376,7 @@ const companyMentions = vaultFiles
   .filter(
     (f) =>
       !idOf(f.text) &&
-      path.dirname(path.relative(root, f.path)) === "03 書寫/思緒" &&
+      path.dirname(path.relative(root, f.path)) === `${DATA_DIR}/03 書寫/思緒` &&
       /^tags:.*找工作/m.test(f.text),
   )
   .map((f) => path.basename(f.path, ".md"))

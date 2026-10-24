@@ -184,7 +184,7 @@ export function kindBase(
   folder: string,
   { image: hasImage, map = false }: { image: boolean; map?: boolean },
 ): ExportFile {
-  const group = folder.split("/")[0];
+  const group = folder.split("/").at(-2)!; // 99 資料/01 紀錄/書籍 → 01 紀錄
   const kind = folder.split("/").pop()!;
   const columns = ["file.name", "summary", ...(KIND_COLUMNS[kind] ?? GROUP_COLUMNS[group] ?? [])];
   const order = columns.map((c) => `      - ${c}`).join("\n");
@@ -237,7 +237,7 @@ const lastMonths = (today: string, n: number) =>
 
 /** 片段或書寫的統計頁：各類型筆數、近 12 個月新增、領域分布 */
 export function renderGroupStats(entries: ExportEntry[], group: string, today: string): ExportFile {
-  const items = entries.filter((e) => e.folder.startsWith(`${group}/`));
+  const items = entries.filter((e) => e.folder.split("/").at(-2) === group);
   const label = group.split(" ").pop()!;
   const months = lastMonths(today, 12);
   const added = countBy(items, (e) => String(e.meta.created ?? "").slice(0, 7) || null);

@@ -21,16 +21,6 @@ export const MARK_START = "<!-- archivum:start -->";
 export const MARK_END = "<!-- archivum:end -->";
 const NOTICE = "> [!info] 這段由 archivum 產生，請到 archivum 修改；標記以外的內容不會被動到";
 const TITLE_MAX = 40; // 佳句的標題是整句話，檔名要截
-// google-drive-sync 把路徑存成 Drive 屬性，鍵加值上限 124 bytes；扣掉 "path"、".md" 與撞名後綴
-const PATH_BYTES = 124 - "path".length - ".md".length - " (xxxxxx)".length;
-const bytes = (s: string) => new TextEncoder().encode(s).length;
-
-/** 從尾巴一個字一個字砍，直到整條路徑塞得進 Drive 的屬性 */
-const fitPath = (folder: string, name: string): string =>
-  bytes(`${folder}/${name}`) <= PATH_BYTES || !name
-    ? name
-    : fitPath(folder, [...name].slice(0, -1).join("").trimEnd());
-
 const sanitize = (title: string) =>
   title
     .replace(/[\\/:*?"<>|#^[\]\n\r]+/g, " ")
@@ -41,7 +31,7 @@ const sanitize = (title: string) =>
 /** id → 路徑（不含副檔名）；同資料夾撞名就補 id 前六碼 */
 export function assignNames(entries: ExportEntry[]): Map<string, string> {
   const base = entries.map(
-    (e) => [e.id, `${e.folder}/${fitPath(e.folder, sanitize(e.title))}`] as const,
+    (e) => [e.id, `${e.folder}/${sanitize(e.title)}`] as const,
   );
   const counts = base.reduce(
     (m, [, n]) => m.set(n, (m.get(n) ?? 0) + 1),
