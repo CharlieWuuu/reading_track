@@ -20,8 +20,6 @@ export type ExportFile = { path: string; content: string };
 // archivum 那段從內文開頭到這個結束標記為止；不放開始標記，免得標題上面多一行
 // （Obsidian 的 %% 註解在游標所在那行會露出來，打開筆記時游標就在第一行）
 export const MARK_END = "%% archivum:end %%";
-/** 一次閱讀一筆，跟作品分開；作品頁的「閱讀紀錄」屬性就是連到這些筆記 */
-export const RECORD_KIND = "閱讀紀錄";
 // 作品頁把屬性排成資料欄；版面寫在 vault 的 09 設定/views/作品，這裡只放呼叫
 const WORK_VIEW = ["```dataviewjs", 'await dv.view("09 設定/views/作品")', "```"];
 // 片段與書寫頁的資料欄（分類、出處、讀音、段落…），版面在 09 設定/views/片段
@@ -162,10 +160,9 @@ export function renderEntry(
     frontmatter(e, extra), // 屬性後面不留空行：編輯模式會變成標題上方一格空白
     `# ${e.title || "未命名"}`,
     "",
-    // 閱讀紀錄雖然在 01 紀錄底下，但它是一次閱讀、不是作品，資料欄照片段的排
-    ...(e.folder.includes("01 紀錄/") && e.kind !== RECORD_KIND
+    ...(e.folder.includes("01 紀錄/")
       ? [...WORK_VIEW, ""]
-      : e.folder.includes("02 片段/") || e.folder.includes("03 書寫/") || e.kind === RECORD_KIND
+      : e.folder.includes("02 片段/") || e.folder.includes("03 書寫/")
         ? [...FRAGMENT_VIEW, ""]
         : []),
     ...(e.body.trim()
