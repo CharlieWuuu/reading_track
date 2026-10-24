@@ -60,6 +60,13 @@ export function renderStats(): ExportFile {
     `await dv.view("09 設定/views/卡片牆", ${JSON.stringify({ folder: `99 資料/${DIR}`, status: "閱讀中", filters: false })})`,
     "```",
     "",
+    // 每一次閱讀一段橫線，照 archivum 的 SpanTimeline
+    "## 閱讀進度",
+    "",
+    "```dataviewjs",
+    'await dv.view("09 設定/views/閱讀進度", {})',
+    "```",
+    "",
     "```dataviewjs",
     `await dv.view("09 設定/views/統計", ${JSON.stringify({ records: RECORDS, work: true })})`,
     "```",
