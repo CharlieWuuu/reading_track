@@ -54,17 +54,18 @@ describe("buildFiles", () => {
   });
   const word = entry({ id: "word", kind: "單字", folder: "02 片段/單字", title: "doublethink" });
 
-  it("frontmatter 略過空值，閱讀紀錄與雙向連結都寫在標記之間", () => {
+  it("frontmatter 略過空值，閱讀紀錄與雙向連結都放屬性，內文只留標題", () => {
     const files = buildFiles([book, word], [["word", "book"]]);
     const [b, w] = files.map((f) => f.content);
     expect(files[0].path).toBe("01 紀錄/書籍/一九八四.md");
     expect(b).toContain('creator: "喬治・歐威爾"');
-    expect(b).toContain("作者：喬治・歐威爾");
+    expect(b).not.toContain("作者：");
     expect(b).not.toContain("publisher");
     expect(b).toContain("private: true");
-    expect(b).toContain("- 2026-10-04 → 閱讀中（讀墨）");
-    expect(b).toContain("## 單字\n\n- [[doublethink]]");
-    expect(w).toContain("## 書籍\n\n- [[一九八四]]");
+    expect(b).toContain('閱讀紀錄: ["2026-10-04 → 閱讀中（讀墨）"]');
+    expect(b).toContain('單字: ["[[doublethink]]"]');
+    expect(w).toContain('書籍: ["[[一九八四]]"]');
+    expect(b).not.toContain("## ");
     expect(b).not.toContain("archivum:start");
     expect(b.trimEnd().endsWith(MARK_END)).toBe(true);
   });
@@ -78,7 +79,7 @@ describe("buildFiles", () => {
       meta: { locator: "第一部 第1章" },
     });
     const [b] = buildFiles([book, note], [["book", "n"]]);
-    expect(b.content).toContain("- [[老大哥]]（第一部 第1章）");
+    expect(b.content).toContain('札記: ["[[老大哥|老大哥（第一部 第1章）]]"]');
   });
 
   it("連到不在清單裡的 id 就略過", () => {

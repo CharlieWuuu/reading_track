@@ -96,26 +96,26 @@ export function linkIndex(links: [string, string][]): Map<string, string[]> {
 const yamlValue = (v: string | number | boolean) =>
   typeof v === "string" ? JSON.stringify(v) : String(v); // JSON 字串剛好是合法的 YAML
 
-function frontmatter(e: ExportEntry): string {
-  const meta = Object.entries(e.meta).filter(([, v]) => v !== null && v !== "") as [
-    string,
-    string | number | boolean,
-  ][];
+/** extra 是清單屬性（閱讀紀錄、相關筆記、連結），也可以蓋掉 meta 的同名鍵 */
+function frontmatter(e: ExportEntry, extra: Record<string, string | string[]> = {}): string {
+  const meta = Object.entries(e.meta).filter(
+    ([k, v]) => v !== null && v !== "" && !(k in extra),
+  ) as [string, string | number | boolean][];
+  const lists = Object.entries(extra).filter(([, v]) => v.length);
   const lines = [
     `archivum_id: ${e.id}`,
     `archivum_kind: ${yamlValue(e.kind)}`,
     ...meta.map(([k, v]) => `${k}: ${yamlValue(v)}`),
+    ...lists.map(([k, v]) =>
+      Array.isArray(v) ? `${k}: [${v.map(yamlValue).join(", ")}]` : `${k}: ${yamlValue(v)}`,
+    ),
     ...(e.tags.length ? [`tags: [${e.tags.map(yamlValue).join(", ")}]`] : []),
   ];
   return `---\n${lines.join("\n")}\n---`;
 }
 
 const readLine = (r: ExportRead) =>
-  `- ${r.start ?? "?"} → ${r.end ?? "閱讀中"}${r.platform ? `（${r.platform}）` : ""}`;
-
-function section(heading: string, lines: string[]): string[] {
-  return lines.length ? [`## ${heading}`, "", ...lines, ""] : [];
-}
+  `${r.start ?? "?"} → ${r.end ?? "閱讀中"}${r.platform ? `（${r.platform}）` : ""}`;
 
 export function renderEntry(
   e: ExportEntry,
@@ -137,11 +137,29 @@ export function renderEntry(
     (m, r) => m.set(r.kind, [...(m.get(r.kind) ?? []), r]),
     new Map<string, ExportEntry[]>(),
   );
+  // 作者、閱讀紀錄、相關筆記、連結都是資料，放屬性；內文只留標題與簡介
+  const creator = String(e.meta.creator ?? "");
+  const extra: Record<string, string | string[]> = {
+    ...(creator ? { creator: linkMentions(creator, mentions) } : {}), // 作者是關鍵字就連過去
+    閱讀紀錄: e.reads.map(readLine),
+    ...Object.fromEntries(
+      [...byKind].map(([kind, rs]) => [
+        kind,
+        // 一本書多篇心得靠段落分辨，段落寫進連結的顯示文字
+        rs.map((r) => {
+          const link = wiki(r);
+          if (!r.meta.locator) return link;
+          const [target, label = target] = link.slice(2, -2).split("|");
+          return `[[${target}|${label}（${r.meta.locator}）]]`;
+        }),
+      ]),
+    ),
+    連結: e.urls,
+  };
   return [
-    frontmatter(e), // 屬性後面不留空行：編輯模式會變成標題上方一格空白
+    frontmatter(e, extra), // 屬性後面不留空行：編輯模式會變成標題上方一格空白
     `# ${e.title || "未命名"}`,
     "",
-    ...(e.meta.creator ? [linkMentions(`作者：${e.meta.creator}`, mentions), ""] : []), // 作者是關鍵字就連過去
     ...(e.body.trim()
       ? [
           linkMentions(
@@ -151,17 +169,6 @@ export function renderEntry(
           "",
         ]
       : []),
-    ...section("閱讀紀錄", e.reads.map(readLine)),
-    ...[...byKind].flatMap(([kind, rs]) =>
-      section(
-        kind,
-        rs.map((r) => `- ${wiki(r)}${r.meta.locator ? `（${r.meta.locator}）` : ""}`), // 一本書多篇心得，靠段落分辨
-      ),
-    ),
-    ...section(
-      "連結",
-      e.urls.map((u) => `- ${u}`),
-    ),
     MARK_END,
   ].join("\n");
 }
