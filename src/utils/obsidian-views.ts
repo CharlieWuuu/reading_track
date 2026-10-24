@@ -56,9 +56,6 @@ const KIND_COLUMNS: Record<string, string[]> = {
 const BOOK_CARD = `    image: note.cover
     imageFit: contain
     imageAspectRatio: 1.45
-    sort:
-      - property: last_read
-        direction: DESC
 `;
 const readingView = `  - type: cards
     name: 閱讀中
@@ -102,6 +99,9 @@ views:
     cardSize: 170
 ${image}    order:
 ${cardOrder}
+    sort:
+      - property: file.mtime
+        direction: DESC
 ${isBook ? readingView : ""}  - type: table
     name: 表格
     order:

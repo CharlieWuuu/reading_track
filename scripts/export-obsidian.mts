@@ -423,13 +423,21 @@ for (const f of files) {
     stats.moved++;
   }
   const old = textAt.get(target) ?? null;
+  const next = mergeManaged(old, f.content);
+  if (next === old) continue; // 內容沒變就不寫：保留修改時間，卡片才能照「最近編輯」排
   if (old === null) stats.created++;
   else if (!idOf(old))
     stats.merged++; // 使用者原本同名的筆記
   else stats.updated++;
-  await writeFile(target, mergeManaged(old, f.content));
+  await writeFile(target, next);
 }
-await Promise.all(generated.map((g) => writeFile(path.join(root, g.path), g.content + "\n")));
+await Promise.all(
+  generated.map(async (g) => {
+    const target = path.join(root, g.path);
+    const next = `${g.content}\n`;
+    if ((await readFile(target, "utf8").catch(() => null)) !== next) await writeFile(target, next);
+  }),
+);
 
 // 使用者自己的筆記：summary 跟著內文更新（Bases 讀不到內文，卡片靠它顯示摘要）
 let summaries = 0;
