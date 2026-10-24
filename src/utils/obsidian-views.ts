@@ -69,8 +69,23 @@ const readingView = `  - type: cards
 // 書籍左右排：封面在左、文字在右，高度要夠放直式封面；關鍵字要一眼看到解釋，給四行
 const CARD_ORDER: Record<string, string[]> = {
   default: ["file.name", "summary", "formula.留白", "formula.類別"],
-  書籍: ["file.name", "creator", "summary", "formula.留白", "formula.留白2", "formula.類別", "formula.封面"],
-  關鍵字: ["file.name", "summary", "formula.留白", "formula.留白2", "formula.留白3", "formula.類別"],
+  書籍: [
+    "file.name",
+    "creator",
+    "summary",
+    "formula.留白",
+    "formula.留白2",
+    "formula.類別",
+    "formula.封面",
+  ],
+  關鍵字: [
+    "file.name",
+    "summary",
+    "formula.留白",
+    "formula.留白2",
+    "formula.留白3",
+    "formula.類別",
+  ],
 };
 
 /**
