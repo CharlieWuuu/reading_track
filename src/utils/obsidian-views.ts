@@ -68,7 +68,7 @@ const readingView = `  - type: cards
 // 卡片欄位：留白越多，摘要能顯示的行數越多（CSS 依留白數決定裁幾行）
 // 書籍左右排：封面在左、文字在右；書籍沒有摘要，只放書名、作者、分類，兩格留白撐高度；關鍵字要一眼看到解釋，給四行
 const CARD_ORDER: Record<string, string[]> = {
-  default: ["file.name", "summary", "formula.留白", "formula.類別"],
+  default: ["file.name", "summary", "formula.留白", "formula.類別", "formula.封面"],
   書籍: ["file.name", "creator", "formula.留白", "formula.留白2", "formula.類別", "formula.封面"],
   關鍵字: [
     "file.name",
@@ -77,6 +77,7 @@ const CARD_ORDER: Record<string, string[]> = {
     "formula.留白2",
     "formula.留白3",
     "formula.類別",
+    "formula.封面",
   ],
   // 佳句照 archivum 的 QuoteRow：一句一列，左邊出處的書封，右邊句子（標題，最多三行）與「—— 書名」
   佳句: ["file.name", "formula.留白", "formula.留白2", "formula.出處", "formula.封面"],
@@ -91,7 +92,7 @@ const QUOTE_FORMULAS = `  封面: 'if(note["書籍"], image(note["書籍"][0].as
  * 每個類型一個 Base，放在層的資料夾（01 紀錄/書籍.base），頁面本身在下一層（01 紀錄/書籍/）。
  * 第一個檢視是卡片（預設開啟），每個檢視都帶 summary；另有表格、依領域分組、地圖（有座標才加）
  */
-export function kindBase(folder: string, { image: hasImage }: { image: boolean }): ExportFile {
+export function kindBase(folder: string): ExportFile {
   const group = folder.split("/").at(-2)!; // 99 資料/01 紀錄/書籍 → 01 紀錄
   const kind = folder.split("/").pop()!;
   const columns = ["file.name", "summary", ...(KIND_COLUMNS[kind] ?? GROUP_COLUMNS[group] ?? [])];
@@ -102,8 +103,7 @@ export function kindBase(folder: string, { image: hasImage }: { image: boolean }
   const cardOrder = (CARD_ORDER[isBook ? "書籍" : kind] ?? CARD_ORDER.default)
     .map((c) => `      - ${c}`)
     .join("\n");
-  // 書籍的封面不用 Bases 的 image（那只能放卡片上方），改成 formula.封面 欄位，CSS 把它移到左邊
-  const image = !isBook && hasImage ? "    image: note.cover\n    imageFit: cover\n" : "";
+  // 封面一律不用 Bases 的 image（那只能放卡片上方），改成 formula.封面 欄位：有封面 CSS 就把它移到左邊
   const content = `filters:
   and:
     - file.inFolder("${folder}")
@@ -121,7 +121,7 @@ views:
   - type: cards
     name: 卡片
     cardSize: ${isBook ? 380 : isQuote ? 2000 : 230}
-${image}    order:
+    order:
 ${cardOrder}
     sort:
       - property: finished

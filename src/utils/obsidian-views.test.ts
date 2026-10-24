@@ -12,18 +12,16 @@ describe("renderStats", () => {
 });
 
 describe("kindBase", () => {
-  it("base 放層資料夾、篩資料夾裡的頁面，有圖才加卡片圖", () => {
-    const withImage = kindBase("99 資料/02 片段/關鍵字", { image: true });
+  it("base 放層資料夾、篩資料夾裡的頁面，封面是欄位不是卡片圖", () => {
+    const withImage = kindBase("99 資料/02 片段/關鍵字");
     expect(withImage.path).toBe("02 片段/關鍵字.base");
     expect(withImage.content).toContain('file.inFolder("99 資料/02 片段/關鍵字")');
-    expect(withImage.content).toContain("image: note.cover");
-    expect(kindBase("99 資料/02 片段/單字", { image: false }).content).not.toContain("image:");
+    expect(withImage.content).toContain("      - formula.封面");
+    expect(withImage.content).not.toContain("image: note.cover");
     expect(withImage.content).not.toContain("      - pronunciation");
     expect(withImage.content).not.toContain("type: map"); // 地圖改在統計頁
     expect(withImage.content).toContain("displayName: 摘要");
-    expect(kindBase("99 資料/02 片段/單字", { image: false }).content).toContain(
-      "      - pronunciation",
-    );
+    expect(kindBase("99 資料/02 片段/單字").content).toContain("      - pronunciation");
   });
 });
 

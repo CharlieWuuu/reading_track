@@ -402,11 +402,7 @@ const dataFolders = new Set([
 ]);
 const generated = [
   renderStats(),
-  ...[...new Set(entries.map((e) => e.folder))].map((folder) =>
-    kindBase(folder, {
-      image: entries.some((e) => e.folder === folder && e.meta.cover),
-    }),
-  ),
+  ...[...new Set(entries.map((e) => e.folder))].map((folder) => kindBase(folder)),
   ...[...dataFolders].map((folder) => renderKindStats(folder)),
 ];
 
