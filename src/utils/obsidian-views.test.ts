@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ExportEntry } from "@/utils/obsidian-export";
-import { kindBase, renderGroupStats, renderReadLog, renderStats } from "@/utils/obsidian-views";
+import { kindBase, renderKindStats, renderStats, statFields } from "@/utils/obsidian-views";
 
 const book = (id: string, reads: ExportEntry["reads"]): ExportEntry => ({
   id,
@@ -38,13 +38,6 @@ describe("renderStats", () => {
     expect(content).toContain('"Kobo" : 2');
     expect(content).toContain('"讀墨" : 1');
   });
-
-  it("閱讀紀錄是嵌入查詢，不寫連結", () => {
-    const log = renderReadLog();
-    expect(log.path).toBe("01 紀錄/閱讀紀錄.md");
-    expect(log.content).toContain("```base");
-    expect(log.content).not.toContain("[[");
-  });
 });
 
 describe("kindBase", () => {
@@ -61,34 +54,28 @@ describe("kindBase", () => {
   });
 });
 
-describe("renderGroupStats", () => {
-  const frag = (id: string, kind: string, created: string, language = ""): ExportEntry => ({
-    id,
-    kind,
-    folder: `02 片段/${kind}`,
-    title: id,
-    body: "",
-    meta: { created, language },
-    tags: [],
-    urls: [],
-    reads: [],
+describe("renderKindStats", () => {
+  it("frontmatter 去引號；作品用讀完日期、單值圓餅不畫", () => {
+    const notes = [
+      statFields('---\nfinished: "2026-10-01"\ndomain: "程式"\n---\n'),
+      statFields('---\nfinished: "2025-03-01"\ndomain: "文學"\n---\n'),
+    ];
+    const { path, content } = renderKindStats("99 資料/01 紀錄/書籍", notes, "2026-10-23");
+    expect(path).toBe("01 紀錄/書籍統計.md");
+    expect(content).toContain("共 **2** 本");
+    expect(content).toContain("bar [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]");
+    expect(content).toContain('x-axis ["2025", "2026"]');
+    expect(content).toContain('"程式" : 1');
+    expect(content).not.toContain("## 狀態");
   });
 
-  it("只算該層，近 12 個月補零，多語言才畫語言圓餅", () => {
-    const { path, content } = renderGroupStats(
-      [
-        frag("a", "單字", "2026-10-01", "英文"),
-        frag("b", "單字", "2026-09-01", "日文"),
-        frag("c", "關鍵字", "2026-10-02"),
-        book("x", []),
-      ],
-      "02 片段",
+  it("其他類型用建立日期", () => {
+    const { content } = renderKindStats(
+      "99 資料/03 書寫/思緒",
+      [statFields("---\ncreated: 2026-09-05\n---\n")],
       "2026-10-23",
     );
-    expect(path).toBe("02 片段/片段統計.md");
-    expect(content).toContain("- 單字 **2** 則");
-    expect(content).toContain("bar [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2]");
-    expect(content).toContain("## 單字的語言");
-    expect(content).not.toContain("## 關鍵字的語言");
+    expect(content).toContain("共 **1** 則");
+    expect(content).toContain("bar [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]");
   });
 });

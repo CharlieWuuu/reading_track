@@ -30,9 +30,7 @@ const sanitize = (title: string) =>
 
 /** id → 路徑（不含副檔名）；同資料夾撞名就補 id 前六碼 */
 export function assignNames(entries: ExportEntry[]): Map<string, string> {
-  const base = entries.map(
-    (e) => [e.id, `${e.folder}/${sanitize(e.title)}`] as const,
-  );
+  const base = entries.map((e) => [e.id, `${e.folder}/${sanitize(e.title)}`] as const);
   const counts = base.reduce(
     (m, [, n]) => m.set(n, (m.get(n) ?? 0) + 1),
     new Map<string, number>(),

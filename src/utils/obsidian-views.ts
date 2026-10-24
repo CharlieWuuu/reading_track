@@ -19,25 +19,6 @@ views:
       - platform
 `;
 
-const READ_LOG_VIEW = `filters:
-  and:
-    - source == "archivum"
-    - last_read != null
-views:
-  - type: table
-    name: 閱讀紀錄
-    order:
-      - file.name
-      - type
-      - started
-      - finished
-      - platform
-      - reads
-    sort:
-      - property: last_read
-        direction: DESC
-`;
-
 const countBy = <T>(items: T[], key: (t: T) => string | null) =>
   items.reduce((m, t) => {
     const k = key(t);
@@ -125,23 +106,6 @@ export function renderStats(entries: ExportEntry[], today: string): ExportFile {
     ),
   ].join("\n");
   return { path: `${DIR}/閱讀統計.md`, content };
-}
-
-/** 閱讀紀錄：嵌入 Bases 表格，一本一列；每次閱讀的細節在書的檔案裡 */
-export function renderReadLog(): ExportFile {
-  const content = [
-    "---",
-    "type: 統計",
-    "source: archivum",
-    "---",
-    "",
-    "> [!info] 自動產生，每次匯出 archivum 時更新；要記新的閱讀請到 archivum",
-    "",
-    "# 閱讀紀錄",
-    "",
-    ...baseBlock(READ_LOG_VIEW),
-  ].join("\n");
-  return { path: `${DIR}/閱讀紀錄.md`, content };
 }
 
 const GROUP_COLUMNS: Record<string, string[]> = {
@@ -235,45 +199,65 @@ const lastMonths = (today: string, n: number) =>
     return d.toISOString().slice(0, 7);
   });
 
-/** 片段或書寫的統計頁：各類型筆數、近 12 個月新增、領域分布 */
-export function renderGroupStats(entries: ExportEntry[], group: string, today: string): ExportFile {
-  const items = entries.filter((e) => e.folder.split("/").at(-2) === group);
-  const label = group.split(" ").pop()!;
+export type NoteStat = Record<string, string | undefined>;
+
+/** frontmatter 裡統計會用到的單值欄位；YAML 字串的引號拿掉 */
+export function statFields(text: string): NoteStat {
+  const fm = text.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
+  return Object.fromEntries(
+    [...fm.matchAll(/^([^\s:][^:]*):[ \t]*(.+)$/gm)].map(([, k, v]) => [
+      k.trim(),
+      v.trim().replace(/^"(.*)"$/, "$1"),
+    ]),
+  );
+}
+
+// 作品用「讀完」算時間，其他用建立日期
+const WORK_KINDS = new Set(["書籍", "影集", "影片", "文章"]);
+
+/**
+ * 每個類型一頁統計，跟 base 放在同一層（01 紀錄/書籍統計.md）。
+ * 吃的是 vault 裡的 frontmatter，所以使用者自己的筆記（思緒、工作名詞、素材）也算得到
+ */
+export function renderKindStats(folder: string, notes: NoteStat[], today: string): ExportFile {
+  const group = folder.split("/").at(-2)!;
+  const kind = folder.split("/").pop()!;
+  const isWork = WORK_KINDS.has(kind) && group === "01 紀錄";
+  const unit = isWork ? "本" : "則";
   const months = lastMonths(today, 12);
-  const added = countBy(items, (e) => String(e.meta.created ?? "").slice(0, 7) || null);
+  const dateOf = (n: NoteStat) => (isWork ? n.finished || n.last_read : n.created) ?? "";
+  const added = countBy(notes, (n) => dateOf(n).slice(0, 7) || null);
   const byMonth = new Map(months.map((m) => [`${Number(m.slice(5))}月`, added.get(m) ?? 0]));
-  const byKind = countBy(items, (e) => e.kind);
+  const byYear = new Map(
+    [...countBy(notes, (n) => dateOf(n).slice(0, 4) || null)].sort(([a], [b]) =>
+      a.localeCompare(b),
+    ),
+  );
+  const pieIf = (title: string, key: string) => {
+    const counts = countBy(notes, (n) => n[key] || null);
+    return counts.size > 1 ? [`## ${title}`, "", ...pieChart(title, counts)] : [];
+  };
   const content = [
     "---",
     "type: 統計",
-    "source: archivum",
     "---",
     "",
-    "> [!info] 自動產生，每次匯出 archivum 時更新；只算 archivum 的資料",
+    "> [!info] 自動產生，每次匯出 archivum 時更新",
     "",
-    `# ${label}統計`,
+    `# ${kind}統計`,
     "",
-    ...[...byKind].map(([k, n]) => `- ${k} **${n}** 則`),
+    `共 **${notes.length}** ${unit}`,
     "",
-    "## 近 12 個月新增",
+    `## 近 12 個月${isWork ? "讀完" : "新增"}`,
     "",
-    ...barChart("每月新增", byMonth, "則"),
-    "## 類型",
-    "",
-    ...pieChart("類型", byKind),
-    "## 領域",
-    "",
-    ...pieChart(
-      "領域",
-      countBy(items, (e) => (e.meta.topic as string) || null),
-    ),
-    ...[...byKind.keys()].flatMap((k) => {
-      const langs = countBy(
-        items.filter((e) => e.kind === k),
-        (e) => (e.meta.language as string) || null,
-      );
-      return langs.size > 1 ? [`## ${k}的語言`, "", ...pieChart(`${k}的語言`, langs)] : [];
-    }),
+    ...barChart(isWork ? "每月讀完" : "每月新增", byMonth, unit),
+    ...(byYear.size > 1
+      ? [`## 每年${isWork ? "讀完" : "新增"}`, "", ...barChart("每年", byYear, unit)]
+      : []),
+    ...pieIf("領域", "domain"),
+    ...pieIf("狀態", "status"),
+    ...pieIf("語言", "language"),
+    ...pieIf("分類", "分類"),
   ].join("\n");
-  return { path: `${group}/${label}統計.md`, content };
+  return { path: `${group}/${kind}統計.md`, content };
 }

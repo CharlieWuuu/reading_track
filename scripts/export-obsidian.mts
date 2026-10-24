@@ -12,9 +12,10 @@ import {
 } from "../src/utils/obsidian-export";
 import {
   kindBase,
-  renderGroupStats,
-  renderReadLog,
+  renderKindStats,
   renderStats,
+  statFields,
+  type NoteStat,
 } from "../src/utils/obsidian-views";
 
 /**
@@ -118,7 +119,9 @@ const GROUP_DIR: Record<string, string> = {
 };
 const placed = (row: postgres.Row) => ({
   kind: row.kind,
-  folder: GROUP_DIR[row.grp] ? `${DATA_DIR}/${GROUP_DIR[row.grp]}/${row.kind}` : `00 收件匣/${row.kind}`,
+  folder: GROUP_DIR[row.grp]
+    ? `${DATA_DIR}/${GROUP_DIR[row.grp]}/${row.kind}`
+    : `00 收件匣/${row.kind}`,
 });
 const vaultMeta = (kind: string) => ({ type: kind, source: "archivum" }); // 跟 vault 自己的筆記同一組欄位
 // 封面在私有 bucket，簽名網址會過期，所以下載進 vault；外部網址照用
@@ -219,24 +222,28 @@ for (const f of data.fragments) {
 }
 
 // 沒有維基條目圖的關鍵字：先找 Wikimedia Commons，再找 Openverse（都只收自由授權的圖）
-const searchCached = async (key: string, url: string, pick: (json: any) => string | undefined) => {
+const searchCached = async <T,>(
+  key: string,
+  url: string,
+  pick: (json: T) => string | undefined,
+) => {
   if (key in wikiCache) return wikiCache[key];
   await sleep(300);
   const res = await fetch(url, {
     headers: { "User-Agent": "archivum-obsidian-export (personal use)" },
   }).catch(() => null);
   if (!res?.ok) return null; // 暫時失敗不進快取
-  wikiCache[key] = pick(await res.json()) ?? null;
+  wikiCache[key] = pick((await res.json()) as T) ?? null;
   return wikiCache[key];
 };
 const commonsOf = (q: string) =>
-  searchCached(
+  searchCached<{ query?: { pages?: Record<string, { imageinfo?: { thumburl?: string }[] }> } }>(
     `commons:${q}`,
     `https://commons.wikimedia.org/w/api.php?action=query&format=json&generator=search&gsrnamespace=6&gsrlimit=1&prop=imageinfo&iiprop=url&iiurlwidth=640&gsrsearch=${encodeURIComponent(`${q} filetype:bitmap`)}`,
-    (j) => (Object.values(j?.query?.pages ?? {})[0] as any)?.imageinfo?.[0]?.thumburl,
+    (j) => Object.values(j?.query?.pages ?? {})[0]?.imageinfo?.[0]?.thumburl,
   );
 const openverseOf = (q: string) =>
-  searchCached(
+  searchCached<{ results?: { thumbnail?: string }[] }>(
     `openverse:${q}`,
     `https://api.openverse.org/v1/images/?page_size=1&q=${encodeURIComponent(q)}`,
     (j) => j?.results?.[0]?.thumbnail,
@@ -391,17 +398,32 @@ const bookMentions = entries
   .filter((e) => e.kind === "書籍")
   .map((e) => ({ surface: `《${e.title}》`, target: names.get(e.id)!.split("/").pop()! }));
 const files = buildFiles(entries, links, taken, [...mentions, ...companyMentions, ...bookMentions]);
+const today = new Date().toISOString().slice(0, 10);
+// 每個資料夾一頁統計：archivum 的類型加上使用者自己的（思緒、工作名詞、素材…）
+const dataFolders = new Map<string, NoteStat[]>();
+for (const f of vaultFiles) {
+  const rel = path.relative(root, f.path);
+  if (!rel.startsWith(`${DATA_DIR}/`) || rel.split("/").length !== 4) continue;
+  const folder = path.dirname(rel);
+  dataFolders.set(folder, [...(dataFolders.get(folder) ?? []), statFields(f.text)]);
+}
+// 這次匯出才新增的 archivum 資料，vault 掃描時還不存在，補進來
+for (const e of entries) {
+  if (!e.folder.startsWith(`${DATA_DIR}/`) || ownedPath.has(e.id)) continue;
+  const stat = Object.fromEntries(
+    Object.entries(e.meta).map(([k, v]) => [k, v == null ? undefined : String(v)]),
+  );
+  dataFolders.set(e.folder, [...(dataFolders.get(e.folder) ?? []), stat]);
+}
 const generated = [
-  renderStats(entries, new Date().toISOString().slice(0, 10)),
-  renderReadLog(),
+  renderStats(entries, today),
   ...[...new Set(entries.map((e) => e.folder))].map((folder) =>
     kindBase(folder, {
       image: entries.some((e) => e.folder === folder && e.meta.cover),
       map: entries.some((e) => e.folder === folder && e.meta.coordinates),
     }),
   ),
-  renderGroupStats(entries, "02 片段", new Date().toISOString().slice(0, 10)),
-  renderGroupStats(entries, "03 書寫", new Date().toISOString().slice(0, 10)),
+  ...[...dataFolders].map(([folder, notes]) => renderKindStats(folder, notes, today)),
 ];
 
 const textAt = new Map(vaultFiles.map((f) => [f.path, f.text]));
