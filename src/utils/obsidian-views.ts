@@ -125,7 +125,7 @@ const KIND_COLUMNS: Record<string, string[]> = {
 // 書籍的卡片要像書牆：封面直式、照最近讀過排序，另有閱讀中
 const BOOK_CARD = `    image: note.cover
     imageFit: contain
-    imageAspectRatio: 1
+    imageAspectRatio: 1.45
     sort:
       - property: last_read
         direction: DESC
@@ -157,7 +157,7 @@ export function kindBase(
   const order = columns.map((c) => `      - ${c}`).join("\n");
   const cardOrder = ["file.name", "summary", "formula.留白", "formula.類別"].map((c) => `      - ${c}`).join("\n");
   const isBook = kind === "書籍";
-  const image = isBook ? BOOK_CARD : hasImage ? "    image: note.cover\n    imageFit: cover\n    imageAspectRatio: 0.6\n" : "";
+  const image = isBook ? BOOK_CARD : hasImage ? "    image: note.cover\n    imageFit: cover\n" : "";
   const content = `filters:
   and:
     - file.inFolder("${folder}")
@@ -170,6 +170,7 @@ ${propertiesYaml()}
 views:
   - type: cards
     name: 卡片
+    cardSize: 150
 ${image}    order:
 ${cardOrder}
 ${isBook ? readingView : ""}  - type: table
