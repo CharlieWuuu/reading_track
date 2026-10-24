@@ -100,7 +100,9 @@ views:
 ${image}    order:
 ${cardOrder}
     sort:
-      - property: file.mtime
+      - property: finished
+        direction: DESC
+      - property: created
         direction: DESC
 ${isBook ? readingView : ""}  - type: table
     name: 表格
