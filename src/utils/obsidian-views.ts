@@ -9,14 +9,16 @@ const baseBlock = (yaml: string) => ["```base", yaml.trimEnd(), "```"];
 const READING_VIEW = `filters:
   and:
     - status == "閱讀中"
+    - archivum_kind == "書籍"
 views:
-  - type: table
+  - type: cards
     name: 閱讀中
+    cardSize: 120
+    image: note.cover
+    imageFit: contain
+    imageAspectRatio: 1.45
     order:
       - file.name
-      - creator
-      - started
-      - platform
 `;
 
 const countBy = <T>(items: T[], key: (t: T) => string | null) =>
@@ -128,16 +130,17 @@ const BOOK_CARD = `    image: note.cover
       - property: last_read
         direction: DESC
 `;
-const readingView = (order: string) => `  - type: cards
+const readingView = `  - type: cards
     name: 閱讀中
     filters:
       and:
         - status == "閱讀中"
+    cardSize: 120
     image: note.cover
     imageFit: contain
     imageAspectRatio: 1.45
     order:
-${order}
+      - file.name
 `;
 
 /**
@@ -152,19 +155,22 @@ export function kindBase(
   const kind = folder.split("/").pop()!;
   const columns = ["file.name", "summary", ...(KIND_COLUMNS[kind] ?? GROUP_COLUMNS[group] ?? [])];
   const order = columns.map((c) => `      - ${c}`).join("\n");
+  const cardOrder = ["file.name", "summary", "formula.類別"].map((c) => `      - ${c}`).join("\n");
   const isBook = kind === "書籍";
   const image = isBook ? BOOK_CARD : hasImage ? "    image: note.cover\n    imageFit: cover\n" : "";
   const content = `filters:
   and:
     - file.inFolder("${folder}")
     - file.ext == "md"
+formulas:
+  類別: 'if(topic && topic != domain, domain + " · " + topic, domain)'
 ${propertiesYaml()}
 views:
   - type: cards
     name: 卡片
 ${image}    order:
-${order}
-${isBook ? readingView(order) : ""}  - type: table
+${cardOrder}
+${isBook ? readingView : ""}  - type: table
     name: 表格
     order:
 ${order}
@@ -181,7 +187,6 @@ ${map ? MAP_VIEW : ""}`;
   return { path: `${group}/${kind}.base`, content };
 }
 
-// Maps 外掛（Obsidian 官方）的地圖檢視；座標欄位格式是 "緯度, 經度"
 // 表格欄位的中文名稱；卡片上的欄位名稱由 CSS 藏起來
 export const PROPERTY_NAMES: Record<string, string> = {
   "file.name": "名稱",
@@ -206,6 +211,7 @@ export const PROPERTY_NAMES: Record<string, string> = {
   type: "類型",
   tags: "標籤",
   分類: "分類",
+  "formula.類別": "類別",
 };
 
 export const propertiesYaml = (): string =>
@@ -217,6 +223,7 @@ export const propertiesYaml = (): string =>
     ]),
   ].join("\n");
 
+// Maps 外掛（Obsidian 官方）的地圖檢視；座標欄位格式是 "緯度, 經度"
 const MAP_VIEW = `  - type: map
     name: 地圖
     filters:
