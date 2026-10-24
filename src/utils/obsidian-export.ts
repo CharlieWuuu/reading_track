@@ -19,7 +19,6 @@ export type ExportFile = { path: string; content: string };
 
 export const MARK_START = "<!-- archivum:start -->";
 export const MARK_END = "<!-- archivum:end -->";
-const NOTICE = "> [!info] 這段由 archivum 產生，請到 archivum 修改；標記以外的內容不會被動到";
 const TITLE_MAX = 40; // 佳句的標題是整句話，檔名要截
 const sanitize = (title: string) =>
   title
@@ -135,9 +134,7 @@ export function renderEntry(
   return [
     frontmatter(e),
     "",
-    MARK_START,
-    NOTICE,
-    "",
+    MARK_START, // 標記是 HTML 註解，閱讀時看不到；說明寫在 vault 的 README
     `# ${e.title || "未命名"}`,
     "",
     ...(e.meta.creator ? [linkMentions(`作者：${e.meta.creator}`, mentions), ""] : []), // 作者是關鍵字就連過去
