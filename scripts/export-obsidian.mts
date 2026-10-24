@@ -431,6 +431,29 @@ for (const f of files) {
 }
 await Promise.all(generated.map((g) => writeFile(path.join(root, g.path), g.content + "\n")));
 
+// 使用者自己的筆記：summary 跟著內文更新（Bases 讀不到內文，卡片靠它顯示摘要）
+let summaries = 0;
+for (const f of vaultFiles) {
+  const rel = path.relative(root, f.path);
+  if (!rel.startsWith(`${DATA_DIR}/`) || idOf(f.text)) continue;
+  const m = f.text.match(/^---\n([\s\S]*?)\n---\n/);
+  if (!m) continue;
+  const body = f.text
+    .slice(m[0].length)
+    .replace(/```[\s\S]*?```|%%[\s\S]*?%%|!\[\[[^\]]*\]\]/g, "")
+    .replace(/\[\[(?:[^|\]]*\|)?([^\]]*)\]\]/g, "$1")
+    .replace(/^#+ .*$/gm, "");
+  const summary = excerpt(body);
+  if (!summary) continue;
+  const line = `summary: ${JSON.stringify(summary)}`;
+  const fm = /^summary: .*$/m.test(m[1])
+    ? m[1].replace(/^summary: .*$/m, line)
+    : `${m[1]}\n${line}`;
+  if (fm === m[1]) continue;
+  await writeFile(f.path, `---\n${fm}\n---\n${f.text.slice(m[0].length)}`);
+  summaries++;
+}
+
 // archivum 已刪的：試做模式不刪，避免把沒匯到的當成刪除
 const alive = new Set(entries.map((e) => e.id));
 const gone = LIMIT_BOOKS ? [] : [...ownedPath].filter(([id]) => !alive.has(id));
@@ -502,6 +525,7 @@ for (const c of covers) {
   } else coverStats.failed++;
 }
 console.log(
+  `自己的筆記更新摘要 ${summaries} 篇`,
   `封面：搬移 ${coverStats.moved}、新下載 ${coverStats.downloaded}、失敗 ${coverStats.failed}`,
 );
 
