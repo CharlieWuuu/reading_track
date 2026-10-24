@@ -139,7 +139,7 @@ describe("hasOwnContent", () => {
 describe("excerpt", () => {
   it("去掉標記、合併空白、超過就截斷加刪節號", () => {
     expect(excerpt("# 標題\n\n**粗體**  文字")).toBe("標題 粗體 文字");
-    expect(excerpt("字".repeat(70))).toBe("字".repeat(60) + "…");
+    expect(excerpt("字".repeat(160))).toBe("字".repeat(150) + "…");
     expect(excerpt("")).toBe("");
   });
 });

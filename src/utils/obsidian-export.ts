@@ -47,8 +47,8 @@ export function assignNames(entries: ExportEntry[]): Map<string, string> {
   return new Map(base.map(([id, n]) => [id, counts.get(n)! > 1 ? `${n} (${id.slice(0, 6)})` : n]));
 }
 
-/** 內文開頭一小段，給 Bases 的表格與卡片顯示（Bases 讀不到內文） */
-export const excerpt = (body: string, max = 60): string => {
+/** 內文開頭一段，給 Bases 的表格與卡片顯示（Bases 讀不到內文）；卡片最多五行，實際裁切交給 CSS */
+export const excerpt = (body: string, max = 150): string => {
   const flat = body
     .replace(/[#>*_`[\]]/g, "")
     .replace(/\s+/g, " ")
