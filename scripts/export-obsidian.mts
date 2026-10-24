@@ -405,7 +405,6 @@ const generated = [
   ...[...new Set(entries.map((e) => e.folder))].map((folder) =>
     kindBase(folder, {
       image: entries.some((e) => e.folder === folder && e.meta.cover),
-      map: entries.some((e) => e.folder === folder && e.meta.coordinates),
     }),
   ),
   ...[...dataFolders].map((folder) => renderKindStats(folder)),

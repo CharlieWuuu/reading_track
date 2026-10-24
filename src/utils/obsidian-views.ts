@@ -77,10 +77,7 @@ const readingView = `  - type: cards
  * 每個類型一個 Base，放在層的資料夾（01 紀錄/書籍.base），頁面本身在下一層（01 紀錄/書籍/）。
  * 第一個檢視是卡片（預設開啟），每個檢視都帶 summary；另有表格、依領域分組、地圖（有座標才加）
  */
-export function kindBase(
-  folder: string,
-  { image: hasImage, map = false }: { image: boolean; map?: boolean },
-): ExportFile {
+export function kindBase(folder: string, { image: hasImage }: { image: boolean }): ExportFile {
   const group = folder.split("/").at(-2)!; // 99 資料/01 紀錄/書籍 → 01 紀錄
   const kind = folder.split("/").pop()!;
   const columns = ["file.name", "summary", ...(KIND_COLUMNS[kind] ?? GROUP_COLUMNS[group] ?? [])];
@@ -118,7 +115,7 @@ ${order}
       direction: ASC
     order:
 ${order}
-${map ? MAP_VIEW : ""}`;
+`;
   return { path: `${group}/${kind}.base`, content };
 }
 
@@ -158,18 +155,6 @@ export const propertiesYaml = (): string =>
     ]),
   ].join("\n");
 
-// Maps 外掛（Obsidian 官方）的地圖檢視；座標欄位格式是 "緯度, 經度"
-const MAP_VIEW = `  - type: map
-    name: 地圖
-    filters:
-      and:
-        - coordinates != null
-    coordinates: note.coordinates
-    order:
-      - file.name
-      - topic
-`;
-
 // 作品用「讀完」算時間，其他用建立日期
 const WORK_KINDS = new Set(["書籍", "影集", "影片", "文章"]);
 
@@ -191,6 +176,10 @@ export function renderKindStats(folder: string): ExportFile {
     `await dv.view("09 設定/views/統計", ${JSON.stringify({ folder, work })})`,
     "```",
     // 作品統計加一張地圖：作品連到的、有座標的關鍵字；版面在 vault 的 09 設定/views/地圖
+    // 關鍵字統計：所有有座標的地點，依領域上色（取代 base 裡 Maps 外掛的舊地圖）
+    ...(kind === "關鍵字"
+      ? ["", "## 地圖", "", "```dataviewjs", 'await dv.view("09 設定/views/地圖", {})', "```"]
+      : []),
     ...(work
       ? [
           "",
