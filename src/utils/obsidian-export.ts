@@ -17,8 +17,12 @@ export type ExportEntry = {
 
 export type ExportFile = { path: string; content: string };
 
-export const MARK_START = "<!-- archivum:start -->";
-export const MARK_END = "<!-- archivum:end -->";
+// Obsidian 的註解語法：閱讀與編輯模式都看不到（HTML 註解在編輯模式會露出來）
+export const MARK_START = "%% archivum:start %%";
+export const MARK_END = "%% archivum:end %%";
+/** 舊版用 HTML 註解當標記，讀到就換成新的 */
+const normalizeMarks = (text: string) =>
+  text.replace("<!-- archivum:start -->", MARK_START).replace("<!-- archivum:end -->", MARK_END);
 const TITLE_MAX = 40; // 佳句的標題是整句話，檔名要截
 const sanitize = (title: string) =>
   title
@@ -134,7 +138,7 @@ export function renderEntry(
   return [
     frontmatter(e),
     "",
-    MARK_START, // 標記是 HTML 註解，閱讀時看不到；說明寫在 vault 的 README
+    MARK_START, // 說明寫在 vault 的 README
     `# ${e.title || "未命名"}`,
     "",
     ...(e.meta.creator ? [linkMentions(`作者：${e.meta.creator}`, mentions), ""] : []), // 作者是關鍵字就連過去
@@ -201,7 +205,7 @@ const tagsOf = (lines: string[]) =>
 export function mergeManaged(existing: string | null, generated: string): string {
   if (existing === null) return generated;
   const [genFm, genBody] = splitFrontmatter(generated);
-  const [oldFm, oldBody] = splitFrontmatter(existing);
+  const [oldFm, oldBody] = splitFrontmatter(normalizeMarks(existing));
   const genKeys = new Set(genFm.map(keyOf));
   const tags = [...new Set([...tagsOf(genFm), ...tagsOf(oldFm)])];
   const fm = [
@@ -221,7 +225,7 @@ export function mergeManaged(existing: string | null, generated: string): string
 
 /** 標記以外有沒有使用者自己寫的東西；archivum 刪掉的資料只有沒補充時才刪檔 */
 export function hasOwnContent(text: string): boolean {
-  const [, body] = splitFrontmatter(text);
+  const [, body] = splitFrontmatter(normalizeMarks(text));
   const start = body.indexOf(MARK_START);
   const end = body.indexOf(MARK_END);
   const outside =
