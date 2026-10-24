@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { kindWall, renderKindStats, renderStats } from "@/utils/obsidian-views";
+import { kindPage, renderStats } from "@/utils/obsidian-views";
 
 describe("renderStats", () => {
   it("閱讀中用嵌入查詢、圖交給 Dataview，不寫連結", () => {
@@ -11,24 +11,17 @@ describe("renderStats", () => {
   });
 });
 
-describe("kindWall", () => {
-  it("卡片牆放層資料夾、叫卡片牆檢視，不寫連結", () => {
-    const { path, content } = kindWall("99 資料/02 片段/關鍵字");
-    expect(path).toBe("02 片段/關鍵字.md");
+describe("kindPage", () => {
+  it("一個類型一頁，交給類型檢視切換；作品用讀完日期、附地圖，不寫連結", () => {
+    const { path, content } = kindPage("99 資料/01 紀錄/書籍");
+    expect(path).toBe("01 紀錄/書籍.md");
     expect(content).toContain(
-      'dv.view("09 設定/views/卡片牆", {"folder":"99 資料/02 片段/關鍵字"})',
+      'dv.view("09 設定/views/類型", {"folder":"99 資料/01 紀錄/書籍","work":true,"map":"kind"})',
     );
     expect(content).not.toContain("[[");
-  });
-});
-
-describe("renderKindStats", () => {
-  it("統計頁跟 base 同一層，交給 Dataview 即時畫；作品用讀完日期", () => {
-    const { path, content } = renderKindStats("99 資料/01 紀錄/書籍");
-    expect(path).toBe("01 紀錄/書籍統計.md");
-    expect(content).toContain('"folder":"99 資料/01 紀錄/書籍","work":true');
-    expect(renderKindStats("99 資料/03 書寫/思緒").content).toContain('"work":false');
-    expect(content).toContain('dv.view("09 設定/views/地圖", {"kind":"書籍"})');
-    expect(renderKindStats("99 資料/03 書寫/思緒").content).not.toContain("views/地圖");
+    expect(kindPage("99 資料/02 片段/關鍵字").content).toContain('"map":"keyword"');
+    const thought = kindPage("99 資料/03 書寫/思緒").content;
+    expect(thought).toContain('"work":false');
+    expect(thought).not.toContain('"map"');
   });
 });

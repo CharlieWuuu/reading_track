@@ -10,7 +10,7 @@ import {
   mergeManaged,
   type ExportEntry,
 } from "../src/utils/obsidian-export";
-import { kindWall, renderKindStats, renderStats } from "../src/utils/obsidian-views";
+import { kindPage, renderStats } from "../src/utils/obsidian-views";
 
 /**
  * 把一個帳號的作品、片段、書寫匯出進 Obsidian vault。單向：archivum 是正本。
@@ -392,7 +392,7 @@ const bookMentions = entries
   .filter((e) => e.kind === "書籍")
   .map((e) => ({ surface: `《${e.title}》`, target: names.get(e.id)!.split("/").pop()! }));
 const files = buildFiles(entries, links, taken, [...mentions, ...companyMentions, ...bookMentions]);
-// 每個資料夾一頁統計：archivum 的類型加上使用者自己的（思緒、工作名詞、素材…）
+// 每個資料夾一頁（卡片、動態、統計切換）：archivum 的類型加上使用者自己的（思緒、工作名詞、素材…）
 const dataFolders = new Set([
   ...vaultFiles
     .map((f) => path.relative(root, f.path))
@@ -400,11 +400,7 @@ const dataFolders = new Set([
     .map((rel) => path.dirname(rel)),
   ...entries.map((e) => e.folder).filter((f) => f.startsWith(`${DATA_DIR}/`)),
 ]);
-const generated = [
-  renderStats(),
-  ...[...new Set(entries.map((e) => e.folder))].map((folder) => kindWall(folder)),
-  ...[...dataFolders].map((folder) => renderKindStats(folder)),
-];
+const generated = [renderStats(), ...[...dataFolders].map((folder) => kindPage(folder))];
 
 const textAt = new Map(vaultFiles.map((f) => [f.path, f.text]));
 const stats = { created: 0, updated: 0, moved: 0, merged: 0 };
