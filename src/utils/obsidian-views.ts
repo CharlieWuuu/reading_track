@@ -61,7 +61,7 @@ export function renderStats(): ExportFile {
     "```",
     "",
     // 每一次閱讀一段橫線，照 archivum 的 SpanTimeline
-    "## 閱讀進度",
+    "## 進度",
     "",
     "```dataviewjs",
     'await dv.view("09 設定/views/閱讀進度", {})',
