@@ -88,7 +88,14 @@ const CARD_ORDER: Record<string, string[]> = {
     "formula.留白3",
     "formula.類別",
   ],
+  // 佳句照 archivum 的 QuoteRow：一句一列，左邊出處的書封，右邊句子（標題，最多三行）與「—— 書名」
+  佳句: ["file.name", "formula.留白", "formula.留白2", "formula.出處", "formula.封面"],
 };
+
+// 佳句本身沒有封面，借它出處那本書的
+const QUOTE_FORMULAS = `  封面: 'if(note["書籍"], image(note["書籍"][0].asFile().properties.cover), "")'
+  出處: 'if(note["書籍"], "—— " + note["書籍"][0].asFile().basename, "")'
+`;
 
 /**
  * 每個類型一個 Base，放在層的資料夾（01 紀錄/書籍.base），頁面本身在下一層（01 紀錄/書籍/）。
@@ -100,6 +107,7 @@ export function kindBase(folder: string, { image: hasImage }: { image: boolean }
   const columns = ["file.name", "summary", ...(KIND_COLUMNS[kind] ?? GROUP_COLUMNS[group] ?? [])];
   const order = columns.map((c) => `      - ${c}`).join("\n");
   const isBook = kind === "書籍";
+  const isQuote = kind === "佳句";
   const cardOrder = (CARD_ORDER[kind] ?? CARD_ORDER.default).map((c) => `      - ${c}`).join("\n");
   // 書籍的封面不用 Bases 的 image（那只能放卡片上方），改成 formula.封面 欄位，CSS 把它移到左邊
   const image = !isBook && hasImage ? "    image: note.cover\n    imageFit: cover\n" : "";
@@ -113,14 +121,13 @@ formulas:
   留白2: '""'
   留白3: '""'
   留白4: '""'
-  封面: 'if(cover, image(cover), "")'
-  # 清單：卡片上每一項畫成一個 code 標籤（CSS）
+${isQuote ? QUOTE_FORMULAS : `  封面: 'if(cover, image(cover), "")'\n`}  # 清單：卡片上每一項畫成一個 code 標籤（CSS）
   類別: 'if(!domain, [], if(topic && topic != domain, [domain, topic], [domain]))'
 ${propertiesYaml()}
 views:
   - type: cards
     name: 卡片
-    cardSize: ${isBook ? 380 : 230}
+    cardSize: ${isBook ? 380 : isQuote ? 2000 : 230}
 ${image}    order:
 ${cardOrder}
     sort:
