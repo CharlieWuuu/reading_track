@@ -5,7 +5,10 @@ const DIR = "01 紀錄"; // 跟書籍同一層
 
 // 目錄一律用嵌入查詢（Dataview），不寫 [[連結]]——列出來不等於從屬，關聯圖會畫錯
 
-/** 閱讀統計：所有作品合起來看，加上閱讀中的書；圖由 09 設定/views/統計 即時畫 */
+// 閱讀紀錄（一次閱讀一筆）放在這裡；統計數的是紀錄，同一本讀兩次算兩次
+const RECORDS = `99 資料/${DIR}/閱讀紀錄`;
+
+/** 閱讀統計：所有作品的閱讀紀錄合起來看，加上閱讀中的（書、影集…都算）；圖由 09 設定/views/統計 即時畫 */
 export function renderStats(): ExportFile {
   const content = [
     "---",
@@ -16,11 +19,11 @@ export function renderStats(): ExportFile {
     "## 閱讀中",
     "",
     "```dataviewjs",
-    `await dv.view("09 設定/views/卡片牆", ${JSON.stringify({ folder: `99 資料/${DIR}/書籍`, status: "閱讀中", filters: false })})`,
+    `await dv.view("09 設定/views/卡片牆", ${JSON.stringify({ folder: RECORDS, status: "閱讀中", filters: false })})`,
     "```",
     "",
     "```dataviewjs",
-    `await dv.view("09 設定/views/統計", ${JSON.stringify({ folder: `99 資料/${DIR}`, work: true })})`,
+    `await dv.view("09 設定/views/統計", ${JSON.stringify({ folder: RECORDS, work: true })})`,
     "```",
   ].join("\n");
   return { path: `${DIR}/閱讀統計.md`, content };

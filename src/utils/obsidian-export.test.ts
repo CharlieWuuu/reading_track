@@ -7,6 +7,7 @@ import {
   linkMentions,
   MARK_END,
   mergeManaged,
+  RECORD_KIND,
   type ExportEntry,
 } from "@/utils/obsidian-export";
 
@@ -62,12 +63,26 @@ describe("buildFiles", () => {
     expect(b).not.toContain("作者：");
     expect(b).not.toContain("publisher");
     expect(b).toContain("private: true");
-    expect(b).toContain('閱讀紀錄: ["2026-10-04 → 閱讀中（讀墨）"]');
+    expect(b).not.toContain("閱讀紀錄"); // 閱讀紀錄是另一種筆記，連過來才會有
     expect(b).toContain('單字: ["[[doublethink]]"]');
     expect(w).toContain('書籍: ["[[一九八四]]"]');
     expect(b).not.toContain("## ");
     expect(b).not.toContain("archivum:start");
     expect(b.trimEnd().endsWith(MARK_END)).toBe(true);
+  });
+
+  it("閱讀紀錄是自己的筆記，跟作品互相連結；頁面用片段的資料欄", () => {
+    const read = entry({
+      id: "r1",
+      kind: RECORD_KIND,
+      folder: "01 紀錄/閱讀紀錄",
+      title: "一九八四 2026-10-16",
+    });
+    const [b, r] = buildFiles([book, read], [["r1", "book"]]).map((f) => f.content);
+    expect(b).toContain('閱讀紀錄: ["[[一九八四 2026-10-16]]"]');
+    expect(r).toContain('書籍: ["[[一九八四]]"]');
+    expect(r).toContain('dv.view("09 設定/views/片段")');
+    expect(r).not.toContain('dv.view("09 設定/views/作品")');
   });
 
   it("相關清單附上段落", () => {

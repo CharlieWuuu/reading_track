@@ -6,7 +6,7 @@ describe("renderStats", () => {
     const { path, content } = renderStats();
     expect(path).toBe("01 紀錄/閱讀統計.md");
     expect(content).toContain("## 閱讀中\n\n```dataviewjs");
-    expect(content).toContain('"folder":"99 資料/01 紀錄","work":true');
+    expect(content).toContain('"folder":"99 資料/01 紀錄/閱讀紀錄","work":true');
     expect(content).not.toContain("[[");
   });
 });

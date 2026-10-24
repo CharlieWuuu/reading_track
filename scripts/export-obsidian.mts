@@ -8,6 +8,7 @@ import {
   excerpt,
   hasOwnContent,
   mergeManaged,
+  RECORD_KIND,
   type ExportEntry,
 } from "../src/utils/obsidian-export";
 import { kindPage, renderStats } from "../src/utils/obsidian-views";
@@ -318,8 +319,50 @@ const withSummary = (e: ExportEntry): ExportEntry => ({
   ...e,
   meta: { ...e.meta, summary: excerpt(e.body) || null },
 });
+// 閱讀紀錄：一次閱讀一筆，跟作品分開（同一部作品可以讀、看很多次）。
+// 作品的分類、作者、封面抄一份過來，統計與卡片直接讀紀錄就好，不用再回頭查作品
+const workById = new Map(works.map((w) => [w.id, w]));
+const records: ExportEntry[] = data.records.flatMap((r) => {
+  const w = workById.get(r.work_id);
+  if (!w) return [];
+  const date = day(r.e) ?? day(r.s);
+  const { creator, publisher, language, attribute, topic, domain, cover } = w.meta;
+  return [
+    {
+      ...base,
+      id: r.id,
+      kind: RECORD_KIND,
+      folder: `${DATA_DIR}/${GROUP_DIR.records}/${RECORD_KIND}`,
+      title: `${w.title} ${date ?? "未記日期"}`,
+      body: "",
+      meta: {
+        ...vaultMeta(RECORD_KIND),
+        work_kind: w.kind,
+        creator,
+        publisher,
+        language,
+        attribute,
+        topic,
+        domain,
+        cover,
+        started: day(r.s),
+        finished: day(r.e),
+        created: day(r.s),
+        platform: r.platform,
+        status: r.s && !r.e ? "閱讀中" : "讀完",
+        private: r.is_private || null,
+      },
+      tags: [],
+      urls: [],
+      reads: [],
+    },
+  ];
+});
+const recordLinks = data.records
+  .filter((r) => workById.has(r.work_id))
+  .map((r) => [r.id, r.work_id] as [string, string]);
 const entries = (
-  LIMIT_BOOKS ? latestBooks(LIMIT_BOOKS) : [...works, ...fragments, ...writings]
+  LIMIT_BOOKS ? latestBooks(LIMIT_BOOKS) : [...works, ...records, ...fragments, ...writings]
 ).map(withSummary);
 const root = path.resolve(outDir);
 
@@ -391,7 +434,11 @@ const companyMentions = vaultFiles
 const bookMentions = entries
   .filter((e) => e.kind === "書籍")
   .map((e) => ({ surface: `《${e.title}》`, target: names.get(e.id)!.split("/").pop()! }));
-const files = buildFiles(entries, links, taken, [...mentions, ...companyMentions, ...bookMentions]);
+const files = buildFiles(entries, [...links, ...recordLinks], taken, [
+  ...mentions,
+  ...companyMentions,
+  ...bookMentions,
+]);
 // 每個資料夾一頁（卡片、動態、統計切換）：archivum 的類型加上使用者自己的（思緒、工作名詞、素材…）
 const dataFolders = new Set([
   ...vaultFiles
@@ -400,7 +447,11 @@ const dataFolders = new Set([
     .map((rel) => path.dirname(rel)),
   ...entries.map((e) => e.folder).filter((f) => f.startsWith(`${DATA_DIR}/`)),
 ]);
-const generated = [renderStats(), ...[...dataFolders].map((folder) => kindPage(folder))];
+// 閱讀紀錄是資料，不給瀏覽頁：從作品頁、閱讀統計看
+const generated = [
+  renderStats(),
+  ...[...dataFolders].filter((f) => !f.endsWith(`/${RECORD_KIND}`)).map((f) => kindPage(f)),
+];
 
 const textAt = new Map(vaultFiles.map((f) => [f.path, f.text]));
 const stats = { created: 0, updated: 0, moved: 0, merged: 0 };
