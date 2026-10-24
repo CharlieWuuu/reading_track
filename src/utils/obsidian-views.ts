@@ -155,7 +155,7 @@ export function kindBase(
   const kind = folder.split("/").pop()!;
   const columns = ["file.name", "summary", ...(KIND_COLUMNS[kind] ?? GROUP_COLUMNS[group] ?? [])];
   const order = columns.map((c) => `      - ${c}`).join("\n");
-  const cardOrder = ["file.name", "summary", "formula.類別"].map((c) => `      - ${c}`).join("\n");
+  const cardOrder = ["file.name", "summary", "formula.類別", "formula.留白"].map((c) => `      - ${c}`).join("\n");
   const isBook = kind === "書籍";
   const image = isBook ? BOOK_CARD : hasImage ? "    image: note.cover\n    imageFit: cover\n" : "";
   const content = `filters:
@@ -163,6 +163,8 @@ export function kindBase(
     - file.inFolder("${folder}")
     - file.ext == "md"
 formulas:
+  # 卡片高度是 Obsidian 依欄位數算的；多一個空欄位撐出一行，讓摘要可以兩行（CSS 把它藏起來）
+  留白: '""'
   類別: 'if(topic && topic != domain, domain + " · " + topic, domain)'
 ${propertiesYaml()}
 views:
