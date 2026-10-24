@@ -63,7 +63,7 @@ describe("renderKindStats", () => {
     expect(path).toBe("01 紀錄/書籍統計.md");
     expect(content).toContain('"folder":"99 資料/01 紀錄/書籍","work":true');
     expect(renderKindStats("99 資料/03 書寫/思緒").content).toContain('"work":false');
-    expect(content).toContain('note["書籍"] != null');
-    expect(renderKindStats("99 資料/03 書寫/思緒").content).not.toContain("type: map");
+    expect(content).toContain('dv.view("09 設定/views/地圖", {"kind":"書籍"})');
+    expect(renderKindStats("99 資料/03 書寫/思緒").content).not.toContain("views/地圖");
   });
 });
