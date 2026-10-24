@@ -47,10 +47,11 @@ describe("kindBase", () => {
     expect(withImage.content).toContain('file.inFolder("99 資料/02 片段/關鍵字")');
     expect(withImage.content).toContain("image: note.cover");
     expect(kindBase("99 資料/02 片段/單字", { image: false }).content).not.toContain("image:");
-    expect(withImage.content).not.toContain("pronunciation");
+    expect(withImage.content).not.toContain("      - pronunciation");
     expect(withImage.content).toContain("type: map");
+    expect(withImage.content).toContain("displayName: 摘要");
     expect(kindBase("99 資料/02 片段/單字", { image: false }).content).not.toContain("type: map");
-    expect(kindBase("99 資料/02 片段/單字", { image: false }).content).toContain("pronunciation");
+    expect(kindBase("99 資料/02 片段/單字", { image: false }).content).toContain("      - pronunciation");
   });
 });
 

@@ -158,6 +158,7 @@ export function kindBase(
   and:
     - file.inFolder("${folder}")
     - file.ext == "md"
+${propertiesYaml()}
 views:
   - type: cards
     name: 卡片
@@ -181,6 +182,41 @@ ${map ? MAP_VIEW : ""}`;
 }
 
 // Maps 外掛（Obsidian 官方）的地圖檢視；座標欄位格式是 "緯度, 經度"
+// 表格欄位的中文名稱；卡片上的欄位名稱由 CSS 藏起來
+export const PROPERTY_NAMES: Record<string, string> = {
+  "file.name": "名稱",
+  summary: "摘要",
+  creator: "作者",
+  topic: "主題",
+  domain: "領域",
+  last_read: "最近閱讀",
+  started: "開始",
+  finished: "完成",
+  status: "狀態",
+  created: "建立",
+  start_year: "起始年",
+  end_year: "結束年",
+  locator: "段落",
+  translation: "翻譯",
+  pronunciation: "發音",
+  platform: "平台",
+  reads: "次數",
+  series: "系列",
+  order: "順序",
+  type: "類型",
+  tags: "標籤",
+  分類: "分類",
+};
+
+export const propertiesYaml = (): string =>
+  [
+    "properties:",
+    ...Object.entries(PROPERTY_NAMES).flatMap(([k, v]) => [
+      `  ${k.includes(".") ? k : `note.${k}`}:`,
+      `    displayName: ${v}`,
+    ]),
+  ].join("\n");
+
 const MAP_VIEW = `  - type: map
     name: 地圖
     filters:
