@@ -22,6 +22,8 @@ export type ExportFile = { path: string; content: string };
 export const MARK_END = "%% archivum:end %%";
 // 作品頁把屬性排成資料欄；版面寫在 vault 的 09 設定/views/作品，這裡只放呼叫
 const WORK_VIEW = ["```dataviewjs", 'await dv.view("09 設定/views/作品")', "```"];
+// 片段與書寫頁的資料欄（分類、出處、讀音、段落…），版面在 09 設定/views/片段
+const FRAGMENT_VIEW = ["```dataviewjs", 'await dv.view("09 設定/views/片段")', "```"];
 /** 舊版有開始標記、也用過 HTML 註解，讀到就換成現在的寫法 */
 const normalizeMarks = (text: string) =>
   text
@@ -162,7 +164,11 @@ export function renderEntry(
     frontmatter(e, extra), // 屬性後面不留空行：編輯模式會變成標題上方一格空白
     `# ${e.title || "未命名"}`,
     "",
-    ...(e.folder.includes("01 紀錄/") ? [...WORK_VIEW, ""] : []),
+    ...(e.folder.includes("01 紀錄/")
+      ? [...WORK_VIEW, ""]
+      : e.folder.includes("02 片段/") || e.folder.includes("03 書寫/")
+        ? [...FRAGMENT_VIEW, ""]
+        : []),
     ...(e.body.trim()
       ? [
           linkMentions(

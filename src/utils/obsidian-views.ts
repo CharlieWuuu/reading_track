@@ -1,5 +1,5 @@
-// Obsidian 端的書牆與統計頁：書牆是 Bases 設定，統計是 Mermaid 圖，都不用外掛
-import type { ExportEntry, ExportFile } from "@/utils/obsidian-export";
+// Obsidian 端的 base 與統計頁：base 是 Bases 設定，統計圖由 vault 裡的 Dataview 檢視即時畫
+import type { ExportFile } from "@/utils/obsidian-export";
 
 const DIR = "01 紀錄"; // 跟書籍同一層
 
@@ -21,130 +21,21 @@ views:
       - file.name
 `;
 
-const countBy = <T>(items: T[], key: (t: T) => string | null) =>
-  items.reduce((m, t) => {
-    const k = key(t);
-    return k ? m.set(k, (m.get(k) ?? 0) + 1) : m;
-  }, new Map<string, number>());
-
-const quote = (s: string) => `"${s.replace(/"/g, "'")}"`;
-
-// 圖表配色照 archivum 的 tokens：白底、墨色字、細格線；長條用主色仙人掌綠，圓餅用靜野色系
-const FONT = "'Noto Serif TC', 'Songti TC', serif";
-const PIE_COLORS = [
-  "#4f6b4a",
-  "#c08a4e",
-  "#5f7787",
-  "#764f61",
-  "#c7a94a",
-  "#3f7a67",
-  "#a13023",
-  "#6b6a64",
-];
-const initLine = (vars: Record<string, unknown>) =>
-  `%%{init: ${JSON.stringify({ theme: "base", themeVariables: { fontFamily: FONT, ...vars } })}}%%`;
-const BAR_INIT = initLine({
-  background: "#ffffff",
-  xyChart: {
-    backgroundColor: "#ffffff",
-    plotColorPalette: "#4f6b4a",
-    xAxisLabelColor: "#2e3033",
-    yAxisLabelColor: "#6a6c70",
-    xAxisLineColor: "#d4d5d8",
-    yAxisLineColor: "#d4d5d8",
-    xAxisTickColor: "#d4d5d8",
-    yAxisTickColor: "#d4d5d8",
-    yAxisTitleColor: "#6a6c70",
-  },
-});
-const PIE_INIT = initLine({
-  ...Object.fromEntries(PIE_COLORS.map((c, i) => [`pie${i + 1}`, c])),
-  pie9: "#d4d5d8", // 「其他」那塊用淡灰
-  pieStrokeColor: "#ffffff",
-  pieStrokeWidth: "2px",
-  pieOuterStrokeWidth: "0px",
-  pieSectionTextColor: "#ffffff",
-  pieLegendTextColor: "#2e3033",
-  pieSectionTextSize: "13px",
-  pieLegendTextSize: "13px",
-});
-
-function barChart(_title: string, counts: Map<string, number>, unit = "本"): string[] {
-  if (!counts.size) return [];
-  const keys = [...counts.keys()];
-  return [
-    "```mermaid",
-    BAR_INIT,
-    "xychart-beta", // 圖名不畫，上面的小標題已經寫了
-    `  x-axis [${keys.map(quote).join(", ")}]`,
-    `  y-axis "${unit}"`,
-    `  bar [${keys.map((k) => counts.get(k)).join(", ")}]`,
-    "```",
-    "",
-  ];
-}
-
-function pieChart(_title: string, counts: Map<string, number>, top = 8): string[] {
-  const sorted = [...counts].sort((a, b) => b[1] - a[1]);
-  const rest = sorted.slice(top).reduce((n, [, c]) => n + c, 0);
-  const slices = [...sorted.slice(0, top), ...(rest ? [["其他", rest] as [string, number]] : [])];
-  if (!slices.length) return [];
-  return [
-    "```mermaid",
-    PIE_INIT,
-    "pie",
-    ...slices.map(([k, c]) => `  ${quote(k)} : ${c}`),
-    "```",
-    "",
-  ];
-}
-
-/** 統計頁；today 從外面給，函式保持純 */
-export function renderStats(entries: ExportEntry[], today: string): ExportFile {
-  const books = entries.filter((e) => e.kind === "書籍");
-  const reads = books.flatMap((b) => b.reads.map((r) => ({ ...r, book: b })));
-  const finished = reads.filter((r) => r.end);
-  const reading = books.filter((b) => b.reads.some((r) => r.start && !r.end));
-  const year = today.slice(0, 4);
-  const byYear = new Map([...countBy(finished, (r) => r.end!.slice(0, 4))].sort());
-  const months = Array.from({ length: 12 }, (_, i) => `${i + 1}月`);
-  const thisYear = countBy(
-    finished.filter((r) => r.end!.startsWith(year)),
-    (r) => `${Number(r.end!.slice(5, 7))}月`,
-  );
-  const byMonth = new Map(months.map((m) => [m, thisYear.get(m) ?? 0]));
-
+/** 閱讀統計：所有作品合起來看，加上閱讀中的書；圖由 09 設定/views/統計 即時畫 */
+export function renderStats(): ExportFile {
   const content = [
     "---",
     "type: 統計",
-    "source: archivum",
     "---",
-    "",
     "# 閱讀統計",
     "",
-    `- 書籍 **${books.length}** 本，讀完 **${finished.length}** 次`,
-    `- ${year} 年讀完 **${thisYear.size ? [...thisYear.values()].reduce((a, b) => a + b, 0) : 0}** 本`,
-    `- 閱讀中 **${reading.length}** 本`,
+    "## 閱讀中",
     "",
-    ...(reading.length ? ["## 閱讀中", "", ...baseBlock(READING_VIEW), ""] : []),
-    "## 每年讀完",
+    ...baseBlock(READING_VIEW),
     "",
-    ...barChart("每年讀完", byYear),
-    `## ${year} 每月讀完`,
-    "",
-    ...barChart(`${year} 每月`, byMonth),
-    "## 平台",
-    "",
-    ...pieChart(
-      "平台",
-      countBy(reads, (r) => r.platform || null),
-    ),
-    "## 領域",
-    "",
-    ...pieChart(
-      "領域",
-      countBy(books, (b) => (b.meta.topic as string) || null),
-    ),
+    "```dataviewjs",
+    `await dv.view("09 設定/views/統計", ${JSON.stringify({ folder: `99 資料/${DIR}`, work: true })})`,
+    "```",
   ].join("\n");
   return { path: `${DIR}/閱讀統計.md`, content };
 }

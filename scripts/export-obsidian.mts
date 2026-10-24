@@ -392,7 +392,6 @@ const bookMentions = entries
   .filter((e) => e.kind === "書籍")
   .map((e) => ({ surface: `《${e.title}》`, target: names.get(e.id)!.split("/").pop()! }));
 const files = buildFiles(entries, links, taken, [...mentions, ...companyMentions, ...bookMentions]);
-const today = new Date().toISOString().slice(0, 10);
 // 每個資料夾一頁統計：archivum 的類型加上使用者自己的（思緒、工作名詞、素材…）
 const dataFolders = new Set([
   ...vaultFiles
@@ -402,7 +401,7 @@ const dataFolders = new Set([
   ...entries.map((e) => e.folder).filter((f) => f.startsWith(`${DATA_DIR}/`)),
 ]);
 const generated = [
-  renderStats(entries, today),
+  renderStats(),
   ...[...new Set(entries.map((e) => e.folder))].map((folder) =>
     kindBase(folder, {
       image: entries.some((e) => e.folder === folder && e.meta.cover),
