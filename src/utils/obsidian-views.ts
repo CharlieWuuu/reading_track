@@ -170,7 +170,7 @@ ${propertiesYaml()}
 views:
   - type: cards
     name: 卡片
-    cardSize: 150
+    cardSize: 170
 ${image}    order:
 ${cardOrder}
 ${isBook ? readingView : ""}  - type: table
