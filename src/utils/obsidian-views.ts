@@ -299,6 +299,27 @@ export function renderKindStats(folder: string): ExportFile {
     "```dataviewjs",
     `await dv.view("09 設定/views/統計", ${JSON.stringify({ folder, work })})`,
     "```",
+    // 作品統計加一張地圖：這類作品連到的、有座標的關鍵字（Maps 外掛的 base 地圖檢視）
+    ...(work
+      ? [
+          "",
+          `## ${kind}裡的地方`,
+          "",
+          ...baseBlock(`filters:
+  and:
+    - file.inFolder("99 資料/02 片段/關鍵字")
+    - coordinates != null
+    - note["${kind}"] != null
+views:
+  - type: map
+    name: ${kind}裡的地方
+    coordinates: note.coordinates
+    order:
+      - file.name
+      - note["${kind}"]
+`),
+        ]
+      : []),
   ].join("\n");
   return { path: `${group}/${kind}統計.md`, content };
 }
