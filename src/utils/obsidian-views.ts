@@ -37,6 +37,7 @@ export function kindWall(folder: string): ExportFile {
   const content = [
     "---",
     "type: 卡片牆",
+    "cssclasses: np-wide", // 不受內文欄寬限制，卡片牆左右撐滿
     "---",
     "```dataviewjs",
     `await dv.view("09 設定/views/卡片牆", ${JSON.stringify({ folder })})`,
